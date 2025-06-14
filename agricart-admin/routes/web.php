@@ -11,6 +11,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {return Inertia::render('dashboard');})->name('dashboard');
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
+    
 });
 
 require __DIR__.'/settings.php';
