@@ -30,6 +30,6 @@ class InventoryController extends Controller
         Product::create($request->all());
         // Store the inventory item (logic to save to database would go here)
         // Redirect back to the inventory index with a success message
-        return redirect()->route('inventory.index')->with('success', 'Inventory item created successfully.');
+        return redirect()->route('inventory.index')->with('message', 'Inventory item created successfully');
     }
 }
