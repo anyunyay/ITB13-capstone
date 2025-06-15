@@ -22,6 +22,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
+    Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store');
+    Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add');
+    Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit');
+    Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update');
+    Route::delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy');
 });
 
 require __DIR__.'/settings.php';
