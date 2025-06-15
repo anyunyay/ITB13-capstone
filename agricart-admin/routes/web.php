@@ -10,12 +10,17 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {return Inertia::render('dashboard');})->name('dashboard');
+
+    // Inventory Routes
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+
+    // Membeship Routes
+    Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
 });
 
 require __DIR__.'/settings.php';
