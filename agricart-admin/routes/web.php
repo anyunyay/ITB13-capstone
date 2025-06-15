@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
