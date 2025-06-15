@@ -60,7 +60,7 @@ export default function Edit({product}: Props) {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product price">Price</Label>
-                        <Input placeholder="Product Price" value={data.price} onChange={(e) => setData('price', e.target.value)}/>
+                        <Input placeholder="Product Price" value={data.price} onChange={(e) => setData('price', Number(e.target.value))}/>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>

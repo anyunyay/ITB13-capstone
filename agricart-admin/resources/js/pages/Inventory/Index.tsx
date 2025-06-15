@@ -33,11 +33,12 @@ interface PageProps {
         message?: string
     }
     products: Product[];
+    [key: string]: unknown;
 }
 
 export default function Index() {
 
-    const { products, flash } = usePage().props as PageProps;
+    const { products, flash } = usePage<PageProps>().props;
 
     const { processing, delete: destroy } = useForm();
 
