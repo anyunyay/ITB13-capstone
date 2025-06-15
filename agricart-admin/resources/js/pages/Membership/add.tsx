@@ -29,6 +29,7 @@ function formatDate(date: Date | undefined) {
     year: "numeric",
   })
 }
+
 function isValidDate(date: Date | undefined) {
   if (!date) {
     return false
@@ -37,22 +38,22 @@ function isValidDate(date: Date | undefined) {
 }
 
 export default function Index() {
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
         phone: '',
         address: '',
-        registration_date: '',
+        registration_date: formattedToday,
         document: null as File | null,
     });
 
     const [open, setOpen] = React.useState(false)
-    const [date, setDate] = React.useState<Date | undefined>(
-        new Date("2025-06-01")
-    )
-    const [month, setMonth] = React.useState<Date | undefined>(date)
-    const [value, setValue] = React.useState(formatDate(date))
+    const [date, setDate] = React.useState<Date>(today)
+    const [month, setMonth] = React.useState<Date>(today)
+    const [value, setValue] = React.useState(formatDate(today))
 
     const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -62,6 +63,10 @@ export default function Index() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Ensure registration_date is set before submitting
+        if (!data.registration_date) {
+            setData('registration_date', formattedToday);
+        }
         post(route('membership.store'));
     }
 
@@ -100,13 +105,17 @@ export default function Index() {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member address">Address</Label>
-                        <Textarea placeholder="Member Address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
+                        <Textarea placeholder="Location Address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="registratipn date">Registration Date</Label>
+                        <Label htmlFor="registration date">Registration Date</Label>
                         <div className="flex flex-col gap-3">
                             <div className="relative flex gap-2">
-                                <Input id="date" value={value} placeholder="June 01, 2025" className="bg-background pr-10"
+                                <Input
+                                    id="date"
+                                    value={value}
+                                    placeholder="June 01, 2025"
+                                    className="bg-background pr-10"
                                     onChange={(e) => {
                                         setValue(e.target.value);
                                         const date = new Date(e.target.value);
@@ -133,18 +142,22 @@ export default function Index() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
-                                        <Calendar mode="single" selected={date} captionLayout="dropdown" month={month} onMonthChange={setMonth}
-                                            onSelect={(date) => {
-                                                setDate(date);
-                                                const formatted = formatDate(date);
-                                                setValue(formatted);
-                                                setOpen(false);
-                                                if (date && isValidDate(date)) {
-                                                    setData('registration_date', date.toISOString().split('T')[0]); // set as YYYY-MM-DD
-                                                } else {
-                                                    setData('registration_date', '');
+                                        <Calendar
+                                            mode="single"
+                                            selected={date}
+                                            captionLayout="dropdown"
+                                            month={month}
+                                            onMonthChange={setMonth}
+                                            onSelect={(newDate) => {
+                                                if (newDate) {
+                                                    setDate(newDate);
+                                                    const formatted = formatDate(newDate);
+                                                    setValue(formatted);
+                                                    setOpen(false);
+                                                    setData('registration_date', newDate.toISOString().split('T')[0]);
                                                 }
                                             }}
+                                            defaultMonth={new Date()}
                                         />
                                     </PopoverContent>
                                 </Popover>
