@@ -13,11 +13,17 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutDashboard,
     },
-        {
+    {
         title: 'Inventory',
         href: '/inventory',
         icon: Package,
     },
+    {
+        title: 'Membership',
+        href: '/membership',
+        icon: Package,
+    },
+    
 ];
 
 const footerNavItems: NavItem[] = [
