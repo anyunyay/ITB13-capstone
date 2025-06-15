@@ -62,7 +62,7 @@ export default function Index() {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product price">Price</Label>
-                        <Input placeholder="Product Price" value={data.price} onChange={(e) => setData('price', e.target.value)}/>
+                        <Input type="number" min="0" placeholder="Product Price" value={data.price} onChange={(e) => setData('price', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>
