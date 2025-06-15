@@ -13,15 +13,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,17 +21,36 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface Member {
+    id: number;
+    name: string;
+    email: string;
+    phone: number;
+    address: string;
+    registration_date: string;
+    document: string;
+}
 
 interface PageProps {
     flash: {
         message?: string
     }
+    members: Member[];
     [key: string]: unknown;
 }
 
 export default function Index() {
 
-    const { flash } = usePage<PageProps>().props;
+    const { members, flash } = usePage<PageProps>().props;
+
+    const { processing, delete: destroy } = useForm();
+
+    const handleDelete = (id: number, name: string) => {
+        if (confirm(`Are you sure you want to delete - ${name}?`)) {
+            // Call the delete route
+            destroy(route('membership.destroy', id));
+        }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -60,6 +70,45 @@ export default function Index() {
                     </div>
                 </div>
             </div>
+
+            {members.length > 0 && (
+                <div className='w-full pt-8'>
+                    <Table>
+                        <TableCaption>Total list of members</TableCaption>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-center">ID</TableHead>
+                                <TableHead className="text-center">Name</TableHead>
+                                <TableHead className="text-center">Email</TableHead>
+                                <TableHead className="text-center">Phone Number</TableHead>
+                                <TableHead className="text-center">Address</TableHead>
+                                <TableHead className="text-center">Registration Date</TableHead>
+                                <TableHead className="text-center">Document</TableHead>
+                                <TableHead className="text-center">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {members.map((member) => (
+                                <TableRow className="text-center">
+                                    <TableCell>{member.id}</TableCell>
+                                    <TableCell>{member.name}</TableCell>
+                                    <TableCell>{member.email}</TableCell>
+                                    <TableCell>{member.phone}</TableCell>
+                                    <TableCell>{member.address}</TableCell>
+                                    <TableCell>{member.registration_date}</TableCell>
+                                    <TableCell className="flex justify-center">
+                                        <img className="max-w-24" src={member.document} alt={member.name} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link href={route('membership.edit', member.id)}><Button disabled={processing} className=''>Edit</Button></Link>
+                                        <Button disabled={processing} onClick={() => handleDelete(member.id, member.name)} className=''>Remove</Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
         </AppLayout>
     );
 }
