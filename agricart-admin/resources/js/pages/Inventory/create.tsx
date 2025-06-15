@@ -21,7 +21,14 @@ export default function Index() {
         name: '',
         price: '',
         description: '',
+        image: null as File | null,
     });
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setData('image', e.target.files[0]);
+        }
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -60,6 +67,10 @@ export default function Index() {
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>
                         <Textarea placeholder="Product Description" value={data.description} onChange={(e) => setData('description', e.target.value)}/>
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product image">Image Upload</Label>
+                        <Input onChange={handleFileUpload} id='image' name='image' type='file' autoFocus tabIndex={4}/>
                     </div>
                     <Button disabled={processing} type="submit">Create Product</Button>
                 </form>

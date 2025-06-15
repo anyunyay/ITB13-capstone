@@ -26,11 +26,22 @@ class InventoryController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'description' => 'nullable|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        Product::create($request->all());
-        // Store the inventory item (logic to save to database would go here)
-        // Redirect back to the inventory index with a success message
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            
+            Product::create([
+                'name' => $request->input('name'),
+                'price' => $request->input('price'),
+                'description' => $request->input('description'),
+                'image' => 'images/' . $imageName,
+            ]);
+        }
+
         return redirect()->route('inventory.index')->with('message', 'Inventory item created successfully');
     }
 
@@ -46,18 +57,36 @@ class InventoryController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $product->update([
-            'name' => $request->input('name'),
-            'price' => $request->input('price'),
-            'description' => $request->input('description'),
-        ]);
+        if ($product) {
+            $product->update([
+                'name' => $request->input('name'),
+                'price' => $request->input('price'),
+                'description' => $request->input('description'),
+            ]);
+        }
+        
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $imageName);
+            
+            $product->image = 'images/' . $imageName;
+        }
+
+        $product->save();
         return redirect()->route('inventory.index')->with('message', 'Product updated successfully');
     }
 
     public function destroy(Product $product)
     {
+        // Delete the image file if it exists
+        if ($product->image && file_exists(public_path($product->image))) {
+            unlink(public_path($product->image));
+        }
+        
         $product->delete();
         return redirect()->route('inventory.index')->with('message', 'Inventory item deleted successfully');
     }

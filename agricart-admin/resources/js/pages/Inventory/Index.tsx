@@ -35,6 +35,7 @@ interface Product {
     name: string;
     price: number;
     description: string;
+    image: string;
 }
 
 interface PageProps {
@@ -83,9 +84,9 @@ export default function Index() {
 
             <div className='grid grid-cols-5 gap-2 m-4'>
                 {products.map((product) => (
-                    <Card className='w-70'>
+                    <Card key={product.id} className='w-70'>
                         <div>
-                            <img src="images/grain.jpg" alt="grain" />
+                            <img src={product.image} alt={product.name}/>
                         </div>
                         <CardHeader>
                             <CardTitle>{product.name}</CardTitle>
@@ -98,7 +99,9 @@ export default function Index() {
                         <CardFooter className="flex-col gap-2">
                             <Button className="w-full">Add Stock</Button>
                             <div className="flex justify-betweeen w-full gap-2">
-                                <Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'><Link href={route('inventory.edit', product.id)}>Edit</Link></Button>
+                                <Button asChild disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'> 
+                                    <Link href={route('inventory.edit', product.id)}>Edit</Link>
+                                </Button>
                                 <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
                             </div>
                         </CardFooter>
