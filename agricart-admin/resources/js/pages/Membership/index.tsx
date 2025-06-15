@@ -69,7 +69,6 @@ export default function Index() {
                         )}
                     </div>
                 </div>
-            </div>
 
             {members.length > 0 && (
                 <div className='w-full pt-8'>
@@ -109,6 +108,7 @@ export default function Index() {
                     </Table>
                 </div>
             )}
+            </div>
         </AppLayout>
     );
 }
