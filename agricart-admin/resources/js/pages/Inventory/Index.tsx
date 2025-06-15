@@ -41,6 +41,11 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
+    const handleEdit = (id: number, name: string) => {
+        // Implement edit logic here if needed
+    };
+
+
     const handleDelete = (id: number, name: string) => {
         if (confirm(`Are you sure you want to delete - ${name}?`)) {
             // Call the delete route
@@ -86,6 +91,7 @@ export default function Index() {
                                     <TableCell>{product.price}</TableCell>
                                     <TableCell>{product.description}</TableCell>
                                     <TableCell className="text-center">
+                                        <Link href={route('inventory.edit', product.id)}><Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className=''>Edit</Button></Link>
                                         <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Delete</Button>
                                     </TableCell>
                                 </TableRow>
@@ -95,5 +101,5 @@ export default function Index() {
                 </div>
             )}
         </AppLayout>
-    );
+    )
 }

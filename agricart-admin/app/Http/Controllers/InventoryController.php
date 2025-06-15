@@ -34,6 +34,28 @@ class InventoryController extends Controller
         return redirect()->route('inventory.index')->with('message', 'Inventory item created successfully');
     }
 
+    public function edit(Product $product)
+    {
+        return Inertia::render('Inventory/edit', compact('product'));
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        // Validate the request data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'description' => 'nullable|string',
+        ]);
+
+        $product->update([
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'description' => $request->input('description'),
+        ]);
+        return redirect()->route('inventory.index')->with('message', 'Product updated successfully');
+    }
+
     public function destroy(Product $product)
     {
         $product->delete();
