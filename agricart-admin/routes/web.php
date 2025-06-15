@@ -13,7 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
-    
+    Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
 });
 
 require __DIR__.'/settings.php';

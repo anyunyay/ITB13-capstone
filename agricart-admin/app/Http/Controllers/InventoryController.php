@@ -10,7 +10,8 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Inventory/index', []);
+        $products = Product::all();
+        return Inertia::render('Inventory/index', compact('products'));
     }
 
     public function create()
@@ -31,5 +32,11 @@ class InventoryController extends Controller
         // Store the inventory item (logic to save to database would go here)
         // Redirect back to the inventory index with a success message
         return redirect()->route('inventory.index')->with('message', 'Inventory item created successfully');
+    }
+
+    public function destroy(Product $product)
+    {
+        $product->delete();
+        return redirect()->route('inventory.index')->with('message', 'Inventory item deleted successfully');
     }
 }
