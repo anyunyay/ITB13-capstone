@@ -52,11 +52,6 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
-    const handleEdit = (id: number, name: string) => {
-        // Implement edit logic here if needed
-    };
-
-
     const handleDelete = (id: number, name: string) => {
         if (confirm(`Are you sure you want to delete - ${name}?`)) {
             // Call the delete route
@@ -99,7 +94,7 @@ export default function Index() {
                             <CardFooter className="flex-col gap-2">
                                 <Button className="w-full">Add Stock</Button>
                                 <div className="flex justify-betweeen w-full gap-2">
-                                    <Button asChild disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'>
+                                    <Button asChild disabled={processing} className='w-1/2'>
                                         <Link href={route('inventory.edit', product.id)}>Edit</Link>
                                     </Button>
                                     <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
@@ -129,7 +124,7 @@ export default function Index() {
                                         <TableCell>{product.price}</TableCell>
                                         {/* <TableCell>{product.stocks}</TableCell> */}
                                         <TableCell>
-                                            <Link href={route('inventory.edit', product.id)}><Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className=''>Edit</Button></Link>
+                                            <Link href={route('inventory.edit', product.id)}><Button disabled={processing} className=''>Edit</Button></Link>
                                             <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Remove</Button>
                                         </TableCell>
                                     </TableRow>
