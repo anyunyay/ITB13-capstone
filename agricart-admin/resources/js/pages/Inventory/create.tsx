@@ -15,7 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Index() {
+export default function Create() {
 
     const {data, setData, post, processing, errors} = useForm({
         name: '',
