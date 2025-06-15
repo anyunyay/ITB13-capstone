@@ -13,6 +13,15 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,6 +80,32 @@ export default function Index() {
                     )}
                 </div>
             </div>
+
+            <div className='grid grid-cols-5 gap-2 m-4'>
+                {products.map((product) => (
+                    <Card className='w-70'>
+                        <div>
+                            <img src="images/grain.jpg" alt="grain" />
+                        </div>
+                        <CardHeader>
+                            <CardTitle>{product.name}</CardTitle>
+                            <CardDescription>P{product.price}</CardDescription>
+                            <CardAction><Button>Archive</Button></CardAction>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-md break-words">{product.description}</p>
+                        </CardContent>
+                        <CardFooter className="flex-col gap-2">
+                            <Button className="w-full">Add Stock</Button>
+                            <div className="flex justify-betweeen w-full gap-2">
+                                <Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'><Link href={route('inventory.edit', product.id)}>Edit</Link></Button>
+                                <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
+                            </div>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
+
             {products.length > 0 && (
                 <div>
                     <Table>
