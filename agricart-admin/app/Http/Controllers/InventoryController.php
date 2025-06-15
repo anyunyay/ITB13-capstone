@@ -32,13 +32,13 @@ class InventoryController extends Controller
         if ($request->file('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images'), $imageName);
+            $image->move(public_path('images/products/'), $imageName);
             
             Product::create([
                 'name' => $request->input('name'),
                 'price' => $request->input('price'),
                 'description' => $request->input('description'),
-                'image' => 'images/' . $imageName,
+                'image' => 'images/products/' . $imageName,
             ]);
         }
 
