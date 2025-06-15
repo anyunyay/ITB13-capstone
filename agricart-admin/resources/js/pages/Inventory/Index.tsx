@@ -69,76 +69,76 @@ export default function Index() {
             <Head title="Dashboard" />
             <div className="m-4">
                 <Link href={route('inventory.create')}><Button>Create Product</Button></Link>
-            </div>
-            <div className='m-4'>
-                <div>
-                    {flash.message && (
-                        <Alert>
-                            <BellDot className='h-4 w-4 text-blue-500' />
-                            <AlertTitle>Notification!</AlertTitle>
-                            <AlertDescription>{flash.message}</AlertDescription>
-                        </Alert>
-                    )}
-                </div>
-            </div>
 
-            <div className='grid grid-cols-5 gap-2 m-4'>
-                {products.map((product) => (
-                    <Card key={product.id} className='w-70'>
-                        <div>
-                            <img src={product.image} alt={product.name}/>
-                        </div>
-                        <CardHeader>
-                            <CardTitle>{product.name}</CardTitle>
-                            <CardDescription>P{product.price}</CardDescription>
-                            <CardAction><Button>Archive</Button></CardAction>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-md break-words">{product.description}</p>
-                        </CardContent>
-                        <CardFooter className="flex-col gap-2">
-                            <Button className="w-full">Add Stock</Button>
-                            <div className="flex justify-betweeen w-full gap-2">
-                                <Button asChild disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'> 
-                                    <Link href={route('inventory.edit', product.id)}>Edit</Link>
-                                </Button>
-                                <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
+                <div className='m-4'>
+                    <div>
+                        {flash.message && (
+                            <Alert>
+                                <BellDot className='h-4 w-4 text-blue-500' />
+                                <AlertTitle>Notification!</AlertTitle>
+                                <AlertDescription>{flash.message}</AlertDescription>
+                            </Alert>
+                        )}
+                    </div>
+                </div>
+
+                <div className='grid grid-cols-5 gap-2'>
+                    {products.map((product) => (
+                        <Card key={product.id} className='w-70'>
+                            <div>
+                                <img src={product.image} alt={product.name} />
                             </div>
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
-
-            {products.length > 0 && (
-                <div>
-                    <Table>
-                        <TableCaption>A list of your recent invoices.</TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Price</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="text-center">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {products.map((product) => (
-                                <TableRow>
-                                    <TableCell className="font-medium">{product.id}</TableCell>
-                                    <TableCell>{product.name}</TableCell>
-                                    <TableCell>{product.price}</TableCell>
-                                    <TableCell>{product.description}</TableCell>
-                                    <TableCell className="text-center">
-                                        <Link href={route('inventory.edit', product.id)}><Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className=''>Edit</Button></Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Delete</Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            <CardHeader>
+                                <CardTitle>{product.name}</CardTitle>
+                                <CardDescription>P{product.price}</CardDescription>
+                                <CardAction><Button>Archive</Button></CardAction>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-md break-words">{product.description}</p>
+                            </CardContent>
+                            <CardFooter className="flex-col gap-2">
+                                <Button className="w-full">Add Stock</Button>
+                                <div className="flex justify-betweeen w-full gap-2">
+                                    <Button asChild disabled={processing} onClick={() => handleEdit(product.id, product.name)} className='w-1/2'>
+                                        <Link href={route('inventory.edit', product.id)}>Edit</Link>
+                                    </Button>
+                                    <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                    ))}
                 </div>
-            )}
+
+                {products.length > 0 && (
+                    <div className='w-full pt-8'>
+                        <Table>
+                            <TableCaption>List of product stocks</TableCaption>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="text-center">Name</TableHead>
+                                    <TableHead className="text-center">Price</TableHead>
+                                    <TableHead className="text-center">Stocks Available</TableHead>
+                                    <TableHead className="text-center">Stock Action</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {products.map((product) => (
+                                    <TableRow className="text-center">
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.price}</TableCell>
+                                        <TableCell>{product.price}</TableCell>
+                                        {/* <TableCell>{product.stocks}</TableCell> */}
+                                        <TableCell>
+                                            <Link href={route('inventory.edit', product.id)}><Button disabled={processing} onClick={() => handleEdit(product.id, product.name)} className=''>Edit</Button></Link>
+                                            <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Remove</Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+            </div>
         </AppLayout>
     )
 }
