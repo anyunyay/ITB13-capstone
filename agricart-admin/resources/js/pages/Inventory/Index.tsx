@@ -70,6 +70,7 @@ export default function Index() {
             <Head title="Inventory" />
             <div className="m-4">
                 <Link href={route('inventory.create')}><Button>Create Product</Button></Link>
+                <Link href={route('inventory.archived.index')}><Button>Archived Products</Button></Link>
 
                 <div className='m-4'>
                     <div>

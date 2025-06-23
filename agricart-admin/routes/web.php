@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\InventoryArchiveController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 

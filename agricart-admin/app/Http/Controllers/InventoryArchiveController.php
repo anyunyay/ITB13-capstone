@@ -11,7 +11,7 @@ class InventoryArchiveController extends Controller
     public function index()
     {
         $archivedProducts = Product::archived()->get();
-        return inertia('Inventory/Archived/index', compact('archivedProducts'));
+        return inertia('Inventory/archive', compact('archivedProducts'));
     }
 
     public function restore($productId)
