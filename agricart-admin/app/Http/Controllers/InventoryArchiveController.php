@@ -17,7 +17,8 @@ class InventoryArchiveController extends Controller
     public function restore($productId)
     {
         $product = Product::archived()->findOrFail($productId);
-        $product->update(['archived_at' => null]);
+        $product->archived_at = null;
+        $product->save();
 
         return redirect()->route('inventory.archived.index')->with('message', 'Product restored successfully');
     }

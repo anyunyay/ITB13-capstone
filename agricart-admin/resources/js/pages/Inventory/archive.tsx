@@ -94,7 +94,7 @@ export default function Archive() {
                                         Restore
                                     </Button>
                                     <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>
-                                        Delete Permanently
+                                        Delete
                                     </Button>
                                 </CardAction>
                             </CardHeader>
@@ -123,7 +123,7 @@ export default function Archive() {
                                         <TableCell>{product.price}</TableCell>
                                         <TableCell>
                                             <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)} className='mr-2'>Restore</Button>
-                                            <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>Delete Permanently</Button>
+                                            <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>Delete</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
