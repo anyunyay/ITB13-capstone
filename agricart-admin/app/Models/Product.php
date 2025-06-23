@@ -12,4 +12,14 @@ class Product extends Model
         'description',
         'image',
     ];
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
 }

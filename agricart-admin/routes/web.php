@@ -19,6 +19,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    
+    Route::get('/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index');
+    Route::post('/archive/{product}/restore', [InventoryArchiveController::class, 'restore'])->name('inventory.archived.restore');
+    Route::delete('/archive/{product}', [InventoryArchiveController::class, 'forceDelete'])->name('inventory.archived.forceDelete');
+    Route::post('/inventory/{product}/archive', [InventoryController::class, 'archive'])->name('inventory.archive');
+
 
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');

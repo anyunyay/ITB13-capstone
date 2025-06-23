@@ -9,8 +9,8 @@ use Inertia\Inertia;
 class InventoryController extends Controller
 {
     public function index()
-    {
-        $products = Product::all();
+    { 
+        $products = Product::active()->get();
         return Inertia::render('Inventory/index', compact('products'));
     }
 
@@ -89,5 +89,13 @@ class InventoryController extends Controller
         
         $product->delete();
         return redirect()->route('inventory.index')->with('message', 'Inventory item deleted successfully');
+    }
+
+    public function archive(Product $product)
+    {
+        $product->archived_at = now();
+        $product->save();
+
+        return redirect()->route('inventory.index')->with('message', 'Product archived successfully');
     }
 }

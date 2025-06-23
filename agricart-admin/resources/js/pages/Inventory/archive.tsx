@@ -25,8 +25,8 @@ import {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Inventory',
-        href: '/inventory',
+        title: 'Archived Inventory',
+        href: '/archive',
     },
 ];
 
@@ -42,34 +42,31 @@ interface PageProps {
     flash: {
         message?: string
     }
-    products: Product[];
+    archivedProducts: Product[];
     [key: string]: unknown;
 }
 
-export default function Index() {
+export default function Archive() {
+    const { archivedProducts, flash } = usePage<PageProps>().props;
+    const { processing, post, delete: destroy } = useForm();
 
-    const { products, flash } = usePage<PageProps>().props;
-
-    const { processing, delete: destroy, post } = useForm();
-
-    const handleDelete = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to delete - ${name}?`)) {
-            // Call the delete route
-            destroy(route('inventory.destroy', id));
+    const handleRestore = (id: number, name: string) => {
+        if (confirm(`Restore archived product - ${name}?`)) {
+            post(route('inventory.archived.restore', id));
         }
     };
 
-    const handleArchive = (id: number, name: string) => {
-        if (confirm(`Archive product - ${name}?`)) {
-            post(route('inventory.archive', id));
+    const handleForceDelete = (id: number, name: string) => {
+        if (confirm(`Permanently delete archived product - ${name}? This cannot be undone.`)) {
+            destroy(route('inventory.archived.forceDelete', id));
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Inventory" />
+            <Head title="Archived Inventory" />
             <div className="m-4">
-                <Link href={route('inventory.create')}><Button>Create Product</Button></Link>
+                <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
 
                 <div className='m-4'>
                     <div>
@@ -84,7 +81,7 @@ export default function Index() {
                 </div>
 
                 <div className='grid grid-cols-5 gap-2'>
-                    {products.map((product) => (
+                    {archivedProducts.map((product) => (
                         <Card key={product.id} className='w-70'>
                             <div>
                                 <img src={product.image} alt={product.name} />
@@ -93,49 +90,40 @@ export default function Index() {
                                 <CardTitle>{product.name}</CardTitle>
                                 <CardDescription>P{product.price}</CardDescription>
                                 <CardAction>
-                                    <Button disabled={processing} onClick={() => handleArchive(product.id, product.name)}>
-                                        Archive
+                                    <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)}>
+                                        Restore
+                                    </Button>
+                                    <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>
+                                        Delete Permanently
                                     </Button>
                                 </CardAction>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-md break-words">{product.description}</p>
                             </CardContent>
-                            <CardFooter className="flex-col gap-2">
-                                <Button className="w-full">Add Stock</Button>
-                                <div className="flex justify-betweeen w-full gap-2">
-                                    <Button asChild disabled={processing} className='w-1/2'>
-                                        <Link href={route('inventory.edit', product.id)}>Edit</Link>
-                                    </Button>
-                                    <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
-                                </div>
-                            </CardFooter>
                         </Card>
                     ))}
                 </div>
 
-                {products.length > 0 && (
+                {archivedProducts.length > 0 && (
                     <div className='w-full pt-8'>
                         <Table>
-                            <TableCaption>List of product stocks</TableCaption>
+                            <TableCaption>List of archived products</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="text-center">Name</TableHead>
                                     <TableHead className="text-center">Price</TableHead>
-                                    <TableHead className="text-center">Stocks Available</TableHead>
-                                    <TableHead className="text-center">Stock Action</TableHead>
+                                    <TableHead className="text-center">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map((product) => (
-                                    <TableRow className="text-center">
+                                {archivedProducts.map((product) => (
+                                    <TableRow className="text-center" key={product.id}>
                                         <TableCell>{product.name}</TableCell>
                                         <TableCell>{product.price}</TableCell>
-                                        <TableCell>{product.price}</TableCell>
-                                        {/* <TableCell>{product.stocks}</TableCell> */}
                                         <TableCell>
-                                            <Link href={route('inventory.edit', product.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Remove</Button>
+                                            <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)} className='mr-2'>Restore</Button>
+                                            <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>Delete Permanently</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
