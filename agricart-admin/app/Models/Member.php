@@ -17,4 +17,9 @@ class Member extends Model
         'registration_date',
         'document',
     ];
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class);
+    }
 }

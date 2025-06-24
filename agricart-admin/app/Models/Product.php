@@ -16,6 +16,11 @@ class Product extends Model
         'image',
     ];
 
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class);
+    }
+
     public function scopeArchived($query)
     {
         return $query->whereNotNull('archived_at');
