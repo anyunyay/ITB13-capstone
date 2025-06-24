@@ -18,5 +18,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' =>'12345678',
         ]);
+
+        $this->call([
+            ProductSeeder::class,
+            MemberSeeder::class,
+            StockSeeder::class,
+        ]);
     }
 }
