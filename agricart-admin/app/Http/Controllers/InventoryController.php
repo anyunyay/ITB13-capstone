@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Stock;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +12,8 @@ class InventoryController extends Controller
     public function index()
     { 
         $products = Product::active()->get();
-        return Inertia::render('Inventory/index', compact('products'));
+        $stocks = Stock::all(); // Eager loads product and member due to $with
+        return Inertia::render('Inventory/index', compact('products', 'stocks'));
     }
 
     public function create()

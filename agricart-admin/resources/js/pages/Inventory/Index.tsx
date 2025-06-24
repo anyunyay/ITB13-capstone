@@ -38,17 +38,32 @@ interface Product {
     image: string;
 }
 
+interface Member {
+    id: number;
+    name: string;
+}
+
+interface Stock {
+    id: number;
+    product_id: number;
+    quantity: number;
+    member_id: number;
+    product: Product;
+    member: Member;
+}
+
 interface PageProps {
     flash: {
         message?: string
     }
     products: Product[];
+    stocks: Stock[];
     [key: string]: unknown;
 }
 
 export default function Index() {
 
-    const { products, flash } = usePage<PageProps>().props;
+    const { products, stocks, flash } = usePage<PageProps>().props;
 
     const { processing, delete: destroy, post } = useForm();
 
@@ -117,30 +132,29 @@ export default function Index() {
                     ))}
                 </div>
 
-                {products.length > 0 && (
+                {stocks.length > 0 && (
                     <div className='w-full pt-8'>
                         <Table>
                             <TableCaption>List of product stocks</TableCaption>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-center">Name</TableHead>
-                                    <TableHead className="text-center">Price</TableHead>
-                                    <TableHead className="text-center">Stocks Available</TableHead>
+                                    <TableHead className="text-center">Stock ID</TableHead>
+                                    <TableHead className="text-center">Product Name</TableHead>
+                                    <TableHead className="text-center">Quantity</TableHead>
                                     <TableHead className="text-center">Assigned To</TableHead>
                                     <TableHead className="text-center">Stock Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map((product) => (
-                                    <TableRow className="text-center">
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.price}</TableCell>
-                                        <TableCell>{product.price}</TableCell>
-                                        <TableCell>{product.price}</TableCell>
-                                        {/* <TableCell>{product.stocks}</TableCell> */}
+                                {stocks.map((stock) => (
+                                    <TableRow className="text-center" key={stock.id}>
+                                        <TableCell>{stock.id}</TableCell>
+                                        <TableCell>{stock.product?.name}</TableCell>
+                                        <TableCell>{stock.quantity}</TableCell>
+                                        <TableCell>{stock.member?.name}</TableCell>
                                         <TableCell>
-                                            <Link href={route('inventory.edit', product.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className=''>Remove</Button>
+                                            {/* <Link href={route('inventory.edit', stock.id)}><Button disabled={processing} className=''>Edit</Button></Link>
+                                            <Button disabled={processing} onClick={() => handleDelete(stock.id, stock.name)} className=''>Remove</Button> */}
                                         </TableCell>
                                     </TableRow>
                                 ))}
