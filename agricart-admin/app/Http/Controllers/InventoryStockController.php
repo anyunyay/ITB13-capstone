@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Member;
+use App\Models\Stock;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -40,5 +41,28 @@ class InventoryStockController extends Controller
         ]);
 
         return redirect()->route('inventory.index')->with('message', 'Stock added successfully');
+    }
+
+    public function editStock(Product $product, Stock $stock)
+    {
+        $members = Member::all(['id', 'name']);
+        return Inertia::render('Inventory/editStock', [
+            'product' => $product,
+            'stock' => $stock,
+            'members' => $members,
+        ]);
+    }
+
+    public function updateStock(Request $request, Product $product, Stock $stock)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'member_id' => 'required|exists:members,id',
+        ]);
+        $stock->update([
+            'quantity' => $request->input('quantity'),
+            'member_id' => $request->input('member_id'),
+        ]);
+        return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }
 }

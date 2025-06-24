@@ -31,10 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inventory Product Stock Routes
     Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock');
     Route::post('/inventory/{product}/add-stock', [InventoryStockController::class, 'storeStock'])->name('inventory.storeStock');
+    Route::get('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'editStock'])->name('inventory.editStock');
+    Route::put('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock');
 
-    
-    // Route::get('/inventory/{product}/edit-stock', [InventoryStockController::class, 'editStock'])->name('inventory.editStock');
-    // Route::put('/inventory/{product}/edit-stock', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock');
     // Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock');
     // Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock');
 
