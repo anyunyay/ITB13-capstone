@@ -103,7 +103,9 @@ export default function Index() {
                                 <p className="text-md break-words">{product.description}</p>
                             </CardContent>
                             <CardFooter className="flex-col gap-2">
-                                <Button className="w-full">Add Stock</Button>
+                                <Button asChild disabled={processing} className="w-full">
+                                    <Link href={route('inventory.edit', product.id)}>Add Stock</Link>
+                                </Button>
                                 <div className="flex justify-betweeen w-full gap-2">
                                     <Button asChild disabled={processing} className='w-1/2'>
                                         <Link href={route('inventory.edit', product.id)}>Edit</Link>
@@ -124,6 +126,7 @@ export default function Index() {
                                     <TableHead className="text-center">Name</TableHead>
                                     <TableHead className="text-center">Price</TableHead>
                                     <TableHead className="text-center">Stocks Available</TableHead>
+                                    <TableHead className="text-center">Assigned To</TableHead>
                                     <TableHead className="text-center">Stock Action</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -131,6 +134,7 @@ export default function Index() {
                                 {products.map((product) => (
                                     <TableRow className="text-center">
                                         <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.price}</TableCell>
                                         <TableCell>{product.price}</TableCell>
                                         <TableCell>{product.price}</TableCell>
                                         {/* <TableCell>{product.stocks}</TableCell> */}
