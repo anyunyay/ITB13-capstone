@@ -3,6 +3,7 @@
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\InventoryArchiveController;
+use App\Http\Controllers\InventoryStockController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,7 +14,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {return Inertia::render('dashboard');})->name('dashboard');
 
-    // Inventory Routes
+    // Inventory Product Routes
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
@@ -21,11 +22,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     
+    // Inventory Archive Routes
     Route::get('/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index');
     Route::post('/archive/{product}/restore', [InventoryArchiveController::class, 'restore'])->name('inventory.archived.restore');
     Route::delete('/archive/{product}', [InventoryArchiveController::class, 'forceDelete'])->name('inventory.archived.forceDelete');
     Route::post('/inventory/{product}/archive', [InventoryController::class, 'archive'])->name('inventory.archive');
 
+    // Inventory Product Stock Routes
+    Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock');
+    Route::post('/inventory/{product}/add-stock', [InventoryStockController::class, 'storeStock'])->name('inventory.storeStock');
+
+    
+    // Route::get('/inventory/{product}/edit-stock', [InventoryStockController::class, 'editStock'])->name('inventory.editStock');
+    // Route::put('/inventory/{product}/edit-stock', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock');
+    // Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock');
+    // Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock');
 
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');

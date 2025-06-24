@@ -119,7 +119,7 @@ export default function Index() {
                             </CardContent>
                             <CardFooter className="flex-col gap-2">
                                 <Button asChild disabled={processing} className="w-full">
-                                    <Link href={route('inventory.edit', product.id)}>Add Stock</Link>
+                                    <Link href={route('inventory.addStock', product.id)}>Add Stock</Link>
                                 </Button>
                                 <div className="flex justify-betweeen w-full gap-2">
                                     <Button asChild disabled={processing} className='w-1/2'>
