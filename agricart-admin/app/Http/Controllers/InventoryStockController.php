@@ -65,4 +65,10 @@ class InventoryStockController extends Controller
         ]);
         return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }
+
+    public function destroy(Product $product, Stock $stock)
+    {
+        $stock->delete();
+        return redirect()->route('inventory.index')->with('message', 'Stock deleted successfully');
+    }
 }

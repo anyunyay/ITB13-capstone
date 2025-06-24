@@ -74,10 +74,9 @@ export default function Index() {
         }
     };
 
-    const handleDeleteStock = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to delete - ${name}?`)) {
-            // Call the delete route
-            destroy(route('inventory.destroy', id));
+    const handleDeleteStock = (stock: Stock) => {
+        if (confirm(`Are you sure you want to delete - Stock #${stock.id}?`)) {
+            destroy(route('inventory.removeStock', { product: stock.product_id, stock: stock.id }));
         }
     };
 
@@ -161,7 +160,7 @@ export default function Index() {
                                         <TableCell>{stock.member?.name}</TableCell>
                                         <TableCell>
                                             <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock.id, stock.name)} className=''>Remove</Button>
+                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
