@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->text('description')->nullable();
             $table->string('image')->nullable();
+            $table->timestamp('archived_at')->nullable();
             $table->timestamps();
         });
     }
