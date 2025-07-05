@@ -104,33 +104,6 @@ export default function Archive() {
                         </Card>
                     ))}
                 </div>
-
-                {archivedProducts.length > 0 && (
-                    <div className='w-full pt-8'>
-                        <Table>
-                            <TableCaption>List of archived products</TableCaption>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-center">Name</TableHead>
-                                    <TableHead className="text-center">Price</TableHead>
-                                    <TableHead className="text-center">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {archivedProducts.map((product) => (
-                                    <TableRow className="text-center" key={product.id}>
-                                        <TableCell>{product.name}</TableCell>
-                                        <TableCell>{product.price}</TableCell>
-                                        <TableCell>
-                                            <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)} className='mr-2'>Restore</Button>
-                                            <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>Delete</Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                )}
             </div>
         </AppLayout>
     )
