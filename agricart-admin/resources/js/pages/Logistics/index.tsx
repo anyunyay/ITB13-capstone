@@ -47,7 +47,7 @@ export default function Index() {
     const handleDelete = (id: number, name: string) => {
         if (confirm(`Are you sure you want to delete - ${name}?`)) {
             // Call the delete route
-            destroy(route('membership.destroy', id));
+            destroy(route('logistics.destroy', id));
         }
     };
 
@@ -93,7 +93,7 @@ export default function Index() {
                                     <TableCell>{logistic.address}</TableCell>
                                     <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
-                                        <Link href={route('membership.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
+                                        <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
                                         <Button disabled={processing} onClick={() => handleDelete(logistic.id, logistic.name)} className=''>Remove</Button>
                                     </TableCell>
                                 </TableRow>

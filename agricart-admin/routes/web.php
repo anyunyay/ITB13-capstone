@@ -50,8 +50,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/logistics', [LogisticController::class, 'index'])->name('logistics.index');
     Route::get('/logistics/add', [LogisticController::class, 'add'])->name('logistics.add');
     Route::post('/logistics', [LogisticController::class, 'store'])->name('logistics.store');
-    
-
+    Route::get('/logistics/{logistic}/edit', [LogisticController::class, 'edit'])->name('logistics.edit');
+    Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update');
+    Route::delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy');
 });
 
 require __DIR__.'/settings.php';
