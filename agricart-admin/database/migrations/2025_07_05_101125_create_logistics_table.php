@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('logistics', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->date('registration_date')->default(now());
             $table->timestamps();
         });
     }
