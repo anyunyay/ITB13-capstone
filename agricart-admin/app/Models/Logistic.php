@@ -11,6 +11,8 @@ class Logistic extends Model
         'name',
         'email',
         'phone',
+        'address',
+        'registration_date',
     ];
 
     /** @use HasFactory<\Database\Factories\LogisticFactory> */
