@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\InventoryArchiveController;
 use App\Http\Controllers\InventoryStockController;
+use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\LogisticController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -44,6 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit');
     Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update');
     Route::delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy');
+
+    // Logistics Routes
+    Route::get('/logistics', [LogisticController::class, 'index'])->name('logistics.index');
 });
 
 require __DIR__.'/settings.php';
