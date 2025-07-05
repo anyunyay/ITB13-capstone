@@ -40,14 +40,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
-    Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store');
     Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add');
+    Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store');
     Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit');
     Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update');
     Route::delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy');
 
     // Logistics Routes
     Route::get('/logistics', [LogisticController::class, 'index'])->name('logistics.index');
+    Route::get('/logistics/add', [LogisticController::class, 'add'])->name('logistics.add');
+    Route::post('/logistics', [LogisticController::class, 'store'])->name('logistics.store');
+    
+
 });
 
 require __DIR__.'/settings.php';

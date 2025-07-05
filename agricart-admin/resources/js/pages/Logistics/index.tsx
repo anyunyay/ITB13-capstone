@@ -26,6 +26,8 @@ interface Logistic {
     name: string;
     email: string;
     phone: number;
+    address: string;
+    registration_date: string;
 }
 
 interface PageProps {
@@ -53,7 +55,7 @@ export default function Index() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Logistics " />
             <div className="m-4">
-                <Link href={route('membership.add')}><Button>Add Member</Button></Link>
+                <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
 
                 <div className='m-4'>
                     <div>
@@ -70,13 +72,14 @@ export default function Index() {
             {logistics.length > 0 && (
                 <div className='w-full pt-8'>
                     <Table>
-                        <TableCaption>Total list of members</TableCaption>
+                        <TableCaption>Total list of logistics</TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="text-center">ID</TableHead>
                                 <TableHead className="text-center">Name</TableHead>
                                 <TableHead className="text-center">Email</TableHead>
                                 <TableHead className="text-center">Phone Number</TableHead>
+                                <TableHead className="text-center">Registration Date</TableHead>
                                 <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -87,6 +90,8 @@ export default function Index() {
                                     <TableCell>{logistic.name}</TableCell>
                                     <TableCell>{logistic.email}</TableCell>
                                     <TableCell>{logistic.phone}</TableCell>
+                                    <TableCell>{logistic.address}</TableCell>
+                                    <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
                                         <Link href={route('membership.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
                                         <Button disabled={processing} onClick={() => handleDelete(logistic.id, logistic.name)} className=''>Remove</Button>
