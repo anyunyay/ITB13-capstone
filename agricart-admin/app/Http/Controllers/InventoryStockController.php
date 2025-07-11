@@ -21,7 +21,7 @@ class InventoryStockController extends Controller
     {
         $products = Product::active()->get(['id', 'name']);
         $members = Member::all(['id', 'name']);
-        return Inertia::render('Inventory/addStock', compact('product', 'products', 'members'));
+        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members'));
     }
 
     public function storeStock(Request $request, Product $product)
@@ -48,7 +48,7 @@ class InventoryStockController extends Controller
     public function editStock(Product $product, Stock $stock)
     {
         $members = Member::all(['id', 'name']);
-        return Inertia::render('Inventory/editStock', [
+        return Inertia::render('Inventory/Stock/editStock', [
             'product' => $product,
             'stock' => $stock,
             'members' => $members,

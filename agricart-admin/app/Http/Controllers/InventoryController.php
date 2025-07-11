@@ -18,7 +18,7 @@ class InventoryController extends Controller
 
     public function create()
     {
-        return Inertia::render('Inventory/create', []);
+        return Inertia::render('Inventory/Product/create', []);
     }
 
     public function store(Request $request)
@@ -49,7 +49,7 @@ class InventoryController extends Controller
 
     public function edit(Product $product)
     {
-        return Inertia::render('Inventory/edit', compact('product'));
+        return Inertia::render('Inventory/Product/edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
