@@ -31,6 +31,7 @@ class InventoryStockController extends Controller
             'name' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'member_id' => 'required|exists:members,id',
+            'category' => 'required|in:kilo,pc,tali',
         ]);
 
         // Create a new stock entry
@@ -38,6 +39,7 @@ class InventoryStockController extends Controller
             'name' => 'required|string|max:255',
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
+            'category' => $request->input('category'),
         ]);
 
         return redirect()->route('inventory.index')->with('message', 'Stock added successfully');
@@ -58,10 +60,12 @@ class InventoryStockController extends Controller
         $request->validate([
             'quantity' => 'required|integer|min:1',
             'member_id' => 'required|exists:members,id',
+            'category' => 'required|in:kilo,pc,tali',
         ]);
         $stock->update([
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
+            'category' => $request->input('category'),
         ]);
         return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }

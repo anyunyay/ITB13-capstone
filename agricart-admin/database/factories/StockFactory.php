@@ -22,6 +22,7 @@ class StockFactory extends Factory
             'product_id' => Product::inRandomOrder()->first()->id,
             'quantity' => $this->faker->numberBetween(1, 100),
             'member_id' => Member::inRandomOrder()->first()->id,
+            'category' => $this->faker->randomElement(['kilo', 'pc', 'tali']),
         ];
     }
 }

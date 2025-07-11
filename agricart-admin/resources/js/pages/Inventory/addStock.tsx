@@ -38,6 +38,7 @@ interface Stock {
     product_id: number;
     quantity: number;
     member_id: number;
+    category: string;
 }
 
 interface Props {
@@ -61,6 +62,7 @@ export default function AddStock({product}: Props) {
         name: product.name,
         member_id: '',
         quantity: '',
+        category: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -112,6 +114,23 @@ export default function AddStock({product}: Props) {
                                         {member.name}
                                     </SelectItem>
                                 ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className='gap-1.5'>
+                        <Label htmlFor="category">Category</Label>
+                        <Select
+                            value={data.category}
+                            onValueChange={value => setData('category', value)}
+                        >
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="kilo">Kilo</SelectItem>
+                                <SelectItem value="pc">Pc</SelectItem>
+                                <SelectItem value="tali">Tali</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

@@ -22,6 +22,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -50,6 +51,7 @@ interface Stock {
     member_id: number;
     product: Product;
     member: Member;
+    category: 'kilo' | 'pc' | 'tali';
 }
 
 interface PageProps {
@@ -138,36 +140,146 @@ export default function Index() {
                     ))}
                 </div>
 
-                {stocks.length > 0 && (
-                    <div className='w-full pt-8'>
-                        <Table>
-                            <TableCaption>List of product stocks</TableCaption>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-center">Stock ID</TableHead>
-                                    <TableHead className="text-center">Product Name</TableHead>
-                                    <TableHead className="text-center">Quantity</TableHead>
-                                    <TableHead className="text-center">Assigned To</TableHead>
-                                    <TableHead className="text-center">Stock Action</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stocks.map((stock) => (
-                                    <TableRow className="text-center" key={stock.id}>
-                                        <TableCell>{stock.id}</TableCell>
-                                        <TableCell>{stock.product?.name}</TableCell>
-                                        <TableCell>{stock.quantity}</TableCell>
-                                        <TableCell>{stock.member?.name}</TableCell>
-                                        <TableCell>
-                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                )}
+                <Tabs defaultValue="all">
+                    <TabsList>
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        <TabsTrigger value="kilo">By Kilo</TabsTrigger>
+                        <TabsTrigger value="pc">By Pc</TabsTrigger>
+                        <TabsTrigger value="tali">By Tali</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="all">
+                        {stocks.length > 0 && (
+                            <div className='w-full pt-8'>
+                                <Table>
+                                    <TableCaption>List of product stocks</TableCaption>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">Stock ID</TableHead>
+                                            <TableHead className="text-center">Product Name</TableHead>
+                                            <TableHead className="text-center">Quantity</TableHead>
+                                            <TableHead className="text-center">Category</TableHead>
+                                            <TableHead className="text-center">Assigned To</TableHead>
+                                            <TableHead className="text-center">Stock Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {stocks.map((stock) => (
+                                            <TableRow className="text-center" key={stock.id}>
+                                                <TableCell>{stock.id}</TableCell>
+                                                <TableCell>{stock.product?.name}</TableCell>
+                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{stock.category}</TableCell>
+                                                <TableCell>{stock.member?.name}</TableCell>
+                                                <TableCell>
+                                                    <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}</TabsContent>
+                    <TabsContent value="kilo">
+                        {stocks.length > 0 && (
+                            <div className='w-full pt-8'>
+                                <Table>
+                                    <TableCaption>List of product stocks</TableCaption>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">Stock ID</TableHead>
+                                            <TableHead className="text-center">Product Name</TableHead>
+                                            <TableHead className="text-center">Quantity By Kilo</TableHead>
+                                            <TableHead className="text-center">Assigned To</TableHead>
+                                            <TableHead className="text-center">Stock Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {stocks
+                                        .filter((stock) => stock.category === 'kilo')
+                                        .map((stock) => (
+                                            <TableRow className="text-center" key={stock.id}>
+                                                <TableCell>{stock.id}</TableCell>
+                                                <TableCell>{stock.product?.name}</TableCell>
+                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{stock.member?.name}</TableCell>
+                                                <TableCell>
+                                                    <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}</TabsContent>
+                    <TabsContent value="pc">
+                        {stocks.length > 0 && (
+                            <div className='w-full pt-8'>
+                                <Table>
+                                    <TableCaption>List of product stocks</TableCaption>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">Stock ID</TableHead>
+                                            <TableHead className="text-center">Product Name</TableHead>
+                                            <TableHead className="text-center">Quantity By Pc</TableHead>
+                                            <TableHead className="text-center">Assigned To</TableHead>
+                                            <TableHead className="text-center">Stock Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {stocks
+                                        .filter((stock) => stock.category === 'pc')
+                                        .map((stock) => (
+                                            <TableRow className="text-center" key={stock.id}>
+                                                <TableCell>{stock.id}</TableCell>
+                                                <TableCell>{stock.product?.name}</TableCell>
+                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{stock.member?.name}</TableCell>
+                                                <TableCell>
+                                                    <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}</TabsContent>
+                    <TabsContent value="tali">
+                        {stocks.length > 0 && (
+                            <div className='w-full pt-8'>
+                                <Table>
+                                    <TableCaption>List of product stocks</TableCaption>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">Stock ID</TableHead>
+                                            <TableHead className="text-center">Product Name</TableHead>
+                                            <TableHead className="text-center">Quantity By Tali</TableHead>
+                                            <TableHead className="text-center">Assigned To</TableHead>
+                                            <TableHead className="text-center">Stock Action</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {stocks
+                                        .filter((stock) => stock.category === 'tali')
+                                        .map((stock) => (
+                                            <TableRow className="text-center" key={stock.id}>
+                                                <TableCell>{stock.id}</TableCell>
+                                                <TableCell>{stock.product?.name}</TableCell>
+                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{stock.member?.name}</TableCell>
+                                                <TableCell>
+                                                    <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}</TabsContent>
+                </Tabs>
             </div>
         </AppLayout>
     )

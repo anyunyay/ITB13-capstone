@@ -12,7 +12,8 @@ class Stock extends Model
     protected $fillable = [
         'quantity', 
         'member_id', 
-        'product_id'
+        'product_id',
+        'category'
     ];
 
     protected $with = ['product', 'member'];
