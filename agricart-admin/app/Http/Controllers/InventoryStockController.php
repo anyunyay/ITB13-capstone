@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Member;
 use App\Models\Stock;
+use App\Models\InventoryStockTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -72,7 +73,15 @@ class InventoryStockController extends Controller
 
     public function destroy(Product $product, Stock $stock)
     {
+        // Save to InventoryStockTrail before deleting
+        InventoryStockTrail::create([
+            'stock_id' => $stock->id,
+            'product_id' => $stock->product_id,
+            'quantity' => $stock->quantity,
+            'member_id' => $stock->member_id,
+            'category' => $stock->category,
+        ]);
         $stock->delete();
-        return redirect()->route('inventory.index')->with('message', 'Stock deleted successfully');
+        return redirect()->route('inventory.index')->with('message', 'Stock deleted and saved to trail successfully');
     }
 }

@@ -22,4 +22,9 @@ class Member extends Model
     {
         return $this->hasMany(Stock::class);
     }
+
+    public function stockTrail()
+    {
+        return $this->hasMany(InventoryStockTrail::class);
+    }
 }

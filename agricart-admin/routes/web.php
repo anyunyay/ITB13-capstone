@@ -3,8 +3,10 @@
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryArchiveController;
 use App\Http\Controllers\InventoryStockController;
+use App\Http\Controllers\InventoryStockTrailController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\LogisticController;
+use App\Models\InventoryStockTrail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock');
     Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock');
     Route::delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.removeStock');
+
+    // Inventory Stock Trail Routes
+    Route::get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index');
+    Route::get('/inventory{stock}/stock-trail', [InventoryStockTrailController::class, 'storeRemovedStock'])->name('inventory.stockTrail.store');
 
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');

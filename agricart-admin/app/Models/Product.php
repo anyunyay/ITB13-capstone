@@ -21,6 +21,11 @@ class Product extends Model
         return $this->hasMany(Stock::class);
     }
 
+    public function stockTrail()
+    {
+        return $this->hasMany(InventoryStockTrail::class);
+    }
+
     public function scopeArchived($query)
     {
         return $query->whereNotNull('archived_at');
