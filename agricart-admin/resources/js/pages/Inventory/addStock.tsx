@@ -128,23 +128,39 @@ export default function AddStock({product}: Props) {
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="kilo">Kilo</SelectItem>
-                                <SelectItem value="pc">Pc</SelectItem>
-                                <SelectItem value="tali">Tali</SelectItem>
+                                <SelectItem value="Kilo">Kilo</SelectItem>
+                                <SelectItem value="Pc">Pc</SelectItem>
+                                <SelectItem value="Tali">Tali</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
-                    <div className='gap-1.5'>
-                        <Label htmlFor="quantity">Quantity</Label>
-                        <Input
-                            id="quantity"
-                            type="number"
-                            min={1}
-                            value={data.quantity}
-                            onChange={e => setData('quantity', e.target.value)}
-                        />
-                    </div>
+                    {data.category === "Kilo" && (
+                        <div className='gap-1.5'>
+                            <Label htmlFor="quantity">Quantity</Label>
+                            <Input
+                                id="quantity"
+                                type="number"
+                                min={0.01}
+                                step={0.01}
+                                value={data.quantity}
+                                onChange={e => setData('quantity', e.target.value)}
+                            />
+                        </div>
+                    )}
+
+                    {data.category !== "Kilo" && (
+                        <div className='gap-1.5'>
+                            <Label htmlFor="quantity">Quantity</Label>
+                            <Input
+                                id="quantity"
+                                type="number"
+                                min={1}
+                                value={data.quantity}
+                                onChange={e => setData('quantity', e.target.value)}
+                            />
+                        </div>
+                    )}
 
                     <Button disabled={processing} type="submit">Add Stock</Button>
                 </form>

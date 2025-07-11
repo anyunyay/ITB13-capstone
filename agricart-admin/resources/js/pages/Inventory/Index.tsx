@@ -51,7 +51,7 @@ interface Stock {
     member_id: number;
     product: Product;
     member: Member;
-    category: 'kilo' | 'pc' | 'tali';
+    category: 'Kilo' | 'Pc' | 'Tali';
 }
 
 interface PageProps {
@@ -167,7 +167,11 @@ export default function Index() {
                                             <TableRow className="text-center" key={stock.id}>
                                                 <TableCell>{stock.id}</TableCell>
                                                 <TableCell>{stock.product?.name}</TableCell>
-                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{
+                                                    stock.category === 'Kilo'
+                                                        ? stock.quantity
+                                                        : Math.floor(stock.quantity)
+                                                }</TableCell>
                                                 <TableCell>{stock.category}</TableCell>
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
@@ -196,7 +200,7 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                        .filter((stock) => stock.category === 'kilo')
+                                        .filter((stock) => stock.category === 'Kilo')
                                         .map((stock) => (
                                             <TableRow className="text-center" key={stock.id}>
                                                 <TableCell>{stock.id}</TableCell>
@@ -229,12 +233,12 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                        .filter((stock) => stock.category === 'pc')
+                                        .filter((stock) => stock.category === 'Pc')
                                         .map((stock) => (
                                             <TableRow className="text-center" key={stock.id}>
                                                 <TableCell>{stock.id}</TableCell>
                                                 <TableCell>{stock.product?.name}</TableCell>
-                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{Math.floor(stock.quantity)}</TableCell>
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
                                                     <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
@@ -262,12 +266,12 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                        .filter((stock) => stock.category === 'tali')
+                                        .filter((stock) => stock.category === 'Tali')
                                         .map((stock) => (
                                             <TableRow className="text-center" key={stock.id}>
                                                 <TableCell>{stock.id}</TableCell>
                                                 <TableCell>{stock.product?.name}</TableCell>
-                                                <TableCell>{stock.quantity}</TableCell>
+                                                <TableCell>{Math.floor(stock.quantity)}</TableCell>
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
                                                     <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>

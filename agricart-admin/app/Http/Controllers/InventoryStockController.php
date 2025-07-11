@@ -29,9 +29,9 @@ class InventoryStockController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:members,id',
-            'category' => 'required|in:kilo,pc,tali',
+            'category' => 'required|in:Kilo,Pc,Tali',
         ]);
 
         // Create a new stock entry
@@ -58,9 +58,9 @@ class InventoryStockController extends Controller
     public function updateStock(Request $request, Product $product, Stock $stock)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:members,id',
-            'category' => 'required|in:kilo,pc,tali',
+            'category' => 'required|in:Kilo,Pc,Tali',
         ]);
         $stock->update([
             'quantity' => $request->input('quantity'),
