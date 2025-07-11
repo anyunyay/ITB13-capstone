@@ -9,8 +9,11 @@ class Stock extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['quantity', 'member_id', 'product_id'];
-
+    protected $fillable = [
+        'quantity', 
+        'member_id', 
+        'product_id'
+    ];
 
     protected $with = ['product', 'member'];
     
