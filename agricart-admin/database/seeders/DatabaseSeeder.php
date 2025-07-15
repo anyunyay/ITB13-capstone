@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             MemberSeeder::class,
             StockSeeder::class,
             LogisticSeeder::class,
+            CustomerSeeder::class,
         ]);
     }
 }
