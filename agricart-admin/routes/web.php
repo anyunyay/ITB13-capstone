@@ -29,7 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index');
     Route::post('/inventory/archive/{product}/restore', [InventoryArchiveController::class, 'restore'])->name('inventory.archived.restore');
     Route::delete('/inventory/archive/{product}', [InventoryArchiveController::class, 'forceDelete'])->name('inventory.archived.forceDelete');
-    Route::post('/inventory/{product}/archive', [InventoryController::class, 'archive'])->name('inventory.archive');
+    Route::post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive');
 
     // Inventory Product Stock Routes
     Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock');

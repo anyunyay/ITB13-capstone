@@ -92,12 +92,4 @@ class InventoryController extends Controller
         $product->delete();
         return redirect()->route('inventory.index')->with('message', 'Inventory item deleted successfully');
     }
-
-    public function archive(Product $product)
-    {
-        $product->archived_at = now();
-        $product->save();
-
-        return redirect()->route('inventory.index')->with('message', 'Product archived successfully');
-    }
 }
