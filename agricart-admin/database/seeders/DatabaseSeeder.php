@@ -19,7 +19,15 @@ class DatabaseSeeder extends Seeder
             'password' =>'12345678',
         ]);
 
+        Admin::factory()->create([
+            'name' => 'Admin2',
+            'email' => 'admin2@admin.com',
+            'password' =>'12345678',
+        ]);
+
+
         $this->call([
+            RoleSeeder::class,
             ProductSeeder::class,
             MemberSeeder::class,
             StockSeeder::class,

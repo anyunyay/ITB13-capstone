@@ -43,7 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inventory Stock Trail Routes
     Route::get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index');
     Route::get('/inventory{stock}/stock-trail', [InventoryStockTrailController::class, 'storeRemovedStock'])->name('inventory.stockTrail.store');
-
+});
+Route::middleware(['auth', 'verified', 'can:manage users'])->group(function () {
     // Membeship Routes
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
     Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add');
