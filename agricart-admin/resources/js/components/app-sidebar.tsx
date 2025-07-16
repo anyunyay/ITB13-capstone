@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
   BookOpen,
@@ -24,47 +24,52 @@ import {
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
-  const { props } = usePage();
+  const { props } = usePage<SharedData>();
 
-  // Define the expected shape for permissions
-  type Permissions = {
-    manageUsers?: boolean;
-    [key: string]: unknown;
-  };
-  // Type assertion for props
-  const permissions = (props.permissions ?? {}) as Permissions;
-  const canManageUsers = permissions.manageUsers ?? false;
+  // Extract permissions from props, providing defaults if not defined
+  const {
+    viewInventory: canViewInventory = false,
+    viewOrders: canViewOrders = false,
+    viewMembership: canViewMembership = false,
+    viewLogistics: canViewLogistics = false,
+  } = props.permissions || {};
 
-  // Define items normally
-  const mainNavItems: NavItem[] = [
-    {
+  // Define the main navigation items based on permissions
+  const mainNavItems: NavItem[] = [];
+
+  if (true) {
+    mainNavItems.push({
       title: 'Dashboard',
       href: '/dashboard',
       icon: LayoutDashboard,
-    },
-    {
+    });
+  }
+  if (canViewInventory) {
+    mainNavItems.push({
       title: 'Inventory',
       href: '/inventory',
       icon: Package,
-    },
-    {
+    });
+  }
+  if (canViewOrders) {
+    mainNavItems.push({
       title: 'Orders',
       href: '/orders',
       icon: ClipboardPen,
-    },
-    {
-      title: 'Logistics',
-      href: '/logistics',
-      icon: IdCard,
-    },
-  ];
-
-  // Conditionally push Membership after
-  if (canManageUsers) {
-    mainNavItems.splice(3, 0, {
+    });
+  }
+  if (canViewMembership) {
+    mainNavItems.push({
       title: 'Membership',
       href: '/membership',
       icon: UsersRound,
+    });
+  }
+  if (canViewLogistics) {
+    mainNavItems.push({
+      title: 'Logistics',
+      href: '/logistics',
+      icon: IdCard,
     });
   }
 
