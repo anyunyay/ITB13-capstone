@@ -22,10 +22,18 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface Permissions {
+    [key: string]: boolean;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    permissions: Permissions;
+    flash: {
+        message?: string;
+    };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
     [key: string]: unknown;

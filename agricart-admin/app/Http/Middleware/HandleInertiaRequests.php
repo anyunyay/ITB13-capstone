@@ -6,6 +6,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use Spatie\Permission\Models\Permission;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -45,11 +46,12 @@ class HandleInertiaRequests extends Middleware
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
-            ],
-            'permissions' => [
-                'manageUsers' => $request->user()?->can('manage users'),
-                // Add other permissions here if needed
-            ],
+            ], 
+            // Dynamically generate permissions based on the current user
+            'permissions' => collect(Permission::all()->pluck('name'))->mapWithKeys(function ($permission) use ($request) { 
+                $key = lcfirst(str_replace(' ', '', ucwords($permission))); // Convert permission name to camelCase
+                return [$key => $request->user()?->can($permission)]; // Check if the user has the permission
+            }),
             'flash' => [
                 'message' => fn() => $request->session()->get('message')
             ],
