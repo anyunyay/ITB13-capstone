@@ -20,8 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Inventory Product Routes
-    //  View Products
-    Route::middleware(['auth', 'verified', 'can:view products'])->group(function () {
+    //  View Inventory
+    Route::middleware(['auth', 'verified', 'can:view inventory'])->group(function () {
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     });
     // Create Product

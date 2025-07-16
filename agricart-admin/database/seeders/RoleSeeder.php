@@ -26,11 +26,10 @@ class RoleSeeder extends Seeder
         $logistic = Role::create(['name' => 'logistic']);
         $member = Role::create(['name' => 'member']);
 
-        // Create additional permissions
         $permissions = [
         // Admin Section
             // Inventory Product
-            'view products',
+            'view inventory',
             'create products',
             'edit products',
             'delete products', // Optional for Staff
@@ -46,6 +45,12 @@ class RoleSeeder extends Seeder
             'create stocks',
             'edit stocks',
             'delete stocks', // Optional for Staff
+
+            // Order Management
+            'view orders',
+            'create orders',
+            'edit orders',
+            'delete orders', // Optional for Staff
 
             // Inventory Stock Trailing
             'view stock trail',
