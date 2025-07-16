@@ -1,17 +1,16 @@
 <?php
 
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\InventoryArchiveController;
-use App\Http\Controllers\InventoryStockController;
-use App\Http\Controllers\InventoryStockTrailController;
-use App\Http\Controllers\MembershipController;
-use App\Http\Controllers\LogisticController;
-use App\Models\InventoryStockTrail;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\InventoryArchiveController;
+use App\Http\Controllers\Admin\InventoryStockController;
+use App\Http\Controllers\Admin\InventoryStockTrailController;
+use App\Http\Controllers\Admin\MembershipController;
+use App\Http\Controllers\Admin\LogisticController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('Admin/welcome');
 })->name('home');
 
 // Shared Auth Middleware (Dashboard)

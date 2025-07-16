@@ -89,7 +89,7 @@ class RoleSeeder extends Seeder
         // Assign permissions to roles
         $admin->givePermissionTo(Permission::all());
         // LIMITED PERMISSIONS
-        // $customer->givePermissionTo();
+        // $customer->syncPermission();
         // $logistic->givePermissionTo();
         // $member->givePermissionTo();
 

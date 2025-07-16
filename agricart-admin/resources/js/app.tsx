@@ -9,7 +9,14 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
+    resolve: (name) => {
+        const adminPages = import.meta.glob('./pages/Admin/**/*.tsx');
+        const rootPages = import.meta.glob('./pages/**/*.tsx');
+        if (adminPages[`./pages/Admin/${name}.tsx`]) {
+            return resolvePageComponent(`./pages/Admin/${name}.tsx`, adminPages);
+        }
+        return resolvePageComponent(`./pages/${name}.tsx`, rootPages);
+    },
     setup({ el, App, props }) {
         const root = createRoot(el);
 
