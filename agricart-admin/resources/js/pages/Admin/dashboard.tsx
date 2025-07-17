@@ -1,16 +1,26 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Admin Dashboard',
+        href: '/admin/dashboard',
     },
 ];
 
 export default function Dashboard() {
+    const { auth } = usePage<SharedData>().props;
+
+    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />

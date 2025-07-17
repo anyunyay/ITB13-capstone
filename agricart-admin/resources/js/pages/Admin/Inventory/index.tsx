@@ -1,8 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, usePage, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { BellDot } from 'lucide-react';
 import {
     Table,
@@ -72,7 +73,13 @@ interface PageProps {
 
 export default function Index() {
 
-    const { products, stocks, flash } = usePage<PageProps>().props;
+    const { products, stocks, flash, auth } = usePage<PageProps & SharedData>().props;
+    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
 
     const { processing, delete: destroy, post } = useForm();
 

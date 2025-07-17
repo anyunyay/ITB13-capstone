@@ -5,27 +5,28 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
+import { SharedData } from '@/types';
 
 function formatDate(date: Date | undefined) {
-  if (!date) {
-    return ""
-  }
-  return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  })
+    if (!date) {
+        return ""
+    }
+    return date.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+    })
 }
 function isValidDate(date: Date | undefined) {
-  if (!date) {
-    return false
-  }
-  return !isNaN(date.getTime())
+    if (!date) {
+        return false
+    }
+    return !isNaN(date.getTime())
 }
 
 interface Logistic {
@@ -43,8 +44,17 @@ interface Props {
     logistic: Logistic;
 }
 
-export default function Edit({logistic}: Props) {
-    const {data, setData, post, processing, errors} = useForm({
+export default function Edit({ logistic }: Props) {
+
+    const { auth } = usePage<SharedData>().props;
+    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    React.useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
+
+    const { data, setData, post, processing, errors } = useForm({
         name: logistic.name,
         email: logistic.email,
         contact_number: logistic.contact_number,
@@ -63,8 +73,8 @@ export default function Edit({logistic}: Props) {
     }
 
     return (
-        <AppLayout breadcrumbs={[{title: 'Edit Logistic', href: `/Logistics/${logistic.id}/edit`}]}>
-            <Head title="Update Logistic"/>
+        <AppLayout breadcrumbs={[{ title: 'Edit Logistic', href: `/Logistics/${logistic.id}/edit` }]}>
+            <Head title="Update Logistic" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
@@ -86,17 +96,17 @@ export default function Edit({logistic}: Props) {
 
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic name">Name</Label>
-                        <Input placeholder="Logistic Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
+                        <Input placeholder="Logistic Name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic email">Email</Label>
-                        <Input type="email" placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)}/>
+                        <Input type="email" placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
                         {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic contact_number">Contact Number</Label>
-                        <Input type="tel" placeholder="Contact Number" value={data.contact_number} onChange={(e) => setData('contact_number', e.target.value)}/>
+                        <Input type="tel" placeholder="Contact Number" value={data.contact_number} onChange={(e) => setData('contact_number', e.target.value)} />
                         {errors.contact_number && <p className="text-sm text-red-500 mt-1">{errors.contact_number}</p>}
                     </div>
                     <div className='gap-1.5'>

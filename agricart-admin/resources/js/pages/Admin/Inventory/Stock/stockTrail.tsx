@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -57,7 +58,12 @@ interface PageProps {
 
 export default function Index() {
 
-    const { stocks = [], flash } = usePage<PageProps>().props;
+    const { stocks = [], flash, auth } = usePage<PageProps & SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
 
     console.log('stocks:', stocks); // Debug output
 

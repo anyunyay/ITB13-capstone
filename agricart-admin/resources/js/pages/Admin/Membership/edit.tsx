@@ -5,7 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
@@ -45,6 +47,13 @@ interface Props {
 }
 
 export default function Edit({member}: Props) {
+    const { auth } = usePage<SharedData>().props;
+    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
     const {data, setData, post, processing, errors} = useForm({
         name: member.name,
         email: member.email,

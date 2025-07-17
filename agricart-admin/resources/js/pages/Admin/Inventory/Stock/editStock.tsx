@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { OctagonAlert, Terminal } from 'lucide-react';
 import {
     Select,
@@ -56,6 +57,13 @@ interface PageProps {
 }
 
 export default function EditStock({ product, stock, members }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
+
     const { data, setData, put, processing, errors } = useForm({
         quantity: stock.quantity,
         member_id: String(stock.member_id),

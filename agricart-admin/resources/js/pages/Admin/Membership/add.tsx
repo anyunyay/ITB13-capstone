@@ -5,8 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
@@ -40,6 +41,14 @@ function isValidDate(date: Date | undefined) {
 export default function Index() {
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
+
+    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    const { auth } = usePage<SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',

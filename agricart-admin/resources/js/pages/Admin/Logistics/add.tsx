@@ -11,6 +11,10 @@ import { OctagonAlert } from 'lucide-react';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
+import { useEffect } from 'react';
+import { usePage } from '@inertiajs/react';
+import { SharedData } from '@/types';
+import { router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -53,6 +57,13 @@ export default function Index() {
     const [date, setDate] = React.useState<Date>(today)
     const [month, setMonth] = React.useState<Date>(today)
     const [value, setValue] = React.useState(formatDate(today))
+
+    const { auth } = usePage<SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

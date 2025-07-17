@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
 
 interface Product {
@@ -21,6 +22,13 @@ interface Props {
 }
 
 export default function Edit({product}: Props) {
+    const { auth } = usePage<SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
+
     const {data, setData, post, processing, errors} = useForm({
         name: product.name,
         price: product.price,
