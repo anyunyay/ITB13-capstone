@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin;
+use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,26 +13,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Admin::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
             'password' =>'12345678',
+            'type' => 'admin',
         ]);
 
-        Admin::factory()->create([
+        // Create token for the admin
+        $token = $admin->createToken('admin-token')->plainTextToken;
+        $this->command->info('Admin token created: ' . $token);
+
+        User::factory()->create([
             'name' => 'Admin2',
             'email' => 'admin2@admin.com',
             'password' =>'12345678',
+            'type' => 'admin',
         ]);
 
+        User::factory()->create([
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'username' => 'johndoe',
+            'email' => 'customer@gmail.com',
+            'contact_number' => '1234567890',
+            'password' => '12345678',
+            'type' => 'customer',
+        ]);
 
         $this->call([
             RoleSeeder::class,
             ProductSeeder::class,
-            MemberSeeder::class,
-            StockSeeder::class,
-            LogisticSeeder::class,
-            CustomerSeeder::class,
         ]);
     }
 }

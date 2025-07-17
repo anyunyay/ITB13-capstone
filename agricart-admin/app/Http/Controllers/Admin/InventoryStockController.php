@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Member;
+use App\Models\User;
 use App\Models\Stock;
 use App\Models\InventoryStockTrail;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class InventoryStockController extends Controller
     public function addStock(Product $product)
     {
         $products = Product::active()->get(['id', 'name']);
-        $members = Member::all(['id', 'name']);
+        $members = User::where('type', 'member')->get(['id', 'name']);
         return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members'));
     }
 
@@ -49,7 +49,7 @@ class InventoryStockController extends Controller
 
     public function editStock(Product $product, Stock $stock)
     {
-        $members = Member::all(['id', 'name']);
+        $members = User::where('type', 'member')->get(['id', 'name']);
         return Inertia::render('Inventory/Stock/editStock', [
             'product' => $product,
             'stock' => $stock,

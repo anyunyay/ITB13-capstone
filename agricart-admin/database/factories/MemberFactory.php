@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Member>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class MemberFactory extends Factory
 {
@@ -23,6 +23,7 @@ class MemberFactory extends Factory
             'address' => $this->faker->address(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'document' => $this->faker->imageUrl(640, 480, 'member', true),
+            'type' => 'member',
         ];
     }
 }

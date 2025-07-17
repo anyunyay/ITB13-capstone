@@ -25,6 +25,6 @@ class Stock extends Model
 
     public function member()
     {
-        return $this->belongsTo(Member::class);
+        return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
     }
 }

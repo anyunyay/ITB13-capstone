@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Logistic;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +14,6 @@ class LogisticSeeder extends Seeder
      */
     public function run(): void
     {
-        Logistic::factory()->count(3)->create();
+        User::factory()->count(3)->create(['type' => 'logistic']);
     }
 }

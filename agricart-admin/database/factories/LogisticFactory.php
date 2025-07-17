@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Logistic>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class LogisticFactory extends Factory
 {
@@ -22,6 +22,7 @@ class LogisticFactory extends Factory
             'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
             'registration_date' => $this->faker->dateTimeThisYear(),
+            'type' => 'logistic',
         ];
     }
 }

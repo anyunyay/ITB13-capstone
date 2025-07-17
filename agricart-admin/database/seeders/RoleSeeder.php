@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -93,7 +93,9 @@ class RoleSeeder extends Seeder
         // $logistic->givePermissionTo();
         // $member->givePermissionTo();
 
-        $adminDB = Admin::find(1);
-        $adminDB->assignRole($admin); 
+        $adminDB = User::where('type', 'admin')->first();
+        if ($adminDB) {
+            $adminDB->assignRole($admin);
+        }
     }
 }

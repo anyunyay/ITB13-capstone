@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Product;
-use App\Models\Member;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +21,7 @@ class InventoryStockTrailFactory extends Factory
         return [
             'product_id' => Product::inRandomOrder()->first()->id,
             'quantity' => $this->faker->numberBetween(0.25, 10.00),
-            'member_id' => Member::inRandomOrder()->first()->id,
+            'member_id' => User::where('type', 'member')->inRandomOrder()->first()->id,
             'category' => $this->faker->randomElement(['Kilo', 'Pc', 'Tali']),
         ];
     }

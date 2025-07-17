@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Member;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +11,7 @@ class MembershipController extends Controller
 {
     public function index()
     {
-        $members = Member::all();
+        $members = User::where('type', 'member')->get();
         return Inertia::render('Membership/index', compact('members'));
     }
 
@@ -25,7 +25,7 @@ class MembershipController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:members,email',
+            'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
@@ -37,45 +37,47 @@ class MembershipController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/documents/'), $imageName);
             
-            Member::create([
+            User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),
                 'address' => $request->input('address'),
                 'registration_date' => $request->input('registration_date', now()),
                 'document' => 'images/documents/' . $imageName,
+                'type' => 'member',
+                'password' => bcrypt('password'), // Default password
             ]);
         }
 
         return redirect()->route('membership.index')->with('message', 'Member added successfully');
     }
 
-    public function edit(Member $member)
+    public function edit($id)
     {
+        $member = User::where('type', 'member')->findOrFail($id);
         return Inertia::render('Membership/edit', compact('member'));
     }
 
-    public function update(Request $request, Member $member)
+    public function update(Request $request, $id)
     {
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:members,email,' . $member->id,
+            'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
-            'document' => ($member->document ? 'nullable' : 'required') . '|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
+            'document' => 'nullable|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
         ]);
 
-        if ($member) {
-            $member->update([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'address' => $request->input('address'),
-                'registration_date' => $request->input('registration_date') ?? now(),
-            ]);
-        }
+        $member = User::where('type', 'member')->findOrFail($id);
+        $member->update([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'address' => $request->input('address'),
+            'registration_date' => $request->input('registration_date') ?? now(),
+        ]);
         
         if ($request->file('document')) {
             // Optionally delete old file
@@ -92,9 +94,10 @@ class MembershipController extends Controller
         return redirect()->route('membership.index')->with('message', 'Member Details updated successfully');
     }
 
-    public function destroy(Member $member)
+    public function destroy($id)
     {
         // Delete the image file if it exists
+        $member = User::where('type', 'member')->findOrFail($id);
         if ($member->document && file_exists(public_path($member->document))) {
             unlink(public_path($member->document));
         }

@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class CustomerFactory extends Factory
 {
@@ -23,6 +23,7 @@ class CustomerFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'contact_number' => $this->faker->phoneNumber(),
             'password' => bcrypt('password'), // Default password
+            'type' => 'customer',
         ];
     }
 }
