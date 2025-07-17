@@ -15,6 +15,9 @@ Route::get('/', function () {
 
 // All authenticated routes with middleware
 Route::middleware(['auth', 'verified'])->group(function () {
+    // // Admin Dashboard
+    // Route::get('/admin/dashboard', fn() => Inertia::render('admin.dashboard'))->name('admin.dashboard');
+
     // Dashboard
     Route::get('/dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
     

@@ -14,19 +14,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@admin.com',
-            'password' =>'12345678',
-            'type' => 'admin',
-        ]);
-
         // Seed products before stocks
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
             ProductSeeder::class,
             StockSeeder::class,
+        ]);
+
+        // Create admin user after roles/permissions are seeded
+        $admin = User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@admin.com',
+            'password' =>'12345678',
+            'type' => 'admin',
         ]);
     }
 }
