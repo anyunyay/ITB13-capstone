@@ -21,16 +21,12 @@ class DatabaseSeeder extends Seeder
             'type' => 'admin',
         ]);
 
-        // Create token for the admin
-        $token = $admin->createToken('admin-token')->plainTextToken;
-        $this->command->info('Admin token created: ' . $token);
-
         // Seed products before stocks
         $this->call([
+            RoleSeeder::class,
             UserSeeder::class,
             ProductSeeder::class,
             StockSeeder::class,
-            RoleSeeder::class,
         ]);
     }
 }

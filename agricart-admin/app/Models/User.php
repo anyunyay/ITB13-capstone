@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
@@ -62,6 +63,22 @@ class User extends Authenticatable
             'password' => 'hashed',
             'registration_date' => 'datetime',
         ];
+    }
+
+    // Boot method to assign roles based on user type
+    public static function booted()
+    {
+        static::created(function ($user) {
+            if ($user->type && !$user->hasRole($user->type)) {
+                // Only assign if a role with this name exists
+                try {
+                    $user->assignRole($user->type);
+                } catch (\Exception $e) {
+                    // Log the error if the role does not exist
+                    Log::error("Role {$user->type} does not exist for user ID {$user->id}");
+                }
+            }
+        });
     }
 
     // Member relationships
