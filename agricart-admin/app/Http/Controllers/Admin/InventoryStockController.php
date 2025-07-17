@@ -32,7 +32,7 @@ class InventoryStockController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0.01',
-            'member_id' => 'required|exists:members,id',
+            'member_id' => 'required|exists:users,id',
             'category' => 'required|in:Kilo,Pc,Tali',
         ]);
 
@@ -61,7 +61,7 @@ class InventoryStockController extends Controller
     {
         $request->validate([
             'quantity' => 'required|numeric|min:0.01',
-            'member_id' => 'required|exists:members,id',
+            'member_id' => 'required|exists:users,id',
             'category' => 'required|in:Kilo,Pc,Tali',
         ]);
         $stock->update([

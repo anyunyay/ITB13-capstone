@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_id')->nullable();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity');
-            $table->foreignId('member_id')->constrained()->onDelete('cascade');
+            $table->foreignId('member_id')->constrained('users')->onDelete('cascade');
             $table->string('category')->nullable();
             $table->timestamps();
         });

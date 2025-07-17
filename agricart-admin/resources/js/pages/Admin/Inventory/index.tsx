@@ -42,6 +42,13 @@ interface Product {
 interface Member {
     id: number;
     name: string;
+    email: string;
+    phone?: string;
+    address?: string;
+    registration_date?: string;
+    document?: string;
+    type: string;
+    [key: string]: unknown;
 }
 
 interface Stock {

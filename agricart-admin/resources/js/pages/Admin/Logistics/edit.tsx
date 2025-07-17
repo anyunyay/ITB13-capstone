@@ -32,9 +32,11 @@ interface Logistic {
     id: number;
     name: string;
     email: string;
-    phone: number;
-    address: string;
-    registration_date: string;
+    phone?: string;
+    address?: string;
+    registration_date?: string;
+    type: string;
+    [key: string]: unknown;
 }
 
 interface Props {
@@ -54,7 +56,7 @@ export default function Edit({logistic}: Props) {
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('logistics.update', logistic.id), {
+        post(route('logistics.update', String(logistic.id)), {
             forceFormData: true,
             preserveState: true,
         });

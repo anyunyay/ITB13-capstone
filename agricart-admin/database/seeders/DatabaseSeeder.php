@@ -41,9 +41,18 @@ class DatabaseSeeder extends Seeder
             'type' => 'customer',
         ]);
 
+        // Seed 3 members
+        \App\Models\User::factory()->count(3)->member()->create();
+        // Seed 3 logistics
+        \App\Models\User::factory()->count(3)->logistic()->create();
+
+        // Seed products before stocks
         $this->call([
-            RoleSeeder::class,
             ProductSeeder::class,
+            RoleSeeder::class,
         ]);
+
+        // Seed 5 stocks
+        \App\Models\Stock::factory()->count(5)->create();
     }
 }

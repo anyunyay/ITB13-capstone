@@ -25,10 +25,12 @@ interface Member {
     id: number;
     name: string;
     email: string;
-    phone: number;
-    address: string;
-    registration_date: string;
-    document: string;
+    phone?: string;
+    address?: string;
+    registration_date?: string;
+    document?: string;
+    type: string;
+    [key: string]: unknown;
 }
 
 interface PageProps {

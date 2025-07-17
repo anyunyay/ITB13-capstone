@@ -32,10 +32,12 @@ interface Member {
     id: number;
     name: string;
     email: string;
-    phone: number;
-    address: string;
-    registration_date: string;
-    document: string;
+    phone?: string;
+    address?: string;
+    registration_date?: string;
+    document?: string;
+    type: string;
+    [key: string]: unknown;
 }
 
 interface Props {
@@ -61,7 +63,7 @@ export default function Edit({member}: Props) {
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('membership.update', member.id), {
+        post(route('membership.update', String(member.id)), {
             forceFormData: true,
             preserveState: true,
         });
