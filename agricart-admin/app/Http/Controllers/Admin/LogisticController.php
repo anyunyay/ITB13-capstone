@@ -26,7 +26,7 @@ class LogisticController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
+            'contact_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
@@ -34,7 +34,7 @@ class LogisticController extends Controller
         User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
+            'contact_number' => $request->input('contact_number'),
             'address' => $request->input('address'),
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
@@ -56,7 +56,7 @@ class LogisticController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'phone' => 'nullable|string|max:20',
+            'contact_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
@@ -66,7 +66,7 @@ class LogisticController extends Controller
             $logistic->update([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
+                'contact_number' => $request->input('contact_number'),
                 'address' => $request->input('address'),
                 'registration_date' => $request->input('registration_date') ?? now(),
             ]);

@@ -43,7 +43,7 @@ interface Member {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+        contact_number?: string;
     address?: string;
     registration_date?: string;
     document?: string;

@@ -32,7 +32,6 @@ class User extends Authenticatable
         'province',
         'contact_number',
         // Logistic fields
-        'phone',
         'address',
         'registration_date',
         // Member fields

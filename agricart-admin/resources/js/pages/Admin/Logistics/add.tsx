@@ -44,7 +44,7 @@ export default function Index() {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
-        phone: '',
+        contact_number: '',
         address: '',
         registration_date: formattedToday,
     });
@@ -93,8 +93,8 @@ export default function Index() {
                         <Input placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="logistic phone">Phone</Label>
-                        <Input placeholder="Phone Number" value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
+                        <Label htmlFor="logistic contact_number">Contact Number</Label>
+                        <Input placeholder="Contact Number" value={data.contact_number} onChange={(e) => setData('contact_number', e.target.value)} />
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic address">Address</Label>

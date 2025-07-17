@@ -32,7 +32,7 @@ interface Member {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    contact_number?: string;
     address?: string;
     registration_date?: string;
     document?: string;
@@ -48,7 +48,7 @@ export default function Edit({member}: Props) {
     const {data, setData, post, processing, errors} = useForm({
         name: member.name,
         email: member.email,
-        phone: member.phone,
+        contact_number: member.contact_number,
         address: member.address,
         registration_date: member.registration_date,
         document: null as File | null,
@@ -102,9 +102,9 @@ export default function Edit({member}: Props) {
                         {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="member phone">Phone Number</Label>
-                        <Input type="tel" placeholder="Phone Number" value={data.phone} onChange={(e) => setData('phone', Number(e.target.value))}/>
-                        {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
+                        <Label htmlFor="member contact_number">Contact Number</Label>
+                        <Input type="tel" placeholder="Contact Number" value={data.contact_number} onChange={(e) => setData('contact_number', e.target.value)}/>
+                        {errors.contact_number && <p className="text-sm text-red-500 mt-1">{errors.contact_number}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member address">Address</Label>

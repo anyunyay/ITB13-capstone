@@ -14,7 +14,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
+            'contact_number' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -28,7 +28,6 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'admin',
             'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
         ]);
     }
 
@@ -39,9 +38,10 @@ class UserFactory extends Factory
             'firstname' => $this->faker->firstName(),
             'lastname' => $this->faker->lastName(),
             'username' => $this->faker->unique()->userName(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'contact_number' => $this->faker->phoneNumber(),
             'password' => Hash::make('password'),
+            'province' => $this->faker->state(),
+            'barangay' => $this->faker->city(),
+            'city' => $this->faker->city(),
         ]);
     }
 
@@ -50,8 +50,6 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'member',
             'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'document' => $this->faker->imageUrl(640, 480, 'member', true),
@@ -64,8 +62,6 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'logistic',
             'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'password' => Hash::make('password'),

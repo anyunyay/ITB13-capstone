@@ -25,7 +25,7 @@ interface Member {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    contact_number?: string;
     address?: string;
     registration_date?: string;
     document?: string;
@@ -81,7 +81,7 @@ export default function Index() {
                                 <TableHead className="text-center">ID</TableHead>
                                 <TableHead className="text-center">Name</TableHead>
                                 <TableHead className="text-center">Email</TableHead>
-                                <TableHead className="text-center">Phone Number</TableHead>
+                                <TableHead className="text-center">Contact Number</TableHead>
                                 <TableHead className="text-center">Address</TableHead>
                                 <TableHead className="text-center">Registration Date</TableHead>
                                 <TableHead className="text-center">Document</TableHead>
@@ -89,12 +89,12 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {members.map((member) => (
-                                <TableRow className="text-center">
-                                    <TableCell>{member.id}</TableCell>
+                            {members.map((member, idx) => (
+                                <TableRow className="text-center" key={member.id}>
+                                    <TableCell>{idx + 1}</TableCell>
                                     <TableCell>{member.name}</TableCell>
                                     <TableCell>{member.email}</TableCell>
-                                    <TableCell>{member.phone}</TableCell>
+                                    <TableCell>{member.contact_number}</TableCell>
                                     <TableCell>{member.address}</TableCell>
                                     <TableCell>{member.registration_date}</TableCell>
                                     <TableCell className="flex justify-center">

@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('username')->nullable()->unique(); // for customer
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('contact_number')->nullable(); // for customer
-            $table->string('phone')->nullable(); // for member/logistic
+            $table->string('contact_number')->nullable(); // for customer/member/logistic
             $table->text('address')->nullable(); // for member/logistic/customer
             $table->string('province')->nullable(); // for customer
             $table->string('barangay')->nullable(); // for customer

@@ -25,7 +25,7 @@ interface Logistic {
     id: number;
     name: string;
     email: string;
-    phone?: string;
+    contact_number?: string;
     address?: string;
     registration_date?: string;
     type: string;
@@ -80,18 +80,19 @@ export default function Index() {
                                 <TableHead className="text-center">ID</TableHead>
                                 <TableHead className="text-center">Name</TableHead>
                                 <TableHead className="text-center">Email</TableHead>
-                                <TableHead className="text-center">Phone Number</TableHead>
+                                <TableHead className="text-center">Contact Number</TableHead>
+                                <TableHead className="text-center">Address</TableHead>
                                 <TableHead className="text-center">Registration Date</TableHead>
                                 <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {logistics.map((logistic) => (
-                                <TableRow className="text-center">
-                                    <TableCell>{logistic.id}</TableCell>
+                            {logistics.map((logistic, idx) => (
+                                <TableRow className="text-center" key={logistic.id}>
+                                    <TableCell>{idx + 1}</TableCell>
                                     <TableCell>{logistic.name}</TableCell>
                                     <TableCell>{logistic.email}</TableCell>
-                                    <TableCell>{logistic.phone}</TableCell>
+                                    <TableCell>{logistic.contact_number}</TableCell>
                                     <TableCell>{logistic.address}</TableCell>
                                     <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
