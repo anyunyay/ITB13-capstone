@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->decimal('price', 10, 2);
+            $table->enum('category', ['fruit', 'vegetable']);
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->timestamp('archived_at')->nullable();

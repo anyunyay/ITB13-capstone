@@ -22,6 +22,7 @@ export default function Create() {
         price: '',
         description: '',
         image: null as File | null,
+        category: 'fruit',
     });
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +68,19 @@ export default function Create() {
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>
                         <Textarea placeholder="Product Description" value={data.description} onChange={(e) => setData('description', e.target.value)}/>
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product category">Category</Label>
+                        <select
+                            id="category"
+                            name="category"
+                            value={data.category}
+                            onChange={e => setData('category', e.target.value)}
+                            className="block w-full border rounded px-3 py-2"
+                        >
+                            <option value="fruit">Fruit</option>
+                            <option value="vegetable">Vegetable</option>
+                        </select>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product image">Image Upload</Label>

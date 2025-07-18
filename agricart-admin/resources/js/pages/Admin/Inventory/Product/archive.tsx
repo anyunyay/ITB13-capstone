@@ -28,6 +28,7 @@ interface Product {
     id: number;
     name: string;
     price: number;
+    category: string;
     description: string;
     image: string;
 }
@@ -89,6 +90,7 @@ export default function Archive() {
                             <CardHeader>
                                 <CardTitle>{product.name}</CardTitle>
                                 <CardDescription>P{product.price}</CardDescription>
+                                <div className="text-xs text-gray-500 mb-1">{product.category}</div>
                                 <CardAction>
                                     <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)}>
                                         Restore
