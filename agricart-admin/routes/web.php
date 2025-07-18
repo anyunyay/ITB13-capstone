@@ -14,12 +14,9 @@ Route::get('/', function () {
 })->name('home');
 
 // All authenticated routes with middleware
-Route::middleware(['auth', 'verified'])->group(function () {
-    // // Admin Dashboard
-    // Route::get('/admin/dashboard', fn() => Inertia::render('admin.dashboard'))->name('admin.dashboard');
-
+Route::prefix('/admin')->middleware(['auth', 'verified'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
+    Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('dashboard');
     
 // Inventory Routes
     // View Inventory
