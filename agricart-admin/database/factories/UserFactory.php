@@ -15,9 +15,7 @@ class UserFactory extends Factory
     {
         return [
             'contact_number' => $this->faker->phoneNumber(),
-            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
             'type' => 'customer', // default type
         ];
@@ -40,7 +38,8 @@ class UserFactory extends Factory
             'firstname' => $this->faker->firstName(),
             'lastname' => $this->faker->lastName(),
             'username' => $this->faker->unique()->userName(),
-            'password' => Hash::make('password'),
+            'email' => 'customer@customer.com',
+            'password' => Hash::make('12345678'),
             'province' => $this->faker->state(),
             'barangay' => $this->faker->city(),
             'city' => $this->faker->city(),
@@ -53,6 +52,7 @@ class UserFactory extends Factory
             'type' => 'member',
             'name' => $this->faker->name(),
             'address' => $this->faker->address(),
+            'email' => $this->faker->unique()->safeEmail(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'document' => $this->faker->imageUrl(640, 480, 'member', true),
             'password' => Hash::make('password'),
@@ -65,6 +65,7 @@ class UserFactory extends Factory
             'type' => 'logistic',
             'name' => $this->faker->name(),
             'address' => $this->faker->address(),
+            'email' => $this->faker->unique()->safeEmail(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'password' => Hash::make('password'),
         ]);

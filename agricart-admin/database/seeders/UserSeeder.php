@@ -16,8 +16,8 @@ class UserSeeder extends Seeder
         // Seed 1 admin
         User::factory()->count(1)->admin()->create();
 
-        // Seed 2 customers
-        User::factory()->count(2)->customer()->create();
+        // Seed 1 customers
+        User::factory()->count(1)->customer()->create();
 
         // Seed 3 members
         User::factory()->count(3)->member()->create();
