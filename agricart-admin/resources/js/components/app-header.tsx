@@ -11,19 +11,34 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, LeafyGreen, BookUser, CalendarClock} from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Home',
-        href: '/',
-        icon: LayoutGrid,
+        title: 'Category',
+        href: '/customer/category',
+        icon: LeafyGreen,
+    },
+    {
+        title: 'About Us',
+        href: '/customer/about',
+        icon: BookUser,
     },
 ];
 
 const rightNavItems: NavItem[] = [
+    {
+        title: 'Cart',
+        href: '/',
+        icon: ShoppingBasket ,
+    },
+    {
+        title: 'Order History',
+        href: '/',
+        icon: CalendarClock,
+    },
 ];
 
 const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
@@ -85,7 +100,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <div className="flex items-center space-x-2">
+                    <Link href='/' className="flex items-center space-x-2">
                         <AppLogo />{/* change Logo as needed */}
+                    </Link>
                         {/* Breadcrumbs on top left */}
                         {breadcrumbs.length > 0 && (
                             <div className="hidden lg:block">
@@ -165,13 +182,22 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <Button
-                                variant="outline"
-                                className="ml-2"
-                                onClick={() => window.location.href = '/login'}
-                            >
-                                Login
-                            </Button>
+                            <>
+                                <Button
+                                    variant="outline"
+                                    className="ml-2"
+                                    onClick={() => window.location.href = '/login'}
+                                >
+                                    Login
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="ml-2"
+                                    onClick={() => window.location.href = '/register'}
+                                >
+                                    Register
+                                </Button>
+                            </>
                         )}
                     </div>
                 </div>

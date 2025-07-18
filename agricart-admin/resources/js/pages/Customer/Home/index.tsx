@@ -21,7 +21,7 @@ export default function CustomerHome() {
             router.visit('/login');
         }
     };
-
+    
     return (
         <AppHeaderLayout>
             <Head title="Home" />
