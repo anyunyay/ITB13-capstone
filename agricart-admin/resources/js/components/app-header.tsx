@@ -17,23 +17,13 @@ import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/admin/dashboard',
+        title: 'Home',
+        href: '/',
         icon: LayoutGrid,
     },
 ];
 
 const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
 ];
 
 const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
@@ -94,10 +84,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    <div className="flex items-center space-x-4">
-                    <Link href="/admin/dashboard" prefetch className="flex items-center space-x-2">
-                        <AppLogo />
-                    </Link>
+                    <div className="flex items-center space-x-2">
+                        <AppLogo />{/* change Logo as needed */}
                         {/* Breadcrumbs on top left */}
                         {breadcrumbs.length > 0 && (
                             <div className="hidden lg:block">

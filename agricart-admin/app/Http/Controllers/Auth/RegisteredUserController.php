@@ -43,6 +43,11 @@ class RegisteredUserController extends Controller
             'type' => 'customer', // Ensure type is set to customer
         ]);
 
+        // Explicitly assign the 'customer' role
+        if (!$user->hasRole('customer')) {
+            $user->assignRole('customer');
+        }
+
         event(new Registered($user));
 
         Auth::login($user);
