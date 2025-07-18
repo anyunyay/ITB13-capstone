@@ -40,35 +40,35 @@ export function AppSidebar() {
   if (true) {
     mainNavItems.push({
       title: 'Dashboard',
-      href: '/dashboard',
+      href: '/admin/dashboard',
       icon: LayoutDashboard,
     });
   }
   if (canViewInventory) {
     mainNavItems.push({
       title: 'Inventory',
-      href: '/inventory',
+      href: '/admin/inventory',
       icon: Package,
     });
   }
   if (canViewOrders) {
     mainNavItems.push({
       title: 'Orders',
-      href: '/orders',
+      href: '/admin/orders',
       icon: ClipboardPen,
     });
   }
   if (canViewMembership) {
     mainNavItems.push({
       title: 'Membership',
-      href: '/membership',
+      href: '/admin/membership',
       icon: UsersRound,
     });
   }
   if (canViewLogistics) {
     mainNavItems.push({
       title: 'Logistics',
-      href: '/logistics',
+      href: '/admin/logistics',
       icon: IdCard,
     });
   }
@@ -92,7 +92,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" prefetch>
+              <Link href="/admin/dashboard" prefetch>
                 <AppLogo />
               </Link>
             </SidebarMenuButton>

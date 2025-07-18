@@ -28,7 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Inventory',
-        href: '/inventory',
+        href: '/admin/inventory',
     },
 ];
 

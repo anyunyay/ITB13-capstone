@@ -18,7 +18,7 @@ import {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Membership',
-        href: '/membership',
+        href: '/admin/membership',
     },
 ];
 
