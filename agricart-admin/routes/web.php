@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Admin/welcome');
+    return Inertia::render('Customer/Home/index');
 })->name('home');
 
 // Authenticated routes
@@ -18,7 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
         // Dashboard routes
-        Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('dashboard'); // Admin Dashboard
+        Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('admin.dashboard'); // Admin Dashboard
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {
@@ -85,7 +85,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Customer routes
     Route::prefix('/customer')->group(function () {
-        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
         // Add more customer routes here as needed
     });
 
