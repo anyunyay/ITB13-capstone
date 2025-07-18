@@ -35,9 +35,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'customer',
-            'firstname' => $this->faker->firstName(),
-            'lastname' => $this->faker->lastName(),
-            'username' => $this->faker->unique()->userName(),
+            'name' => $this->faker->name(),
             'email' => 'customer@customer.com',
             'password' => Hash::make('12345678'),
             'province' => $this->faker->state(),

@@ -23,9 +23,6 @@ class User extends Authenticatable
         'email',
         'password',
         // Customer fields
-        'firstname',
-        'lastname',
-        'username',
         'address line',
         'barangay',
         'city',

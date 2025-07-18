@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('type')->default('customer'); // admin, customer, logistic, member
             $table->string('name')->nullable(); // for admin/member/logistic
-            $table->string('firstname')->nullable(); // for customer
-            $table->string('lastname')->nullable(); // for customer
-            $table->string('username')->nullable()->unique(); // for customer
             $table->string('email')->unique();
             $table->string('password');
             $table->string('contact_number')->nullable(); // for customer/member/logistic
