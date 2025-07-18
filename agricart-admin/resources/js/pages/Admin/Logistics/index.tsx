@@ -15,13 +15,6 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Logistics',
-        href: '/admin/logistics',
-    },
-];
-
 interface Logistic {
     id: number;
     name: string;
@@ -61,7 +54,7 @@ export default function Index() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Logistics " />
             <div className="m-4">
                 <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>

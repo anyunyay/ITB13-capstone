@@ -17,14 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Inventory Stock Trail',
-        href: '/inventory/stock-trail',
-    },
-];
-
 interface Product {
     id: number;
     name: string;
@@ -70,7 +62,7 @@ export default function Index() {
     const { processing, delete: destroy, post } = useForm();
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Stock Trail" />
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>

@@ -73,7 +73,7 @@ export default function Edit({ logistic }: Props) {
     }
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Edit Logistic', href: `/Logistics/${logistic.id}/edit` }]}>
+        <AppLayout>
             <Head title="Update Logistic" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>

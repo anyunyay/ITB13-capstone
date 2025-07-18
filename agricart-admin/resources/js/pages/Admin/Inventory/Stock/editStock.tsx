@@ -17,13 +17,6 @@ import {
 } from "@/components/ui/select"
 
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Edit Product Stock',
-        href: '/inventory/{product}/edit-stock',
-    },
-];
-
 interface Product {
     id: number;
     name: string;
@@ -76,7 +69,7 @@ export default function EditStock({ product, stock, members }: Props) {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Edit Stock" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>

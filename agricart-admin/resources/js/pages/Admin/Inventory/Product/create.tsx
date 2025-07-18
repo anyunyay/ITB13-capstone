@@ -9,13 +9,6 @@ import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { OctagonAlert, Terminal } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Create Product',
-        href: '/inventory/create',
-    },
-];
-
 export default function Create() {
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
@@ -43,7 +36,7 @@ export default function Create() {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Create a New Product"/>
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit}  className='space-y-4'>

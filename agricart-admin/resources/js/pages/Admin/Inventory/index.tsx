@@ -25,13 +25,6 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Inventory',
-        href: '/admin/inventory',
-    },
-];
-
 interface Product {
     id: number;
     name: string;
@@ -103,7 +96,7 @@ export default function Index() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Inventory" />
             <div className="m-4">
                 <Link href={route('inventory.create')}><Button>Create Product</Button></Link>

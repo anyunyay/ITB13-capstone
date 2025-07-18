@@ -16,13 +16,6 @@ import { usePage } from '@inertiajs/react';
 import { SharedData } from '@/types';
 import { router } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Add Logistic',
-        href: '/logistics/add',
-    },
-];
-
 function formatDate(date: Date | undefined) {
   if (!date) {
     return ""
@@ -75,7 +68,7 @@ export default function Index() {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Add Logistic" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>

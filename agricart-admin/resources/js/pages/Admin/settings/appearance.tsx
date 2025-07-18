@@ -6,13 +6,6 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Appearance settings',
-        href: '/settings/appearance',
-    },
-];
-
 export default function Appearance() {
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
@@ -22,7 +15,7 @@ export default function Appearance() {
     }, [auth]);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Appearance settings" />
 
             <SettingsLayout>

@@ -17,13 +17,6 @@ import {
 } from "@/components/ui/select"
 
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Add Stock',
-        href: '/inventory/{product}/add-stock',
-    },
-];
-
 interface Product {
     id: number;
     name: string;
@@ -78,7 +71,7 @@ export default function AddStock({product}: Props) {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Add Stock to Product" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>

@@ -13,13 +13,6 @@ import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Add Member',
-        href: '/membership/add',
-    },
-];
-
 function formatDate(date: Date | undefined) {
   if (!date) {
     return ""
@@ -80,7 +73,7 @@ export default function Index() {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Add Member" />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>

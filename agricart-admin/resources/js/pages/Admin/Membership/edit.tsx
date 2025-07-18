@@ -79,7 +79,7 @@ export default function Edit({member}: Props) {
     }
 
     return (
-        <AppLayout breadcrumbs={[{title: 'Edit Member', href: `/membership/${member.id}/edit`}]}>
+        <AppLayout>
             <Head title="Update Member"/>
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>

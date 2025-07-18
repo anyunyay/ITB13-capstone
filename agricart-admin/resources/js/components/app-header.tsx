@@ -94,9 +94,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
+                    <div className="flex items-center space-x-4">
                     <Link href="/admin/dashboard" prefetch className="flex items-center space-x-2">
                         <AppLogo />
                     </Link>
+                        {/* Breadcrumbs on top left */}
+                        {breadcrumbs.length > 0 && (
+                            <div className="hidden lg:block">
+                                <Breadcrumbs breadcrumbs={breadcrumbs} />
+                            </div>
+                        )}
+                    </div>
 
                     {/* Desktop Navigation */}
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
@@ -170,13 +178,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
                 </div>
             </div>
-            {breadcrumbs.length > 1 && (
-                <div className="flex w-full border-b border-sidebar-border/70">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
-                        <Breadcrumbs breadcrumbs={breadcrumbs} />
-                    </div>
-                </div>
-            )}
+            {/* Remove old conditional breadcrumbs at the bottom */}
         </>
     );
 }

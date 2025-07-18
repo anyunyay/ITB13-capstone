@@ -24,13 +24,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Archived Inventory',
-        href: '/archive',
-    },
-];
-
 interface Product {
     id: number;
     name: string;
@@ -70,7 +63,7 @@ export default function Archive() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AppLayout>
             <Head title="Archived Inventory" />
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
