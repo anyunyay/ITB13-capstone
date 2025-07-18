@@ -13,6 +13,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed 1 admin
+        User::factory()->count(1)->admin()->create();
+
         // Seed 2 customers
         User::factory()->count(2)->customer()->create();
 

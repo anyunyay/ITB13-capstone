@@ -21,13 +21,5 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             StockSeeder::class,
         ]);
-
-        // Create admin user after roles/permissions are seeded
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@admin.com',
-            'password' =>'12345678',
-            'type' => 'admin',
-        ]);
     }
 }

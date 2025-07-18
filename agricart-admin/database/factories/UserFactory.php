@@ -19,7 +19,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-            'type' => 'admin', // default type
+            'type' => 'customer', // default type
         ];
     }
 
@@ -27,7 +27,9 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'admin',
-            'name' => $this->faker->name(),
+            'name' => 'Admin',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('12345678'),
         ]);
     }
 
