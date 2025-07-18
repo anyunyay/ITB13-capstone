@@ -13,92 +13,93 @@ Route::get('/', function () {
     return Inertia::render('Admin/welcome');
 })->name('home');
 
-// All authenticated routes with middleware
-Route::prefix('/admin')->middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('dashboard');
-    
-// Inventory Routes
-    // View Inventory
-    Route::middleware(['can:view inventory'])->group(function () {
-        Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    });
-    // Add Product
-    Route::middleware(['can:create products'])->group(function () {
-        Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
-        Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
-    });
-    // Edit Product
-    Route::middleware(['can:edit products'])->group(function () {
-        Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
-        Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
-    });
-    // Delete Product
-    Route::middleware(['can:delete products'])->delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+// Authenticated routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Admin || Staff routes
+    Route::prefix('/admin')->group(function () {
+        // Dashboard routes
+        Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('dashboard'); // Admin Dashboard
 
-// Inventory Archive Routes
-    // View Archived Products
-    Route::middleware(['can:view archive'])->get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index');
-    // Archive Product
-    Route::middleware(['can:archive products'])->post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive');
-    // Unarchive Product
-    Route::middleware(['can:unarchive products'])->post('/inventory/archive/{product}/restore', [InventoryArchiveController::class, 'restore'])->name('inventory.archived.restore');
-    // Delete Archived Product
-    Route::middleware(['can:delete archived products'])->delete('/inventory/archive/{product}', [InventoryArchiveController::class, 'forceDelete'])->name('inventory.archived.forceDelete');
+        // Inventory routes
+        Route::middleware(['can:view inventory'])->group(function () {
+            Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index'); // View Inventory
+        });
+        Route::middleware(['can:create products'])->group(function () {
+            Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create'); // Add Product (GET)
+            Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store'); // Add Product (POST)
+        });
+        Route::middleware(['can:edit products'])->group(function () {
+            Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit'); // Edit Product (GET)
+            Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update'); // Edit Product (PUT)
+        });
+        Route::middleware(['can:delete products'])->delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy'); // Delete Product
 
-// Inventory Product Stock Routes
-    // Add Stock
-    Route::middleware(['can:create stocks'])->group(function () {
-        Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock');
-        Route::post('/inventory/{product}/add-stock', [InventoryStockController::class, 'storeStock'])->name('inventory.storeStock');
-        Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock');
-        Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock');
-    });
-    // Edit Stock
-    Route::middleware(['can:edit stocks'])->group(function () {
-        Route::get('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'editStock'])->name('inventory.editStock');
-        Route::put('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock');
-    });
-    // Delete Stock
-    Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.removeStock');
+        // Archive routes
+        Route::middleware(['can:view archive'])->get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index'); // View Archived Products
+        Route::middleware(['can:archive products'])->post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive'); // Archive Product
+        Route::middleware(['can:unarchive products'])->post('/inventory/archive/{product}/restore', [InventoryArchiveController::class, 'restore'])->name('inventory.archived.restore'); // Unarchive Product
+        Route::middleware(['can:delete archived products'])->delete('/inventory/archive/{product}', [InventoryArchiveController::class, 'forceDelete'])->name('inventory.archived.forceDelete'); // Delete Archived Product
 
-// Inventory Stock Trail Routes
-    // View Stock Trail
-    Route::middleware(['can:view stock trail'])->get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index');
+        // Stock routes
+        Route::middleware(['can:create stocks'])->group(function () {
+            Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock'); // Add Stock (GET)
+            Route::post('/inventory/{product}/add-stock', [InventoryStockController::class, 'storeStock'])->name('inventory.storeStock'); // Add Stock (POST)
+            Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock'); // Remove Stock (GET)
+            Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock'); // Remove Stock (POST)
+        });
+        Route::middleware(['can:edit stocks'])->group(function () {
+            Route::get('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'editStock'])->name('inventory.editStock'); // Edit Stock (GET)
+            Route::put('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock'); // Edit Stock (PUT)
+        });
+        Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.removeStock'); // Delete Stock
 
-// Membership Routes
-    // View Membership
-    Route::middleware(['can:view membership'])->group(function () {
-        Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
-    });
-    // Add Member
-    Route::middleware(['can:create members'])->group(function () {
-        Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add');
-        Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store');
-    });
-    // Edit Member
-    Route::middleware(['can:edit members'])->group(function () {
-        Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit');
-        Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update');
-    });
-    // Delete Member
-    Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy');
+        // Stock Trail routes
+        Route::middleware(['can:view stock trail'])->get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index'); // View Stock Trail
 
-// Logistics Routes
-    // View Logistics
-    Route::middleware(['can:view logistics'])->get('/logistics', [LogisticController::class, 'index'])->name('logistics.index');
-    // Add Logistic
-    Route::middleware(['can:create logistics'])->group(function () {
-        Route::get('/logistics/add', [LogisticController::class, 'add'])->name('logistics.add');
-        Route::post('/logistics', [LogisticController::class, 'store'])->name('logistics.store');
+        // Membership routes
+        Route::middleware(['can:view membership'])->group(function () {
+            Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index'); // View Membership
+        });
+        Route::middleware(['can:create members'])->group(function () {
+            Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add'); // Add Member (GET)
+            Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store'); // Add Member (POST)
+        });
+        Route::middleware(['can:edit members'])->group(function () {
+            Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit'); // Edit Member (GET)
+            Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update'); // Edit Member (PUT)
+        });
+        Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Delete Member
+
+        // Logistic routes
+        Route::middleware(['can:view logistics'])->get('/logistics', [LogisticController::class, 'index'])->name('logistics.index'); // View Logistics
+        Route::middleware(['can:create logistics'])->group(function () {
+            Route::get('/logistics/add', [LogisticController::class, 'add'])->name('logistics.add'); // Add Logistic (GET)
+            Route::post('/logistics', [LogisticController::class, 'store'])->name('logistics.store'); // Add Logistic (POST)
+        });
+        Route::middleware(['can:edit logistics'])->group(function () {
+            Route::get('/logistics/{logistic}/edit', [LogisticController::class, 'edit'])->name('logistics.edit'); // Edit Logistic (GET)
+            Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
+        });
+        Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
     });
-    // Edit Logistic
-    Route::middleware(['can:edit logistics'])->group(function () {
-        Route::get('/logistics/{logistic}/edit', [LogisticController::class, 'edit'])->name('logistics.edit');
-        Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update');
+
+    // Customer routes
+    Route::prefix('/customer')->group(function () {
+        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
+        // Add more customer routes here as needed
     });
-    // Delete Logistic
-    Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy');
+
+    // Logistic routes
+    Route::prefix('/logistic')->group(function () {
+        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
+        // Add more logistic routes here as needed
+    });
+
+    // Member routes
+    Route::prefix('/member')->group(function () {
+        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
+        // Add more member routes here as needed
+    });
 });
 
 require __DIR__ . '/settings.php';
