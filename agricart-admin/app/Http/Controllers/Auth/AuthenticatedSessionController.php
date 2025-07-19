@@ -34,6 +34,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Generate Token for API access if needed
+
         // Redirect based on user role
         if ($user->hasRole('admin') || $user->hasRole('staff')) {
             return redirect()->intended(route('admin.dashboard', absolute: false));

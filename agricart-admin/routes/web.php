@@ -1,17 +1,19 @@
 <?php
 
+// Admin Controllers
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
 use App\Http\Controllers\Admin\InventoryStockTrailController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
+
+// Customer Controllers
+use App\Http\Controllers\Customer\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Customer/Home/index');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home'); // View Home
 
 // Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -11,15 +11,20 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, LeafyGreen, BookUser, CalendarClock} from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell} from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Category',
-        href: '/customer/category',
-        icon: LeafyGreen,
+        title: 'Fruits',
+        href: '/customer/fruits',
+        icon: Apple,
+    },
+    {
+        title: 'Vegetables',
+        href: '/customer/vegetables',
+        icon: Carrot,
     },
     {
         title: 'About Us',
@@ -35,9 +40,9 @@ const rightNavItems: NavItem[] = [
         icon: ShoppingBasket ,
     },
     {
-        title: 'Order History',
+        title: 'Notifications',
         href: '/',
-        icon: CalendarClock,
+        icon: Bell,
     },
 ];
 
