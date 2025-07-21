@@ -27,6 +27,11 @@ interface Member {
     name: string;
 }
 
+interface SellCategory {
+    id: number;
+    sell_category: string;
+}
+
 interface Stock {
     stock_id?: number;
     id: number;
@@ -35,7 +40,7 @@ interface Stock {
     member_id: number;
     product: Product;
     member: Member;
-    category: 'Kilo' | 'Pc' | 'Tali';
+    category: SellCategory;
     created_at: string;
 }
 
@@ -87,11 +92,11 @@ export default function Index() {
                                         <TableCell className="text-center">{stock.stock_id ?? stock.id}</TableCell>
                                         <TableCell className="text-center">{stock.product?.name}</TableCell>
                                         <TableCell className="text-center">{
-                                            stock.category === 'Kilo'
+                                            stock.category?.sell_category === 'Kilo'
                                                 ? stock.quantity
                                                 : Math.floor(stock.quantity)
                                         }</TableCell>
-                                        <TableCell className="text-center">{stock.category}</TableCell>
+                                        <TableCell className="text-center">{stock.category?.sell_category}</TableCell>
                                         <TableCell className="text-center">{stock.member?.name}</TableCell>
                                         <TableCell className="text-center">
                                             {new Date(stock.created_at).toLocaleString()}

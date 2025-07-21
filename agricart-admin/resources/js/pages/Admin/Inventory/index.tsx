@@ -46,14 +46,18 @@ interface Member {
     [key: string]: unknown;
 }
 
+interface SellCategory {
+    id: number;
+    sell_category: string;
+}
+
 interface Stock {
     id: number;
-    product_id: number;
     quantity: number;
     member_id: number;
     product: Product;
     member: Member;
-    category: 'Kilo' | 'Pc' | 'Tali';
+    category: SellCategory;
 }
 
 interface PageProps {
@@ -86,7 +90,7 @@ export default function Index() {
 
     const handleDeleteStock = (stock: Stock) => {
         if (confirm(`Are you sure you want to delete - Stock #${stock.id}?`)) {
-            destroy(route('inventory.removeStock', { product: stock.product_id, stock: stock.id }));
+            destroy(route('inventory.removeStock', { product: stock.product.id, stock: stock.id }));
         }
     };
 
@@ -180,14 +184,12 @@ export default function Index() {
                                                 <TableCell>{stock.id}</TableCell>
                                                 <TableCell>{stock.product?.name}</TableCell>
                                                 <TableCell>{
-                                                    stock.category === 'Kilo'
-                                                        ? stock.quantity
-                                                        : Math.floor(stock.quantity)
+                                                    stock.quantity
                                                 }</TableCell>
-                                                <TableCell>{stock.category}</TableCell>
+                                                <TableCell>{stock.category?.sell_category}</TableCell>
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
-                                                    <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                    <Link href={route('inventory.editStock', { product: stock.product.id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                     <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
                                                 </TableCell>
                                             </TableRow>
@@ -212,7 +214,7 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                            .filter((stock) => stock.category === 'Kilo')
+                                            .filter((stock) => stock.category?.sell_category === 'Kilo')
                                             .map((stock) => (
                                                 <TableRow className="text-center" key={stock.id}>
                                                     <TableCell>{stock.id}</TableCell>
@@ -220,7 +222,7 @@ export default function Index() {
                                                     <TableCell>{stock.quantity}</TableCell>
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
-                                                        <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                        <Link href={route('inventory.editStock', { product: stock.product.id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                         <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
                                                     </TableCell>
                                                 </TableRow>
@@ -245,7 +247,7 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                            .filter((stock) => stock.category === 'Pc')
+                                            .filter((stock) => stock.category?.sell_category === 'Pc')
                                             .map((stock) => (
                                                 <TableRow className="text-center" key={stock.id}>
                                                     <TableCell>{stock.id}</TableCell>
@@ -253,7 +255,7 @@ export default function Index() {
                                                     <TableCell>{Math.floor(stock.quantity)}</TableCell>
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
-                                                        <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                        <Link href={route('inventory.editStock', { product: stock.product.id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                         <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
                                                     </TableCell>
                                                 </TableRow>
@@ -278,7 +280,7 @@ export default function Index() {
                                     </TableHeader>
                                     <TableBody>
                                         {stocks
-                                            .filter((stock) => stock.category === 'Tali')
+                                            .filter((stock) => stock.category?.sell_category === 'Tali')
                                             .map((stock) => (
                                                 <TableRow className="text-center" key={stock.id}>
                                                     <TableCell>{stock.id}</TableCell>
@@ -286,7 +288,7 @@ export default function Index() {
                                                     <TableCell>{Math.floor(stock.quantity)}</TableCell>
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
-                                                        <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                        <Link href={route('inventory.editStock', { product: stock.product.id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                         <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
                                                     </TableCell>
                                                 </TableRow>

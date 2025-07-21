@@ -13,10 +13,10 @@ class Stock extends Model
         'quantity', 
         'member_id', 
         'product_id',
-        'category'
+        'sell_category_id'
     ];
 
-    protected $with = ['product', 'member'];
+    protected $with = ['product', 'member', 'category'];
     
     public function product()
     {
@@ -26,5 +26,10 @@ class Stock extends Model
     public function member()
     {
         return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(SellCategory::class, 'sell_category_id');
     }
 }

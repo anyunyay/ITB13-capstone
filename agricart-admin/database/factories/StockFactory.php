@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use App\Models\Member;
+use App\Models\SellCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 
@@ -23,7 +24,7 @@ class StockFactory extends Factory
             'product_id' => Product::inRandomOrder()->first()->id,
             'quantity' => $this->faker->numberBetween(0.25, 10.00),
             'member_id' => User::where('type', 'member')->inRandomOrder()->first()->id,
-            'category' => $this->faker->randomElement(['Kilo', 'Pc', 'Tali']),
+            'sell_category_id' => SellCategory::inRandomOrder()->first()->id,
         ];
     }
 }

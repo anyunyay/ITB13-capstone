@@ -11,7 +11,7 @@ class InventoryStockTrailController extends Controller
 {
     public function index()
     {
-        $stocks = InventoryStockTrail::with(['product', 'member'])->get();
+        $stocks = InventoryStockTrail::with(['product', 'member', 'category'])->get();
         return Inertia::render('Inventory/Stock/stockTrail', ['stocks' => $stocks,]);
     }
 }
