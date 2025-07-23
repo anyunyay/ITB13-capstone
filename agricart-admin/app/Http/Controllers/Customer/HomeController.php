@@ -2,16 +2,29 @@
 
 namespace App\Http\Controllers\Customer;
 
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    public function index()
-    {
+public function index()
+{
+    $products = Product::with('stocks')->get();
 
-        $products = Product::active()->get();
-        return Inertia::render('Customer/Home/index', compact('products'));
-    }
-} 
+    $products->each(function ($product) {
+        $stockSums = $product->stocks
+            ->groupBy('category')
+            ->map(fn($group) => $group->sum('quantity'));
+
+        $product->stock_by_category = $stockSums;
+    });
+
+    return Inertia::render('Customer/Home/index', [
+        'products' => $products
+    ]);
+}
+
+
+}

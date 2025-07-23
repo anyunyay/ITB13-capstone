@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\InventoryStockController;
 use App\Http\Controllers\Admin\InventoryStockTrailController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
-
+use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -87,7 +87,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Customer routes
     Route::prefix('/customer')->group(function () {
-        // Add more customer routes here as needed
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::delete('/cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
     });
 
     // Logistic routes
