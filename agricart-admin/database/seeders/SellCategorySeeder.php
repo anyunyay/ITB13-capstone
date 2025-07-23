@@ -13,7 +13,7 @@ class SellCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        SellCategory::factory()->createMany([
+        SellCategory::create()->createMany([
             ['sell_category' => 'Kilo'],
             ['sell_category' => 'Pc'],
             ['sell_category' => 'Tali'],
