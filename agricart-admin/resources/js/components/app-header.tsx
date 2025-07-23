@@ -11,7 +11,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell} from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -36,8 +36,8 @@ const mainNavItems: NavItem[] = [
 const rightNavItems: NavItem[] = [
     {
         title: 'Cart',
-        href: '/',
-        icon: ShoppingBasket ,
+        href: '/customer/cart',
+        icon: ShoppingBasket,
     },
     {
         title: 'Notifications',
@@ -82,21 +82,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
+                                            {rightNavItems.map((item) => (
+                                                <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
+                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            ))}
                                         </div>
 
                                         <div className="flex flex-col space-y-4">
-                                            {rightNavItems.map((item) => (
-                                                <a
-                                                    key={item.title}
-                                                    href={item.href}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center space-x-2 font-medium"
-                                                >
-                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
-                                                </a>
-                                            ))}
+                                            {/* For Footer Links */}
                                         </div>
                                     </div>
                                 </div>
@@ -105,9 +100,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                    <Link href='/' className="flex items-center space-x-2">
-                        <AppLogo />{/* change Logo as needed */}
-                    </Link>
+                        <Link href='/' className="flex items-center space-x-2">
+                            <AppLogo />{/* change Logo as needed */}
+                        </Link>
                         {/* Breadcrumbs on top left */}
                         {breadcrumbs.length > 0 && (
                             <div className="hidden lg:block">
@@ -152,15 +147,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <TooltipProvider key={item.title} delayDuration={0}>
                                         <Tooltip>
                                             <TooltipTrigger>
-                                                <a
+                                                <Link
                                                     href={item.href}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
                                                     className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                                                 >
                                                     <span className="sr-only">{item.title}</span>
                                                     {item.icon && <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />}
-                                                </a>
+                                                </Link>
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>{item.title}</p>
