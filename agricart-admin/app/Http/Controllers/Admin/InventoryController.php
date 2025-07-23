@@ -42,6 +42,7 @@ class InventoryController extends Controller
                 'price' => $request->input('price'),
                 'description' => $request->input('description'),
                 'image' => 'images/products/' . $imageName,
+                'produce_type' => $request->input('produce_type'),
             ]);
         }
 
@@ -68,6 +69,7 @@ class InventoryController extends Controller
                 'name' => $request->input('name'),
                 'price' => $request->input('price'),
                 'description' => $request->input('description'),
+                'produce_type' => $request->input('produce_type'),
             ]);
         }
         

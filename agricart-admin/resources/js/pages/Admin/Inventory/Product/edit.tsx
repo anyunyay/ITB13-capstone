@@ -15,7 +15,7 @@ interface Product {
     price: number;
     description: string;
     image: string;
-    category: string;
+    produce_type: string;
 }
 
 interface Props {
@@ -35,7 +35,7 @@ export default function Edit({product}: Props) {
         price: product.price,
         description: product.description,
         image: null as File | null,
-        category: product.category || 'fruit',
+        produce_type: product.produce_type || 'fruit',
         _method: 'put',
     });
 
@@ -91,18 +91,18 @@ export default function Edit({product}: Props) {
                         {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product category">Category</Label>
+                        <Label htmlFor="product produce_type">Produce Type</Label>
                         <select
-                            id="category"
-                            name="category"
-                            value={data.category}
-                            onChange={e => setData('category', e.target.value)}
+                            id="produce_type"
+                            name="produce_type"
+                            value={data.produce_type}
+                            onChange={e => setData('produce_type', e.target.value)}
                             className="block w-full border rounded px-3 py-2"
                         >
                             <option value="fruit">Fruit</option>
                             <option value="vegetable">Vegetable</option>
                         </select>
-                        {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
+                        {errors.produce_type && <p className="text-sm text-red-500 mt-1">{errors.produce_type}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product image">Current Image</Label>

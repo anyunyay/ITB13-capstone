@@ -14,7 +14,7 @@ class Product extends Model
         'price',
         'description',
         'image',
-        'category',
+        'produce_type',
     ];
 
     public function stocks()

@@ -31,7 +31,7 @@ interface Product {
     price: number;
     description: string;
     image: string;
-    category: string;
+    produce_type: string;
 }
 
 interface Member {
@@ -124,7 +124,7 @@ export default function Index() {
                             <CardHeader>
                                 <CardTitle>{product.name}</CardTitle>
                                 <CardDescription>P{product.price}</CardDescription>
-                                <div className="text-xs text-gray-500 mb-1">{product.category}</div>
+                                <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
                                 <CardAction>
                                     <Button disabled={processing} onClick={() => handleArchive(product.id, product.name)}>
                                         Archive
