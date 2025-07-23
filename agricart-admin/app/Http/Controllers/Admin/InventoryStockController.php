@@ -7,7 +7,6 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
 use App\Models\InventoryStockTrail;
-use App\Models\SellCategory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -24,34 +23,37 @@ class InventoryStockController extends Controller
     {
         $products = Product::active()->get(['id', 'name']);
         $members = User::where('type', 'member')->get(['id', 'name']);
-        $categories = SellCategory::all(['id', 'sell_category']);
-        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members', 'categories'));
+        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members'));
     }
 
     public function storeStock(Request $request, Product $product)
     {
+        // Validate the request data
         $request->validate([
+            'name' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:users,id',
-            'sell_category_id' => 'required|exists:sell_categories,id',
+            'category' => 'required|in:Kilo,Pc,Tali',
         ]);
+
+        // Create a new stock entry
         $product->stocks()->create([
+            'name' => 'required|string|max:255',
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
-            'sell_category_id' => $request->input('sell_category_id'),
+            'category' => $request->input('category'),
         ]);
+
         return redirect()->route('inventory.index')->with('message', 'Stock added successfully');
     }
 
     public function editStock(Product $product, Stock $stock)
     {
         $members = User::where('type', 'member')->get(['id', 'name']);
-        $categories = SellCategory::all(['id', 'sell_category']);
         return Inertia::render('Inventory/Stock/editStock', [
             'product' => $product,
             'stock' => $stock,
             'members' => $members,
-            'categories' => $categories,
         ]);
     }
 
@@ -60,12 +62,12 @@ class InventoryStockController extends Controller
         $request->validate([
             'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:users,id',
-            'sell_category_id' => 'required|exists:sell_categories,id',
+            'category' => 'required|in:Kilo,Pc,Tali',
         ]);
         $stock->update([
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
-            'sell_category_id' => $request->input('sell_category_id'),
+            'category' => $request->input('category'),
         ]);
         return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }
@@ -78,7 +80,7 @@ class InventoryStockController extends Controller
             'product_id' => $stock->product_id,
             'quantity' => $stock->quantity,
             'member_id' => $stock->member_id,
-            'sell_category_id' => $stock->sell_category_id,
+            'category' => $stock->category,
         ]);
         $stock->delete();
         return redirect()->route('inventory.index')->with('message', 'Stock deleted and saved to trail successfully');

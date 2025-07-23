@@ -29,22 +29,16 @@ interface Member {
 
 interface Stock {
     id: number;
+    product_id: number;
     quantity: number;
     member_id: number;
-    product_id: number;
-    sell_category_id?: number;
-}
-
-interface Category {
-    id: number;
-    sell_category: string;
+    category: string;
 }
 
 interface Props {
     product: Product;
     stock: Stock;
     members: Member[];
-    categories: Category[];
 }
 
 interface PageProps {
@@ -55,7 +49,7 @@ interface PageProps {
     [key: string]: unknown;
 }
 
-export default function EditStock({ product, stock, members, categories }: Props) {
+export default function EditStock({ product, stock, members }: Props) {
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -66,16 +60,13 @@ export default function EditStock({ product, stock, members, categories }: Props
     const { data, setData, put, processing, errors } = useForm({
         quantity: stock.quantity,
         member_id: String(stock.member_id),
-        sell_category_id: stock.sell_category_id ? String(stock.sell_category_id) : '',
+        category: stock.category,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         put(route('inventory.updateStock', { product: product.id, stock: stock.id }));
     }
-
-    // Helper to get selected category label
-    const selectedCategory = categories.find(cat => String(cat.id) === data.sell_category_id)?.sell_category || '';
 
     return (
         <AppLayout>
@@ -124,27 +115,26 @@ export default function EditStock({ product, stock, members, categories }: Props
                     <div className='gap-1.5'>
                         <Label htmlFor="category">Category</Label>
                         <Select
-                            value={data.sell_category_id}
-                            onValueChange={value => setData('sell_category_id', value)}
+                            value={data.category}
+                            onValueChange={value => setData('category', value)}
                         >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
-                                {categories.map((cat) => (
-                                    <SelectItem key={cat.id} value={String(cat.id)}>
-                                        {cat.sell_category}
-                                    </SelectItem>
-                                ))}
+                                <SelectItem value="Kilo">Kilo</SelectItem>
+                                <SelectItem value="Pc">Pc</SelectItem>
+                                <SelectItem value="Tali">Tali</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
-                    {selectedCategory === "Kilo" && (
+                    {data.category === "Kilo" && (
                         <div className='gap-1.5'>
                             <Label htmlFor="quantity">Quantity</Label>
                             <Input
                                 id="quantity"
+                                type="number"
                                 min={0.01}
                                 step={0.01}
                                 value={data.quantity}
@@ -152,7 +142,8 @@ export default function EditStock({ product, stock, members, categories }: Props
                             />
                         </div>
                     )}
-                    {selectedCategory !== "Kilo" && selectedCategory !== '' && (
+
+                    {data.category !== "Kilo" && (
                         <div className='gap-1.5'>
                             <Label htmlFor="quantity">Quantity</Label>
                             <Input
