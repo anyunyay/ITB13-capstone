@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import type { SharedData } from '@/types';
 
 interface CartItem {
+  item_id: number;
   product_id: number;
   name: string;
-  sell_category_id: number;
-  sell_category: string;
+  category: string;
   quantity: number;
 }
 
@@ -36,10 +36,9 @@ export default function CartPage() {
     setCheckoutMessage(page?.props?.checkoutMessage || null);
   }, [page?.props?.checkoutMessage]);
 
-  const removeItem = (product_id: number, sell_category_id: number) => {
-    router.post(
-      '/customer/cart/remove',
-      { product_id, sell_category_id },
+  const removeItem = (cartItem: number) => {
+    router.delete(
+      `/customer/cart/remove/${cartItem}`,
       {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -77,13 +76,13 @@ export default function CartPage() {
         ) : (
           <div className="space-y-4">
             {cartItems.map((item) => (
-              <div key={item.product_id + '-' + item.sell_category_id} className="flex items-center justify-between border p-2 rounded">
+              <div key={item.item_id} className="flex items-center justify-between border p-2 rounded">
                 <div>
                   <div className="font-semibold">{item.name}</div>
-                  <div className="text-sm text-gray-500">Type: {item.sell_category}</div>
+                  <div className="text-sm text-gray-500">Type: {item.category}</div>
                   <div className="text-sm">Qty: {item.quantity}</div>
                 </div>
-                <Button variant="destructive" onClick={() => removeItem(item.product_id, item.sell_category_id)}>
+                <Button variant="destructive" onClick={() => removeItem(item.item_id)}>
                   Remove
                 </Button>
               </div>

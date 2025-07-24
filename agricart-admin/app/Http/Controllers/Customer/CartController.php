@@ -22,18 +22,16 @@ class CartController extends Controller
                     $item->product_id . '-' . $item->category => [
                         'product_id' => $item->product_id,
                         'name' => $item->product ? $item->product->name : '',
-                        'sell_category_id' => $item->id,
-                        'sell_category' => $item->category,
+                        'item_id' => $item->id,
+                        'category' => $item->category,
                         'quantity' => $item->quantity,
                     ]
                 ];
             });
         }
         $checkoutMessage = session('checkoutMessage');
-        return Inertia::render('Customer/Cart/index', [
-            'cart' => $cartData,
-            'checkoutMessage' => $checkoutMessage,
-        ]);
+        $cart = $cartData;
+        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage'));
     }
 
     public function store(Request $request) 

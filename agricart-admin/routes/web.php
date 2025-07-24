@@ -90,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-        Route::delete('/cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+        Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
     });
 
     // Logistic routes

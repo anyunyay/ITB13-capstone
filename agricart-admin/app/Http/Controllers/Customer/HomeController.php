@@ -9,22 +9,18 @@ use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-public function index()
-{
-    $products = Product::with('stocks')->get();
+    public function index()
+    {
+        $products = Product::with('stocks')->get();
 
-    $products->each(function ($product) {
-        $stockSums = $product->stocks
-            ->groupBy('category')
-            ->map(fn($group) => $group->sum('quantity'));
+        $products->each(function ($product) {
+            $stockSums = $product->stocks
+                ->groupBy('category')
+                ->map(fn($group) => $group->sum('quantity'));
 
-        $product->stock_by_category = $stockSums;
-    });
+            $product->stock_by_category = $stockSums;
+        });
 
-    return Inertia::render('Customer/Home/index', [
-        'products' => $products
-    ]);
-}
-
-
+        return Inertia::render('Customer/Home/index', compact('products'));
+    }
 }
