@@ -88,7 +88,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Customer routes
     Route::prefix('/customer')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-        Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
+        Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
         Route::delete('/cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
     });
 
