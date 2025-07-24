@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use App\Models\Cart;
+use App\Models\SoldStock;
 use App\Models\Stock;
 
 class CartController extends Controller
@@ -34,7 +35,7 @@ class CartController extends Controller
         return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage'));
     }
 
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -84,12 +85,14 @@ class CartController extends Controller
         $cart = Cart::where('user_id', $user->id)->first();
         $message = null;
         $error = null;
+        $sold = false;
 
         if (!$cart || $cart->items->isEmpty()) {
             return back()->with('checkoutMessage', 'Your cart is empty.');
         }
 
         try {
+            
             foreach ($cart->items as $item) {
                 $stocks = Stock::where('product_id', $item->product_id)
                     ->where('category', $item->category)
@@ -110,13 +113,23 @@ class CartController extends Controller
                     $stock->quantity -= $deduct;
                     $stock->save();
                     $remainingQty -= $deduct;
+                    $sold = true;
+
+                    // Save the deducted item as sold
+                    SoldStock::create([
+                        'stock_id' => $stock->id,
+                        'product_id' => $stock->product_id,
+                        'quantity' => $deduct, // amount deducted from this stock
+                        'member_id' => $stock->member_id,
+                        'category' => $stock->category,
+                    ]);
                 }
             }
 
             if ($error) {
                 return back()->with('checkoutMessage', $error);
             }
-
+            
             // Clear the cart
             $cart->items()->delete();
             $message = 'Checkout successful!';
