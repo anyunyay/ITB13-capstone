@@ -13,46 +13,56 @@ interface CartItem {
 }
 
 export default function CartPage() {
-  const page = usePage<Partial<SharedData>>();
+  const page = usePage<Partial<SharedData> & { cart?: Record<string, CartItem>; checkoutMessage?: string }>();
   const auth = page?.props?.auth;
-  const [cart, setCart] = useState<Record<string, CartItem>>({});
-  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const initialCart = page?.props?.cart || {};
+  const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!auth?.user) {
-      router.visit('/login'); // Change this, instead of using router redirect make it show as flash message or alert
-    } else {
-      fetch('/customer/cart')
-        .then((res) => res.json())
-        .then((data) => {
-          setCart(data.cart || {});
-        });
+      router.visit('/login'); // Optionally, show a flash message or alert instead
     }
   }, [auth]);
 
+  // Update cart state if Inertia sends new props
+  useEffect(() => {
+    setCart(initialCart);
+  }, [initialCart]);
+
+  // Update checkout message if Inertia sends new props
+  useEffect(() => {
+    setCheckoutMessage(page?.props?.checkoutMessage || null);
+  }, [page?.props?.checkoutMessage]);
+
   const removeItem = (product_id: number, sell_category_id: number) => {
-    const key = product_id + '-' + sell_category_id;
-    fetch('/customer/cart/remove', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id, sell_category_id }),
-    })
-      .then((res) => res.json())
-      .then((data) => setCart(data.cart));
+    router.post(
+      '/customer/cart/remove',
+      { product_id, sell_category_id },
+      {
+        preserveScroll: true,
+        onSuccess: (page) => {
+          // Optionally, update cart state from new props
+          if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
+        },
+      }
+    );
   };
 
   const handleCheckout = () => {
-    fetch('/customer/cart/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) setCheckoutMessage(data.error);
-        else setCheckoutMessage(data.message);
-        setCart({});
-      });
+    router.post(
+      '/customer/cart/checkout',
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: (page) => {
+          // Optionally, update cart and message from new props
+          if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
+          if (page.props.checkoutMessage) setCheckoutMessage(page.props.checkoutMessage as string);
+        },
+      }
+    );
   };
 
   const cartItems = Object.values(cart);

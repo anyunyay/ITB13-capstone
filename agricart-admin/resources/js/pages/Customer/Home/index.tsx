@@ -1,5 +1,5 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, usePage, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SharedData } from '@/types';
 import {
@@ -9,7 +9,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay'; // Use Autoplay for carousel if needed
 import {
   Card,
   CardAction,
@@ -28,6 +27,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { route } from 'ziggy-js';
 
 interface Product {
   id: number;
@@ -51,48 +51,57 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const { auth } = usePage<PageProps & SharedData>().props;
 
+  const { data, setData, post, processing, errors } = useForm({
+    product_id: product.id,
+    category: '',
+    quantity: 1,
+  });
+
   const categories = product.stock_by_category ? Object.keys(product.stock_by_category) : [];
   const isKilo = selectedCategory === 'Kilo';
-  const maxQty = product.stock_by_category && selectedCategory ? product.stock_by_category[selectedCategory] : 1;
+  const maxQty = product.stock_by_category?.[selectedCategory] ?? 1;
 
   const openDialog = () => {
     setOpen(true);
-    setSelectedCategory(categories[0] || '');
+    setSelectedCategory('');
     setSelectedQuantity(1);
     setMessage(null);
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!auth?.user) {
       onRequireLogin();
       setOpen(false);
       return;
     }
-    if (!selectedCategory) return;
-    setLoading(true);
-    setMessage(null);
-    try {
-      const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
-      const res = await fetch('/customer/cart/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_id: product.id,
-          category: selectedCategory,
-          quantity: sendQty,
-        }),
-      });
-      const data = await res.json();
-      setMessage(res.ok ? 'Added to cart!' : data.message || 'Failed to add to cart.');
-    } catch {
-      setMessage('Failed to add to cart.');
-    } finally {
-      setLoading(false);
+
+    if (!selectedCategory) {
+      setMessage('Please select a category.');
+      return;
     }
+
+    const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
+
+    router.post(route('cart.store'), {
+      product_id: product.id,
+      category: selectedCategory,
+      quantity: sendQty,
+    }, {
+      onSuccess: () => {
+        setMessage('Added to cart!');
+        router.reload({ only: ['cart'] });
+        setTimeout(() => setOpen(false), 800);
+      },
+      onError: () => {
+        setMessage('Failed to add to cart.');
+      },
+      preserveScroll: true,
+    });
   };
 
   return (
@@ -113,44 +122,50 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
               <DialogHeader>
                 <DialogTitle>{product.name}</DialogTitle>
                 <DialogTitle className="text-sm text-gray-500">{product.produce_type}</DialogTitle>
-                <DialogDescription>
-                  {product.description}
-                </DialogDescription>
+                <DialogDescription>{product.description}</DialogDescription>
+
+                {/* For Displaying Stock */}
                 {product.stock_by_category && (
                   <div className="mt-2 text-sm text-gray-700">
                     <strong>Available Stock:</strong>
                     <ul className="ml-2 list-disc">
-                      {(Object.entries(product.stock_by_category) as [string, number][]).map(
+                      {Object.entries(product.stock_by_category).map(
                         ([category, quantity]) => (
                           <li key={category}>
-                            {category}: {category === 'Kilo' ? (typeof quantity === 'number' ? quantity.toFixed(2) : '0.00') : quantity}
+                            {category}: {category === 'Kilo'
+                              ? (typeof quantity === 'number' ? quantity.toFixed(2) : '0.00')
+                              : quantity}
                           </li>
                         )
                       )}
                     </ul>
                   </div>
                 )}
+
+                {/* Category Selection */}
                 {categories.length > 0 && (
                   <div className="mt-4">
                     <label className="block text-sm font-medium mb-1">Select Category</label>
                     <div className="flex gap-2">
-                      {categories.map(cat => (
+                      {categories.map(category => (
                         <Button
-                          key={cat}
+                          key={category}
                           type="button"
-                          variant={selectedCategory === cat ? 'default' : 'outline'}
-                          className={selectedCategory === cat ? 'border-2 border-blue-500' : ''}
+                          variant={selectedCategory === category ? 'default' : 'outline'}
+                          className={selectedCategory === category ? 'border-2 border-blue-500' : ''}
                           onClick={() => {
-                            setSelectedCategory(cat);
+                            setSelectedCategory(category);
                             setSelectedQuantity(1);
                           }}
                         >
-                          {cat}
+                          {category}
                         </Button>
                       ))}
                     </div>
                   </div>
                 )}
+
+                {/* Quantity Input */}
                 {selectedCategory && (
                   <div className="mt-4">
                     <label className="block text-sm font-medium mb-1">Quantity</label>
@@ -168,16 +183,33 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
                       }}
                       className="w-full border rounded p-2"
                     />
-                    <div className="text-xs text-gray-500 mt-1">Max: {isKilo ? (typeof maxQty === 'number' ? maxQty.toFixed(2) : '0.00') : maxQty}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Max: {isKilo ? maxQty.toFixed(2) : maxQty}
+                    </div>
+                    {errors.quantity && (
+                      <div className="text-red-500 text-sm mt-1">{errors.quantity}</div>
+                    )}
+                    {errors.category && (
+                      <div className="text-red-500 text-sm mt-1">{errors.category}</div>
+                    )}
+                    {errors.product_id && (
+                      <div className="text-red-500 text-sm mt-1">{errors.product_id}</div>
+                    )}
                   </div>
                 )}
+
                 <div className="mt-4">
                   <Button
                     className="w-full"
                     onClick={handleAddToCart}
-                    disabled={loading || !selectedCategory || selectedQuantity < (isKilo ? 0.01 : 1) || selectedQuantity > maxQty}
+                    disabled={
+                      processing ||
+                      !selectedCategory ||
+                      selectedQuantity < (isKilo ? 0.01 : 1) ||
+                      selectedQuantity > maxQty
+                    }
                   >
-                    {loading ? 'Adding...' : 'Add to Cart'}
+                    {processing ? 'Adding...' : 'Add to Cart'}
                   </Button>
                   {message && (
                     <div className="mt-2 text-center text-sm text-green-600">{message}</div>
@@ -207,11 +239,16 @@ export default function CustomerHome() {
       <h1 className="text-2xl font-bold">Available {title}</h1>
       <Carousel className="w-full max-w-4xl mx-auto" opts={{ align: 'center', loop: true }}>
         <CarouselContent className="-ml-1">
-          {products.filter(product => product.produce_type === type).map(product => (
-            <CarouselItem key={product.id} className="pl-1 md:basis-1/2 lg:basis-1/3 flex justify-center">
-              <ProductCard product={product} onRequireLogin={handleRequireLogin} />
-            </CarouselItem>
-          ))}
+          {products
+            .filter(product => product.produce_type === type)
+            .map(product => (
+              <CarouselItem
+                key={product.id}
+                className="pl-1 md:basis-1/2 lg:basis-1/3 flex justify-center"
+              >
+                <ProductCard product={product} onRequireLogin={handleRequireLogin} />
+              </CarouselItem>
+            ))}
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
@@ -225,6 +262,7 @@ export default function CustomerHome() {
       <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4">
         {renderCarousel('fruit', 'Fruits')}
         {renderCarousel('vegetable', 'Vegetables')}
+
         {/* Login Confirmation Dialog */}
         <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
           <DialogContent>
