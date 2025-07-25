@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sold_stocks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('customer_id')->constrained('users')->onDelete('cascade');
             $table->unsignedBigInteger('stock_id')->nullable();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity');

@@ -52,16 +52,16 @@ class CartController extends Controller
             // Get or create the user's cart
             $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
-            // Add or update cart item (no stock deduction here)
+            // Check if the item already exists in the cart
             $cartItem = $cart->items()
                 ->where('product_id', $productId)
                 ->where('category', $category)
                 ->first();
 
-            if ($cartItem) {
+            if ($cartItem) { // If it exists, update the quantity
                 $cartItem->quantity += $quantity;
                 $cartItem->save();
-            } else {
+            } else { // If it doesn't exist, create a new cart item
                 $cart->items()->create([
                     'product_id' => $productId,
                     'category' => $category,
@@ -81,18 +81,21 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
+        Log::info('Checkout started', ['user_id' => $request->user()->id]);
+
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->first();
         $message = null;
         $error = null;
-        $sold = false;
 
         if (!$cart || $cart->items->isEmpty()) {
+            Log::info('Checkout failed: cart empty or not found', ['user_id' => $request->user()->id]);
             return back()->with('checkoutMessage', 'Your cart is empty.');
         }
 
         try {
-            
+            $user = $request->user();
+
             foreach ($cart->items as $item) {
                 $stocks = Stock::where('product_id', $item->product_id)
                     ->where('category', $item->category)
@@ -101,6 +104,7 @@ class CartController extends Controller
                     ->get();
 
                 $totalAvailable = $stocks->sum('quantity');
+
                 if ($totalAvailable < $item->quantity) {
                     $error = 'Not enough stock for ' . $item->product_id . ' (' . $item->category . ')';
                     break;
@@ -113,33 +117,45 @@ class CartController extends Controller
                     $stock->quantity -= $deduct;
                     $stock->save();
                     $remainingQty -= $deduct;
-                    $sold = true;
 
-                    // Save the deducted item as sold
-                    SoldStock::create([
-                        'stock_id' => $stock->id,
-                        'product_id' => $stock->product_id,
-                        'quantity' => $deduct, // amount deducted from this stock
-                        'member_id' => $stock->member_id,
-                        'category' => $stock->category,
-                    ]);
+                    // Check if a SoldStock record for this stock_id already exists for this checkout
+                    $soldStock = SoldStock::where('stock_id', $stock->id)
+                        ->where('customer_id', $user->id)
+                        ->where('product_id', $stock->product_id)
+                        ->where('member_id', $stock->member_id)
+                        ->where('category', $stock->category)
+                        ->first();
+
+                    if ($soldStock) { // If exists, increment the quantity
+                        $soldStock->quantity += $deduct;
+                        $soldStock->save();
+                    } else { // If not, create a new record
+                        SoldStock::create([
+                            'customer_id' => $user->id,
+                            'stock_id' => $stock->id,
+                            'product_id' => $stock->product_id,
+                            'quantity' => $deduct, // amount deducted from this stock
+                            'member_id' => $stock->member_id,
+                            'category' => $stock->category,
+                        ]);
+                    }
                 }
             }
 
             if ($error) {
                 return back()->with('checkoutMessage', $error);
+            } else {
+                $sold = false;
             }
-            
+
             // Clear the cart
             $cart->items()->delete();
             $message = 'Checkout successful!';
         } catch (\Throwable $e) {
-            Log::error('Cart Checkout Error: ' . $e->getMessage());
             $message = 'An unexpected error occurred during checkout.';
         }
 
-        // Return updated cart (empty) and message
-        return redirect()->route('cart.index')->with('checkoutMessage', $message);
+        return redirect()->route('cart.index')->with('checkoutMessage', $message); // Return updated cart (empty) and message
     }
 
     public function remove(Request $request, $cartItemId)
