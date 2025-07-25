@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Log;
 use App\Models\Cart;
+use App\Models\Sales;
 use App\Models\SoldStock;
 use App\Models\Stock;
 
@@ -71,8 +72,6 @@ class CartController extends Controller
 
             return back()->with('message', 'Added to cart!');
         } catch (\Throwable $e) {
-            Log::error('Cart Store Error: ' . $e->getMessage());
-
             return back()->withErrors([
                 'quantity' => 'An unexpected error occurred. Please try again.',
             ]);
@@ -81,7 +80,6 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
-        Log::info('Checkout started', ['user_id' => $request->user()->id]);
 
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->first();
@@ -89,17 +87,25 @@ class CartController extends Controller
         $error = null;
 
         if (!$cart || $cart->items->isEmpty()) {
-            Log::info('Checkout failed: cart empty or not found', ['user_id' => $request->user()->id]);
             return back()->with('checkoutMessage', 'Your cart is empty.');
         }
 
         try {
             $user = $request->user();
 
+            // Create a new sale record
+            $sale = Sales::create([
+                'customer_id' => $user->id,
+                'total_amount' => 0, // This will be updated later
+            ]);
+
+            $totalPrice = 0;
+
             foreach ($cart->items as $item) {
                 $stocks = Stock::where('product_id', $item->product_id)
                     ->where('category', $item->category)
                     ->where('quantity', '>', 0)
+                    ->with('product')
                     ->orderBy('created_at', 'asc')
                     ->get();
 
@@ -115,42 +121,28 @@ class CartController extends Controller
                     if ($remainingQty <= 0) break;
                     $deduct = min($stock->quantity, $remainingQty);
                     $stock->quantity -= $deduct;
-                    $stock->save();
+                    $stock->save(); 
+
+                    $totalPrice += ($stock->product->price ?? 0) * $deduct;
                     $remainingQty -= $deduct;
 
-                    // // Check if a SoldStock record for this stock_id already exists for this checkout
-                    // NOW ORDER HISTORY
-                    // $soldStock = SoldStock::where('stock_id', $stock->id)
-                    //     ->where('customer_id', $user->id)
-                    //     ->where('product_id', $stock->product_id)
-                    //     ->where('member_id', $stock->member_id)
-                    //     ->where('category', $stock->category)
-                    //     ->first();
-
-                    // if ($soldStock) { // If exists, increment the quantity
-                    //     $soldStock->quantity += $deduct;
-                    //     $soldStock->save();
-                    // } else { // If not, create a new record
-                    //     SoldStock::create([
-                    //         'customer_id' => $user->id,
-                    //         'stock_id' => $stock->id,
-                    //         'product_id' => $stock->product_id,
-                    //         'quantity' => $deduct, // amount deducted from this stock
-                    //         'member_id' => $stock->member_id,
-                    //         'category' => $stock->category,
-                    //     ]);
-                    // }
+                    // Create an audit trail record
+                    AuditTrail::create([
+                        'sale_id' => $sale->id,
+                        'stock_id' => $stock->id,
+                        'product_id' => $item->product_id,
+                        'category' => $item->category,
+                        'quantity' => $deduct,  
+                    ]);
                 }
             }
 
             if ($error) {
                 return back()->with('checkoutMessage', $error);
-            } else {
-                $sold = false;
             }
 
-            // Clear the cart
-            $cart->items()->delete();
+            $cart->items()->delete(); // Clear the cart
+            $sale->update(['total_amount' => $totalPrice]); // Update the sale total amount
             $message = 'Checkout successful!';
         } catch (\Throwable $e) {
             $message = 'An unexpected error occurred during checkout.';
