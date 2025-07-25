@@ -18,6 +18,6 @@ class Sales extends Model
 
     public function auditTrail()
     {
-        return $this->hasMany(AuditTrail::class); 
+        return $this->hasMany(AuditTrail::class, 'sale_id'); 
     }
 }

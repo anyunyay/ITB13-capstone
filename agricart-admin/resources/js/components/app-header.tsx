@@ -11,7 +11,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell, History} from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,11 @@ const rightNavItems: NavItem[] = [
         title: 'Notifications',
         href: '/',
         icon: Bell,
+    },
+    {
+        title: 'Order History',
+        href: '/customer/orders/history',
+        icon: History,
     },
 ];
 
@@ -224,7 +229,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
                 </div>
             </div>
-            {/* Remove old conditional breadcrumbs at the bottom */}
         </>
     );
 }

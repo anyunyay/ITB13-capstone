@@ -80,7 +80,7 @@ class User extends Authenticatable
     // Customer relationships
     public function sales()
     {
-        return $this->hasMany(Sales::class, 'customer_id')->where('type', 'customer');
+        return $this->hasMany(Sales::class, 'customer_id');
     }
 
     // Member relationships

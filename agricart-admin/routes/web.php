@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\OrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -91,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+
+        Route::get('/orders/history', [OrderController::class, 'index'])->name('orders.history');
     });
 
     // Logistic routes
