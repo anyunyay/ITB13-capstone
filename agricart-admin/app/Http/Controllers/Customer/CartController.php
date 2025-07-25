@@ -118,27 +118,28 @@ class CartController extends Controller
                     $stock->save();
                     $remainingQty -= $deduct;
 
-                    // Check if a SoldStock record for this stock_id already exists for this checkout
-                    $soldStock = SoldStock::where('stock_id', $stock->id)
-                        ->where('customer_id', $user->id)
-                        ->where('product_id', $stock->product_id)
-                        ->where('member_id', $stock->member_id)
-                        ->where('category', $stock->category)
-                        ->first();
+                    // // Check if a SoldStock record for this stock_id already exists for this checkout
+                    // NOW ORDER HISTORY
+                    // $soldStock = SoldStock::where('stock_id', $stock->id)
+                    //     ->where('customer_id', $user->id)
+                    //     ->where('product_id', $stock->product_id)
+                    //     ->where('member_id', $stock->member_id)
+                    //     ->where('category', $stock->category)
+                    //     ->first();
 
-                    if ($soldStock) { // If exists, increment the quantity
-                        $soldStock->quantity += $deduct;
-                        $soldStock->save();
-                    } else { // If not, create a new record
-                        SoldStock::create([
-                            'customer_id' => $user->id,
-                            'stock_id' => $stock->id,
-                            'product_id' => $stock->product_id,
-                            'quantity' => $deduct, // amount deducted from this stock
-                            'member_id' => $stock->member_id,
-                            'category' => $stock->category,
-                        ]);
-                    }
+                    // if ($soldStock) { // If exists, increment the quantity
+                    //     $soldStock->quantity += $deduct;
+                    //     $soldStock->save();
+                    // } else { // If not, create a new record
+                    //     SoldStock::create([
+                    //         'customer_id' => $user->id,
+                    //         'stock_id' => $stock->id,
+                    //         'product_id' => $stock->product_id,
+                    //         'quantity' => $deduct, // amount deducted from this stock
+                    //         'member_id' => $stock->member_id,
+                    //         'category' => $stock->category,
+                    //     ]);
+                    // }
                 }
             }
 
