@@ -56,7 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.removeStock'); // Delete Stock
 
-        // Stock Trail routes
+        // Sold Stock & Trail routes
+        Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [InventoryStockTrailController::class, 'soldIndex'])->name('inventory.soldStock.index');
         Route::middleware(['can:view stock trail'])->get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index'); // View Stock Trail
 
         // Membership routes

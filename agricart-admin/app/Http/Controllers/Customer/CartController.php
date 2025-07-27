@@ -138,6 +138,7 @@ class CartController extends Controller
                     // Mark once stock quantity reaches 0
                     if ($stock->quantity == 0) {
                         $stock->status = 'sold';
+                        $stock->customer_id = $user->id;
                         $stock->save();
                     }
                 }

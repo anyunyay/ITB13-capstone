@@ -153,6 +153,9 @@ export default function Index() {
                     <Button asChild disabled={processing} className="w-1/8">
                         <Link href={route('inventory.stockTrail.index')}>Removed Stocks</Link>
                     </Button>
+                    <Button asChild disabled={processing} className="w-1/8">
+                        <Link href={route('inventory.soldStock.index')}>Sold Stocks</Link>
+                    </Button>
                     <TabsList>
                         <TabsTrigger value="all">All</TabsTrigger>
                         <TabsTrigger value="kilo">By Kilo</TabsTrigger>

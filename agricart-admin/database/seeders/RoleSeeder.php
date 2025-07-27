@@ -53,6 +53,7 @@ class RoleSeeder extends Seeder
             'delete orders', // Optional for Staff
 
             // Inventory Stock Trailing
+            'view sold stock',
             'view stock trail',
 
             // Logistics

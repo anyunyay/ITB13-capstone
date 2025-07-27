@@ -80,6 +80,7 @@ class InventoryStockController extends Controller
             'product_id' => $stock->product_id,
             'quantity' => $stock->quantity,
             'member_id' => $stock->member_id,
+            'customer_id' => $stock->customer_id,
             'category' => $stock->category,
         ]);
         $stock->delete();

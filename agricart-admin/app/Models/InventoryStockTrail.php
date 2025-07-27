@@ -11,10 +11,12 @@ class InventoryStockTrail extends Model
         'product_id',
         'quantity', 
         'member_id', 
-        'category'
+        'category',
+        'status',
+        'customer_id'
     ];
 
-    protected $with = ['product', 'member'];
+    protected $with = ['product', 'member', 'customer'];
 
     public function product()
     {
@@ -24,5 +26,10 @@ class InventoryStockTrail extends Model
     public function member()
     {
         return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id')->where('type', 'customer');
     }
 }

@@ -13,7 +13,7 @@ class InventoryController extends Controller
     public function index()
     { 
         $products = Product::active()->get();
-        $stocks = Stock::all(); // Eager loads product and member due to $with
+         $stocks = Stock::where('quantity' , '>', 0)->get();
         return Inertia::render('Inventory/index', compact('products', 'stocks'));
     }
 
