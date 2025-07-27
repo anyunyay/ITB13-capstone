@@ -125,20 +125,29 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
                 <DialogDescription>{product.description}</DialogDescription>
 
                 {/* For Displaying Stock */}
-                {product.stock_by_category && (
+                {product.stock_by_category ? (
                   <div className="mt-2 text-sm text-gray-700">
                     <strong>Available Stock:</strong>
-                    <ul className="ml-2 list-disc">
-                      {Object.entries(product.stock_by_category).map(
-                        ([category, quantity]) => (
-                          <li key={category}>
-                            {category}: {category === 'Kilo'
-                              ? (typeof quantity === 'number' ? quantity.toFixed(2) : '0.00')
-                              : quantity}
-                          </li>
-                        )
-                      )}
-                    </ul>
+                    {Object.keys(product.stock_by_category).length > 0 ? (
+                      <ul className="ml-2 list-disc">
+                        {Object.entries(product.stock_by_category).map(
+                          ([category, quantity]) => (
+                            <li key={category}>
+                              {category}: {category === 'Kilo'
+                                ? (typeof quantity === 'number' ? quantity.toFixed(2) : '0.00')
+                                : quantity}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    ) : (
+                      <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2 text-sm text-gray-700">
+                    <strong>Available Stock:</strong>
+                    <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
                   </div>
                 )}
 
