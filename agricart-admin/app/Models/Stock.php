@@ -13,7 +13,8 @@ class Stock extends Model
         'quantity', 
         'member_id', 
         'product_id',
-        'category'
+        'category',
+        'status'
     ];
 
     protected $with = ['product', 'member'];

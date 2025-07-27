@@ -121,7 +121,7 @@ class CartController extends Controller
                     if ($remainingQty <= 0) break;
                     $deduct = min($stock->quantity, $remainingQty);
                     $stock->quantity -= $deduct;
-                    $stock->save(); 
+                    $stock->save();
 
                     $totalPrice += ($stock->product->price ?? 0) * $deduct;
                     $remainingQty -= $deduct;
@@ -132,8 +132,14 @@ class CartController extends Controller
                         'stock_id' => $stock->id,
                         'product_id' => $item->product_id,
                         'category' => $item->category,
-                        'quantity' => $deduct,  
+                        'quantity' => $deduct,
                     ]);
+
+                    // Mark once stock quantity reaches 0
+                    if ($stock->quantity == 0) {
+                        $stock->status = 'sold';
+                        $stock->save();
+                    }
                 }
             }
 

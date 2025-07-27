@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('quantity');
             $table->foreignId('member_id')->constrained('users')->onDelete('cascade');
             $table->string('category')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }

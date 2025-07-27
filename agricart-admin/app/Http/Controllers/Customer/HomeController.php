@@ -15,6 +15,7 @@ class HomeController extends Controller
 
         $products->each(function ($product) {
             $stockSums = $product->stocks
+                ->where('quantity', '>', 0)
                 ->groupBy('category')
                 ->map(fn($group) => $group->sum('quantity'));
 
