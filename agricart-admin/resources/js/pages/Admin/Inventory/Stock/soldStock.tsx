@@ -44,7 +44,7 @@ interface SoldStock {
     customer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
     status: 'sold' | 'removed' | 'damaged' | 'expired';
-    created_at: string;
+    updated_at: string;
 }
 
 interface PageProps {
@@ -77,7 +77,7 @@ export default function soldIndex() {
                 {stocks.length > 0 ? (
                     <div className='w-full pt-8'>
                         <Table>
-                            <TableCaption>List of sold/removed stocks</TableCaption>
+                            <TableCaption>List of sold stocks</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="text-center">Stock ID</TableHead>
@@ -97,7 +97,7 @@ export default function soldIndex() {
                                         <TableCell className="text-center">{stock.status}</TableCell>
                                         <TableCell className="text-center">{stock.customer?.name}</TableCell>
                                         <TableCell className="text-center">
-                                            {new Date(stock.created_at).toLocaleString()}
+                                            {new Date(stock.updated_at).toLocaleString()}
                                         </TableCell>
                                     </TableRow>
                                 ))}
