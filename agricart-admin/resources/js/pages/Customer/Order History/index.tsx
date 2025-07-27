@@ -1,7 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
-import { BreadcrumbItem } from '@/types';
 
 interface SaleItem {
   product_name: string;
