@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { SharedData } from '@/types';
+import StockManager from '@/lib/stock-manager';
 
 interface CartItem {
   item_id: number;
@@ -45,6 +46,15 @@ export default function CartPage() {
     });
     setTempQuantities(tempQty);
     setRawInputValues(rawInput);
+
+    // Sync stock manager with backend cart data
+    const stockManager = StockManager.getInstance();
+    const cartItems = Object.values(initialCart).map(item => ({
+      product_id: item.product_id,
+      category: item.category,
+      quantity: item.quantity
+    }));
+    stockManager.syncWithBackendCart(cartItems);
   }, [initialCart]);
 
   // Update checkout message if Inertia sends new props
@@ -53,12 +63,21 @@ export default function CartPage() {
   }, [page?.props?.checkoutMessage]);
 
   const removeItem = (cartItem: number) => {
+    // Find the item to get its details for stock manager
+    const itemToRemove = Object.values(cart).find(item => item.item_id === cartItem);
+    
     router.delete(
       `/customer/cart/remove/${cartItem}`,
       {
         preserveScroll: true,
         onSuccess: (page) => {
           if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
+          
+          // Update stock manager when item is removed
+          if (itemToRemove) {
+            const stockManager = StockManager.getInstance();
+            stockManager.removeItemFromCart(itemToRemove.product_id, itemToRemove.category);
+          }
         },
       }
     );
@@ -69,6 +88,10 @@ export default function CartPage() {
       removeItem(cartItem);
       return;
     }
+
+    // Find the item to get its details for stock manager
+    const itemToUpdate = Object.values(cart).find(item => item.item_id === cartItem);
+    const oldQuantity = itemToUpdate?.quantity || 0;
 
     setUpdatingItems(prev => new Set(prev).add(cartItem));
     
@@ -84,6 +107,19 @@ export default function CartPage() {
             newSet.delete(cartItem);
             return newSet;
           });
+          
+          // Update stock manager when quantity changes
+          if (itemToUpdate) {
+            const stockManager = StockManager.getInstance();
+            const quantityDifference = newQuantity - oldQuantity;
+            if (quantityDifference > 0) {
+              // Quantity increased
+              stockManager.addToCart(itemToUpdate.product_id, itemToUpdate.category, quantityDifference);
+            } else if (quantityDifference < 0) {
+              // Quantity decreased
+              stockManager.removeFromCart(itemToUpdate.product_id, itemToUpdate.category, Math.abs(quantityDifference));
+            }
+          }
         },
         onError: () => {
           setUpdatingItems(prev => {
@@ -220,6 +256,10 @@ export default function CartPage() {
         onSuccess: (page) => {
           if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
           if (page.props.checkoutMessage) setCheckoutMessage(page.props.checkoutMessage as string);
+          
+          // Clear stock manager when checkout is successful
+          const stockManager = StockManager.getInstance();
+          stockManager.clearCart();
         },
       }
     );

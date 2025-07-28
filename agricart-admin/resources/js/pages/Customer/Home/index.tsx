@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import { Head, usePage, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, usePage, router, useForm, Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
 import {
   Carousel,
@@ -28,11 +28,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { route } from 'ziggy-js';
+import StockManager from '@/lib/stock-manager';
 
 interface Product {
   id: number;
   name: string;
-  price: number;
+  price: number | string;
   description: string;
   image: string;
   produce_type: string; // 'fruit' or 'vegetable'
@@ -56,7 +57,9 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
+  const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
   const { auth } = usePage<PageProps & SharedData>().props;
+  const stockManager = StockManager.getInstance();
 
   const { data, setData, post, processing, errors } = useForm({
     product_id: product.id,
@@ -64,9 +67,21 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
     quantity: 1,
   });
 
-  const categories = product.stock_by_category ? Object.keys(product.stock_by_category) : [];
+  // Initialize stock data when component mounts (only once per product)
+  useEffect(() => {
+    if (product.stock_by_category) {
+      // Only initialize if not already done for this product
+      const originalStock = stockManager.getOriginalStockByCategory(product.id);
+      if (Object.keys(originalStock).length === 0) {
+        stockManager.refreshStockData(product.id, product.stock_by_category);
+      }
+      setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
+    }
+  }, [product.id, product.stock_by_category, stockManager]);
+
+  const categories = Object.keys(availableStock).filter(cat => availableStock[cat] > 0);
   const isKilo = selectedCategory === 'Kilo';
-  const maxQty = product.stock_by_category?.[selectedCategory] ?? 1;
+  const maxQty = availableStock[selectedCategory] ?? 0;
 
   const openDialog = () => {
     setOpen(true);
@@ -91,6 +106,10 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
 
     const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
 
+    // Add to shared stock manager
+    stockManager.addToCart(product.id, selectedCategory, sendQty);
+    setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
+
     router.post(route('cart.store'), {
       product_id: product.id,
       category: selectedCategory,
@@ -100,10 +119,15 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
         setMessage('Added to cart!');
         // Update the stock on frontend
         onStockUpdate(product.id, selectedCategory, sendQty);
+        // Refresh available stock display
+        setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         router.reload({ only: ['cart'] });
         setTimeout(() => setOpen(false), 800);
       },
       onError: () => {
+        // Remove from shared stock manager on error
+        stockManager.removeFromCart(product.id, selectedCategory, sendQty);
+        setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         setMessage('Failed to add to cart.');
       },
       preserveScroll: true,
@@ -116,8 +140,15 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
         <img src={product.image} alt={product.name} />
       </div>
       <CardHeader>
-        <CardTitle>{product.name}</CardTitle>
-        <CardDescription>₱{product.price}</CardDescription>
+        <CardTitle>
+          <Link 
+            href={`/customer/product/${product.id}`}
+            className="hover:text-blue-600 hover:underline cursor-pointer"
+          >
+            {product.name}
+          </Link>
+        </CardTitle>
+        <CardDescription>₱{typeof product.price === 'string' ? parseFloat(product.price).toFixed(2) : product.price.toFixed(2)}</CardDescription>
         <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
         <CardAction>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -131,24 +162,20 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                 <DialogDescription>{product.description}</DialogDescription>
 
                 {/* For Displaying Stock */}
-                {product.stock_by_category ? (
+                {Object.keys(availableStock).length > 0 ? (
                   <div className="mt-2 text-sm text-gray-700">
                     <strong>Available Stock:</strong>
-                    {Object.keys(product.stock_by_category).length > 0 ? (
-                      <ul className="ml-2 list-disc">
-                        {Object.entries(product.stock_by_category).map(
-                          ([category, quantity]) => (
-                            <li key={category}>
-                              {category}: {category === 'Kilo'
-                                ? (typeof quantity === 'number' ? quantity.toFixed(2) : '0.00')
-                                : quantity}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    ) : (
-                      <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
-                    )}
+                    <ul className="ml-2 list-disc">
+                      {Object.entries(availableStock).map(
+                        ([category, quantity]) => (
+                          <li key={category}>
+                            {category}: {category === 'Kilo'
+                              ? quantity.toFixed(2)
+                              : quantity}
+                          </li>
+                        )
+                      )}
+                    </ul>
                   </div>
                 ) : (
                   <div className="mt-2 text-sm text-gray-700">

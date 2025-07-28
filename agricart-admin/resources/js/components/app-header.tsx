@@ -16,6 +16,7 @@ import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
+import { SearchBar } from './search-bar';
 
 const mainNavItems: NavItem[] = [
     {
@@ -99,6 +100,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-4">
+                                            {/* Search Bar for Mobile */}
+                                            <div className="mb-4">
+                                                <SearchBar />
+                                            </div>
                                             {mainNavItems.map((item) => (
                                                 <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
                                                     {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
@@ -173,9 +178,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                     <div className="ml-auto flex items-center space-x-2">
                         <div className="relative flex items-center space-x-1">
-                            <Button variant="ghost" size="icon" className="group h-9 w-9 cursor-pointer">
-                                <Search className="!size-5 opacity-80 group-hover:opacity-100" />
-                            </Button>
+                            <SearchBar />
                             <div className="hidden lg:flex">
                                 {rightNavItems.map((item) => (
                                     item.title === 'Notifications' ? (
