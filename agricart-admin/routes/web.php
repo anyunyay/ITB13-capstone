@@ -91,6 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/customer')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
+        Route::put('/cart/update/{cartItem}', [CartController::class, 'update'])->name('cart.update');
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 

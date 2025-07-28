@@ -20,6 +20,14 @@ class CartController extends Controller
         $cartData = [];
         if ($cart) {
             $cartData = $cart->items()->with('product')->get()->mapWithKeys(function ($item) {
+                // Get available stock for this item
+                $stocks = Stock::where('product_id', $item->product_id)
+                    ->where('category', $item->category)
+                    ->where('quantity', '>', 0)
+                    ->get();
+                
+                $totalAvailable = $stocks->sum('quantity');
+                
                 return [
                     $item->product_id . '-' . $item->category => [
                         'product_id' => $item->product_id,
@@ -27,6 +35,7 @@ class CartController extends Controller
                         'item_id' => $item->id,
                         'category' => $item->category,
                         'quantity' => $item->quantity,
+                        'available_stock' => $totalAvailable,
                     ]
                 ];
             });
@@ -172,6 +181,59 @@ class CartController extends Controller
         if ($item) {
             $item->delete();
             $message = 'Item removed from cart.';
+        } else {
+            $message = 'Item not found in your cart.';
+        }
+
+        return redirect()->route('cart.index')->with('checkoutMessage', $message);
+    }
+
+    public function update(Request $request, $cartItemId)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|numeric|min:0.01',
+        ]);
+
+        $user = $request->user();
+        $cart = Cart::where('user_id', $user->id)->first();
+        $message = null;
+
+        if (!$cart) {
+            return back()->with('checkoutMessage', 'Cart not found.');
+        }
+
+        $item = $cart->items()->where('id', $cartItemId)->first();
+        if ($item) {
+            $quantity = $validated['quantity'];
+            
+            // Validate based on category
+            if ($item->category === 'Kilo') {
+                // For kilo, allow decimals up to 2 places
+                if (round($quantity, 2) != $quantity) {
+                    return back()->with('checkoutMessage', 'Kilo quantity must have maximum 2 decimal places.');
+                }
+            } else {
+                // For other categories, only allow integers
+                if (!is_int($quantity) && $quantity != intval($quantity)) {
+                    return back()->with('checkoutMessage', 'Quantity must be a whole number for this category.');
+                }
+                $quantity = intval($quantity);
+            }
+
+            // Check available stock
+            $stocks = Stock::where('product_id', $item->product_id)
+                ->where('category', $item->category)
+                ->where('quantity', '>', 0)
+                ->get();
+
+            $totalAvailable = $stocks->sum('quantity');
+
+            if ($totalAvailable < $quantity) {
+                return back()->with('checkoutMessage', 'Not enough stock available. Maximum available: ' . $totalAvailable . ' ' . $item->category);
+            }
+            
+            $item->update(['quantity' => $quantity]);
+            $message = 'Cart item updated successfully.';
         } else {
             $message = 'Item not found in your cart.';
         }
