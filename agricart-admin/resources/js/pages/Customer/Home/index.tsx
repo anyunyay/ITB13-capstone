@@ -47,7 +47,11 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-function ProductCard({ product, onRequireLogin }: { product: Product; onRequireLogin: () => void }) {
+function ProductCard({ product, onRequireLogin, onStockUpdate }: { 
+  product: Product; 
+  onRequireLogin: () => void;
+  onStockUpdate: (productId: number, category: string, quantity: number) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
@@ -94,6 +98,8 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
     }, {
       onSuccess: () => {
         setMessage('Added to cart!');
+        // Update the stock on frontend
+        onStockUpdate(product.id, selectedCategory, sendQty);
         router.reload({ only: ['cart'] });
         setTimeout(() => setOpen(false), 800);
       },
@@ -239,9 +245,30 @@ function ProductCard({ product, onRequireLogin }: { product: Product; onRequireL
 
 export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
-  const { products = [] } = usePage<PageProps & SharedData>().props;
+  const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
+  const [products, setProducts] = useState(initialProducts);
 
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  const handleStockUpdate = (productId: number, category: string, quantity: number) => {
+    setProducts(prevProducts => 
+      prevProducts.map(product => {
+        if (product.id === productId && product.stock_by_category) {
+          const currentStock = product.stock_by_category[category] || 0;
+          const newStock = Math.max(0, currentStock - quantity);
+          
+          return {
+            ...product,
+            stock_by_category: {
+              ...product.stock_by_category,
+              [category]: newStock
+            }
+          };
+        }
+        return product;
+      })
+    );
+  };
 
   const renderCarousel = (type: string, title: string) => (
     <>
@@ -255,7 +282,11 @@ export default function CustomerHome() {
                 key={product.id}
                 className="pl-1 md:basis-1/2 lg:basis-1/3 flex justify-center"
               >
-                <ProductCard product={product} onRequireLogin={handleRequireLogin} />
+                <ProductCard 
+                  product={product} 
+                  onRequireLogin={handleRequireLogin}
+                  onStockUpdate={handleStockUpdate}
+                />
               </CarouselItem>
             ))}
         </CarouselContent>
