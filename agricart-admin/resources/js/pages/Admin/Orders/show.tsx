@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 interface OrderItem {
   id: number;
   product: {
+    id: number;
     name: string;
     price: number;
   };
@@ -42,7 +43,7 @@ interface Order {
     name: string;
     contact_number?: string;
   };
-  auditTrail: OrderItem[];
+  audit_trail: OrderItem[];
 }
 
 interface OrderShowProps {
@@ -180,19 +181,44 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {order.auditTrail?.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded">
-                      <div>
-                        <h4 className="font-medium">{item.product.name}</h4>
-                        <p className="text-sm text-gray-500">
-                          {item.quantity} {item.category} × ₱{item.product.price}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">₱{(item.quantity * item.product.price).toFixed(2)}</p>
-                      </div>
-                    </div>
-                  )) || <p className="text-sm text-gray-500 text-center py-4">No items found</p>}
+                  {(() => {
+                    // Group items by product ID and combine quantities
+                    const groupedItems = order.audit_trail?.reduce((acc, item) => {
+                      const key = `${item.product.id}-${item.category}`;
+                      if (!acc[key]) {
+                        acc[key] = {
+                          id: item.id,
+                          product: item.product,
+                          category: item.category,
+                          quantity: 0,
+                          totalPrice: 0
+                        };
+                      }
+                      acc[key].quantity += Number(item.quantity);
+                      acc[key].totalPrice += Number(item.quantity) * Number(item.product.price);
+                      return acc;
+                    }, {} as Record<string, any>) || {};
+
+                    const combinedItems = Object.values(groupedItems);
+
+                    return combinedItems.length > 0 ? (
+                      combinedItems.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between p-4 border rounded">
+                          <div>
+                            <h4 className="font-medium">{item.product.name}</h4>
+                            <p className="text-sm text-gray-500">
+                              {item.quantity} {item.category} × ₱{item.product.price}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium">₱{item.totalPrice.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4">No items found</p>
+                    );
+                  })()}
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total</span>
@@ -236,7 +262,7 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Items</span>
-                    <span className="text-sm">{order.auditTrail?.length || 0}</span>
+                    <span className="text-sm">{order.audit_trail?.length || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Total Amount</span>

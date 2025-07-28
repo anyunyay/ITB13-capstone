@@ -24,9 +24,10 @@ interface Order {
     name: string;
     contact_number?: string;
   };
-  auditTrail: Array<{
+  audit_trail: Array<{
     id: number;
     product: {
+      id: number;
       name: string;
     };
     category: string;
@@ -215,7 +216,7 @@ function OrderCard({ order }: { order: Order }) {
               <span className="font-medium">Total Amount:</span> ₱{Number(order.total_amount).toFixed(2)}
             </p>
             <p className="text-sm">
-              <span className="font-medium">Items:</span> {order.auditTrail?.length || 0}
+              <span className="font-medium">Items:</span> {order.audit_trail?.length || 0}
             </p>
             {order.admin && (
               <p className="text-sm">
@@ -248,12 +249,35 @@ function OrderCard({ order }: { order: Order }) {
         <div className="mt-4">
           <h4 className="font-semibold mb-2">Order Items</h4>
           <div className="space-y-2">
-            {order.auditTrail?.map((item) => (
-              <div key={item.id} className="flex justify-between text-sm">
-                <span>{item.product.name} ({item.category})</span>
-                <span>{item.quantity} {item.category}</span>
-              </div>
-            )) || <p className="text-sm text-gray-500">No items found</p>}
+            {(() => {
+              // Group items by product ID and combine quantities
+              const groupedItems = order.audit_trail?.reduce((acc, item) => {
+                const key = `${item.product.id}-${item.category}`;
+                if (!acc[key]) {
+                  acc[key] = {
+                    id: item.id,
+                    product: item.product,
+                    category: item.category,
+                    quantity: 0
+                  };
+                }
+                acc[key].quantity += Number(item.quantity);
+                return acc;
+              }, {} as Record<string, any>) || {};
+
+              const combinedItems = Object.values(groupedItems);
+
+              return combinedItems.length > 0 ? (
+                combinedItems.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span>{item.product.name} ({item.category})</span>
+                    <span>{item.quantity} {item.category}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No items found</p>
+              );
+            })()}
           </div>
         </div>
       </CardContent>
