@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        return [
+        $shared = [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
@@ -61,5 +61,25 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+
+        // Share notifications for authenticated customers
+        if ($request->user() && $request->user()->type === 'customer') {
+            $shared['customerNotifications'] = $request->user()->unreadNotifications()
+                ->where('type', 'App\\Notifications\\OrderStatusUpdate')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'order_id' => $notification->data['order_id'] ?? null,
+                        'status' => $notification->data['status'] ?? null,
+                        'message' => $notification->data['message'] ?? '',
+                        'created_at' => $notification->created_at->toISOString(),
+                        'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
+                    ];
+                });
+        }
+
+        return $shared;
     }
 }

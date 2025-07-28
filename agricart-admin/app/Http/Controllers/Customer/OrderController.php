@@ -42,6 +42,25 @@ class OrderController extends Controller
                 ];
             });
 
-        return Inertia::render('Customer/Order History/index', compact('orders'));
+        $notifications = $user->unreadNotifications()
+            ->where('type', 'App\\Notifications\\OrderStatusUpdate')
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'order_id' => $notification->data['order_id'] ?? null,
+                    'status' => $notification->data['status'] ?? null,
+                    'message' => $notification->data['message'] ?? '',
+                    'created_at' => $notification->created_at->toISOString(),
+                ];
+            });
+
+        // Add notifications to global Inertia props for customer
+        Inertia::share('customerNotifications', $notifications);
+
+        return Inertia::render('Customer/Order History/index', [
+            'orders' => $orders,
+            'notifications' => $notifications,
+        ]);
     }
 }

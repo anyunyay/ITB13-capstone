@@ -12,6 +12,7 @@ use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Customer\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -109,6 +110,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 
         Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
+        
+        // Notification routes
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     });
 
     // Logistic routes

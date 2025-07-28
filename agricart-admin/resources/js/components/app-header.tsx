@@ -15,6 +15,7 @@ import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, Book
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 import { Badge } from '@/components/ui/badge';
+import { router } from '@inertiajs/react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -59,10 +60,25 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
-    const page = usePage<SharedData & { cart?: Record<string, any> }>();
-    const { auth, cart = {} } = page.props;
+    const page = usePage<SharedData & { cart?: Record<string, any>, customerNotifications?: Array<any> }>();
+    const { auth, cart = {}, customerNotifications = [] } = page.props;
     const getInitials = useInitials();
     const cartCount = Object.values(cart).reduce((sum, item: any) => sum + (item.quantity || 0), 0);
+    const unreadCount = customerNotifications.length;
+
+    const handleNotificationClick = (n: any) => {
+        if (!n.read_at) {
+            router.post('/customer/notifications/mark-read', { ids: [n.id] }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    router.visit(`/customer/orders/history#order-${n.order_id}`);
+                },
+            });
+        } else {
+            router.visit(`/customer/orders/history#order-${n.order_id}`);
+        }
+    };
+
     return (
         <>
             <div className="border-b border-sidebar-border/80">
@@ -162,33 +178,73 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </Button>
                             <div className="hidden lg:flex">
                                 {rightNavItems.map((item) => (
-                                    <TooltipProvider key={item.title} delayDuration={0}>
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <Link
-                                                    href={item.href}
-                                                    className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                                                >
-                                                    <span className="sr-only">{item.title}</span>
-                                                    {item.icon && (
-                                                        <span className="relative">
-                                                            <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />
-                                                            {item.title === 'Cart' && cartCount > 0 && (
-                                                                <span className="absolute -top-2 -right-2">
-                                                                    <Badge className="bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                                                                        {cartCount}
-                                                                    </Badge>
-                                                                </span>
-                                                            )}
+                                    item.title === 'Notifications' ? (
+                                        <DropdownMenu key={item.title}>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                                                    <Bell className="size-5 opacity-80 group-hover:opacity-100" />
+                                                    {unreadCount > 0 && (
+                                                        <span className="absolute -top-2 -right-2">
+                                                            <Badge className="bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                                                                {unreadCount}
+                                                            </Badge>
                                                         </span>
                                                     )}
-                                                </Link>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{item.title}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
+                                                <div className="p-2 font-semibold border-b">Notifications</div>
+                                                {unreadCount === 0 ? (
+                                                    <div className="p-4 text-center text-gray-500">No new notifications</div>
+                                                ) : (
+                                                    customerNotifications.slice(0, 10).map((n: any) => (
+                                                        <div key={n.id} className={`p-2 border-b last:border-b-0 cursor-pointer transition hover:bg-blue-50 border-l-4
+                                                            ${n.status === 'approved' 
+                                                                ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
+                                                                : 'bg-rose-100 border-rose-400 text-rose-900'
+                                                            }`}
+                                                            onClick={() => handleNotificationClick(n)}
+                                                        >
+                                                            <div className="font-medium text-sm mb-1">Order #{n.order_id}</div>
+                                                            <div className="text-xs">{n.message}</div>
+                                                            <div className="text-xs text-gray-400 mt-1">{n.created_at && (new Date(n.created_at)).toLocaleString()}</div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                                <div className="p-2 text-center border-t">
+                                                    <Link href="/customer/notifications" className="text-blue-600 text-xs hover:underline">View all notifications</Link>
+                                                </div>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    ) : (
+                                        <TooltipProvider key={item.title} delayDuration={0}>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Link
+                                                        href={item.href}
+                                                        className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    >
+                                                        <span className="sr-only">{item.title}</span>
+                                                        {item.icon && (
+                                                            <span className="relative">
+                                                                <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />
+                                                                {item.title === 'Cart' && cartCount > 0 && (
+                                                                    <span className="absolute -top-2 -right-2">
+                                                                        <Badge className="bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                                                                            {cartCount}
+                                                                        </Badge>
+                                                                    </span>
+                                                                )}
+                                                            </span>
+                                                        )}
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{item.title}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    )
                                 ))}
                             </div>
                         </div>

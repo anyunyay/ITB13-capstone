@@ -8,6 +8,7 @@ use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User; // Added this import for the new_code
+use App\Notifications\OrderStatusUpdate;
 
 class OrderController extends Controller
 {
@@ -93,6 +94,9 @@ class OrderController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
+        // Notify the customer
+        $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+
         return redirect()->route('admin.orders.show', $order->id)
             ->with('message', 'Order approved successfully. Please assign a logistic provider.');
     }
@@ -121,6 +125,9 @@ class OrderController extends Controller
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
         ]);
+
+        // Notify the customer
+        $order->customer?->notify(new OrderStatusUpdate($order->id, 'rejected', 'Your order has been declined. Please check your order history for details.'));
 
         return redirect()->route('admin.orders.index')->with('message', 'Order rejected successfully');
     }

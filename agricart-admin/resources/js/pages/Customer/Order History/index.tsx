@@ -3,6 +3,8 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useEffect } from 'react';
+import { router } from '@inertiajs/react';
 
 interface OrderItem {
   id: number;
@@ -30,9 +32,25 @@ interface Order {
 
 interface HistoryProps {
   orders: Order[];
+  notifications?: Array<{
+    id: string;
+    order_id: number;
+    status: string;
+    message: string;
+    created_at: string;
+  }>;
 }
 
-export default function History({ orders }: HistoryProps) {
+export default function History({ orders, notifications = [] }: HistoryProps) {
+  useEffect(() => {
+    if (notifications.length > 0) {
+      // Mark notifications as read after display
+      router.post('/customer/notifications/mark-read', {
+        ids: notifications.map(n => n.id),
+      }, { preserveScroll: true });
+    }
+  }, [notifications]);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -63,6 +81,16 @@ export default function History({ orders }: HistoryProps) {
     <AppHeaderLayout>
       <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Order History</h1>
+        {notifications.length > 0 && (
+          <div className="mb-4 space-y-2">
+            {notifications.map(n => (
+              <div key={n.id} className={`p-3 rounded text-white ${n.status === 'approved' ? 'bg-green-600' : 'bg-red-600'}`}>
+                <span className="font-semibold">Order #{n.order_id}:</span> {n.message}
+                <span className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</span>
+              </div>
+            ))}
+          </div>
+        )}
         {orders.length === 0 ? (
           <Card className="p-6 text-center text-muted-foreground">No orders found.</Card>
         ) : (
@@ -82,16 +110,16 @@ export default function History({ orders }: HistoryProps) {
               </div>
               
               {order.admin_notes && (
-                <div className="mb-4 p-3 bg-gray-50 rounded">
-                  <h5 className="font-semibold text-sm mb-1">Admin Notes:</h5>
-                  <p className="text-sm text-gray-700">{order.admin_notes}</p>
+                <div className="mb-4 p-3 bg-amber-100 border-l-4 border-amber-400 rounded">
+                  <h5 className="font-semibold text-sm mb-1 text-amber-800">Admin Notes:</h5>
+                  <p className="text-sm text-amber-900">{order.admin_notes}</p>
                 </div>
               )}
 
               {order.logistic && (
-                <div className="mb-4 p-3 bg-blue-50 rounded">
-                  <h5 className="font-semibold text-sm mb-1">Delivery Information:</h5>
-                  <p className="text-sm text-blue-700">
+                <div className="mb-4 p-3 bg-teal-50 border-l-4 border-teal-400 rounded">
+                  <h5 className="font-semibold text-sm mb-1 text-teal-800">Delivery Information:</h5>
+                  <p className="text-sm text-teal-900">
                     <span className="font-medium">Assigned to:</span> {order.logistic.name}
                     {order.logistic.contact_number && (
                       <span className="ml-2">({order.logistic.contact_number})</span>
