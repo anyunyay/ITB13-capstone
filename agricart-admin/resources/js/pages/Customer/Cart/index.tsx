@@ -352,7 +352,15 @@ export default function CartPage() {
           >
             Checkout
           </Button>
-          {checkoutMessage && <div className="mt-2 text-red-500">{checkoutMessage}</div>}
+          {checkoutMessage && (
+            <div className={`mt-2 p-3 rounded ${
+              checkoutMessage.includes('successfully') 
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : 'text-red-500'
+            }`}>
+              {checkoutMessage}
+            </div>
+          )}
           {editingItems.size > 0 && (
             <div className="mt-2 text-blue-500 text-sm">
               Please complete or cancel all pending updates before checkout

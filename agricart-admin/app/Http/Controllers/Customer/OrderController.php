@@ -12,28 +12,36 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        $sales = $user->sales()
-            ->with(['auditTrail.product'])
-            ->oldest()
+        $orders = $user->sales()
+            ->with(['auditTrail.product', 'admin', 'logistic'])
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sale) {
                 return [
                     'id' => $sale->id,
-                    'date' => $sale->created_at->format('Y-m-d H:i'),
-                    'total_price' => $sale->total_amount,
-                    'items' => $sale->auditTrail->map(function ($item) {
+                    'total_amount' => $sale->total_amount,
+                    'status' => $sale->status,
+                    'created_at' => $sale->created_at->toISOString(),
+                    'admin_notes' => $sale->admin_notes,
+                    'logistic' => $sale->logistic ? [
+                        'id' => $sale->logistic->id,
+                        'name' => $sale->logistic->name,
+                        'contact_number' => $sale->logistic->contact_number,
+                    ] : null,
+                    'auditTrail' => $sale->auditTrail->map(function ($item) {
                         return [
-                            'product_name' => $item->product->name ?? 'Unknown',
-                            'produce_type' => $item->product->produce_type ?? 'Unknown', // fruit/vegetable
-                            'category' => $item->category, // Kilo/Pc/Tali
+                            'id' => $item->id,
+                            'product' => [
+                                'name' => $item->product->name ?? 'Unknown',
+                                'price' => $item->product->price ?? 0,
+                            ],
+                            'category' => $item->category,
                             'quantity' => $item->quantity,
-                            'unit_price' => $item->product->price ?? 0,
-                            'subtotal' => $item->quantity * ($item->product->price ?? 0),
                         ];
                     }),
                 ];
             });
 
-        return Inertia::render('Customer/Order History/index', compact('sales'));
+        return Inertia::render('Customer/Order History/index', compact('orders'));
     }
 }

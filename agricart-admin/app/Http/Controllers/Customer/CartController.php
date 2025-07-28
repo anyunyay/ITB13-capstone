@@ -89,7 +89,6 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
-
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->first();
         $message = null;
@@ -102,13 +101,15 @@ class CartController extends Controller
         try {
             $user = $request->user();
 
-            // Create a new sale record
+            // Create a new sale record with pending status
             $sale = Sales::create([
                 'customer_id' => $user->id,
-                'total_amount' => 0, // This will be updated later
+                'total_amount' => 0, // This will be calculated but not processed yet
+                'status' => 'pending',
             ]);
 
             $totalPrice = 0;
+            $orderItems = [];
 
             foreach ($cart->items as $item) {
                 $stocks = Stock::where('product_id', $item->product_id)
@@ -121,21 +122,22 @@ class CartController extends Controller
                 $totalAvailable = $stocks->sum('quantity');
 
                 if ($totalAvailable < $item->quantity) {
-                    $error = 'Not enough stock for ' . $item->product_id . ' (' . $item->category . ')';
+                    $error = 'Not enough stock for ' . ($item->product ? $item->product->name : 'Product') . ' (' . $item->category . ')';
                     break;
                 }
 
                 $remainingQty = $item->quantity;
+                $itemTotalPrice = 0;
+
                 foreach ($stocks as $stock) {
                     if ($remainingQty <= 0) break;
                     $deduct = min($stock->quantity, $remainingQty);
-                    $stock->quantity -= $deduct;
-                    $stock->save();
-
-                    $totalPrice += ($stock->product->price ?? 0) * $deduct;
+                    
+                    // Calculate price for this portion
+                    $itemTotalPrice += ($stock->product->price ?? 0) * $deduct;
                     $remainingQty -= $deduct;
 
-                    // Create an audit trail record
+                    // Create an audit trail record (but don't deduct stock yet)
                     AuditTrail::create([
                         'sale_id' => $sale->id,
                         'stock_id' => $stock->id,
@@ -143,28 +145,30 @@ class CartController extends Controller
                         'category' => $item->category,
                         'quantity' => $deduct,
                     ]);
-
-                    // Mark once stock quantity reaches 0
-                    if ($stock->quantity == 0) {
-                        $stock->status = 'sold';
-                        $stock->customer_id = $user->id;
-                        $stock->save();
-                    }
                 }
+
+                $totalPrice += $itemTotalPrice;
             }
 
             if ($error) {
+                // Delete the sale and audit trail if there was an error
+                $sale->auditTrail()->delete();
+                $sale->delete();
                 return back()->with('checkoutMessage', $error);
             }
 
-            $cart->items()->delete(); // Clear the cart
-            $sale->update(['total_amount' => $totalPrice]); // Update the sale total amount
-            $message = 'Checkout successful!';
+            // Update the sale with total amount
+            $sale->update(['total_amount' => $totalPrice]);
+
+            // Clear the cart
+            $cart->items()->delete();
+            
+            $message = 'Order placed successfully! Your order is pending admin approval.';
         } catch (\Throwable $e) {
             $message = 'An unexpected error occurred during checkout.';
         }
 
-        return redirect()->route('cart.index')->with('checkoutMessage', $message); // Return updated cart (empty) and message
+        return redirect()->route('cart.index')->with('checkoutMessage', $message);
     }
 
     public function remove(Request $request, $cartItemId)

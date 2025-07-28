@@ -7,10 +7,11 @@ use App\Http\Controllers\Admin\InventoryStockController;
 use App\Http\Controllers\Admin\InventoryStockTrailController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
-use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -60,6 +61,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [InventoryStockTrailController::class, 'soldIndex'])->name('inventory.soldStock.index');
         Route::middleware(['can:view stock trail'])->get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index'); // View Stock Trail
 
+        // Order Management routes
+        Route::middleware(['can:view orders'])->group(function () {
+            Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+            Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
+        });
+        Route::middleware(['can:edit orders'])->group(function () {
+            Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('admin.orders.approve');
+            Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('admin.orders.reject');
+            Route::post('/orders/{order}/process', [OrderController::class, 'process'])->name('admin.orders.process');
+            Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->name('admin.orders.assignLogistic');
+        });
+
         // Membership routes
         Route::middleware(['can:view membership'])->group(function () {
             Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index'); // View Membership
@@ -95,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 
-        Route::get('/orders/history', [OrderController::class, 'index'])->name('orders.history');
+        Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
     });
 
     // Logistic routes
