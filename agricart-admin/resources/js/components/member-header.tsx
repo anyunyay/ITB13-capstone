@@ -23,33 +23,6 @@ export function MemberHeader() {
                         <Package className="h-8 w-8 text-green-500" />
                         <span className="text-xl font-bold text-white">Agricart</span>
                     </div>
-                    
-                    <nav className="hidden md:flex items-center space-x-6">
-                        <Link 
-                            href={route('member.dashboard')}
-                            className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link 
-                            href={route('member.stocks')}
-                            className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                        >
-                            My Stocks
-                        </Link>
-                        <Link 
-                            href={route('member.soldStocks')}
-                            className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                        >
-                            Sold Stocks
-                        </Link>
-                        <Link 
-                            href={route('member.stockTrail')}
-                            className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                        >
-                            Stock History
-                        </Link>
-                    </nav>
                 </div>
 
                 {/* User Menu */}
