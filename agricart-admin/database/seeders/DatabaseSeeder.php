@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Stock;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +21,17 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProductSeeder::class,
             StockSeeder::class,
+        ]);
+
+        // Create another user manually
+        User::create([
+            'type' => 'member',
+            'name' => 'John Doe',
+            'address' => '123 Main St',
+            'email' => 'member@member.com',
+            'registration_date' => now(),
+            'document' => 'https://via.placeholder.com/640x480.png?text=member',
+            'password' => Hash::make('12345678'),
         ]);
     }
 }
