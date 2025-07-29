@@ -77,13 +77,14 @@ class OrderController extends Controller
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
                 $trail->stock->quantity -= $trail->quantity;
+                $trail->stock->customer_id = $order->customer_id;
                 $trail->stock->save();
 
-                // Mark stock as sold if quantity reaches 0
+                // Automatically set status based on quantity
                 if ($trail->stock->quantity == 0) {
-                    $trail->stock->status = 'sold';
-                    $trail->stock->customer_id = $order->customer_id;
-                    $trail->stock->save();
+                    $trail->stock->setSoldStatus();
+                } else {
+                    $trail->stock->setPartialStatus();
                 }
             }
         }
@@ -113,8 +114,8 @@ class OrderController extends Controller
             foreach ($order->auditTrail as $trail) {
                 if ($trail->stock) {
                     $trail->stock->quantity += $trail->quantity;
-                    $trail->stock->status = 'available';
                     $trail->stock->customer_id = null;
+                    $trail->stock->status = 'available';
                     $trail->stock->save();
                 }
             }
