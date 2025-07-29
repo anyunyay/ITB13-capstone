@@ -42,8 +42,7 @@ class Stock extends Model
     public function scopePartial($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNotNull('customer_id')
-                    ->where('status', 'partial');
+                    ->whereNotNull('customer_id');
     }
 
     /**
@@ -53,8 +52,7 @@ class Stock extends Model
     public function scopeSold($query)
     {
         return $query->where('quantity', 0)
-                    ->whereNotNull('customer_id')
-                    ->where('status', 'sold');
+                    ->whereNotNull('customer_id');
     }
 
     /**
@@ -64,9 +62,7 @@ class Stock extends Model
     public function scopeAvailable($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNull('customer_id')
-                    ->where('status', '!=', 'sold')
-                    ->where('status', '!=', 'partial');
+                    ->whereNull('customer_id');
     }
 
     /**

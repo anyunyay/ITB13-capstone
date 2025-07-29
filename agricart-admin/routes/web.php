@@ -13,6 +13,7 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
+use App\Http\Controllers\Member\MemberController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -127,8 +128,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Member routes
     Route::prefix('/member')->group(function () {
-        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
-        // Add more member routes here as needed
+        Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('member.dashboard');
+        Route::get('/available-stocks', [MemberController::class, 'availableStocks'])->name('member.availableStocks');
+        Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');
+        Route::get('/sold-stocks', [MemberController::class, 'soldStocks'])->name('member.soldStocks');
+        Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
+        Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
     });
 });
 
