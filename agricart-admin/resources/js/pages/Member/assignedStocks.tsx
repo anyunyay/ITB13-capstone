@@ -12,7 +12,11 @@ import { MemberHeader } from '@/components/member-header';
 interface Product {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    description: string;
+    image: string;
     produce_type: string;
 }
 
@@ -87,16 +91,6 @@ export default function AssignedStocks({ assignedStocks }: PageProps) {
                         <CardContent>
                             <div className="text-2xl font-bold text-white">{assignedStocks.reduce((sum, stock) => sum + stock.quantity, 0)}</div>
                             <p className="text-xs text-gray-400">Remaining units</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 border-gray-700">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Estimated Value</CardTitle>
-                            <Package className="h-4 w-4 text-green-400" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">₱{assignedStocks.reduce((sum, stock) => sum + (stock.quantity * stock.product.price), 0).toLocaleString()}</div>
-                            <p className="text-xs text-gray-400">Total value</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">

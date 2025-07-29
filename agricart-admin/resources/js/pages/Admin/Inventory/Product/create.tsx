@@ -19,7 +19,9 @@ export default function Create() {
 
     const {data, setData, post, processing, errors} = useForm({
         name: '',
-        price: '',
+        price_kilo: '',
+        price_pc: '',
+        price_tali: '',
         description: '',
         image: null as File | null,
         produce_type: 'fruit',
@@ -62,8 +64,16 @@ export default function Create() {
                         <Input placeholder="Product Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price">Price</Label>
-                        <Input type="number" min="0" placeholder="Product Price" value={data.price} onChange={(e) => setData('price', e.target.value)}/>
+                        <Label htmlFor="product price_kilo">Price per Kilo</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product price_pc">Price per Piece</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Piece" value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product price_tali">Price per Tali</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Tali" value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>

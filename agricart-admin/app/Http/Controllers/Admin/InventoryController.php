@@ -27,7 +27,9 @@ class InventoryController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price_kilo' => 'nullable|numeric|min:0',
+            'price_pc' => 'nullable|numeric|min:0',
+            'price_tali' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -39,7 +41,9 @@ class InventoryController extends Controller
             
             Product::create([
                 'name' => $request->input('name'),
-                'price' => $request->input('price'),
+                'price_kilo' => $request->input('price_kilo'),
+                'price_pc' => $request->input('price_pc'),
+                'price_tali' => $request->input('price_tali'),
                 'description' => $request->input('description'),
                 'image' => 'images/products/' . $imageName,
                 'produce_type' => $request->input('produce_type'),
@@ -59,7 +63,9 @@ class InventoryController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price_kilo' => 'nullable|numeric|min:0',
+            'price_pc' => 'nullable|numeric|min:0',
+            'price_tali' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -67,7 +73,9 @@ class InventoryController extends Controller
         if ($product) {
             $product->update([
                 'name' => $request->input('name'),
-                'price' => $request->input('price'),
+                'price_kilo' => $request->input('price_kilo'),
+                'price_pc' => $request->input('price_pc'),
+                'price_tali' => $request->input('price_tali'),
                 'description' => $request->input('description'),
                 'produce_type' => $request->input('produce_type'),
             ]);

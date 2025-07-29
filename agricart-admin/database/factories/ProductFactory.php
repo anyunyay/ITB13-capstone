@@ -19,7 +19,9 @@ class ProductFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->word(),
-            'price' => $this->faker->randomFloat(2, 1, 1000),
+            'price_kilo' => $this->faker->randomFloat(2, 50, 500),
+            'price_pc' => $this->faker->randomFloat(2, 10, 100),
+            'price_tali' => $this->faker->randomFloat(2, 20, 200),
             'produce_type' => $this->faker->randomElement(['fruit', 'vegetable']),
             'description' => $this->faker->sentence(3),
             'image' => $this->faker->imageUrl(640, 480, 'product', true),

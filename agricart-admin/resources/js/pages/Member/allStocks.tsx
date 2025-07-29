@@ -13,7 +13,11 @@ import { MemberHeader } from '@/components/member-header';
 interface Product {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    description: string;
+    image: string;
     produce_type: string;
 }
 
@@ -66,7 +70,7 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
 
     const allStocks = [...availableStocks, ...partialStocks];
     const totalQuantity = allStocks.reduce((sum, stock) => sum + Number(stock.quantity), 0);
-    const totalValue = allStocks.reduce((sum, stock) => sum + (Number(stock.quantity) * stock.product.price), 0);
+    // Remove total value calculation since we no longer have a single price field
     
     // Create sold stocks from sales data for display
     const soldStocksForDisplay = salesData.salesBreakdown.map(sale => ({
@@ -79,7 +83,9 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
         product: {
             id: sale.product_id,
             name: sale.product_name,
-            price: sale.price_per_unit,
+            price_kilo: sale.price_per_unit,
+            price_pc: sale.price_per_unit,
+            price_tali: sale.price_per_unit,
             produce_type: 'fruit' // Default value, could be enhanced
         },
         customer: sale.customers.length > 0 ? { id: 0, name: sale.customers[0] } : undefined,
@@ -215,10 +221,10 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                ₱{stock.product.price}
+                                                ₱{stock.product.price_kilo || 0}
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                ₱{stock.totalRevenue ? stock.totalRevenue.toLocaleString() : (Number(stock.quantity) * stock.product.price).toLocaleString()}
+                                                ₱{stock.totalRevenue ? stock.totalRevenue.toLocaleString() : (Number(stock.quantity) * (stock.product.price_kilo || 0)).toLocaleString()}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge 

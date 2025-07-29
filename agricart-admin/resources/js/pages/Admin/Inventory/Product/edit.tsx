@@ -12,7 +12,9 @@ import { OctagonAlert } from 'lucide-react';
 interface Product {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
     description: string;
     image: string;
     produce_type: string;
@@ -32,7 +34,9 @@ export default function Edit({product}: Props) {
 
     const {data, setData, post, processing, errors} = useForm({
         name: product.name,
-        price: product.price,
+        price_kilo: product.price_kilo || '',
+        price_pc: product.price_pc || '',
+        price_tali: product.price_tali || '',
         description: product.description,
         image: null as File | null,
         produce_type: product.produce_type || 'fruit',
@@ -81,9 +85,19 @@ export default function Edit({product}: Props) {
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price">Price</Label>
-                        <Input type="number" min="0" placeholder="Product Price" value={data.price} onChange={(e) => setData('price', Number(e.target.value))}/>
-                        {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
+                        <Label htmlFor="product price_kilo">Price per Kilo</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
+                        {errors.price_kilo && <p className="text-sm text-red-500 mt-1">{errors.price_kilo}</p>}
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product price_pc">Price per Piece</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Piece" value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
+                        {errors.price_pc && <p className="text-sm text-red-500 mt-1">{errors.price_pc}</p>}
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="product price_tali">Price per Tali</Label>
+                        <Input type="number" min="0" step="0.01" placeholder="Price per Tali" value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
+                        {errors.price_tali && <p className="text-sm text-red-500 mt-1">{errors.price_tali}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>

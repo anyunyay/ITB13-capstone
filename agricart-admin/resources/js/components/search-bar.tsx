@@ -9,7 +9,9 @@ import { cn } from '@/lib/utils';
 interface Product {
     id: number;
     name: string;
-    price: number | string;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
     description: string;
     image: string;
     produce_type: string;
@@ -162,7 +164,10 @@ export function SearchBar({ className }: SearchBarProps) {
                                     <div className="font-medium text-sm truncate">{product.name}</div>
                                     <div className="text-xs text-gray-500 truncate">{product.produce_type}</div>
                                     <div className="text-sm font-semibold text-green-600">
-                                        ₱{formatPrice(product.price)}
+                                        {product.price_kilo && <div>Kilo: ₱{formatPrice(product.price_kilo)}</div>}
+                                        {product.price_pc && <div>Pc: ₱{formatPrice(product.price_pc)}</div>}
+                                        {product.price_tali && <div>Tali: ₱{formatPrice(product.price_tali)}</div>}
+                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
                                     </div>
                                 </div>
                                 <div className="text-xs text-gray-400">

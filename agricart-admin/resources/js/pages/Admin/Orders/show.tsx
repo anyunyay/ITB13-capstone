@@ -13,7 +13,9 @@ interface OrderItem {
   product: {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
   };
   category: string;
   quantity: number;
@@ -195,7 +197,11 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                         };
                       }
                       acc[key].quantity += Number(item.quantity);
-                      acc[key].totalPrice += Number(item.quantity) * Number(item.product.price);
+                      acc[key].totalPrice += Number(item.quantity) * Number(
+                        item.category === 'Kilo' ? (item.product.price_kilo || 0) :
+                        item.category === 'Pc' ? (item.product.price_pc || 0) :
+                        item.category === 'Tali' ? (item.product.price_tali || 0) : 0
+                      );
                       return acc;
                     }, {} as Record<string, any>) || {};
 
@@ -207,7 +213,11 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                           <div>
                             <h4 className="font-medium">{item.product.name}</h4>
                             <p className="text-sm text-gray-500">
-                              {item.quantity} {item.category} × ₱{item.product.price}
+                              {item.quantity} {item.category} × ₱{
+                                item.category === 'Kilo' ? (item.product.price_kilo || 0) :
+                                item.category === 'Pc' ? (item.product.price_pc || 0) :
+                                item.category === 'Tali' ? (item.product.price_tali || 0) : 0
+                              }
                             </p>
                           </div>
                           <div className="text-right">

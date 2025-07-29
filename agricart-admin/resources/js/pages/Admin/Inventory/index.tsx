@@ -28,7 +28,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 interface Product {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
     description: string;
     image: string;
     produce_type: string;
@@ -123,7 +125,14 @@ export default function Index() {
                             </div>
                             <CardHeader>
                                 <CardTitle>{product.name}</CardTitle>
-                                <CardDescription>P{product.price}</CardDescription>
+                                <CardDescription>
+                                    <div className="text-sm">
+                                        {product.price_kilo && <div>Kilo: P{product.price_kilo}</div>}
+                                        {product.price_pc && <div>Pc: P{product.price_pc}</div>}
+                                        {product.price_tali && <div>Tali: P{product.price_tali}</div>}
+                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
+                                    </div>
+                                </CardDescription>
                                 <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
                                 <CardAction>
                                     <Button disabled={processing} onClick={() => handleArchive(product.id, product.name)}>

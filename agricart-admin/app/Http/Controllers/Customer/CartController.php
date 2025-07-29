@@ -134,7 +134,16 @@ class CartController extends Controller
                     $deduct = min($stock->quantity, $remainingQty);
                     
                     // Calculate price for this portion
-                    $itemTotalPrice += ($stock->product->price ?? 0) * $deduct;
+                    $price = 0;
+                    if ($item->category === 'Kilo' && $stock->product->price_kilo) {
+                        $price = $stock->product->price_kilo;
+                    } elseif ($item->category === 'Pc' && $stock->product->price_pc) {
+                        $price = $stock->product->price_pc;
+                    } elseif ($item->category === 'Tali' && $stock->product->price_tali) {
+                        $price = $stock->product->price_tali;
+                    }
+                    
+                    $itemTotalPrice += $price * $deduct;
                     $remainingQty -= $deduct;
 
                     // Create an audit trail record (but don't deduct stock yet)

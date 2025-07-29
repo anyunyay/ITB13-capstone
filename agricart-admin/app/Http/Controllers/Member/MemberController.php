@@ -185,7 +185,16 @@ class MemberController extends Controller
                     $totalQuantitySold += $audit->quantity;
                     
                     // Calculate revenue for this item
-                    $itemRevenue = $audit->quantity * $audit->product->price;
+                    $price = 0;
+                    if ($audit->category === 'Kilo' && $audit->product->price_kilo) {
+                        $price = $audit->product->price_kilo;
+                    } elseif ($audit->category === 'Pc' && $audit->product->price_pc) {
+                        $price = $audit->product->price_pc;
+                    } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
+                        $price = $audit->product->price_tali;
+                    }
+                    
+                    $itemRevenue = $audit->quantity * $price;
                     $totalRevenue += $itemRevenue;
 
                     // Group by product_id
@@ -195,7 +204,7 @@ class MemberController extends Controller
                             'product_id' => $productId,
                             'product_name' => $audit->product->name,
                             'total_quantity' => 0,
-                            'price_per_unit' => $audit->product->price,
+                            'price_per_unit' => $price,
                             'total_revenue' => 0,
                             'category' => $audit->category,
                             'sales_count' => 0,

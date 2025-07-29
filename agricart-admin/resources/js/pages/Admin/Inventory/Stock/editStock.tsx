@@ -20,6 +20,12 @@ import {
 interface Product {
     id: number;
     name: string;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    description: string;
+    image: string;
+    produce_type: string;
 }
 
 interface Member {

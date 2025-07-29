@@ -13,7 +13,11 @@ import { MemberHeader } from '@/components/member-header';
 interface Product {
     id: number;
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    description: string;
+    image: string;
     produce_type: string;
 }
 
@@ -42,7 +46,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
     }, [auth]);
 
     const totalQuantity = availableStocks.reduce((sum, stock) => sum + stock.quantity, 0);
-    const totalValue = availableStocks.reduce((sum, stock) => sum + (stock.quantity * stock.product.price), 0);
+    // Remove total value calculation since we no longer have a single price field
 
     return (
         <div className="min-h-screen bg-gray-900">
@@ -84,16 +88,6 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                         <CardContent>
                             <div className="text-2xl font-bold text-white">{totalQuantity}</div>
                             <p className="text-xs text-gray-400">Units available</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 border-gray-700">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Estimated Value</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-blue-400" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">₱{totalValue.toLocaleString()}</div>
-                            <p className="text-xs text-gray-400">Total value</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">
@@ -151,10 +145,16 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                ₱{stock.product.price}
+                                                {stock.category === 'Kilo' && stock.product.price_kilo && `₱${stock.product.price_kilo}`}
+                                                {stock.category === 'Pc' && stock.product.price_pc && `₱${stock.product.price_pc}`}
+                                                {stock.category === 'Tali' && stock.product.price_tali && `₱${stock.product.price_tali}`}
+                                                {(!stock.product.price_kilo && !stock.product.price_pc && !stock.product.price_tali) && 'No price set'}
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                ₱{(stock.quantity * stock.product.price).toLocaleString()}
+                                                {stock.category === 'Kilo' && stock.product.price_kilo && `₱${(stock.quantity * stock.product.price_kilo).toLocaleString()}`}
+                                                {stock.category === 'Pc' && stock.product.price_pc && `₱${(stock.quantity * stock.product.price_pc).toLocaleString()}`}
+                                                {stock.category === 'Tali' && stock.product.price_tali && `₱${(stock.quantity * stock.product.price_tali).toLocaleString()}`}
+                                                {(!stock.product.price_kilo && !stock.product.price_pc && !stock.product.price_tali) && 'N/A'}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="secondary" className="bg-green-600 text-white">

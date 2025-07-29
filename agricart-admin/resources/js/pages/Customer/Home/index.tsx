@@ -33,7 +33,9 @@ import StockManager from '@/lib/stock-manager';
 interface Product {
   id: number;
   name: string;
-  price: number | string;
+  price_kilo?: number;
+  price_pc?: number;
+  price_tali?: number;
   description: string;
   image: string;
   produce_type: string; // 'fruit' or 'vegetable'
@@ -148,7 +150,14 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
             {product.name}
           </Link>
         </CardTitle>
-        <CardDescription>₱{typeof product.price === 'string' ? parseFloat(product.price).toFixed(2) : product.price.toFixed(2)}</CardDescription>
+        <CardDescription>
+          <div className="text-sm">
+            {product.price_kilo && <div>Kilo: ₱{Number(product.price_kilo).toFixed(2)}</div>}
+            {product.price_pc && <div>Pc: ₱{Number(product.price_pc).toFixed(2)}</div>}
+            {product.price_tali && <div>Tali: ₱{Number(product.price_tali).toFixed(2)}</div>}
+            {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
+          </div>
+        </CardDescription>
         <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
         <CardAction>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -169,7 +178,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                       {Object.entries(availableStock).map(
                         ([category, quantity]) => (
                           <li key={category}>
-                            {category}: {category === 'Kilo'
+                            {category === 'Kilo'
                               ? quantity.toFixed(2)
                               : quantity}
                           </li>

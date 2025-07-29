@@ -10,7 +10,9 @@ interface OrderItem {
   id: number;
   product: {
     name: string;
-    price: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
   };
   category: string;
   quantity: number;
@@ -144,8 +146,18 @@ export default function History({ orders, notifications = [] }: HistoryProps) {
                       <TableCell>{item.product.name}</TableCell>
                       <TableCell>{item.category}</TableCell>
                       <TableCell>{item.quantity} {item.category}</TableCell>
-                      <TableCell>₱{Number(item.product.price).toFixed(2)}</TableCell>
-                      <TableCell>₱{(Number(item.quantity) * Number(item.product.price)).toFixed(2)}</TableCell>
+                      <TableCell>
+                        {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
+                        {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
+                        {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
+                        {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
+                      </TableCell>
+                      <TableCell>
+                        {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
+                        {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
+                        {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
+                        {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
+                      </TableCell>
                     </TableRow>
                   )) || (
                     <TableRow>

@@ -15,13 +15,15 @@ import { ArrowLeft, ShoppingBasket, Package } from 'lucide-react';
 import StockManager from '@/lib/stock-manager';
 
 interface Product {
-  id: number;
-  name: string;
-  price: number | string;
-  description: string;
-  image: string;
-  produce_type: string;
-  stock_by_category: Record<string, number>;
+    id: number;
+    name: string;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    description: string;
+    image: string;
+    produce_type: string;
+    stock_by_category: Record<string, number>;
 }
 
 interface PageProps {
@@ -141,9 +143,28 @@ function ProductCard({ product }: { product: Product }) {
               )}
             </div>
             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-2xl font-semibold text-green-600 mt-2">
-              ₱{formatPrice(product.price)}
-            </p>
+            <div className="mt-2 space-y-1">
+              {product.price_kilo && (
+                <p className="text-lg font-semibold text-green-600">
+                  Kilo: ₱{formatPrice(product.price_kilo)}
+                </p>
+              )}
+              {product.price_pc && (
+                <p className="text-lg font-semibold text-green-600">
+                  Piece: ₱{formatPrice(product.price_pc)}
+                </p>
+              )}
+              {product.price_tali && (
+                <p className="text-lg font-semibold text-green-600">
+                  Tali: ₱{formatPrice(product.price_tali)}
+                </p>
+              )}
+              {!product.price_kilo && !product.price_pc && !product.price_tali && (
+                <p className="text-lg font-semibold text-gray-500">
+                  No prices set
+                </p>
+              )}
+            </div>
           </div>
 
           <div>

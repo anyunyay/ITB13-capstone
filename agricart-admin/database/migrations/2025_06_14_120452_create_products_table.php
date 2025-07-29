@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price_kilo', 10, 2)->nullable();
+            $table->decimal('price_pc', 10, 2)->nullable();
+            $table->decimal('price_tali', 10, 2)->nullable();
             $table->enum('produce_type', ['fruit', 'vegetable']);
             $table->text('description')->nullable();
             $table->string('image')->nullable();

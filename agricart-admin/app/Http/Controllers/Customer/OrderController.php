@@ -33,7 +33,9 @@ class OrderController extends Controller
                             'id' => $item->id,
                             'product' => [
                                 'name' => $item->product->name ?? 'Unknown',
-                                'price' => $item->product->price ?? 0,
+                                'price_kilo' => $item->product->price_kilo ?? null,
+                                'price_pc' => $item->product->price_pc ?? null,
+                                'price_tali' => $item->product->price_tali ?? null,
                             ],
                             'category' => $item->category,
                             'quantity' => $item->quantity,
