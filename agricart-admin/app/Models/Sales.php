@@ -10,6 +10,7 @@ class Sales extends Model
         'customer_id',
         'total_amount',
         'status',
+        'delivery_status',
         'admin_id',
         'admin_notes',
         'logistic_id',
@@ -53,5 +54,21 @@ class Sales extends Model
     public function scopeRejected($query)
     {
         return $query->where('status', 'rejected');
+    }
+
+    // Scopes for filtering by delivery status
+    public function scopePendingDelivery($query)
+    {
+        return $query->where('delivery_status', 'pending');
+    }
+
+    public function scopeOutForDelivery($query)
+    {
+        return $query->where('delivery_status', 'out_for_delivery');
+    }
+
+    public function scopeDelivered($query)
+    {
+        return $query->where('delivery_status', 'delivered');
     }
 }

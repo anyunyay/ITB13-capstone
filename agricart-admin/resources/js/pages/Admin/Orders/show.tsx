@@ -35,6 +35,7 @@ interface Order {
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected';
+  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
     name: string;
@@ -89,6 +90,19 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getDeliveryStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'out_for_delivery':
+        return <Badge variant="default">Out for Delivery</Badge>;
+      case 'delivered':
+        return <Badge variant="outline">Delivered</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -270,6 +284,12 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                     <span className="text-sm text-gray-500">Status</span>
                     {getStatusBadge(order.status)}
                   </div>
+                  {order.status === 'approved' && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Delivery Status</span>
+                      {getDeliveryStatusBadge(order.delivery_status)}
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Items</span>
                     <span className="text-sm">{order.audit_trail?.length || 0}</span>

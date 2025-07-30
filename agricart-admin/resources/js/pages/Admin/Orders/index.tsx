@@ -14,6 +14,7 @@ interface Order {
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected';
+  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
     name: string;
@@ -54,6 +55,19 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getDeliveryStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'out_for_delivery':
+        return <Badge variant="default">Out for Delivery</Badge>;
+      case 'delivered':
+        return <Badge variant="outline">Delivered</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -231,10 +245,17 @@ function OrderCard({ order }: { order: Order }) {
                 )}
               </p>
             )}
-            {order.status === 'approved' && !order.logistic && (
-              <p className="text-sm text-orange-600">
-                <span className="font-medium">⚠️ Needs logistic assignment</span>
-              </p>
+            {order.status === 'approved' && (
+              <div className="space-y-1">
+                <p className="text-sm">
+                  <span className="font-medium">Delivery Status:</span> {getDeliveryStatusBadge(order.delivery_status)}
+                </p>
+                {!order.logistic && (
+                  <p className="text-sm text-orange-600">
+                    <span className="font-medium">⚠️ Needs logistic assignment</span>
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

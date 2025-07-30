@@ -122,8 +122,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Logistic routes
     Route::prefix('/logistic')->group(function () {
-        Route::get('/welcome', fn() => Inertia::render('Customer/dashboard'))->name('customer.dashboard'); // Customer Dashboard
-        // Add more logistic routes here as needed
+        Route::get('/dashboard', [\App\Http\Controllers\Logistic\LogisticController::class, 'dashboard'])->name('logistic.dashboard');
+        Route::get('/orders', [\App\Http\Controllers\Logistic\LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
+        Route::get('/orders/{order}', [\App\Http\Controllers\Logistic\LogisticController::class, 'showOrder'])->name('logistic.orders.show');
+        Route::put('/orders/{order}/delivery-status', [\App\Http\Controllers\Logistic\LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
     });
 
     // Member routes

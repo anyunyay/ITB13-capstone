@@ -33,5 +33,14 @@ class DatabaseSeeder extends Seeder
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
             'password' => Hash::make('12345678'),
         ]);
+
+        User::create([
+            'type' => 'logistic',
+            'name' => 'Logistic User',
+            'address' => '456 Logistics Ave',
+            'email' => 'logistic@logistic.com',
+            'registration_date' => now(),
+            'password' => Hash::make('12345678'),
+        ]);
     }
 }

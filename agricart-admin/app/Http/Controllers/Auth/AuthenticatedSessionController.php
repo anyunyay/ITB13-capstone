@@ -34,6 +34,16 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Ensure user has the correct role based on their type
+        if ($user->type && !$user->hasRole($user->type)) {
+            try {
+                $user->assignRole($user->type);
+            } catch (\Exception $e) {
+                // Log the error if the role does not exist
+                \Illuminate\Support\Facades\Log::error("Role {$user->type} does not exist for user ID {$user->id}");
+            }
+        }
+
         // Generate Token for API access if needed
 
         // Redirect based on user role
@@ -44,7 +54,7 @@ class AuthenticatedSessionController extends Controller
         } elseif ($user->hasRole('member')) {
             return redirect()->intended(route('member.dashboard', absolute: false));
         } elseif ($user->hasRole('logistic')) {
-            return redirect()->intended(route('logistics.index', absolute: false));
+            return redirect()->intended(route('logistic.dashboard', absolute: false));
         }
 
         // Default fallback
