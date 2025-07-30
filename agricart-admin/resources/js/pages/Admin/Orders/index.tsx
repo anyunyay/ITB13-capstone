@@ -193,6 +193,19 @@ function OrderCard({ order }: { order: Order }) {
     }
   };
 
+  const getDeliveryStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'out_for_delivery':
+        return <Badge variant="default">Out for Delivery</Badge>;
+      case 'delivered':
+        return <Badge variant="outline">Delivered</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>

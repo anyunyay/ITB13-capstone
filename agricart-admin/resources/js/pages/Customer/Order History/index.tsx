@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 
 interface OrderItem {
   id: number;
@@ -22,6 +22,7 @@ interface Order {
   id: number;
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected';
+  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin_notes?: string;
   logistic?: {
@@ -34,22 +35,22 @@ interface Order {
 
 interface HistoryProps {
   orders: Order[];
-  notifications?: Array<{
-    id: string;
-    order_id: number;
-    status: string;
-    message: string;
-    created_at: string;
-  }>;
 }
 
-export default function History({ orders, notifications = [] }: HistoryProps) {
+export default function History({ orders }: HistoryProps) {
+  const page = usePage<{ customerNotifications?: Array<any> }>();
+  const notifications = page.props.customerNotifications || [];
+
   useEffect(() => {
     if (notifications.length > 0) {
-      // Mark notifications as read after display
-      router.post('/customer/notifications/mark-read', {
-        ids: notifications.map(n => n.id),
-      }, { preserveScroll: true });
+      // Mark notifications as read after a delay to ensure they're visible
+      const timer = setTimeout(() => {
+        router.post('/customer/notifications/mark-read', {
+          ids: notifications.map(n => n.id),
+        }, { preserveScroll: true });
+      }, 2000); // Wait 2 seconds before marking as read
+
+      return () => clearTimeout(timer);
     }
   }, [notifications]);
 
@@ -79,6 +80,32 @@ export default function History({ orders, notifications = [] }: HistoryProps) {
     }
   };
 
+  const getDeliveryStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>;
+      case 'out_for_delivery':
+        return <Badge variant="default">Out for Delivery</Badge>;
+      case 'delivered':
+        return <Badge variant="outline">Delivered</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getDeliveryStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'text-yellow-600';
+      case 'out_for_delivery':
+        return 'text-blue-600';
+      case 'delivered':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
   return (
     <AppHeaderLayout>
       <div className="max-w-4xl mx-auto p-4">
@@ -86,7 +113,11 @@ export default function History({ orders, notifications = [] }: HistoryProps) {
         {notifications.length > 0 && (
           <div className="mb-4 space-y-2">
             {notifications.map(n => (
-              <div key={n.id} className={`p-3 rounded text-white ${n.status === 'approved' ? 'bg-green-600' : 'bg-red-600'}`}>
+              <div key={n.id} className={`p-3 rounded text-white ${
+                n.delivery_status ? 
+                  (n.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-blue-600') :
+                  (n.status === 'approved' ? 'bg-green-600' : 'bg-red-600')
+              }`}>
                 <span className="font-semibold">Order #{n.order_id}:</span> {n.message}
                 <span className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</span>
               </div>
@@ -110,6 +141,36 @@ export default function History({ orders, notifications = [] }: HistoryProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Delivery Status Tracker */}
+              {order.status === 'approved' && (
+                <div className="mb-4">
+                  <h5 className="font-semibold text-sm mb-3 text-gray-700">Delivery Status</h5>
+                  <div className="flex items-center justify-between">
+                    <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-blue-600' : 'text-gray-400'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+                        {(order.delivery_status || 'pending') === 'pending' ? '1' : '✓'}
+                      </div>
+                      <span className="ml-2 text-sm font-medium">Preparing</span>
+                    </div>
+                    <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-blue-600' : (order.delivery_status || 'pending') === 'delivered' ? 'text-blue-600' : 'text-gray-400'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+                        {(order.delivery_status || 'pending') === 'out_for_delivery' ? '2' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '2'}
+                      </div>
+                      <span className="ml-2 text-sm font-medium">Out for Delivery</span>
+                    </div>
+                    <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+                        {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
+                      </div>
+                      <span className="ml-2 text-sm font-medium">Delivered</span>
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    {getDeliveryStatusBadge(order.delivery_status || 'pending')}
+                  </div>
+                </div>
+              )}
               
               {order.admin_notes && (
                 <div className="mb-4 p-3 bg-amber-100 border-l-4 border-amber-400 rounded">

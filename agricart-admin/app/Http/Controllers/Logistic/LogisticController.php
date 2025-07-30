@@ -88,13 +88,36 @@ class LogisticController extends Controller
         // Get the new delivery status
         $newStatus = $request->input('delivery_status');
         
+        // Get the old status for comparison
+        $oldStatus = $order->delivery_status;
+        
         // Update the delivery status in the database
         $order->update([
             'delivery_status' => $newStatus,
         ]);
 
+        // Send notification to customer if status changed
+        if ($oldStatus !== $newStatus && $order->customer) {
+            $message = $this->getDeliveryStatusMessage($newStatus);
+            $order->customer->notify(new DeliveryStatusUpdate($order->id, $newStatus, $message));
+        }
+
         // Return redirect response for Inertia
         return redirect()->route('logistic.orders.show', $order->id)
             ->with('message', 'Delivery status updated successfully');
+    }
+
+    private function getDeliveryStatusMessage($status)
+    {
+        switch ($status) {
+            case 'pending':
+                return 'Your order is being prepared for delivery.';
+            case 'out_for_delivery':
+                return 'Your order is out for delivery and will arrive soon!';
+            case 'delivered':
+                return 'Your order has been delivered successfully. Thank you for your purchase!';
+            default:
+                return 'Your order delivery status has been updated.';
+        }
     }
 }

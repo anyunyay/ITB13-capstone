@@ -202,9 +202,15 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 ) : (
                                                     customerNotifications.slice(0, 10).map((n: any) => (
                                                         <div key={n.id} className={`p-2 border-b last:border-b-0 cursor-pointer transition hover:bg-blue-50 border-l-4
-                                                            ${n.status === 'approved' 
-                                                                ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
-                                                                : 'bg-rose-100 border-rose-400 text-rose-900'
+                                                            ${n.delivery_status ? 
+                                                                (n.delivery_status === 'delivered' 
+                                                                    ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
+                                                                    : 'bg-blue-100 border-blue-400 text-blue-900'
+                                                                ) : 
+                                                                (n.status === 'approved' 
+                                                                    ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
+                                                                    : 'bg-rose-100 border-rose-400 text-rose-900'
+                                                                )
                                                             }`}
                                                             onClick={() => handleNotificationClick(n)}
                                                         >

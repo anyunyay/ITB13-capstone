@@ -65,7 +65,7 @@ class HandleInertiaRequests extends Middleware
         // Share notifications for authenticated customers
         if ($request->user() && $request->user()->type === 'customer') {
             $shared['customerNotifications'] = $request->user()->unreadNotifications()
-                ->where('type', 'App\\Notifications\\OrderStatusUpdate')
+                ->whereIn('type', ['App\\Notifications\\OrderStatusUpdate', 'App\\Notifications\\DeliveryStatusUpdate'])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($notification) {
@@ -73,6 +73,7 @@ class HandleInertiaRequests extends Middleware
                         'id' => $notification->id,
                         'order_id' => $notification->data['order_id'] ?? null,
                         'status' => $notification->data['status'] ?? null,
+                        'delivery_status' => $notification->data['delivery_status'] ?? null,
                         'message' => $notification->data['message'] ?? '',
                         'created_at' => $notification->created_at->toISOString(),
                         'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,

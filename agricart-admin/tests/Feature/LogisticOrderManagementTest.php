@@ -7,7 +7,9 @@ use App\Models\Sales;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\AuditTrail;
+use App\Notifications\DeliveryStatusUpdate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class LogisticOrderManagementTest extends TestCase
@@ -97,6 +99,43 @@ class LogisticOrderManagementTest extends TestCase
         ]);
         
         $response->assertStatus(403);
+    }
+
+    public function test_delivery_status_update_sends_notification_to_customer()
+    {
+        Notification::fake();
+
+        // Create a logistic
+        $logistic = User::factory()->logistic()->create();
+
+        // Create a customer
+        $customer = User::factory()->customer()->create();
+
+        // Create an approved order assigned to the logistic
+        $order = Sales::create([
+            'customer_id' => $customer->id,
+            'status' => 'approved',
+            'delivery_status' => 'pending',
+            'logistic_id' => $logistic->id,
+            'total_amount' => 100,
+        ]);
+
+        // Logistic updates delivery status
+        $response = $this->actingAs($logistic)->put("/logistic/orders/{$order->id}/delivery-status", [
+            'delivery_status' => 'out_for_delivery',
+        ]);
+        
+        $response->assertRedirect();
+        
+        // Check that notification was sent to customer
+        Notification::assertSentTo(
+            $customer,
+            DeliveryStatusUpdate::class,
+            function ($notification) use ($order) {
+                return $notification->orderId === $order->id &&
+                       $notification->deliveryStatus === 'out_for_delivery';
+            }
+        );
     }
 
     public function test_admin_approval_sets_default_delivery_status()
