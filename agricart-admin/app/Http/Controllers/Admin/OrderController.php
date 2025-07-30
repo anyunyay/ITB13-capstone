@@ -124,6 +124,7 @@ class OrderController extends Controller
 
         $order->update([
             'status' => 'rejected',
+            'delivery_status' => null,
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
         ]);

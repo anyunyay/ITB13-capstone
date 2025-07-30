@@ -22,7 +22,7 @@ interface Order {
   id: number;
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected';
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'out_for_delivery' | 'delivered' | null;
   created_at: string;
   admin_notes?: string;
   logistic?: {
@@ -143,7 +143,7 @@ export default function History({ orders }: HistoryProps) {
               </div>
 
               {/* Delivery Status Tracker */}
-              {order.status === 'approved' && (
+              {order.status === 'approved' && order.delivery_status && (
                 <div className="mb-4">
                   <h5 className="font-semibold text-sm mb-3 text-gray-700">Delivery Status</h5>
                   <div className="flex items-center justify-between">
