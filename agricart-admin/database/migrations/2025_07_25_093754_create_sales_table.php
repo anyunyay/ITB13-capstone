@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->text('admin_notes')->nullable();
             $table->foreignId('logistic_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->enum('delivery_status', ['pending', 'out_for_delivery', 'delivered'])->nullable()->change();
+            $table->enum('delivery_status', ['pending', 'out_for_delivery', 'delivered'])->nullable();
             $table->timestamps();
         });
     }

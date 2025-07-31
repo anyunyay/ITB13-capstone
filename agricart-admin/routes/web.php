@@ -53,14 +53,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['can:create stocks'])->group(function () {
             Route::get('/inventory/{product}/add-stock', [InventoryStockController::class, 'addStock'])->name('inventory.addStock'); // Add Stock (GET)
             Route::post('/inventory/{product}/add-stock', [InventoryStockController::class, 'storeStock'])->name('inventory.storeStock'); // Add Stock (POST)
-            Route::get('/inventory/{product}/remove-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removeStock'); // Remove Stock (GET)
-            Route::post('/inventory/{product}/remove-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemoveStock'); // Remove Stock (POST)
+            Route::get('/inventory/{product}/remove-perished-stock', [InventoryStockController::class, 'removeStock'])->name('inventory.removePerishedStock'); // Remove Perished Stock (GET)
+            Route::post('/inventory/{product}/remove-perished-stock', [InventoryStockController::class, 'storeRemoveStock'])->name('inventory.storeRemovePerishedStock'); // Remove Perished Stock (POST)
         });
         Route::middleware(['can:edit stocks'])->group(function () {
             Route::get('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'editStock'])->name('inventory.editStock'); // Edit Stock (GET)
             Route::put('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock'); // Edit Stock (PUT)
         });
-        Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.removeStock'); // Delete Stock
+        Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.deleteStock'); // Delete Stock
 
         // Sold Stock & Trail routes
         Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [InventoryStockTrailController::class, 'soldIndex'])->name('inventory.soldStock.index');

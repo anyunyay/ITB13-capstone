@@ -12,7 +12,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $products = Product::with('stocks')->get();
+        $products = Product::active()->with('stocks')->get();
 
         $products->each(function ($product) {
             $stockSums = $product->stocks
@@ -30,7 +30,7 @@ class HomeController extends Controller
     {
         $query = $request->get('q', '');
         
-        $products = Product::with('stocks')
+        $products = Product::active()->with('stocks')
             ->where('name', 'like', "%{$query}%")
             ->orWhere('description', 'like', "%{$query}%")
             ->orWhere('produce_type', 'like', "%{$query}%")

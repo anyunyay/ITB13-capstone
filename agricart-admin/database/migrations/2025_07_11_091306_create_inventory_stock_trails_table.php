@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('member_id')->constrained('users')->onDelete('cascade');
             $table->string('category')->nullable();
             $table->string('status')->nullable();
+            $table->text('notes')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });

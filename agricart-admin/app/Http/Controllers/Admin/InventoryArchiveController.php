@@ -17,6 +17,14 @@ class InventoryArchiveController extends Controller
 
     public function archive(Product $product)
     {
+        // Check if there are any available stocks for this product
+        $availableStocks = $product->stocks()->where('quantity', '>', 0)->count();
+        
+        if ($availableStocks > 0) {
+            return redirect()->route('inventory.index')
+                ->withErrors(['archive' => 'Cannot archive product. There are still available stocks. Please remove perished stock first.']);
+        }
+
         $product->archived_at = now();
         $product->save();
 

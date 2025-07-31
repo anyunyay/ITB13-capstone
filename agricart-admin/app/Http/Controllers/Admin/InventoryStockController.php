@@ -86,4 +86,45 @@ class InventoryStockController extends Controller
         $stock->delete();
         return redirect()->route('inventory.index')->with('message', 'Stock deleted and saved to trail successfully');
     }
+
+    public function removeStock(Product $product)
+    {
+        $stocks = $product->stocks()->where('quantity', '>', 0)->get();
+        return Inertia::render('Inventory/Stock/removeStock', [
+            'product' => $product,
+            'stocks' => $stocks,
+        ]);
+    }
+
+    public function storeRemoveStock(Request $request, Product $product)
+    {
+        $request->validate([
+            'stock_id' => 'required|exists:stocks,id',
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $stock = Stock::findOrFail($request->stock_id);
+        
+        // Verify the stock belongs to this product
+        if ($stock->product_id !== $product->id) {
+            return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
+        }
+
+        // Save to InventoryStockTrail before removing
+        InventoryStockTrail::create([
+            'stock_id' => $stock->id,
+            'product_id' => $stock->product_id,
+            'quantity' => $stock->quantity,
+            'member_id' => $stock->member_id,
+            'customer_id' => $stock->customer_id,
+            'category' => $stock->category,
+            'status' => 'removed',
+            'notes' => $request->reason,
+        ]);
+
+        // Remove the stock
+        $stock->delete();
+
+        return redirect()->route('inventory.index')->with('message', 'Perished stock removed successfully');
+    }
 }

@@ -13,7 +13,8 @@ class InventoryStockTrail extends Model
         'member_id', 
         'category',
         'status',
-        'customer_id'
+        'customer_id',
+        'notes'
     ];
 
     protected $with = ['product', 'member', 'customer'];

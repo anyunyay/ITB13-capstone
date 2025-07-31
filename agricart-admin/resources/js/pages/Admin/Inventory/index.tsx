@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BellDot, AlertTriangle } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -24,6 +24,18 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Product {
     id: number;
@@ -62,6 +74,9 @@ interface PageProps {
     flash: {
         message?: string
     }
+    errors: {
+        archive?: string
+    }
     products: Product[];
     stocks: Stock[];
     [key: string]: unknown;
@@ -69,7 +84,15 @@ interface PageProps {
 
 export default function Index() {
 
-    const { products, stocks, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { products, stocks, flash, errors, auth } = usePage<PageProps & SharedData>().props;
+    const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [removeFormData, setRemoveFormData] = useState({
+        stock_id: '',
+        reason: '',
+        other_reason: '',
+    });
+
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -88,14 +111,50 @@ export default function Index() {
 
     const handleDeleteStock = (stock: Stock) => {
         if (confirm(`Are you sure you want to delete - Stock #${stock.id}?`)) {
-            destroy(route('inventory.removeStock', { product: stock.product_id, stock: stock.id }));
+            destroy(route('inventory.deleteStock', { product: stock.product_id, stock: stock.id }));
         }
+    };
+
+    const handleRemovePerishedStock = (stock: Stock) => {
+        setSelectedProduct(stock.product);
+        setRemoveFormData({ stock_id: stock.id.toString(), reason: '', other_reason: '' });
+        setRemoveDialogOpen(true);
+    };
+
+    const handleRemoveStockSubmit = () => {
+        if (!selectedProduct || !removeFormData.stock_id || !removeFormData.reason) {
+            return;
+        }
+
+        // If "Other" is selected, require other_reason
+        if (removeFormData.reason === 'Other' && !removeFormData.other_reason) {
+            return;
+        }
+
+        // Prepare the data to send
+        const submitData = {
+            stock_id: removeFormData.stock_id,
+            reason: removeFormData.reason === 'Other' ? removeFormData.other_reason : removeFormData.reason,
+        };
+
+        router.post(route('inventory.storeRemovePerishedStock', { product: selectedProduct.id }), submitData, {
+            onSuccess: () => {
+                setRemoveDialogOpen(false);
+                setSelectedProduct(null);
+                setRemoveFormData({ stock_id: '', reason: '', other_reason: '' });
+            },
+        });
     };
 
     const handleArchive = (id: number, name: string) => {
         if (confirm(`Archive product - ${name}?`)) {
             post(route('inventory.archive', id));
         }
+    };
+
+    // Check if a product has available stocks
+    const hasAvailableStocks = (productId: number) => {
+        return stocks.some(stock => stock.product_id === productId && stock.quantity > 0);
     };
 
     return (
@@ -112,6 +171,13 @@ export default function Index() {
                                 <BellDot className='h-4 w-4 text-blue-500' />
                                 <AlertTitle>Notification!</AlertTitle>
                                 <AlertDescription>{flash.message}</AlertDescription>
+                            </Alert>
+                        )}
+                        {errors.archive && (
+                            <Alert className="border-red-200 bg-red-50">
+                                <AlertTriangle className='h-4 w-4 text-red-500' />
+                                <AlertTitle>Error!</AlertTitle>
+                                <AlertDescription>{errors.archive}</AlertDescription>
                             </Alert>
                         )}
                     </div>
@@ -135,7 +201,11 @@ export default function Index() {
                                 </CardDescription>
                                 <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
                                 <CardAction>
-                                    <Button disabled={processing} onClick={() => handleArchive(product.id, product.name)}>
+                                    <Button 
+                                        disabled={processing} 
+                                        onClick={() => handleArchive(product.id, product.name)}
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                    >
                                         Archive
                                     </Button>
                                 </CardAction>
@@ -200,7 +270,14 @@ export default function Index() {
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
                                                     <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                    <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
+                                                    <Button 
+                                                        disabled={processing} 
+                                                        onClick={() => handleRemovePerishedStock(stock)} 
+                                                        className='bg-orange-600 hover:bg-orange-700'
+                                                    >
+                                                        Remove Stock
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -233,7 +310,14 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
+                                                        <Button 
+                                                            disabled={processing} 
+                                                            onClick={() => handleRemovePerishedStock(stock)} 
+                                                            className='bg-orange-600 hover:bg-orange-700'
+                                                        >
+                                                            Remove
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -266,7 +350,14 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
+                                                        <Button 
+                                                            disabled={processing} 
+                                                            onClick={() => handleRemovePerishedStock(stock)} 
+                                                            className='bg-orange-600 hover:bg-orange-700'
+                                                        >
+                                                            Remove Stock
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -299,7 +390,14 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Remove</Button>
+                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
+                                                        <Button 
+                                                            disabled={processing} 
+                                                            onClick={() => handleRemovePerishedStock(stock)} 
+                                                            className='bg-orange-600 hover:bg-orange-700'
+                                                        >
+                                                            Remove
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -309,6 +407,127 @@ export default function Index() {
                         )}</TabsContent>
                 </Tabs>
             </div>
+
+            {/* Remove Perished Stock Dialog */}
+            <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-500" />
+                            Remove Stock
+                        </DialogTitle>
+                        <DialogDescription>
+                            Remove stock that is no longer available for sale. 
+                            This action will record the removal in the stock trail with your reason.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedProduct && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                {selectedProduct.image && (
+                                    <img 
+                                        src={selectedProduct.image} 
+                                        alt={selectedProduct.name}
+                                        className="w-12 h-12 object-cover rounded-lg"
+                                    />
+                                )}
+                                <div>
+                                    <h3 className="font-semibold">{selectedProduct.name}</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Available stocks: {stocks.filter(s => s.product_id === selectedProduct.id && s.quantity > 0).length}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="stock_info">Stock Information</Label>
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-sm">
+                                        <strong>Quantity:</strong> {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.quantity} {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.category}
+                                    </p>
+                                    <p className="text-sm">
+                                        <strong>Member:</strong> {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.member?.name}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="reason">Reason for Removal *</Label>
+                                <Select 
+                                    value={removeFormData.reason} 
+                                    onValueChange={(value) => setRemoveFormData(prev => ({ ...prev, reason: value }))}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a reason for removal" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Sold Out">Sold Out</SelectItem>
+                                        <SelectItem value="Discontinued">Discontinued</SelectItem>
+                                        <SelectItem value="Damaged/Defective">Damaged/Defective</SelectItem>
+                                        <SelectItem value="Expired">Expired</SelectItem>
+                                        <SelectItem value="Season Ended">Season Ended</SelectItem>
+                                        <SelectItem value="Listing Error">Listing Error</SelectItem>
+                                        <SelectItem value="Vendor Inactive">Vendor Inactive</SelectItem>
+                                        <SelectItem value="Under Update">Under Update</SelectItem>
+                                        <SelectItem value="Regulatory Issue">Regulatory Issue</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                
+                                {removeFormData.reason === 'Other' && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="other_reason">Specify Other Reason *</Label>
+                                        <Textarea
+                                            id="other_reason"
+                                            value={removeFormData.other_reason || ''}
+                                            onChange={(e) => setRemoveFormData(prev => ({ ...prev, other_reason: e.target.value }))}
+                                            placeholder="Please specify the reason for removal"
+                                            rows={3}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                <div className="flex items-start gap-2">
+                                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                                    <div>
+                                        <h4 className="font-medium text-orange-800 text-sm">Important Notice</h4>
+                                        <p className="text-xs text-orange-700 mt-1">
+                                            This action will permanently remove the selected stock from inventory. 
+                                            The removal will be recorded in the stock trail with your provided reason.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <DialogFooter>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setRemoveDialogOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="button"
+                            disabled={
+                                !removeFormData.stock_id || 
+                                !removeFormData.reason || 
+                                (removeFormData.reason === 'Other' && !removeFormData.other_reason) ||
+                                processing
+                            }
+                            onClick={handleRemoveStockSubmit}
+                            className="bg-orange-600 hover:bg-orange-700"
+                        >
+                            {processing ? 'Removing...' : 'Remove Stock'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     )
 }
