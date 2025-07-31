@@ -52,7 +52,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect to home for customers
-        return redirect()->intended(route('home', absolute: false));
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+
+        // Redirect to verification notice for customers
+        return redirect()->intended(route('verification.notice', absolute: false));
     }
 }
