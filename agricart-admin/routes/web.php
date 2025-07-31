@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\InventoryStockTrailController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
@@ -104,6 +105,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
         });
         Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
+
+        // Staff routes
+        Route::middleware(['can:view staffs'])->get('/staff', [StaffController::class, 'index'])->name('staff.index'); // View Staff
+        Route::middleware(['can:create staffs'])->group(function () {
+            Route::get('/staff/add', [StaffController::class, 'create'])->name('staff.create'); // Add Staff (GET)
+            Route::post('/staff', [StaffController::class, 'store'])->name('staff.store'); // Add Staff (POST)
+        });
+        Route::middleware(['can:edit staffs'])->group(function () {
+            Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit'); // Edit Staff (GET)
+            Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update'); // Edit Staff (PUT)
+        });
+        Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
     });
 
     // Customer routes

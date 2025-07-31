@@ -19,12 +19,12 @@ class RoleSeeder extends Seeder
         // Clear cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create roles
-        $admin = Role::create(['name' => 'admin']);
-        $staff = Role::create(['name' => 'staff']);
-        $customer = Role::create(['name' => 'customer']);
-        $logistic = Role::create(['name' => 'logistic']);
-        $member = Role::create(['name' => 'member']);
+        // Create roles (or get existing ones)
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $staff = Role::firstOrCreate(['name' => 'staff']);
+        $customer = Role::firstOrCreate(['name' => 'customer']);
+        $logistic = Role::firstOrCreate(['name' => 'logistic']);
+        $member = Role::firstOrCreate(['name' => 'member']);
 
         $permissions = [
         // Admin Section
@@ -84,11 +84,20 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Assign permissions to roles
         $admin->givePermissionTo(Permission::all());
+        
+        // Assign limited permissions to staff (excluding staff management, member management, and delete permissions)
+        $staffPermissions = Permission::whereNotIn('name', [
+            'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
+            'view membership', 'create members', 'edit members', 'delete members',
+            'delete products', 'delete archived products', 'delete stocks', 'delete orders', 'delete logistics'
+        ])->get();
+        $staff->givePermissionTo($staffPermissions);
+        
         // LIMITED PERMISSIONS
         // $customer->syncPermission();
         // $logistic->givePermissionTo();

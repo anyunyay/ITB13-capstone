@@ -32,6 +32,7 @@ export function AppSidebar() {
     viewOrders: canViewOrders = false,
     viewMembership: canViewMembership = false,
     viewLogistics: canViewLogistics = false,
+    viewStaffs: canViewStaffs = false,
   } = props.permissions || {};
 
   // Define the main navigation items based on permissions
@@ -70,6 +71,13 @@ export function AppSidebar() {
       title: 'Logistics',
       href: '/admin/logistics',
       icon: IdCard,
+    });
+  }
+  if (canViewStaffs) {
+    mainNavItems.push({
+      title: 'Staff',
+      href: '/admin/staff',
+      icon: UsersRound,
     });
   }
 
