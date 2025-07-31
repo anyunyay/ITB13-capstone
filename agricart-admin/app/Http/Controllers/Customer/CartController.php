@@ -18,8 +18,10 @@ class CartController extends Controller
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->first();
         $cartData = [];
+        $cartTotal = 0;
+        
         if ($cart) {
-            $cartData = $cart->items()->with('product')->get()->mapWithKeys(function ($item) {
+            $cartData = $cart->items()->with('product')->get()->mapWithKeys(function ($item) use (&$cartTotal) {
                 // Get available stock for this item
                 $stocks = Stock::where('product_id', $item->product_id)
                     ->where('category', $item->category)
@@ -27,6 +29,30 @@ class CartController extends Controller
                     ->get();
                 
                 $totalAvailable = $stocks->sum('quantity');
+                
+                // Calculate item total price
+                $itemTotalPrice = 0;
+                $remainingQty = $item->quantity;
+                
+                foreach ($stocks as $stock) {
+                    if ($remainingQty <= 0) break;
+                    $deduct = min($stock->quantity, $remainingQty);
+                    
+                    // Calculate price for this portion
+                    $price = 0;
+                    if ($item->category === 'Kilo' && $stock->product->price_kilo) {
+                        $price = $stock->product->price_kilo;
+                    } elseif ($item->category === 'Pc' && $stock->product->price_pc) {
+                        $price = $stock->product->price_pc;
+                    } elseif ($item->category === 'Tali' && $stock->product->price_tali) {
+                        $price = $stock->product->price_tali;
+                    }
+                    
+                    $itemTotalPrice += $price * $deduct;
+                    $remainingQty -= $deduct;
+                }
+                
+                $cartTotal += $itemTotalPrice;
                 
                 return [
                     $item->product_id . '-' . $item->category => [
@@ -36,13 +62,14 @@ class CartController extends Controller
                         'category' => $item->category,
                         'quantity' => $item->quantity,
                         'available_stock' => $totalAvailable,
+                        'total_price' => $itemTotalPrice,
                     ]
                 ];
             });
         }
         $checkoutMessage = session('checkoutMessage');
         $cart = $cartData;
-        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage'));
+        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal'));
     }
 
     public function store(Request $request)
@@ -95,7 +122,7 @@ class CartController extends Controller
         $error = null;
 
         if (!$cart || $cart->items->isEmpty()) {
-            return back()->with('checkoutMessage', 'Your cart is empty.');
+            return redirect()->route('cart.index')->with('checkoutMessage', 'Your cart is empty.');
         }
 
         try {
@@ -163,7 +190,15 @@ class CartController extends Controller
                 // Delete the sale and audit trail if there was an error
                 $sale->auditTrail()->delete();
                 $sale->delete();
-                return back()->with('checkoutMessage', $error);
+                return redirect()->route('cart.index')->with('checkoutMessage', $error);
+            }
+
+            // Check minimum order requirement
+            if ($totalPrice < 75) {
+                // Delete the sale and audit trail if minimum order not met
+                $sale->auditTrail()->delete();
+                $sale->delete();
+                return redirect()->route('cart.index')->with('checkoutMessage', 'Minimum order requirement is Php75. Your current total is Php' . number_format($totalPrice, 2) . '. Please add more items to your cart.');
             }
 
             // Update the sale with total amount
@@ -198,7 +233,10 @@ class CartController extends Controller
             $message = 'Item not found in your cart.';
         }
 
-        return redirect()->route('cart.index')->with('checkoutMessage', $message);
+        // Recalculate cart total after removal
+        $cartTotal = $this->calculateCartTotal($user->id);
+
+        return redirect()->route('cart.index')->with('checkoutMessage', $message)->with('cartTotal', $cartTotal);
     }
 
     public function update(Request $request, $cartItemId)
@@ -251,6 +289,56 @@ class CartController extends Controller
             $message = 'Item not found in your cart.';
         }
 
-        return redirect()->route('cart.index')->with('checkoutMessage', $message);
+        // Recalculate cart total after update
+        $cartTotal = $this->calculateCartTotal($user->id);
+
+        return redirect()->route('cart.index')->with('checkoutMessage', $message)->with('cartTotal', $cartTotal);
+    }
+
+    /**
+     * Calculate the total price of the cart for a given user
+     */
+    private function calculateCartTotal($userId)
+    {
+        $cart = Cart::where('user_id', $userId)->first();
+        if (!$cart) {
+            return 0;
+        }
+
+        $totalPrice = 0;
+
+        foreach ($cart->items as $item) {
+            $stocks = Stock::where('product_id', $item->product_id)
+                ->where('category', $item->category)
+                ->where('quantity', '>', 0)
+                ->with('product')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $remainingQty = $item->quantity;
+            $itemTotalPrice = 0;
+
+            foreach ($stocks as $stock) {
+                if ($remainingQty <= 0) break;
+                $deduct = min($stock->quantity, $remainingQty);
+                
+                // Calculate price for this portion
+                $price = 0;
+                if ($item->category === 'Kilo' && $stock->product->price_kilo) {
+                    $price = $stock->product->price_kilo;
+                } elseif ($item->category === 'Pc' && $stock->product->price_pc) {
+                    $price = $stock->product->price_pc;
+                } elseif ($item->category === 'Tali' && $stock->product->price_tali) {
+                    $price = $stock->product->price_tali;
+                }
+                
+                $itemTotalPrice += $price * $deduct;
+                $remainingQty -= $deduct;
+            }
+
+            $totalPrice += $itemTotalPrice;
+        }
+
+        return $totalPrice;
     }
 }

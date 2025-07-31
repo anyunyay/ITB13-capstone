@@ -13,10 +13,11 @@ interface CartItem {
   category: string;
   quantity: number;
   available_stock: number | string;
+  total_price: number;
 }
 
 export default function CartPage() {
-  const page = usePage<Partial<SharedData> & { cart?: Record<string, CartItem>; checkoutMessage?: string }>();
+  const page = usePage<Partial<SharedData> & { cart?: Record<string, CartItem>; checkoutMessage?: string; cartTotal?: number }>();
   const auth = page?.props?.auth;
   const initialCart = page?.props?.cart || {};
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
@@ -26,6 +27,7 @@ export default function CartPage() {
   const [quantityErrors, setQuantityErrors] = useState<Record<number, string>>({});
   const [rawInputValues, setRawInputValues] = useState<Record<number, string>>({});
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
+  const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function CartPage() {
   // Update cart state if Inertia sends new props
   useEffect(() => {
     setCart(initialCart);
+    setCartTotal(page?.props?.cartTotal || 0);
     // Initialize temp quantities with current cart quantities
     const tempQty: Record<number, number> = {};
     const rawInput: Record<number, string> = {};
@@ -55,7 +58,7 @@ export default function CartPage() {
       quantity: item.quantity
     }));
     stockManager.syncWithBackendCart(cartItems);
-  }, [initialCart]);
+  }, [initialCart, page?.props?.cartTotal]);
 
   // Update checkout message if Inertia sends new props
   useEffect(() => {
@@ -72,6 +75,7 @@ export default function CartPage() {
         preserveScroll: true,
         onSuccess: (page) => {
           if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
+          if (page.props.cartTotal) setCartTotal(page.props.cartTotal as number);
           
           // Update stock manager when item is removed
           if (itemToRemove) {
@@ -102,6 +106,7 @@ export default function CartPage() {
         preserveScroll: true,
         onSuccess: (page) => {
           if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
+          if (page.props.cartTotal) setCartTotal(page.props.cartTotal as number);
           setUpdatingItems(prev => {
             const newSet = new Set(prev);
             newSet.delete(cartItem);
@@ -256,6 +261,7 @@ export default function CartPage() {
         onSuccess: (page) => {
           if (page.props.cart) setCart(page.props.cart as Record<string, CartItem>);
           if (page.props.checkoutMessage) setCheckoutMessage(page.props.checkoutMessage as string);
+          if (page.props.cartTotal) setCartTotal(page.props.cartTotal as number);
           
           // Clear stock manager when checkout is successful
           const stockManager = StockManager.getInstance();
@@ -266,6 +272,8 @@ export default function CartPage() {
   };
 
   const cartItems = Object.values(cart);
+  const minimumOrder = 75;
+  const meetsMinimumOrder = cartTotal >= minimumOrder;
 
   return (
     <AppHeaderLayout>
@@ -281,6 +289,9 @@ export default function CartPage() {
                 <div className="flex-1">
                   <div className="font-semibold">{item.name}</div>
                   <div className="text-sm text-gray-500">Type: {item.category}</div>
+                  <div className="text-sm font-medium text-green-600">
+                    Php{item.total_price.toFixed(2)}
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
@@ -385,10 +396,31 @@ export default function CartPage() {
             ))}
           </div>
         )}
+        
+        {/* Cart Summary */}
+        {cartItems.length > 0 && (
+          <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-lg font-semibold">Cart Total:</span>
+              <span className="text-lg font-bold text-green-600">Php{cartTotal.toFixed(2)}</span>
+            </div>
+            
+            {/* Minimum Order Requirement */}
+            <div className={`text-sm ${meetsMinimumOrder ? 'text-green-600' : 'text-orange-600'}`}>
+              {meetsMinimumOrder ? (
+                <span>✓ Minimum order requirement met (Php{minimumOrder})</span>
+              ) : (
+                <span>⚠ Minimum order requirement: Php{minimumOrder} (add Php{(minimumOrder - cartTotal).toFixed(2)} more)</span>
+              )}
+            </div>
+          </div>
+        )}
+        
         <div className="mt-6">
           <Button 
             onClick={handleCheckout} 
-            disabled={cartItems.length === 0 || editingItems.size > 0}
+            disabled={cartItems.length === 0 || editingItems.size > 0 || !meetsMinimumOrder}
+            className={!meetsMinimumOrder ? 'opacity-50 cursor-not-allowed' : ''}
           >
             Checkout
           </Button>
@@ -404,6 +436,11 @@ export default function CartPage() {
           {editingItems.size > 0 && (
             <div className="mt-2 text-blue-500 text-sm">
               Please complete or cancel all pending updates before checkout
+            </div>
+          )}
+          {!meetsMinimumOrder && cartItems.length > 0 && (
+            <div className="mt-2 text-orange-600 text-sm">
+              Please add more items to meet the minimum order requirement of Php{minimumOrder}
             </div>
           )}
         </div>
