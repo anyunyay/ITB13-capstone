@@ -30,7 +30,7 @@ interface Order {
     name: string;
     contact_number?: string;
   };
-  auditTrail: OrderItem[];
+  audit_trail: OrderItem[];
 }
 
 interface HistoryProps {
@@ -202,7 +202,7 @@ export default function History({ orders }: HistoryProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {order.auditTrail?.map((item: OrderItem) => (
+                  {order.audit_trail?.map((item: OrderItem) => (
                     <TableRow key={item.id}>
                       <TableCell>{item.product.name}</TableCell>
                       <TableCell>{item.category}</TableCell>

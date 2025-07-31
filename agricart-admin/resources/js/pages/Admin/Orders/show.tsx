@@ -399,6 +399,25 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
               </Card>
             )}
 
+            {/* Receipt Preview for Approved Orders */}
+            {order.status === 'approved' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Receipt</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Link href={route('admin.orders.receiptPreview', order.id)}>
+                    <Button className="w-full" variant="outline">
+                      📄 Preview Receipt Email
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-gray-500 text-center">
+                    Preview the receipt email that was sent to {order.customer.email}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Logistic Assignment for Approved Orders */}
             {order.status === 'approved' && (
               <Card>

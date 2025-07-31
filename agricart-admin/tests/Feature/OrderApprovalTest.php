@@ -6,7 +6,9 @@ use App\Models\Product;
 use App\Models\Sales;
 use App\Models\Stock;
 use App\Models\User;
+use App\Notifications\OrderReceipt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -283,5 +285,56 @@ class OrderApprovalTest extends TestCase
             'id' => $order->id,
             'logistic_id' => $logistic->id,
         ]);
+    }
+
+    public function test_order_approval_sends_receipt_email()
+    {
+        Notification::fake();
+
+        // Create an admin
+        $admin = User::factory()->admin()->create();
+        $admin->assignRole('admin');
+        
+        // Create a customer
+        $customer = User::factory()->customer()->create();
+        $customer->assignRole('customer');
+        
+        // Create a member for stock
+        $member = User::factory()->member()->create();
+        $member->assignRole('member');
+        
+        // Create a product
+        $product = Product::factory()->create();
+        
+        // Create stock for the product
+        $stock = Stock::factory()->create([
+            'product_id' => $product->id,
+            'member_id' => $member->id,
+            'quantity' => 10,
+            'category' => 'Kilo',
+        ]);
+
+        // Create a pending order manually
+        $order = Sales::create([
+            'customer_id' => $customer->id,
+            'status' => 'pending',
+            'total_amount' => 100,
+        ]);
+
+        // Admin approves the order
+        $response = $this->actingAs($admin)->post("/admin/orders/{$order->id}/approve", [
+            'admin_notes' => 'Order approved successfully',
+        ]);
+        
+        $response->assertRedirect("/admin/orders/{$order->id}");
+        
+        // Check that receipt email was sent to customer
+        Notification::assertSentTo(
+            $customer,
+            OrderReceipt::class,
+            function ($notification) use ($order) {
+                return $notification->order->id === $order->id;
+            }
+        );
     }
 }

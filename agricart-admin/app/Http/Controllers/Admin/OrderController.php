@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User; // Added this import for the new_code
 use App\Notifications\OrderStatusUpdate;
+use App\Notifications\OrderReceipt;
 
 class OrderController extends Controller
 {
@@ -45,6 +46,15 @@ class OrderController extends Controller
         return Inertia::render('Admin/Orders/show', [
             'order' => $order,
             'logistics' => $logistics,
+        ]);
+    }
+
+    public function receiptPreview(Sales $order)
+    {
+        $order->load(['customer', 'admin', 'auditTrail.product']);
+        
+        return Inertia::render('Admin/Orders/receipt-preview', [
+            'order' => $order,
         ]);
     }
 
@@ -96,11 +106,14 @@ class OrderController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
-        // Notify the customer
+        // Notify the customer with status update
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
+        
+        // Send order receipt email to customer
+        $order->customer?->notify(new OrderReceipt($order));
 
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('message', 'Order approved successfully. Please assign a logistic provider.');
+            ->with('message', 'Order approved successfully. Receipt email sent to customer. Please assign a logistic provider.');
     }
 
     public function reject(Request $request, Sales $order)

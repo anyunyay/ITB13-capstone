@@ -70,6 +70,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
             Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
+            Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->name('admin.orders.receiptPreview');
         });
         Route::middleware(['can:edit orders'])->group(function () {
             Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('admin.orders.approve');
