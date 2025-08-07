@@ -96,6 +96,11 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Order Management</h1>
+          <Link href={route('admin.orders.report')}>
+            <Button variant="outline">
+              Generate Report
+            </Button>
+          </Link>
         </div>
 
         <Tabs defaultValue={currentStatus} className="w-full">

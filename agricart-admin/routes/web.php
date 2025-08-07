@@ -70,6 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Order Management routes
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+        });
+        Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
             Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->name('admin.orders.receiptPreview');
         });
@@ -78,6 +80,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('admin.orders.reject');
             Route::post('/orders/{order}/process', [OrderController::class, 'process'])->name('admin.orders.process');
             Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->name('admin.orders.assignLogistic');
+        });
+        Route::middleware(['can:generate order report'])->group(function () {
+            Route::get('/orders/report', [OrderController::class, 'generateReport'])->name('admin.orders.report');
         });
 
         // Membership routes
@@ -92,6 +97,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit'); // Edit Member (GET)
             Route::put('/membership/{member}', [MembershipController::class, 'update'])->name('membership.update'); // Edit Member (PUT)
         });
+        Route::middleware(['can:generate membership report'])->group(function () {
+            Route::get('/membership/report', [MembershipController::class, 'generateReport'])->name('membership.report');  // Export Member List (GET)
+        });
         Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Delete Member
 
         // Logistic routes
@@ -103,6 +111,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['can:edit logistics'])->group(function () {
             Route::get('/logistics/{logistic}/edit', [LogisticController::class, 'edit'])->name('logistics.edit'); // Edit Logistic (GET)
             Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
+        });
+        Route::middleware(['can:generate logistics report'])->group(function () {
+            Route::get('/logistics/report', [LogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)
         });
         Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
 

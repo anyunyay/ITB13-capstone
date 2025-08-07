@@ -51,29 +51,32 @@ class RoleSeeder extends Seeder
             'create orders',
             'edit orders',
             'delete orders', // Optional for Staff
-
-            // Inventory Stock Trailing
-            'view sold stock',
-            'view stock trail',
+            'generate order report',
 
             // Logistics
             'view logistics',
             'create logistics',
             'edit logistics',
             'delete logistics', // Optional for Staff
+            'generate logistics report',
+            
+            // Inventory Stock Trailing
+            'view sold stock',
+            'view stock trail',
 
-        // Only for Admin
+                        // Only for Admin
             // Staff
             'view staffs',
             'create staffs',
             'edit staffs',
             'delete staffs',
 
-            // Member
+            // Membership
             'view membership',
             'create members',
             'edit members',
             'delete members',
+            'generate membership report',
 
         // TO BE ADDED
         // Customer

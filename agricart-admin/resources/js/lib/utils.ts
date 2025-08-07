@@ -72,6 +72,12 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
+        // Membership Report
+        if (url === '/admin/membership/report') {
+            crumbs.push({ title: 'Report', href: '' });
+            return crumbs;
+        }
+
         // Member detail/edit
         if (params.member) {
             crumbs.push({
@@ -95,6 +101,12 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
         // Add Logistic
         if (url === '/admin/logistics/add') {
             crumbs.push({ title: 'Add Logistic', href: '' });
+            return crumbs;
+        }
+
+        // Logistics Report
+        if (url === '/admin/logistics/report') {
+            crumbs.push({ title: 'Report', href: '' });
             return crumbs;
         }
 

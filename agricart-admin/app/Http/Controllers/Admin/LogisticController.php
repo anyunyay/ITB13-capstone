@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticController extends Controller
 {
@@ -81,5 +83,117 @@ class LogisticController extends Controller
         $logistic = User::where('type', 'logistic')->findOrFail($id);
         $logistic->delete();
         return redirect()->route('logistics.index')->with('message', 'Logistic removed successfully');
+    }
+
+    public function generateReport(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+
+        $query = User::where('type', 'logistic');
+
+        // Filter by registration date range
+        if ($startDate) {
+            $query->whereDate('registration_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('registration_date', '<=', $endDate);
+        }
+
+        $logistics = $query->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_logistics' => $logistics->count(),
+            'active_logistics' => $logistics->where('email_verified_at', '!=', null)->count(),
+            'pending_verification' => $logistics->where('email_verified_at', null)->count(),
+            'recent_registrations' => $logistics->where('created_at', '>=', now()->subDays(30))->count(),
+        ];
+
+        // If export is requested
+        if ($format === 'csv') {
+            return $this->exportToCsv($logistics, $summary);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($logistics, $summary);
+        }
+
+        // Return view for display
+        return Inertia::render('Admin/Logistics/report', [
+            'logistics' => $logistics,
+            'summary' => $summary,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ],
+        ]);
+    }
+
+    private function exportToCsv($logistics, $summary)
+    {
+        $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($logistics, $summary) {
+            $file = fopen('php://output', 'w');
+            
+            // Write summary
+            fputcsv($file, ['Logistics Report Summary']);
+            fputcsv($file, ['']);
+            fputcsv($file, ['Total Logistics', $summary['total_logistics']]);
+            fputcsv($file, ['Active Logistics', $summary['active_logistics']]);
+            fputcsv($file, ['Pending Verification', $summary['pending_verification']]);
+            fputcsv($file, ['Recent Registrations (30 days)', $summary['recent_registrations']]);
+            fputcsv($file, ['']);
+            
+            // Write headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email',
+                'Contact Number',
+                'Address',
+                'Registration Date',
+                'Email Verified',
+                'Created Date'
+            ]);
+
+            // Write logistics data
+            foreach ($logistics as $logistic) {
+                fputcsv($file, [
+                    $logistic->id,
+                    $logistic->name,
+                    $logistic->email,
+                    $logistic->contact_number ?? 'N/A',
+                    $logistic->address ?? 'N/A',
+                    $logistic->registration_date ? $logistic->registration_date->format('Y-m-d') : 'N/A',
+                    $logistic->email_verified_at ? 'Yes' : 'No',
+                    $logistic->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($logistics, $summary)
+    {
+        $html = view('reports.logistics-pdf', [
+            'logistics' => $logistics,
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s')
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+        
+        $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

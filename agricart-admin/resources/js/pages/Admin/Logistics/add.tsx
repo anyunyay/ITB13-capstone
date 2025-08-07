@@ -58,7 +58,7 @@ export default function Index() {
         }
     }, [auth]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const  handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Ensure registration_date is set before submitting
         if (!data.registration_date) {

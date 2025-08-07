@@ -10,6 +10,8 @@ use Inertia\Inertia;
 use App\Models\User; // Added this import for the new_code
 use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
+use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -160,5 +162,138 @@ class OrderController extends Controller
         }
 
         return redirect()->route('admin.orders.index')->with('message', 'Order processed successfully');
+    }
+
+    public function generateReport(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $status = $request->get('status', 'all');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+
+        $query = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product']);
+
+        // Filter by date range
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Filter by status
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_orders' => $orders->count(),
+            'total_revenue' => $orders->sum('total_amount'),
+            'pending_orders' => $orders->where('status', 'pending')->count(),
+            'approved_orders' => $orders->where('status', 'approved')->count(),
+            'rejected_orders' => $orders->where('status', 'rejected')->count(),
+            'delivered_orders' => $orders->where('delivery_status', 'delivered')->count(),
+        ];
+
+        // If export is requested
+        if ($format === 'csv') {
+            return $this->exportToCsv($orders, $summary);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($orders, $summary);
+        }
+
+        // Return view for display
+        return Inertia::render('Admin/Orders/report', [
+            'orders' => $orders,
+            'summary' => $summary,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    private function exportToCsv($orders, $summary)
+    {
+        $filename = 'orders_report_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($orders, $summary) {
+            $file = fopen('php://output', 'w');
+            
+            // Write summary
+            fputcsv($file, ['Order Report Summary']);
+            fputcsv($file, ['']);
+            fputcsv($file, ['Total Orders', $summary['total_orders']]);
+            fputcsv($file, ['Total Revenue', '₱' . number_format($summary['total_revenue'], 2)]);
+            fputcsv($file, ['Pending Orders', $summary['pending_orders']]);
+            fputcsv($file, ['Approved Orders', $summary['approved_orders']]);
+            fputcsv($file, ['Rejected Orders', $summary['rejected_orders']]);
+            fputcsv($file, ['Delivered Orders', $summary['delivered_orders']]);
+            fputcsv($file, ['']);
+            
+            // Write headers
+            fputcsv($file, [
+                'Order ID',
+                'Customer Name',
+                'Customer Email',
+                'Total Amount',
+                'Status',
+                'Delivery Status',
+                'Created Date',
+                'Processed By',
+                'Admin Notes',
+                'Logistic',
+                'Items'
+            ]);
+
+            // Write order data
+            foreach ($orders as $order) {
+                $items = $order->auditTrail->map(function($item) {
+                    return $item->product->name . ' (' . $item->category . ' x' . $item->quantity . ')';
+                })->join('; ');
+
+                fputcsv($file, [
+                    $order->id,
+                    $order->customer->name ?? 'N/A',
+                    $order->customer->email ?? 'N/A',
+                    '₱' . number_format($order->total_amount, 2),
+                    $order->status,
+                    $order->delivery_status ?? 'N/A',
+                    $order->created_at->format('Y-m-d H:i:s'),
+                    $order->admin->name ?? 'N/A',
+                    $order->admin_notes ?? 'N/A',
+                    $order->logistic->name ?? 'N/A',
+                    $items
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($orders, $summary)
+    {
+        $html = view('reports.orders-pdf', [
+            'orders' => $orders,
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s')
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+        
+        $filename = 'orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MembershipController extends Controller
 {
@@ -104,5 +106,117 @@ class MembershipController extends Controller
         
         $member->delete();
         return redirect()->route('membership.index')->with('message', 'Member removed successfully');
+    }
+
+    public function generateReport(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+
+        $query = User::where('type', 'member');
+
+        // Filter by registration date range
+        if ($startDate) {
+            $query->whereDate('registration_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('registration_date', '<=', $endDate);
+        }
+
+        $members = $query->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_members' => $members->count(),
+            'active_members' => $members->where('email_verified_at', '!=', null)->count(),
+            'pending_verification' => $members->where('email_verified_at', null)->count(),
+            'recent_registrations' => $members->where('created_at', '>=', now()->subDays(30))->count(),
+        ];
+
+        // If export is requested
+        if ($format === 'csv') {
+            return $this->exportToCsv($members, $summary);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($members, $summary);
+        }
+
+        // Return view for display
+        return Inertia::render('Admin/Membership/report', [
+            'members' => $members,
+            'summary' => $summary,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ],
+        ]);
+    }
+
+    private function exportToCsv($members, $summary)
+    {
+        $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($members, $summary) {
+            $file = fopen('php://output', 'w');
+            
+            // Write summary
+            fputcsv($file, ['Membership Report Summary']);
+            fputcsv($file, ['']);
+            fputcsv($file, ['Total Members', $summary['total_members']]);
+            fputcsv($file, ['Active Members', $summary['active_members']]);
+            fputcsv($file, ['Pending Verification', $summary['pending_verification']]);
+            fputcsv($file, ['Recent Registrations (30 days)', $summary['recent_registrations']]);
+            fputcsv($file, ['']);
+            
+            // Write headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email',
+                'Contact Number',
+                'Address',
+                'Registration Date',
+                'Email Verified',
+                'Created Date'
+            ]);
+
+            // Write members data
+            foreach ($members as $member) {
+                fputcsv($file, [
+                    $member->id,
+                    $member->name,
+                    $member->email,
+                    $member->contact_number ?? 'N/A',
+                    $member->address ?? 'N/A',
+                    $member->registration_date ? $member->registration_date->format('Y-m-d') : 'N/A',
+                    $member->email_verified_at ? 'Yes' : 'No',
+                    $member->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($members, $summary)
+    {
+        $html = view('reports.membership-pdf', [
+            'members' => $members,
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s')
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+        
+        $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }
