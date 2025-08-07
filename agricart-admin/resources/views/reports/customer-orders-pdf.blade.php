@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Order Report</title>
+    <title>My Orders Report</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,7 +58,7 @@
             color: #666;
             margin-top: 5px;
         }
-        .revenue {
+        .spent {
             color: #059669 !important;
         }
         table {
@@ -103,10 +103,18 @@
             background: #f8f9fa;
             padding: 10px;
             border: 1px solid #ddd;
-            margin-bottom: 10px;
+            border-bottom: none;
         }
         .order-items {
-            margin-left: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .order-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .order-item:last-child {
+            border-bottom: none;
         }
         .footer {
             margin-top: 30px;
@@ -120,7 +128,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Order Report</h1>
+        <h1>My Orders Report</h1>
         <p>Generated on: {{ $generated_at }}</p>
     </div>
 
@@ -132,23 +140,23 @@
                 <div class="summary-label">Total Orders</div>
             </div>
             <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
-                <div class="summary-label">Total Revenue</div>
+                <div class="summary-value spent">PHP {{ number_format($summary['total_spent'], 2) }}</div>
+                <div class="summary-label">Total Spent</div>
             </div>
             <div class="summary-item">
-                <div class="summary-value">{{ $summary['pending_orders'] }}</div>
+                <div class="summary-value status-pending">{{ $summary['pending_orders'] }}</div>
                 <div class="summary-label">Pending Orders</div>
             </div>
             <div class="summary-item">
-                <div class="summary-value">{{ $summary['approved_orders'] }}</div>
+                <div class="summary-value status-approved">{{ $summary['approved_orders'] }}</div>
                 <div class="summary-label">Approved Orders</div>
             </div>
             <div class="summary-item">
-                <div class="summary-value">{{ $summary['rejected_orders'] }}</div>
+                <div class="summary-value status-rejected">{{ $summary['rejected_orders'] }}</div>
                 <div class="summary-label">Rejected Orders</div>
             </div>
             <div class="summary-item">
-                <div class="summary-value">{{ $summary['delivered_orders'] }}</div>
+                <div class="summary-value status-delivered">{{ $summary['delivered_orders'] }}</div>
                 <div class="summary-label">Delivered Orders</div>
             </div>
         </div>
@@ -158,12 +166,11 @@
         <thead>
             <tr>
                 <th>Order ID</th>
-                <th>Customer</th>
                 <th>Total Amount</th>
                 <th>Status</th>
                 <th>Delivery Status</th>
                 <th>Created Date</th>
-                <th>Processed By</th>
+                <th>Admin Notes</th>
                 <th>Logistic</th>
             </tr>
         </thead>
@@ -171,51 +178,68 @@
             @foreach($orders as $order)
             <tr>
                 <td>#{{ $order->id }}</td>
-                <td>
-                    {{ $order->customer->name ?? 'N/A' }}<br>
-                    <small>{{ $order->customer->email ?? 'N/A' }}</small>
-                </td>
                 <td>PHP {{ number_format($order->total_amount, 2) }}</td>
                 <td class="status-{{ $order->status }}">{{ ucfirst($order->status) }}</td>
-                <td class="status-{{ $order->delivery_status ?? 'pending' }}">{{ ucfirst($order->delivery_status ?? 'pending') }}</td>
-                <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
-                <td>{{ $order->admin->name ?? 'N/A' }}</td>
+                <td class="status-{{ $order->delivery_status ?? 'pending' }}">{{ ucfirst($order->delivery_status ?? 'N/A') }}</td>
+                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
+                <td>{{ $order->admin_notes ?? 'N/A' }}</td>
                 <td>{{ $order->logistic->name ?? 'N/A' }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="order-details">
+    @if($orders->count() > 0)
+    <div style="margin-top: 30px;">
         <h3>Order Details</h3>
         @foreach($orders as $order)
-        <div class="order-header">
-            <strong>Order #{{ $order->id }}</strong> - {{ $order->customer->name ?? 'N/A' }} - PHP {{ number_format($order->total_amount, 2) }}
-            <br>
-            <small>Status: {{ ucfirst($order->status) }} | Delivery: {{ ucfirst($order->delivery_status ?? 'pending') }}</small>
-        </div>
-        
-        @if($order->auditTrail && $order->auditTrail->count() > 0)
-        <div class="order-items">
-            <strong>Items:</strong>
-            <ul>
+        <div class="order-details">
+            <div class="order-header">
+                <strong>Order #{{ $order->id }}</strong> - {{ $order->created_at->format('M d, Y H:i') }}
+                <br>
+                <span class="status-{{ $order->status }}">Status: {{ ucfirst($order->status) }}</span>
+                @if($order->delivery_status)
+                <span class="status-{{ $order->delivery_status }}"> | Delivery: {{ ucfirst($order->delivery_status) }}</span>
+                @endif
+                <span style="float: right;">Total: PHP {{ number_format($order->total_amount, 2) }}</span>
+            </div>
+            <div class="order-items">
                 @foreach($order->auditTrail as $item)
-                <li>{{ $item->product->name ?? 'N/A' }} ({{ $item->category }}) - {{ $item->quantity }} {{ $item->category }}</li>
+                <div class="order-item">
+                    <strong>{{ $item->product->name }}</strong>
+                    <br>
+                    Quantity: {{ $item->quantity }} {{ $item->category }}
+                    @if($item->product->price_kilo && $item->category === 'Kilo')
+                        <br>Price: PHP {{ number_format($item->product->price_kilo, 2) }} per kilo
+                    @elseif($item->product->price_pc && $item->category === 'Pc')
+                        <br>Price: PHP {{ number_format($item->product->price_pc, 2) }} per piece
+                    @elseif($item->product->price_tali && $item->category === 'Tali')
+                        <br>Price: PHP {{ number_format($item->product->price_tali, 2) }} per tali
+                    @endif
+                </div>
                 @endforeach
-            </ul>
+            </div>
+            @if($order->admin_notes)
+            <div style="background: #fff3cd; padding: 10px; margin-top: 10px; border-left: 4px solid #ffc107;">
+                <strong>Admin Notes:</strong> {{ $order->admin_notes }}
+            </div>
+            @endif
+            @if($order->logistic)
+            <div style="background: #d1ecf1; padding: 10px; margin-top: 10px; border-left: 4px solid #17a2b8;">
+                <strong>Delivery:</strong> {{ $order->logistic->name }}
+                @if($order->logistic->contact_number)
+                ({{ $order->logistic->contact_number }})
+                @endif
+            </div>
+            @endif
         </div>
-        @endif
-        
-        @if($order->admin_notes)
-        <div class="order-items">
-            <strong>Admin Notes:</strong> {{ $order->admin_notes }}
-        </div>
-        @endif
         @endforeach
     </div>
+    @endif
 
     <div class="footer">
         <p>This report was generated automatically by the Agricart Admin System.</p>
+        <p>For any questions, please contact the administrator.</p>
     </div>
 </body>
 </html> 

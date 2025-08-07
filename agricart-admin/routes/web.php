@@ -139,6 +139,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 
         Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
+        Route::get('/orders/report', [CustomerOrderController::class, 'generateReport'])->name('orders.report');
         
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
