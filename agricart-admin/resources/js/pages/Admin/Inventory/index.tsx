@@ -298,7 +298,7 @@ export default function Index() {
                                                     <PermissionGate permission="delete stocks">
                                                         <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                     </PermissionGate>
-                                                    <PermissionGate permission="create stocks">
+                                                    <PermissionGate permission="delete stocks">
                                                         <Button 
                                                             disabled={processing} 
                                                             onClick={() => handleRemovePerishedStock(stock)} 
@@ -344,7 +344,7 @@ export default function Index() {
                                                         <PermissionGate permission="delete stocks">
                                                             <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                         </PermissionGate>
-                                                        <PermissionGate permission="create stocks">
+                                                        <PermissionGate permission="delete stocks">
                                                             <Button 
                                                                 disabled={processing} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
@@ -390,7 +390,7 @@ export default function Index() {
                                                         <PermissionGate permission="delete stocks">
                                                             <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                         </PermissionGate>
-                                                        <PermissionGate permission="create stocks">
+                                                        <PermissionGate permission="delete stocks">
                                                             <Button 
                                                                 disabled={processing} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
@@ -436,7 +436,7 @@ export default function Index() {
                                                         <PermissionGate permission="delete stocks">
                                                             <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                         </PermissionGate>
-                                                        <PermissionGate permission="create stocks">
+                                                        <PermissionGate permission="delete stocks">
                                                             <Button 
                                                                 disabled={processing} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
