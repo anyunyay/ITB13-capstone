@@ -70,7 +70,7 @@ class StaffController extends Controller
 
         // Assign selected permissions
         if ($request->has('permissions')) {
-            $user->givePermissionTo($request->permissions);
+            $user->syncPermissions($request->permissions);
         }
 
         return redirect()->route('staff.index')

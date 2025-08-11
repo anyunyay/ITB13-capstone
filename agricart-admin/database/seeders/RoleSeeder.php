@@ -92,15 +92,6 @@ class RoleSeeder extends Seeder
         // Assign permissions to roles
         $admin->givePermissionTo(Permission::all());
         
-        // Assign limited permissions to staff (excluding staff management, member management, and delete permissions)
-        // Delete permissions are available but not assigned by default - admins can grant them individually
-        $staffPermissions = Permission::whereNotIn('name', [
-            'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members',
-            'delete products', 'delete archived products', 'delete stocks', 'delete orders', 'delete logistics'
-        ])->get();
-        $staff->givePermissionTo($staffPermissions);
-        
         // LIMITED PERMISSIONS
         // $customer->syncPermission();
         // $logistic->givePermissionTo();
