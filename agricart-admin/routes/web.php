@@ -131,7 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Customer routes
-    Route::prefix('/customer')->group(function () {
+    Route::prefix('/customer')->middleware(['can:access customer features'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
         Route::put('/cart/update/{cartItem}', [CartController::class, 'update'])->name('cart.update');
@@ -147,7 +147,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Logistic routes
-    Route::prefix('/logistic')->group(function () {
+    Route::prefix('/logistic')->middleware(['can:access logistic features'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Logistic\LogisticController::class, 'dashboard'])->name('logistic.dashboard');
         Route::get('/orders', [\App\Http\Controllers\Logistic\LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
         Route::get('/orders/{order}', [\App\Http\Controllers\Logistic\LogisticController::class, 'showOrder'])->name('logistic.orders.show');
@@ -155,7 +155,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Member routes
-    Route::prefix('/member')->group(function () {
+    Route::prefix('/member')->middleware(['can:access member features'])->group(function () {
         Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('member.dashboard');
         Route::get('/available-stocks', [MemberController::class, 'availableStocks'])->name('member.availableStocks');
         Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');

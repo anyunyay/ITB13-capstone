@@ -77,12 +77,15 @@ class RoleSeeder extends Seeder
             'delete members',
             'generate membership report',
 
-        // TO BE ADDED
-        // Customer
+        // Role-specific permissions
+            // Customer permissions
+            'access customer features',
 
-        // Logistic
+            // Logistic permissions
+            'access logistic features',
 
-        // Member
+            // Member permissions
+            'access member features',
         ];
 
         foreach ($permissions as $permission) {
@@ -92,14 +95,31 @@ class RoleSeeder extends Seeder
         // Assign permissions to roles
         $admin->givePermissionTo(Permission::all());
         
-        // LIMITED PERMISSIONS
-        // $customer->syncPermission();
-        // $logistic->givePermissionTo();
-        // $member->givePermissionTo();
+        // Assign role-specific permissions
+        $customer->givePermissionTo(['access customer features']);
+        $logistic->givePermissionTo(['access logistic features']);
+        $member->givePermissionTo(['access member features']);
 
-        $adminDB = User::where('type', 'admin')->first();
-        if ($adminDB) {
-            $adminDB->assignRole($admin);
+        // Assign roles to existing users based on their type
+        $this->assignRolesToExistingUsers();
+    }
+
+    /**
+     * Assign roles to existing users based on their type
+     */
+    private function assignRolesToExistingUsers(): void
+    {
+        $users = User::all();
+        
+        foreach ($users as $user) {
+            if ($user->type && !$user->hasRole($user->type)) {
+                try {
+                    $user->assignRole($user->type);
+                } catch (\Exception $e) {
+                    // Log the error if the role does not exist
+                    \Log::error("Role {$user->type} does not exist for user ID {$user->id}");
+                }
+            }
         }
     }
 }
