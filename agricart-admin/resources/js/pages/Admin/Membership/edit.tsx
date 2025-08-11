@@ -9,6 +9,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
+import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
@@ -79,9 +80,13 @@ export default function Edit({member}: Props) {
     }
 
     return (
-        <AppLayout>
-            <Head title="Update Member"/>
-            <div className='w-8/12 p-4'>
+        <PermissionGuard 
+            permission="edit members"
+            pageTitle="Edit Member Access Denied"
+        >
+            <AppLayout>
+                <Head title="Update Member"/>
+                <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (
@@ -224,5 +229,6 @@ export default function Edit({member}: Props) {
                 </form>
             </div>
         </AppLayout>
+        </PermissionGuard>
     );
 }

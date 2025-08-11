@@ -5,6 +5,8 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { BellDot } from 'lucide-react';
+import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGate } from '@/components/permission-gate';
 import {
     Table,
     TableBody,
@@ -54,14 +56,22 @@ export default function Index() {
     };
 
     return (
-        <AppLayout>
-            <Head title="Logistics " />
-            <div className="m-4">
+        <PermissionGuard 
+            permissions={['view logistics', 'create logistics', 'edit logistics', 'delete logistics', 'generate logistics report']}
+            pageTitle="Logistics Management Access Denied"
+        >
+            <AppLayout>
+                <Head title="Logistics " />
+                <div className="m-4">
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold">Logistics Management</h1>
                     <div className="flex gap-2">
-                        <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
-                        <Link href={route('logistics.report')}><Button variant="outline">Generate Report</Button></Link>
+                        <PermissionGate permission="create logistics">
+                            <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
+                        </PermissionGate>
+                        <PermissionGate permission="generate logistics report">
+                            <Link href={route('logistics.report')}><Button variant="outline">Generate Report</Button></Link>
+                        </PermissionGate>
                     </div>
                 </div>
 
@@ -102,8 +112,12 @@ export default function Index() {
                                     <TableCell>{logistic.address}</TableCell>
                                     <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
-                                        <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(logistic.id, logistic.name)} className=''>Remove</Button>
+                                        <PermissionGate permission="edit logistics">
+                                            <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
+                                        </PermissionGate>
+                                        <PermissionGate permission="delete logistics">
+                                            <Button disabled={processing} onClick={() => handleDelete(logistic.id, logistic.name)} className=''>Remove</Button>
+                                        </PermissionGate>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -113,5 +127,6 @@ export default function Index() {
             )}
             </div>
         </AppLayout>
+        </PermissionGuard>
     );
 }

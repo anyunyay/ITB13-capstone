@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
+import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
@@ -73,9 +74,13 @@ export default function Edit({ logistic }: Props) {
     }
 
     return (
-        <AppLayout>
-            <Head title="Update Logistic" />
-            <div className='w-8/12 p-4'>
+        <PermissionGuard 
+            permission="edit logistics"
+            pageTitle="Edit Logistics Access Denied"
+        >
+            <AppLayout>
+                <Head title="Update Logistic" />
+                <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (
@@ -207,5 +212,6 @@ export default function Edit({ logistic }: Props) {
                 </form>
             </div>
         </AppLayout>
+        </PermissionGuard>
     );
 }

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { PermissionGuard } from '@/components/permission-guard';
 
 interface Member {
   id: number;
@@ -71,9 +72,13 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   };
 
   return (
-    <AppLayout>
-      <Head title="Membership Report" />
-      <div className="p-6">
+    <PermissionGuard 
+      permission="generate membership report"
+      pageTitle="Membership Report Access Denied"
+    >
+      <AppLayout>
+        <Head title="Membership Report" />
+        <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Membership Report</h1>
           <div className="flex gap-2">
@@ -176,6 +181,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
         </Card>
       </div>
     </AppLayout>
+    </PermissionGuard>
   );
 }
 

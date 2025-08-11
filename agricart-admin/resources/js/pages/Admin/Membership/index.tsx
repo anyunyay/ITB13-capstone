@@ -5,6 +5,8 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { BellDot } from 'lucide-react';
+import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGate } from '@/components/permission-gate';
 import {
     Table,
     TableBody,
@@ -55,14 +57,22 @@ export default function Index() {
     };
 
     return (
-        <AppLayout>
-            <Head title="Membership" />
-            <div className="m-4">
+        <PermissionGuard 
+            permissions={['view members', 'create members', 'edit members', 'delete members', 'generate membership report']}
+            pageTitle="Membership Management Access Denied"
+        >
+            <AppLayout>
+                <Head title="Membership" />
+                <div className="m-4">
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold">Membership Management</h1>
                     <div className="flex gap-2">
-                        <Link href={route('membership.add')}><Button>Add Member</Button></Link>
-                        <Link href={route('membership.report')}><Button variant="outline">Generate Report</Button></Link>
+                        <PermissionGate permission="create members">
+                            <Link href={route('membership.add')}><Button>Add Member</Button></Link>
+                        </PermissionGate>
+                        <PermissionGate permission="generate membership report">
+                            <Link href={route('membership.report')}><Button variant="outline">Generate Report</Button></Link>
+                        </PermissionGate>
                     </div>
                 </div>
 
@@ -118,5 +128,6 @@ export default function Index() {
             )}
             </div>
         </AppLayout>
+        </PermissionGuard>
     );
 }

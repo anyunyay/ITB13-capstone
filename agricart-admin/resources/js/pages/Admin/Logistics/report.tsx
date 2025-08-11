@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { PermissionGuard } from '@/components/permission-guard';
 
 interface Logistic {
   id: number;
@@ -62,9 +63,13 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   };
 
   return (
-    <AppLayout>
-      <Head title="Logistics Report" />
-      <div className="p-6">
+    <PermissionGuard 
+      permission="generate logistics report"
+      pageTitle="Logistics Report Access Denied"
+    >
+      <AppLayout>
+        <Head title="Logistics Report" />
+        <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Logistics Report</h1>
           <div className="flex gap-2">
@@ -167,6 +172,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
         </Card>
       </div>
     </AppLayout>
+    </PermissionGuard>
   );
 }
 

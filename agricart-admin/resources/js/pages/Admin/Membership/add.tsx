@@ -9,6 +9,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
+import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
@@ -73,9 +74,13 @@ export default function Index() {
     }
 
     return (
-        <AppLayout>
-            <Head title="Add Member" />
-            <div className='w-8/12 p-4'>
+        <PermissionGuard 
+            permission="create members"
+            pageTitle="Create Member Access Denied"
+        >
+            <AppLayout>
+                <Head title="Add Member" />
+                <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>
 
                     {/* Display Error */}
@@ -174,5 +179,6 @@ export default function Index() {
                 </form>
             </div>
         </AppLayout>
+        </PermissionGuard>
     );
 }
