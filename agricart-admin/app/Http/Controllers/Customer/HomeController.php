@@ -12,6 +12,20 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // If user is authenticated, redirect to their appropriate dashboard
+        if (auth()->check()) {
+            $user = auth()->user();
+            
+            if ($user->hasRole('admin') || $user->hasRole('staff')) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->hasRole('member')) {
+                return redirect()->route('member.dashboard');
+            } elseif ($user->hasRole('logistic')) {
+                return redirect()->route('logistic.dashboard');
+            }
+            // Customer users stay on the home page
+        }
+
         $products = Product::active()->with('stocks')->get();
 
         $products->each(function ($product) {
