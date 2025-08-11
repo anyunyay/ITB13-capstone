@@ -22,58 +22,65 @@ import {
   ClipboardPen,
 } from 'lucide-react';
 import AppLogo from './app-logo';
+import { usePermissions } from '@/hooks/use-permissions';
 
 export function AppSidebar() {
-  const { props } = usePage<SharedData>();
-
-  // Extract permissions from props, providing defaults if not defined
-  const {
-    viewInventory: canViewInventory = false,
-    viewOrders: canViewOrders = false,
-    viewMembership: canViewMembership = false,
-    viewLogistics: canViewLogistics = false,
-    viewStaffs: canViewStaffs = false,
-  } = props.permissions || {};
+  const { can } = usePermissions();
 
   // Define the main navigation items based on permissions
   const mainNavItems: NavItem[] = [];
 
-  if (true) {
-    mainNavItems.push({
-      title: 'Dashboard',
-      href: '/admin/dashboard',
-      icon: LayoutDashboard,
-    });
-  }
-  if (canViewInventory) {
+  // Dashboard is always available
+  mainNavItems.push({
+    title: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: LayoutDashboard,
+  });
+
+  // Inventory - check for any inventory-related permission
+  if (can('view inventory') || can('create products') || can('edit products') || 
+      can('view archive') || can('view stocks') || can('create stocks') || 
+      can('edit stocks') || can('view sold stock') || can('view stock trail')) {
     mainNavItems.push({
       title: 'Inventory',
       href: '/admin/inventory',
       icon: Package,
     });
   }
-  if (canViewOrders) {
+
+  // Orders - check for order-related permissions
+  if (can('view orders') || can('create orders') || can('edit orders') || 
+      can('generate order report')) {
     mainNavItems.push({
       title: 'Orders',
       href: '/admin/orders',
       icon: ClipboardPen,
     });
   }
-  if (canViewMembership) {
+
+  // Membership - check for membership-related permissions
+  if (can('view membership') || can('create members') || can('edit members') || 
+      can('delete members') || can('generate membership report')) {
     mainNavItems.push({
       title: 'Membership',
       href: '/admin/membership',
       icon: UsersRound,
     });
   }
-  if (canViewLogistics) {
+
+  // Logistics - check for logistics-related permissions
+  if (can('view logistics') || can('create logistics') || can('edit logistics') || 
+      can('generate logistics report')) {
     mainNavItems.push({
       title: 'Logistics',
       href: '/admin/logistics',
       icon: IdCard,
     });
   }
-  if (canViewStaffs) {
+
+  // Staff - check for staff management permissions
+  if (can('view staffs') || can('create staffs') || can('edit staffs') || 
+      can('delete staffs')) {
     mainNavItems.push({
       title: 'Staff',
       href: '/admin/staff',
