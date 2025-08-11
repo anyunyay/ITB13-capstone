@@ -32,46 +32,45 @@ class RoleSeeder extends Seeder
             'view inventory',
             'create products',
             'edit products',
-            'delete products', // Optional for Staff
+            'delete products', // Available for Staff (with admin approval)
 
             // Inventory Archive
             'view archive',
             'archive products',
             'unarchive products',
-            'delete archived products', // Optional for Staff
+            'delete archived products', // Available for Staff (with admin approval)
 
             // Inventory Product Stock
             'view stocks',
             'create stocks',
             'edit stocks',
-            'delete stocks', // Optional for Staff
+            'delete stocks', // Available for Staff (with admin approval)
 
             // Order Management
             'view orders',
             'create orders',
             'edit orders',
-            'delete orders', // Optional for Staff
+            'delete orders', // Available for Staff (with admin approval)
             'generate order report',
 
             // Logistics
             'view logistics',
             'create logistics',
             'edit logistics',
-            'delete logistics', // Optional for Staff
+            'delete logistics', // Available for Staff (with admin approval)
             'generate logistics report',
             
             // Inventory Stock Trailing
             'view sold stock',
             'view stock trail',
 
-                        // Only for Admin
-            // Staff
+            // Admin Only (Staff Management)
             'view staffs',
             'create staffs',
             'edit staffs',
             'delete staffs',
 
-            // Membership
+            // Admin Only (Membership Management)
             'view membership',
             'create members',
             'edit members',
@@ -94,6 +93,7 @@ class RoleSeeder extends Seeder
         $admin->givePermissionTo(Permission::all());
         
         // Assign limited permissions to staff (excluding staff management, member management, and delete permissions)
+        // Delete permissions are available but not assigned by default - admins can grant them individually
         $staffPermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
             'view membership', 'create members', 'edit members', 'delete members',

@@ -25,6 +25,59 @@ export default function StaffCreate({ availablePermissions }: Props) {
     permissions: [] as string[],
   });
 
+  // Define permission groups with their detailed permissions
+  const permissionGroups = [
+    {
+      name: 'Inventory Access',
+      description: 'Full access to inventory management including products, archive, stocks, and tracking',
+      permissions: [
+        'view inventory',
+        'create products',
+        'edit products',
+        'view archive',
+        'archive products',
+        'unarchive products',
+        'view stocks',
+        'create stocks',
+        'edit stocks',
+        'view sold stock',
+        'view stock trail'
+      ]
+    },
+    {
+      name: 'Order Access',
+      description: 'Access to order management and processing',
+      permissions: [
+        'view orders',
+        'create orders',
+        'edit orders'
+      ]
+    },
+    {
+      name: 'Logistics Access',
+      description: 'Access to logistics management and operations',
+      permissions: [
+        'view logistics',
+        'create logistics',
+        'edit logistics'
+      ]
+    }
+  ];
+
+  // Separate permissions for reports and deletions
+  const reportPermissions = [
+    'generate order report',
+    'generate logistics report'
+  ];
+
+  const deletePermissions = [
+    'delete products',
+    'delete archived products',
+    'delete stocks',
+    'delete orders',
+    'delete logistics'
+  ];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     post('/admin/staff');
@@ -36,6 +89,31 @@ export default function StaffCreate({ availablePermissions }: Props) {
     } else {
       setData('permissions', data.permissions.filter(p => p !== permissionName));
     }
+  };
+
+  const handleGroupPermissionChange = (groupPermissions: string[], checked: boolean) => {
+    if (checked) {
+      // Add all permissions in the group
+      const newPermissions = [...data.permissions];
+      groupPermissions.forEach(permission => {
+        if (!newPermissions.includes(permission)) {
+          newPermissions.push(permission);
+        }
+      });
+      setData('permissions', newPermissions);
+    } else {
+      // Remove all permissions in the group
+      setData('permissions', data.permissions.filter(p => !groupPermissions.includes(p)));
+    }
+  };
+
+  const isGroupSelected = (groupPermissions: string[]) => {
+    return groupPermissions.every(permission => data.permissions.includes(permission));
+  };
+
+  const isGroupPartiallySelected = (groupPermissions: string[]) => {
+    const selectedCount = groupPermissions.filter(permission => data.permissions.includes(permission)).length;
+    return selectedCount > 0 && selectedCount < groupPermissions.length;
   };
 
   return (
@@ -125,32 +203,127 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-base font-medium">Permissions</Label>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Select the permissions this staff member should have. Staff members cannot manage other staff, members, or delete records.
-                  </p>
+              <div className="space-y-6">
+                {/* Access Permission Groups */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-base font-medium">Access Permissions</Label>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Select the main access areas this staff member should have.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {permissionGroups.map((group) => (
+                      <div key={group.name} className="border rounded-lg p-4">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Checkbox
+                            id={`group-${group.name}`}
+                            checked={isGroupSelected(group.permissions)}
+                            onCheckedChange={(checked) => 
+                              handleGroupPermissionChange(group.permissions, checked as boolean)
+                            }
+                          />
+                          <Label
+                            htmlFor={`group-${group.name}`}
+                            className="text-base font-medium cursor-pointer"
+                          >
+                            {group.name}
+                            {isGroupPartiallySelected(group.permissions) && (
+                              <span className="text-xs text-muted-foreground ml-2">(Partial)</span>
+                            )}
+                          </Label>
+                        </div>
+                        <p className="text-sm text-muted-foreground ml-6 mb-3">
+                          {group.description}
+                        </p>
+                        <div className="ml-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                          {group.permissions.map((permission) => (
+                            <div key={permission} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`permission-${permission}`}
+                                checked={data.permissions.includes(permission)}
+                                onCheckedChange={(checked) => 
+                                  handlePermissionChange(permission, checked as boolean)
+                                }
+                              />
+                              <Label
+                                htmlFor={`permission-${permission}`}
+                                className="text-sm font-normal cursor-pointer"
+                              >
+                                {permission}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {availablePermissions.map((permission) => (
-                    <div key={permission.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`permission-${permission.id}`}
-                        checked={data.permissions.includes(permission.name)}
-                        onCheckedChange={(checked) => 
-                          handlePermissionChange(permission.name, checked as boolean)
-                        }
-                      />
-                      <Label
-                        htmlFor={`permission-${permission.id}`}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {permission.name}
-                      </Label>
+                {/* Report Permissions */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-base font-medium">Report Permissions</Label>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Select which reports this staff member can generate.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {reportPermissions.map((permission) => (
+                      <div key={permission} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`report-permission-${permission}`}
+                          checked={data.permissions.includes(permission)}
+                          onCheckedChange={(checked) => 
+                            handlePermissionChange(permission, checked as boolean)
+                          }
+                        />
+                        <Label
+                          htmlFor={`report-permission-${permission}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {permission}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delete Permissions */}
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-base font-medium">Delete Permissions (Advanced)</Label>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-amber-800 mb-2">
+                        <strong>⚠️ Warning:</strong> These permissions allow staff members to permanently delete records.
+                      </p>
+                      <p className="text-sm text-amber-700">
+                        Only grant these permissions to trusted staff members who understand the consequences of deleting data.
+                      </p>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {deletePermissions.map((permission) => (
+                      <div key={permission} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`delete-permission-${permission}`}
+                          checked={data.permissions.includes(permission)}
+                          onCheckedChange={(checked) => 
+                            handlePermissionChange(permission, checked as boolean)
+                          }
+                        />
+                        <Label
+                          htmlFor={`delete-permission-${permission}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {permission}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {errors.permissions && (

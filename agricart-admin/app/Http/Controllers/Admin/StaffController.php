@@ -33,11 +33,10 @@ class StaffController extends Controller
      */
     public function create()
     {
-        // Get all permissions except staff, member, and delete permissions
+        // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members',
-            'delete products', 'delete archived products', 'delete stocks', 'delete orders', 'delete logistics'
+            'view membership', 'create members', 'edit members', 'delete members'
         ])->get();
 
         return Inertia::render('Admin/Staff/create', [
@@ -87,11 +86,10 @@ class StaffController extends Controller
             abort(404);
         }
 
-        // Get all permissions except staff, member, and delete permissions
+        // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members',
-            'delete products', 'delete archived products', 'delete stocks', 'delete orders', 'delete logistics'
+            'view membership', 'create members', 'edit members', 'delete members'
         ])->get();
 
         return Inertia::render('Admin/Staff/edit', [
