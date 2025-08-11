@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { type SharedData } from '@/types';
 import AppLayout from '@/layouts/app-layout';
+import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGate } from '@/components/permission-gate';
 
 interface Staff {
   id: number;
@@ -24,10 +26,14 @@ export default function StaffIndex({ staff }: Props) {
   const { createStaffs, editStaffs, deleteStaffs } = props.permissions || {};
 
   return (
-    <AppLayout>
-      <Head title="Staff Management" />
-      
-      <div className="m-4">
+    <PermissionGuard 
+      permissions={['view staffs', 'create staffs', 'edit staffs', 'delete staffs']}
+      pageTitle="Staff Management Access Denied"
+    >
+      <AppLayout>
+        <Head title="Staff Management" />
+        
+        <div className="m-4">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Staff Management</h1>
@@ -128,5 +134,6 @@ export default function StaffIndex({ staff }: Props) {
         </Card>
       </div>
     </AppLayout>
+    </PermissionGuard>
   );
 } 

@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { usePermissions } from '@/hooks/use-permissions';
+import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGuard } from '@/components/permission-guard';
 
 interface Order {
   id: number;
@@ -91,16 +94,22 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
   const rejectedOrders = orders.filter(order => order.status === 'rejected');
 
   return (
-    <AppSidebarLayout>
-      <Head title="Order Management" />
-      <div className="p-6">
+    <PermissionGuard 
+      permissions={['view orders', 'create orders', 'edit orders', 'generate order report']}
+      pageTitle="Order Management Access Denied"
+    >
+      <AppSidebarLayout>
+        <Head title="Order Management" />
+        <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Order Management</h1>
-          <Link href={route('admin.orders.report')}>
-            <Button variant="outline">
-              Generate Report
-            </Button>
-          </Link>
+          <PermissionGate permission="generate order report">
+            <Link href={route('admin.orders.report')}>
+              <Button variant="outline">
+                Generate Report
+              </Button>
+            </Link>
+          </PermissionGate>
         </div>
 
         <Tabs defaultValue={currentStatus} className="w-full">
@@ -181,6 +190,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
         </Tabs>
       </div>
     </AppSidebarLayout>
+    </PermissionGuard>
   );
 }
 
@@ -223,11 +233,13 @@ function OrderCard({ order }: { order: Order }) {
           </div>
           <div className="flex items-center gap-2">
             {getStatusBadge(order.status)}
-            <Link href={route('admin.orders.show', order.id)}>
-              <Button variant="outline" size="sm">
-                View Details
-              </Button>
-            </Link>
+            <PermissionGate permission="view orders">
+              <Link href={route('admin.orders.show', order.id)}>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
+              </Link>
+            </PermissionGate>
           </div>
         </div>
       </CardHeader>

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Save } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
+import { PermissionGuard } from '@/components/permission-guard';
 
 interface Permission {
   id: number;
@@ -117,10 +118,14 @@ export default function StaffCreate({ availablePermissions }: Props) {
   };
 
   return (
-    <AppLayout>
-      <Head title="Add Staff Member" />
-      
-      <div className="m-4">
+    <PermissionGuard 
+      permission="create staffs"
+      pageTitle="Create Staff Access Denied"
+    >
+      <AppLayout>
+        <Head title="Add Staff Member" />
+        
+        <div className="m-4">
         <div className="flex items-center gap-4 mb-4">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
@@ -345,5 +350,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
         </Card>
       </div>
     </AppLayout>
+    </PermissionGuard>
   );
 } 
