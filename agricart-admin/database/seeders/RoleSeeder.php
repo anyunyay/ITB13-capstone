@@ -53,6 +53,10 @@ class RoleSeeder extends Seeder
             'delete orders', // Available for Staff (with admin approval)
             'generate order report',
 
+            // Sales Management
+            'view sales',
+            'generate sales report',
+
             // Logistics
             'view logistics',
             'create logistics',
