@@ -75,13 +75,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                   </Button>
                 </Link>
               </PermissionGate>
-              <PermissionGate permission="generate sales report">
-                <Link href={route('admin.sales.report')}>
-                  <Button variant="outline">
-                    Generate Report
-                  </Button>
-                </Link>
-              </PermissionGate>
+                             <PermissionGate permission="generate sales report">
+                 <Link href={route('admin.sales.report')}>
+                   <Button variant="outline">
+                     View Report
+                   </Button>
+                 </Link>
+               </PermissionGate>
             </div>
           </div>
 
