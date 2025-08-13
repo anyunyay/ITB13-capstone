@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\InventoryStockTrailController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
@@ -83,6 +84,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::middleware(['can:generate order report'])->group(function () {
             Route::get('/orders/report', [OrderController::class, 'generateReport'])->name('admin.orders.report');
+        });
+
+        // Sales routes
+        Route::middleware(['can:view sales'])->group(function () {
+            Route::get('/sales', [SalesController::class, 'index'])->name('admin.sales.index');
+            Route::get('/sales/member-sales', [SalesController::class, 'memberSales'])->name('admin.sales.memberSales');
+        });
+        Route::middleware(['can:generate sales report'])->group(function () {
+            Route::get('/sales/report', [SalesController::class, 'generateReport'])->name('admin.sales.report');
         });
 
         // Membership routes
