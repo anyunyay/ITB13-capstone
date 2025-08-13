@@ -20,6 +20,7 @@ import {
   UsersRound,
   IdCard,
   ClipboardPen,
+  TrendingUp,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -55,6 +56,15 @@ export function AppSidebar() {
       title: 'Orders',
       href: '/admin/orders',
       icon: ClipboardPen,
+    });
+  }
+
+  // Sales - check for sales-related permissions
+  if (can('view sales') || can('generate sales report')) {
+    mainNavItems.push({
+      title: 'Sales',
+      href: '/admin/sales',
+      icon: TrendingUp,
     });
   }
 
