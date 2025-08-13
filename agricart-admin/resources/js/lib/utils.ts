@@ -126,6 +126,25 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
         return crumbs;
     }
 
+    // Sales
+    if (url.startsWith('/admin/sales')) {
+        crumbs.push({ title: 'Sales', href: '/admin/sales' });
+
+        // Member Sales
+        if (url === '/admin/sales/member-sales') {
+            crumbs.push({ title: 'Member Sales', href: '' });
+            return crumbs;
+        }
+
+        // Sales Report
+        if (url === '/admin/sales/report') {
+            crumbs.push({ title: 'Report', href: '' });
+            return crumbs;
+        }
+
+        return crumbs;
+    }
+
     // Settings
     if (url.startsWith('/settings')) {
         crumbs.push({ title: 'Settings', href: '/settings/profile' });
