@@ -81,13 +81,101 @@ class SalesController extends Controller
         // Get member sales data
         $memberSales = $this->getMemberSales($request);
 
-        return view('reports.sales-pdf', [
+        // Check if format is specified for export
+        if ($request->filled('format')) {
+            if ($request->format === 'pdf') {
+                return view('reports.sales-pdf', [
+                    'sales' => $sales,
+                    'summary' => $summary,
+                    'memberSales' => $memberSales,
+                    'generated_at' => now()->format('M d, Y H:i:s'),
+                    'filters' => $request->only(['start_date', 'end_date']),
+                ]);
+            } elseif ($request->format === 'csv') {
+                return $this->exportCsv($sales, $memberSales, $summary, $request);
+            }
+        }
+
+        // Return Inertia page for report view
+        return Inertia::render('Admin/Sales/report', [
             'sales' => $sales,
             'summary' => $summary,
             'memberSales' => $memberSales,
-            'generated_at' => now()->format('M d, Y H:i:s'),
             'filters' => $request->only(['start_date', 'end_date']),
         ]);
+    }
+
+    private function exportCsv($sales, $memberSales, $summary, $request)
+    {
+        $filename = 'sales_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($sales, $memberSales, $summary, $request) {
+            $file = fopen('php://output', 'w');
+            
+            // Summary section
+            fputcsv($file, ['SALES REPORT SUMMARY']);
+            fputcsv($file, ['']);
+            fputcsv($file, ['Total Revenue', 'Total Orders', 'Average Order Value', 'Total Customers']);
+            fputcsv($file, [
+                number_format($summary['total_revenue'], 2),
+                $summary['total_orders'],
+                number_format($summary['average_order_value'], 2),
+                $summary['total_customers']
+            ]);
+            fputcsv($file, ['']);
+            
+            // Date range if specified
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                fputcsv($file, ['Period', $request->start_date . ' to ' . $request->end_date]);
+                fputcsv($file, ['']);
+            }
+            
+            // Sales data
+            fputcsv($file, ['SALES DATA']);
+            fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
+            
+            foreach ($sales as $sale) {
+                fputcsv($file, [
+                    $sale->id,
+                    $sale->customer->name,
+                    $sale->customer->email,
+                    number_format($sale->total_amount, 2),
+                    $sale->created_at->format('Y-m-d H:i:s'),
+                    $sale->admin->name ?? 'N/A',
+                    $sale->logistic->name ?? 'N/A'
+                ]);
+            }
+            
+            fputcsv($file, ['']);
+            
+            // Member sales data
+            if ($memberSales->count() > 0) {
+                fputcsv($file, ['MEMBER SALES PERFORMANCE']);
+                fputcsv($file, ['Rank', 'Member Name', 'Member Email', 'Total Orders', 'Total Revenue', 'Quantity Sold', 'Average Revenue']);
+                
+                foreach ($memberSales as $index => $member) {
+                    $averageRevenue = $member->total_orders > 0 ? $member->total_revenue / $member->total_orders : 0;
+                    fputcsv($file, [
+                        $index + 1,
+                        $member->member_name,
+                        $member->member_email,
+                        $member->total_orders,
+                        number_format($member->total_revenue, 2),
+                        $member->total_quantity_sold,
+                        number_format($averageRevenue, 2)
+                    ]);
+                }
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     private function getMemberSales(Request $request)
