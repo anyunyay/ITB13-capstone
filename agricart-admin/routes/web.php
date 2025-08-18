@@ -162,6 +162,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [\App\Http\Controllers\Logistic\LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
         Route::get('/orders/{order}', [\App\Http\Controllers\Logistic\LogisticController::class, 'showOrder'])->name('logistic.orders.show');
         Route::put('/orders/{order}/delivery-status', [\App\Http\Controllers\Logistic\LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
+        Route::get('/report', [\App\Http\Controllers\Logistic\LogisticController::class, 'generateReport'])->name('logistic.report');
     });
 
     // Member routes
