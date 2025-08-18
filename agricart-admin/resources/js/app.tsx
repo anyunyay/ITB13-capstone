@@ -7,6 +7,18 @@ import { initializeTheme } from './hooks/use-appearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+// Force a refresh when returning via back/forward cache
+if (typeof window !== 'undefined') {
+    window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+        const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+        const navType = entries.length > 0 ? entries[0].type : undefined;
+
+        if (event.persisted || navType === 'back_forward') {
+            window.location.reload();
+        }
+    });
+}
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
