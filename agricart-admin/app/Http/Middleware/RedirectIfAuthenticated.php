@@ -13,7 +13,7 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
@@ -24,13 +24,13 @@ class RedirectIfAuthenticated
                 $user = Auth::guard($guard)->user();
                 
                 // Redirect based on user role
-                if ($user->hasRole('admin') || $user->hasRole('staff')) {
+                if ($user->type === 'admin' || $user->type === 'staff') {
                     return redirect()->route('admin.dashboard');
-                } elseif ($user->hasRole('customer')) {
+                } elseif ($user->type === 'customer') {
                     return redirect()->route('home');
-                } elseif ($user->hasRole('member')) {
+                } elseif ($user->type === 'member') {
                     return redirect()->route('member.dashboard');
-                } elseif ($user->hasRole('logistic')) {
+                } elseif ($user->type === 'logistic') {
                     return redirect()->route('logistic.dashboard');
                 }
 
