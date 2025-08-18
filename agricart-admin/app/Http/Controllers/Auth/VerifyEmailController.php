@@ -15,7 +15,7 @@ class VerifyEmailController extends Controller
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return $this->getRedirectUrl($request->user()).'?verified=1';
+            return redirect($this->getRedirectUrl($request->user()).'?verified=1');
         }
 
         if ($request->user()->markEmailAsVerified()) {

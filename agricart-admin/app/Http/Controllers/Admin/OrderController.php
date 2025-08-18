@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sales;
-use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\User; // Added this import for the new_code
+use App\Models\User;
 use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
 use Illuminate\Support\Facades\Response;

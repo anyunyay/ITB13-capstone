@@ -7,20 +7,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // If user is authenticated, redirect to their appropriate dashboard
-        if (auth()->check()) {
-            $user = auth()->user();
+        if (Auth::check()) {
+            $user = Auth::user();
             
-            if ($user->hasRole('admin') || $user->hasRole('staff')) {
+            if ($user->type === 'admin' || $user->type === 'staff') {
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->hasRole('member')) {
+            } elseif ($user->type === 'member') {
                 return redirect()->route('member.dashboard');
-            } elseif ($user->hasRole('logistic')) {
+            } elseif ($user->type === 'logistic') {
                 return redirect()->route('logistic.dashboard');
             }
             // Customer users stay on the home page
@@ -76,7 +76,7 @@ class HomeController extends Controller
         return Inertia::render('Customer/Products/show', [
             'product' => $product,
             'auth' => [
-                'user' => auth()->user()
+                'user' => Auth::user()
             ]
         ]);
     }
@@ -95,7 +95,7 @@ class HomeController extends Controller
         return Inertia::render('Customer/Products/product', [
             'product' => $product,
             'auth' => [
-                'user' => auth()->user()
+                'user' => Auth::user()
             ]
         ]);
     }

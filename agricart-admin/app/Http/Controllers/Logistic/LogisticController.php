@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Notifications\DeliveryStatusUpdate;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticController extends Controller
 {
     public function dashboard()
     {
-        $logistic = auth()->user();
+        $logistic = Auth::user();
         
         // Get assigned orders for this logistic
         $assignedOrders = Sales::where('logistic_id', $logistic->id)
@@ -41,7 +42,7 @@ class LogisticController extends Controller
 
     public function assignedOrders(Request $request)
     {
-        $logistic = auth()->user();
+        $logistic = Auth::user();
         $status = $request->get('status', 'all');
         
         $query = Sales::where('logistic_id', $logistic->id)
@@ -64,7 +65,7 @@ class LogisticController extends Controller
     public function showOrder(Sales $order)
     {
         // Ensure the order is assigned to the current logistic
-        if ($order->logistic_id !== auth()->id()) {
+        if ($order->logistic_id !== Auth::id()) {
             abort(403, 'You are not authorized to view this order.');
         }
 
@@ -78,7 +79,7 @@ class LogisticController extends Controller
     public function updateDeliveryStatus(Request $request, Sales $order)
     {
         // Ensure the order is assigned to the current logistic
-        if ($order->logistic_id !== auth()->id()) {
+        if ($order->logistic_id !== Auth::id()) {
             abort(403, 'You are not authorized to update this order.');
         }
 
@@ -125,7 +126,7 @@ class LogisticController extends Controller
 
     public function generateReport(Request $request)
     {
-        $logistic = auth()->user();
+        $logistic = Auth::user();
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $deliveryStatus = $request->get('delivery_status', 'all');
@@ -239,7 +240,7 @@ class LogisticController extends Controller
 
     private function exportToPdf($orders, $summary)
     {
-        $logistic = auth()->user();
+        $logistic = Auth::user();
         $html = view('reports.logistic-orders-pdf', [
             'orders' => $orders,
             'summary' => $summary,

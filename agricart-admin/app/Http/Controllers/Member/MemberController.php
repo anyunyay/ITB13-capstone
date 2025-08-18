@@ -8,12 +8,13 @@ use App\Models\RemovedStock;
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class MemberController extends Controller
 {
     public function dashboard()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Get stocks using the new scopes
         $availableStocks = Stock::available()
@@ -74,7 +75,7 @@ class MemberController extends Controller
 
     public function soldStocks()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
@@ -86,7 +87,7 @@ class MemberController extends Controller
 
     public function partialStocks()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Get partially fulfilled stocks
         $partialStocks = Stock::partial()
@@ -102,7 +103,7 @@ class MemberController extends Controller
 
     public function assignedStocks()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Get only partial stocks (quantity > 0, has customer)
         $assignedStocks = Stock::where('member_id', $user->id)
@@ -119,7 +120,7 @@ class MemberController extends Controller
 
     public function availableStocks()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Get available stocks (ready for sale)
         $availableStocks = Stock::available()
@@ -135,7 +136,7 @@ class MemberController extends Controller
 
     public function allStocks()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         // Get all stocks for the member with different statuses
         $availableStocks = Stock::available()
