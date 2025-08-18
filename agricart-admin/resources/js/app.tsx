@@ -9,6 +9,8 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 // Force a refresh when returning via back/forward cache
 if (typeof window !== 'undefined') {
+    
+    // This event is fired when the page is loaded from the back/forward cache
     window.addEventListener('pageshow', (event: PageTransitionEvent) => {
         const entries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
         const navType = entries.length > 0 ? entries[0].type : undefined;
@@ -16,6 +18,11 @@ if (typeof window !== 'undefined') {
         if (event.persisted || navType === 'back_forward') {
             window.location.reload();
         }
+    });
+
+    // Force a refresh when the back button is pressed
+    window.addEventListener('popstate', () => {
+        window.location.reload();
     });
 }
 

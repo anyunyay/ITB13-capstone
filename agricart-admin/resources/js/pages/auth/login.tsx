@@ -1,6 +1,6 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useEffect } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -28,9 +28,28 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         remember: false,
     });
 
+    const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
+
+    // If user is already authenticated and navigates back to login, redirect them
+    useEffect(() => {
+        const userType = props.auth?.user?.type;
+        if (!userType) return;
+
+        if (userType === 'admin' || userType === 'staff') {
+            window.location.replace(route('admin.dashboard'));
+        } else if (userType === 'customer') {
+            window.location.replace(route('home'));
+        } else if (userType === 'member') {
+            window.location.replace(route('member.dashboard'));
+        } else if (userType === 'logistic') {
+            window.location.replace(route('logistic.dashboard'));
+        }
+    }, [props.auth?.user?.type]);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
+            replace: true,
             onFinish: () => reset('password'),
         });
     };
