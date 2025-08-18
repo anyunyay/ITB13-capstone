@@ -75,14 +75,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
         });
         Route::middleware(['can:view orders'])->group(function () {
-            Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
-            Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->name('admin.orders.receiptPreview');
+            Route::get('/orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('admin.orders.show');
+            Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->whereNumber('order')->name('admin.orders.receiptPreview');
         });
         Route::middleware(['can:edit orders'])->group(function () {
-            Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->name('admin.orders.approve');
-            Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->name('admin.orders.reject');
-            Route::post('/orders/{order}/process', [OrderController::class, 'process'])->name('admin.orders.process');
-            Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->name('admin.orders.assignLogistic');
+            Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->whereNumber('order')->name('admin.orders.approve');
+            Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->whereNumber('order')->name('admin.orders.reject');
+            Route::post('/orders/{order}/process', [OrderController::class, 'process'])->whereNumber('order')->name('admin.orders.process');
+            Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->whereNumber('order')->name('admin.orders.assignLogistic');
         });
         Route::middleware(['can:generate order report'])->group(function () {
             Route::get('/orders/report', [OrderController::class, 'generateReport'])->name('admin.orders.report');
