@@ -250,7 +250,7 @@ export default function Index() {
                 <Tabs defaultValue="all">
                     <PermissionGate permission="view stock trail">
                         <Button asChild disabled={processing} className="w-1/8">
-                            <Link href={route('inventory.stockTrail.index')}>Removed Stocks</Link>
+                            <Link href={route('inventory.removedStock.index')}>Removed Stocks</Link>
                         </Button>
                     </PermissionGate>
                     <PermissionGate permission="view sold stock">

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
-use App\Models\InventoryStockTrail;
+use App\Models\RemovedStock;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -74,14 +74,15 @@ class InventoryStockController extends Controller
 
     public function destroy(Product $product, Stock $stock)
     {
-        // Save to InventoryStockTrail before deleting
-        InventoryStockTrail::create([
+        // Save to RemovedStock before deleting
+        RemovedStock::create([
             'stock_id' => $stock->id,
             'product_id' => $stock->product_id,
             'quantity' => $stock->quantity,
             'member_id' => $stock->member_id,
             'customer_id' => $stock->customer_id,
             'category' => $stock->category,
+            'status' => 'removed',
         ]);
         $stock->delete();
         return redirect()->route('inventory.index')->with('message', 'Stock deleted and saved to trail successfully');
@@ -110,8 +111,8 @@ class InventoryStockController extends Controller
             return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
         }
 
-        // Save to InventoryStockTrail before removing
-        InventoryStockTrail::create([
+        // Save to RemovedStock before removing
+        RemovedStock::create([
             'stock_id' => $stock->id,
             'product_id' => $stock->product_id,
             'quantity' => $stock->quantity,

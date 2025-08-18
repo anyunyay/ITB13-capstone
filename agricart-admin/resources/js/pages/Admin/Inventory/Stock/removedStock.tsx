@@ -1,8 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
@@ -20,12 +17,6 @@ import {
 interface Product {
     id: number;
     name: string;
-    price_kilo?: number;
-    price_pc?: number;
-    price_tali?: number;
-    description: string;
-    image: string;
-    produce_type: string;
 }
 
 interface Member {
@@ -33,15 +24,23 @@ interface Member {
     name: string;
 }
 
-interface Stock {
-    stock_id?: number;
+interface Customer {
     id: number;
+    name: string;
+}
+
+interface RemovedStockItem {
+    id: number;
+    stock_id?: number;
     product_id: number;
     quantity: number;
     member_id: number;
+    customer_id?: number;
     product: Product;
     member: Member;
+    customer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
+    status?: 'removed' | 'damaged' | 'expired';
     created_at: string;
 }
 
@@ -49,13 +48,11 @@ interface PageProps {
     flash: {
         message?: string
     }
-    products: Product[];
-    stocks: Stock[];
+    stocks: RemovedStockItem[];
     [key: string]: unknown;
 }
 
-export default function Index() {
-
+export default function RemovedStockIndex() {
     const { stocks = [], flash, auth } = usePage<PageProps & SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -63,13 +60,11 @@ export default function Index() {
         }
     }, [auth]);
 
-    console.log('stocks:', stocks); // Debug output
-
-    const { processing, delete: destroy, post } = useForm();
+    const { processing } = useForm();
 
     return (
         <AppLayout>
-            <Head title="Stock Trail" />
+            <Head title="Removed Stock" />
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
 
@@ -84,7 +79,7 @@ export default function Index() {
                                     <TableHead className="text-center">Quantity</TableHead>
                                     <TableHead className="text-center">Category</TableHead>
                                     <TableHead className="text-center">Assigned To</TableHead>
-                                    <TableHead className="text-center">Deleted At</TableHead>
+                                    <TableHead className="text-center">Removed At</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -121,3 +116,5 @@ export default function Index() {
         </AppLayout>
     )
 }
+
+

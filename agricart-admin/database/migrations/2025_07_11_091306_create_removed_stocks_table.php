@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inventory_stock_trails', function (Blueprint $table) {
+        Schema::create('removed_stocks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('stock_id')->nullable();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventory_stock_trails');
+        Schema::dropIfExists('removed_stocks');
     }
 };

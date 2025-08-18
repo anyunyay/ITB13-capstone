@@ -24,9 +24,9 @@ class Product extends Model
         return $this->hasMany(Stock::class);
     }
 
-    public function stockTrail()
+    public function removedStocks()
     {
-        return $this->hasMany(InventoryStockTrail::class);
+        return $this->hasMany(RemovedStock::class);
     }
 
     public function scopeArchived($query)

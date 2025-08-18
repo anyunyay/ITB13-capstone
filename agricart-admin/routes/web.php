@@ -4,7 +4,9 @@
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
-use App\Http\Controllers\Admin\InventoryStockTrailController;
+// use App\Http\Controllers\Admin\InventoryStockTrailController; // removed
+use App\Http\Controllers\Admin\SoldStockController;
+use App\Http\Controllers\Admin\RemovedStockController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
@@ -64,9 +66,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.deleteStock'); // Delete Stock
 
-        // Sold Stock & Trail routes
-        Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [InventoryStockTrailController::class, 'soldIndex'])->name('inventory.soldStock.index');
-        Route::middleware(['can:view stock trail'])->get('/inventory/stock-trail', [InventoryStockTrailController::class, 'index'])->name('inventory.stockTrail.index'); // View Stock Trail
+        // Sold Stock & Removed Stock routes
+        Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [SoldStockController::class, 'index'])->name('inventory.soldStock.index');
+        Route::middleware(['can:view stock trail'])->get('/inventory/removed-stock', [RemovedStockController::class, 'index'])->name('inventory.removedStock.index'); // View Removed Stock
 
         // Order Management routes
         Route::middleware(['can:view orders'])->group(function () {

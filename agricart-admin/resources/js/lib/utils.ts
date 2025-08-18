@@ -24,9 +24,9 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
             return crumbs;
         }
 
-        // Stock Trail page
-        if (url === '/admin/inventory/stock-trail') {
-            crumbs.push({ title: 'Stock Trail', href: '' });
+        // Removed Stock page
+        if (url === '/admin/inventory/removed-stock') {
+            crumbs.push({ title: 'Removed Stock', href: '' });
             return crumbs;
         }
 
