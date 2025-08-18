@@ -104,9 +104,16 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-white">Assigned Orders</CardTitle>
-              <Link href={route('logistic.orders.index')}>
-                <Button variant="outline">View All Orders</Button>
-              </Link>
+              <div className="flex space-x-2">
+                <Link href={route('logistic.report')}>
+                  <Button variant="outline" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600">
+                    Generate Report
+                  </Button>
+                </Link>
+                <Link href={route('logistic.orders.index')}>
+                  <Button variant="outline">View All Orders</Button>
+                </Link>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
