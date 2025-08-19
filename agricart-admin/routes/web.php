@@ -64,7 +64,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'editStock'])->name('inventory.editStock'); // Edit Stock (GET)
             Route::put('/inventory/{product}/edit-stock/{stock}', [InventoryStockController::class, 'updateStock'])->name('inventory.updateStock'); // Edit Stock (PUT)
         });
-        Route::middleware(['can:delete stocks'])->delete('/inventory/{product}/stock/{stock}', [InventoryStockController::class, 'destroy'])->name('inventory.deleteStock'); // Delete Stock
 
         // Sold Stock & Removed Stock routes
         Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [SoldStockController::class, 'index'])->name('inventory.soldStock.index');

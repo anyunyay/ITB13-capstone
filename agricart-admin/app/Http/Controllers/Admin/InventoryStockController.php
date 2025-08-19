@@ -72,22 +72,6 @@ class InventoryStockController extends Controller
         return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }
 
-    public function destroy(Product $product, Stock $stock)
-    {
-        // Save to RemovedStock before deleting
-        RemovedStock::create([
-            'stock_id' => $stock->id,
-            'product_id' => $stock->product_id,
-            'quantity' => $stock->quantity,
-            'member_id' => $stock->member_id,
-            'customer_id' => $stock->customer_id,
-            'category' => $stock->category,
-            'status' => 'removed',
-        ]);
-        $stock->delete();
-        return redirect()->route('inventory.index')->with('message', 'Stock deleted and saved to trail successfully');
-    }
-
     public function removeStock(Product $product)
     {
         $stocks = $product->stocks()->where('quantity', '>', 0)->get();

@@ -112,12 +112,6 @@ export default function Index() {
         }
     };
 
-    const handleDeleteStock = (stock: Stock) => {
-        if (confirm(`Are you sure you want to delete - Stock #${stock.id}?`)) {
-            destroy(route('inventory.deleteStock', { product: stock.product_id, stock: stock.id }));
-        }
-    };
-
     const handleRemovePerishedStock = (stock: Stock) => {
         setSelectedProduct(stock.product);
         setRemoveFormData({ stock_id: stock.id.toString(), reason: '', other_reason: '' });
@@ -296,9 +290,6 @@ export default function Index() {
                                                         <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                     </PermissionGate>
                                                     <PermissionGate permission="delete stocks">
-                                                        <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
-                                                    </PermissionGate>
-                                                    <PermissionGate permission="delete stocks">
                                                         <Button 
                                                             disabled={processing} 
                                                             onClick={() => handleRemovePerishedStock(stock)} 
@@ -340,9 +331,6 @@ export default function Index() {
                                                     <TableCell>
                                                         <PermissionGate permission="edit stocks">
                                                             <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
-                                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
                                                             <Button 
@@ -388,9 +376,6 @@ export default function Index() {
                                                             <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
-                                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
                                                             <Button 
                                                                 disabled={processing} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
@@ -432,9 +417,6 @@ export default function Index() {
                                                     <TableCell>
                                                         <PermissionGate permission="edit stocks">
                                                             <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
-                                                            <Button disabled={processing} onClick={() => handleDeleteStock(stock)} className=''>Delete</Button>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
                                                             <Button 
