@@ -334,33 +334,33 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         <TableHead>Subtotal</TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
-                      {order.audit_trail?.map((item: OrderItem) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.product.name}</TableCell>
-                          <TableCell>{item.category}</TableCell>
-                          <TableCell>{item.quantity} {item.category}</TableCell>
-                          <TableCell>
-                            {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
-                            {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
-                            {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
-                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
-                          </TableCell>
-                          <TableCell>
-                            {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
-                            {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
-                            {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
-                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
-                          </TableCell>
-                        </TableRow>
-                      )) || (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center text-gray-500">
-                            No items found
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
+                                      <TableBody>
+                    {order.audit_trail?.map((item: OrderItem) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.product.name}</TableCell>
+                        <TableCell>{item.category}</TableCell>
+                        <TableCell>{item.quantity} {item.category}</TableCell>
+                        <TableCell>
+                          {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
+                          {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
+                          {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
+                          {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
+                        </TableCell>
+                        <TableCell>
+                          {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
+                          {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
+                          {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
+                          {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
+                        </TableCell>
+                      </TableRow>
+                    )) || (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-gray-500">
+                          No items found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
                   </Table>
                 </Card>
               ))

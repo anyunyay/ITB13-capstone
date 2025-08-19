@@ -43,7 +43,7 @@ class OrderController extends Controller
                         'name' => $sale->logistic->name,
                         'contact_number' => $sale->logistic->contact_number,
                     ] : null,
-                    'auditTrail' => $sale->auditTrail->map(function ($item) {
+                    'audit_trail' => $sale->auditTrail->map(function ($item) {
                         return [
                             'id' => $item->id,
                             'product' => [
