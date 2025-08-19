@@ -50,7 +50,9 @@ class HandleInertiaRequests extends Middleware
             // Dynamically generate permissions based on the current user
             'permissions' => collect(Permission::all()->pluck('name'))->mapWithKeys(function ($permission) use ($request) { 
                 $key = lcfirst(str_replace(' ', '', ucwords($permission))); // Convert permission name to camelCase
-                return [$key => $request->user()?->can($permission)]; // Check if the user has the permission
+                $user = $request->user();
+                $canPermission = $user ? $user->can($permission) : false;
+                return [$key => $canPermission]; // Check if the user has the permission
             }),
             'flash' => [
                 'message' => fn() => $request->session()->get('message')

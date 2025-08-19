@@ -71,6 +71,11 @@ class User extends Authenticatable implements MustVerifyEmail
                 // Only assign if a role with this name exists
                 try {
                     $user->assignRole($user->type);
+                    
+                    // Ensure customer users get the access customer features permission
+                    if ($user->type === 'customer') {
+                        $user->givePermissionTo('access customer features');
+                    }
                 } catch (\Exception $e) {
                     // Log the error if the role does not exist
                     Log::error("Role {$user->type} does not exist for user ID {$user->id}");
@@ -104,5 +109,19 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyEmailNotification);
+    }
+
+    /**
+     * Ensure the user has the proper permissions for their type
+     */
+    public function ensurePermissions()
+    {
+        if ($this->type === 'customer' && !$this->can('access customer features')) {
+            $this->givePermissionTo('access customer features');
+        } elseif ($this->type === 'logistic' && !$this->can('access logistic features')) {
+            $this->givePermissionTo('access logistic features');
+        } elseif ($this->type === 'member' && !$this->can('access member features')) {
+            $this->givePermissionTo('access member features');
+        }
     }
 } 

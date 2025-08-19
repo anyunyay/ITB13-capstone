@@ -34,6 +34,9 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
+        // Ensure user has proper permissions for their type
+        $user->ensurePermissions();
+
         // Redirect based on user type (consistent with middleware)
         if ($user->type === 'admin' || $user->type === 'staff') {
             return redirect()->intended(route('admin.dashboard', absolute: false));
