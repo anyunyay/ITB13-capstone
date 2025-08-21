@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stock;
-use App\Models\RemovedStock;
+
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

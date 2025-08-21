@@ -98,7 +98,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function removedStocks()
     {
-        return $this->hasMany(RemovedStock::class);
+        return $this->hasMany(Stock::class)->removed();
     }
 
     /**

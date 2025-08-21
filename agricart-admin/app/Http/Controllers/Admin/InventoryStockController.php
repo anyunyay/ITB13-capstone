@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
-use App\Models\RemovedStock;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,7 +14,7 @@ class InventoryStockController extends Controller
     public function index()
     { 
         $products = Product::active()->get();
-        $stocks = Stock::all(); // Eager loads product and member due to $with
+        $stocks = Stock::active()->get(); // Only active (non-removed) stocks
         return Inertia::render('Inventory/index', compact('products', 'stocks'));
     }
 
@@ -74,7 +73,7 @@ class InventoryStockController extends Controller
 
     public function removeStock(Product $product)
     {
-        $stocks = $product->stocks()->where('quantity', '>', 0)->get();
+        $stocks = $product->stocks()->where('quantity', '>', 0)->active()->get();
         return Inertia::render('Inventory/Stock/removeStock', [
             'product' => $product,
             'stocks' => $stocks,
@@ -95,21 +94,23 @@ class InventoryStockController extends Controller
             return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
         }
 
-        // Save to RemovedStock before removing
-        RemovedStock::create([
-            'stock_id' => $stock->id,
-            'product_id' => $stock->product_id,
-            'quantity' => $stock->quantity,
-            'member_id' => $stock->member_id,
-            'customer_id' => $stock->customer_id,
-            'category' => $stock->category,
-            'status' => 'removed',
-            'notes' => $request->reason,
-        ]);
-
-        // Remove the stock
-        $stock->delete();
+        // Mark stock as removed using the new method
+        $stock->remove($request->reason);
 
         return redirect()->route('inventory.index')->with('message', 'Perished stock removed successfully');
+    }
+
+    public function removedStocks()
+    {
+        $stocks = Stock::removed()->with(['product', 'member', 'customer'])
+            ->orderBy('removed_at', 'desc')
+            ->get();
+        return Inertia::render('Inventory/Stock/removedStock', compact('stocks'));
+    }
+
+    public function restoreStock(Stock $stock)
+    {
+        $stock->restore();
+        return redirect()->back()->with('message', 'Stock restored successfully');
     }
 }

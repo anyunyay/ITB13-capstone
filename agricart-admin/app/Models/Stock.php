@@ -15,10 +15,16 @@ class Stock extends Model
         'product_id',
         'category',
         'status',
-        'customer_id'
+        'customer_id',
+        'removed_at',
+        'notes'
     ];
 
     protected $with = ['product', 'member', 'customer'];
+    
+    protected $casts = [
+        'removed_at' => 'datetime',
+    ];
     
     public function product()
     {
@@ -42,7 +48,8 @@ class Stock extends Model
     public function scopePartial($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNotNull('customer_id');
+                    ->whereNotNull('customer_id')
+                    ->whereNull('removed_at');
     }
 
     /**
@@ -52,7 +59,8 @@ class Stock extends Model
     public function scopeSold($query)
     {
         return $query->where('quantity', 0)
-                    ->whereNotNull('customer_id');
+                    ->whereNotNull('customer_id')
+                    ->whereNull('removed_at');
     }
 
     /**
@@ -62,7 +70,56 @@ class Stock extends Model
     public function scopeAvailable($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNull('customer_id');
+                    ->whereNull('customer_id')
+                    ->whereNull('removed_at');
+    }
+
+    /**
+     * Scope for removed stocks
+     */
+    public function scopeRemoved($query)
+    {
+        return $query->whereNotNull('removed_at');
+    }
+
+    /**
+     * Scope for active (non-removed) stocks
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereNull('removed_at');
+    }
+
+    /**
+     * Check if stock is removed
+     */
+    public function isRemoved()
+    {
+        return !is_null($this->removed_at);
+    }
+
+    /**
+     * Remove stock (soft delete)
+     */
+    public function remove($notes = null)
+    {
+        $this->update([
+            'removed_at' => now(),
+            'notes' => $notes,
+            'status' => 'removed'
+        ]);
+    }
+
+    /**
+     * Restore removed stock
+     */
+    public function restore()
+    {
+        $this->update([
+            'removed_at' => null,
+            'notes' => null,
+            'status' => null
+        ]);
     }
 
     /**

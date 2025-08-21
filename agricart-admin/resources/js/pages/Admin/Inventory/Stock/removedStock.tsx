@@ -31,7 +31,6 @@ interface Customer {
 
 interface RemovedStockItem {
     id: number;
-    stock_id?: number;
     product_id: number;
     quantity: number;
     member_id: number;
@@ -41,7 +40,8 @@ interface RemovedStockItem {
     customer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: 'removed' | 'damaged' | 'expired';
-    created_at: string;
+    removed_at: string;
+    notes?: string;
 }
 
 interface PageProps {
@@ -54,19 +54,34 @@ interface PageProps {
 
 export default function RemovedStockIndex() {
     const { stocks = [], flash, auth } = usePage<PageProps & SharedData>().props;
+    const { post, processing } = useForm();
+
     useEffect(() => {
         if (!auth?.user) {
             router.visit('/login');
         }
     }, [auth]);
 
-    const { processing } = useForm();
+    const handleRestore = (stockId: number) => {
+        post(route('inventory.removedStock.restore', stockId), {
+            onSuccess: () => {
+                // The page will refresh and show updated data
+            },
+        });
+    };
 
     return (
         <AppLayout>
             <Head title="Removed Stock" />
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
+
+                {flash.message && (
+                    <Alert className="mt-4">
+                        <AlertTitle>Success</AlertTitle>
+                        <AlertDescription>{flash.message}</AlertDescription>
+                    </Alert>
+                )}
 
                 {stocks.length > 0 ? (
                     <div className='w-full pt-8'>
@@ -79,13 +94,15 @@ export default function RemovedStockIndex() {
                                     <TableHead className="text-center">Quantity</TableHead>
                                     <TableHead className="text-center">Category</TableHead>
                                     <TableHead className="text-center">Assigned To</TableHead>
+                                    <TableHead className="text-center">Removal Notes</TableHead>
                                     <TableHead className="text-center">Removed At</TableHead>
+                                    <TableHead className="text-center">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {stocks.map((stock) => (
                                     <TableRow key={stock.id}>
-                                        <TableCell className="text-center">{stock.stock_id ?? stock.id}</TableCell>
+                                        <TableCell className="text-center">{stock.id}</TableCell>
                                         <TableCell className="text-center">{stock.product?.name}</TableCell>
                                         <TableCell className="text-center">{
                                             stock.category === 'Kilo'
@@ -94,8 +111,21 @@ export default function RemovedStockIndex() {
                                         }</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
                                         <TableCell className="text-center">{stock.member?.name}</TableCell>
+                                        <TableCell className="text-center max-w-xs truncate" title={stock.notes}>
+                                            {stock.notes || 'No notes'}
+                                        </TableCell>
                                         <TableCell className="text-center">
-                                            {new Date(stock.created_at).toLocaleString()}
+                                            {new Date(stock.removed_at).toLocaleString()}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <Button
+                                                onClick={() => handleRestore(stock.id)}
+                                                disabled={processing}
+                                                variant="outline"
+                                                size="sm"
+                                            >
+                                                Restore
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -105,9 +135,9 @@ export default function RemovedStockIndex() {
                 ) : (
                     <div className="w-full pt-8 flex justify-center">
                         <Alert>
-                            <AlertTitle>No Stock Data</AlertTitle>
+                            <AlertTitle>No Removed Stock Data</AlertTitle>
                             <AlertDescription>
-                                There are currently no stock records to display.
+                                There are currently no removed stock records to display.
                             </AlertDescription>
                         </Alert>
                     </div>

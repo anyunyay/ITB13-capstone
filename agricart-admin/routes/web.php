@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
 // use App\Http\Controllers\Admin\InventoryStockTrailController; // removed
 use App\Http\Controllers\Admin\SoldStockController;
-use App\Http\Controllers\Admin\RemovedStockController;
+
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
@@ -67,7 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Sold Stock & Removed Stock routes
         Route::middleware(['can:view sold stock'])->get('/inventory/sold-stock', [SoldStockController::class, 'index'])->name('inventory.soldStock.index');
-        Route::middleware(['can:view stock trail'])->get('/inventory/removed-stock', [RemovedStockController::class, 'index'])->name('inventory.removedStock.index'); // View Removed Stock
+        Route::middleware(['can:view stock trail'])->group(function () {
+            Route::get('/inventory/removed-stock', [InventoryStockController::class, 'removedStocks'])->name('inventory.removedStock.index'); // View Removed Stock
+            Route::post('/inventory/removed-stock/{stock}/restore', [InventoryStockController::class, 'restoreStock'])->name('inventory.removedStock.restore'); // Restore Removed Stock
+        });
 
         // Order Management routes
         Route::middleware(['can:view orders'])->group(function () {

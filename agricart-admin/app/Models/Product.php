@@ -26,7 +26,7 @@ class Product extends Model
 
     public function removedStocks()
     {
-        return $this->hasMany(RemovedStock::class);
+        return $this->hasMany(Stock::class)->removed();
     }
 
     public function scopeArchived($query)

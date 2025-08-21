@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->string('status')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('removed_at')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

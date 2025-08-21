@@ -241,17 +241,20 @@ export default function Index() {
                     ))}
                 </div>
 
-                <Tabs defaultValue="all">
+                <div className="flex gap-2 mb-4">
                     <PermissionGate permission="view stock trail">
-                        <Button asChild disabled={processing} className="w-1/8">
+                        <Button asChild disabled={processing} variant="outline">
                             <Link href={route('inventory.removedStock.index')}>Removed Stocks</Link>
                         </Button>
                     </PermissionGate>
                     <PermissionGate permission="view sold stock">
-                        <Button asChild disabled={processing} className="w-1/8">
+                        <Button asChild disabled={processing} variant="outline">
                             <Link href={route('inventory.soldStock.index')}>Sold Stocks</Link>
                         </Button>
                     </PermissionGate>
+                </div>
+
+                <Tabs defaultValue="all">
                     <TabsList>
                         <TabsTrigger value="all">All</TabsTrigger>
                         <TabsTrigger value="kilo">By Kilo</TabsTrigger>
