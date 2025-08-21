@@ -12,6 +12,23 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
+    /**
+     * Check if the authenticated customer has verified their email
+     * Redirects to verification notice if not verified
+     */
+    private function ensureCustomerEmailVerified()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            if ($user->type === 'customer' && !$user->email_verified_at) {
+                return redirect()->route('verification.notice');
+            }
+        }
+        
+        return null; // Continue with the request
+    }
+
     public function index()
     {
         if (Auth::check()) {
@@ -24,7 +41,12 @@ class HomeController extends Controller
             } elseif ($user->type === 'logistic') {
                 return redirect()->route('logistic.dashboard');
             }
-            // Customer users stay on the home page
+        }
+
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return $verificationRedirect;
         }
 
         $products = Product::active()->with(['stocks' => function($query) {
@@ -44,6 +66,12 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return response()->json(['error' => 'Email verification required'], 403);
+        }
+
         $query = $request->get('q', '');
         
         $products = Product::active()->with(['stocks' => function($query) {
@@ -65,6 +93,12 @@ class HomeController extends Controller
 
     public function show(Product $product)
     {
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return $verificationRedirect;
+        }
+
         $product->load(['stocks' => function($query) {
             $query->customerVisible();
         }]);
@@ -85,6 +119,12 @@ class HomeController extends Controller
 
     public function product(Product $product)
     {
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return $verificationRedirect;
+        }
+
         $product->load(['stocks' => function($query) {
             $query->customerVisible();
         }]);
