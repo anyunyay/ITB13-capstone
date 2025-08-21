@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
@@ -62,6 +63,18 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [assignLogisticDialogOpen, setAssignLogisticDialogOpen] = useState(false);
+  const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
+
+  // Common rejection reasons
+  const rejectionReasons = [
+    'Out of stock',
+    'Insufficient stock',
+    'Invalid order details',
+    'Payment issues',
+    'Delivery area not covered',
+    'Customer request',
+    'Other'
+  ];
 
   const approveForm = useForm({
     admin_notes: '',
@@ -358,7 +371,14 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
 
                   <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button className="w-full" variant="destructive">
+                      <Button 
+                        className="w-full" 
+                        variant="destructive"
+                        onClick={() => {
+                          setSelectedRejectionReason('');
+                          rejectForm.reset();
+                        }}
+                      >
                         Reject Order
                       </Button>
                     </DialogTrigger>
@@ -372,23 +392,55 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                       <div className="space-y-4">
                         <div>
                           <label className="text-sm font-medium">Reason for Rejection *</label>
-                          <Textarea
-                            placeholder="Please provide a reason for rejecting this order..."
-                            value={rejectForm.data.admin_notes}
-                            onChange={(e) => rejectForm.setData('admin_notes', e.target.value)}
-                            className="mt-1"
-                            required
-                          />
+                          <Select
+                            value={selectedRejectionReason}
+                            onValueChange={(value) => {
+                              setSelectedRejectionReason(value);
+                              if (value !== 'Other') {
+                                rejectForm.setData('admin_notes', value);
+                              } else {
+                                rejectForm.setData('admin_notes', '');
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue placeholder="Select a reason for rejection" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {rejectionReasons.map((reason) => (
+                                <SelectItem key={reason} value={reason}>
+                                  {reason}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
+                        
+                        {selectedRejectionReason === 'Other' && (
+                          <div>
+                            <label className="text-sm font-medium">Additional Details *</label>
+                            <Textarea
+                              placeholder="Please provide additional details for the rejection..."
+                              value={rejectForm.data.admin_notes}
+                              onChange={(e) => rejectForm.setData('admin_notes', e.target.value)}
+                              className="mt-1"
+                              required
+                            />
+                          </div>
+                        )}
                       </div>
                       <DialogFooter>
-                        <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+                        <Button variant="outline" onClick={() => {
+                          setRejectDialogOpen(false);
+                          setSelectedRejectionReason('');
+                          rejectForm.reset();
+                        }}>
                           Cancel
                         </Button>
                         <Button 
                           variant="destructive" 
                           onClick={handleReject} 
-                          disabled={rejectForm.processing || !rejectForm.data.admin_notes}
+                          disabled={rejectForm.processing || !selectedRejectionReason || (selectedRejectionReason === 'Other' && !rejectForm.data.admin_notes)}
                         >
                           {rejectForm.processing ? 'Rejecting...' : 'Reject Order'}
                         </Button>
