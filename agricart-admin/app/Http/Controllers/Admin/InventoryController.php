@@ -13,7 +13,7 @@ class InventoryController extends Controller
     public function index()
     { 
         $products = Product::active()->get();
-         $stocks = Stock::where('quantity' , '>', 0)->get();
+        $stocks = Stock::active()->get();
         return Inertia::render('Inventory/index', compact('products', 'stocks'));
     }
 
