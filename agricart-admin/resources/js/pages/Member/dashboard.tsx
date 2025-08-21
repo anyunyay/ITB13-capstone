@@ -28,7 +28,7 @@ interface Stock {
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
     product: Product;
-    customer?: {
+    lastCustomer?: {
         id: number;
         name: string;
     };
@@ -223,9 +223,9 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                                             <p className="text-xs text-gray-400">
                                                 {stock.quantity} {stock.category}
                                             </p>
-                                            {stock.customer && (
+                                            {stock.lastCustomer && (
                                                 <p className="text-xs text-gray-500">
-                                                    {stock.customer.name}
+                                                    {stock.lastCustomer.name}
                                                 </p>
                                             )}
                                         </div>

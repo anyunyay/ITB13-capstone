@@ -28,7 +28,7 @@ interface Stock {
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
     product: Product;
-    customer?: {
+    lastCustomer?: {
         id: number;
         name: string;
     };
@@ -88,7 +88,7 @@ export default function PartialStocks({ partialStocks }: PageProps) {
                             </div>
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-white">
-                                    {partialStocks.filter(stock => stock.customer).length}
+                                    {partialStocks.filter(stock => stock.lastCustomer).length}
                                 </div>
                                 <p className="text-sm text-gray-400">With Customers</p>
                             </div>
@@ -127,10 +127,10 @@ export default function PartialStocks({ partialStocks }: PageProps) {
                                                 </div>
                                                 <p className="text-sm text-gray-400">Remaining</p>
                                             </div>
-                                            {stock.customer && (
+                                            {stock.lastCustomer && (
                                                 <div className="text-right">
                                                     <div className="text-sm font-medium text-white">
-                                                        {stock.customer.name}
+                                                        {stock.lastCustomer.name}
                                                     </div>
                                                     <p className="text-xs text-gray-400">Customer</p>
                                                 </div>

@@ -23,19 +23,19 @@ class MemberController extends Controller
             ->get();
             
         $partialStocks = Stock::partial()
-            ->with(['product', 'customer'])
+            ->with(['product', 'lastCustomer'])
             ->where('member_id', $user->id)
             ->get();
             
         $soldStocks = Stock::sold()
-            ->with(['product', 'customer'])
+            ->with(['product', 'lastCustomer'])
             ->where('member_id', $user->id)
             ->get();
             
         // Get assigned stocks (both partial and sold - stocks that have been bought)
         $assignedStocks = Stock::where('member_id', $user->id)
-            ->whereNotNull('customer_id')
-            ->with(['product', 'customer'])
+            ->whereNotNull('last_customer_id')
+            ->with(['product', 'lastCustomer'])
             ->get();
             
         // Get all stocks for debugging
@@ -46,20 +46,15 @@ class MemberController extends Controller
             
         // Calculate summary statistics
         $summary = [
+            'totalStocks' => $allStocks->count(),
             'availableStocks' => $availableStocks->count(),
             'partialStocks' => $partialStocks->count(),
             'soldStocks' => $soldStocks->count(),
-            'assignedStocks' => $assignedStocks->where('quantity', '>', 0)->count(), // Only count partial stocks
-            'totalSales' => $salesData['totalSales'],
+            'removedStocks' => $allStocks->whereNotNull('removed_at')->count(),
+            'stocksWithCustomer' => $allStocks->whereNotNull('last_customer_id')->count(),
+            'stocksWithoutCustomer' => $allStocks->whereNull('last_customer_id')->count(),
             'totalRevenue' => $salesData['totalRevenue'],
-            'totalQuantitySold' => $salesData['totalQuantitySold'],
-            'debug' => [
-                'totalStocks' => $allStocks->count(),
-                'stocksWithCustomer' => $allStocks->whereNotNull('customer_id')->count(),
-                'stocksWithoutCustomer' => $allStocks->whereNull('customer_id')->count(),
-                'stocksWithQuantity' => $allStocks->where('quantity', '>', 0)->count(),
-                'stocksWithZeroQuantity' => $allStocks->where('quantity', 0)->count(),
-            ]
+            'totalSales' => $salesData['totalSales'],
         ];
         
         return Inertia::render('Member/dashboard', [
@@ -107,10 +102,9 @@ class MemberController extends Controller
         
         // Get only partial stocks (quantity > 0, has customer)
         $assignedStocks = Stock::where('member_id', $user->id)
-            ->whereNotNull('customer_id')
+            ->whereNotNull('last_customer_id')
             ->where('quantity', '>', 0)
-            ->with(['product', 'customer'])
-            ->orderBy('created_at', 'desc')
+            ->with(['product', 'lastCustomer'])
             ->get();
             
         return Inertia::render('Member/assignedStocks', [

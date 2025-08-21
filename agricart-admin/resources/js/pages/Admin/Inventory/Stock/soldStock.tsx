@@ -38,10 +38,10 @@ interface SoldStock {
     product_id: number;
     quantity: number;
     member_id: number;
-    customer_id?: number;
+    last_customer_id?: number;
     product: Product;
     member: Member;
-    customer?: Customer;
+    lastCustomer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
     status: 'sold' | 'removed' | 'damaged' | 'expired';
     updated_at: string;
@@ -95,7 +95,7 @@ export default function soldIndex() {
                                         <TableCell className="text-center">{stock.product?.name}</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
                                         <TableCell className="text-center">{stock.status}</TableCell>
-                                        <TableCell className="text-center">{stock.customer?.name}</TableCell>
+                                        <TableCell className="text-center">{stock.lastCustomer?.name}</TableCell>
                                         <TableCell className="text-center">
                                             {new Date(stock.updated_at).toLocaleString()}
                                         </TableCell>

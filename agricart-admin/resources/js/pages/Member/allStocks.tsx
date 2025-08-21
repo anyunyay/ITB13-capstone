@@ -29,7 +29,7 @@ interface Stock {
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
     product: Product;
-    customer?: {
+    lastCustomer?: {
         id: number;
         name: string;
     };
@@ -88,7 +88,7 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
             price_tali: sale.price_per_unit,
             produce_type: 'fruit' // Default value, could be enhanced
         },
-        customer: sale.customers.length > 0 ? { id: 0, name: sale.customers[0] } : undefined,
+        lastCustomer: sale.customers.length > 0 ? { id: 0, name: sale.customers[0] } : undefined,
         created_at: new Date().toISOString(),
         totalRevenue: sale.total_revenue // Add actual sales revenue
     }));
@@ -165,7 +165,7 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-white">
-                                {new Set([...partialStocks].filter(s => s.customer).map(s => s.customer?.id)).size + salesData.salesBreakdown.reduce((sum, sale) => sum + sale.customers.length, 0)}
+                                {new Set([...partialStocks].filter(s => s.lastCustomer).map(s => s.lastCustomer?.id)).size + salesData.salesBreakdown.reduce((sum, sale) => sum + sale.customers.length, 0)}
                             </div>
                             <p className="text-xs text-gray-400">Unique customers</p>
                         </CardContent>
@@ -214,8 +214,8 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                {stock.customer ? (
-                                                    <span className="text-blue-400">{stock.customer.name}</span>
+                                                {stock.lastCustomer ? (
+                                                    <span className="text-blue-400">{stock.lastCustomer.name}</span>
                                                 ) : (
                                                     <span className="text-gray-500">-</span>
                                                 )}
@@ -232,12 +232,12 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                                                     className={
                                                         stock.status === 'sold'
                                                             ? "bg-red-600 text-white" 
-                                                            : stock.customer 
+                                                            : stock.lastCustomer 
                                                                 ? "bg-yellow-600 text-white" 
                                                                 : "bg-green-600 text-white"
                                                     }
                                                 >
-                                                    {stock.status === 'sold' ? "Sold" : stock.customer ? "Partial" : "Available"}
+                                                    {stock.status === 'sold' ? "Sold" : stock.lastCustomer ? "Partial" : "Available"}
                                                 </Badge>
                                             </TableCell>
                                         </TableRow>

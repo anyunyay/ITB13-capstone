@@ -34,10 +34,10 @@ interface RemovedStockItem {
     product_id: number;
     quantity: number;
     member_id: number;
-    customer_id?: number;
+    last_customer_id?: number;
     product: Product;
     member: Member;
-    customer?: Customer;
+    lastCustomer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: 'removed' | 'damaged' | 'expired';
     removed_at: string;

@@ -88,7 +88,7 @@ class OrderController extends Controller
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
                 $trail->stock->quantity -= $trail->quantity;
-                $trail->stock->customer_id = $order->customer_id;
+                $trail->stock->last_customer_id = $order->customer_id;
                 $trail->stock->save();
 
                 // Automatically set status based on quantity
@@ -129,7 +129,7 @@ class OrderController extends Controller
             foreach ($order->auditTrail as $trail) {
                 if ($trail->stock) {
                     $trail->stock->quantity += $trail->quantity;
-                    $trail->stock->customer_id = null;
+                    $trail->stock->last_customer_id = null;
                     $trail->stock->status = 'available';
                     $trail->stock->save();
                 }

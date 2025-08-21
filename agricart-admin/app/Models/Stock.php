@@ -15,12 +15,12 @@ class Stock extends Model
         'product_id',
         'category',
         'status',
-        'customer_id',
+        'last_customer_id',
         'removed_at',
         'notes'
     ];
 
-    protected $with = ['product', 'member', 'customer'];
+    protected $with = ['product', 'member', 'lastCustomer'];
     
     protected $casts = [
         'removed_at' => 'datetime',
@@ -36,30 +36,30 @@ class Stock extends Model
         return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
     }
 
-    public function customer()
+    public function lastCustomer()
     {
-        return $this->belongsTo(User::class, 'customer_id')->where('type', 'customer');
+        return $this->belongsTo(User::class, 'last_customer_id')->where('type', 'customer');
     }
 
     /**
      * Scope for stocks that have been partially sold (quantity reduced but not empty)
-     * and have been approved by admin (customer_id is set)
+     * and have been approved by admin (last_customer_id is set)
      */
     public function scopePartial($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNotNull('customer_id')
+                    ->whereNotNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
     /**
      * Scope for stocks that have been completely sold (quantity = 0)
-     * and have been approved by admin (customer_id is set)
+     * and have been approved by admin (last_customer_id is set)
      */
     public function scopeSold($query)
     {
         return $query->where('quantity', 0)
-                    ->whereNotNull('customer_id')
+                    ->whereNotNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
@@ -70,7 +70,7 @@ class Stock extends Model
     public function scopeAvailable($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNull('customer_id')
+                    ->whereNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
@@ -128,7 +128,7 @@ class Stock extends Model
      */
     public function setPartialStatus()
     {
-        if ($this->quantity > 0 && !is_null($this->customer_id)) {
+        if ($this->quantity > 0 && !is_null($this->last_customer_id)) {
             $this->status = 'partial';
             $this->save();
         }
@@ -140,7 +140,7 @@ class Stock extends Model
      */
     public function setSoldStatus()
     {
-        if ($this->quantity == 0 && !is_null($this->customer_id)) {
+        if ($this->quantity == 0 && !is_null($this->last_customer_id)) {
             $this->status = 'sold';
             $this->save();
         }

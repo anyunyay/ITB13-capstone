@@ -28,7 +28,7 @@ interface Stock {
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
     product: Product;
-    customer?: {
+    lastCustomer?: {
         id: number;
         name: string;
     };
@@ -100,7 +100,7 @@ export default function AssignedStocks({ assignedStocks }: PageProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-white">
-                                {new Set(assignedStocks.map(s => s.customer?.id)).size}
+                                {new Set(assignedStocks.map(s => s.lastCustomer?.id)).size}
                             </div>
                             <p className="text-xs text-gray-400">Different customers</p>
                         </CardContent>
@@ -143,10 +143,10 @@ export default function AssignedStocks({ assignedStocks }: PageProps) {
                                                     {stock.quantity === 0 ? 'Sold' : 'Remaining'}
                                                 </p>
                                             </div>
-                                            {stock.customer && (
+                                            {stock.lastCustomer && (
                                                 <div className="text-right">
                                                     <div className="text-sm font-medium text-white">
-                                                        {stock.customer.name}
+                                                        {stock.lastCustomer.name}
                                                     </div>
                                                     <p className="text-xs text-gray-400">Customer</p>
                                                 </div>
