@@ -38,17 +38,37 @@ export default function CartPage() {
 
   // Update cart state if Inertia sends new props
   useEffect(() => {
-    setCart(initialCart);
-    setCartTotal(page?.props?.cartTotal || 0);
-    // Initialize temp quantities with current cart quantities
+    // Only update if the cart data actually changed
+    const hasCartChanged = JSON.stringify(initialCart) !== JSON.stringify(cart);
+    const hasTotalChanged = page?.props?.cartTotal !== cartTotal;
+    
+    if (hasCartChanged) {
+      setCart(initialCart);
+    }
+    
+    if (hasTotalChanged) {
+      setCartTotal(page?.props?.cartTotal || 0);
+    }
+    
+    // Only initialize temp quantities if they don't exist yet
+    // This prevents overwriting user input during updates
     const tempQty: Record<number, number> = {};
     const rawInput: Record<number, string> = {};
+    
     Object.values(initialCart).forEach(item => {
-      tempQty[item.item_id] = item.quantity;
-      rawInput[item.item_id] = item.quantity.toString();
+      // Only set if not currently being edited
+      if (!editingItems.has(item.item_id)) {
+        // Format quantity based on category using helper function
+        const formattedQuantity = formatQuantityForDisplay(item.quantity, item.category);
+        
+        tempQty[item.item_id] = item.quantity;
+        rawInput[item.item_id] = formattedQuantity;
+      }
     });
-    setTempQuantities(tempQty);
-    setRawInputValues(rawInput);
+    
+    // Merge with existing values instead of replacing
+    setTempQuantities(prev => ({ ...prev, ...tempQty }));
+    setRawInputValues(prev => ({ ...prev, ...rawInput }));
 
     // Sync stock manager with backend cart data
     const stockManager = StockManager.getInstance();
@@ -58,7 +78,7 @@ export default function CartPage() {
       quantity: item.quantity
     }));
     stockManager.syncWithBackendCart(cartItems);
-  }, [initialCart, page?.props?.cartTotal]);
+  }, [initialCart, page?.props?.cartTotal, editingItems, cart, cartTotal]);
 
   // Update checkout message if Inertia sends new props
   useEffect(() => {
@@ -88,20 +108,42 @@ export default function CartPage() {
   };
 
   const updateItemQuantity = (cartItem: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
+    // Validate quantity
+    if (newQuantity <= 0 || newQuantity === null || newQuantity === undefined || isNaN(newQuantity)) {
       removeItem(cartItem);
       return;
     }
 
     // Find the item to get its details for stock manager
     const itemToUpdate = Object.values(cart).find(item => item.item_id === cartItem);
-    const oldQuantity = itemToUpdate?.quantity || 0;
+    if (!itemToUpdate) {
+      console.error('Item not found in cart:', cartItem);
+      return;
+    }
+
+    const oldQuantity = itemToUpdate.quantity;
+    
+    // Format quantity for storage based on category
+    const formattedQuantity = formatQuantityForStorage(newQuantity, itemToUpdate.category);
+    
+    // Validate against available stock
+    const availableStock = typeof itemToUpdate.available_stock === 'number' 
+      ? itemToUpdate.available_stock 
+      : parseFloat(String(itemToUpdate.available_stock)) || 0;
+    
+    if (formattedQuantity > availableStock) {
+      setQuantityErrors(prev => ({ 
+        ...prev, 
+        [cartItem]: `Maximum available: ${formatQuantityDisplay(availableStock, itemToUpdate.category)} ${itemToUpdate.category}` 
+      }));
+      return;
+    }
 
     setUpdatingItems(prev => new Set(prev).add(cartItem));
     
     router.put(
       `/customer/cart/update/${cartItem}`,
-      { quantity: newQuantity },
+      { quantity: formattedQuantity },
       {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -116,7 +158,7 @@ export default function CartPage() {
           // Update stock manager when quantity changes
           if (itemToUpdate) {
             const stockManager = StockManager.getInstance();
-            const quantityDifference = newQuantity - oldQuantity;
+            const quantityDifference = formattedQuantity - oldQuantity;
             if (quantityDifference > 0) {
               // Quantity increased
               stockManager.addToCart(itemToUpdate.product_id, itemToUpdate.category, quantityDifference);
@@ -143,9 +185,10 @@ export default function CartPage() {
       return;
     }
 
+    // Update raw input value immediately
     setRawInputValues(prev => ({ ...prev, [cartItem]: value }));
 
-    if (value === '') {
+    if (value === '' || value === null || value === undefined) {
       setTempQuantities(prev => ({ ...prev, [cartItem]: 0 }));
       setQuantityErrors(prev => ({ ...prev, [cartItem]: '' }));
       return;
@@ -156,19 +199,29 @@ export default function CartPage() {
     if (category === 'Kilo') {
       numericValue = parseFloat(value) || 0;
     } else {
-      // Remove dots and commas for non-kilo items
+      // Remove dots and commas for non-kilo items and ensure integer
       const cleanValue = value.replace(/\./g, '').replace(/,/g, '');
       numericValue = parseInt(cleanValue) || 0;
+      
+      // If user tried to enter a decimal, show an error
+      if (value.includes('.') || value.includes(',')) {
+        setQuantityErrors(prev => ({ 
+          ...prev, 
+          [cartItem]: `${category} quantities must be whole numbers` 
+        }));
+        return;
+      }
     }
 
-    const numAvailableStock = typeof availableStock === 'number' ? availableStock : parseFloat(availableStock) || 0;
+    const numAvailableStock = typeof availableStock === 'number' ? availableStock : parseFloat(String(availableStock)) || 0;
 
     // Cap the value at available stock
     if (numericValue > numAvailableStock) {
       numericValue = numAvailableStock;
-      setRawInputValues(prev => ({ ...prev, [cartItem]: numericValue.toString() }));
+      // Don't auto-update the input value to avoid confusion
     }
 
+    // Update temp quantities
     setTempQuantities(prev => ({ ...prev, [cartItem]: numericValue }));
 
     // Set error if exceeding available stock
@@ -184,17 +237,27 @@ export default function CartPage() {
 
   const enterEditMode = (cartItem: number) => {
     setEditingItems(prev => new Set(prev).add(cartItem));
+    
     // Initialize with current cart quantity
     const currentItem = cart[cartItem];
     if (currentItem) {
+      const currentQuantity = currentItem.quantity;
+      
+      // Format quantity based on category using helper function
+      const formattedQuantity = formatQuantityForDisplay(currentQuantity, currentItem.category);
+      
+      // Set both raw input and temp quantities
       setRawInputValues(prev => ({ 
         ...prev, 
-        [cartItem]: currentItem.quantity.toString() 
+        [cartItem]: formattedQuantity
       }));
       setTempQuantities(prev => ({ 
         ...prev, 
-        [cartItem]: currentItem.quantity 
+        [cartItem]: currentQuantity
       }));
+      
+      // Clear any existing errors
+      setQuantityErrors(prev => ({ ...prev, [cartItem]: '' }));
     }
   };
 
@@ -204,17 +267,36 @@ export default function CartPage() {
       newSet.delete(cartItem);
       return newSet;
     });
-    // Clear raw input and temp quantities
-    setRawInputValues(prev => {
-      const newRaw = { ...prev };
-      delete newRaw[cartItem];
-      return newRaw;
-    });
-    setTempQuantities(prev => {
-      const newTemp = { ...prev };
-      delete newTemp[cartItem];
-      return newTemp;
-    });
+    
+    // Reset to current cart values instead of clearing
+    const currentItem = cart[cartItem];
+    if (currentItem) {
+      // Format quantity based on category using helper function
+      const formattedQuantity = formatQuantityForDisplay(currentItem.quantity, currentItem.category);
+      
+      setRawInputValues(prev => ({
+        ...prev,
+        [cartItem]: formattedQuantity
+      }));
+      setTempQuantities(prev => ({
+        ...prev,
+        [cartItem]: currentItem.quantity
+      }));
+    } else {
+      // Clear if item no longer exists
+      setRawInputValues(prev => {
+        const newRaw = { ...prev };
+        delete newRaw[cartItem];
+        return newRaw;
+      });
+      setTempQuantities(prev => {
+        const newTemp = { ...prev };
+        delete newTemp[cartItem];
+        return newTemp;
+      });
+    }
+    
+    // Clear errors
     setQuantityErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[cartItem];
@@ -222,8 +304,9 @@ export default function CartPage() {
     });
   };
 
-  const formatQuantityDisplay = (quantity: number, category: string) => {
-    const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(quantity) || 0;
+  const formatQuantityDisplay = (quantity: number | string | undefined, category: string) => {
+    // Ensure quantity is a number
+    const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
     
     if (category === 'Kilo') {
       return numQuantity.toFixed(2);
@@ -232,24 +315,52 @@ export default function CartPage() {
     }
   };
 
+  // Helper function to ensure quantities are properly formatted for display
+  const formatQuantityForDisplay = (quantity: number | string | undefined, category: string) => {
+    // Ensure quantity is a number
+    const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
+    
+    if (category === 'Kilo') {
+      // For kilo items, show 2 decimal places
+      return numQuantity.toFixed(2);
+    } else {
+      // For Tali, Pc, and other items, show as integer
+      return Math.floor(numQuantity).toString();
+    }
+  };
+
+  // Helper function to ensure quantities are properly formatted for storage
+  const formatQuantityForStorage = (quantity: number | string | undefined, category: string) => {
+    // Ensure quantity is a number
+    const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
+    
+    if (category === 'Kilo') {
+      // For kilo items, keep as decimal
+      return numQuantity;
+    } else {
+      // For Tali, Pc, and other items, convert to integer
+      return Math.floor(numQuantity);
+    }
+  };
+
   const getInputValue = (item: CartItem) => {
     // If in edit mode, show raw input value
     if (editingItems.has(item.item_id)) {
-      return rawInputValues[item.item_id] || item.quantity.toString();
+      const rawValue = rawInputValues[item.item_id];
+      if (rawValue !== undefined) {
+        return rawValue;
+      }
+      // Fallback to current cart quantity if no raw input
+      return formatQuantityForDisplay(item.quantity, item.category);
     }
     
     // Show the actual cart quantity (not editable)
     const currentValue = item.quantity;
     
-    if (currentValue === 0) return '';
+    if (currentValue === 0 || currentValue === null || currentValue === undefined) return '';
     
-    if (item.category === 'Kilo') {
-      // For kilo items, return the formatted value
-      return formatQuantityDisplay(currentValue, item.category);
-    } else {
-      // For other items, return formatted integer
-      return Math.floor(currentValue).toString();
-    }
+    // Use helper function for consistent formatting
+    return formatQuantityForDisplay(currentValue, item.category);
   };
 
   const handleCheckout = () => {
@@ -298,38 +409,40 @@ export default function CartPage() {
                     <label htmlFor={`quantity-${item.item_id}`} className="text-sm font-medium">
                       Qty:
                     </label>
-                    <Input
-                      type="number"
-                      min="0.01"
-                      max={typeof item.available_stock === 'number' ? item.available_stock : parseFloat(item.available_stock) || 0}
-                      step={item.category === 'Kilo' ? "0.01" : "1"}
-                      value={getInputValue(item)}
-                      onChange={(e) => handleQuantityChange(item.item_id, e.target.value, item.category, item.available_stock)}
-                      onKeyDown={(e) => {
-                        if (item.category !== 'Kilo' && (e.key === '.' || e.key === ',')) {
-                          e.preventDefault();
-                        }
-                      }}
-                      disabled={!editingItems.has(item.item_id)}
-                      className={`w-20 ${(() => {
-                        if (!editingItems.has(item.item_id)) return '';
-                        const rawValue = rawInputValues[item.item_id];
-                        if (rawValue !== undefined) {
-                          const inputValue = item.category === 'Kilo' 
-                            ? parseFloat(rawValue) || 0
-                            : parseInt(rawValue.replace(/\./g, '').replace(/,/g, '')) || 0;
-                          const availableStock = typeof item.available_stock === 'number' 
-                            ? item.available_stock 
-                            : parseFloat(item.available_stock) || 0;
-                          return inputValue > availableStock ? 'border-red-500 bg-red-50' : '';
-                        }
-                        return '';
-                      })()}`}
-                    />
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        min={item.category === 'Kilo' ? "0.01" : "1"}
+                        max={typeof item.available_stock === 'number' ? item.available_stock : parseFloat(item.available_stock) || 0}
+                        step={item.category === 'Kilo' ? "0.01" : "1"}
+                        value={getInputValue(item)}
+                        onChange={(e) => handleQuantityChange(item.item_id, e.target.value, item.category, item.available_stock)}
+                        onKeyDown={(e) => {
+                          if (item.category !== 'Kilo' && (e.key === '.' || e.key === ',')) {
+                            e.preventDefault();
+                          }
+                        }}
+                        disabled={!editingItems.has(item.item_id)}
+                        className={`w-20 ${(() => {
+                          if (!editingItems.has(item.item_id)) return '';
+                          const rawValue = rawInputValues[item.item_id];
+                          if (rawValue !== undefined) {
+                            const inputValue = item.category === 'Kilo' 
+                              ? parseFloat(rawValue) || 0
+                              : parseInt(rawValue.replace(/\./g, '').replace(/,/g, '')) || 0;
+                            const availableStock = typeof item.available_stock === 'number' 
+                              ? item.available_stock 
+                              : parseFloat(item.available_stock) || 0;
+                            return inputValue > availableStock ? 'border-red-500 bg-red-50' : '';
+                          }
+                          return '';
+                        })()}`}
+                      />
+                    </div>
                     {editingItems.has(item.item_id) ? (
                       <>
                         <Button
-                          variant="outline"
+                          variant="default"
                           size="sm"
                           onClick={() => {
                             const rawValue = rawInputValues[item.item_id];
@@ -352,6 +465,7 @@ export default function CartPage() {
                             exitEditMode(item.item_id);
                           }}
                           disabled={updatingItems.has(item.item_id) || !!quantityErrors[item.item_id]}
+                          className="bg-green-600 hover:bg-green-700 text-white"
                         >
                           {updatingItems.has(item.item_id) ? 'Updating...' : 'Confirm Update'}
                         </Button>
@@ -360,16 +474,18 @@ export default function CartPage() {
                           size="sm"
                           onClick={() => exitEditMode(item.item_id)}
                           disabled={updatingItems.has(item.item_id)}
+                          className="border-gray-400 text-gray-600 hover:bg-gray-50"
                         >
                           Cancel
                         </Button>
                       </>
                     ) : (
                       <Button
-                        variant="outline"
+                        variant="default"
                         size="sm"
                         onClick={() => enterEditMode(item.item_id)}
                         disabled={updatingItems.has(item.item_id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         Update
                       </Button>
