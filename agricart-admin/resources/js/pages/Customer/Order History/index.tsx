@@ -60,6 +60,26 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [endDate, setEndDate] = useState<Date>();
   const [reportOpen, setReportOpen] = useState(false);
 
+  // Helper function to combine quantities for the same items
+  const combineOrderItems = (auditTrail: OrderItem[]) => {
+    const combinedItems = new Map<string, OrderItem>();
+    
+    auditTrail.forEach((item) => {
+      const key = `${item.product.name}-${item.category}`;
+      
+      if (combinedItems.has(key)) {
+        // Combine quantities for the same product and category
+        const existingItem = combinedItems.get(key)!;
+        existingItem.quantity += item.quantity;
+      } else {
+        // Add new item
+        combinedItems.set(key, { ...item });
+      }
+    });
+    
+    return Array.from(combinedItems.values());
+  };
+
   useEffect(() => {
     if (notifications.length > 0) {
       // Mark notifications as read after a delay to ensure they're visible
@@ -335,25 +355,27 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       </TableRow>
                     </TableHeader>
                                       <TableBody>
-                    {order.audit_trail?.map((item: OrderItem) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.product.name}</TableCell>
-                        <TableCell>{item.category}</TableCell>
-                        <TableCell>{item.quantity} {item.category}</TableCell>
-                        <TableCell>
-                          {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
-                          {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
-                          {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
-                          {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
-                        </TableCell>
-                        <TableCell>
-                          {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
-                          {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
-                          {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
-                          {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
-                        </TableCell>
-                      </TableRow>
-                    )) || (
+                    {order.audit_trail && combineOrderItems(order.audit_trail).length > 0 ? (
+                      combineOrderItems(order.audit_trail).map((item: OrderItem) => (
+                        <TableRow key={`${item.product.name}-${item.category}`}>
+                          <TableCell>{item.product.name}</TableCell>
+                          <TableCell>{item.category}</TableCell>
+                          <TableCell>{item.quantity} {item.category}</TableCell>
+                          <TableCell>
+                            {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
+                            {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
+                            {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
+                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
+                          </TableCell>
+                          <TableCell>
+                            {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
+                            {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
+                            {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
+                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-gray-500">
                           No items found

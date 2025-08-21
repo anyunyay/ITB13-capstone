@@ -33,17 +33,26 @@ interface OrderReceiptPreviewProps {
   order: Order;
 }
 
-const OrderReceiptPreview: React.FC<OrderReceiptPreviewProps> = ({ order }) => {
-  // Defensive programming - check if order exists
-  if (!order) {
-    return (
-      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden p-8">
-        <div className="text-center text-gray-500">
-          <p>Order data not available</p>
-        </div>
-      </div>
-    );
-  }
+export default function OrderReceiptPreview({ order }: OrderReceiptPreviewProps) {
+  // Helper function to combine quantities for the same items
+  const combineOrderItems = (auditTrail: OrderItem[]) => {
+    const combinedItems = new Map<string, OrderItem>();
+    
+    auditTrail.forEach((item) => {
+      const key = `${item.product.name}-${item.category}`;
+      
+      if (combinedItems.has(key)) {
+        // Combine quantities for the same product and category
+        const existingItem = combinedItems.get(key)!;
+        existingItem.quantity += item.quantity;
+      } else {
+        // Add new item
+        combinedItems.set(key, { ...item });
+      }
+    });
+    
+    return Array.from(combinedItems.values());
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
@@ -133,8 +142,8 @@ const OrderReceiptPreview: React.FC<OrderReceiptPreviewProps> = ({ order }) => {
            
                        <div className="space-y-2">
               {order.audit_trail && order.audit_trail.length > 0 ? (
-                order.audit_trail.map((item) => (
-                  <div key={item.id} className="bg-gray-50 rounded-lg p-3 border-l-4 border-green-500">
+                combineOrderItems(order.audit_trail).map((item, index) => (
+                  <div key={`${item.product.name}-${item.category}-${index}`} className="bg-gray-50 rounded-lg p-3 border-l-4 border-green-500">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-semibold text-gray-800 text-sm">{item.product.name}</span>
                     </div>
@@ -169,6 +178,4 @@ const OrderReceiptPreview: React.FC<OrderReceiptPreviewProps> = ({ order }) => {
       </div>
     </div>
   );
-};
-
-export default OrderReceiptPreview; 
+}; 

@@ -56,6 +56,38 @@ interface ReportPageProps {
 export default function OrderReport({ orders, summary, filters }: ReportPageProps) {
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
 
+  // Helper function to combine quantities for the same items
+  const combineOrderItems = (auditTrail: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+    };
+    category: string;
+    quantity: number;
+  }>) => {
+    const combinedItems = new Map<string, {
+      product: { id: number; name: string };
+      category: string;
+      quantity: number;
+    }>();
+    
+    auditTrail.forEach((item) => {
+      const key = `${item.product.name}-${item.category}`;
+      
+      if (combinedItems.has(key)) {
+        // Combine quantities for the same product and category
+        const existingItem = combinedItems.get(key)!;
+        existingItem.quantity += item.quantity;
+      } else {
+        // Add new item
+        combinedItems.set(key, { ...item });
+      }
+    });
+    
+    return Array.from(combinedItems.values());
+  };
+
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -284,7 +316,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                   )}
 
                   <div className="text-sm text-gray-600">
-                    <strong>Items:</strong> {order.audit_trail.map(item => 
+                    <strong>Items:</strong> {combineOrderItems(order.audit_trail).map(item => 
                       `${item.product.name} (${item.quantity} ${item.category})`
                     ).join(', ')}
                   </div>

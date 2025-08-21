@@ -40,6 +40,38 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     delivery_status: currentOrder.delivery_status,
   });
 
+  // Helper function to combine quantities for the same items
+  const combineOrderItems = (auditTrail: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+    };
+    category: string;
+    quantity: number;
+  }>) => {
+    const combinedItems = new Map<string, {
+      product: { id: number; name: string };
+      category: string;
+      quantity: number;
+    }>();
+    
+    auditTrail.forEach((item) => {
+      const key = `${item.product.name}-${item.category}`;
+      
+      if (combinedItems.has(key)) {
+        // Combine quantities for the same product and category
+        const existingItem = combinedItems.get(key)!;
+        existingItem.quantity += item.quantity;
+      } else {
+        // Add new item
+        combinedItems.set(key, { ...item });
+      }
+    });
+    
+    return Array.from(combinedItems.values());
+  };
+
   // Keep form data synchronized with current order state
   useEffect(() => {
     updateDeliveryStatusForm.setData('delivery_status', currentOrder.delivery_status);
@@ -193,8 +225,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {currentOrder.audit_trail.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 border border-gray-600 rounded-lg bg-gray-700">
+              {combineOrderItems(currentOrder.audit_trail).map((item, index) => (
+                <div key={`${item.product.name}-${item.category}-${index}`} className="flex items-center justify-between p-4 border border-gray-600 rounded-lg bg-gray-700">
                   <div className="flex-1">
                     <h4 className="font-medium text-white">{item.product.name}</h4>
                     <p className="text-sm text-gray-400">
