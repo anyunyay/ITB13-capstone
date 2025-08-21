@@ -18,7 +18,7 @@ class InventoryArchiveController extends Controller
     public function archive(Product $product)
     {
         // Check if there are any available stocks for this product
-        $availableStocks = $product->stocks()->where('quantity', '>', 0)->count();
+        $availableStocks = $product->stocks()->available()->count();
         
         if ($availableStocks > 0) {
             return redirect()->route('inventory.index')

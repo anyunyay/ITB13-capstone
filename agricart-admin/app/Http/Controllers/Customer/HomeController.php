@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Stock;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,11 +27,12 @@ class HomeController extends Controller
             // Customer users stay on the home page
         }
 
-        $products = Product::active()->with('stocks')->get();
+        $products = Product::active()->with(['stocks' => function($query) {
+            $query->customerVisible();
+        }])->get();
 
         $products->each(function ($product) {
             $stockSums = $product->stocks
-                ->where('quantity', '>', 0)
                 ->groupBy('category')
                 ->map(fn($group) => $group->sum('quantity'));
 
@@ -44,7 +46,9 @@ class HomeController extends Controller
     {
         $query = $request->get('q', '');
         
-        $products = Product::active()->with('stocks')
+        $products = Product::active()->with(['stocks' => function($query) {
+            $query->customerVisible();
+        }])
             ->where('name', 'like', "%{$query}%")
             ->orWhere('description', 'like', "%{$query}%")
             ->orWhere('produce_type', 'like', "%{$query}%")
@@ -52,7 +56,6 @@ class HomeController extends Controller
 
         $products->each(function ($product) {
             $stockSums = $product->stocks
-                ->where('quantity', '>', 0)
                 ->groupBy('category')
                 ->map(fn($group) => $group->sum('quantity'));
 
@@ -64,10 +67,11 @@ class HomeController extends Controller
 
     public function show(Product $product)
     {
-        $product->load('stocks');
+        $product->load(['stocks' => function($query) {
+            $query->customerVisible();
+        }]);
         
         $stockSums = $product->stocks
-            ->where('quantity', '>', 0)
             ->groupBy('category')
             ->map(fn($group) => $group->sum('quantity'));
 
@@ -83,10 +87,11 @@ class HomeController extends Controller
 
     public function product(Product $product)
     {
-        $product->load('stocks');
+        $product->load(['stocks' => function($query) {
+            $query->customerVisible();
+        }]);
         
         $stockSums = $product->stocks
-            ->where('quantity', '>', 0)
             ->groupBy('category')
             ->map(fn($group) => $group->sum('quantity'));
 

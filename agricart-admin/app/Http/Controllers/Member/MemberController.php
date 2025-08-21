@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stock;
-
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +15,7 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Get stocks using the new scopes
+        // Get stocks using scopes
         $availableStocks = Stock::available()
             ->with(['product'])
             ->where('member_id', $user->id)
@@ -44,13 +43,13 @@ class MemberController extends Controller
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
             
-        // Calculate summary statistics
+        // Calculate summary statistics using already fetched data
         $summary = [
             'totalStocks' => $allStocks->count(),
             'availableStocks' => $availableStocks->count(),
             'partialStocks' => $partialStocks->count(),
             'soldStocks' => $soldStocks->count(),
-            'removedStocks' => $allStocks->whereNotNull('removed_at')->count(),
+            'removedStocks' => Stock::removed()->where('member_id', $user->id)->count(),
             'stocksWithCustomer' => $allStocks->whereNotNull('last_customer_id')->count(),
             'stocksWithoutCustomer' => $allStocks->whereNull('last_customer_id')->count(),
             'totalRevenue' => $salesData['totalRevenue'],
@@ -63,8 +62,7 @@ class MemberController extends Controller
             'soldStocks' => $soldStocks,
             'assignedStocks' => $assignedStocks,
             'salesData' => $salesData,
-            'summary' => $summary,
-            'debug' => $summary['debug']
+            'summary' => $summary
         ]);
     }
 
@@ -84,9 +82,9 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Get partially fulfilled stocks
+        // Get partially fulfilled stocks using scope
         $partialStocks = Stock::partial()
-            ->with(['product', 'customer'])
+            ->with(['product', 'lastCustomer'])
             ->where('member_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -100,11 +98,11 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Get only partial stocks (quantity > 0, has customer)
-        $assignedStocks = Stock::where('member_id', $user->id)
-            ->whereNotNull('last_customer_id')
-            ->where('quantity', '>', 0)
+        // Get only partial stocks using scope instead of manual query
+        $assignedStocks = Stock::partial()
+            ->where('member_id', $user->id)
             ->with(['product', 'lastCustomer'])
+            ->orderBy('created_at', 'desc')
             ->get();
             
         return Inertia::render('Member/assignedStocks', [
@@ -116,7 +114,7 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Get available stocks (ready for sale)
+        // Get available stocks (ready for sale) using scope
         $availableStocks = Stock::available()
             ->with(['product'])
             ->where('member_id', $user->id)
@@ -132,14 +130,14 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Get all stocks for the member with different statuses
+        // Get all stocks for the member using scopes
         $availableStocks = Stock::available()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
             
         $partialStocks = Stock::partial()
-            ->with(['product', 'customer'])
+            ->with(['product', 'lastCustomer'])
             ->where('member_id', $user->id)
             ->get();
             

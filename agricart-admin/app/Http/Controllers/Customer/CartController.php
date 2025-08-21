@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
+use App\Models\CartItem;
+use App\Models\Stock;
+use App\Models\Sales;
 use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Cart;
-use App\Models\Sales;
-use App\Models\SoldStock;
-use App\Models\Stock;
 
 class CartController extends Controller
 {
@@ -22,10 +22,10 @@ class CartController extends Controller
         
         if ($cart) {
             $cartData = $cart->items()->with('product')->get()->mapWithKeys(function ($item) use (&$cartTotal) {
-                // Get available stock for this item
-                $stocks = Stock::where('product_id', $item->product_id)
+                // Get customer visible stock for this item using scope
+                $stocks = Stock::customerVisible()
+                    ->where('product_id', $item->product_id)
                     ->where('category', $item->category)
-                    ->where('quantity', '>', 0)
                     ->get();
                 
                 $totalAvailable = $stocks->sum('quantity');
@@ -118,30 +118,27 @@ class CartController extends Controller
     {
         $user = $request->user();
         $cart = Cart::where('user_id', $user->id)->first();
-        $message = null;
-        $error = null;
 
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('checkoutMessage', 'Your cart is empty.');
         }
 
         try {
-            $user = $request->user();
-
-            // Create a new sale record with pending status
+            // Create a new sale record
             $sale = Sales::create([
                 'customer_id' => $user->id,
-                'total_amount' => 0, // This will be calculated but not processed yet
                 'status' => 'pending',
             ]);
 
             $totalPrice = 0;
             $orderItems = [];
+            $error = null;
 
             foreach ($cart->items as $item) {
-                $stocks = Stock::where('product_id', $item->product_id)
+                // Get customer visible stock for this item using scope
+                $stocks = Stock::customerVisible()
+                    ->where('product_id', $item->product_id)
                     ->where('category', $item->category)
-                    ->where('quantity', '>', 0)
                     ->with('product')
                     ->orderBy('created_at', 'asc')
                     ->get();
@@ -271,10 +268,10 @@ class CartController extends Controller
                 $quantity = intval($quantity);
             }
 
-            // Check available stock
-            $stocks = Stock::where('product_id', $item->product_id)
+            // Check customer visible stock using scope
+            $stocks = Stock::customerVisible()
+                ->where('product_id', $item->product_id)
                 ->where('category', $item->category)
-                ->where('quantity', '>', 0)
                 ->get();
 
             $totalAvailable = $stocks->sum('quantity');
@@ -308,9 +305,10 @@ class CartController extends Controller
         $totalPrice = 0;
 
         foreach ($cart->items as $item) {
-            $stocks = Stock::where('product_id', $item->product_id)
+            // Get customer visible stock using scope
+            $stocks = Stock::customerVisible()
+                ->where('product_id', $item->product_id)
                 ->where('category', $item->category)
-                ->where('quantity', '>', 0)
                 ->with('product')
                 ->orderBy('created_at', 'asc')
                 ->get();

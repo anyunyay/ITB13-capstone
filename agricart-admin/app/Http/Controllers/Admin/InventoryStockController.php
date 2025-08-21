@@ -73,7 +73,7 @@ class InventoryStockController extends Controller
 
     public function removeStock(Product $product)
     {
-        $stocks = $product->stocks()->where('quantity', '>', 0)->active()->get();
+        $stocks = $product->stocks()->available()->get();
         return Inertia::render('Inventory/Stock/removeStock', [
             'product' => $product,
             'stocks' => $stocks,

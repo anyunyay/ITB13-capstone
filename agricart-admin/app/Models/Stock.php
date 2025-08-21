@@ -75,6 +75,16 @@ class Stock extends Model
     }
 
     /**
+     * Scope for stocks that customers can see and interact with
+     * (available + partial stocks, but not sold stocks)
+     */
+    public function scopeCustomerVisible($query)
+    {
+        return $query->where('quantity', '>', 0)
+                    ->whereNull('removed_at');
+    }
+
+    /**
      * Scope for removed stocks
      */
     public function scopeRemoved($query)
