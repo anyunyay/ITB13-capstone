@@ -50,8 +50,6 @@ class HomeController extends Controller
             $query->customerVisible();
         }])
             ->where('name', 'like', "%{$query}%")
-            ->orWhere('description', 'like', "%{$query}%")
-            ->orWhere('produce_type', 'like', "%{$query}%")
             ->get();
 
         $products->each(function ($product) {
