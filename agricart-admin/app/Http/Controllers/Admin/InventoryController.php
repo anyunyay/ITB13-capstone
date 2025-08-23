@@ -50,7 +50,10 @@ class InventoryController extends Controller
             ]);
         }
 
-        return redirect()->route('inventory.index')->with('message', 'Inventory item created successfully');
+        return redirect()->route('inventory.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Inventory item created successfully'
+        ]);
     }
 
     public function edit(Product $product)
@@ -90,17 +93,33 @@ class InventoryController extends Controller
         }
 
         $product->save();
-        return redirect()->route('inventory.index')->with('message', 'Product updated successfully');
+        return redirect()->route('inventory.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Product updated successfully'
+        ]);
     }
 
     public function destroy(Product $product)
     {
+        // Check if the product can be deleted
+        if (!$product->canBeDeleted()) {
+            $reason = $product->getDeletionRestrictionReason();
+            return redirect()->route('inventory.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => "Cannot delete product '{$product->name}'. {$reason}"
+                ]);
+        }
+
         // Delete the image file if it exists
         if ($product->image && file_exists(public_path($product->image))) {
             unlink(public_path($product->image));
         }
         
         $product->delete();
-        return redirect()->route('inventory.index')->with('message', 'Inventory item deleted successfully');
+        return redirect()->route('inventory.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Inventory item deleted successfully'
+        ]);
     }
 }

@@ -29,6 +29,16 @@ class Product extends Model
         return $this->hasMany(Stock::class)->removed();
     }
 
+    public function auditTrails()
+    {
+        return $this->hasMany(AuditTrail::class);
+    }
+
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
     public function scopeArchived($query)
     {
         return $query->whereNotNull('archived_at');
@@ -37,5 +47,66 @@ class Product extends Model
     public function scopeActive($query)
     {
         return $query->whereNull('archived_at');
+    }
+
+    /**
+     * Check if the product has any available stock (quantity > 0)
+     */
+    public function hasAvailableStock()
+    {
+        return $this->stocks()
+            ->where('quantity', '>', 0)
+            ->whereNull('removed_at')
+            ->exists();
+    }
+
+    /**
+     * Check if the product has any related sales data
+     */
+    public function hasSalesData()
+    {
+        return $this->auditTrails()->exists();
+    }
+
+    /**
+     * Check if the product has any cart items
+     */
+    public function hasCartItems()
+    {
+        return $this->cartItems()->exists();
+    }
+
+    /**
+     * Check if the product can be deleted
+     * Product can only be deleted when:
+     * 1. It has no available stock (all stocks are out of stock or removed)
+     * 2. It has no sales data (no audit trails)
+     * 3. It has no cart items
+     */
+    public function canBeDeleted()
+    {
+        return !$this->hasAvailableStock() && 
+               !$this->hasSalesData() && 
+               !$this->hasCartItems();
+    }
+
+    /**
+     * Get the reason why the product cannot be deleted
+     */
+    public function getDeletionRestrictionReason()
+    {
+        if ($this->hasAvailableStock()) {
+            return 'Product has available stock that cannot be deleted.';
+        }
+        
+        if ($this->hasSalesData()) {
+            return 'Product has sales history and cannot be deleted.';
+        }
+        
+        if ($this->hasCartItems()) {
+            return 'Product has items in customer carts and cannot be deleted.';
+        }
+        
+        return null;
     }
 }

@@ -21,7 +21,7 @@ class AuditTrailFactory extends Factory
     public function definition(): array
     {
         return [
-            'sales_id' => Sales::factory(),
+            'sale_id' => Sales::factory(),
             'product_id' => Product::factory(),
             'stock_id' => Stock::factory(),
             'category' => $this->faker->randomElement(['Kilo', 'Pc', 'Tali']),
