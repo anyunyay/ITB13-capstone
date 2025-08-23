@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
+import { SafeImage } from '@/lib/image-utils';
 
 interface Member {
   id: number;
@@ -246,18 +247,16 @@ function MemberCard({ member }: { member: Member }) {
           </div>
         </div>
         
-        {member.document && (
-          <div className="mt-4">
-            <h4 className="font-semibold mb-2">Document</h4>
-            <div className="flex justify-center">
-              <img 
-                src={member.document} 
-                alt={`Document for ${member.name}`}
-                className="max-w-xs max-h-32 object-contain border rounded"
-              />
-            </div>
+        <div className="mt-4">
+          <h4 className="font-semibold mb-2">Document</h4>
+          <div className="flex justify-center">
+            <SafeImage 
+              src={member.document} 
+              alt={`Document for ${member.name}`}
+              className="max-w-xs max-h-32 object-contain border rounded"
+            />
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );

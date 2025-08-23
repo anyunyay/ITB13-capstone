@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { BellDot } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
+import { SafeImage } from '@/lib/image-utils';
 import {
     Table,
     TableBody,
@@ -114,7 +115,11 @@ export default function Index() {
                                     <TableCell>{member.address}</TableCell>
                                     <TableCell>{member.registration_date}</TableCell>
                                     <TableCell className="flex justify-center">
-                                        <img className="max-w-24" src={member.document} alt={member.name} />
+                                        <SafeImage 
+                                            src={member.document} 
+                                            alt={`Document for ${member.name}`} 
+                                            className="max-w-24 object-cover rounded"
+                                        />
                                     </TableCell>
                                     <TableCell>
                                         <Link href={route('membership.edit', member.id)}><Button disabled={processing} className=''>Edit</Button></Link>

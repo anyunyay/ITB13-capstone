@@ -13,6 +13,7 @@ import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
+import { SafeImage } from '@/lib/image-utils';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -216,11 +217,13 @@ export default function Edit({member}: Props) {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member document">Current Image</Label>
-                        {member.document && (
-                            <div className="mb-4">
-                                <img src={`/${member.document}`} alt={member.document} className="w-32 h-32 object-cover rounded-lg" />
-                            </div>
-                        )}
+                        <div className="mb-4">
+                            <SafeImage 
+                                src={member.document} 
+                                alt={`Document for ${member.name}`} 
+                                className="w-32 h-32 object-cover rounded-lg"
+                            />
+                        </div>
                         <Label htmlFor="member document">Update Image</Label>
                         <Input onChange={handleFileUpload} id='document' name='document' type='file' accept="document/*"/>
                         {errors.document && <p className="text-sm text-red-500 mt-1">{errors.document}</p>}
