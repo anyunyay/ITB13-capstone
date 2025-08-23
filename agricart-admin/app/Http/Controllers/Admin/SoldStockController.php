@@ -10,7 +10,7 @@ class SoldStockController extends Controller
 {
     public function index()
     {
-        $stocks = Stock::with(['product', 'customer'])
+        $stocks = Stock::with(['product', 'lastCustomer'])
             ->where('status', 'sold')
             ->orderBy('created_at', 'desc')
             ->get();

@@ -102,7 +102,7 @@ class InventoryStockController extends Controller
 
     public function removedStocks()
     {
-        $stocks = Stock::removed()->with(['product', 'member', 'customer'])
+        $stocks = Stock::removed()->with(['product', 'member', 'lastCustomer'])
             ->orderBy('removed_at', 'asc')
             ->get();
         return Inertia::render('Inventory/Stock/removedStock', compact('stocks'));
