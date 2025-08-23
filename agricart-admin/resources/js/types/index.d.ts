@@ -33,6 +33,7 @@ export interface SharedData {
     permissions: Permissions;
     flash: {
         message?: string;
+        type?: 'success' | 'error';
     };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;

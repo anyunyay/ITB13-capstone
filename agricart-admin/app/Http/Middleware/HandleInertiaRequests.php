@@ -54,8 +54,8 @@ class HandleInertiaRequests extends Middleware
                 $canPermission = $user ? $user->can($permission) : false;
                 return [$key => $canPermission]; // Check if the user has the permission
             }),
-            'flash' => [
-                'message' => fn() => $request->session()->get('message')
+            'flash' => fn() => $request->session()->get('flash') ?: [
+                'message' => $request->session()->get('message')
             ],
             'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),

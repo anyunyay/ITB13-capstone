@@ -4,9 +4,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { BellDot, AlertTriangle } from 'lucide-react';
+import { BellDot, AlertTriangle, CheckCircle } from 'lucide-react';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
+import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
 import {
     Table,
@@ -171,13 +172,7 @@ export default function Index() {
 
                 <div className='m-4'>
                     <div>
-                        {flash.message && (
-                            <Alert>
-                                <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>Notification!</AlertTitle>
-                                <AlertDescription>{flash.message}</AlertDescription>
-                            </Alert>
-                        )}
+                        <FlashMessage flash={flash} />
                         {errors.archive && (
                             <Alert className="border-red-200 bg-red-50">
                                 <AlertTriangle className='h-4 w-4 text-red-500' />

@@ -1,10 +1,10 @@
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { PermissionGate } from '@/components/permission-gate';
+import { FlashMessage } from '@/components/flash-message';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
+import { type SharedData } from '@/types';
 import {
     Table,
     TableBody,
@@ -23,6 +23,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -36,16 +37,12 @@ interface Product {
     archived_at: string;
 }
 
-interface PageProps {
-    flash: {
-        message?: string
-    }
+interface PageProps extends SharedData {
     archivedProducts: Product[];
-    [key: string]: unknown;
 }
 
 export default function Archive() {
-    const { archivedProducts, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { archivedProducts, flash, auth } = usePage<PageProps>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -74,13 +71,7 @@ export default function Archive() {
 
                 <div className='m-4'>
                     <div>
-                        {flash.message && (
-                            <Alert>
-                                <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>Notification!</AlertTitle>
-                                <AlertDescription>{flash.message}</AlertDescription>
-                            </Alert>
-                        )}
+                        <FlashMessage flash={flash} />
                     </div>
                 </div>
 
