@@ -17,6 +17,7 @@ interface Product {
     price_tali?: number;
     description: string;
     image: string;
+    image_url?: string; // Added for Inertia.js imageUrl accessor
     produce_type: string;
 }
 
@@ -120,9 +121,17 @@ export default function Edit({product}: Props) {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product image">Current Image</Label>
-                        {product.image && (
+                        {product.image_url && (
                             <div className="mb-4">
-                                <img src={`/${product.image}`} alt={product.name} className="w-32 h-32 object-cover rounded-lg" />
+                                <img 
+                                  src={product.image_url} 
+                                  alt={product.name} 
+                                  className="w-32 h-32 object-cover rounded-lg"
+                                  onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = '/images/products/default-product.jpg';
+                                  }}
+                                />
                             </div>
                         )}
                         <Label htmlFor="product image">Update Image</Label>

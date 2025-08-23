@@ -38,6 +38,7 @@ interface Product {
   price_tali?: number;
   description: string;
   image: string;
+  image_url?: string; // Added for Inertia.js imageUrl accessor
   produce_type: string; // 'fruit' or 'vegetable'
   stock_by_category?: Record<string, number>;
 }
@@ -139,7 +140,21 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   return (
     <Card className="w-70 max-w-sm">
       <div>
-        <img src={product.image} alt={product.name} />
+        {product.image_url || product.image ? (
+          <img 
+            src={product.image_url || product.image} 
+            alt={product.name}
+            className="w-full h-48 object-cover rounded-t-lg"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/images/products/default-product.jpg';
+            }}
+          />
+        ) : (
+          <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+            <span className="text-gray-500 text-sm">No Image</span>
+          </div>
+        )}
       </div>
       <CardHeader>
         <CardTitle>

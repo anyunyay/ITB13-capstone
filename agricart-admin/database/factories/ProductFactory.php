@@ -24,7 +24,7 @@ class ProductFactory extends Factory
             'price_tali' => $this->faker->randomFloat(2, 20, 200),
             'produce_type' => $this->faker->randomElement(['fruit', 'vegetable']),
             'description' => $this->faker->sentence(3),
-            'image' => $this->faker->imageUrl(640, 480, 'product', true),
+            'image' => 'images/products/default-product.jpg',
         ];
     }
 

@@ -33,8 +33,9 @@ interface Product {
     price_tali?: number;
     description: string;
     image: string;
+    image_url?: string; // Added for Inertia.js imageUrl accessor
     produce_type: string;
-    archived_at: string;
+    archived_at?: string;
 }
 
 interface PageProps extends SharedData {
@@ -79,7 +80,15 @@ export default function Archive() {
                     {archivedProducts.map((product) => (
                         <Card key={product.id} className='w-70'>
                             <div>
-                                <img src={product.image} alt={product.name} />
+                                <img 
+                                    src={product.image_url || product.image} 
+                                    alt={product.name}
+                                    className="w-full h-48 object-cover rounded-t-lg"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = '/images/products/default-product.jpg';
+                                    }}
+                                />
                             </div>
                             <CardHeader>
                                 <CardTitle>{product.name}</CardTitle>

@@ -49,7 +49,9 @@ interface Product {
     price_tali?: number;
     description: string;
     image: string;
+    image_url?: string; // Added for Inertia.js imageUrl accessor
     produce_type: string;
+    archived_at?: string;
 }
 
 interface Member {
@@ -187,7 +189,15 @@ export default function Index() {
                     {products.map((product) => (
                         <Card key={product.id} className='w-70'>
                             <div>
-                                <img src={product.image} alt={product.name} />
+                                <img 
+                                    src={product.image_url || product.image} 
+                                    alt={product.name}
+                                    className="w-full h-48 object-cover rounded-t-lg"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = '/images/products/default-product.jpg';
+                                    }}
+                                />
                             </div>
                             <CardHeader>
                                 <CardTitle>{product.name}</CardTitle>
@@ -452,9 +462,9 @@ export default function Index() {
                     {selectedProduct && (
                         <div className="space-y-4">
                             <div className="flex items-center gap-4">
-                                {selectedProduct.image && (
+                                {selectedProduct.image_url && (
                                     <img 
-                                        src={selectedProduct.image} 
+                                        src={selectedProduct.image_url} 
                                         alt={selectedProduct.name}
                                         className="w-12 h-12 object-cover rounded-lg"
                                     />

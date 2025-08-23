@@ -22,6 +22,7 @@ interface Product {
     price_tali?: number;
     description: string;
     image: string;
+    image_url?: string; // Added for Inertia.js imageUrl accessor
     produce_type: string;
     stock_by_category: Record<string, number>;
 }
@@ -118,12 +119,16 @@ function ProductCard({ product }: { product: Product }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
         {/* Product Image */}
         <div className="space-y-4">
-          {product.image && (
+          {product.image_url && (
             <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
               <img
-                src={product.image}
+                src={product.image_url}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/products/default-product.jpg';
+                }}
               />
             </div>
           )}

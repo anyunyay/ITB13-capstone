@@ -87,9 +87,9 @@ class InventoryController extends Controller
         if ($request->file('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images'), $imageName);
+            $image->move(public_path('images/products/'), $imageName);
             
-            $product->image = 'images/' . $imageName;
+            $product->image = 'images/products/' . $imageName;
         }
 
         $product->save();

@@ -14,6 +14,7 @@ interface Product {
     price_tali?: number;
     description: string;
     image: string;
+    image_url?: string; // Added for Inertia.js imageUrl accessor
     produce_type: string;
     stock_by_category: Record<string, number>;
 }
@@ -153,11 +154,15 @@ export function SearchBar({ className }: SearchBarProps) {
                                 className="flex items-center space-x-3 p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
                                 onClick={() => handleProductClick(product)}
                             >
-                                {product.image && (
+                                {product.image_url && (
                                     <img
-                                        src={product.image}
+                                        src={product.image_url}
                                         alt={product.name}
                                         className="w-12 h-12 object-cover rounded"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/images/products/default-product.jpg';
+                                        }}
                                     />
                                 )}
                                 <div className="flex-1 min-w-0">

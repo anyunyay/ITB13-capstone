@@ -109,4 +109,31 @@ class Product extends Model
         
         return null;
     }
+
+    /**
+     * Get the image URL with proper path handling
+     */
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        // If it's already a full URL, return as is
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
+        // If it's a local path, ensure it starts with /
+        if (str_starts_with($this->image, 'images/')) {
+            return '/' . $this->image;
+        }
+
+        // If it doesn't start with /, add it
+        if (!str_starts_with($this->image, '/')) {
+            return '/' . $this->image;
+        }
+
+        return $this->image;
+    }
 }
