@@ -19,6 +19,13 @@ class Product extends Model
         'produce_type',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['image_url'];
+
     public function stocks()
     {
         return $this->hasMany(Stock::class);
