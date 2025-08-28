@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { OctagonAlert } from 'lucide-react';
 
 interface Product {
@@ -27,6 +27,9 @@ interface Props {
 
 export default function Edit({product}: Props) {
     const { auth } = usePage<SharedData>().props;
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    
     useEffect(() => {
         if (!auth?.user) {
             router.visit('/login');
@@ -46,7 +49,16 @@ export default function Edit({product}: Props) {
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            setData('image', e.target.files[0]);
+            const file = e.target.files[0];
+            setSelectedImage(file);
+            setData('image', file);
+            
+            // Create preview URL for the new image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImagePreview(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
         }
     }
 
@@ -120,13 +132,16 @@ export default function Edit({product}: Props) {
                         {errors.produce_type && <p className="text-sm text-red-500 mt-1">{errors.produce_type}</p>}
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product image">Current Image</Label>
-                        {product.image_url && (
+                        <Label htmlFor="product image">Product Image</Label>
+                        
+                        {/* Show current image only if no new image is selected */}
+                        {!selectedImage && product.image_url && (
                             <div className="mb-4">
+                                <Label className="text-sm text-gray-600 mb-2 block">Current Image:</Label>
                                 <img 
                                   src={product.image_url} 
                                   alt={product.name} 
-                                  className="w-32 h-32 object-cover rounded-lg"
+                                  className="w-32 h-32 object-cover rounded-lg border"
                                   onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       target.src = '/images/products/default-product.jpg';
@@ -134,7 +149,22 @@ export default function Edit({product}: Props) {
                                 />
                             </div>
                         )}
-                        <Label htmlFor="product image">Update Image</Label>
+                        
+                        {/* Show new image preview if selected */}
+                        {selectedImage && imagePreview && (
+                            <div className="mb-4">
+                                <Label className="text-sm text-gray-600 mb-2 block">New Image Preview:</Label>
+                                <img 
+                                  src={imagePreview} 
+                                  alt="New image preview" 
+                                  className="w-32 h-32 object-cover rounded-lg border"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Current image will be replaced with this new image
+                                </p>
+                            </div>
+                        )}
+                        
                         <Input onChange={handleFileUpload} id='image' name='image' type='file' accept="image/*"/>
                         {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image}</p>}
                     </div>
