@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Users } from 'lucide-react';
 import { FormEventHandler, useEffect } from 'react';
 
 import InputError from '@/components/input-error';
@@ -10,19 +10,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
-type LoginForm = {
+type MemberLoginForm = {
     email: string;
     password: string;
     remember: boolean;
 };
 
-interface LoginProps {
+interface MemberLoginProps {
     status?: string;
     canResetPassword: boolean;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
+export default function MemberLogin({ status, canResetPassword }: MemberLoginProps) {
+    const { data, setData, post, processing, errors, reset } = useForm<Required<MemberLoginForm>>({
         email: '',
         password: '',
         remember: false,
@@ -48,24 +48,25 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('login'), {
+        post(route('member.login'), {
             replace: true,
             onFinish: () => reset('password'),
         });
     };
 
     return (
-        <AuthLayout title="Customer Login" description="Welcome back! Sign in to your customer account">
-            <Head title="Customer Login" />
+        <AuthLayout 
+            title="Member Portal Access" 
+            description="Welcome back! Sign in to access your member benefits"
+        >
+            <Head title="Member Login" />
 
             <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-                    <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                    <Users className="h-8 w-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Customer Access</h2>
-                <p className="text-sm text-gray-600">Shop and manage your orders</p>
+                <h2 className="text-2xl font-bold text-gray-900">Member Access</h2>
+                <p className="text-sm text-gray-600">Exclusive benefits and features await</p>
             </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
@@ -81,7 +82,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@example.com"
+                            placeholder="member@example.com"
+                            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
                         />
                         <InputError message={errors.email} />
                     </div>
@@ -104,6 +106,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             placeholder="Password"
+                            className="border-gray-300 focus:border-green-500 focus:ring-green-500"
                         />
                         <InputError message={errors.password} />
                     </div>
@@ -119,29 +122,21 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <Label htmlFor="remember">Remember me</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
+                    <Button type="submit" className="mt-4 w-full bg-green-600 hover:bg-green-700" tabIndex={4} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
+                        Access Member Portal
                     </Button>
                 </div>
 
                 <div className="text-center text-sm text-gray-600">
-                    <p className="mb-2">Don't have an account?</p>
+                    <p className="mb-2">New to our platform?</p>
                     <p>
                         <TextLink href={route('register')} tabIndex={5}>
-                            Sign up
+                            Become a Member
                         </TextLink>
-                        {' '}or access other portals:{' '}
-                        <TextLink href={route('admin.login')} tabIndex={5}>
-                            Admin
-                        </TextLink>
-                        ,{' '}
-                        <TextLink href={route('member.login')} tabIndex={5}>
-                            Member
-                        </TextLink>
-                        ,{' '}
-                        <TextLink href={route('logistic.login')} tabIndex={5}>
-                            Logistics
+                        {' '}or{' '}
+                        <TextLink href={route('login')} tabIndex={5}>
+                            Customer Login
                         </TextLink>
                     </p>
                 </div>

@@ -180,5 +180,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+// Auth routes
+Route::get('/auth', function () {
+    return redirect()->route('auth.index');
+})->name('auth');
+
+Route::get('/portal', function () {
+    return redirect()->route('auth.index');
+})->name('portal');
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

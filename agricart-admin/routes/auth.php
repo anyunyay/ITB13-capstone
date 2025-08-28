@@ -11,15 +11,41 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
+    // Auth portal selection page
+    Route::get('/portal', [AuthenticatedSessionController::class, 'index'])
+        ->name('auth.index');
+
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
+    // Customer login (default)
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // Admin/Staff login
+    Route::get('admin/login', [AuthenticatedSessionController::class, 'createAdmin'])
+        ->name('admin.login');
+
+    Route::post('admin/login', [AuthenticatedSessionController::class, 'storeAdmin'])
+        ->name('admin.login.store');
+
+    // Member login
+    Route::get('member/login', [AuthenticatedSessionController::class, 'createMember'])
+        ->name('member.login');
+
+    Route::post('member/login', [AuthenticatedSessionController::class, 'storeMember'])
+        ->name('member.login.store');
+
+    // Logistic login
+    Route::get('logistic/login', [AuthenticatedSessionController::class, 'createLogistic'])
+        ->name('logistic.login');
+
+    Route::post('logistic/login', [AuthenticatedSessionController::class, 'storeLogistic'])
+        ->name('logistic.login.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
