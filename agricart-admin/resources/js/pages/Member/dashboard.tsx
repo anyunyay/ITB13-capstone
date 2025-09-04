@@ -61,14 +61,6 @@ interface Summary {
     totalQuantitySold: number;
 }
 
-interface Debug {
-    totalStocks: number;
-    stocksWithCustomer: number;
-    stocksWithoutCustomer: number;
-    stocksWithQuantity: number;
-    stocksWithZeroQuantity: number;
-}
-
 interface PageProps {
     availableStocks: Stock[];
     partialStocks: Stock[];
@@ -76,10 +68,9 @@ interface PageProps {
     assignedStocks: Stock[];
     salesData: SalesData;
     summary: Summary;
-    debug: Debug;
 }
 
-export default function MemberDashboard({ availableStocks, partialStocks, soldStocks, assignedStocks, salesData, summary, debug }: PageProps) {
+export default function MemberDashboard({ availableStocks, partialStocks, soldStocks, assignedStocks, salesData, summary }: PageProps) {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
@@ -87,6 +78,21 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
             router.visit('/login');
         }
     }, [auth]);
+
+    // Add early return if data is not yet available
+    if (!summary || !salesData) {
+        return (
+            <div className="min-h-screen bg-gray-900">
+                <MemberHeader />
+                <div className="p-6">
+                    <Head title="Member Dashboard" />
+                    <div className="text-center py-12">
+                        <div className="text-white text-xl">Loading dashboard...</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
         return (
         <div className="min-h-screen bg-gray-900">
@@ -304,40 +310,6 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                 <Button asChild size="lg" className="bg-green-600 hover:bg-green-700">
                     <Link href={route('member.allStocks')}>View All Stocks</Link>
                 </Button>
-            </div>
-
-            {/* Debug Information */}
-            <div className="mt-8">
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader>
-                        <CardTitle className="text-white">Debug Information</CardTitle>
-                        <CardDescription className="text-gray-400">Database state for troubleshooting</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm">
-                            <div className="text-center">
-                                <div className="text-lg font-bold text-white">{debug.totalStocks}</div>
-                                <p className="text-gray-400">Total Stocks</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-lg font-bold text-white">{debug.stocksWithCustomer}</div>
-                                <p className="text-gray-400">With Customer</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-lg font-bold text-white">{debug.stocksWithoutCustomer}</div>
-                                <p className="text-gray-400">Without Customer</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-lg font-bold text-white">{debug.stocksWithQuantity}</div>
-                                <p className="text-gray-400">With Quantity</p>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-lg font-bold text-white">{debug.stocksWithZeroQuantity}</div>
-                                <p className="text-gray-400">Zero Quantity</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
 
 

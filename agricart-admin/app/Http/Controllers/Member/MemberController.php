@@ -49,6 +49,7 @@ class MemberController extends Controller
             'availableStocks' => $availableStocks->count(),
             'partialStocks' => $partialStocks->count(),
             'soldStocks' => $soldStocks->count(),
+            'assignedStocks' => $assignedStocks->count(),
             'removedStocks' => Stock::removed()->where('member_id', $user->id)->count(),
             'stocksWithCustomer' => $allStocks->whereNotNull('last_customer_id')->count(),
             'stocksWithoutCustomer' => $allStocks->whereNull('last_customer_id')->count(),
