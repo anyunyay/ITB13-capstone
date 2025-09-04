@@ -236,51 +236,53 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                   <div className="mt-4">
                     <label className="block text-sm font-medium mb-1">Quantity</label>
                     <div className="flex items-center gap-2">
-                      {isKilo && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (isKilo) {
                             const newQty = Math.max(0.25, selectedQuantity - 0.25);
                             setSelectedQuantity(Number(newQty.toFixed(2)));
-                          }}
-                          disabled={selectedQuantity <= 0.25}
-                          className="px-2"
-                        >
-                          -0.25
-                        </Button>
-                      )}
+                          } else {
+                            const newQty = Math.max(1, selectedQuantity - 1);
+                            setSelectedQuantity(newQty);
+                          }
+                        }}
+                        disabled={
+                          isKilo ? selectedQuantity <= 0.25 : selectedQuantity <= 1
+                        }
+                        className="px-2"
+                      >
+                        {isKilo ? '-0.25' : '-1'}
+                      </Button>
                       <input
                         type="number"
                         min={isKilo ? 0.25 : 1}
                         step={isKilo ? 0.01 : 1}
                         max={maxQty}
                         value={selectedQuantity}
-                        onChange={e => {
-                          let val = isKilo ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                          if (isNaN(val) || val < (isKilo ? 0.25 : 1)) val = isKilo ? 0.25 : 1;
-                          if (val > maxQty) val = maxQty;
-                          setSelectedQuantity(isKilo ? Number(val.toFixed(2)) : val);
-                        }}
                         className="w-full border rounded p-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         readOnly
                       />
-                      {isKilo && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (isKilo) {
                             const newQty = Math.min(maxQty, selectedQuantity + 0.25);
                             setSelectedQuantity(Number(newQty.toFixed(2)));
-                          }}
-                          disabled={selectedQuantity >= maxQty}
-                          className="px-2"
-                        >
-                          +0.25
-                        </Button>
-                      )}
+                          } else {
+                            const newQty = Math.min(maxQty, selectedQuantity + 1);
+                            setSelectedQuantity(newQty);
+                          }
+                        }}
+                        disabled={selectedQuantity >= maxQty}
+                        className="px-2"
+                      >
+                        {isKilo ? '+0.25' : '+1'}
+                      </Button>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       Max: {isKilo ? maxQty.toFixed(2) : maxQty}
