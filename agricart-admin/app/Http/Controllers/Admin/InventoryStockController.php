@@ -22,22 +22,33 @@ class InventoryStockController extends Controller
     {
         $products = Product::active()->get(['id', 'name']);
         $members = User::where('type', 'member')->get(['id', 'name']);
-        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members'));
+        
+        // Get available categories based on product pricing
+        $availableCategories = [];
+        if ($product->price_kilo) $availableCategories[] = 'Kilo';
+        if ($product->price_pc) $availableCategories[] = 'Pc';
+        if ($product->price_tali) $availableCategories[] = 'Tali';
+        
+        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members', 'availableCategories'));
     }
 
     public function storeStock(Request $request, Product $product)
     {
+        // Get available categories for this product
+        $availableCategories = [];
+        if ($product->price_kilo) $availableCategories[] = 'Kilo';
+        if ($product->price_pc) $availableCategories[] = 'Pc';
+        if ($product->price_tali) $availableCategories[] = 'Tali';
+        
         // Validate the request data
         $request->validate([
-            'name' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:users,id',
-            'category' => 'required|in:Kilo,Pc,Tali',
+            'category' => 'required|in:' . implode(',', $availableCategories),
         ]);
 
         // Create a new stock entry
         $product->stocks()->create([
-            'name' => 'required|string|max:255',
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
@@ -49,19 +60,33 @@ class InventoryStockController extends Controller
     public function editStock(Product $product, Stock $stock)
     {
         $members = User::where('type', 'member')->get(['id', 'name']);
+        
+        // Get available categories based on product pricing
+        $availableCategories = [];
+        if ($product->price_kilo) $availableCategories[] = 'Kilo';
+        if ($product->price_pc) $availableCategories[] = 'Pc';
+        if ($product->price_tali) $availableCategories[] = 'Tali';
+        
         return Inertia::render('Inventory/Stock/editStock', [
             'product' => $product,
             'stock' => $stock,
             'members' => $members,
+            'availableCategories' => $availableCategories,
         ]);
     }
 
     public function updateStock(Request $request, Product $product, Stock $stock)
     {
+        // Get available categories for this product
+        $availableCategories = [];
+        if ($product->price_kilo) $availableCategories[] = 'Kilo';
+        if ($product->price_pc) $availableCategories[] = 'Pc';
+        if ($product->price_tali) $availableCategories[] = 'Tali';
+        
         $request->validate([
             'quantity' => 'required|numeric|min:0.01',
             'member_id' => 'required|exists:users,id',
-            'category' => 'required|in:Kilo,Pc,Tali',
+            'category' => 'required|in:' . implode(',', $availableCategories),
         ]);
         $stock->update([
             'quantity' => $request->input('quantity'),

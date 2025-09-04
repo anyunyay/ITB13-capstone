@@ -48,10 +48,8 @@ interface Props {
 }
 
 interface PageProps {
-    flash: {
-        message?: string
-    }
     members: Member[];
+    availableCategories: string[];
     [key: string]: unknown;
 }
 
@@ -62,6 +60,8 @@ export default function EditStock({ product, stock, members }: Props) {
             router.visit('/login');
         }
     }, [auth]);
+
+    const { availableCategories } = usePage<PageProps>().props;
 
     const { data, setData, put, processing, errors } = useForm({
         quantity: stock.quantity,
@@ -128,9 +128,11 @@ export default function EditStock({ product, stock, members }: Props) {
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Kilo">Kilo</SelectItem>
-                                <SelectItem value="Pc">Pc</SelectItem>
-                                <SelectItem value="Tali">Tali</SelectItem>
+                                {availableCategories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                        {category}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>

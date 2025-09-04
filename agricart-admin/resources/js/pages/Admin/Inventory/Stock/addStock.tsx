@@ -46,11 +46,9 @@ interface Props {
 }
 
 interface PageProps {
-    flash: {
-        message?: string
-    }
     stocks: Stock[];
     members: Member[];
+    availableCategories: string[];
     [key: string]: unknown;
 }
 
@@ -62,10 +60,9 @@ export default function AddStock({product}: Props) {
         }
     }, [auth]);
 
-    const { members } = usePage<PageProps>().props;
+    const { members, availableCategories } = usePage<PageProps>().props;
 
     const { data, setData, post, processing, errors } = useForm({
-        name: product.name,
         member_id: '',
         quantity: '',
         category: '',
@@ -101,7 +98,7 @@ export default function AddStock({product}: Props) {
                     <div className='gap-1.5'>
                         <Label htmlFor='name'>Product</Label>
                         <div>
-                            <Label>{data.name}</Label>
+                            <Label>{product.name}</Label>
                         </div>
                     </div>
 
@@ -134,9 +131,11 @@ export default function AddStock({product}: Props) {
                                 <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Kilo">Kilo</SelectItem>
-                                <SelectItem value="Pc">Pc</SelectItem>
-                                <SelectItem value="Tali">Tali</SelectItem>
+                                {availableCategories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                        {category}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
