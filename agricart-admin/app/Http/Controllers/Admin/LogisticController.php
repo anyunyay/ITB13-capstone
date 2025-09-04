@@ -41,6 +41,7 @@ class LogisticController extends Controller
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
             'password' => bcrypt('password'), // Default password
+            'email_verified_at' => now(), // Automatically verify email
         ]);
 
         return redirect()->route('logistics.index')->with('message', 'Logistic added successfully');

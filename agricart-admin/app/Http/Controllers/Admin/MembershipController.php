@@ -48,6 +48,7 @@ class MembershipController extends Controller
                 'document' => 'images/documents/' . $imageName,
                 'type' => 'member',
                 'password' => bcrypt('password'), // Default password
+                'email_verified_at' => now(), // Automatically verify email
             ]);
         }
 

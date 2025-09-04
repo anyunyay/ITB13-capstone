@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'name' => 'Admin',
             'email' => 'admin@admin.com',
             'password' => Hash::make('12345678'),
+            'email_verified_at' => now(), // Automatically verify email for admin
         ]);
     }
 
@@ -44,6 +45,7 @@ class UserFactory extends Factory
             'province' => $this->faker->state(),
             'barangay' => $this->faker->city(),
             'city' => $this->faker->city(),
+            'email_verified_at' => now(), // Automatically verify email for customers
         ]);
     }
 
@@ -57,6 +59,7 @@ class UserFactory extends Factory
             'registration_date' => $this->faker->dateTimeThisYear(),
             'document' => $this->faker->imageUrl(640, 480, 'member', true),
             'password' => Hash::make('password'),
+            'email_verified_at' => now(), // Automatically verify email for members
         ]);
     }
 
@@ -69,6 +72,18 @@ class UserFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'password' => Hash::make('password'),
+            'email_verified_at' => now(), // Automatically verify email for logistics
+        ]);
+    }
+
+    public function staff()
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'staff',
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(), // Automatically verify email for staff
         ]);
     }
 

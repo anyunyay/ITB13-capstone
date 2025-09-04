@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
             'password' => Hash::make('12345678'),
+            'email_verified_at' => now(), // Automatically verify email
         ]);
 
         User::create([
@@ -41,6 +42,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'logistic@logistic.com',
             'registration_date' => now(),
             'password' => Hash::make('12345678'),
+            'email_verified_at' => now(), // Automatically verify email
         ]);
     }
 }
