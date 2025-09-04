@@ -187,7 +187,7 @@ export default function Index() {
 
                 <div className='grid grid-cols-5 gap-2'>
                     {products.map((product) => (
-                        <Card key={product.id} className='w-70'>
+                        <Card key={product.id} className='w-70 p-0'>
                             <div>
                                 <img 
                                     src={product.image_url || product.image} 
@@ -199,7 +199,7 @@ export default function Index() {
                                     }}
                                 />
                             </div>
-                            <CardHeader>
+                            <CardHeader className="px-6">
                                 <CardTitle>{product.name}</CardTitle>
                                 <CardDescription>
                                     <div className="text-sm">
@@ -222,7 +222,7 @@ export default function Index() {
                                     </CardAction>
                                 </PermissionGate>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="px-6">
                                 <p className="text-md break-words">{product.description}</p>
                             </CardContent>
                             <CardFooter className="flex-col gap-2">

@@ -138,7 +138,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   };
 
   return (
-    <Card className="w-70 max-w-sm">
+    <Card className="w-70 max-w-sm p-0">
       <div>
         {product.image_url || product.image ? (
           <img 
@@ -156,7 +156,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
           </div>
         )}
       </div>
-      <CardHeader>
+      <CardHeader className="px-6">
         <CardTitle>
           <Link 
             href={`/customer/product/${product.id}`}
@@ -321,7 +321,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
           </Dialog>
         </CardAction>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6">
         <p className="text-md break-words">{product.description}</p>
       </CardContent>
       <CardFooter className="flex-col gap-2" />
