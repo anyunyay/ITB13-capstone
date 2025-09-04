@@ -34,6 +34,13 @@ class InventoryController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        // Custom validation to ensure at least one price is provided
+        if (empty($request->input('price_kilo')) && empty($request->input('price_pc')) && empty($request->input('price_tali'))) {
+            return redirect()->back()->withErrors([
+                'prices' => 'At least one price (per kilo, per piece, or per tali) must be provided.',
+            ])->withInput();
+        }
+
         if ($request->file('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -72,6 +79,13 @@ class InventoryController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        // Custom validation to ensure at least one price is provided
+        if (empty($request->input('price_kilo')) && empty($request->input('price_pc')) && empty($request->input('price_tali'))) {
+            return redirect()->back()->withErrors([
+                'prices' => 'At least one price (per kilo, per piece, or per tali) must be provided.',
+            ])->withInput();
+        }
 
         if ($product) {
             $product->update([

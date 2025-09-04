@@ -171,3 +171,48 @@ test('sales calculation uses category-specific prices', function () {
     expect($actualRevenue)->toBe($expectedRevenue);
     expect($price)->toBe(150);
 }); 
+
+test('admin cannot create product without any prices', function () {
+    $admin = User::factory()->admin()->create();
+    $admin->assignRole('admin');
+
+    $response = $this->actingAs($admin)->post('/admin/inventory', [
+        'name' => 'Product Without Prices',
+        'price_kilo' => '',
+        'price_pc' => '',
+        'price_tali' => '',
+        'description' => 'Test description',
+        'produce_type' => 'fruit',
+        'image' => \Illuminate\Http\UploadedFile::fake()->create('product.jpg', 100),
+    ]);
+
+    $response->assertSessionHasErrors(['prices']);
+    $response->assertRedirect();
+    
+    // Verify no product was created
+    $product = Product::where('name', 'Product Without Prices')->first();
+    expect($product)->toBeNull();
+});
+
+test('admin can create product with only one price', function () {
+    $admin = User::factory()->admin()->create();
+    $admin->assignRole('admin');
+
+    $response = $this->actingAs($admin)->post('/admin/inventory', [
+        'name' => 'Product With One Price',
+        'price_kilo' => 150.00,
+        'price_pc' => '',
+        'price_tali' => '',
+        'description' => 'Test description',
+        'produce_type' => 'fruit',
+        'image' => \Illuminate\Http\UploadedFile::fake()->create('product.jpg', 100),
+    ]);
+
+    $response->assertRedirect('/admin/inventory');
+    
+    $product = Product::where('name', 'Product With One Price')->first();
+    expect($product)->not->toBeNull();
+    expect($product->price_kilo)->toBe(150);
+    expect($product->price_pc)->toBeNull();
+    expect($product->price_tali)->toBeNull();
+}); 

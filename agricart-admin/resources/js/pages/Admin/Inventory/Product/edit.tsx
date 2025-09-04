@@ -95,27 +95,24 @@ export default function Edit({product}: Props) {
                     <div className='gap-1.5'>
                         <Label htmlFor="product name">Name</Label>
                         <Input placeholder="Product Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
-                        {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
+                    
                     <div className='gap-1.5'>
+                        <p className="text-sm text-gray-600 mb-2">* At least one price must be provided</p>
                         <Label htmlFor="product price_kilo">Price per Kilo</Label>
                         <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
-                        {errors.price_kilo && <p className="text-sm text-red-500 mt-1">{errors.price_kilo}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product price_pc">Price per Piece</Label>
                         <Input type="number" min="0" step="0.01" placeholder="Price per Piece" value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
-                        {errors.price_pc && <p className="text-sm text-red-500 mt-1">{errors.price_pc}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product price_tali">Price per Tali</Label>
                         <Input type="number" min="0" step="0.01" placeholder="Price per Tali" value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
-                        {errors.price_tali && <p className="text-sm text-red-500 mt-1">{errors.price_tali}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product description">Description</Label>
                         <Textarea placeholder="Product Description" value={data.description} onChange={(e) => setData('description', e.target.value)}/>
-                        {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product produce_type">Produce Type</Label>
@@ -129,7 +126,6 @@ export default function Edit({product}: Props) {
                             <option value="fruit">Fruit</option>
                             <option value="vegetable">Vegetable</option>
                         </select>
-                        {errors.produce_type && <p className="text-sm text-red-500 mt-1">{errors.produce_type}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="product image">Product Image</Label>
@@ -166,7 +162,6 @@ export default function Edit({product}: Props) {
                         )}
                         
                         <Input onChange={handleFileUpload} id='image' name='image' type='file' accept="image/*"/>
-                        {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image}</p>}
                     </div>
                     <Button disabled={processing} type="submit">Update Product</Button>
                 </form>

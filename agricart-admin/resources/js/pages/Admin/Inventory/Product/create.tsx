@@ -63,7 +63,9 @@ export default function Create() {
                         <Label htmlFor="product name">Name</Label>
                         <Input placeholder="Product Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                     </div>
+                    
                     <div className='gap-1.5'>
+                        <p className="text-sm text-gray-600 mb-2">* At least one price must be provided</p>
                         <Label htmlFor="product price_kilo">Price per Kilo</Label>
                         <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
                     </div>
