@@ -2,7 +2,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import type { SharedData } from '@/types';
 import StockManager from '@/lib/stock-manager';
 
@@ -25,9 +25,10 @@ export default function CartPage() {
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
   const [tempQuantities, setTempQuantities] = useState<Record<number, number>>({});
   const [quantityErrors, setQuantityErrors] = useState<Record<number, string>>({});
-  const [rawInputValues, setRawInputValues] = useState<Record<number, string>>({});
+
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
   const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
+  const [confirmUpdateItem, setConfirmUpdateItem] = useState<number | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -53,22 +54,20 @@ export default function CartPage() {
     // Only initialize temp quantities if they don't exist yet
     // This prevents overwriting user input during updates
     const tempQty: Record<number, number> = {};
-    const rawInput: Record<number, string> = {};
     
     Object.values(initialCart).forEach(item => {
       // Only set if not currently being edited
       if (!editingItems.has(item.item_id)) {
-        // Format quantity based on category using helper function
-        const formattedQuantity = formatQuantityForDisplay(item.quantity, item.category);
-        
-        tempQty[item.item_id] = item.quantity;
-        rawInput[item.item_id] = formattedQuantity;
+        // Ensure proper formatting based on category
+        const formattedQuantity = item.category === 'Kilo' 
+          ? Number(item.quantity) || 0
+          : Math.floor(Number(item.quantity) || 0);
+        tempQty[item.item_id] = formattedQuantity;
       }
     });
     
     // Merge with existing values instead of replacing
     setTempQuantities(prev => ({ ...prev, ...tempQty }));
-    setRawInputValues(prev => ({ ...prev, ...rawInput }));
 
     // Sync stock manager with backend cart data
     const stockManager = StockManager.getInstance();
@@ -121,7 +120,7 @@ export default function CartPage() {
       return;
     }
 
-    const oldQuantity = itemToUpdate.quantity;
+    const oldQuantity = Number(itemToUpdate.quantity) || 0;
     
     // Format quantity for storage based on category
     const formattedQuantity = formatQuantityForStorage(newQuantity, itemToUpdate.category);
@@ -179,61 +178,7 @@ export default function CartPage() {
     );
   };
 
-  const handleQuantityChange = (cartItem: number, value: string, category: string, availableStock: number | string) => {
-    // Only allow changes if item is in edit mode
-    if (!editingItems.has(cartItem)) {
-      return;
-    }
 
-    // Update raw input value immediately
-    setRawInputValues(prev => ({ ...prev, [cartItem]: value }));
-
-    if (value === '' || value === null || value === undefined) {
-      setTempQuantities(prev => ({ ...prev, [cartItem]: 0 }));
-      setQuantityErrors(prev => ({ ...prev, [cartItem]: '' }));
-      return;
-    }
-
-    let numericValue: number;
-
-    if (category === 'Kilo') {
-      numericValue = parseFloat(value) || 0;
-    } else {
-      // Remove dots and commas for non-kilo items and ensure integer
-      const cleanValue = value.replace(/\./g, '').replace(/,/g, '');
-      numericValue = parseInt(cleanValue) || 0;
-      
-      // If user tried to enter a decimal, show an error
-      if (value.includes('.') || value.includes(',')) {
-        setQuantityErrors(prev => ({ 
-          ...prev, 
-          [cartItem]: `${category} quantities must be whole numbers` 
-        }));
-        return;
-      }
-    }
-
-    const numAvailableStock = typeof availableStock === 'number' ? availableStock : parseFloat(String(availableStock)) || 0;
-
-    // Cap the value at available stock
-    if (numericValue > numAvailableStock) {
-      numericValue = numAvailableStock;
-      // Don't auto-update the input value to avoid confusion
-    }
-
-    // Update temp quantities
-    setTempQuantities(prev => ({ ...prev, [cartItem]: numericValue }));
-
-    // Set error if exceeding available stock
-    if (numericValue > numAvailableStock) {
-      setQuantityErrors(prev => ({ 
-        ...prev, 
-        [cartItem]: `Maximum available: ${formatQuantityDisplay(numAvailableStock, category)} ${category}` 
-      }));
-    } else {
-      setQuantityErrors(prev => ({ ...prev, [cartItem]: '' }));
-    }
-  };
 
   const enterEditMode = (cartItem: number) => {
     setEditingItems(prev => new Set(prev).add(cartItem));
@@ -241,19 +186,16 @@ export default function CartPage() {
     // Initialize with current cart quantity
     const currentItem = cart[cartItem];
     if (currentItem) {
-      const currentQuantity = currentItem.quantity;
+      const currentQuantity = Number(currentItem.quantity) || 0;
       
-      // Format quantity based on category using helper function
-      const formattedQuantity = formatQuantityForDisplay(currentQuantity, currentItem.category);
+      // Set temp quantities to current cart quantity, ensuring proper formatting
+      const formattedQuantity = currentItem.category === 'Kilo' 
+        ? Number(currentQuantity) || 0
+        : Math.floor(Number(currentQuantity) || 0);
       
-      // Set both raw input and temp quantities
-      setRawInputValues(prev => ({ 
-        ...prev, 
-        [cartItem]: formattedQuantity
-      }));
       setTempQuantities(prev => ({ 
         ...prev, 
-        [cartItem]: currentQuantity
+        [cartItem]: formattedQuantity
       }));
       
       // Clear any existing errors
@@ -268,27 +210,20 @@ export default function CartPage() {
       return newSet;
     });
     
-    // Reset to current cart values instead of clearing
+    // Reset to current cart values
     const currentItem = cart[cartItem];
     if (currentItem) {
-      // Format quantity based on category using helper function
-      const formattedQuantity = formatQuantityForDisplay(currentItem.quantity, currentItem.category);
+      // Ensure proper formatting when resetting
+      const formattedQuantity = currentItem.category === 'Kilo' 
+        ? Number(currentItem.quantity) || 0
+        : Math.floor(Number(currentItem.quantity) || 0);
       
-      setRawInputValues(prev => ({
+      setTempQuantities(prev => ({
         ...prev,
         [cartItem]: formattedQuantity
       }));
-      setTempQuantities(prev => ({
-        ...prev,
-        [cartItem]: currentItem.quantity
-      }));
     } else {
       // Clear if item no longer exists
-      setRawInputValues(prev => {
-        const newRaw = { ...prev };
-        delete newRaw[cartItem];
-        return newRaw;
-      });
       setTempQuantities(prev => {
         const newTemp = { ...prev };
         delete newTemp[cartItem];
@@ -343,25 +278,7 @@ export default function CartPage() {
     }
   };
 
-  const getInputValue = (item: CartItem) => {
-    // If in edit mode, show raw input value
-    if (editingItems.has(item.item_id)) {
-      const rawValue = rawInputValues[item.item_id];
-      if (rawValue !== undefined) {
-        return rawValue;
-      }
-      // Fallback to current cart quantity if no raw input
-      return formatQuantityForDisplay(item.quantity, item.category);
-    }
-    
-    // Show the actual cart quantity (not editable)
-    const currentValue = item.quantity;
-    
-    if (currentValue === 0 || currentValue === null || currentValue === undefined) return '';
-    
-    // Use helper function for consistent formatting
-    return formatQuantityForDisplay(currentValue, item.category);
-  };
+
 
   const handleCheckout = () => {
     router.post(
@@ -401,7 +318,7 @@ export default function CartPage() {
                   <div className="font-semibold">{item.name}</div>
                   <div className="text-sm text-gray-500">Type: {item.category}</div>
                   <div className="text-sm font-medium text-green-600">
-                    Php{item.total_price.toFixed(2)}
+                    Php{(Number(item.total_price) || 0).toFixed(2)}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -409,35 +326,69 @@ export default function CartPage() {
                     <label htmlFor={`quantity-${item.item_id}`} className="text-sm font-medium">
                       Qty:
                     </label>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        min={item.category === 'Kilo' ? "0.01" : "1"}
-                        max={typeof item.available_stock === 'number' ? item.available_stock : parseFloat(item.available_stock) || 0}
-                        step={item.category === 'Kilo' ? "0.01" : "1"}
-                        value={getInputValue(item)}
-                        onChange={(e) => handleQuantityChange(item.item_id, e.target.value, item.category, item.available_stock)}
-                        onKeyDown={(e) => {
-                          if (item.category !== 'Kilo' && (e.key === '.' || e.key === ',')) {
-                            e.preventDefault();
-                          }
-                        }}
-                        disabled={!editingItems.has(item.item_id)}
-                        className={`w-20 ${(() => {
-                          if (!editingItems.has(item.item_id)) return '';
-                          const rawValue = rawInputValues[item.item_id];
-                          if (rawValue !== undefined) {
-                            const inputValue = item.category === 'Kilo' 
-                              ? parseFloat(rawValue) || 0
-                              : parseInt(rawValue.replace(/\./g, '').replace(/,/g, '')) || 0;
-                            const availableStock = typeof item.available_stock === 'number' 
-                              ? item.available_stock 
-                              : parseFloat(item.available_stock) || 0;
-                            return inputValue > availableStock ? 'border-red-500 bg-red-50' : '';
-                          }
-                          return '';
-                        })()}`}
-                      />
+                    <div className="flex items-center space-x-2">
+                      {editingItems.has(item.item_id) ? (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const currentQty = Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                              if (item.category === 'Kilo') {
+                                const newQty = Math.max(0.25, currentQty - 0.25);
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: Number(newQty.toFixed(2)) }));
+                              } else {
+                                const newQty = Math.max(1, Math.floor(currentQty - 1));
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
+                              }
+                            }}
+                            disabled={
+                              item.category === 'Kilo' 
+                                ? (Number(tempQuantities[item.item_id] || item.quantity) || 0) <= 0.25
+                                : (Number(tempQuantities[item.item_id] || item.quantity) || 0) <= 1
+                            }
+                            className="px-2"
+                          >
+                            {item.category === 'Kilo' ? '-0.25' : '-1'}
+                          </Button>
+                          <div className="w-20 text-center border rounded p-2 bg-blue-50 border-blue-200 text-blue-700 font-medium">
+                            {item.category === 'Kilo' 
+                              ? (Number(tempQuantities[item.item_id] || item.quantity) || 0).toFixed(2)
+                              : Math.floor(Number(tempQuantities[item.item_id] || item.quantity) || 0)
+                            }
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const currentQty = Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                              const availableStock = typeof item.available_stock === 'number' 
+                                ? item.available_stock 
+                                : parseFloat(String(item.available_stock)) || 0;
+                              if (item.category === 'Kilo') {
+                                const newQty = Math.min(availableStock, currentQty + 0.25);
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: Number(newQty.toFixed(2)) }));
+                              } else {
+                                const newQty = Math.min(availableStock, Math.floor(currentQty + 1));
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
+                              }
+                            }}
+                            disabled={
+                              (Number(tempQuantities[item.item_id] || item.quantity) || 0) >= 
+                              (typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0)
+                            }
+                            className="px-2"
+                          >
+                            {item.category === 'Kilo' ? '+0.25' : '+1'}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="w-20 text-center border rounded p-2 bg-blue-50 border-blue-200 text-blue-700 font-medium">
+                          {formatQuantityDisplay(item.quantity, item.category)}
+                        </div>
+                      )}
                     </div>
                     {editingItems.has(item.item_id) ? (
                       <>
@@ -445,24 +396,7 @@ export default function CartPage() {
                           variant="default"
                           size="sm"
                           onClick={() => {
-                            const rawValue = rawInputValues[item.item_id];
-                            let newQuantity: number;
-                            
-                            if (rawValue !== undefined) {
-                              // Use the raw input value
-                              if (item.category === 'Kilo') {
-                                newQuantity = parseFloat(rawValue) || 0;
-                              } else {
-                                const cleanValue = rawValue.replace(/\./g, '').replace(/,/g, '');
-                                newQuantity = parseInt(cleanValue) || 0;
-                              }
-                            } else {
-                              // Use current cart quantity if no raw input
-                              newQuantity = item.quantity;
-                            }
-                            
-                            updateItemQuantity(item.item_id, newQuantity);
-                            exitEditMode(item.item_id);
+                            setConfirmUpdateItem(item.item_id);
                           }}
                           disabled={updatingItems.has(item.item_id) || !!quantityErrors[item.item_id]}
                           className="bg-green-600 hover:bg-green-700 text-white"
@@ -505,7 +439,7 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="text-sm text-gray-500 mt-1">
-                  Available: {formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(item.available_stock) || 0, item.category)} {item.category}
+                  Available: {formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0, item.category)} {item.category}
                 </div>
                 {editingItems.has(item.item_id)}
               </div>
@@ -518,7 +452,7 @@ export default function CartPage() {
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-semibold">Cart Total:</span>
-              <span className="text-lg font-bold text-green-600">Php{cartTotal.toFixed(2)}</span>
+              <span className="text-lg font-bold text-green-600">Php{(Number(cartTotal) || 0).toFixed(2)}</span>
             </div>
             
             {/* Minimum Order Requirement */}
@@ -526,7 +460,7 @@ export default function CartPage() {
               {meetsMinimumOrder ? (
                 <span>✓ Minimum order requirement met (Php{minimumOrder})</span>
               ) : (
-                <span>⚠ Minimum order requirement: Php{minimumOrder} (add Php{(minimumOrder - cartTotal).toFixed(2)} more)</span>
+                <span>⚠ Minimum order requirement: Php{minimumOrder} (add Php{(minimumOrder - (Number(cartTotal) || 0)).toFixed(2)} more)</span>
               )}
             </div>
           </div>
@@ -561,6 +495,39 @@ export default function CartPage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmUpdateItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Confirm Quantity Update</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to update the quantity for this item?
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="default"
+                onClick={() => {
+                  const newQuantity = Number(tempQuantities[confirmUpdateItem] || cart[confirmUpdateItem]?.quantity) || 0;
+                  updateItemQuantity(confirmUpdateItem, newQuantity);
+                  exitEditMode(confirmUpdateItem);
+                  setConfirmUpdateItem(null);
+                }}
+                className="flex-1"
+              >
+                Confirm Update
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setConfirmUpdateItem(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppHeaderLayout>
   );
 } 
