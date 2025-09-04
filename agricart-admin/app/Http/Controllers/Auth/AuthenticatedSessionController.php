@@ -14,14 +14,6 @@ use Inertia\Response;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Show the auth portal selection page.
-     */
-    public function index(Request $request): Response
-    {
-        return Inertia::render('auth/index');
-    }
-
-    /**
      * Show the customer login page.
      */
     public function create(Request $request): Response

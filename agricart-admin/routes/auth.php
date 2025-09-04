@@ -11,9 +11,6 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    // Auth portal selection page
-    Route::get('/portal', [AuthenticatedSessionController::class, 'index'])
-        ->name('auth.index');
 
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
