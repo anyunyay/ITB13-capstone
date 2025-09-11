@@ -46,7 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update'); // Edit Product (PUT)
         });
         Route::middleware(['can:delete products'])->delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy'); // Delete Product
-
+        Route::middleware(['can:generate inventory report'])->group(function () {
+            Route::get('/inventory/report', [InventoryController::class, 'generateReport'])->name('inventory.report');
+        });
+        
         // Archive routes
         Route::middleware(['can:view archive'])->get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index'); // View Archived Products
         Route::middleware(['can:archive products'])->post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive'); // Archive Product
