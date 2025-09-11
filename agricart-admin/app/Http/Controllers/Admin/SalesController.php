@@ -117,26 +117,7 @@ class SalesController extends Controller
         $callback = function() use ($sales, $memberSales, $summary, $request) {
             $file = fopen('php://output', 'w');
             
-            // Summary section
-            fputcsv($file, ['SALES REPORT SUMMARY']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Revenue', 'Total Orders', 'Average Order Value', 'Total Customers']);
-            fputcsv($file, [
-                number_format($summary['total_revenue'], 2),
-                $summary['total_orders'],
-                number_format($summary['average_order_value'], 2),
-                $summary['total_customers']
-            ]);
-            fputcsv($file, ['']);
-            
-            // Date range if specified
-            if ($request->filled('start_date') && $request->filled('end_date')) {
-                fputcsv($file, ['Period', $request->start_date . ' to ' . $request->end_date]);
-                fputcsv($file, ['']);
-            }
-            
             // Sales data
-            fputcsv($file, ['SALES DATA']);
             fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
             
             foreach ($sales as $sale) {

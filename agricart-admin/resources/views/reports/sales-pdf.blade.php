@@ -118,27 +118,6 @@
         @endif
     </div>
 
-    <div class="summary">
-        <h2>Revenue Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
-                <div class="summary-label">Total Revenue</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_orders'] }}</div>
-                <div class="summary-label">Total Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['average_order_value'], 2) }}</div>
-                <div class="summary-label">Average Order Value</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_customers'] }}</div>
-                <div class="summary-label">Total Customers</div>
-            </div>
-        </div>
-    </div>
 
     <table>
         <thead>
