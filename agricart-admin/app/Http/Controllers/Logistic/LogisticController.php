@@ -192,17 +192,6 @@ class LogisticController extends Controller
         $callback = function() use ($orders, $summary) {
             $file = fopen('php://output', 'w');
             
-            // Write summary
-            fputcsv($file, ['Logistic Orders Report Summary']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Orders', $summary['total_orders']]);
-            fputcsv($file, ['Total Revenue', 'PHP ' . number_format($summary['total_revenue'], 2)]);
-            fputcsv($file, ['Pending Orders', $summary['pending_orders']]);
-            fputcsv($file, ['Out for Delivery Orders', $summary['out_for_delivery_orders']]);
-            fputcsv($file, ['Delivered Orders', $summary['delivered_orders']]);
-            fputcsv($file, ['Average Order Value', 'PHP ' . number_format($summary['average_order_value'], 2)]);
-            fputcsv($file, ['']);
-            
             // Write headers
             fputcsv($file, [
                 'Order ID',
