@@ -144,9 +144,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit'); // Edit Staff (GET)
             Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update'); // Edit Staff (PUT)
         });
+
+        Route::middleware(['can:generate staff report'])->get('/staff/report', [StaffController::class, 'generateReport'])->name('admin.staff.report');
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
     });
 
+        
     // Customer routes
     Route::prefix('/customer')->middleware(['can:access customer features'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

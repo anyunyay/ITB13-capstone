@@ -45,6 +45,7 @@ class RoleSeeder extends Seeder
             'create stocks',
             'edit stocks',
             'delete stocks', // Available for Staff (with admin approval)
+            'generate inventory report',
 
             // Order Management
             'view orders',
@@ -73,6 +74,7 @@ class RoleSeeder extends Seeder
             'create staffs',
             'edit staffs',
             'delete staffs',
+            'generate staff report',
 
             // Admin Only (Membership Management)
             'view membership',
