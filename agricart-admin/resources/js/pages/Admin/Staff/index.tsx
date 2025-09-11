@@ -41,14 +41,23 @@ export default function StaffIndex({ staff }: Props) {
               Manage staff members and their permissions
             </p>
           </div>
-          {createStaffs && (
-            <Button asChild>
-              <Link href="/admin/staff/add">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Staff
-              </Link>
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {createStaffs && (
+              <Button asChild>
+                <Link href="/admin/staff/add">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Staff
+                </Link>
+              </Button>
+            )}
+            <PermissionGate permission="generate staff report">
+              <Button variant="outline" asChild>
+                <Link href={route('admin.staff.report')}>
+                  Generate Report
+                </Link>
+              </Button>
+            </PermissionGate>
+          </div>
         </div>
 
         <Card>
