@@ -84,13 +84,7 @@ class SalesController extends Controller
         // Check if format is specified for export
         if ($request->filled('format')) {
             if ($request->format === 'pdf') {
-                return view('reports.sales-pdf', [
-                    'sales' => $sales,
-                    'summary' => $summary,
-                    'memberSales' => $memberSales,
-                    'generated_at' => now()->format('M d, Y H:i:s'),
-                    'filters' => $request->only(['start_date', 'end_date']),
-                ]);
+                return $this->exportToPdf($sales, $memberSales, $summary, $request);
             } elseif ($request->format === 'csv') {
                 return $this->exportCsv($sales, $memberSales, $summary, $request);
             }
@@ -157,6 +151,24 @@ class SalesController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($sales, $memberSales, $summary, $request)
+    {
+        $html = view('reports.sales-pdf', [
+            'sales' => $sales,
+            'summary' => $summary,
+            'memberSales' => $memberSales,
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'filters' => $request->only(['start_date', 'end_date']),
+        ])->render();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $filename = 'sales_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 
     private function getMemberSales(Request $request)
