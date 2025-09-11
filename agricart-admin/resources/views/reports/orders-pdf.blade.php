@@ -124,35 +124,6 @@
         <p>Generated on: {{ $generated_at }}</p>
     </div>
 
-    <div class="summary">
-        <h2>Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_orders'] }}</div>
-                <div class="summary-label">Total Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
-                <div class="summary-label">Total Revenue</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['pending_orders'] }}</div>
-                <div class="summary-label">Pending Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['approved_orders'] }}</div>
-                <div class="summary-label">Approved Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['rejected_orders'] }}</div>
-                <div class="summary-label">Rejected Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['delivered_orders'] }}</div>
-                <div class="summary-label">Delivered Orders</div>
-            </div>
-        </div>
-    </div>
 
     <table>
         <thead>
