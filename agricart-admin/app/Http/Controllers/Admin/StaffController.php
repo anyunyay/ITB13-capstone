@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StaffController extends Controller
 {
@@ -151,5 +153,104 @@ class StaffController extends Controller
 
         return redirect()->route('staff.index')
             ->with('message', 'Staff member deleted successfully.');
+    }
+
+    /**
+     * Generate staff report
+     */
+    public function generateReport(Request $request)
+    {
+        // Get all staff members with their permissions
+        $staff = User::where('type', 'staff')
+            ->with('permissions')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_staff' => $staff->count(),
+            'total_permissions' => Permission::count(),
+            'active_staff' => $staff->where('email_verified_at', '!=', null)->count(),
+            'staff_with_permissions' => $staff->filter(function ($member) {
+                return $member->permissions->count() > 0;
+            })->count(),
+        ];
+
+        // Check if format is specified for export
+        if ($request->filled('format')) {
+            if ($request->format === 'pdf') {
+                return $this->exportToPdf($staff, $summary);
+            } elseif ($request->format === 'csv') {
+                return $this->exportToCsv($staff, $summary);
+            }
+        }
+
+        // Return Inertia page for report view
+        return Inertia::render('Admin/Staff/report', [
+            'staff' => $staff,
+            'summary' => $summary,
+        ]);
+    }
+
+    /**
+     * Export staff report to CSV
+     */
+    private function exportToCsv($staff, $summary)
+    {
+        $filename = 'staff_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($staff, $summary) {
+            $file = fopen('php://output', 'w');
+            
+            // Write headers
+            fputcsv($file, [
+                'Staff ID',
+                'Name',
+                'Email',
+                'Permissions',
+                'Created At',
+                'Email Verified'
+            ]);
+            
+            foreach ($staff as $member) {
+                $permissions = $member->permissions->pluck('name')->join(', ');
+                fputcsv($file, [
+                    $member->id,
+                    $member->name,
+                    $member->email,
+                    $permissions ?: 'No permissions',
+                    $member->created_at->format('Y-m-d H:i:s'),
+                    $member->email_verified_at ? 'Yes' : 'No'
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export staff report to PDF
+     */
+    private function exportToPdf($staff, $summary)
+    {
+        $html = view('reports.staff-pdf', [
+            'staff' => $staff,
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $filename = 'staff_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 } 
