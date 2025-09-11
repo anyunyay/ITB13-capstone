@@ -183,21 +183,71 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
           </Card>
         </div>
 
-        {/* Sales List */}
+        {/* Sales Table */}
         <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Sales ({sales.length})</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Sales ({sales.length})</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {sales.map((sale) => (
-                <SaleCard key={sale.id} sale={sale} />
-              ))}
-              {sales.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  No sales found for the selected filters.
-                </div>
-              )}
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">ID</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Customer</th>
+                    <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Amount</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Processed By</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Logistic</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Created</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {sales.map((sale) => (
+                    <tr key={sale.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-gray-600">#{sale.id}</td>
+                      <td className="px-3 py-2 max-w-xs">
+                        <div className="text-sm font-medium text-gray-900 truncate" title={sale.customer.name}>
+                          {sale.customer.name}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">{sale.customer.email}</div>
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ₱{Number(sale.total_amount).toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 max-w-xs">
+                        <div className="text-sm text-gray-900 truncate" title={sale.admin?.name || 'N/A'}>
+                          {sale.admin?.name || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 max-w-xs">
+                        <div className="text-sm text-gray-900 truncate" title={sale.logistic?.name || 'N/A'}>
+                          {sale.logistic?.name || 'N/A'}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
+                        {format(new Date(sale.created_at), 'MMM dd, yyyy')}
+                        <div className="text-xs text-gray-400">{format(new Date(sale.created_at), 'HH:mm')}</div>
+                      </td>
+                    </tr>
+                  ))}
+                  {sales.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                        <div className="flex flex-col items-center">
+                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                            </svg>
+                          </div>
+                          <p className="text-sm">No sales found for the selected filters.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
@@ -222,56 +272,6 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
   );
 }
 
-function SaleCard({ sale }: { sale: Sale }) {
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">Sale #{sale.id}</CardTitle>
-            <p className="text-sm text-gray-500">
-              {format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-600">
-              ₱{Number(sale.total_amount).toFixed(2)}
-            </div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="font-semibold mb-2">Customer Information</h4>
-            <p className="text-sm">
-              <span className="font-medium">Name:</span> {sale.customer.name}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Email:</span> {sale.customer.email}
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">Sale Details</h4>
-            <p className="text-sm">
-              <span className="font-medium">Total Amount:</span> ₱{Number(sale.total_amount).toFixed(2)}
-            </p>
-            {sale.admin && (
-              <p className="text-sm">
-                <span className="font-medium">Processed by:</span> {sale.admin.name}
-              </p>
-            )}
-            {sale.logistic && (
-              <p className="text-sm">
-                <span className="font-medium">Logistic:</span> {sale.logistic.name}
-              </p>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 function MemberSaleCard({ member, index }: { member: MemberSale; index: number }) {
   const averageRevenue = member.total_orders > 0 ? member.total_revenue / member.total_orders : 0;
