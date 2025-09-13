@@ -21,6 +21,7 @@ import {
   IdCard,
   ClipboardPen,
   TrendingUp,
+  DollarSign,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -65,6 +66,15 @@ export function AppSidebar() {
       title: 'Sales',
       href: '/admin/sales',
       icon: TrendingUp,
+    });
+  }
+
+  // Operational Expenses - check for sales-related permissions
+  if (can('view sales') || can('generate sales report')) {
+    mainNavItems.push({
+      title: 'Operational Expenses',
+      href: '/admin/operational-expenses',
+      icon: DollarSign,
     });
   }
 

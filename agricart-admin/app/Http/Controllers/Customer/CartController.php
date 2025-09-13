@@ -201,8 +201,16 @@ class CartController extends Controller
                 return redirect()->route('cart.index')->with('checkoutMessage', 'Minimum order requirement is Php75. Your current total is Php' . number_format($totalPrice, 2) . '. Please add more items to your cart.');
             }
 
-            // Update the sale with total amount
-            $sale->update(['total_amount' => $totalPrice]);
+            // Calculate operational expense (10%) and member earnings (90%)
+            $operationalExpense = $totalPrice * 0.10;
+            $memberEarnings = $totalPrice * 0.90;
+
+            // Update the sale with total amount, operational expense, and member earnings
+            $sale->update([
+                'total_amount' => $totalPrice,
+                'operational_expense' => $operationalExpense,
+                'member_earnings' => $memberEarnings,
+            ]);
 
             // Notify customer of order confirmation
             $user->notify(new OrderConfirmationNotification($sale));

@@ -12,6 +12,8 @@ class Sales extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
+        'operational_expense',
+        'member_earnings',
         'status',
         'delivery_status',
         'admin_id',
@@ -21,6 +23,8 @@ class Sales extends Model
 
     protected $casts = [
         'total_amount' => 'float',
+        'operational_expense' => 'float',
+        'member_earnings' => 'float',
     ];
 
     public function customer()
@@ -41,6 +45,11 @@ class Sales extends Model
     public function auditTrail()
     {
         return $this->hasMany(AuditTrail::class, 'sale_id'); 
+    }
+
+    public function memberEarnings()
+    {
+        return $this->hasMany(MemberEarning::class, 'sale_id');
     }
 
     // Scopes for filtering by status

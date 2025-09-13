@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\Stock;
 use App\Models\Sales;
+use App\Models\MemberEarning;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -57,12 +58,16 @@ class MemberController extends Controller
             'totalSales' => $salesData['totalSales'],
         ];
         
+        // Get member earnings data
+        $memberEarnings = $this->getMemberEarningsData($user->id);
+
         return Inertia::render('Member/dashboard', [
             'availableStocks' => $availableStocks,
             'partialStocks' => $partialStocks,
             'soldStocks' => $soldStocks,
             'assignedStocks' => $assignedStocks,
             'salesData' => $salesData,
+            'memberEarnings' => $memberEarnings,
             'summary' => $summary
         ]);
     }
@@ -71,11 +76,15 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
-        // Calculate sales data from Sales and AuditTrail tables
+        // Calculate sales data from MemberEarning records
         $salesData = $this->calculateSalesData($user->id);
+        
+        // Get member earnings data
+        $memberEarnings = $this->getMemberEarningsData($user->id);
             
         return Inertia::render('Member/soldStocks', [
-            'salesData' => $salesData
+            'salesData' => $salesData,
+            'memberEarnings' => $memberEarnings
         ]);
     }
 
@@ -144,22 +153,26 @@ class MemberController extends Controller
             
         // Calculate sales data for sold stocks
         $salesData = $this->calculateSalesData($user->id);
+        
+        // Get member earnings data
+        $memberEarnings = $this->getMemberEarningsData($user->id);
             
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
             'partialStocks' => $partialStocks,
-            'salesData' => $salesData
+            'salesData' => $salesData,
+            'memberEarnings' => $memberEarnings
         ]);
     }
 
     /**
-     * Calculate sales data from Sales and AuditTrail tables
+     * Calculate sales data from MemberEarning records
      */
     private function calculateSalesData($memberId)
     {
-        // Get all approved sales that involve stocks from this member
-        $approvedSales = Sales::approved()
-            ->with(['auditTrail.product', 'customer'])
+        // Get all member earnings for this member
+        $memberEarnings = MemberEarning::where('member_id', $memberId)
+            ->with(['sale.customer', 'stock.product'])
             ->get();
 
         $totalSales = 0;
@@ -167,55 +180,34 @@ class MemberController extends Controller
         $totalQuantitySold = 0;
         $productSales = []; // Group by product_id
 
-        foreach ($approvedSales as $sale) {
-            foreach ($sale->auditTrail as $audit) {
-                // Check if this audit trail involves a stock from this member
-                $stock = Stock::where('id', $audit->stock_id)
-                    ->where('member_id', $memberId)
-                    ->first();
+        foreach ($memberEarnings as $earning) {
+            $totalSales++;
+            $totalQuantitySold += $earning->quantity;
+            $totalRevenue += $earning->amount;
 
-                if ($stock) {
-                    $totalSales++;
-                    $totalQuantitySold += $audit->quantity;
-                    
-                    // Calculate revenue for this item
-                    $price = 0;
-                    if ($audit->category === 'Kilo' && $audit->product->price_kilo) {
-                        $price = $audit->product->price_kilo;
-                    } elseif ($audit->category === 'Pc' && $audit->product->price_pc) {
-                        $price = $audit->product->price_pc;
-                    } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
-                        $price = $audit->product->price_tali;
-                    }
-                    
-                    $itemRevenue = $audit->quantity * $price;
-                    $totalRevenue += $itemRevenue;
+            // Group by product_id
+            $productId = $earning->stock->product_id;
+            if (!isset($productSales[$productId])) {
+                $productSales[$productId] = [
+                    'product_id' => $productId,
+                    'product_name' => $earning->stock->product->name,
+                    'total_quantity' => 0,
+                    'price_per_unit' => $earning->amount / $earning->quantity, // Calculate average price per unit
+                    'total_revenue' => 0,
+                    'category' => $earning->category,
+                    'sales_count' => 0,
+                    'customers' => []
+                ];
+            }
 
-                    // Group by product_id
-                    $productId = $audit->product_id;
-                    if (!isset($productSales[$productId])) {
-                        $productSales[$productId] = [
-                            'product_id' => $productId,
-                            'product_name' => $audit->product->name,
-                            'total_quantity' => 0,
-                            'price_per_unit' => $price,
-                            'total_revenue' => 0,
-                            'category' => $audit->category,
-                            'sales_count' => 0,
-                            'customers' => []
-                        ];
-                    }
+            // Add quantities and revenue
+            $productSales[$productId]['total_quantity'] += $earning->quantity;
+            $productSales[$productId]['total_revenue'] += $earning->amount;
+            $productSales[$productId]['sales_count']++;
 
-                    // Add quantities and revenue
-                    $productSales[$productId]['total_quantity'] += $audit->quantity;
-                    $productSales[$productId]['total_revenue'] += $itemRevenue;
-                    $productSales[$productId]['sales_count']++;
-
-                    // Add customer if not already in the list
-                    if (!in_array($sale->customer->name, $productSales[$productId]['customers'])) {
-                        $productSales[$productId]['customers'][] = $sale->customer->name;
-                    }
-                }
+            // Add customer if not already in the list
+            if (!in_array($earning->sale->customer->name, $productSales[$productId]['customers'])) {
+                $productSales[$productId]['customers'][] = $earning->sale->customer->name;
             }
         }
 
@@ -230,6 +222,49 @@ class MemberController extends Controller
             'totalRevenue' => $totalRevenue,
             'totalQuantitySold' => $totalQuantitySold,
             'salesBreakdown' => $salesBreakdown
+        ];
+    }
+
+    /**
+     * Get detailed member earnings data
+     */
+    private function getMemberEarningsData($memberId)
+    {
+        $memberEarnings = MemberEarning::where('member_id', $memberId)
+            ->with(['sale.customer', 'stock.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalEarnings = $memberEarnings->sum('amount');
+        $totalOrders = $memberEarnings->unique('sale_id')->count();
+
+        // Group by month for chart data
+        $monthlyEarnings = $memberEarnings->groupBy(function($earning) {
+            return $earning->created_at->format('Y-m');
+        })->map(function($earnings, $month) {
+            return [
+                'month' => $month,
+                'total_earnings' => $earnings->sum('amount'),
+                'order_count' => $earnings->unique('sale_id')->count()
+            ];
+        })->values();
+
+        return [
+            'totalEarnings' => $totalEarnings,
+            'totalOrders' => $totalOrders,
+            'monthlyEarnings' => $monthlyEarnings,
+            'recentEarnings' => $memberEarnings->take(10)->map(function($earning) {
+                return [
+                    'id' => $earning->id,
+                    'amount' => $earning->amount,
+                    'quantity' => $earning->quantity,
+                    'category' => $earning->category,
+                    'product_name' => $earning->stock->product->name,
+                    'customer_name' => $earning->sale->customer->name,
+                    'sale_id' => $earning->sale_id,
+                    'created_at' => $earning->created_at->format('M d, Y'),
+                ];
+            })
         ];
     }
 } 
