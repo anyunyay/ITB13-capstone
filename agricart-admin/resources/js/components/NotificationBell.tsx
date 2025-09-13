@@ -37,10 +37,10 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
 
   const handleNotificationClick = (notification: Notification) => {
     try {
-      // For order-related notifications, navigate to order history
+      // For order-related notifications, navigate to order history with hash
       if (notification.data?.order_id && 
           ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-        router.visit('/customer/orders/history');
+        router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
       } else if (notification.action_url) {
         router.visit(notification.action_url);
       }

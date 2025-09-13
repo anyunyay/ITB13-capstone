@@ -93,6 +93,36 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     }
   }, [notifications]);
 
+  // Handle hash navigation to scroll to specific order
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#order-')) {
+      const orderId = hash.replace('#order-', '');
+      const timer = setTimeout(() => {
+        const orderElement = document.getElementById(`order-${orderId}`);
+        if (orderElement) {
+          // Calculate position with offset for better spacing
+          const elementPosition = orderElement.offsetTop;
+          const offsetPosition = elementPosition - 100; // 100px from top
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Add a subtle highlight effect
+          orderElement.style.transition = 'box-shadow 0.3s ease';
+          orderElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+          setTimeout(() => {
+            orderElement.style.boxShadow = '';
+          }, 2000);
+        }
+      }, 500); // Wait for page to fully load
+
+      return () => clearTimeout(timer);
+    }
+  }, [orders]); // Re-run when orders change
+
   const handleDeliveryStatusFilter = (deliveryStatus: string) => {
     const params = new URLSearchParams();
     if (deliveryStatus !== 'all') {

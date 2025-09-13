@@ -228,10 +228,10 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                   ? 'cursor-pointer hover:bg-gray-50' : ''
               }`}
               onClick={() => {
-                // For order-related notifications, navigate to order history
+                // For order-related notifications, navigate to order history with hash
                 if (notification.data?.order_id && 
                     ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-                  router.visit('/customer/orders/history');
+                  router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
                 }
               }}
             >
@@ -268,10 +268,10 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              // For order-related notifications, navigate to order history
+                              // For order-related notifications, navigate to order history with hash
                               if (notification.data?.order_id && 
                                   ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-                                router.visit('/customer/orders/history');
+                                router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
                               } else {
                                 router.visit(notification.action_url!);
                               }

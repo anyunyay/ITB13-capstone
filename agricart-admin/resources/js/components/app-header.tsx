@@ -75,13 +75,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                 preserveScroll: true,
                 onSuccess: () => {
                     if (orderId) {
-                        router.visit('/customer/orders/history');
+                        router.visit(`/customer/orders/history#order-${orderId}`);
                     }
                 },
             });
         } else {
             if (orderId) {
-                router.visit('/customer/orders/history');
+                router.visit(`/customer/orders/history#order-${orderId}`);
             }
         }
     };
