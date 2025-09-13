@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,16 +9,16 @@ use Inertia\Inertia;
 class NotificationController extends Controller
 {
     /**
-     * Display all notifications for the authenticated customer
+     * Display all notifications for the authenticated member
      */
     public function index(Request $request)
     {
         $user = $request->user();
         $notifications = $user->notifications()
             ->whereIn('type', [
-                'App\\Notifications\\OrderConfirmationNotification',
-                'App\\Notifications\\OrderStatusUpdate',
-                'App\\Notifications\\DeliveryStatusUpdate'
+                'App\\Notifications\\ProductSaleNotification',
+                'App\\Notifications\\EarningsUpdateNotification',
+                'App\\Notifications\\LowStockAlertNotification'
             ])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -34,7 +34,7 @@ class NotificationController extends Controller
                 ];
             });
 
-        return Inertia::render('Customer/notifications', [
+        return Inertia::render('Member/notifications', [
             'notifications' => $notifications,
         ]);
     }

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import { MemberLayout } from '@/layouts/member-layout';
 import { NotificationPage } from '@/components/NotificationPage';
 
 interface Notification {
@@ -18,11 +18,9 @@ interface NotificationsPageProps {
 
 export default function NotificationsPage({ notifications }: NotificationsPageProps) {
   return (
-    <AppHeaderLayout>
+    <MemberLayout>
       <Head title="Notifications" />
-      <div className="max-w-4xl mx-auto p-4">
-        <NotificationPage notifications={notifications} userType="customer" />
-      </div>
-    </AppHeaderLayout>
+      <NotificationPage notifications={notifications} userType="member" />
+    </MemberLayout>
   );
-} 
+}

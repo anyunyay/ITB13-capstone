@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
+use App\Notifications\InventoryUpdateNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -48,11 +49,17 @@ class InventoryStockController extends Controller
         ]);
 
         // Create a new stock entry
-        $product->stocks()->create([
+        $stock = $product->stocks()->create([
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
         ]);
+
+        // Notify admin and staff about inventory update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new InventoryUpdateNotification($stock, 'added', $stock->member));
+        }
 
         return redirect()->route('inventory.index')->with('message', 'Stock added successfully');
     }
@@ -93,6 +100,13 @@ class InventoryStockController extends Controller
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
         ]);
+
+        // Notify admin and staff about inventory update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new InventoryUpdateNotification($stock, 'updated', $stock->member));
+        }
+
         return redirect()->route('inventory.index')->with('message', 'Stock updated successfully');
     }
 
@@ -121,6 +135,12 @@ class InventoryStockController extends Controller
 
         // Mark stock as removed using the new method
         $stock->remove($request->reason);
+
+        // Notify admin and staff about inventory update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new InventoryUpdateNotification($stock, 'removed', $stock->member));
+        }
 
         return redirect()->route('inventory.index')->with('message', 'Perished stock removed successfully');
     }

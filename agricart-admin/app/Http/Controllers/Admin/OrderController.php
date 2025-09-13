@@ -9,6 +9,8 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
+use App\Notifications\DeliveryTaskNotification;
+use App\Notifications\ProductSaleNotification;
 use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -74,6 +76,9 @@ class OrderController extends Controller
             'logistic_id' => $logistic->id,
         ]);
 
+        // Notify logistic about delivery task
+        $logistic->notify(new DeliveryTaskNotification($order));
+
         return redirect()->route('admin.orders.show', $order->id)
             ->with('message', "Order assigned to {$logistic->name} successfully");
     }
@@ -97,6 +102,9 @@ class OrderController extends Controller
                 } else {
                     $trail->stock->setPartialStatus();
                 }
+
+                // Notify member about product sale
+                $trail->stock->member->notify(new ProductSaleNotification($trail->stock, $order, $order->customer));
             }
         }
 

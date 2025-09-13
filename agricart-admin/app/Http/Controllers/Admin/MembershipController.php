@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\MembershipUpdateNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
@@ -39,7 +40,7 @@ class MembershipController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/documents/'), $imageName);
             
-            User::create([
+            $member = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'contact_number' => $request->input('contact_number'),
@@ -50,6 +51,12 @@ class MembershipController extends Controller
                 'password' => bcrypt('password'), // Default password
                 'email_verified_at' => now(), // Automatically verify email
             ]);
+
+            // Notify admin and staff about membership update
+            $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+            foreach ($adminUsers as $admin) {
+                $admin->notify(new MembershipUpdateNotification($member, 'added'));
+            }
         }
 
         return redirect()->route('membership.index')->with('message', 'Member added successfully');
@@ -94,6 +101,13 @@ class MembershipController extends Controller
         }
 
         $member->save();
+
+        // Notify admin and staff about membership update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new MembershipUpdateNotification($member, 'updated'));
+        }
+
         return redirect()->route('membership.index')->with('message', 'Member Details updated successfully');
     }
 
@@ -103,6 +117,12 @@ class MembershipController extends Controller
         $member = User::where('type', 'member')->findOrFail($id);
         if ($member->document && file_exists(public_path($member->document))) {
             unlink(public_path($member->document));
+        }
+
+        // Notify admin and staff about membership update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new MembershipUpdateNotification($member, 'removed'));
         }
         
         $member->delete();

@@ -26,6 +26,16 @@ export interface Permissions {
     [key: string]: boolean;
 }
 
+export interface Notification {
+    id: string;
+    type: string;
+    message: string;
+    action_url?: string;
+    created_at: string;
+    read_at?: string;
+    data: any;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
@@ -37,6 +47,7 @@ export interface SharedData {
     };
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
+    notifications?: Notification[];
     [key: string]: unknown;
 }
 

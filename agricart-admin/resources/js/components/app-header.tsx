@@ -17,6 +17,7 @@ import AppLogoIcon from './app-logo-icon';
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
 import { SearchBar } from './search-bar';
+import { NotificationBell } from './NotificationBell';
 
 const mainNavItems: NavItem[] = [
     {
@@ -61,11 +62,11 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
-    const page = usePage<SharedData & { cart?: Record<string, any>, customerNotifications?: Array<any> }>();
-    const { auth, cart = {}, customerNotifications = [] } = page.props;
+    const page = usePage<SharedData & { cart?: Record<string, any>, customerNotifications?: Array<any>, notifications?: Array<any> }>();
+    const { auth, cart = {}, customerNotifications = [], notifications = [] } = page.props;
     const getInitials = useInitials();
     const cartCount = Object.values(cart).reduce((sum, item: any) => sum + (item.quantity || 0), 0);
-    const unreadCount = customerNotifications.length;
+    const unreadCount = notifications.filter((n: any) => !n.read_at).length;
 
     const handleNotificationClick = (n: any) => {
         if (!n.read_at) {
@@ -181,50 +182,12 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <SearchBar />
                             <div className="hidden lg:flex">
                                 {rightNavItems.map((item) => (
-                                    item.title === 'Notifications' ? (
-                                        <DropdownMenu key={item.title}>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="relative h-9 w-9">
-                                                    <Bell className="size-5 opacity-80 group-hover:opacity-100" />
-                                                    {unreadCount > 0 && (
-                                                        <span className="absolute -top-2 -right-2">
-                                                            <Badge className="bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                                                                {unreadCount}
-                                                            </Badge>
-                                                        </span>
-                                                    )}
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
-                                                <div className="p-2 font-semibold border-b">Notifications</div>
-                                                {unreadCount === 0 ? (
-                                                    <div className="p-4 text-center text-gray-500">No new notifications</div>
-                                                ) : (
-                                                    customerNotifications.slice(0, 10).map((n: any) => (
-                                                        <div key={n.id} className={`p-2 border-b last:border-b-0 cursor-pointer transition hover:bg-blue-50 border-l-4
-                                                            ${n.delivery_status ? 
-                                                                (n.delivery_status === 'delivered' 
-                                                                    ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
-                                                                    : 'bg-blue-100 border-blue-400 text-blue-900'
-                                                                ) : 
-                                                                (n.status === 'approved' 
-                                                                    ? 'bg-emerald-100 border-emerald-400 text-emerald-900' 
-                                                                    : 'bg-rose-100 border-rose-400 text-rose-900'
-                                                                )
-                                                            }`}
-                                                            onClick={() => handleNotificationClick(n)}
-                                                        >
-                                                            <div className="font-medium text-sm mb-1">Order #{n.order_id}</div>
-                                                            <div className="text-xs">{n.message}</div>
-                                                            <div className="text-xs text-gray-400 mt-1">{n.created_at && (new Date(n.created_at)).toLocaleString()}</div>
-                                                        </div>
-                                                    ))
-                                                )}
-                                                <div className="p-2 text-center border-t">
-                                                    <Link href="/customer/notifications" className="text-blue-600 text-xs hover:underline">View all notifications</Link>
-                                                </div>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                    item.title === 'Notifications' && auth.user ? (
+                                        <NotificationBell 
+                                            key={item.title}
+                                            notifications={notifications || []}
+                                            userType={auth.user.type || 'customer'}
+                                        />
                                     ) : (
                                         <TooltipProvider key={item.title} delayDuration={0}>
                                             <Tooltip>

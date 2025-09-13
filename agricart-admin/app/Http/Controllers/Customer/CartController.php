@@ -8,7 +8,10 @@ use App\Models\CartItem;
 use App\Models\Stock;
 use App\Models\Sales;
 use App\Models\AuditTrail;
+use App\Notifications\OrderConfirmationNotification;
+use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class CartController extends Controller
@@ -201,11 +204,24 @@ class CartController extends Controller
             // Update the sale with total amount
             $sale->update(['total_amount' => $totalPrice]);
 
+            // Notify customer of order confirmation
+            $user->notify(new OrderConfirmationNotification($sale));
+
+            // Notify admin and staff about new order
+            $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+            foreach ($adminUsers as $admin) {
+                $admin->notify(new NewOrderNotification($sale));
+            }
+
             // Clear the cart
             $cart->items()->delete();
             
             $message = 'Order placed successfully! Your order is pending admin approval.';
         } catch (\Throwable $e) {
+            Log::error('Checkout error: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'error' => $e->getTraceAsString()
+            ]);
             $message = 'An unexpected error occurred during checkout.';
         }
 

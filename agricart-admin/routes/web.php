@@ -142,6 +142,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update'); // Edit Staff (PUT)
         });
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
+        
+        // Notification routes
+        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::post('/notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markRead'])->name('admin.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
     });
 
     // Customer routes
@@ -158,6 +163,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     });
 
     // Logistic routes
@@ -167,6 +173,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/{order}', [\App\Http\Controllers\Logistic\LogisticController::class, 'showOrder'])->name('logistic.orders.show');
         Route::put('/orders/{order}/delivery-status', [\App\Http\Controllers\Logistic\LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
         Route::get('/report', [\App\Http\Controllers\Logistic\LogisticController::class, 'generateReport'])->name('logistic.report');
+        
+        // Notification routes
+        Route::get('/notifications', [\App\Http\Controllers\Logistic\NotificationController::class, 'index'])->name('logistic.notifications.index');
+        Route::post('/notifications/mark-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
     });
 
     // Member routes
@@ -177,6 +188,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/sold-stocks', [MemberController::class, 'soldStocks'])->name('member.soldStocks');
         Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
         Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
+        
+        // Notification routes
+        Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');
+        Route::post('/notifications/mark-read', [\App\Http\Controllers\Member\NotificationController::class, 'markRead'])->name('member.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Member\NotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
     });
 });
 

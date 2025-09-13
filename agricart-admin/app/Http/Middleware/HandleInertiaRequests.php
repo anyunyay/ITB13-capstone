@@ -64,23 +64,59 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
 
-        // Share notifications for authenticated customers
-        if ($request->user() && $request->user()->type === 'customer') {
-            $shared['customerNotifications'] = $request->user()->unreadNotifications()
-                ->whereIn('type', ['App\\Notifications\\OrderStatusUpdate', 'App\\Notifications\\DeliveryStatusUpdate'])
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($notification) {
-                    return [
-                        'id' => $notification->id,
-                        'order_id' => $notification->data['order_id'] ?? null,
-                        'status' => $notification->data['status'] ?? null,
-                        'delivery_status' => $notification->data['delivery_status'] ?? null,
-                        'message' => $notification->data['message'] ?? '',
-                        'created_at' => $notification->created_at->toISOString(),
-                        'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
+        // Share notifications for authenticated users based on their type
+        if ($request->user()) {
+            $user = $request->user();
+            $notificationTypes = [];
+            
+            switch ($user->type) {
+                case 'customer':
+                    $notificationTypes = [
+                        'App\\Notifications\\OrderConfirmationNotification',
+                        'App\\Notifications\\OrderStatusUpdate',
+                        'App\\Notifications\\DeliveryStatusUpdate'
                     ];
-                });
+                    break;
+                case 'admin':
+                case 'staff':
+                    $notificationTypes = [
+                        'App\\Notifications\\NewOrderNotification',
+                        'App\\Notifications\\InventoryUpdateNotification',
+                        'App\\Notifications\\MembershipUpdateNotification'
+                    ];
+                    break;
+                case 'member':
+                    $notificationTypes = [
+                        'App\\Notifications\\ProductSaleNotification',
+                        'App\\Notifications\\EarningsUpdateNotification',
+                        'App\\Notifications\\LowStockAlertNotification'
+                    ];
+                    break;
+                case 'logistic':
+                    $notificationTypes = [
+                        'App\\Notifications\\DeliveryTaskNotification',
+                        'App\\Notifications\\OrderStatusUpdate'
+                    ];
+                    break;
+            }
+
+            if (!empty($notificationTypes)) {
+                $shared['notifications'] = $user->unreadNotifications()
+                    ->whereIn('type', $notificationTypes)
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->map(function ($notification) {
+                        return [
+                            'id' => $notification->id,
+                            'type' => $notification->data['type'] ?? 'unknown',
+                            'message' => $notification->data['message'] ?? '',
+                            'action_url' => $notification->data['action_url'] ?? null,
+                            'created_at' => $notification->created_at->toISOString(),
+                            'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
+                            'data' => $notification->data,
+                        ];
+                    });
+            }
         }
 
         return $shared;
