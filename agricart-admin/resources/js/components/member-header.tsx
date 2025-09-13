@@ -13,7 +13,7 @@ export function MemberHeader() {
     const user = auth?.user;
 
     const handleLogout = () => {
-        router.post(route('logout'));
+        router.post('/logout');
     };
 
     return (
@@ -55,7 +55,7 @@ export function MemberHeader() {
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-gray-700" />
                             <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-gray-800">
-                                <Link href={route('profile.edit')} className="cursor-pointer">
+                                <Link href="/settings/profile" className="cursor-pointer">
                                     <User className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
                                 </Link>
@@ -71,4 +71,4 @@ export function MemberHeader() {
             </div>
         </header>
     );
-} 
+}
