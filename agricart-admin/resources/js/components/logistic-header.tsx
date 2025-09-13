@@ -5,9 +5,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { type SharedData } from '@/types';
 import { User, Truck, Package, History, LogOut } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { NotificationBell } from './NotificationBell';
 
 export function LogisticHeader() {
-    const { auth } = usePage<SharedData>().props;
+    const page = usePage<SharedData & { notifications?: Array<any> }>();
+    const { auth, notifications = [] } = page.props;
     const user = auth?.user;
 
     const handleLogout = () => {
@@ -27,6 +29,10 @@ export function LogisticHeader() {
 
                 {/* User Menu */}
                 <div className="flex items-center space-x-4">
+                    <NotificationBell 
+                        notifications={notifications}
+                        userType="logistic"
+                    />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">

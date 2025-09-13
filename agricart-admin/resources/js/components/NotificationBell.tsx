@@ -37,11 +37,37 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
 
   const handleNotificationClick = (notification: Notification) => {
     try {
-      // For order-related notifications, navigate to order history with hash
-      if (notification.data?.order_id && 
-          ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-        router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+      // Handle navigation based on user type and notification type
+      if (userType === 'customer') {
+        // For customer order-related notifications, navigate to order history with hash
+        if (notification.data?.order_id && 
+            ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+          router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+        } else if (notification.action_url) {
+          router.visit(notification.action_url);
+        }
+      } else if (userType === 'member') {
+        // For member notifications, navigate to appropriate member pages
+        if (notification.type === 'product_sale') {
+          router.visit('/member/sold-stocks');
+        } else if (notification.type === 'earnings_update') {
+          router.visit('/member/dashboard');
+        } else if (notification.type === 'low_stock_alert') {
+          router.visit('/member/available-stocks');
+        } else if (notification.action_url) {
+          router.visit(notification.action_url);
+        }
+      } else if (userType === 'logistic') {
+        // For logistic notifications, navigate to appropriate logistic pages
+        if (notification.type === 'delivery_task') {
+          router.visit('/logistic/orders');
+        } else if (notification.type === 'order_status_update') {
+          router.visit('/logistic/orders');
+        } else if (notification.action_url) {
+          router.visit(notification.action_url);
+        }
       } else if (notification.action_url) {
+        // Fallback for other user types
         router.visit(notification.action_url);
       }
     } catch (error) {
