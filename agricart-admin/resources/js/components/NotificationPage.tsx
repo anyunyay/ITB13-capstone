@@ -222,7 +222,18 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
               key={notification.id} 
               className={`border-l-4 transition-all hover:shadow-md ${
                 !notification.read_at ? getNotificationColor(notification.type) : 'bg-white'
+              } ${
+                notification.data?.order_id && 
+                ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)
+                  ? 'cursor-pointer hover:bg-gray-50' : ''
               }`}
+              onClick={() => {
+                // For order-related notifications, navigate to order history
+                if (notification.data?.order_id && 
+                    ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+                  router.visit('/customer/orders/history');
+                }
+              }}
             >
               <CardContent className="p-4">
                 <div className="flex items-start space-x-4">
@@ -256,7 +267,15 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => router.visit(notification.action_url!)}
+                            onClick={() => {
+                              // For order-related notifications, navigate to order history
+                              if (notification.data?.order_id && 
+                                  ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+                                router.visit('/customer/orders/history');
+                              } else {
+                                router.visit(notification.action_url!);
+                              }
+                            }}
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
                             View

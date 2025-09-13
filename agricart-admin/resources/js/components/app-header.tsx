@@ -62,22 +62,27 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
-    const page = usePage<SharedData & { cart?: Record<string, any>, customerNotifications?: Array<any>, notifications?: Array<any> }>();
-    const { auth, cart = {}, customerNotifications = [], notifications = [] } = page.props;
+    const page = usePage<SharedData & { cart?: Record<string, any>, notifications?: Array<any> }>();
+    const { auth, cart = {}, notifications = [] } = page.props;
     const getInitials = useInitials();
     const cartCount = Object.values(cart).reduce((sum, item: any) => sum + (item.quantity || 0), 0);
     const unreadCount = notifications.filter((n: any) => !n.read_at).length;
 
     const handleNotificationClick = (n: any) => {
+        const orderId = n.data?.order_id;
         if (!n.read_at) {
             router.post('/customer/notifications/mark-read', { ids: [n.id] }, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    router.visit(`/customer/orders/history#order-${n.order_id}`);
+                    if (orderId) {
+                        router.visit('/customer/orders/history');
+                    }
                 },
             });
         } else {
-            router.visit(`/customer/orders/history#order-${n.order_id}`);
+            if (orderId) {
+                router.visit('/customer/orders/history');
+            }
         }
     };
 
@@ -186,7 +191,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         <NotificationBell 
                                             key={item.title}
                                             notifications={notifications || []}
-                                            userType={auth.user.type || 'customer'}
+                                            userType={(auth.user as any)?.type || 'customer'}
                                         />
                                     ) : (
                                         <TooltipProvider key={item.title} delayDuration={0}>

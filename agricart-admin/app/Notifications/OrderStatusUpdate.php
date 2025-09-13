@@ -39,7 +39,7 @@ class OrderStatusUpdate extends Notification implements ShouldQueue
             ->line('New Status: ' . ucfirst($this->status))
             ->line('Message: ' . $this->message)
             ->line('Update Date: ' . now()->format('F j, Y g:i A'))
-            ->action('View Order', url('/customer/orders/' . $this->orderId))
+            ->action('View Order History', url('/customer/orders/history'))
             ->line('Thank you for your business!');
     }
 
@@ -50,7 +50,7 @@ class OrderStatusUpdate extends Notification implements ShouldQueue
             'type' => 'order_status_update',
             'status' => $this->status,
             'message' => $this->message,
-            'action_url' => '/customer/orders/' . $this->orderId,
+            'action_url' => '/customer/orders/history',
         ];
     }
 }

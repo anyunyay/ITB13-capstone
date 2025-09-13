@@ -35,7 +35,7 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
             ->line('Total Amount: ₱' . number_format($this->order->total_amount, 2))
             ->line('Status: ' . ucfirst($this->order->status))
             ->line('Order Date: ' . $this->order->created_at->format('F j, Y g:i A'))
-            ->action('View Order', url('/customer/orders/' . $this->order->id))
+            ->action('View Order History', url('/customer/orders/history'))
             ->line('We will notify you when your order status changes.');
     }
 
@@ -47,7 +47,7 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
             'total_amount' => $this->order->total_amount,
             'status' => $this->order->status,
             'message' => 'Order #' . $this->order->id . ' has been confirmed',
-            'action_url' => '/customer/orders/' . $this->order->id,
+            'action_url' => '/customer/orders/history',
         ];
     }
 }

@@ -54,8 +54,8 @@ interface HistoryProps {
 }
 
 export default function History({ orders, currentStatus, currentDeliveryStatus, counts }: HistoryProps) {
-  const page = usePage<{ customerNotifications?: Array<any> }>();
-  const notifications = page.props.customerNotifications || [];
+  const page = usePage<{ notifications?: Array<any> }>();
+  const notifications = page.props.notifications || [];
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [reportOpen, setReportOpen] = useState(false);
@@ -257,11 +257,11 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
           <div className="mb-4 space-y-2">
             {notifications.map(n => (
               <div key={n.id} className={`p-3 rounded text-white ${
-                n.delivery_status ? 
-                  (n.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-blue-600') :
-                  (n.status === 'approved' ? 'bg-green-600' : 'bg-red-600')
+                n.data?.delivery_status ? 
+                  (n.data.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-blue-600') :
+                  (n.data?.status === 'approved' ? 'bg-green-600' : 'bg-red-600')
               }`}>
-                <span className="font-semibold">Order #{n.order_id}:</span> {n.message}
+                <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
                 <span className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</span>
               </div>
             ))}
@@ -281,7 +281,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               <Card className="p-6 text-center text-muted-foreground">No orders found.</Card>
             ) : (
               orders.map((order: Order) => (
-                <Card key={order.id} className="mb-6 p-4">
+                <Card key={order.id} id={`order-${order.id}`} className="mb-6 p-4">
                   <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <div>
                       <span className="font-medium">Order ID:</span> #{order.id}<br />

@@ -32,27 +32,27 @@ class CustomerGlobalNotificationsTest extends TestCase
         $response1 = $this->actingAs($customer)->get('/');
         $response1->assertStatus(200);
         $response1->assertInertia(fn ($page) => 
-            $page->has('customerNotifications')
-                ->where('customerNotifications.0.order_id', $order->id)
-                ->where('customerNotifications.0.delivery_status', 'out_for_delivery')
+            $page->has('notifications')
+                ->where('notifications.0.data.order_id', $order->id)
+                ->where('notifications.0.data.delivery_status', 'out_for_delivery')
         );
 
         // Test that notifications are visible on cart page
         $response2 = $this->actingAs($customer)->get('/customer/cart');
         $response2->assertStatus(200);
         $response2->assertInertia(fn ($page) => 
-            $page->has('customerNotifications')
-                ->where('customerNotifications.0.order_id', $order->id)
-                ->where('customerNotifications.0.delivery_status', 'out_for_delivery')
+            $page->has('notifications')
+                ->where('notifications.0.data.order_id', $order->id)
+                ->where('notifications.0.data.delivery_status', 'out_for_delivery')
         );
 
         // Test that notifications are visible on order history page
         $response3 = $this->actingAs($customer)->get('/customer/orders/history');
         $response3->assertStatus(200);
         $response3->assertInertia(fn ($page) => 
-            $page->has('customerNotifications')
-                ->where('customerNotifications.0.order_id', $order->id)
-                ->where('customerNotifications.0.delivery_status', 'out_for_delivery')
+            $page->has('notifications')
+                ->where('notifications.0.data.order_id', $order->id)
+                ->where('notifications.0.data.delivery_status', 'out_for_delivery')
         );
     }
 
@@ -77,8 +77,8 @@ class CustomerGlobalNotificationsTest extends TestCase
         $response = $this->actingAs($customer)->get('/');
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => 
-            $page->has('customerNotifications')
-                ->where('customerNotifications', function ($notifications) {
+            $page->has('notifications')
+                ->where('notifications', function ($notifications) {
                     return count($notifications) === 2;
                 })
         );
@@ -105,9 +105,9 @@ class CustomerGlobalNotificationsTest extends TestCase
         $response = $this->actingAs($customer)->get('/');
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => 
-            $page->has('customerNotifications')
-                ->where('customerNotifications.0.delivery_status', 'out_for_delivery')
-                ->where('customerNotifications.1.delivery_status', 'delivered')
+            $page->has('notifications')
+                ->where('notifications.0.data.delivery_status', 'out_for_delivery')
+                ->where('notifications.1.data.delivery_status', 'delivered')
         );
     }
 } 

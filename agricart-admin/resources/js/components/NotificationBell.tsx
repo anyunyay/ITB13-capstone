@@ -36,12 +36,24 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
   }, [notifications]);
 
   const handleNotificationClick = (notification: Notification) => {
-    if (notification.action_url) {
-      router.visit(notification.action_url);
+    try {
+      // For order-related notifications, navigate to order history
+      if (notification.data?.order_id && 
+          ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+        router.visit('/customer/orders/history');
+      } else if (notification.action_url) {
+        router.visit(notification.action_url);
+      }
+    } catch (error) {
+      console.error('Error handling notification click:', error);
+      // Fallback to action_url if available
+      if (notification.action_url) {
+        router.visit(notification.action_url);
+      }
     }
   };
 
-  const handleMarkAsRead = (notificationId: string) => {
+  const handleMarkAsRead = (notificationId: string, notification?: Notification) => {
     const routePrefix = userType === 'admin' || userType === 'staff' 
       ? '/admin/notifications'
       : userType === 'member'
@@ -55,6 +67,12 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
     }, {
       preserveState: true,
       preserveScroll: true,
+      onSuccess: () => {
+        // Navigate after marking as read
+        if (notification) {
+          handleNotificationClick(notification);
+        }
+      }
     });
   };
 
@@ -164,9 +182,12 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
                 key={notification.id}
                 className={`p-3 cursor-pointer ${!notification.read_at ? 'bg-blue-50' : ''}`}
                 onClick={() => {
-                  handleNotificationClick(notification);
                   if (!notification.read_at) {
-                    handleMarkAsRead(notification.id);
+                    // Mark as read and navigate in one action
+                    handleMarkAsRead(notification.id, notification);
+                  } else {
+                    // Just navigate if already read
+                    handleNotificationClick(notification);
                   }
                 }}
               >

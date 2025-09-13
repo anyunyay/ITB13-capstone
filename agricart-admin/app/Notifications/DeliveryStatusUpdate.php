@@ -39,7 +39,7 @@ class DeliveryStatusUpdate extends Notification implements ShouldQueue
             ->line('Delivery Status: ' . ucfirst(str_replace('_', ' ', $this->deliveryStatus)))
             ->line('Message: ' . $this->message)
             ->line('Update Date: ' . now()->format('F j, Y g:i A'))
-            ->action('View Order', url('/customer/orders/' . $this->orderId))
+            ->action('View Order History', url('/customer/orders/history'))
             ->line('Thank you for your business!');
     }
 
@@ -50,7 +50,7 @@ class DeliveryStatusUpdate extends Notification implements ShouldQueue
             'type' => 'delivery_status_update',
             'delivery_status' => $this->deliveryStatus,
             'message' => $this->message,
-            'action_url' => '/customer/orders/' . $this->orderId,
+            'action_url' => '/customer/orders/history',
         ];
     }
 } 

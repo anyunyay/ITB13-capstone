@@ -63,9 +63,9 @@ class CustomerOrderHistoryTest extends TestCase
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => 
             $page->component('Customer/Order History/index')
-                ->has('customerNotifications')
-                ->where('customerNotifications.0.order_id', $order->id)
-                ->where('customerNotifications.0.delivery_status', 'out_for_delivery')
+                ->has('notifications')
+                ->where('notifications.0.data.order_id', $order->id)
+                ->where('notifications.0.data.delivery_status', 'out_for_delivery')
         );
     }
 
