@@ -46,7 +46,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update'); // Edit Product (PUT)
         });
         Route::middleware(['can:delete products'])->delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy'); // Delete Product
-
+        Route::middleware(['can:generate inventory report'])->group(function () {
+            Route::get('/inventory/report', [InventoryController::class, 'generateReport'])->name('inventory.report');
+        });
+        
         // Archive routes
         Route::middleware(['can:view archive'])->get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index'); // View Archived Products
         Route::middleware(['can:archive products'])->post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive'); // Archive Product
@@ -141,6 +144,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit'); // Edit Staff (GET)
             Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update'); // Edit Staff (PUT)
         });
+
+        Route::middleware(['can:generate staff report'])->get('/staff/report', [StaffController::class, 'generateReport'])->name('admin.staff.report');
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
         
         // Notification routes
@@ -149,6 +154,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
     });
 
+        
     // Customer routes
     Route::prefix('/customer')->middleware(['can:access customer features'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

@@ -88,17 +88,6 @@
             font-size: 18px;
             margin-bottom: 15px;
         }
-        .performance-bar {
-            background: #e5e7eb;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 5px;
-        }
-        .performance-fill {
-            background: #3b82f6;
-            height: 100%;
-            border-radius: 4px;
-        }
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -118,51 +107,29 @@
         @endif
     </div>
 
-    <div class="summary">
-        <h2>Revenue Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
-                <div class="summary-label">Total Revenue</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_orders'] }}</div>
-                <div class="summary-label">Total Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['average_order_value'], 2) }}</div>
-                <div class="summary-label">Average Order Value</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_customers'] }}</div>
-                <div class="summary-label">Total Customers</div>
-            </div>
-        </div>
-    </div>
 
     <table>
         <thead>
             <tr>
                 <th>Sale ID</th>
-                <th>Customer</th>
+                <th>Customer Name</th>
+                <th>Customer Email</th>
                 <th>Total Amount</th>
-                <th>Created Date</th>
                 <th>Processed By</th>
                 <th>Logistic</th>
+                <th>Created Date</th>
             </tr>
         </thead>
         <tbody>
             @foreach($sales as $sale)
             <tr>
                 <td>#{{ $sale->id }}</td>
-                <td>
-                    <strong>{{ $sale->customer->name }}</strong><br>
-                    <small>{{ $sale->customer->email }}</small>
-                </td>
-                <td class="revenue">PHP {{ number_format($sale->total_amount, 2) }}</td>
-                <td>{{ $sale->created_at->format('M d, Y H:i') }}</td>
+                <td>{{ $sale->customer->name ?? 'N/A' }}</td>
+                <td>{{ $sale->customer->email ?? 'N/A' }}</td>
+                <td>₱{{ number_format($sale->total_amount, 2) }}</td>
                 <td>{{ $sale->admin->name ?? 'N/A' }}</td>
                 <td>{{ $sale->logistic->name ?? 'N/A' }}</td>
+                <td>{{ $sale->created_at->format('Y-m-d H:i') }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -176,68 +143,32 @@
             <thead>
                 <tr>
                     <th>Rank</th>
-                    <th>Member</th>
+                    <th>Member Name</th>
+                    <th>Member Email</th>
                     <th>Total Orders</th>
                     <th>Total Revenue</th>
                     <th>Quantity Sold</th>
                     <th>Average Revenue</th>
-                    <th>Performance %</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($memberSales as $index => $member)
                 @php
                     $averageRevenue = $member->total_orders > 0 ? $member->total_revenue / $member->total_orders : 0;
-                    $performancePercentage = $summary['total_revenue'] > 0 ? ($member->total_revenue / $summary['total_revenue']) * 100 : 0;
                 @endphp
                 <tr>
-                    <td><strong>#{{ $index + 1 }}</strong></td>
-                    <td>
-                        <strong>{{ $member->member_name }}</strong><br>
-                        <small>{{ $member->member_email }}</small>
-                    </td>
+                    <td>#{{ $index + 1 }}</td>
+                    <td>{{ $member->member_name }}</td>
+                    <td>{{ $member->member_email }}</td>
                     <td>{{ $member->total_orders }}</td>
-                    <td class="revenue">PHP {{ number_format($member->total_revenue, 2) }}</td>
+                    <td>₱{{ number_format($member->total_revenue, 2) }}</td>
                     <td>{{ $member->total_quantity_sold }}</td>
-                    <td>PHP {{ number_format($averageRevenue, 2) }}</td>
-                    <td>
-                        {{ number_format($performancePercentage, 1) }}%
-                        <div class="performance-bar">
-                            <div class="performance-fill" style="width: {{ min($performancePercentage, 100) }}%"></div>
-                        </div>
-                    </td>
+                    <td>₱{{ number_format($averageRevenue, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <div style="margin-top: 30px;">
-            <h3>Top Performers</h3>
-            @foreach($memberSales->take(3) as $index => $member)
-            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-left: 4px solid {{ $index === 0 ? '#059669' : ($index === 1 ? '#2563eb' : '#d97706') }};">
-                <strong>#{{ $index + 1 }} - {{ $member->member_name }}</strong><br>
-                <span class="revenue">PHP {{ number_format($member->total_revenue, 2) }}</span> from {{ $member->total_orders }} orders
-            </div>
-            @endforeach
-        </div>
-
-        <div style="margin-top: 30px;">
-            <h3>Revenue Distribution</h3>
-            @foreach($memberSales->take(5) as $member)
-            @php
-                $percentage = $summary['total_revenue'] > 0 ? ($member->total_revenue / $summary['total_revenue']) * 100 : 0;
-            @endphp
-            <div style="margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span><strong>{{ $member->member_name }}</strong></span>
-                    <span>{{ number_format($percentage, 1) }}%</span>
-                </div>
-                <div class="performance-bar">
-                    <div class="performance-fill" style="width: {{ $percentage }}%"></div>
-                </div>
-            </div>
-            @endforeach
-        </div>
     </div>
     @endif
 

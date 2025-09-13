@@ -84,13 +84,7 @@ class SalesController extends Controller
         // Check if format is specified for export
         if ($request->filled('format')) {
             if ($request->format === 'pdf') {
-                return view('reports.sales-pdf', [
-                    'sales' => $sales,
-                    'summary' => $summary,
-                    'memberSales' => $memberSales,
-                    'generated_at' => now()->format('M d, Y H:i:s'),
-                    'filters' => $request->only(['start_date', 'end_date']),
-                ]);
+                return $this->exportToPdf($sales, $memberSales, $summary, $request);
             } elseif ($request->format === 'csv') {
                 return $this->exportCsv($sales, $memberSales, $summary, $request);
             }
@@ -117,26 +111,7 @@ class SalesController extends Controller
         $callback = function() use ($sales, $memberSales, $summary, $request) {
             $file = fopen('php://output', 'w');
             
-            // Summary section
-            fputcsv($file, ['SALES REPORT SUMMARY']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Revenue', 'Total Orders', 'Average Order Value', 'Total Customers']);
-            fputcsv($file, [
-                number_format($summary['total_revenue'], 2),
-                $summary['total_orders'],
-                number_format($summary['average_order_value'], 2),
-                $summary['total_customers']
-            ]);
-            fputcsv($file, ['']);
-            
-            // Date range if specified
-            if ($request->filled('start_date') && $request->filled('end_date')) {
-                fputcsv($file, ['Period', $request->start_date . ' to ' . $request->end_date]);
-                fputcsv($file, ['']);
-            }
-            
             // Sales data
-            fputcsv($file, ['SALES DATA']);
             fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
             
             foreach ($sales as $sale) {
@@ -176,6 +151,24 @@ class SalesController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($sales, $memberSales, $summary, $request)
+    {
+        $html = view('reports.sales-pdf', [
+            'sales' => $sales,
+            'summary' => $summary,
+            'memberSales' => $memberSales,
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'filters' => $request->only(['start_date', 'end_date']),
+        ])->render();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $filename = 'sales_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 
     private function getMemberSales(Request $request)

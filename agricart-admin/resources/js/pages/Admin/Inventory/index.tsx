@@ -171,6 +171,9 @@ export default function Index() {
                 <PermissionGate permission="view archive">
                     <Link href={route('inventory.archived.index')}><Button>Archived Products</Button></Link>
                 </PermissionGate>
+                <PermissionGate permission="generate inventory report">
+                    <Link href={route('inventory.report')}><Button variant="outline">Inventory Report</Button></Link>
+                </PermissionGate>
 
                 <div className='m-4'>
                     <div>

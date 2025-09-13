@@ -236,17 +236,6 @@ class OrderController extends Controller
         $callback = function() use ($orders, $summary) {
             $file = fopen('php://output', 'w');
             
-            // Write summary
-            fputcsv($file, ['Order Report Summary']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Orders', $summary['total_orders']]);
-            fputcsv($file, ['Total Revenue', '₱' . number_format($summary['total_revenue'], 2)]);
-            fputcsv($file, ['Pending Orders', $summary['pending_orders']]);
-            fputcsv($file, ['Approved Orders', $summary['approved_orders']]);
-            fputcsv($file, ['Rejected Orders', $summary['rejected_orders']]);
-            fputcsv($file, ['Delivered Orders', $summary['delivered_orders']]);
-            fputcsv($file, ['']);
-            
             // Write headers
             fputcsv($file, [
                 'Order ID',

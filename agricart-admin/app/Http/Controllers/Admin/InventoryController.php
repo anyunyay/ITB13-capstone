@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InventoryController extends Controller
 {
@@ -140,5 +142,151 @@ class InventoryController extends Controller
             'type' => 'success',
             'message' => 'Inventory item deleted successfully'
         ]);
+    }
+
+    public function generateReport(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $category = $request->get('category', 'all');
+        $status = $request->get('status', 'all');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+
+        $query = Stock::with(['product', 'member', 'lastCustomer']);
+
+        // Filter by date range (based on stock creation date)
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Filter by category
+        if ($category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        // Filter by status
+        if ($status !== 'all') {
+            switch ($status) {
+                case 'available':
+                    $query->available();
+                    break;
+                case 'sold':
+                    $query->sold();
+                    break;
+                case 'partial':
+                    $query->partial();
+                    break;
+                case 'removed':
+                    $query->removed();
+                    break;
+            }
+        }
+
+        $stocks = $query->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_stocks' => $stocks->count(),
+            'total_quantity' => $stocks->sum('quantity'),
+            'available_stocks' => $stocks->where('quantity', '>', 0)->whereNull('last_customer_id')->whereNull('removed_at')->count(),
+            'sold_stocks' => $stocks->where('quantity', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
+            'partial_stocks' => $stocks->where('quantity', '>', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
+            'removed_stocks' => $stocks->whereNotNull('removed_at')->count(),
+            'total_products' => $stocks->pluck('product_id')->unique()->count(),
+            'total_members' => $stocks->pluck('member_id')->unique()->count(),
+        ];
+
+        // If export is requested
+        if ($format === 'csv') {
+            return $this->exportToCsv($stocks, $summary);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($stocks, $summary);
+        }
+
+        // Return view for display
+        return Inertia::render('Admin/Inventory/report', [
+            'stocks' => $stocks,
+            'summary' => $summary,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'category' => $category,
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    private function exportToCsv($stocks, $summary)
+    {
+        $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($stocks, $summary) {
+            $file = fopen('php://output', 'w');
+
+            // Write stock data headers
+            fputcsv($file, [
+                'Stock ID',
+                'Product Name',
+                'Quantity',
+                'Category',
+                'Member',
+                'Status',
+                'Created At',
+                'Removed At',
+                'Notes'
+            ]);
+
+            // Write stock data
+            foreach ($stocks as $stock) {
+                $status = 'Available';
+                if ($stock->removed_at) {
+                    $status = 'Removed';
+                } elseif ($stock->quantity == 0 && $stock->last_customer_id) {
+                    $status = 'Sold';
+                } elseif ($stock->quantity > 0 && $stock->last_customer_id) {
+                    $status = 'Partial';
+                }
+
+                fputcsv($file, [
+                    $stock->id,
+                    $stock->product->name ?? 'N/A',
+                    $stock->quantity,
+                    $stock->category,
+                    $stock->member->name ?? 'N/A',
+                    $status,
+                    $stock->created_at->format('Y-m-d H:i:s'),
+                    $stock->removed_at ? $stock->removed_at->format('Y-m-d H:i:s') : 'N/A',
+                    $stock->notes ?? 'N/A'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    private function exportToPdf($stocks, $summary)
+    {
+        $html = view('reports.inventory-pdf', [
+            'stocks' => $stocks,
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s')
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

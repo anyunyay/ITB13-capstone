@@ -124,35 +124,6 @@
         <strong>Contact:</strong> {{ $logistic->contact_number }}
     </div>
 
-    <div class="summary">
-        <h2>Summary Statistics</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_orders'] }}</div>
-                <div class="summary-label">Total Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
-                <div class="summary-label">Total Revenue</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['pending_orders'] }}</div>
-                <div class="summary-label">Pending</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['out_for_delivery_orders'] }}</div>
-                <div class="summary-label">Out for Delivery</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['delivered_orders'] }}</div>
-                <div class="summary-label">Delivered</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">PHP {{ number_format($summary['average_order_value'], 2) }}</div>
-                <div class="summary-label">Avg Order Value</div>
-            </div>
-        </div>
-    </div>
 
     @if($orders->count() > 0)
         <table>
