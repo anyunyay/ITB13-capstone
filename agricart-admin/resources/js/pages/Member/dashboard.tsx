@@ -328,11 +328,21 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
 
             {/* Recent Earnings Section */}
             <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                    <CardTitle className="text-white">Recent Earnings</CardTitle>
-                    <CardDescription className="text-gray-400">
-                        Your latest earnings from approved orders (90% of sales)
-                    </CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="text-white">Recent Earnings</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Your latest earnings from approved orders (90% of sales)
+                        </CardDescription>
+                    </div>
+                    <Button 
+                        asChild 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                        <Link href={route('member.earnings.report')}>Generate Report</Link>
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     {memberEarnings.recentEarnings.length > 0 ? (
