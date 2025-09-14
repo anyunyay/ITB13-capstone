@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type SharedData } from '@/types';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, FileText, Calendar, TrendingUp } from 'lucide-react';
+import { Download, FileText, Calendar, TrendingUp, ArrowLeft } from 'lucide-react';
 import { MemberHeader } from '@/components/member-header';
 
 interface Earning {
@@ -94,6 +94,19 @@ export default function EarningsReport({ earnings, summary, filters }: PageProps
                 <Head title="Earnings Report" />
                 
                 <div className="mb-8">
+                    <div className="flex items-center gap-4 mb-4">
+                        <Button 
+                            asChild 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        >
+                            <Link href={route('member.dashboard')}>
+                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                Back to Dashboard
+                            </Link>
+                        </Button>
+                    </div>
                     <h1 className="text-3xl font-bold text-white">Earnings Report</h1>
                     <p className="text-gray-400 mt-2">View and export your earnings data</p>
                 </div>
