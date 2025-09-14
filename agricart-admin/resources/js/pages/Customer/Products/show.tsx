@@ -304,10 +304,12 @@ export default function ProductShow({ product, auth }: Props) {
                                                         onChange={(e) => {
                                                             const value = e.target.value;
                                                             if (isKilo) {
-                                                                // For Kilo, allow decimal values
+                                                                // For Kilo, allow free typing - rounding happens on blur
                                                                 const numValue = parseFloat(value);
                                                                 if (!isNaN(numValue) && numValue >= 0.25 && numValue <= maxQty) {
-                                                                    setSelectedQuantity(Number(numValue.toFixed(2)));
+                                                                    setSelectedQuantity(numValue);
+                                                                } else if (value === '') {
+                                                                    setSelectedQuantity(0.25);
                                                                 }
                                                             } else {
                                                                 // For PC and Tali, only allow integers
@@ -316,6 +318,18 @@ export default function ProductShow({ product, auth }: Props) {
                                                                     setSelectedQuantity(numValue);
                                                                 } else if (value === '') {
                                                                     setSelectedQuantity(1);
+                                                                }
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (isKilo) {
+                                                                // Round to nearest quarter when user finishes typing
+                                                                const numValue = parseFloat(e.target.value);
+                                                                if (!isNaN(numValue) && numValue >= 0.25 && numValue <= maxQty) {
+                                                                    const rounded = Math.round(numValue * 4) / 4;
+                                                                    setSelectedQuantity(Number(rounded.toFixed(2)));
+                                                                } else if (e.target.value === '') {
+                                                                    setSelectedQuantity(0.25);
                                                                 }
                                                             }
                                                         }}
