@@ -262,8 +262,25 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                         step={isKilo ? 0.01 : 1}
                         max={maxQty}
                         value={selectedQuantity}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (isKilo) {
+                            // For Kilo, allow decimal values
+                            const numValue = parseFloat(value);
+                            if (!isNaN(numValue) && numValue >= 0.25 && numValue <= maxQty) {
+                              setSelectedQuantity(Number(numValue.toFixed(2)));
+                            }
+                          } else {
+                            // For PC and Tali, only allow integers
+                            const numValue = parseInt(value);
+                            if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
+                              setSelectedQuantity(numValue);
+                            } else if (value === '') {
+                              setSelectedQuantity(1);
+                            }
+                          }
+                        }}
                         className="w-full border rounded p-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        readOnly
                       />
                       <Button
                         type="button"
