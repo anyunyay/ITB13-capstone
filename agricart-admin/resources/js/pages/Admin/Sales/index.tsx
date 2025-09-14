@@ -218,9 +218,9 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                             </div>
                           </TableCell>
                           <TableCell>{member.total_orders}</TableCell>
-                          <TableCell className="font-medium">₱{Number(member.total_revenue).toFixed(2)}</TableCell>
+                          <TableCell className="font-medium">₱{Number(member.total_revenue || 0).toFixed(2)}</TableCell>
                           <TableCell>{member.total_quantity_sold}</TableCell>
-                          <TableCell>₱{member.total_orders > 0 ? (member.total_revenue / member.total_orders).toFixed(2) : '0.00'}</TableCell>
+                          <TableCell>₱{member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toFixed(2) : '0.00'}</TableCell>
                         </TableRow>
                       ))}
                       {memberSales.length === 0 && (

@@ -32,9 +32,9 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
   const { can } = usePermissions();
 
   // Calculate summary statistics
-  const totalRevenue = memberSales.reduce((sum, member) => sum + member.total_revenue, 0);
-  const totalOrders = memberSales.reduce((sum, member) => sum + member.total_orders, 0);
-  const totalQuantity = memberSales.reduce((sum, member) => sum + member.total_quantity_sold, 0);
+  const totalRevenue = memberSales.reduce((sum, member) => sum + Number(member.total_revenue || 0), 0);
+  const totalOrders = memberSales.reduce((sum, member) => sum + Number(member.total_orders || 0), 0);
+  const totalQuantity = memberSales.reduce((sum, member) => sum + Number(member.total_quantity_sold || 0), 0);
   const averageRevenue = memberSales.length > 0 ? totalRevenue / memberSales.length : 0;
 
   return (
@@ -136,8 +136,10 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                 </TableHeader>
                 <TableBody>
                   {memberSales.map((member, index) => {
-                    const averageRevenue = member.total_orders > 0 ? member.total_revenue / member.total_orders : 0;
-                    const performancePercentage = totalRevenue > 0 ? (member.total_revenue / totalRevenue) * 100 : 0;
+                    const memberRevenue = Number(member.total_revenue || 0);
+                    const memberOrders = Number(member.total_orders || 0);
+                    const averageRevenue = memberOrders > 0 ? memberRevenue / memberOrders : 0;
+                    const performancePercentage = totalRevenue > 0 ? (memberRevenue / totalRevenue) * 100 : 0;
                     
                     return (
                       <TableRow key={member.member_id}>
@@ -156,7 +158,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                           <div className="font-medium">{member.total_orders}</div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium">₱{Number(member.total_revenue).toFixed(2)}</div>
+                          <div className="font-medium">₱{Number(member.total_revenue || 0).toFixed(2)}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">{member.total_quantity_sold}</div>
@@ -209,7 +211,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                           </Badge>
                           <div>
                             <div className="font-medium">{member.member_name}</div>
-                            <div className="text-sm text-muted-foreground">₱{Number(member.total_revenue).toFixed(2)}</div>
+                            <div className="text-sm text-muted-foreground">₱{Number(member.total_revenue || 0).toFixed(2)}</div>
                           </div>
                         </div>
                       </div>
@@ -225,7 +227,8 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                 <CardContent>
                   <div className="space-y-4">
                     {memberSales.slice(0, 5).map((member) => {
-                      const percentage = totalRevenue > 0 ? (member.total_revenue / totalRevenue) * 100 : 0;
+                      const memberRevenue = Number(member.total_revenue || 0);
+                      const percentage = totalRevenue > 0 ? (memberRevenue / totalRevenue) * 100 : 0;
                       return (
                         <div key={member.member_id} className="space-y-2">
                           <div className="flex justify-between text-sm">
