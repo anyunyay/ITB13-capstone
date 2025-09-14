@@ -230,6 +230,11 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
                     <p className={`text-sm font-medium ${getNotificationColor(notification.type)}`}>
                       {notification.message}
                     </p>
+                    {notification.data?.sub_message && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {notification.data.sub_message}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500 mt-1">
                       {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </p>

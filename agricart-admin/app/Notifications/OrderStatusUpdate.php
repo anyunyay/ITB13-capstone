@@ -30,14 +30,23 @@ class OrderStatusUpdate extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        $mailMessage = (new MailMessage)
             ->subject('Order Status Update - Order #' . $this->orderId)
             ->greeting('Hello ' . $notifiable->name . '!')
             ->line('Your order status has been updated.')
             ->line('Order Details:')
             ->line('Order ID: #' . $this->orderId)
-            ->line('New Status: ' . ucfirst($this->status))
-            ->line('Message: ' . $this->message)
+            ->line('New Status: ' . ucfirst($this->status));
+
+        // Special handling for approved status
+        if ($this->status === 'approved') {
+            $mailMessage->line('Order Approved and Processing')
+                       ->line('Estimated Time of Arrival: Within 48 Hrs');
+        } else {
+            $mailMessage->line('Message: ' . $this->message);
+        }
+
+        return $mailMessage
             ->line('Update Date: ' . now()->format('F j, Y g:i A'))
             ->action('View Order History', url('/customer/orders/history'))
             ->line('Thank you for your business!');
@@ -45,12 +54,21 @@ class OrderStatusUpdate extends Notification implements ShouldQueue
 
     public function toArray($notifiable)
     {
-        return [
+        $data = [
             'order_id' => $this->orderId,
             'type' => 'order_status_update',
             'status' => $this->status,
-            'message' => $this->message,
             'action_url' => '/customer/orders/history',
         ];
+
+        // Special handling for approved status
+        if ($this->status === 'approved') {
+            $data['message'] = 'Order Approved and Processing';
+            $data['sub_message'] = 'Estimated Time of Arrival: Within 48 Hrs';
+        } else {
+            $data['message'] = $this->message;
+        }
+
+        return $data;
     }
 }

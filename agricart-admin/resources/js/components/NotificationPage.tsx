@@ -132,7 +132,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
       case 'delivery_task':
         return 'Delivery Task';
       case 'order_confirmation':
-        return 'Order Confirmation';
+        return 'Order Confirmed';
       case 'order_status_update':
         return 'Order Status Update';
       case 'delivery_status_update':
@@ -244,7 +244,9 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-2">
                       <h3 className="font-semibold text-gray-900">
-                        {getNotificationTitle(notification.type)}
+                        {notification.type === 'order_status_update' && notification.data?.status === 'approved' 
+                          ? 'Order Approved and Processing' 
+                          : getNotificationTitle(notification.type)}
                       </h3>
                       {!notification.read_at && (
                         <Badge variant="secondary" className="text-xs">
@@ -256,6 +258,11 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                     <p className="text-gray-700 mb-2">
                       {notification.message}
                     </p>
+                    {notification.data?.sub_message && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        {notification.data.sub_message}
+                      </p>
+                    )}
                     
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-500">

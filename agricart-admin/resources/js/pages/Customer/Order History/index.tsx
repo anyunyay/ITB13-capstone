@@ -292,6 +292,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   (n.data?.status === 'approved' ? 'bg-green-600' : 'bg-red-600')
               }`}>
                 <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
+                {n.data?.sub_message && (
+                  <div className="text-sm opacity-90 mt-1">{n.data.sub_message}</div>
+                )}
                 <span className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</span>
               </div>
             ))}

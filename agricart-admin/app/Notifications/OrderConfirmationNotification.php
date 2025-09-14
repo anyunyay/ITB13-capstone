@@ -27,9 +27,10 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Order Confirmation - Order #' . $this->order->id)
+            ->subject('Order Confirmed - Order #' . $this->order->id)
             ->greeting('Hello ' . $notifiable->name . '!')
             ->line('Thank you for your order! Your order has been confirmed.')
+            ->line('Estimated Approval Time: 24Hrs')
             ->line('Order Details:')
             ->line('Order ID: #' . $this->order->id)
             ->line('Total Amount: ₱' . number_format($this->order->total_amount, 2))
@@ -46,7 +47,8 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
             'type' => 'order_confirmation',
             'total_amount' => $this->order->total_amount,
             'status' => $this->order->status,
-            'message' => 'Order #' . $this->order->id . ' has been confirmed',
+            'message' => 'Order Confirmed',
+            'sub_message' => 'Estimated Approval Time: 24Hrs',
             'action_url' => '/customer/orders/history',
         ];
     }
