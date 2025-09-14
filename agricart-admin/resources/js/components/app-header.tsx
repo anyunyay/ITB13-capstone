@@ -65,7 +65,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData & { cart?: Record<string, any>, notifications?: Array<any> }>();
     const { auth, cart = {}, notifications = [] } = page.props;
     const getInitials = useInitials();
-    const cartCount = Object.values(cart).reduce((sum, item: any) => sum + (item.quantity || 0), 0);
+    const cartCount = Object.keys(cart).length;
     const unreadCount = notifications.filter((n: any) => !n.read_at).length;
 
     const handleNotificationClick = (n: any) => {
@@ -199,20 +199,21 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 <TooltipTrigger>
                                                     <Link
                                                         href={item.href}
-                                                        className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                        className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative"
                                                     >
                                                         <span className="sr-only">{item.title}</span>
                                                         {item.icon && (
-                                                            <span className="relative">
+                                                            <>
                                                                 <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />
                                                                 {item.title === 'Cart' && cartCount > 0 && (
-                                                                    <span className="absolute -top-2 -right-2">
-                                                                        <Badge className="bg-red-500 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                                                                            {cartCount}
-                                                                        </Badge>
-                                                                    </span>
+                                                                    <Badge 
+                                                                        variant="destructive" 
+                                                                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs z-10"
+                                                                    >
+                                                                        {cartCount > 9 ? '9+' : cartCount}
+                                                                    </Badge>
                                                                 )}
-                                                            </span>
+                                                            </>
                                                         )}
                                                     </Link>
                                                 </TooltipTrigger>
