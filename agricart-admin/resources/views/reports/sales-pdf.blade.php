@@ -107,6 +107,29 @@
         @endif
     </div>
 
+    @if(isset($summary))
+    <div class="summary">
+        <h2>Sales Summary</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2) }}</div>
+                <div class="summary-label">Total Revenue</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ $summary['total_orders'] }}</div>
+                <div class="summary-label">Total Orders</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value revenue">PHP {{ number_format($summary['average_order_value'], 2) }}</div>
+                <div class="summary-label">Average Order Value</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ $summary['total_customers'] }}</div>
+                <div class="summary-label">Total Customers</div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <table>
         <thead>
@@ -126,7 +149,7 @@
                 <td>#{{ $sale->id }}</td>
                 <td>{{ $sale->customer->name ?? 'N/A' }}</td>
                 <td>{{ $sale->customer->email ?? 'N/A' }}</td>
-                <td>₱{{ number_format($sale->total_amount, 2) }}</td>
+                <td>PHP {{ number_format($sale->total_amount, 2) }}</td>
                 <td>{{ $sale->admin->name ?? 'N/A' }}</td>
                 <td>{{ $sale->logistic->name ?? 'N/A' }}</td>
                 <td>{{ $sale->created_at->format('Y-m-d H:i') }}</td>
@@ -161,9 +184,9 @@
                     <td>{{ $member->member_name }}</td>
                     <td>{{ $member->member_email }}</td>
                     <td>{{ $member->total_orders }}</td>
-                    <td>₱{{ number_format($member->total_revenue, 2) }}</td>
+                    <td>PHP {{ number_format($member->total_revenue, 2) }}</td>
                     <td>{{ $member->total_quantity_sold }}</td>
-                    <td>₱{{ number_format($averageRevenue, 2) }}</td>
+                    <td>PHP {{ number_format($averageRevenue, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
