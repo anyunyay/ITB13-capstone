@@ -451,7 +451,7 @@ export default function CartPage() {
         {cartItems.length > 0 && (
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-lg font-semibold">Cart Total:</span>
+              <span className="text-lg font-semibold text-green-600">Cart Total:</span>
               <span className="text-lg font-bold text-green-600">Php{(Number(cartTotal) || 0).toFixed(2)}</span>
             </div>
             
@@ -462,6 +462,11 @@ export default function CartPage() {
               ) : (
                 <span>⚠ Minimum order requirement: Php{minimumOrder} (add Php{(minimumOrder - (Number(cartTotal) || 0)).toFixed(2)} more)</span>
               )}
+            </div>
+            
+            {/* Approval Note */}
+            <div className="text-sm text-blue-600 mt-2">
+              <span>Note: This order requires approval. Please expect a confirmation call regarding your order.</span>
             </div>
           </div>
         )}
