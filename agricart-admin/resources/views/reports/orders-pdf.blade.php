@@ -146,7 +146,7 @@
                     {{ $order->customer->name ?? 'N/A' }}<br>
                     <small>{{ $order->customer->email ?? 'N/A' }}</small>
                 </td>
-                <td>PHP {{ number_format($order->total_amount, 2) }}</td>
+                <td>PHP {{ number_format($order->total_amount, 2, '.', ',') }}</td>
                 <td class="status-{{ $order->status }}">{{ ucfirst($order->status) }}</td>
                 <td class="status-{{ $order->delivery_status ?? 'pending' }}">{{ ucfirst($order->delivery_status ?? 'pending') }}</td>
                 <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
@@ -161,7 +161,7 @@
         <h3>Order Details</h3>
         @foreach($orders as $order)
         <div class="order-header">
-            <strong>Order #{{ $order->id }}</strong> - {{ $order->customer->name ?? 'N/A' }} - PHP {{ number_format($order->total_amount, 2) }}
+            <strong>Order #{{ $order->id }}</strong> - {{ $order->customer->name ?? 'N/A' }} - PHP {{ number_format($order->total_amount, 2, '.', ',') }}
             <br>
             <small>Status: {{ ucfirst($order->status) }} | Delivery: {{ ucfirst($order->delivery_status ?? 'pending') }}</small>
         </div>

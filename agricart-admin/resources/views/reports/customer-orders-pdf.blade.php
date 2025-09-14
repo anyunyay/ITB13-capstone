@@ -149,7 +149,7 @@
             @foreach($orders as $order)
             <tr>
                 <td>#{{ $order->id }}</td>
-                <td>PHP {{ number_format($order->total_amount, 2) }}</td>
+                <td>PHP {{ number_format($order->total_amount, 2, '.', ',') }}</td>
                 <td class="status-{{ $order->status }}">{{ ucfirst($order->status) }}</td>
                 <td class="status-{{ $order->delivery_status ?? 'pending' }}">{{ ucfirst($order->delivery_status ?? 'N/A') }}</td>
                 <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
@@ -172,7 +172,7 @@
                 @if($order->delivery_status)
                 <span class="status-{{ $order->delivery_status }}"> | Delivery: {{ ucfirst($order->delivery_status) }}</span>
                 @endif
-                <span style="float: right;">Total: PHP {{ number_format($order->total_amount, 2) }}</span>
+                <span style="float: right;">Total: PHP {{ number_format($order->total_amount, 2, '.', ',') }}</span>
             </div>
             <div class="order-items">
                 @foreach($order->auditTrail as $item)
@@ -181,11 +181,11 @@
                     <br>
                     Quantity: {{ $item->quantity }} {{ $item->category }}
                     @if($item->product->price_kilo && $item->category === 'Kilo')
-                        <br>Price: PHP {{ number_format($item->product->price_kilo, 2) }} per kilo
+                        <br>Price: PHP {{ number_format($item->product->price_kilo, 2, '.', ',') }} per kilo
                     @elseif($item->product->price_pc && $item->category === 'Pc')
-                        <br>Price: PHP {{ number_format($item->product->price_pc, 2) }} per piece
+                        <br>Price: PHP {{ number_format($item->product->price_pc, 2, '.', ',') }} per piece
                     @elseif($item->product->price_tali && $item->category === 'Tali')
-                        <br>Price: PHP {{ number_format($item->product->price_tali, 2) }} per tali
+                        <br>Price: PHP {{ number_format($item->product->price_tali, 2, '.', ',') }} per tali
                     @endif
                 </div>
                 @endforeach

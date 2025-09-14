@@ -144,7 +144,7 @@
                         <td>{{ $order->id }}</td>
                         <td>{{ $order->customer->name }}</td>
                         <td>{{ $order->customer->email }}</td>
-                        <td>PHP {{ number_format($order->total_amount, 2) }}</td>
+                        <td>PHP {{ number_format($order->total_amount, 2, '.', ',') }}</td>
                         <td class="status-{{ $order->delivery_status }}">
                             {{ ucfirst(str_replace('_', ' ', $order->delivery_status)) }}
                         </td>

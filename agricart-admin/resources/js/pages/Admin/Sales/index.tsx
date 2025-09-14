@@ -93,7 +93,7 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₱{Number(summary.total_revenue).toFixed(2)}</div>
+                <div className="text-2xl font-bold">PHP {Number(summary.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   From {summary.total_orders} orders
                 </p>
@@ -119,7 +119,7 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₱{Number(summary.average_order_value).toFixed(2)}</div>
+                <div className="text-2xl font-bold">PHP {Number(summary.average_order_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Per order
                 </p>
@@ -173,7 +173,7 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                               <div className="text-sm text-muted-foreground">{sale.customer.email}</div>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium">₱{Number(sale.total_amount).toFixed(2)}</TableCell>
+                          <TableCell className="font-medium">PHP {Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>{sale.admin?.name || 'N/A'}</TableCell>
                           <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
@@ -218,9 +218,9 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                             </div>
                           </TableCell>
                           <TableCell>{member.total_orders}</TableCell>
-                          <TableCell className="font-medium">₱{Number(member.total_revenue || 0).toFixed(2)}</TableCell>
+                          <TableCell className="font-medium">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{member.total_quantity_sold}</TableCell>
-                          <TableCell>₱{member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toFixed(2) : '0.00'}</TableCell>
+                          <TableCell>PHP {member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
                         </TableRow>
                       ))}
                       {memberSales.length === 0 && (
