@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
 // use App\Http\Controllers\Admin\InventoryStockTrailController; // removed
 use App\Http\Controllers\Admin\SoldStockController;
+use App\Http\Controllers\Admin\TrendAnalysisController;
 
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
@@ -100,6 +101,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::middleware(['can:generate sales report'])->group(function () {
             Route::get('/sales/report', [SalesController::class, 'generateReport'])->name('admin.sales.report');
+        });
+
+        // Trend Analysis routes
+        Route::middleware(['can:view inventory'])->group(function () {
+            Route::get('/trends', [TrendAnalysisController::class, 'index'])->name('admin.trends.index');
+            Route::get('/trends/data', [TrendAnalysisController::class, 'data'])->name('admin.trends.data');
         });
 
         // Membership routes

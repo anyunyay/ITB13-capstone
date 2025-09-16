@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\ProductPriceHistory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -48,7 +49,7 @@ class InventoryController extends Controller
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/products/'), $imageName);
             
-            Product::create([
+            $product = Product::create([
                 'name' => $request->input('name'),
                 'price_kilo' => $request->input('price_kilo'),
                 'price_pc' => $request->input('price_pc'),
@@ -56,6 +57,14 @@ class InventoryController extends Controller
                 'description' => $request->input('description'),
                 'image' => 'images/products/' . $imageName,
                 'produce_type' => $request->input('produce_type'),
+            ]);
+
+            // Record initial price snapshot
+            ProductPriceHistory::create([
+                'product_id' => $product->id,
+                'price_kilo' => $request->input('price_kilo'),
+                'price_pc' => $request->input('price_pc'),
+                'price_tali' => $request->input('price_tali'),
             ]);
         }
 
@@ -90,6 +99,8 @@ class InventoryController extends Controller
         }
 
         if ($product) {
+            $original = $product->only(['price_kilo', 'price_pc', 'price_tali']);
+
             $product->update([
                 'name' => $request->input('name'),
                 'price_kilo' => $request->input('price_kilo'),
@@ -98,6 +109,22 @@ class InventoryController extends Controller
                 'description' => $request->input('description'),
                 'produce_type' => $request->input('produce_type'),
             ]);
+
+            // If any price changed, record snapshot
+            $changed = (
+                $original['price_kilo'] != $product->price_kilo ||
+                $original['price_pc'] != $product->price_pc ||
+                $original['price_tali'] != $product->price_tali
+            );
+
+            if ($changed) {
+                ProductPriceHistory::create([
+                    'product_id' => $product->id,
+                    'price_kilo' => $product->price_kilo,
+                    'price_pc' => $product->price_pc,
+                    'price_tali' => $product->price_tali,
+                ]);
+            }
         }
         
         if ($request->file('image')) {

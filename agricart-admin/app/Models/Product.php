@@ -41,6 +41,11 @@ class Product extends Model
         return $this->hasMany(AuditTrail::class);
     }
 
+    public function priceHistories()
+    {
+        return $this->hasMany(ProductPriceHistory::class);
+    }
+
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);

@@ -21,6 +21,7 @@ import {
   IdCard,
   ClipboardPen,
   TrendingUp,
+  LineChart,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -65,6 +66,15 @@ export function AppSidebar() {
       title: 'Sales',
       href: '/admin/sales',
       icon: TrendingUp,
+    });
+  }
+
+  // Trend Analysis - requires inventory view
+  if (can('view inventory')) {
+    mainNavItems.push({
+      title: 'Trends',
+      href: '/admin/trends',
+      icon: LineChart,
     });
   }
 
