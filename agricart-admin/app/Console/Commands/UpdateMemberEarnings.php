@@ -42,7 +42,7 @@ class UpdateMemberEarnings extends Command
             if ($earnings > 0) {
                 $member->notify(new EarningsUpdateNotification($earnings, $period, [
                     'total_sales' => $this->getTotalSales($member, $period),
-                    'commission_rate' => 0.90, // 90% member earnings rate
+                    'commission_rate' => 0.10, // 10% commission rate
                 ]));
                 $notifiedCount++;
             }
@@ -60,15 +60,34 @@ class UpdateMemberEarnings extends Command
     {
         $startDate = $this->getPeriodStartDate($period);
         
-        // Get member earnings from the new system
-        $memberEarnings = \App\Models\MemberEarning::where('member_id', $member->id)
-            ->whereHas('sale', function($query) use ($startDate) {
-                $query->where('status', 'approved')
-                      ->where('created_at', '>=', $startDate);
-            })
-            ->sum('amount');
+        // Get sold stocks for the member in the period
+        $soldStocks = Stock::where('member_id', $member->id)
+            ->where('status', 'sold')
+            ->where('updated_at', '>=', $startDate)
+            ->with('product')
+            ->get();
 
-        return $memberEarnings;
+        $totalEarnings = 0;
+        $commissionRate = 0.10; // 10% commission
+
+        foreach ($soldStocks as $stock) {
+            // Calculate the price based on category
+            $price = 0;
+            if ($stock->category === 'Kilo' && $stock->product->price_kilo) {
+                $price = $stock->product->price_kilo;
+            } elseif ($stock->category === 'Pc' && $stock->product->price_pc) {
+                $price = $stock->product->price_pc;
+            } elseif ($stock->category === 'Tali' && $stock->product->price_tali) {
+                $price = $stock->product->price_tali;
+            }
+
+            // Calculate earnings (commission on total sales)
+            $totalSales = $price * $stock->quantity;
+            $earnings = $totalSales * $commissionRate;
+            $totalEarnings += $earnings;
+        }
+
+        return $totalEarnings;
     }
 
     /**
@@ -78,14 +97,26 @@ class UpdateMemberEarnings extends Command
     {
         $startDate = $this->getPeriodStartDate($period);
         
-        // Get total sales from member earnings
-        $totalSales = \App\Models\MemberEarning::where('member_id', $member->id)
-            ->whereHas('sale', function($query) use ($startDate) {
-                $query->where('status', 'approved')
-                      ->where('created_at', '>=', $startDate);
-            })
-            ->join('sales', 'member_earnings.sale_id', '=', 'sales.id')
-            ->sum('sales.total_amount');
+        $soldStocks = Stock::where('member_id', $member->id)
+            ->where('status', 'sold')
+            ->where('updated_at', '>=', $startDate)
+            ->with('product')
+            ->get();
+
+        $totalSales = 0;
+
+        foreach ($soldStocks as $stock) {
+            $price = 0;
+            if ($stock->category === 'Kilo' && $stock->product->price_kilo) {
+                $price = $stock->product->price_kilo;
+            } elseif ($stock->category === 'Pc' && $stock->product->price_pc) {
+                $price = $stock->product->price_pc;
+            } elseif ($stock->category === 'Tali' && $stock->product->price_tali) {
+                $price = $stock->product->price_tali;
+            }
+
+            $totalSales += $price * $stock->quantity;
+        }
 
         return $totalSales;
     }

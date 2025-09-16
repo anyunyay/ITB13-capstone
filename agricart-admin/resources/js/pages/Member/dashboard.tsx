@@ -51,26 +51,6 @@ interface SalesData {
     }>;
 }
 
-interface MemberEarnings {
-    totalEarnings: number;
-    totalOrders: number;
-    monthlyEarnings: Array<{
-        month: string;
-        total_earnings: number;
-        order_count: number;
-    }>;
-    recentEarnings: Array<{
-        id: number;
-        amount: number;
-        quantity: number;
-        category: string;
-        product_name: string;
-        customer_name: string;
-        sale_id: number;
-        created_at: string;
-    }>;
-}
-
 interface Summary {
     availableStocks: number;
     partialStocks: number;
@@ -87,11 +67,10 @@ interface PageProps {
     soldStocks: Stock[];
     assignedStocks: Stock[];
     salesData: SalesData;
-    memberEarnings: MemberEarnings;
     summary: Summary;
 }
 
-export default function MemberDashboard({ availableStocks, partialStocks, soldStocks, assignedStocks, salesData, memberEarnings, summary }: PageProps) {
+export default function MemberDashboard({ availableStocks, partialStocks, soldStocks, assignedStocks, salesData, summary }: PageProps) {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
@@ -178,12 +157,12 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                 </Card>
                 <Card className="bg-gray-800 border-gray-700">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-white">Member Earnings</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white">Revenue</CardTitle>
                         <TrendingUp className="h-4 w-4 text-green-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-white">₱{memberEarnings.totalEarnings.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                        <p className="text-xs text-gray-400">From {memberEarnings.totalOrders} orders (90% of sales)</p>
+                        <div className="text-2xl font-bold text-white">₱{summary.totalRevenue.toLocaleString()}</div>
+                        <p className="text-xs text-gray-400">Total earnings</p>
                     </CardContent>
                 </Card>
             </div>
@@ -325,52 +304,6 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Recent Earnings Section */}
-            <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                    <CardTitle className="text-white">Recent Earnings</CardTitle>
-                    <CardDescription className="text-gray-400">
-                        Your latest earnings from approved orders (90% of sales)
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {memberEarnings.recentEarnings.length > 0 ? (
-                        <div className="space-y-3">
-                            {memberEarnings.recentEarnings.map((earning) => (
-                                <div key={earning.id} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-medium text-white">{earning.product_name}</h4>
-                                            <Badge variant="outline" className="text-xs">
-                                                {earning.category}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-gray-400">
-                                            {earning.quantity} {earning.category.toLowerCase()} • {earning.customer_name}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            Order #{earning.sale_id} • {earning.created_at}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-lg font-bold text-green-400">
-                                            ₱{earning.amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                                        </p>
-                                        <p className="text-xs text-gray-400">90% earnings</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-6 text-gray-400">
-                            <TrendingUp className="h-8 w-8 mx-auto mb-2 text-gray-500" />
-                            <p className="text-sm">No earnings recorded yet</p>
-                            <p className="text-xs">Earnings will appear here once your orders are approved</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
 
             {/* View All Stocks Button */}
             <div className="mt-8 text-center">

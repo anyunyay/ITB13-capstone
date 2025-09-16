@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SalesController;
-use App\Http\Controllers\Admin\OperationalExpenseController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
@@ -101,14 +100,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         Route::middleware(['can:generate sales report'])->group(function () {
             Route::get('/sales/report', [SalesController::class, 'generateReport'])->name('admin.sales.report');
-        });
-
-        // Operational Expenses routes
-        Route::middleware(['can:view sales'])->group(function () {
-            Route::get('/operational-expenses', [OperationalExpenseController::class, 'index'])->name('admin.operational-expenses.index');
-        });
-        Route::middleware(['can:generate sales report'])->group(function () {
-            Route::get('/operational-expenses/report', [OperationalExpenseController::class, 'generateReport'])->name('admin.operational-expenses.report');
         });
 
         // Membership routes

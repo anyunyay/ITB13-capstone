@@ -11,7 +11,6 @@ use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
 use App\Notifications\DeliveryTaskNotification;
 use App\Notifications\ProductSaleNotification;
-use App\Models\MemberEarning;
 use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -103,30 +102,6 @@ class OrderController extends Controller
                 } else {
                     $trail->stock->setPartialStatus();
                 }
-
-                // Calculate member earnings for this specific stock item
-                $price = 0;
-                if ($trail->category === 'Kilo' && $trail->stock->product->price_kilo) {
-                    $price = $trail->stock->product->price_kilo;
-                } elseif ($trail->category === 'Pc' && $trail->stock->product->price_pc) {
-                    $price = $trail->stock->product->price_pc;
-                } elseif ($trail->category === 'Tali' && $trail->stock->product->price_tali) {
-                    $price = $trail->stock->product->price_tali;
-                }
-
-                // Calculate member earnings (90% of the item total)
-                $itemTotal = $price * $trail->quantity;
-                $memberEarningAmount = $itemTotal * 0.90;
-
-                // Create member earning record
-                MemberEarning::create([
-                    'member_id' => $trail->stock->member_id,
-                    'sale_id' => $order->id,
-                    'stock_id' => $trail->stock->id,
-                    'amount' => $memberEarningAmount,
-                    'quantity' => $trail->quantity,
-                    'category' => $trail->category,
-                ]);
 
                 // Notify member about product sale
                 $trail->stock->member->notify(new ProductSaleNotification($trail->stock, $order, $order->customer));
