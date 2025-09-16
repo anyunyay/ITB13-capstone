@@ -204,9 +204,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
         Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
         
-        // Earnings report route
-        Route::get('/earnings/report', [MemberController::class, 'generateEarningsReport'])->name('member.earnings.report');
-        
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Member\NotificationController::class, 'markRead'])->name('member.notifications.markRead');
