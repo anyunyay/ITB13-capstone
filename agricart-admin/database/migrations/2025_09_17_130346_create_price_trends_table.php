@@ -17,7 +17,8 @@ return new class extends Migration
             $table->date('date');
             $table->decimal('price_per_kg', 10, 2)->nullable();
             $table->decimal('price_per_tali', 10, 2)->nullable();
-            $table->string('unit_type'); // 'kg' or 'tali'
+            $table->decimal('price_per_pc', 10, 2)->nullable();
+            $table->string('unit_type'); // 'kg','tali' or 'pc'
             $table->timestamps();
             
             // Add indexes for better performance
