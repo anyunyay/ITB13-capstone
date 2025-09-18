@@ -49,14 +49,17 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         per_tali: true,
         per_pc: true
     });
-    const [startDate, setStartDate] = useState<Date | undefined>(dateRange?.min_date ? new Date(dateRange.min_date) : undefined);
-    const [endDate, setEndDate] = useState<Date | undefined>(dateRange?.max_date ? new Date(dateRange.max_date) : undefined);
+    const [startDate, setStartDate] = useState<Date | undefined>(dateRange?.min_date ? dayjs(dateRange.min_date).toDate() : undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(dateRange?.max_date ? dayjs(dateRange.max_date).toDate() : undefined);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingPriceCategories, setLoadingPriceCategories] = useState<boolean>(false);
     const [series, setSeries] = useState<any[]>([]);
     const [availableProducts, setAvailableProducts] = useState<ProductOption[]>([]);
     const [availablePriceCategories, setAvailablePriceCategories] = useState<string[]>([]);
     const [productPriceCategories, setProductPriceCategories] = useState<Record<string, string[]>>({});
+    const [timePeriod, setTimePeriod] = useState<'specific' | 'monthly' | 'yearly'>('specific');
+    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
+    const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
 
     // Define product categories
     const fruitProducts = ['Pakwan', 'Mais'];
@@ -214,6 +217,63 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         }
     };
 
+    // Convert time period selections to date ranges
+    const getDateRangeFromTimePeriod = () => {
+        if (timePeriod === 'specific') {
+            return {
+                startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : undefined,
+                endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : undefined
+            };
+        } else if (timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined) {
+            const startOfMonth = dayjs().year(selectedYear).month(selectedMonth).startOf('month');
+            const endOfMonth = dayjs().year(selectedYear).month(selectedMonth).endOf('month');
+            return {
+                startDate: startOfMonth.format('YYYY-MM-DD'),
+                endDate: endOfMonth.format('YYYY-MM-DD')
+            };
+        } else if (timePeriod === 'yearly' && selectedYear !== undefined) {
+            const startOfYear = dayjs().year(selectedYear).startOf('year');
+            const endOfYear = dayjs().year(selectedYear).endOf('year');
+            return {
+                startDate: startOfYear.format('YYYY-MM-DD'),
+                endDate: endOfYear.format('YYYY-MM-DD')
+            };
+        }
+        return { startDate: undefined, endDate: undefined };
+    };
+
+    // Handle time period change to clear previous data
+    const handleTimePeriodChange = (newTimePeriod: 'specific' | 'monthly' | 'yearly') => {
+        setTimePeriod(newTimePeriod);
+        
+        // Clear previous trend data when switching to monthly or yearly, but keep selected products
+        if (newTimePeriod === 'monthly' || newTimePeriod === 'yearly') {
+            setSeries([]);
+            // Keep selectedProducts - don't clear them
+            setProductPriceCategories({});
+            setAvailablePriceCategories([]);
+            setPriceCategoryToggles({
+                per_kilo: true,
+                per_tali: true,
+                per_pc: true
+            });
+        }
+        
+        // Reset date selections when switching time periods
+        if (newTimePeriod === 'specific') {
+            setSelectedMonth(undefined);
+            setSelectedYear(undefined);
+        } else if (newTimePeriod === 'monthly') {
+            setStartDate(undefined);
+            setEndDate(undefined);
+            setSelectedYear(undefined);
+        } else if (newTimePeriod === 'yearly') {
+            setStartDate(undefined);
+            setEndDate(undefined);
+            setSelectedMonth(undefined);
+        }
+    };
+
     // Handle price category toggle
     const handlePriceCategoryToggle = (category: keyof typeof priceCategoryToggles) => {
         if (selectedProducts.length === 1) {
@@ -255,6 +315,21 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             setSeries([]);
             return;
         }
+        
+        // Validate time period selections before loading data
+        const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
+            (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate))) &&
+            (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
+            (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01')));
+        const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
+            !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
+        const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
+            selectedYear <= dayjs().year() && selectedYear >= 2020;
+        
+        if (!hasValidSpecificDates && !hasValidMonthlySelection && !hasValidYearlySelection) {
+            setSeries([]);
+            return; // Don't load data if validation fails
+        }
 
         setLoading(true);
         try {
@@ -280,8 +355,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                 });
             }
             
-            if (startDate) params.append('start_date', startDate.toISOString().split('T')[0]);
-            if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
+            const dateRange = getDateRangeFromTimePeriod();
+            if (dateRange.startDate) params.append('start_date', dateRange.startDate);
+            if (dateRange.endDate) params.append('end_date', dateRange.endDate);
             
             const res = await fetch(`/admin/trends/data?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
             const json = await res.json();
@@ -309,7 +385,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         } finally {
             setLoading(false);
         }
-    }, [selectedProducts, selectedCategory, priceCategoryToggles, startDate, endDate]);
+    }, [selectedProducts, selectedCategory, priceCategoryToggles, timePeriod, startDate, endDate, selectedMonth, selectedYear]);
 
     useEffect(() => {
         // Initialize available products and price categories
@@ -318,6 +394,20 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Auto-load data when monthly or yearly selections are complete and valid
+    useEffect(() => {
+        const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
+            !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
+        const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
+            selectedYear <= dayjs().year() && selectedYear >= 2020;
+        
+        if (hasValidMonthlySelection && selectedProducts.length > 0) {
+            loadData();
+        } else if (hasValidYearlySelection && selectedProducts.length > 0) {
+            loadData();
+        }
+    }, [timePeriod, selectedMonth, selectedYear, selectedProducts, loadData]);
 
     // Auto-reload data when price category toggles change
     useEffect(() => {
@@ -334,8 +424,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         
         // Group data by date, product, and price category for better visualization
         const groupedByDate = series.reduce((acc, item) => {
-            const date = new Date(item.timestamp);
-            const dateString = date.toISOString().split('T')[0]; // Use YYYY-MM-DD format
+            const date = dayjs(item.timestamp);
+            const dateString = date.format('YYYY-MM-DD'); // Use YYYY-MM-DD format
             if (!acc[dateString]) {
                 acc[dateString] = {};
             }
@@ -349,20 +439,22 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         const allProductKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
         
         // Get all dates and sort them
-        const allDates = Object.keys(groupedByDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+        const allDates = Object.keys(groupedByDate).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
         
         if (allDates.length === 0) return [];
         
-        // Always use user-specified date range if provided, otherwise use data range
+        // Use date range from time period selection
         let chartStartDate, chartEndDate;
-        if (startDate && endDate) {
-            // Use user-specified dates - chart will show exactly this range
-            chartStartDate = dayjs(startDate).startOf('day');
-            chartEndDate = dayjs(endDate).endOf('day');
+        const dateRangeFromPeriod = getDateRangeFromTimePeriod();
+        
+        if (dateRangeFromPeriod.startDate && dateRangeFromPeriod.endDate) {
+            // Use time period specified dates - chart will show exactly this range
+            chartStartDate = dayjs(dateRangeFromPeriod.startDate).startOf('day');
+            chartEndDate = dayjs(dateRangeFromPeriod.endDate).endOf('day');
         } else {
-            // Fall back to data range only if no user dates specified
-            const dataStartDate = dayjs(Math.min(...allDates.map(d => new Date(d).getTime())));
-            const dataEndDate = dayjs(Math.max(...allDates.map(d => new Date(d).getTime())));
+            // Fall back to data range only if no time period dates specified
+            const dataStartDate = dayjs(Math.min(...allDates.map(d => dayjs(d).valueOf())));
+            const dataEndDate = dayjs(Math.max(...allDates.map(d => dayjs(d).valueOf())));
             chartStartDate = dataStartDate.startOf('day');
             chartEndDate = dataEndDate.endOf('day');
         }
@@ -372,8 +464,11 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         const isMoreThanOneMonth = daysDiff > 30;
         
         console.log('Date range analysis:', {
-            userStartDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : 'Not specified',
-            userEndDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : 'Not specified',
+            timePeriod,
+            selectedMonth,
+            selectedYear,
+            periodStartDate: dateRangeFromPeriod.startDate || 'Not specified',
+            periodEndDate: dateRangeFromPeriod.endDate || 'Not specified',
             chartStartDate: chartStartDate.format('YYYY-MM-DD'),
             chartEndDate: chartEndDate.format('YYYY-MM-DD'),
             daysDiff,
@@ -432,7 +527,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         
         console.log('Chart data with interpolation:', continuousData);
         return continuousData;
-    }, [series, startDate, endDate]);
+    }, [series, timePeriod, startDate, endDate, selectedMonth, selectedYear]);
 
     // Generate colors for different products
     const getProductColor = (productName: string, index: number) => {
@@ -467,7 +562,50 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
 
                     <Card className="mb-4">
                         <CardHeader>
-                            <CardTitle>Filters</CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Filters</CardTitle>
+                                <div className="flex items-center space-x-6">
+                                    <Label className="text-base font-semibold">Time Period</Label>
+                                    <div className="flex space-x-4">
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                id="specific"
+                                                name="timePeriod"
+                                                value="specific"
+                                                checked={timePeriod === 'specific'}
+                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                            <Label htmlFor="specific">Specific Date</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                id="monthly"
+                                                name="timePeriod"
+                                                value="monthly"
+                                                checked={timePeriod === 'monthly'}
+                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                            <Label htmlFor="monthly">Monthly</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                id="yearly"
+                                                name="timePeriod"
+                                                value="yearly"
+                                                checked={timePeriod === 'yearly'}
+                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                            <Label htmlFor="yearly">Yearly</Label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -558,50 +696,123 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                         </p>
                                     )}
                                 </div>
-                                <div>
-                                    <Label>Start Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
+                                {timePeriod === 'specific' && (
+                                    <>
+                                        <div>
+                                            <Label>Start Date</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={startDate}
+                                                        onSelect={setStartDate}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                        <div>
+                                            <Label>End Date</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={endDate}
+                                                        onSelect={setEndDate}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </>
+                                )}
+                                
+                                {timePeriod === 'monthly' && (
+                                    <>
+                                        <div>
+                                            <Label>Select Month</Label>
+                                            <Select 
+                                                value={selectedMonth?.toString()} 
+                                                onValueChange={(value) => setSelectedMonth(parseInt(value))}
                                             >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {startDate ? format(startDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={startDate}
-                                                onSelect={setStartDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                <div>
-                                    <Label>End Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select month" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="0">January</SelectItem>
+                                                    <SelectItem value="1">February</SelectItem>
+                                                    <SelectItem value="2">March</SelectItem>
+                                                    <SelectItem value="3">April</SelectItem>
+                                                    <SelectItem value="4">May</SelectItem>
+                                                    <SelectItem value="5">June</SelectItem>
+                                                    <SelectItem value="6">July</SelectItem>
+                                                    <SelectItem value="7">August</SelectItem>
+                                                    <SelectItem value="8">September</SelectItem>
+                                                    <SelectItem value="9">October</SelectItem>
+                                                    <SelectItem value="10">November</SelectItem>
+                                                    <SelectItem value="11">December</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div>
+                                            <Label>Select Year</Label>
+                                            <Select 
+                                                value={selectedYear?.toString()} 
+                                                onValueChange={(value) => setSelectedYear(parseInt(value))}
                                             >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {endDate ? format(endDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={endDate}
-                                                onSelect={setEndDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select year" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
+                                                        <SelectItem key={year} value={year.toString()}>
+                                                            {year}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </>
+                                )}
+                                
+                                {timePeriod === 'yearly' && (
+                                    <div>
+                                        <Label>Select Year</Label>
+                                        <Select 
+                                            value={selectedYear?.toString()} 
+                                            onValueChange={(value) => setSelectedYear(parseInt(value))}
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select year" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
+                                                    <SelectItem key={year} value={year.toString()}>
+                                                        {year}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -645,10 +856,57 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             {selectedProducts.length === 0 && (
                                 <p className="text-sm text-red-500 mt-2">Please select at least one product to view the chart</p>
                             )}
+                            {timePeriod === 'specific' && !startDate && !endDate && (
+                                <p className="text-sm text-red-500 mt-2">Please select start date and/or end date to view the chart</p>
+                            )}
+                            {timePeriod === 'monthly' && (selectedMonth === undefined || selectedYear === undefined) && (
+                                <p className="text-sm text-red-500 mt-2">Please select both month and year to view the chart</p>
+                            )}
+                            {timePeriod === 'yearly' && selectedYear === undefined && (
+                                <p className="text-sm text-red-500 mt-2">Please select a year to view the chart</p>
+                            )}
+                            {timePeriod === 'specific' && startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate)) && (
+                                <p className="text-sm text-red-500 mt-2">Start date cannot be after end date</p>
+                            )}
+                            {timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && (
+                                <p className="text-sm text-red-500 mt-2">Selected month cannot be in the future</p>
+                            )}
+                            {timePeriod === 'yearly' && selectedYear !== undefined && selectedYear > dayjs().year() && (
+                                <p className="text-sm text-red-500 mt-2">Selected year cannot be in the future</p>
+                            )}
+                            {timePeriod === 'specific' && startDate && dayjs(startDate).isBefore(dayjs('2020-01-01')) && (
+                                <p className="text-sm text-red-500 mt-2">Start date cannot be before 2020</p>
+                            )}
+                            {timePeriod === 'specific' && endDate && dayjs(endDate).isBefore(dayjs('2020-01-01')) && (
+                                <p className="text-sm text-red-500 mt-2">End date cannot be before 2020</p>
+                            )}
+                            {timePeriod === 'monthly' && selectedYear !== undefined && selectedYear < 2020 && (
+                                <p className="text-sm text-red-500 mt-2">Selected year cannot be before 2020</p>
+                            )}
+                            {timePeriod === 'yearly' && selectedYear !== undefined && selectedYear < 2020 && (
+                                <p className="text-sm text-red-500 mt-2">Selected year cannot be before 2020</p>
+                            )}
                         </CardHeader>
                         <CardContent>
                             <div style={{ width: '100%', height: 420 }}>
-                                {chartData.length > 0 ? (
+                                {(() => {
+                                    // Check if we should show the chart based on time period requirements
+                                    const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
+                                        (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate))) &&
+                                        (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
+                                        (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01')));
+                                    const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
+                                        !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
+                                    const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
+                                        selectedYear <= dayjs().year() && selectedYear >= 2020;
+                                    
+                                    const shouldShowChart = chartData.length > 0 && (
+                                        hasValidSpecificDates || 
+                                        hasValidMonthlySelection ||
+                                        hasValidYearlySelection
+                                    );
+                                    
+                                    return shouldShowChart ? (
                                     <ResponsiveContainer>
                                         <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
@@ -746,11 +1004,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             ))}
                                         </LineChart>
                                     </ResponsiveContainer>
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-500">
-                                        <p>No data available. Please select products and price categories to view the chart.</p>
-                                    </div>
-                                )}
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-gray-500">
+                                            <p>No data available. Please select products and price categories to view the chart.</p>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </CardContent>
                     </Card>
