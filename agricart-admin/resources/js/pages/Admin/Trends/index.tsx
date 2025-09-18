@@ -15,6 +15,10 @@ import type { SharedData } from '@/types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrBefore);
 
 type ProductOption = { name: string };
 
@@ -328,30 +332,45 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         
         if (allDates.length === 0) return [];
         
-        // Use user-specified date range or fall back to data range
+        // Always use user-specified date range if provided, otherwise use data range
         let chartStartDate, chartEndDate;
         if (startDate && endDate) {
-            // Use user-specified dates
-            chartStartDate = new Date(startDate);
-            chartEndDate = new Date(endDate);
+            // Use user-specified dates - chart will show exactly this range
+            chartStartDate = dayjs(startDate).startOf('day');
+            chartEndDate = dayjs(endDate).endOf('day');
         } else {
-            // Fall back to data range
-            chartStartDate = new Date(Math.min(...allDates.map(d => new Date(d).getTime())));
-            chartEndDate = new Date(Math.max(...allDates.map(d => new Date(d).getTime())));
+            // Fall back to data range only if no user dates specified
+            const dataStartDate = dayjs(Math.min(...allDates.map(d => new Date(d).getTime())));
+            const dataEndDate = dayjs(Math.max(...allDates.map(d => new Date(d).getTime())));
+            chartStartDate = dataStartDate.startOf('day');
+            chartEndDate = dataEndDate.endOf('day');
         }
         
-        // Generate all dates in the range
+        // Check if the date range spans more than 30 days
+        const daysDiff = chartEndDate.diff(chartStartDate, 'day') + 1; // +1 to include both start and end
+        const isMoreThanOneMonth = daysDiff > 30;
+        
+        console.log('Date range analysis:', {
+            userStartDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : 'Not specified',
+            userEndDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : 'Not specified',
+            chartStartDate: chartStartDate.format('YYYY-MM-DD'),
+            chartEndDate: chartEndDate.format('YYYY-MM-DD'),
+            daysDiff,
+            isMoreThanOneMonth
+        });
+        
+        // Generate all dates in the range using dayjs
         const dateRange = [];
-        const currentDate = new Date(chartStartDate);
-        while (currentDate <= chartEndDate) {
-            dateRange.push(currentDate.toISOString().split('T')[0]); // Use YYYY-MM-DD format
-            currentDate.setDate(currentDate.getDate() + 1);
+        let currentDate = chartStartDate.clone();
+        while (currentDate.isSameOrBefore(chartEndDate, 'day')) {
+            dateRange.push(currentDate.format('YYYY-MM-DD'));
+            currentDate = currentDate.add(1, 'day');
         }
         
         // If we only have one data point, use the full date range specified by user
         if (allDates.length === 1) {
             const dataPoints = dateRange.map(date => {
-                const dataPoint: any = { timestamp: date };
+                const dataPoint: any = { timestamp: date, isMoreThanOneMonth };
                 allProductKeys.forEach(productKey => {
                     if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
                         // If data exists for this day, use it
@@ -372,7 +391,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         
         for (let i = 0; i < dateRange.length; i++) {
             const date = dateRange[i];
-            const dataPoint: any = { timestamp: date };
+            const dataPoint: any = { timestamp: date, isMoreThanOneMonth };
             
             allProductKeys.forEach(productKey => {
                 if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
@@ -581,12 +600,47 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             <XAxis 
                                                 dataKey="timestamp" 
                                                 tickFormatter={(value) => {
-                                                    const date = new Date(value);
-                                                    return date.toLocaleDateString('en-US', { 
-                                                        month: 'short', 
-                                                        day: 'numeric' 
-                                                    });
+                                                    const date = dayjs(value);
+                                                    // Check if this is a multi-month range by looking at the first data point
+                                                    const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
+                                                    
+                                                    if (isMoreThanOneMonth) {
+                                                        // Show full month name with day when spanning more than 30 days
+                                                        return date.format('MMMM D');
+                                                    } else {
+                                                        // Show days when within 30 days
+                                                        return date.format('MMM D');
+                                                    }
                                                 }}
+                                                tick={{ fontSize: 12 }}
+                                                ticks={(() => {
+                                                    const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
+                                                    if (!isMoreThanOneMonth) return undefined;
+                                                    
+                                                    // For monthly view, show first day of each month plus the end date
+                                                    const monthTicks: string[] = [];
+                                                    const seenMonths = new Set<string>();
+                                                    
+                                                    chartData.forEach((item, index) => {
+                                                        const date = dayjs(item.timestamp);
+                                                        const monthKey = `${date.year()}-${date.month()}`;
+                                                        
+                                                        if (!seenMonths.has(monthKey)) {
+                                                            seenMonths.add(monthKey);
+                                                            monthTicks.push(item.timestamp);
+                                                        }
+                                                    });
+                                                    
+                                                    // Always add the last date (end date) if it's not already included
+                                                    if (chartData.length > 0) {
+                                                        const lastDate = chartData[chartData.length - 1].timestamp;
+                                                        if (!monthTicks.includes(lastDate)) {
+                                                            monthTicks.push(lastDate);
+                                                        }
+                                                    }
+                                                    
+                                                    return monthTicks;
+                                                })()}
                                             />
                                             <YAxis />
                                             <Tooltip 
@@ -594,11 +648,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                     if (active && payload && payload.length) {
                                                         return (
                                                             <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-                                                                <p className="font-semibold">{`Date: ${label ? new Date(label).toLocaleDateString('en-US', { 
-                                                                    year: 'numeric', 
-                                                                    month: 'long', 
-                                                                    day: 'numeric' 
-                                                                }) : 'Unknown'}`}</p>
+                                                                <p className="font-semibold">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
                                                                 {payload.map((entry, index) => {
                                                                     if (entry.value && entry.dataKey) {
                                                                         // Parse the product key to show product and category separately
