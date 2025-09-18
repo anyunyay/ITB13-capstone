@@ -20,7 +20,11 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isSameOrBefore);
 
-type ProductOption = { name: string };
+type ProductOption = { 
+    name: string; 
+    price_categories: string[]; 
+    unit_types: string[]; 
+};
 
 interface DateRange {
     min_date: string;
@@ -70,66 +74,87 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         return products;
     };
 
-    // Get available price categories based on selected product from API
-    const getAvailablePriceCategories = async (productName: string) => {
+    // Group products by their pricing units
+    const getGroupedProducts = (products: ProductOption[]) => {
+        const groups: { [key: string]: ProductOption[] } = {
+            'per_kilo_only': [],
+            'per_tali_only': [],
+            'per_pc_only': [],
+            'per_kilo_tali': [],
+            'per_kilo_pc': [],
+            'per_tali_pc': [],
+            'all_units': []
+        };
+
+        products.forEach(product => {
+            const { price_categories } = product;
+            const hasKilo = price_categories.includes('per_kilo');
+            const hasTali = price_categories.includes('per_tali');
+            const hasPc = price_categories.includes('per_pc');
+
+            if (hasKilo && hasTali && hasPc) {
+                groups.all_units.push(product);
+            } else if (hasKilo && hasTali) {
+                groups.per_kilo_tali.push(product);
+            } else if (hasKilo && hasPc) {
+                groups.per_kilo_pc.push(product);
+            } else if (hasTali && hasPc) {
+                groups.per_tali_pc.push(product);
+            } else if (hasKilo) {
+                groups.per_kilo_only.push(product);
+            } else if (hasTali) {
+                groups.per_tali_only.push(product);
+            } else if (hasPc) {
+                groups.per_pc_only.push(product);
+            }
+        });
+
+        return groups;
+    };
+
+    // Get available price categories based on selected product from product data
+    const getAvailablePriceCategories = (productName: string) => {
         if (!productName || productName === 'all') return ['per_kilo', 'per_tali', 'per_pc'];
         
-        try {
-            const response = await fetch(`/admin/trends/price-categories?product_name=${encodeURIComponent(productName)}`);
-            const data = await response.json();
-            return data.price_categories || [];
-        } catch (error) {
-            console.error('Error fetching price categories:', error);
-            return [];
-        }
+        const product = products.find(p => p.name === productName);
+        return product?.price_categories || ['per_kilo', 'per_tali', 'per_pc'];
     };
 
     // Get available price categories for all products in the selected category
-    const getAvailablePriceCategoriesForCategory = async (category: string) => {
+    const getAvailablePriceCategoriesForCategory = (category: string) => {
         if (category === 'all') return ['per_kilo', 'per_tali', 'per_pc'];
         
         const productsInCategory = getFilteredProducts(category);
         if (productsInCategory.length === 0) return [];
         
-        try {
-            // Get price categories for all products in this category
-            const promises = productsInCategory.map(product => 
-                fetch(`/admin/trends/price-categories?product_name=${encodeURIComponent(product.name)}`)
-                    .then(response => response.json())
-                    .then(data => data.price_categories || [])
-                    .catch(() => [])
-            );
-            
-            const results = await Promise.all(promises);
-            
-            // Combine all unique price categories
-            const allCategories = results.flat();
-            const uniqueCategories = [...new Set(allCategories)];
-            
-            return uniqueCategories;
-        } catch (error) {
-            console.error('Error fetching price categories for category:', error);
-            return [];
-        }
+        // Combine all unique price categories from products in this category
+        const allCategories = productsInCategory.flatMap(product => product.price_categories || []);
+        const uniqueCategories = [...new Set(allCategories)];
+        
+        return uniqueCategories;
     };
 
     // Handle category change
-    const handleCategoryChange = async (category: string) => {
+    const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
         setSelectedProducts([]);
         setAvailableProducts(getFilteredProducts(category));
         setProductPriceCategories({});
         
-        // Reset toggles to all enabled
+        // Get available price categories for this category
+        const availableCategories = getAvailablePriceCategoriesForCategory(category);
+        setAvailablePriceCategories(availableCategories);
+        
+        // Reset toggles based on available categories
         setPriceCategoryToggles({
-            per_kilo: true,
-            per_tali: true,
-            per_pc: true
+            per_kilo: availableCategories.includes('per_kilo'),
+            per_tali: availableCategories.includes('per_tali'),
+            per_pc: availableCategories.includes('per_pc')
         });
     };
 
     // Handle product selection change
-    const handleProductSelectionChange = async (productName: string, checked: boolean) => {
+    const handleProductSelectionChange = (productName: string, checked: boolean) => {
         let newSelectedProducts;
         if (checked) {
             if (selectedProducts.length >= 5) {
@@ -145,13 +170,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         // Get price categories for selected products
         if (newSelectedProducts.length > 0) {
             const productCategories: Record<string, string[]> = {};
-            for (const product of newSelectedProducts) {
-                if (!productPriceCategories[product]) {
-                    const categories = await getAvailablePriceCategories(product);
-                    productCategories[product] = categories;
-                } else {
-                    productCategories[product] = productPriceCategories[product];
-                }
+            for (const productName of newSelectedProducts) {
+                const categories = getAvailablePriceCategories(productName);
+                productCategories[productName] = categories;
             }
             setProductPriceCategories(productCategories);
             
@@ -474,26 +495,60 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 }
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-96">
-                                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                                                {availableProducts.map((product) => (
-                                                    <div key={product.name} className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={product.name}
-                                                            checked={selectedProducts.includes(product.name)}
-                                                            onCheckedChange={(checked) => 
-                                                                handleProductSelectionChange(product.name, checked as boolean)
-                                                            }
-                                                            disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
-                                                        />
-                                                        <Label 
-                                                            htmlFor={product.name} 
-                                                            className="text-sm font-normal cursor-pointer flex-1"
-                                                        >
-                                                            {product.name}
-                                                        </Label>
-                                                    </div>
-                                                ))}
+                                        <PopoverContent className="w-auto min-w-[400px] max-w-[800px]">
+                                            <div>
+                                                {(() => {
+                                                    const groupedProducts = getGroupedProducts(availableProducts);
+                                                    const groupTitles = {
+                                                        'per_kilo_only': 'Per Kilo Only',
+                                                        'per_tali_only': 'Per Tali Only', 
+                                                        'per_pc_only': 'Per Piece Only',
+                                                        'per_kilo_tali': 'Per Kilo & Tali',
+                                                        'per_kilo_pc': 'Per Kilo & Piece',
+                                                        'per_tali_pc': 'Per Tali & Piece',
+                                                        'all_units': 'All Pricing Units'
+                                                    };
+                                                    
+                                                    // Count total products to determine layout
+                                                    const totalProducts = Object.values(groupedProducts).reduce((sum, group) => sum + group.length, 0);
+                                                    const hasMultipleGroups = Object.values(groupedProducts).filter(group => group.length > 0).length > 1;
+                                                    
+                                                    return (
+                                                        <div className={hasMultipleGroups ? "grid grid-cols-2 gap-6" : "space-y-4"}>
+                                                            {Object.entries(groupedProducts).map(([groupKey, groupProducts]) => {
+                                                                if (groupProducts.length === 0) return null;
+                                                                
+                                                                return (
+                                                                    <div key={groupKey} className="space-y-2">
+                                                                        <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 px-1 border-b border-gray-200 pb-1">
+                                                                            {groupTitles[groupKey as keyof typeof groupTitles]}
+                                                                        </div>
+                                                                        <div className={groupProducts.length <= 4 ? "grid grid-cols-1 gap-1" : "grid grid-cols-2 gap-1"}>
+                                                                            {groupProducts.map((product) => (
+                                                                                <div key={product.name} className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-50 rounded">
+                                                                                    <Checkbox
+                                                                                        id={product.name}
+                                                                                        checked={selectedProducts.includes(product.name)}
+                                                                                        onCheckedChange={(checked) => 
+                                                                                            handleProductSelectionChange(product.name, checked as boolean)
+                                                                                        }
+                                                                                        disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
+                                                                                    />
+                                                                                    <Label 
+                                                                                        htmlFor={product.name} 
+                                                                                        className="text-sm font-normal cursor-pointer flex-1 truncate"
+                                                                                    >
+                                                                                        {product.name}
+                                                                                    </Label>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
                                         </PopoverContent>
                                     </Popover>

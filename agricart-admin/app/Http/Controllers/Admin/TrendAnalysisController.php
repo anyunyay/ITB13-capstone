@@ -13,14 +13,34 @@ class TrendAnalysisController extends Controller
 {
     public function index(Request $request)
     {
-        // Get unique products from price_trends table
-        $products = PriceTrend::select('product_name')
+        // Get unique products with their available pricing units from price_trends table
+        $products = PriceTrend::select('product_name', 'unit_type')
             ->distinct()
             ->orderBy('product_name')
-            ->pluck('product_name')
-            ->map(function ($name) {
-                return ['name' => $name];
-            });
+            ->get()
+            ->groupBy('product_name')
+            ->map(function ($items, $productName) {
+                $unitTypes = $items->pluck('unit_type')->unique()->toArray();
+                
+                // Map unit types to price categories
+                $priceCategories = [];
+                if (in_array('kg', $unitTypes)) {
+                    $priceCategories[] = 'per_kilo';
+                }
+                if (in_array('tali', $unitTypes)) {
+                    $priceCategories[] = 'per_tali';
+                }
+                if (in_array('pc', $unitTypes)) {
+                    $priceCategories[] = 'per_pc';
+                }
+                
+                return [
+                    'name' => $productName,
+                    'price_categories' => $priceCategories,
+                    'unit_types' => $unitTypes
+                ];
+            })
+            ->values();
 
         // Get date range from price_trends
         $dateRange = PriceTrend::selectRaw('MIN(date) as min_date, MAX(date) as max_date')->first();
