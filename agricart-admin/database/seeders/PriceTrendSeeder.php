@@ -29,16 +29,20 @@ class PriceTrendSeeder extends Seeder
                     ['name' => 'Siling Haba', 'price' => 78, 'unit' => 'kg'],
                     ['name' => 'Kamatis', 'price' => 52, 'unit' => 'kg'],
                     ['name' => 'Sample Repetitive Data', 'price' => 40, 'unit' => 'kg'],
+                    ['name' => 'Sample Repetitive Data 2', 'price' => 40, 'unit' => 'kg'],
+                    ['name' => 'Sample Repetitive Data 3', 'price' => 40, 'unit' => 'kg'],
                     // Per 1 tali products
                     ['name' => 'Tanglad', 'price' => 8, 'unit' => 'tali'],
                     ['name' => 'Talbos ng Kamote', 'price' => 8, 'unit' => 'tali'],
                     ['name' => 'Alugbati', 'price' => 8, 'unit' => 'tali'],
                     ['name' => 'Kangkong', 'price' => 8, 'unit' => 'tali'],
                     ['name' => 'Sample Repetitive Data', 'price' => 20, 'unit' => 'tali'],
+                    ['name' => 'Sample Repetitive Data 2', 'price' => 20, 'unit' => 'tali'],
                     // Per 1 pc products
                     ['name' => 'Pakwan', 'price' => 52, 'unit' => 'pc'],
                     ['name' => 'Mais', 'price' => 17, 'unit' => 'pc'],
                     ['name' => 'Sample Repetitive Data', 'price' => 10, 'unit' => 'pc'],
+                    ['name' => 'Sample Repetitive Data 3', 'price' => 10, 'unit' => 'pc'],
                 ]
             ],
             // June 2, 2025
