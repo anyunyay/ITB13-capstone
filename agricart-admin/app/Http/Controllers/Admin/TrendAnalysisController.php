@@ -4,54 +4,137 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\ProductPriceHistory;
+use App\Models\PriceTrend;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class TrendAnalysisController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::active()->orderBy('name')->get(['id', 'name']);
+        // Get unique products from price_trends table
+        $products = PriceTrend::select('product_name')
+            ->distinct()
+            ->orderBy('product_name')
+            ->pluck('product_name')
+            ->map(function ($name) {
+                return ['name' => $name];
+            });
+
+        // Get date range from price_trends
+        $dateRange = PriceTrend::selectRaw('MIN(date) as min_date, MAX(date) as max_date')->first();
+
         return Inertia::render('Admin/Trends/index', [
             'products' => $products,
-            'defaultDays' => 30,
+            'dateRange' => $dateRange,
+        ]);
+    }
+
+    public function getPriceCategories(Request $request)
+    {
+        $validated = $request->validate([
+            'product_name' => 'required|string',
+        ]);
+
+        $productName = $validated['product_name'];
+        
+        // Get available unit types for this product
+        $unitTypes = PriceTrend::where('product_name', $productName)
+            ->select('unit_type')
+            ->distinct()
+            ->pluck('unit_type')
+            ->toArray();
+
+        // Map unit types to price categories
+        $priceCategories = [];
+        if (in_array('kg', $unitTypes)) {
+            $priceCategories[] = 'per_kilo';
+        }
+        if (in_array('tali', $unitTypes)) {
+            $priceCategories[] = 'per_tali';
+        }
+        if (in_array('pc', $unitTypes)) {
+            $priceCategories[] = 'per_pc';
+        }
+
+        return response()->json([
+            'product_name' => $productName,
+            'price_categories' => $priceCategories,
         ]);
     }
 
     public function data(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'nullable|exists:products,id',
-            'days' => 'nullable|integer|min:1|max:90',
+            'product_names' => 'nullable|array',
+            'product_names.*' => 'string',
+            'category' => 'nullable|in:all,fruit,vegetable',
+            'price_categories' => 'nullable|array',
+            'price_categories.*' => 'in:per_kilo,per_tali,per_pc',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
         ]);
 
-        $days = $validated['days'] ?? 30;
-        $fromDate = now()->subDays($days);
+        $query = PriceTrend::query()->orderBy('date');
 
-        $query = ProductPriceHistory::query()
-            ->with('product:id,name')
-            ->where('created_at', '>=', $fromDate)
-            ->orderBy('created_at');
-
-        if (!empty($validated['product_id'])) {
-            $query->where('product_id', $validated['product_id']);
+        // Filter by product names
+        if (!empty($validated['product_names'])) {
+            $query->whereIn('product_name', $validated['product_names']);
         }
 
-        $histories = $query->get(['id','product_id','price_kilo','price_pc','price_tali','created_at']);
+        // Filter by category
+        if (!empty($validated['category']) && $validated['category'] !== 'all') {
+            $fruitProducts = ['Pakwan', 'Mais'];
+            $vegetableProducts = ['Ampalaya', 'Kalabasa', 'Sitaw', 'Talong', 'Pipino', 'Pechay', 'Siling Labuyo', 'Siling Haba', 'Kamatis', 'Tanglad', 'Talbos ng Kamote', 'Alugbati', 'Kangkong'];
+            
+            if ($validated['category'] === 'fruit') {
+                $query->whereIn('product_name', $fruitProducts);
+            } elseif ($validated['category'] === 'vegetable') {
+                $query->whereIn('product_name', $vegetableProducts);
+            }
+        }
+
+        // Filter by price categories
+        if (!empty($validated['price_categories'])) {
+            $unitTypes = [];
+            foreach ($validated['price_categories'] as $category) {
+                if ($category === 'per_kilo') {
+                    $unitTypes[] = 'kg';
+                } elseif ($category === 'per_tali') {
+                    $unitTypes[] = 'tali';
+                } elseif ($category === 'per_pc') {
+                    $unitTypes[] = 'pc';
+                }
+            }
+            if (!empty($unitTypes)) {
+                $query->whereIn('unit_type', $unitTypes);
+            }
+        }
+
+        // Filter by date range
+        if (!empty($validated['start_date'])) {
+            $query->where('date', '>=', $validated['start_date']);
+        }
+        if (!empty($validated['end_date'])) {
+            $query->where('date', '<=', $validated['end_date']);
+        }
+
+        $trends = $query->get(['product_name', 'date', 'price_per_kg', 'price_per_tali', 'price_per_pc', 'unit_type']);
 
         // Group by product and map to simplified series
-        $grouped = $histories->groupBy('product_id')->map(function ($items) {
-            /** @var \Illuminate\Support\Collection $items */
-            $productName = optional($items->first()->product)->name;
+        $grouped = $trends->groupBy('product_name')->map(function ($items) {
             return [
-                'product' => $productName,
-                'series' => $items->map(function ($h) {
+                'product' => $items->first()->product_name,
+                'series' => $items->map(function ($item) {
                     return [
-                        'timestamp' => $h->created_at->toIso8601String(),
-                        'price_kilo' => $h->price_kilo !== null ? (float)$h->price_kilo : null,
-                        'price_pc' => $h->price_pc !== null ? (float)$h->price_pc : null,
-                        'price_tali' => $h->price_tali !== null ? (float)$h->price_tali : null,
+                        'timestamp' => $item->date->toIso8601String(),
+                        'price_kilo' => $item->price_per_kg,
+                        'price_tali' => $item->price_per_tali,
+                        'price_pc' => $item->price_per_pc,
+                        'unit_type' => $item->unit_type,
+                        'price' => $item->unit_type === 'kg' ? $item->price_per_kg : 
+                                 ($item->unit_type === 'tali' ? $item->price_per_tali : $item->price_per_pc),
                     ];
                 })->values(),
             ];
@@ -59,9 +142,8 @@ class TrendAnalysisController extends Controller
 
         return response()->json([
             'range' => [
-                'from' => $fromDate->toIso8601String(),
-                'to' => now()->toIso8601String(),
-                'days' => $days,
+                'from' => $validated['start_date'] ?? $trends->min('date')?->toIso8601String(),
+                'to' => $validated['end_date'] ?? $trends->max('date')?->toIso8601String(),
             ],
             'data' => $grouped,
         ]);

@@ -107,6 +107,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['can:view inventory'])->group(function () {
             Route::get('/trends', [TrendAnalysisController::class, 'index'])->name('admin.trends.index');
             Route::get('/trends/data', [TrendAnalysisController::class, 'data'])->name('admin.trends.data');
+            Route::get('/trends/price-categories', [TrendAnalysisController::class, 'getPriceCategories'])->name('admin.trends.priceCategories');
         });
 
         // Membership routes
