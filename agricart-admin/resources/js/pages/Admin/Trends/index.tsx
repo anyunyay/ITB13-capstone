@@ -305,30 +305,94 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const chartData = useMemo(() => {
         console.log('Series data:', series);
         
+        if (series.length === 0) return [];
+        
         // Group data by date, product, and price category for better visualization
         const groupedByDate = series.reduce((acc, item) => {
-            const date = new Date(item.timestamp).toLocaleDateString();
-            if (!acc[date]) {
-                acc[date] = {};
+            const date = new Date(item.timestamp);
+            const dateString = date.toISOString().split('T')[0]; // Use YYYY-MM-DD format
+            if (!acc[dateString]) {
+                acc[dateString] = {};
             }
             // Create unique key combining product name and price category
             const key = `${item.product} (${item.price_category || 'Unknown'})`;
-            acc[date][key] = item.price;
+            acc[dateString][key] = item.price;
             return acc;
         }, {} as Record<string, Record<string, number>>);
 
-        // Convert to array format for Recharts
-        const result = Object.entries(groupedByDate).map(([date, products]) => {
-            const dataPoint: any = { timestamp: date };
-            Object.entries(products as Record<string, number>).forEach(([productKey, price]) => {
-                dataPoint[productKey] = price;
-            });
-            return dataPoint;
-        });
+        // Get all unique product keys
+        const allProductKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
         
-        console.log('Chart data:', result);
-        return result;
-    }, [series]);
+        // Get all dates and sort them
+        const allDates = Object.keys(groupedByDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+        
+        if (allDates.length === 0) return [];
+        
+        // Use user-specified date range or fall back to data range
+        let chartStartDate, chartEndDate;
+        if (startDate && endDate) {
+            // Use user-specified dates
+            chartStartDate = new Date(startDate);
+            chartEndDate = new Date(endDate);
+        } else {
+            // Fall back to data range
+            chartStartDate = new Date(Math.min(...allDates.map(d => new Date(d).getTime())));
+            chartEndDate = new Date(Math.max(...allDates.map(d => new Date(d).getTime())));
+        }
+        
+        // Generate all dates in the range
+        const dateRange = [];
+        const currentDate = new Date(chartStartDate);
+        while (currentDate <= chartEndDate) {
+            dateRange.push(currentDate.toISOString().split('T')[0]); // Use YYYY-MM-DD format
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        // If we only have one data point, use the full date range specified by user
+        if (allDates.length === 1) {
+            const dataPoints = dateRange.map(date => {
+                const dataPoint: any = { timestamp: date };
+                allProductKeys.forEach(productKey => {
+                    if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
+                        // If data exists for this day, use it
+                        dataPoint[productKey] = groupedByDate[date][productKey];
+                    } else {
+                        // If no data for this day, use the single data point value
+                        dataPoint[productKey] = groupedByDate[allDates[0]][productKey] || null;
+                    }
+                });
+                return dataPoint;
+            });
+            console.log('Single data point chart with user date range:', dataPoints);
+            return dataPoints;
+        }
+        
+        // Create continuous data by filling missing days with previous day's data
+        const continuousData: any[] = [];
+        
+        for (let i = 0; i < dateRange.length; i++) {
+            const date = dateRange[i];
+            const dataPoint: any = { timestamp: date };
+            
+            allProductKeys.forEach(productKey => {
+                if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
+                    // If data exists for this day, use it (overwrite any previous interpolation)
+                    dataPoint[productKey] = groupedByDate[date][productKey];
+                } else if (i > 0) {
+                    // If no data for this day, copy from previous day
+                    dataPoint[productKey] = continuousData[i - 1][productKey];
+                } else {
+                    // First day with no data - set to null or 0
+                    dataPoint[productKey] = null;
+                }
+            });
+            
+            continuousData.push(dataPoint);
+        }
+        
+        console.log('Chart data with interpolation:', continuousData);
+        return continuousData;
+    }, [series, startDate, endDate]);
 
     // Generate colors for different products
     const getProductColor = (productName: string, index: number) => {
@@ -366,119 +430,103 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             <CardTitle>Filters</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Left side - Category and Products */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label>Category</Label>
-                                        <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="All categories" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">All categories</SelectItem>
-                                                <SelectItem value="fruit">Fruit</SelectItem>
-                                                <SelectItem value="vegetable">Vegetable</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label>Products (Max 5)</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button variant="outline" className="w-full justify-start">
-                                                    {selectedProducts.length === 0 
-                                                        ? "Select products" 
-                                                        : `${selectedProducts.length} product(s) selected`
-                                                    }
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-96">
-                                                <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                                                    {availableProducts.map((product) => (
-                                                        <div key={product.name} className="flex items-center space-x-2">
-                                                            <Checkbox
-                                                                id={product.name}
-                                                                checked={selectedProducts.includes(product.name)}
-                                                                onCheckedChange={(checked) => 
-                                                                    handleProductSelectionChange(product.name, checked as boolean)
-                                                                }
-                                                                disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
-                                                            />
-                                                            <Label 
-                                                                htmlFor={product.name} 
-                                                                className="text-sm font-normal cursor-pointer flex-1"
-                                                            >
-                                                                {product.name}
-                                                            </Label>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                        {selectedProducts.length >= 5 && (
-                                            <p className="text-sm text-amber-600 mt-1">
-                                                Maximum 5 products selected. This may result in not being able to show data properly.
-                                            </p>
-                                        )}
-                                    </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <Label>Category</Label>
+                                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="All categories" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All categories</SelectItem>
+                                            <SelectItem value="fruit">Fruit</SelectItem>
+                                            <SelectItem value="vegetable">Vegetable</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-
-                                {/* Right side - Dates and Apply Button */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label>Start Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full justify-start text-left font-normal"
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? format(startDate, "PPP") : "Pick a date"}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={startDate}
-                                                    onSelect={setStartDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div>
-                                        <Label>End Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full justify-start text-left font-normal"
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? format(endDate, "PPP") : "Pick a date"}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={endDate}
-                                                    onSelect={setEndDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div className="flex items-end">
-                                        <Button 
-                                            onClick={loadData} 
-                                            disabled={loading || selectedProducts.length === 0 || Object.values(priceCategoryToggles).every(toggle => !toggle)} 
-                                            className="w-full"
-                                        >
-                                            {loading ? 'Loading...' : 'Apply Filters'}
-                                        </Button>
-                                    </div>
+                                <div>
+                                    <Label>Products (Max 5)</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="w-full justify-start">
+                                                {selectedProducts.length === 0 
+                                                    ? "Select products" 
+                                                    : `${selectedProducts.length} product(s) selected`
+                                                }
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-96">
+                                            <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                                                {availableProducts.map((product) => (
+                                                    <div key={product.name} className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={product.name}
+                                                            checked={selectedProducts.includes(product.name)}
+                                                            onCheckedChange={(checked) => 
+                                                                handleProductSelectionChange(product.name, checked as boolean)
+                                                            }
+                                                            disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
+                                                        />
+                                                        <Label 
+                                                            htmlFor={product.name} 
+                                                            className="text-sm font-normal cursor-pointer flex-1"
+                                                        >
+                                                            {product.name}
+                                                        </Label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                    {selectedProducts.length >= 5 && (
+                                        <p className="text-sm text-amber-600 mt-1">
+                                            Maximum 5 products selected. This may result in not being able to show data properly.
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <Label>Start Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={startDate}
+                                                onSelect={setStartDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div>
+                                    <Label>End Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={endDate}
+                                                onSelect={setEndDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             </div>
                         </CardContent>
@@ -530,14 +578,27 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     <ResponsiveContainer>
                                         <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="timestamp" />
+                                            <XAxis 
+                                                dataKey="timestamp" 
+                                                tickFormatter={(value) => {
+                                                    const date = new Date(value);
+                                                    return date.toLocaleDateString('en-US', { 
+                                                        month: 'short', 
+                                                        day: 'numeric' 
+                                                    });
+                                                }}
+                                            />
                                             <YAxis />
                                             <Tooltip 
                                                 content={({ active, payload, label }) => {
                                                     if (active && payload && payload.length) {
                                                         return (
                                                             <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-                                                                <p className="font-semibold">{`Date: ${label}`}</p>
+                                                                <p className="font-semibold">{`Date: ${label ? new Date(label).toLocaleDateString('en-US', { 
+                                                                    year: 'numeric', 
+                                                                    month: 'long', 
+                                                                    day: 'numeric' 
+                                                                }) : 'Unknown'}`}</p>
                                                                 {payload.map((entry, index) => {
                                                                     if (entry.value && entry.dataKey) {
                                                                         // Parse the product key to show product and category separately
@@ -578,7 +639,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-gray-500">
-                                        <p>No data available. Please select filters and click Apply.</p>
+                                        <p>No data available. Please select products and price categories to view the chart.</p>
                                     </div>
                                 )}
                             </div>
