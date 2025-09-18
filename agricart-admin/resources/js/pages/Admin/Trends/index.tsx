@@ -157,8 +157,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const handleProductSelectionChange = (productName: string, checked: boolean) => {
         let newSelectedProducts;
         if (checked) {
-            if (selectedProducts.length >= 5) {
-                return; // Max 5 products
+            if (selectedProducts.length >= 3) {
+                return; // Max 3 products
             }
             newSelectedProducts = [...selectedProducts, productName];
         } else {
@@ -485,7 +485,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     </Select>
                                 </div>
                                 <div>
-                                    <Label>Products (Max 5)</Label>
+                                    <Label>Products (Max 3)</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button variant="outline" className="w-full justify-start">
@@ -532,7 +532,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                                                         onCheckedChange={(checked) => 
                                                                                             handleProductSelectionChange(product.name, checked as boolean)
                                                                                         }
-                                                                                        disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
+                                                                                        disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 3}
                                                                                     />
                                                                                     <Label 
                                                                                         htmlFor={product.name} 
@@ -552,9 +552,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             </div>
                                         </PopoverContent>
                                     </Popover>
-                                    {selectedProducts.length >= 5 && (
+                                    {selectedProducts.length >= 3 && (
                                         <p className="text-sm text-amber-600 mt-1">
-                                            Maximum 5 products selected. This may result in not being able to show data properly.
+                                            Maximum 3 products selected. This may result in not being able to show data properly.
                                         </p>
                                     )}
                                 </div>
