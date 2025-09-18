@@ -156,22 +156,27 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             const uniqueCategories = [...new Set(allCategories)];
             setAvailablePriceCategories(uniqueCategories);
             
-            // Update toggle logic based on number of products
+            // Set toggles based on available categories for selected products
+            const commonCategories = uniqueCategories;
+            
             if (newSelectedProducts.length === 1) {
                 // Single product: show all available categories, allow toggling off
-                const singleProductCategories = productCategories[newSelectedProducts[0]] || [];
                 setPriceCategoryToggles({
-                    per_kilo: singleProductCategories.includes('per_kilo'),
-                    per_tali: singleProductCategories.includes('per_tali'),
-                    per_pc: singleProductCategories.includes('per_pc')
+                    per_kilo: commonCategories.includes('per_kilo'),
+                    per_tali: commonCategories.includes('per_tali'),
+                    per_pc: commonCategories.includes('per_pc')
                 });
             } else if (newSelectedProducts.length >= 2) {
                 // Multiple products: only allow one category to be selected
-                const commonCategories = uniqueCategories;
+                // Find the first available category and enable only that one
+                const firstAvailableCategory = commonCategories.find(cat => 
+                    cat === 'per_kilo' || cat === 'per_tali' || cat === 'per_pc'
+                );
+                
                 setPriceCategoryToggles({
-                    per_kilo: commonCategories.includes('per_kilo') && Object.values(productCategories).every(cats => cats.includes('per_kilo')),
-                    per_tali: commonCategories.includes('per_tali') && Object.values(productCategories).every(cats => cats.includes('per_tali')),
-                    per_pc: commonCategories.includes('per_pc') && Object.values(productCategories).every(cats => cats.includes('per_pc'))
+                    per_kilo: firstAvailableCategory === 'per_kilo',
+                    per_tali: firstAvailableCategory === 'per_tali',
+                    per_pc: firstAvailableCategory === 'per_pc'
                 });
             }
         } else {
@@ -193,7 +198,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                 [category]: !prev[category]
             }));
         } else if (selectedProducts.length >= 2) {
-            // Multiple products: only allow one category to be selected
+            // Multiple products: only allow one category to be selected at a time
             setPriceCategoryToggles({
                 per_kilo: category === 'per_kilo' ? !priceCategoryToggles.per_kilo : false,
                 per_tali: category === 'per_tali' ? !priceCategoryToggles.per_tali : false,
@@ -238,9 +243,25 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             
             const res = await fetch(`/admin/trends/data?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
             const json = await res.json();
-            // Flatten grouped data into one array with product name on each point
+            // Flatten grouped data into one array with product name and price category on each point
             const flattened = json.data.flatMap((g: any) =>
-                g.series.map((p: any) => ({ ...p, product: g.product || 'Unknown' }))
+                g.series.map((p: any) => {
+                    // Map unit_type to price category name
+                    let priceCategory = 'Unknown';
+                    if (p.unit_type === 'kg') {
+                        priceCategory = 'Per Kilo';
+                    } else if (p.unit_type === 'tali') {
+                        priceCategory = 'Per Tali';
+                    } else if (p.unit_type === 'pc') {
+                        priceCategory = 'Per Piece';
+                    }
+                    
+                    return { 
+                        ...p, 
+                        product: g.product || 'Unknown',
+                        price_category: priceCategory
+                    };
+                })
             );
             setSeries(flattened);
         } finally {
@@ -267,21 +288,23 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const chartData = useMemo(() => {
         console.log('Series data:', series);
         
-        // Group data by date and product for better visualization
+        // Group data by date, product, and price category for better visualization
         const groupedByDate = series.reduce((acc, item) => {
             const date = new Date(item.timestamp).toLocaleDateString();
             if (!acc[date]) {
                 acc[date] = {};
             }
-            acc[date][item.product] = item.price;
+            // Create unique key combining product name and price category
+            const key = `${item.product} (${item.price_category || 'Unknown'})`;
+            acc[date][key] = item.price;
             return acc;
         }, {} as Record<string, Record<string, number>>);
 
         // Convert to array format for Recharts
         const result = Object.entries(groupedByDate).map(([date, products]) => {
             const dataPoint: any = { timestamp: date };
-            Object.entries(products as Record<string, number>).forEach(([productName, price]) => {
-                dataPoint[productName] = price;
+            Object.entries(products as Record<string, number>).forEach(([productKey, price]) => {
+                dataPoint[productKey] = price;
             });
             return dataPoint;
         });
@@ -300,12 +323,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         return colors[index % colors.length];
     };
 
-    // Get unique products for legend
+    // Get unique product-category combinations for legend
     const uniqueProducts = useMemo(() => {
-        const products = [...new Set(series.map(item => item.product))];
-        return products.map((product, index) => ({
-            name: product,
-            color: getProductColor(product, index)
+        const productKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
+        return productKeys.map((productKey, index) => ({
+            name: productKey,
+            color: getProductColor(productKey, index)
         }));
     }, [series]);
 
@@ -326,112 +349,119 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             <CardTitle>Filters</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Category</Label>
-                                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="All categories" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All categories</SelectItem>
-                                            <SelectItem value="fruit">Fruit</SelectItem>
-                                            <SelectItem value="vegetable">Vegetable</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Left side - Category and Products */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label>Category</Label>
+                                        <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="All categories" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All categories</SelectItem>
+                                                <SelectItem value="fruit">Fruit</SelectItem>
+                                                <SelectItem value="vegetable">Vegetable</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div>
+                                        <Label>Products (Max 5)</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button variant="outline" className="w-full justify-start">
+                                                    {selectedProducts.length === 0 
+                                                        ? "Select products" 
+                                                        : `${selectedProducts.length} product(s) selected`
+                                                    }
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-96">
+                                                <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                                                    {availableProducts.map((product) => (
+                                                        <div key={product.name} className="flex items-center space-x-2">
+                                                            <Checkbox
+                                                                id={product.name}
+                                                                checked={selectedProducts.includes(product.name)}
+                                                                onCheckedChange={(checked) => 
+                                                                    handleProductSelectionChange(product.name, checked as boolean)
+                                                                }
+                                                                disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
+                                                            />
+                                                            <Label 
+                                                                htmlFor={product.name} 
+                                                                className="text-sm font-normal cursor-pointer flex-1"
+                                                            >
+                                                                {product.name}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
+                                        {selectedProducts.length >= 5 && (
+                                            <p className="text-sm text-amber-600 mt-1">
+                                                Maximum 5 products selected. This may result in not being able to show data properly.
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label>Products (Max 5)</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="outline" className="w-full justify-start">
-                                                {selectedProducts.length === 0 
-                                                    ? "Select products" 
-                                                    : `${selectedProducts.length} product(s) selected`
-                                                }
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-80">
-                                            <div className="grid grid-cols-5 gap-2">
-                                                {availableProducts.map((product) => (
-                                                    <div key={product.name} className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={product.name}
-                                                            checked={selectedProducts.includes(product.name)}
-                                                            onCheckedChange={(checked) => 
-                                                                handleProductSelectionChange(product.name, checked as boolean)
-                                                            }
-                                                            disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 5}
-                                                        />
-                                                        <Label 
-                                                            htmlFor={product.name} 
-                                                            className="text-sm font-normal cursor-pointer"
-                                                        >
-                                                            {product.name}
-                                                        </Label>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                    {selectedProducts.length >= 5 && (
-                                        <p className="text-sm text-amber-600 mt-1">
-                                            Maximum 5 products selected. This may result in not being able to show data properly.
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <Label>Start Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {startDate ? format(startDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={startDate}
-                                                onSelect={setStartDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                <div>
-                                    <Label>End Date</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {endDate ? format(endDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={endDate}
-                                                onSelect={setEndDate}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                <div className="flex items-end">
-                                    <Button 
-                                        onClick={loadData} 
-                                        disabled={loading || selectedProducts.length === 0 || Object.values(priceCategoryToggles).every(toggle => !toggle)} 
-                                        className="w-full"
-                                    >
-                                        {loading ? 'Loading...' : 'Apply Filters'}
-                                    </Button>
+
+                                {/* Right side - Dates and Apply Button */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label>Start Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full justify-start text-left font-normal"
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={startDate}
+                                                    onSelect={setStartDate}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div>
+                                        <Label>End Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full justify-start text-left font-normal"
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={endDate}
+                                                    onSelect={setEndDate}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="flex items-end">
+                                        <Button 
+                                            onClick={loadData} 
+                                            disabled={loading || selectedProducts.length === 0 || Object.values(priceCategoryToggles).every(toggle => !toggle)} 
+                                            className="w-full"
+                                        >
+                                            {loading ? 'Loading...' : 'Apply Filters'}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
@@ -493,9 +523,16 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                                 <p className="font-semibold">{`Date: ${label}`}</p>
                                                                 {payload.map((entry, index) => {
                                                                     if (entry.value && entry.dataKey) {
+                                                                        // Parse the product key to show product and category separately
+                                                                        const match = entry.dataKey.match(/^(.+?) \((.+?)\)$/);
+                                                                        const productName = match ? match[1] : entry.dataKey;
+                                                                        const priceCategory = match ? match[2] : 'Unknown';
+                                                                        
                                                                         return (
                                                                             <p key={index} style={{ color: entry.color }}>
-                                                                                {`${entry.dataKey}: ₱${entry.value}`}
+                                                                                <span className="font-medium">{productName}</span>
+                                                                                <span className="text-gray-500"> ({priceCategory})</span>
+                                                                                <span className="ml-2">₱{entry.value}</span>
                                                                             </p>
                                                                         );
                                                                     }
