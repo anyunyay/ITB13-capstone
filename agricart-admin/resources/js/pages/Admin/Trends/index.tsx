@@ -192,13 +192,30 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Handle price category toggle
     const handlePriceCategoryToggle = (category: keyof typeof priceCategoryToggles) => {
         if (selectedProducts.length === 1) {
-            // Single product: allow toggling any available category
-            setPriceCategoryToggles(prev => ({
-                ...prev,
-                [category]: !prev[category]
-            }));
+            // Single product: allow toggling any available category, but prevent turning off the last one
+            const currentToggles = { ...priceCategoryToggles };
+            const newToggles = {
+                ...currentToggles,
+                [category]: !currentToggles[category]
+            };
+            
+            // Check if this would result in no toggles being active
+            const activeToggles = Object.values(newToggles).filter(Boolean).length;
+            if (activeToggles === 0) {
+                // Don't allow turning off the last toggle
+                return;
+            }
+            
+            setPriceCategoryToggles(newToggles);
         } else if (selectedProducts.length >= 2) {
             // Multiple products: only allow one category to be selected at a time
+            // Check if trying to turn off the only active toggle
+            const currentActiveToggles = Object.values(priceCategoryToggles).filter(Boolean).length;
+            if (currentActiveToggles === 1 && priceCategoryToggles[category]) {
+                // Don't allow turning off the last toggle
+                return;
+            }
+            
             setPriceCategoryToggles({
                 per_kilo: category === 'per_kilo' ? !priceCategoryToggles.per_kilo : false,
                 per_tali: category === 'per_tali' ? !priceCategoryToggles.per_tali : false,
