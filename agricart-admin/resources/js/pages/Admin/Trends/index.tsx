@@ -648,7 +648,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                     if (active && payload && payload.length) {
                                                         return (
                                                             <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-                                                                <p className="font-semibold">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
+                                                                <p className="font-semibold text-gray-800">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
                                                                 {payload.map((entry, index) => {
                                                                     if (entry.value && entry.dataKey) {
                                                                         // Parse the product key to show product and category separately
@@ -657,10 +657,14 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                                         const priceCategory = match ? match[2] : 'Unknown';
                                                                         
                                                                         return (
-                                                                            <p key={index} style={{ color: entry.color }}>
-                                                                                <span className="font-medium">{productName}</span>
-                                                                                <span className="text-gray-500"> ({priceCategory})</span>
-                                                                                <span className="ml-2">₱{entry.value}</span>
+                                                                            <p key={index} className="flex items-center gap-2">
+                                                                                <span 
+                                                                                    className="w-3 h-3 rounded-full" 
+                                                                                    style={{ backgroundColor: entry.color }}
+                                                                ></span>
+                                                                                <span className="font-medium text-gray-800">{productName}</span>
+                                                                                <span className="text-gray-600">({priceCategory})</span>
+                                                                                <span className="ml-2 font-semibold text-green-600">₱{entry.value}</span>
                                                                             </p>
                                                                         );
                                                                     }
@@ -676,7 +680,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             {uniqueProducts.map((product, index) => (
                                                 <Line 
                                                     key={product.name}
-                                                    type="monotone" 
+                                                    type="linear" 
                                                     dataKey={product.name} 
                                                     name={product.name}
                                                     stroke={product.color} 
