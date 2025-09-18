@@ -14,6 +14,7 @@ class PriceTrend extends Model
         'date',
         'price_per_kg',
         'price_per_tali',
+        'price_per_pc',
         'unit_type',
     ];
 
@@ -21,6 +22,7 @@ class PriceTrend extends Model
         'date' => 'date',
         'price_per_kg' => 'decimal:2',
         'price_per_tali' => 'decimal:2',
+        'price_per_pc' => 'decimal:2',
     ];
 
     /**
@@ -52,6 +54,7 @@ class PriceTrend extends Model
      */
     public function getPriceAttribute()
     {
-        return $this->unit_type === 'kg' ? $this->price_per_kg : $this->price_per_tali;
+        return $this->unit_type === 'kg' ? $this->price_per_kg : 
+               ($this->unit_type === 'tali' ? $this->price_per_tali : $this->price_per_pc);
     }
 }

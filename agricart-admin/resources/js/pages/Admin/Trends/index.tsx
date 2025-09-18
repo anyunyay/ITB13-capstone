@@ -17,8 +17,10 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 type ProductOption = { 
     name: string; 
@@ -60,10 +62,180 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const [timePeriod, setTimePeriod] = useState<'specific' | 'monthly' | 'yearly'>('specific');
     const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
     const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+    
+    // Store latest data for selected products - updates based on selected products
+    const [latestProductData, setLatestProductData] = useState<Record<string, any>>({});
 
     // Define product categories
     const fruitProducts = ['Pakwan', 'Mais'];
     const vegetableProducts = ['Ampalaya', 'Kalabasa', 'Sitaw', 'Talong', 'Pipino', 'Pechay', 'Siling Labuyo', 'Siling Haba', 'Kamatis', 'Tanglad', 'Talbos ng Kamote', 'Alugbati', 'Kangkong'];
+
+    // Fetch latest data for selected products
+    const fetchLatestProductData = useCallback(async () => {
+        if (selectedProducts.length === 0) {
+            setLatestProductData({});
+            return;
+        }
+
+        try {
+            const params = new URLSearchParams();
+            selectedProducts.forEach(product => {
+                params.append('product_names[]', product);
+            });
+            
+            // Get latest data for each product
+            const res = await fetch(`/admin/trends/latest-data?${params.toString()}`, { 
+                headers: { 'Accept': 'application/json' } 
+            });
+            const json = await res.json();
+            
+            if (json.data) {
+                setLatestProductData(json.data);
+            }
+        } catch (error) {
+            console.error('Error fetching latest product data:', error);
+        }
+    }, [selectedProducts]);
+
+    // Interpolation function to fill missing data using latest available data
+    const interpolateData = useCallback((data: any[], startDate: dayjs.Dayjs, endDate: dayjs.Dayjs) => {
+        const currentDate = dayjs();
+        
+        // If no data but we have selected products, create interpolated data using latestProductData
+        if (data.length === 0 && selectedProducts.length > 0) {
+            const dateRange = [];
+            let currentDateInLoop = startDate.clone();
+            while (currentDateInLoop.isSameOrBefore(endDate, 'day')) {
+                dateRange.push(currentDateInLoop.format('YYYY-MM-DD'));
+                currentDateInLoop = currentDateInLoop.add(1, 'day');
+            }
+
+            const interpolatedData = dateRange.map(date => {
+                const dataPoint: any = { 
+                    timestamp: date, 
+                    isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
+                };
+
+                // Only interpolate data up to the current date, but not before the start date
+                const dateObj = dayjs(date);
+                const shouldInterpolate = dateObj.isSameOrBefore(currentDate, 'day') && 
+                                        dateObj.isSameOrAfter(startDate, 'day');
+
+                if (shouldInterpolate) {
+                    // Create data points for each selected product and enabled price category
+                    selectedProducts.forEach(productName => {
+                        if (latestProductData[productName]) {
+                            const productData = latestProductData[productName];
+                            
+                            // Add data for each enabled price category
+                            if (priceCategoryToggles.per_kilo && productData.price_per_kg !== null && productData.price_per_kg !== undefined) {
+                                const key = `${productName} (Per Kilo)`;
+                                dataPoint[key] = productData.price_per_kg;
+                            }
+                            if (priceCategoryToggles.per_tali && productData.price_per_tali !== null && productData.price_per_tali !== undefined) {
+                                const key = `${productName} (Per Tali)`;
+                                dataPoint[key] = productData.price_per_tali;
+                            }
+                            if (priceCategoryToggles.per_pc && productData.price_per_pc !== null && productData.price_per_pc !== undefined) {
+                                const key = `${productName} (Per Piece)`;
+                                dataPoint[key] = productData.price_per_pc;
+                            }
+                        }
+                    });
+                }
+
+                return dataPoint;
+            });
+
+            return interpolatedData;
+        }
+
+        if (data.length === 0) return [];
+
+        // Group data by product and price category
+        const groupedData = data.reduce((acc, item) => {
+            const key = `${item.product} (${item.price_category || 'Unknown'})`;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push({
+                ...item,
+                date: dayjs(item.timestamp)
+            });
+            return acc;
+        }, {} as Record<string, any[]>);
+
+        // Sort each group by date
+        Object.keys(groupedData).forEach(key => {
+            groupedData[key].sort((a: any, b: any) => a.date.valueOf() - b.date.valueOf());
+        });
+
+        // Find the actual start date of the data
+        const actualDataStartDate = dayjs(Math.min(...data.map(item => dayjs(item.timestamp).valueOf())));
+
+        // Generate date range
+        const dateRange = [];
+        let currentDateInLoop = startDate.clone();
+        while (currentDateInLoop.isSameOrBefore(endDate, 'day')) {
+            dateRange.push(currentDateInLoop.format('YYYY-MM-DD'));
+            currentDateInLoop = currentDateInLoop.add(1, 'day');
+        }
+
+        // Create interpolated data
+        const interpolatedData = dateRange.map(date => {
+            const dataPoint: any = { 
+                timestamp: date, 
+                isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
+            };
+
+            // Only interpolate data up to the current date, but not before the actual data start date
+            const dateObj = dayjs(date);
+            const shouldInterpolate = dateObj.isSameOrBefore(currentDate, 'day') && 
+                                    dateObj.isSameOrAfter(actualDataStartDate, 'day');
+
+            if (shouldInterpolate) {
+                Object.keys(groupedData).forEach(key => {
+                    const productData = groupedData[key];
+                    const currentDateObj = dayjs(date);
+                    
+                    // Find the latest data point on or before this date
+                    let latestData = null;
+                    for (let i = productData.length - 1; i >= 0; i--) {
+                        if (productData[i].date.isSameOrBefore(currentDateObj, 'day')) {
+                            latestData = productData[i];
+                            break;
+                        }
+                    }
+
+                    // If no data found, use the latest available data from latestProductData
+                    if (!latestData) {
+                        const productName = key.split(' (')[0];
+                        const priceCategory = key.split(' (')[1]?.replace(')', '');
+                        
+                        if (latestProductData[productName]) {
+                            const unitType = priceCategory === 'Per Kilo' ? 'kg' : 
+                                           priceCategory === 'Per Tali' ? 'tali' : 'pc';
+                            const latestPrice = latestProductData[productName][`price_per_${unitType === 'kg' ? 'kg' : unitType === 'tali' ? 'tali' : 'pc'}`];
+                            
+                            if (latestPrice !== null && latestPrice !== undefined) {
+                                dataPoint[key] = latestPrice;
+                            } else {
+                                dataPoint[key] = null;
+                            }
+                        } else {
+                            dataPoint[key] = null;
+                        }
+                    } else {
+                        dataPoint[key] = latestData.price;
+                    }
+                });
+            }
+
+            return dataPoint;
+        });
+
+        return interpolatedData;
+    }, [latestProductData, selectedProducts, priceCategoryToggles]);
 
     // Filter products based on selected category
     const getFilteredProducts = (category: string) => {
@@ -120,7 +292,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         if (!productName || productName === 'all') return ['per_kilo', 'per_tali', 'per_pc'];
         
         const product = products.find(p => p.name === productName);
-        return product?.price_categories || ['per_kilo', 'per_tali', 'per_pc'];
+        const categories = product?.price_categories || ['per_kilo', 'per_tali', 'per_pc'];
+        return categories;
     };
 
     // Get available price categories for all products in the selected category
@@ -189,11 +362,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             
             if (newSelectedProducts.length === 1) {
                 // Single product: show all available categories, allow toggling off
-                setPriceCategoryToggles({
+                const newToggles = {
                     per_kilo: commonCategories.includes('per_kilo'),
                     per_tali: commonCategories.includes('per_tali'),
                     per_pc: commonCategories.includes('per_pc')
-                });
+                };
+                setPriceCategoryToggles(newToggles);
             } else if (newSelectedProducts.length >= 2) {
                 // Multiple products: only allow one category to be selected
                 // Find the first available category and enable only that one
@@ -201,11 +375,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                     cat === 'per_kilo' || cat === 'per_tali' || cat === 'per_pc'
                 );
                 
-                setPriceCategoryToggles({
+                const newToggles = {
                     per_kilo: firstAvailableCategory === 'per_kilo',
                     per_tali: firstAvailableCategory === 'per_tali',
                     per_pc: firstAvailableCategory === 'per_pc'
-                });
+                };
+                setPriceCategoryToggles(newToggles);
             }
         } else {
             setAvailablePriceCategories([]);
@@ -391,6 +566,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         // Initialize available products and price categories
         setAvailableProducts(products);
         setAvailablePriceCategories(['per_kilo', 'per_tali', 'per_pc']);
+        // Initialize price category toggles to be enabled by default
+        setPriceCategoryToggles({
+            per_kilo: true,
+            per_tali: true,
+            per_pc: true
+        });
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -417,33 +598,14 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         }
     }, [loadData]);
 
-    const chartData = useMemo(() => {
-        console.log('Series data:', series);
-        
-        if (series.length === 0) return [];
-        
-        // Group data by date, product, and price category for better visualization
-        const groupedByDate = series.reduce((acc, item) => {
-            const date = dayjs(item.timestamp);
-            const dateString = date.format('YYYY-MM-DD'); // Use YYYY-MM-DD format
-            if (!acc[dateString]) {
-                acc[dateString] = {};
-            }
-            // Create unique key combining product name and price category
-            const key = `${item.product} (${item.price_category || 'Unknown'})`;
-            acc[dateString][key] = item.price;
-            return acc;
-        }, {} as Record<string, Record<string, number>>);
+    // Fetch latest data when selected products change
+    useEffect(() => {
+        fetchLatestProductData();
+    }, [fetchLatestProductData]);
 
-        // Get all unique product keys
-        const allProductKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
+    const chartData = useMemo(() => {
         
-        // Get all dates and sort them
-        const allDates = Object.keys(groupedByDate).sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
-        
-        if (allDates.length === 0) return [];
-        
-        // Use date range from time period selection
+        // Get date range from time period selection
         let chartStartDate, chartEndDate;
         const dateRangeFromPeriod = getDateRangeFromTimePeriod();
         
@@ -453,81 +615,26 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             chartEndDate = dayjs(dateRangeFromPeriod.endDate).endOf('day');
         } else {
             // Fall back to data range only if no time period dates specified
-            const dataStartDate = dayjs(Math.min(...allDates.map(d => dayjs(d).valueOf())));
-            const dataEndDate = dayjs(Math.max(...allDates.map(d => dayjs(d).valueOf())));
+            if (series.length === 0) {
+                // If no series data and no time period, return empty
+                return [];
+            }
+            const allDates = series.map(item => dayjs(item.timestamp).format('YYYY-MM-DD'));
+            const sortedDates = allDates.sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+            if (sortedDates.length === 0) return [];
+            
+            const dataStartDate = dayjs(Math.min(...sortedDates.map(d => dayjs(d).valueOf())));
+            const dataEndDate = dayjs(Math.max(...sortedDates.map(d => dayjs(d).valueOf())));
             chartStartDate = dataStartDate.startOf('day');
             chartEndDate = dataEndDate.endOf('day');
         }
         
-        // Check if the date range spans more than 30 days
-        const daysDiff = chartEndDate.diff(chartStartDate, 'day') + 1; // +1 to include both start and end
-        const isMoreThanOneMonth = daysDiff > 30;
+        // Use interpolation function to fill missing data
+        const interpolatedData = interpolateData(series, chartStartDate, chartEndDate);
         
-        console.log('Date range analysis:', {
-            timePeriod,
-            selectedMonth,
-            selectedYear,
-            periodStartDate: dateRangeFromPeriod.startDate || 'Not specified',
-            periodEndDate: dateRangeFromPeriod.endDate || 'Not specified',
-            chartStartDate: chartStartDate.format('YYYY-MM-DD'),
-            chartEndDate: chartEndDate.format('YYYY-MM-DD'),
-            daysDiff,
-            isMoreThanOneMonth
-        });
         
-        // Generate all dates in the range using dayjs
-        const dateRange = [];
-        let currentDate = chartStartDate.clone();
-        while (currentDate.isSameOrBefore(chartEndDate, 'day')) {
-            dateRange.push(currentDate.format('YYYY-MM-DD'));
-            currentDate = currentDate.add(1, 'day');
-        }
-        
-        // If we only have one data point, use the full date range specified by user
-        if (allDates.length === 1) {
-            const dataPoints = dateRange.map(date => {
-                const dataPoint: any = { timestamp: date, isMoreThanOneMonth };
-                allProductKeys.forEach(productKey => {
-                    if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
-                        // If data exists for this day, use it
-                        dataPoint[productKey] = groupedByDate[date][productKey];
-                    } else {
-                        // If no data for this day, use the single data point value
-                        dataPoint[productKey] = groupedByDate[allDates[0]][productKey] || null;
-                    }
-                });
-                return dataPoint;
-            });
-            console.log('Single data point chart with user date range:', dataPoints);
-            return dataPoints;
-        }
-        
-        // Create continuous data by filling missing days with previous day's data
-        const continuousData: any[] = [];
-        
-        for (let i = 0; i < dateRange.length; i++) {
-            const date = dateRange[i];
-            const dataPoint: any = { timestamp: date, isMoreThanOneMonth };
-            
-            allProductKeys.forEach(productKey => {
-                if (groupedByDate[date] && groupedByDate[date][productKey] !== undefined) {
-                    // If data exists for this day, use it (overwrite any previous interpolation)
-                    dataPoint[productKey] = groupedByDate[date][productKey];
-                } else if (i > 0) {
-                    // If no data for this day, copy from previous day
-                    dataPoint[productKey] = continuousData[i - 1][productKey];
-                } else {
-                    // First day with no data - set to null or 0
-                    dataPoint[productKey] = null;
-                }
-            });
-            
-            continuousData.push(dataPoint);
-        }
-        
-        console.log('Chart data with interpolation:', continuousData);
-        return continuousData;
-    }, [series, timePeriod, startDate, endDate, selectedMonth, selectedYear]);
+        return interpolatedData;
+    }, [series, timePeriod, startDate, endDate, selectedMonth, selectedYear, interpolateData, selectedProducts, priceCategoryToggles]);
 
     // Generate colors for different products
     const getProductColor = (productName: string, index: number) => {
@@ -541,12 +648,35 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
 
     // Get unique product-category combinations for legend
     const uniqueProducts = useMemo(() => {
-        const productKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
-        return productKeys.map((productKey, index) => ({
-            name: productKey,
-            color: getProductColor(productKey, index)
-        }));
-    }, [series]);
+        // If we have series data, use it
+        if (series.length > 0) {
+            const productKeys = [...new Set(series.map(item => `${item.product} (${item.price_category || 'Unknown'})`))];
+            return productKeys.map((productKey, index) => ({
+                name: productKey,
+                color: getProductColor(productKey, index)
+            }));
+        }
+        
+        // If no series data but we have chart data, extract keys from chart data
+        if (chartData.length > 0) {
+            const allKeys = new Set<string>();
+            chartData.forEach(dataPoint => {
+                Object.keys(dataPoint).forEach(key => {
+                    if (key !== 'timestamp' && key !== 'isMoreThanOneMonth') {
+                        allKeys.add(key);
+                    }
+                });
+            });
+            
+            const productKeys = Array.from(allKeys);
+            return productKeys.map((productKey, index) => ({
+                name: productKey,
+                color: getProductColor(productKey, index)
+            }));
+        }
+        
+        return [];
+    }, [series, chartData]);
 
     return (
         <PermissionGuard permissions={['view inventory']} pageTitle="Trend Analysis Access Denied">

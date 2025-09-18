@@ -168,6 +168,48 @@ class TrendAnalysisController extends Controller
             'data' => $grouped,
         ]);
     }
+
+    public function getLatestData(Request $request)
+    {
+        $validated = $request->validate([
+            'product_names' => 'required|array',
+            'product_names.*' => 'string',
+        ]);
+
+        $latestData = [];
+
+        foreach ($validated['product_names'] as $productName) {
+            // Get the latest data for each unit type separately
+            $latestKg = PriceTrend::where('product_name', $productName)
+                ->where('unit_type', 'kg')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $latestTali = PriceTrend::where('product_name', $productName)
+                ->where('unit_type', 'tali')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $latestPc = PriceTrend::where('product_name', $productName)
+                ->where('unit_type', 'pc')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $latestData[$productName] = [
+                'product_name' => $productName,
+                'price_per_kg' => $latestKg ? $latestKg->price_per_kg : null,
+                'price_per_tali' => $latestTali ? $latestTali->price_per_tali : null,
+                'price_per_pc' => $latestPc ? $latestPc->price_per_pc : null,
+                'latest_date_kg' => $latestKg ? $latestKg->date->toIso8601String() : null,
+                'latest_date_tali' => $latestTali ? $latestTali->date->toIso8601String() : null,
+                'latest_date_pc' => $latestPc ? $latestPc->date->toIso8601String() : null,
+            ];
+        }
+
+        return response()->json([
+            'data' => $latestData,
+        ]);
+    }
 }
 
 
