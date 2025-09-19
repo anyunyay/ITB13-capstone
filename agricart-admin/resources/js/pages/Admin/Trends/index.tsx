@@ -51,15 +51,16 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         per_tali: true,
         per_pc: true
     });
-    const [startDate, setStartDate] = useState<Date | undefined>(dateRange?.min_date ? dayjs(dateRange.min_date).toDate() : undefined);
-    const [endDate, setEndDate] = useState<Date | undefined>(dateRange?.max_date ? dayjs(dateRange.max_date).toDate() : undefined);
+    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+    const [timePeriod, setTimePeriod] = useState<string>('specific');
+    const [dateValidationError, setDateValidationError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingPriceCategories, setLoadingPriceCategories] = useState<boolean>(false);
     const [series, setSeries] = useState<any[]>([]);
     const [availableProducts, setAvailableProducts] = useState<ProductOption[]>([]);
     const [availablePriceCategories, setAvailablePriceCategories] = useState<string[]>([]);
     const [productPriceCategories, setProductPriceCategories] = useState<Record<string, string[]>>({});
-    const [timePeriod, setTimePeriod] = useState<'specific' | 'monthly' | 'yearly'>('specific');
     const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
     const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
     
@@ -305,15 +306,16 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         
         // Combine all unique price categories from products in this category
         const allCategories = productsInCategory.flatMap(product => product.price_categories || []);
-        const uniqueCategories = [...new Set(allCategories)];
-        
-        return uniqueCategories;
+            const uniqueCategories = [...new Set(allCategories)];
+            
+            return uniqueCategories;
     };
 
     // Handle category change
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
         setSelectedProducts([]);
+        setSeries([]); // Clear chart data when category changes
         setAvailableProducts(getFilteredProducts(category));
         setProductPriceCategories({});
         
@@ -395,9 +397,13 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Convert time period selections to date ranges
     const getDateRangeFromTimePeriod = () => {
         if (timePeriod === 'specific') {
+            // For specific time period, require both start and end dates
+            if (!startDate || !endDate) {
+                return { startDate: undefined, endDate: undefined };
+            }
             return {
-                startDate: startDate ? dayjs(startDate).format('YYYY-MM-DD') : undefined,
-                endDate: endDate ? dayjs(endDate).format('YYYY-MM-DD') : undefined
+                startDate: dayjs(startDate).format('YYYY-MM-DD'),
+                endDate: dayjs(endDate).format('YYYY-MM-DD')
             };
         } else if (timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined) {
             const startOfMonth = dayjs().year(selectedYear).month(selectedMonth).startOf('month');
@@ -420,6 +426,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Handle time period change to clear previous data
     const handleTimePeriodChange = (newTimePeriod: 'specific' | 'monthly' | 'yearly') => {
         setTimePeriod(newTimePeriod);
+        setDateValidationError(''); // Clear any date validation errors when switching time periods
         
         // Clear previous trend data when switching to monthly or yearly, but keep selected products
         if (newTimePeriod === 'monthly' || newTimePeriod === 'yearly') {
@@ -447,6 +454,25 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             setEndDate(undefined);
             setSelectedMonth(undefined);
         }
+    };
+
+    // Validate dates when specific time period is selected
+    const validateDates = () => {
+        if (timePeriod === 'specific') {
+            if (!startDate || !endDate) {
+                setDateValidationError('Please select both start and end dates for specific time period');
+                return false;
+            }
+            if (dayjs(startDate).isAfter(dayjs(endDate))) {
+                setDateValidationError('Start date must be before end date');
+                return false;
+            }
+            // Clear error if both dates are valid
+            setDateValidationError('');
+            return true;
+        }
+        setDateValidationError('');
+        return true;
     };
 
     // Handle price category toggle
@@ -492,10 +518,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         }
         
         // Validate time period selections before loading data
-        const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
-            (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate))) &&
-            (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
-            (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01')));
+        const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
+            !dayjs(startDate).isAfter(dayjs(endDate)) &&
+            !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
+            !dayjs(endDate).isBefore(dayjs('2020-01-01'));
         const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
             !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
         const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
@@ -693,7 +719,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                     <Card className="mb-4">
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>Filters</CardTitle>
+                            <CardTitle>Filters</CardTitle>
                                 <div className="flex items-center space-x-6">
                                     <Label className="text-base font-semibold">Time Period</Label>
                                     <div className="flex space-x-4">
@@ -794,22 +820,22 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                                         <div className={groupProducts.length <= 4 ? "grid grid-cols-1 gap-1" : "grid grid-cols-2 gap-1"}>
                                                                             {groupProducts.map((product) => (
                                                                                 <div key={product.name} className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-50 rounded">
-                                                                                    <Checkbox
-                                                                                        id={product.name}
-                                                                                        checked={selectedProducts.includes(product.name)}
-                                                                                        onCheckedChange={(checked) => 
-                                                                                            handleProductSelectionChange(product.name, checked as boolean)
-                                                                                        }
+                                                        <Checkbox
+                                                            id={product.name}
+                                                            checked={selectedProducts.includes(product.name)}
+                                                            onCheckedChange={(checked) => 
+                                                                handleProductSelectionChange(product.name, checked as boolean)
+                                                            }
                                                                                         disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 3}
-                                                                                    />
-                                                                                    <Label 
-                                                                                        htmlFor={product.name} 
+                                                        />
+                                                        <Label 
+                                                            htmlFor={product.name} 
                                                                                         className="text-sm font-normal cursor-pointer flex-1 truncate"
-                                                                                    >
-                                                                                        {product.name}
-                                                                                    </Label>
-                                                                                </div>
-                                                                            ))}
+                                                        >
+                                                            {product.name}
+                                                        </Label>
+                                                    </div>
+                                                ))}
                                                                         </div>
                                                                     </div>
                                                                 );
@@ -828,51 +854,66 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                 </div>
                                 {timePeriod === 'specific' && (
                                     <>
-                                        <div>
-                                            <Label>Start Date</Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-start text-left font-normal"
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {startDate ? format(startDate, "PPP") : "Pick a date"}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={startDate}
-                                                        onSelect={setStartDate}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                        <div>
-                                            <Label>End Date</Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full justify-start text-left font-normal"
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {endDate ? format(endDate, "PPP") : "Pick a date"}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={endDate}
-                                                        onSelect={setEndDate}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
+                                <div>
+                                    <Label>Start Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={startDate}
+                                                onSelect={(date) => {
+                                                    setStartDate(date);
+                                                    if (date) {
+                                                        validateDates();
+                                                    }
+                                                }}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div>
+                                    <Label>End Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={endDate}
+                                                onSelect={(date) => {
+                                                    setEndDate(date);
+                                                    if (date) {
+                                                        validateDates();
+                                                    }
+                                                }}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
                                     </>
+                                )}
+                                {dateValidationError && (
+                                    <div className="text-red-500 text-sm mt-2 whitespace-nowrap">
+                                        {dateValidationError}
+                                    </div>
                                 )}
                                 
                                 {timePeriod === 'monthly' && (
@@ -941,7 +982,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                </div>
                                 )}
                             </div>
                         </CardContent>
@@ -950,7 +991,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle>Price Trend</CardTitle>
+                            <CardTitle>Price Trend</CardTitle>
                                 <div className="flex items-center space-x-6">
                                     <div className="flex items-center space-x-4">
                                         <div className="flex items-center space-x-2">
@@ -958,7 +999,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 id="per_kilo"
                                                 checked={priceCategoryToggles.per_kilo}
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_kilo')}
-                                                disabled={!availablePriceCategories.includes('per_kilo')}
+                                                disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_kilo')}
                                             />
                                             <Label htmlFor="per_kilo" className="text-sm">Per Kilo</Label>
                                         </div>
@@ -967,7 +1008,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 id="per_tali"
                                                 checked={priceCategoryToggles.per_tali}
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_tali')}
-                                                disabled={!availablePriceCategories.includes('per_tali')}
+                                                disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_tali')}
                                             />
                                             <Label htmlFor="per_tali" className="text-sm">Per Tali</Label>
                                         </div>
@@ -976,7 +1017,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 id="per_pc"
                                                 checked={priceCategoryToggles.per_pc}
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_pc')}
-                                                disabled={!availablePriceCategories.includes('per_pc')}
+                                                disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_pc')}
                                             />
                                             <Label htmlFor="per_pc" className="text-sm">Per Piece</Label>
                                         </div>
@@ -1021,10 +1062,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             <div style={{ width: '100%', height: 420 }}>
                                 {(() => {
                                     // Check if we should show the chart based on time period requirements
-                                    const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
-                                        (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate))) &&
-                                        (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
-                                        (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01')));
+                                    const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
+                                        !dayjs(startDate).isAfter(dayjs(endDate)) &&
+                                        !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
+                                        !dayjs(endDate).isBefore(dayjs('2020-01-01'));
                                     const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
                                         !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
                                     const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
@@ -1134,10 +1175,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             ))}
                                         </LineChart>
                                     </ResponsiveContainer>
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-500">
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-500">
                                             <p>No data available. Please select products and price categories to view the chart.</p>
-                                        </div>
+                                    </div>
                                     );
                                 })()}
                             </div>
