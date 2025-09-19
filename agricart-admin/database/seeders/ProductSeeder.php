@@ -24,43 +24,43 @@ class ProductSeeder extends Seeder
             // Per 1 kg products
             [
                 'name' => 'Ampalaya',
-                'price_kilo' => 78.00,
+                'price_kilo' => 75.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Bitter gourd, a nutritious vegetable rich in vitamins and minerals.'
             ],
             [
                 'name' => 'Kalabasa',
-                'price_kilo' => 22.00,
+                'price_kilo' => 15.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Squash, a versatile vegetable perfect for soups and stews.'
             ],
             [
                 'name' => 'Sitaw',
-                'price_kilo' => 117.00,
+                'price_kilo' => 70.00,
                 'produce_type' => 'vegetable',
                 'description' => 'String beans, a popular green vegetable rich in fiber.'
             ],
             [
                 'name' => 'Talong',
-                'price_kilo' => 52.00,
+                'price_kilo' => 70.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Eggplant, a versatile vegetable used in many Filipino dishes.'
             ],
             [
                 'name' => 'Pipino',
-                'price_kilo' => 39.00,
+                'price_kilo' => 30.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Cucumber, a refreshing vegetable perfect for salads.'
             ],
             [
                 'name' => 'Pechay',
-                'price_kilo' => 65.00,
+                'price_kilo' => 50.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Chinese cabbage, a leafy green vegetable rich in nutrients.'
             ],
             [
                 'name' => 'Siling Haba',
-                'price_kilo' => 65.00,
+                'price_kilo' => 80.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Long chili pepper, adds spice and flavor to dishes.'
             ],
