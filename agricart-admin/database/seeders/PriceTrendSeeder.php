@@ -54,13 +54,6 @@ class PriceTrendSeeder extends Seeder
                     ['name' => 'Talong', 'price' => 46, 'unit' => 'kg'],
                 ]
             ],
-            // June 3, 2025
-            [
-                'date' => '2025-06-03',
-                'products' => [
-                    // No specific goods or prices listed for this date
-                ]
-            ],
             // June 4, 2025
             [
                 'date' => '2025-06-04',
@@ -98,6 +91,190 @@ class PriceTrendSeeder extends Seeder
                     ['name' => 'Talong', 'price' => 52, 'unit' => 'kg'],
                     ['name' => 'Pechay', 'price' => 65, 'unit' => 'kg'],
                     ['name' => 'Siling Labuyo', 'price' => 65, 'unit' => 'kg'],
+                ]
+            ],
+            // June 8, 2025
+            [
+                'date' => '2025-06-08',
+                'products' => [
+                    ['name' => 'Kalabasa', 'price' => 20, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 78, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 72, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 104, 'unit' => 'kg'],
+                    ['name' => 'Siling Haba', 'price' => 78, 'unit' => 'kg'],
+                ]
+            ],
+            // June 9, 2025
+            [
+                'date' => '2025-06-09',
+                'products' => [
+                    ['name' => 'Sitaw', 'price' => 124, 'unit' => 'kg'],
+                ]
+            ],
+            // June 10, 2025
+            [
+                'date' => '2025-06-10',
+                'products' => [
+                    ['name' => 'Sitaw', 'price' => 78, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 65, 'unit' => 'kg'],
+                    ['name' => 'Siling Haba', 'price' => 65, 'unit' => 'kg'],
+                ]
+            ],
+            // June 12, 2025
+            [
+                'date' => '2025-06-12',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 65, 'unit' => 'kg'],
+                    ['name' => 'Kalabasa', 'price' => 22, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 117, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 46, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 78, 'unit' => 'kg'],
+                ]
+            ],
+            // June 14, 2025
+            [
+                'date' => '2025-06-14',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 78, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 46, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 65, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 65, 'unit' => 'kg'],
+                ]
+            ],
+            // June 15, 2025
+            [
+                'date' => '2025-06-15',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 111, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 111, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 72, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 52, 'unit' => 'kg'],
+                ]
+            ],
+            // June 16, 2025
+            [
+                'date' => '2025-06-16',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 104, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 98, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 98, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 52, 'unit' => 'kg'],
+                ]
+            ],
+            // June 17, 2025
+            [
+                'date' => '2025-06-17',
+                'products' => [
+                    ['name' => 'Sitaw', 'price' => 117, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 78, 'unit' => 'kg'],
+                ]
+            ],
+            // June 18, 2025
+            [
+                'date' => '2025-06-18',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 111, 'unit' => 'kg'],
+                ]
+            ],
+            // June 19, 2025
+            [
+                'date' => '2025-06-19',
+                'products' => [
+                    ['name' => 'Pechay', 'price' => 52, 'unit' => 'kg'],
+                ]
+            ],
+            // June 20, 2025
+            [
+                'date' => '2025-06-20',
+                'products' => [
+                    ['name' => 'Sitaw', 'price' => 111, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 98, 'unit' => 'kg'],
+                ]
+            ],
+            // June 22, 2025
+            [
+                'date' => '2025-06-22',
+                'products' => [
+                    ['name' => 'Talong', 'price' => 72, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 52, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 65, 'unit' => 'kg'],
+                ]
+            ],
+            // June 24, 2025
+            [
+                'date' => '2025-06-24',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 104, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 98, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 104, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 72, 'unit' => 'kg'],
+                ]
+            ],
+            // June 26, 2025
+            [
+                'date' => '2025-06-26',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 98, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 111, 'unit' => 'kg'],
+                ]
+            ],
+            // June 29, 2025
+            [
+                'date' => '2025-06-29',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 91, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 85, 'unit' => 'kg'],
+                ]
+            ],
+            // July 1, 2025
+            [
+                'date' => '2025-07-01',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 75, 'unit' => 'kg'],
+                    ['name' => 'Kalabasa', 'price' => 15, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 85, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 70, 'unit' => 'kg'],
+                    ['name' => 'Pipino', 'price' => 30, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 55, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 50, 'unit' => 'kg'],
+                    ['name' => 'Siling Haba', 'price' => 50, 'unit' => 'kg'],
+                ]
+            ],
+            // July 2, 2025
+            [
+                'date' => '2025-07-02',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 98, 'unit' => 'kg'],
+                    ['name' => 'Kalabasa', 'price' => 20, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 111, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 91, 'unit' => 'kg'],
+                    ['name' => 'Pipino', 'price' => 39, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 65, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 85, 'unit' => 'kg'],
+                    ['name' => 'Siling Haba', 'price' => 104, 'unit' => 'kg'],
+                ]
+            ],
+            // July 3, 2025
+            [
+                'date' => '2025-07-03',
+                'products' => [
+                    ['name' => 'Ampalaya', 'price' => 75, 'unit' => 'kg'],
+                    ['name' => 'Kalabasa', 'price' => 15, 'unit' => 'kg'],
+                    ['name' => 'Sitaw', 'price' => 70, 'unit' => 'kg'],
+                    ['name' => 'Talong', 'price' => 70, 'unit' => 'kg'],
+                    ['name' => 'Pipino', 'price' => 30, 'unit' => 'kg'],
+                    ['name' => 'Pechay', 'price' => 50, 'unit' => 'kg'],
+                    ['name' => 'Siling Labuyo', 'price' => 65, 'unit' => 'kg'],
+                    ['name' => 'Siling Haba', 'price' => 80, 'unit' => 'kg'],
+                    ['name' => 'Kamatis', 'price' => 40, 'unit' => 'kg'],
+                ]
+            ],
+            // July 4, 2025
+            [
+                'date' => '2025-07-04',
+                'products' => [
+                    ['name' => 'Talong', 'price' => 70, 'unit' => 'kg'],
+                    ['name' => 'Kamatis', 'price' => 52, 'unit' => 'kg'],
                 ]
             ],
         ];
