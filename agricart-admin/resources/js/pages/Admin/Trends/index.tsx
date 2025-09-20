@@ -102,58 +102,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const interpolateData = useCallback((data: any[], startDate: dayjs.Dayjs, endDate: dayjs.Dayjs) => {
         const currentDate = dayjs();
         
-        // If no data but we have selected products, try to create interpolated data using latestProductData
-        if (data.length === 0 && selectedProducts.length > 0) {
-            const dateRange = [];
-            let currentDateInLoop = startDate.clone();
-            while (currentDateInLoop.isSameOrBefore(endDate, 'day')) {
-                dateRange.push(currentDateInLoop.format('YYYY-MM-DD'));
-                currentDateInLoop = currentDateInLoop.add(1, 'day');
-            }
-
-            const interpolatedData = dateRange.map(date => {
-                const dataPoint: any = { 
-                    timestamp: date, 
-                    isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
-                };
-
-                // Only fill data up to current date
-                const dateObj = dayjs(date);
-                const currentDate = dayjs();
-                const shouldInterpolate = dateObj.isSameOrAfter(startDate, 'day') && 
-                                        dateObj.isSameOrBefore(endDate, 'day') &&
-                                        dateObj.isSameOrBefore(currentDate, 'day');
-
-                if (shouldInterpolate) {
-                    // Create data points for each selected product and enabled price category
-                    selectedProducts.forEach(productName => {
-                        if (latestProductData[productName]) {
-                            const productData = latestProductData[productName];
-                            
-                            // Add data for each enabled price category
-                            if (priceCategoryToggles.per_kilo && productData.price_per_kg !== null && productData.price_per_kg !== undefined) {
-                                const key = `${productName} (Per Kilo)`;
-                                dataPoint[key] = productData.price_per_kg;
-                            }
-                            if (priceCategoryToggles.per_tali && productData.price_per_tali !== null && productData.price_per_tali !== undefined) {
-                                const key = `${productName} (Per Tali)`;
-                                dataPoint[key] = productData.price_per_tali;
-                            }
-                            if (priceCategoryToggles.per_pc && productData.price_per_pc !== null && productData.price_per_pc !== undefined) {
-                                const key = `${productName} (Per Piece)`;
-                                dataPoint[key] = productData.price_per_pc;
-                            }
-                        }
-                    });
-                }
-
-                return dataPoint;
-            });
-
-            return interpolatedData;
-        }
-
-        // If no data and no selected products, return empty array
+        // If no data, don't create interpolated data
+        // This prevents showing data when dates are not properly filled
         if (data.length === 0) {
             return [];
         }
@@ -499,8 +449,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Validate dates when specific time period is selected
     const validateDates = () => {
         if (timePeriod === 'specific') {
-            if (!startDate && !endDate) {
-                setDateValidationError('Please select at least one date for specific time period');
+            if (!startDate || !endDate) {
+                setDateValidationError('Please select both start and end dates for specific time period');
                 return false;
             }
             if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
@@ -558,10 +508,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         }
         
         // Validate time period selections before loading data
-        const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
-            (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
-            (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01'))) &&
-            (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate)));
+        const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
+            !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
+            !dayjs(endDate).isBefore(dayjs('2020-01-01')) &&
+            !dayjs(startDate).isAfter(dayjs(endDate));
         const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
             !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
         const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
@@ -1099,10 +1049,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             <div style={{ width: '100%', height: 420 }}>
                                 {(() => {
                                     // Check if we should show the chart based on time period requirements
-                                    const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
-                                        (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
-                                        (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01'))) &&
-                                        (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate)));
+                                    const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
+                                        !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
+                                        !dayjs(endDate).isBefore(dayjs('2020-01-01')) &&
+                                        !dayjs(startDate).isAfter(dayjs(endDate));
                                     const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
                                         !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
                                     const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
