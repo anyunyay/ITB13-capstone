@@ -449,15 +449,15 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Validate dates when specific time period is selected
     const validateDates = () => {
         if (timePeriod === 'specific') {
-            if (!startDate || !endDate) {
-                setDateValidationError('Please select both start and end dates for specific time period');
+            if (!startDate && !endDate) {
+                setDateValidationError('Please select at least one date for specific time period');
                 return false;
             }
-            if (dayjs(startDate).isAfter(dayjs(endDate))) {
+            if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
                 setDateValidationError('Start date must be before end date');
                 return false;
             }
-            // Clear error if both dates are valid
+            // Clear error if dates are valid
             setDateValidationError('');
             return true;
         }
@@ -508,10 +508,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         }
         
         // Validate time period selections before loading data
-        const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
-            !dayjs(startDate).isAfter(dayjs(endDate)) &&
-            !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
-            !dayjs(endDate).isBefore(dayjs('2020-01-01'));
+        const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
+            (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
+            (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01'))) &&
+            (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate)));
         const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
             !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
         const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
@@ -1017,9 +1017,6 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             {selectedProducts.length === 0 && (
                                 <p className="text-sm text-red-500 mt-2">Please select at least one product to view the chart</p>
                             )}
-                            {timePeriod === 'specific' && !startDate && !endDate && (
-                                <p className="text-sm text-red-500 mt-2">Please select start date and/or end date to view the chart</p>
-                            )}
                             {timePeriod === 'monthly' && (selectedMonth === undefined || selectedYear === undefined) && (
                                 <p className="text-sm text-red-500 mt-2">Please select both month and year to view the chart</p>
                             )}
@@ -1052,10 +1049,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             <div style={{ width: '100%', height: 420 }}>
                                 {(() => {
                                     // Check if we should show the chart based on time period requirements
-                                    const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
-                                        !dayjs(startDate).isAfter(dayjs(endDate)) &&
-                                        !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
-                                        !dayjs(endDate).isBefore(dayjs('2020-01-01'));
+                                    const hasValidSpecificDates = timePeriod === 'specific' && (startDate || endDate) && 
+                                        (!startDate || !dayjs(startDate).isBefore(dayjs('2020-01-01'))) &&
+                                        (!endDate || !dayjs(endDate).isBefore(dayjs('2020-01-01'))) &&
+                                        (!startDate || !endDate || !dayjs(startDate).isAfter(dayjs(endDate)));
                                     const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
                                         !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
                                     const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
@@ -1068,103 +1065,170 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     );
                                     
                                     return shouldShowChart ? (
-                                    <ResponsiveContainer>
-                                        <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis 
-                                                dataKey="timestamp" 
-                                                tickFormatter={(value) => {
-                                                    const date = dayjs(value);
-                                                    // Check if this is a multi-month range by looking at the first data point
-                                                    const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
-                                                    
-                                                    if (isMoreThanOneMonth) {
-                                                        // Show full month name with day when spanning more than 30 days
-                                                        return date.format('MMMM D');
-                                                    } else {
-                                                        // Show days when within 30 days
-                                                        return date.format('MMM D');
-                                                    }
-                                                }}
-                                                tick={{ fontSize: 12 }}
-                                                ticks={(() => {
-                                                    const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
-                                                    if (!isMoreThanOneMonth) return undefined;
-                                                    
-                                                    // For monthly view, show first day of each month plus the end date
-                                                    const monthTicks: string[] = [];
-                                                    const seenMonths = new Set<string>();
-                                                    
-                                                    chartData.forEach((item, index) => {
-                                                        const date = dayjs(item.timestamp);
-                                                        const monthKey = `${date.year()}-${date.month()}`;
-                                                        
-                                                        if (!seenMonths.has(monthKey)) {
-                                                            seenMonths.add(monthKey);
-                                                            monthTicks.push(item.timestamp);
-                                                        }
-                                                    });
-                                                    
-                                                    // Always add the last date (end date) if it's not already included
-                                                    if (chartData.length > 0) {
-                                                        const lastDate = chartData[chartData.length - 1].timestamp;
-                                                        if (!monthTicks.includes(lastDate)) {
-                                                            monthTicks.push(lastDate);
-                                                        }
-                                                    }
-                                                    
-                                                    return monthTicks;
-                                                })()}
-                                            />
-                                            <YAxis />
-                                            <Tooltip 
-                                                content={({ active, payload, label }) => {
-                                                    if (active && payload && payload.length) {
-                                                        return (
-                                                            <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-                                                                <p className="font-semibold text-gray-800">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
-                                                                {payload.map((entry, index) => {
-                                                                    if (entry.value && entry.dataKey) {
-                                                                        // Parse the product key to show product and category separately
-                                                                        const match = entry.dataKey.match(/^(.+?) \((.+?)\)$/);
-                                                                        const productName = match ? match[1] : entry.dataKey;
-                                                                        const priceCategory = match ? match[2] : 'Unknown';
-                                                                        
-                                                                        return (
-                                                                            <p key={index} className="flex items-center gap-2">
-                                                                                <span 
-                                                                                    className="w-3 h-3 rounded-full" 
-                                                                                    style={{ backgroundColor: entry.color }}
-                                                                ></span>
-                                                                                <span className="font-medium text-gray-800">{productName}</span>
-                                                                                <span className="text-gray-600">({priceCategory})</span>
-                                                                                <span className="ml-2 font-semibold text-green-600">₱{entry.value}</span>
-                                                                            </p>
-                                                                        );
-                                                                    }
-                                                                    return null;
-                                                                })}
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
-                                                }}
-                                            />
-                                            <Legend />
-                                            {uniqueProducts.map((product, index) => (
-                                                <Line 
-                                                    key={product.name}
-                                                    type="linear" 
-                                                    dataKey={product.name} 
-                                                    name={product.name}
-                                                    stroke={product.color} 
-                                                    dot={false}
-                                                    strokeWidth={2}
-                                                    connectNulls={true}
-                                                />
-                                            ))}
-                                        </LineChart>
-                                    </ResponsiveContainer>
+                                     <ResponsiveContainer>
+                                         <LineChart 
+                                             data={chartData} 
+                                             margin={{ top: 10, right: 20, bottom: 10, left: 0 }}
+                                             style={{
+                                                 transition: 'all 0.3s ease-in-out'
+                                             }}
+                                         >
+                                             <CartesianGrid strokeDasharray="3 3" />
+                                             <XAxis 
+                                                 dataKey="timestamp" 
+                                                 tickFormatter={(value) => {
+                                                     const date = dayjs(value);
+                                                     // Check if this is a multi-month range by looking at the first data point
+                                                     const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
+                                                     
+                                                     if (isMoreThanOneMonth) {
+                                                         // Show full month name with day when spanning more than 30 days
+                                                         return date.format('MMMM D');
+                                                     } else {
+                                                         // Show days when within 30 days
+                                                         return date.format('MMM D');
+                                                     }
+                                                 }}
+                                                 tick={{ fontSize: 12 }}
+                                                 ticks={(() => {
+                                                     const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
+                                                     if (!isMoreThanOneMonth) return undefined;
+                                                     
+                                                     // For monthly view, show first day of each month plus the end date
+                                                     const monthTicks: string[] = [];
+                                                     const seenMonths = new Set<string>();
+                                                     
+                                                     chartData.forEach((item, index) => {
+                                                         const date = dayjs(item.timestamp);
+                                                         const monthKey = `${date.year()}-${date.month()}`;
+                                                         
+                                                         if (!seenMonths.has(monthKey)) {
+                                                             seenMonths.add(monthKey);
+                                                             monthTicks.push(item.timestamp);
+                                                         }
+                                                     });
+                                                     
+                                                     // Always add the last date (end date) if it's not already included
+                                                     if (chartData.length > 0) {
+                                                         const lastDate = chartData[chartData.length - 1].timestamp;
+                                                         if (!monthTicks.includes(lastDate)) {
+                                                             monthTicks.push(lastDate);
+                                                         }
+                                                     }
+                                                     
+                                                     return monthTicks;
+                                                 })()}
+                                             />
+                                             <YAxis />
+                                             <Tooltip 
+                                                 content={({ active, payload, label }) => {
+                                                     if (active && payload && payload.length) {
+                                                         return (
+                                                             <div className="bg-white p-3 border border-gray-200 rounded shadow-lg animate-in fade-in-0 zoom-in-95 duration-200">
+                                                                 <p className="font-semibold text-gray-800">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
+                                                                 {payload.map((entry, index) => {
+                                                                     if (entry.value && entry.dataKey) {
+                                                                         // Parse the product key to show product and category separately
+                                                                         const match = entry.dataKey.match(/^(.+?) \((.+?)\)$/);
+                                                                         const productName = match ? match[1] : entry.dataKey;
+                                                                         const priceCategory = match ? match[2] : 'Unknown';
+                                                                         
+                                                                         return (
+                                                                             <p key={index} className="flex items-center gap-2">
+                                                                                 <span 
+                                                                                     className="w-3 h-3 rounded-full" 
+                                                                                     style={{ backgroundColor: entry.color }}
+                                                                 ></span>
+                                                                                 <span className="font-medium text-gray-800">{productName}</span>
+                                                                                 <span className="text-gray-600">({priceCategory})</span>
+                                                                                 <span className="ml-2 font-semibold text-green-600">₱{entry.value}</span>
+                                                                             </p>
+                                                                         );
+                                                                     }
+                                                                     return null;
+                                                                 })}
+                                                             </div>
+                                                         );
+                                                     }
+                                                     return null;
+                                                 }}
+                                             />
+                                             <Legend />
+                                             {uniqueProducts.map((product, index) => (
+                                                 <Line 
+                                                     key={product.name}
+                                                     type="linear" 
+                                                     dataKey={product.name} 
+                                                     name={product.name}
+                                                     stroke={product.color} 
+                                                     strokeWidth={3}
+                                                     strokeLinecap="square"
+                                                     strokeLinejoin="miter"
+                                                     dot={(props) => {
+                                                         // Show dots before and after price changes
+                                                         const { cx, cy, payload } = props;
+                                                         if (!payload || !payload[product.name]) {
+                                                             return <circle cx={cx} cy={cy} r={0} fill="transparent" />;
+                                                         }
+                                                         
+                                                         const currentValue = payload[product.name];
+                                                         const currentIndex = chartData.findIndex(item => item.timestamp === payload.timestamp);
+                                                         
+                                                         if (currentIndex === 0) {
+                                                             // First data point - always show
+                                                             return (
+                                                                 <circle 
+                                                                     cx={cx} 
+                                                                     cy={cy} 
+                                                                     r={4} 
+                                                                     fill={product.color}
+                                                                     stroke="#fff"
+                                                                     strokeWidth={2}
+                                                                     filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
+                                                                 />
+                                                             );
+                                                         }
+                                                         
+                                                         const prevValue = chartData[currentIndex - 1]?.[product.name];
+                                                         const nextValue = chartData[currentIndex + 1]?.[product.name];
+                                                         
+                                                         // Show dot if:
+                                                         // 1. Price changed from previous (start of new price)
+                                                         // 2. Price will change to next (end of current price)
+                                                         if (prevValue !== currentValue || (nextValue && nextValue !== currentValue)) {
+                                                             return (
+                                                                 <circle 
+                                                                     cx={cx} 
+                                                                     cy={cy} 
+                                                                     r={4} 
+                                                                     fill={product.color}
+                                                                     stroke="#fff"
+                                                                     strokeWidth={2}
+                                                                     filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
+                                                                 />
+                                                             );
+                                                         }
+                                                         
+                                                         // No price change - invisible dot
+                                                         return <circle cx={cx} cy={cy} r={0} fill="transparent" />;
+                                                     }}
+                                                     activeDot={{ 
+                                                         r: 6, 
+                                                         stroke: product.color, 
+                                                         strokeWidth: 2, 
+                                                         fill: '#fff',
+                                                         filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15))'
+                                                     }}
+                                                     connectNulls={true}
+                                                     animationDuration={1500}
+                                                     animationEasing="ease-in-out"
+                                                     style={{ 
+                                                         filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                                                     }}
+                                                 />
+                                             ))}
+                                         </LineChart>
+                                     </ResponsiveContainer>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-gray-500">
                                             <p>No data available. Please select products and price categories to view the chart.</p>
