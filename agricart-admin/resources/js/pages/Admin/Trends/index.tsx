@@ -102,8 +102,58 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const interpolateData = useCallback((data: any[], startDate: dayjs.Dayjs, endDate: dayjs.Dayjs) => {
         const currentDate = dayjs();
         
-        // If no data, don't create interpolated data
-        // This prevents showing data before actual price trends exist
+        // If no data but we have selected products, try to create interpolated data using latestProductData
+        if (data.length === 0 && selectedProducts.length > 0) {
+            const dateRange = [];
+            let currentDateInLoop = startDate.clone();
+            while (currentDateInLoop.isSameOrBefore(endDate, 'day')) {
+                dateRange.push(currentDateInLoop.format('YYYY-MM-DD'));
+                currentDateInLoop = currentDateInLoop.add(1, 'day');
+            }
+
+            const interpolatedData = dateRange.map(date => {
+                const dataPoint: any = { 
+                    timestamp: date, 
+                    isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
+                };
+
+                // Only fill data up to current date
+                const dateObj = dayjs(date);
+                const currentDate = dayjs();
+                const shouldInterpolate = dateObj.isSameOrAfter(startDate, 'day') && 
+                                        dateObj.isSameOrBefore(endDate, 'day') &&
+                                        dateObj.isSameOrBefore(currentDate, 'day');
+
+                if (shouldInterpolate) {
+                    // Create data points for each selected product and enabled price category
+                    selectedProducts.forEach(productName => {
+                        if (latestProductData[productName]) {
+                            const productData = latestProductData[productName];
+                            
+                            // Add data for each enabled price category
+                            if (priceCategoryToggles.per_kilo && productData.price_per_kg !== null && productData.price_per_kg !== undefined) {
+                                const key = `${productName} (Per Kilo)`;
+                                dataPoint[key] = productData.price_per_kg;
+                            }
+                            if (priceCategoryToggles.per_tali && productData.price_per_tali !== null && productData.price_per_tali !== undefined) {
+                                const key = `${productName} (Per Tali)`;
+                                dataPoint[key] = productData.price_per_tali;
+                            }
+                            if (priceCategoryToggles.per_pc && productData.price_per_pc !== null && productData.price_per_pc !== undefined) {
+                                const key = `${productName} (Per Piece)`;
+                                dataPoint[key] = productData.price_per_pc;
+                            }
+                        }
+                    });
+                }
+
+                return dataPoint;
+            });
+
+            return interpolatedData;
+        }
+
+        // If no data and no selected products, return empty array
         if (data.length === 0) {
             return [];
         }
