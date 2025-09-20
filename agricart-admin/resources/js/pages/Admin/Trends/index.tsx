@@ -911,7 +911,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                         <div>
                                             <Label>Select Month</Label>
                                             <Select 
-                                                value={selectedMonth?.toString()} 
+                                                value={selectedMonth?.toString() || ""} 
                                                 onValueChange={(value) => setSelectedMonth(parseInt(value))}
                                             >
                                                 <SelectTrigger className="w-full">
@@ -936,7 +936,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                         <div>
                                             <Label>Select Year</Label>
                                             <Select 
-                                                value={selectedYear?.toString()} 
+                                                value={selectedYear?.toString() || ""} 
                                                 onValueChange={(value) => setSelectedYear(parseInt(value))}
                                             >
                                                 <SelectTrigger className="w-full">
@@ -958,7 +958,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     <div>
                                         <Label>Select Year</Label>
                                         <Select 
-                                            value={selectedYear?.toString()} 
+                                            value={selectedYear?.toString() || ""} 
                                             onValueChange={(value) => setSelectedYear(parseInt(value))}
                                         >
                                             <SelectTrigger className="w-full">
