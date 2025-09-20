@@ -102,56 +102,11 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const interpolateData = useCallback((data: any[], startDate: dayjs.Dayjs, endDate: dayjs.Dayjs) => {
         const currentDate = dayjs();
         
-        // If no data but we have selected products, create interpolated data using latestProductData
-        if (data.length === 0 && selectedProducts.length > 0) {
-            const dateRange = [];
-            let currentDateInLoop = startDate.clone();
-            while (currentDateInLoop.isSameOrBefore(endDate, 'day')) {
-                dateRange.push(currentDateInLoop.format('YYYY-MM-DD'));
-                currentDateInLoop = currentDateInLoop.add(1, 'day');
-            }
-
-            const interpolatedData = dateRange.map(date => {
-                const dataPoint: any = { 
-                    timestamp: date, 
-                    isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
-                };
-
-                // Only interpolate data up to the current date, but not before the start date
-                const dateObj = dayjs(date);
-                const shouldInterpolate = dateObj.isSameOrBefore(currentDate, 'day') && 
-                                        dateObj.isSameOrAfter(startDate, 'day');
-
-                if (shouldInterpolate) {
-                    // Create data points for each selected product and enabled price category
-                    selectedProducts.forEach(productName => {
-                        if (latestProductData[productName]) {
-                            const productData = latestProductData[productName];
-                            
-                            // Add data for each enabled price category
-                            if (priceCategoryToggles.per_kilo && productData.price_per_kg !== null && productData.price_per_kg !== undefined) {
-                                const key = `${productName} (Per Kilo)`;
-                                dataPoint[key] = productData.price_per_kg;
-                            }
-                            if (priceCategoryToggles.per_tali && productData.price_per_tali !== null && productData.price_per_tali !== undefined) {
-                                const key = `${productName} (Per Tali)`;
-                                dataPoint[key] = productData.price_per_tali;
-                            }
-                            if (priceCategoryToggles.per_pc && productData.price_per_pc !== null && productData.price_per_pc !== undefined) {
-                                const key = `${productName} (Per Piece)`;
-                                dataPoint[key] = productData.price_per_pc;
-                            }
-                        }
-                    });
-                }
-
-                return dataPoint;
-            });
-
-            return interpolatedData;
+        // If no data, don't create interpolated data
+        // This prevents showing data before actual price trends exist
+        if (data.length === 0) {
+            return [];
         }
-
-        if (data.length === 0) return [];
 
         // Group data by product and price category
         const groupedData = data.reduce((acc, item) => {
@@ -189,12 +144,19 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                 isMoreThanOneMonth: endDate.diff(startDate, 'day') > 30 
             };
 
-            // Only interpolate data up to the current date, but not before the actual data start date
+            // Interpolate data for dates in the range up to current date only
+            // This ensures continuous lines even when there are gaps in data, but doesn't show future dates
+            // Also don't interpolate before the actual data starts
             const dateObj = dayjs(date);
-            const shouldInterpolate = dateObj.isSameOrBefore(currentDate, 'day') && 
+            const currentDate = dayjs();
+            const shouldInterpolate = dateObj.isSameOrAfter(startDate, 'day') && 
+                                    dateObj.isSameOrBefore(endDate, 'day') &&
+                                    dateObj.isSameOrBefore(currentDate, 'day') &&
                                     dateObj.isSameOrAfter(actualDataStartDate, 'day');
 
+            // Only process data for dates up to current date
             if (shouldInterpolate) {
+                // Always try to find historical data first
                 Object.keys(groupedData).forEach(key => {
                     const productData = groupedData[key];
                     const currentDateObj = dayjs(date);
@@ -208,7 +170,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                         }
                     }
 
-                    // If no data found, use the latest available data from latestProductData
+                    // If no historical data found, use the latest available data from latestProductData
                     if (!latestData) {
                         const productName = key.split(' (')[0];
                         const priceCategory = key.split(' (')[1]?.replace(')', '');
@@ -227,7 +189,35 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             dataPoint[key] = null;
                         }
                     } else {
+                        // Use the historical data that was actually active on this date
                         dataPoint[key] = latestData.price;
+                    }
+                });
+
+                // Also handle products that might not be in groupedData but are selected
+                selectedProducts.forEach(productName => {
+                    if (latestProductData[productName]) {
+                        const productData = latestProductData[productName];
+                        
+                        // Add data for each enabled price category that doesn't already exist in groupedData
+                        if (priceCategoryToggles.per_kilo && productData.price_per_kg !== null && productData.price_per_kg !== undefined) {
+                            const key = `${productName} (Per Kilo)`;
+                            if (!dataPoint[key]) {
+                                dataPoint[key] = productData.price_per_kg;
+                            }
+                        }
+                        if (priceCategoryToggles.per_tali && productData.price_per_tali !== null && productData.price_per_tali !== undefined) {
+                            const key = `${productName} (Per Tali)`;
+                            if (!dataPoint[key]) {
+                                dataPoint[key] = productData.price_per_tali;
+                            }
+                        }
+                        if (priceCategoryToggles.per_pc && productData.price_per_pc !== null && productData.price_per_pc !== undefined) {
+                            const key = `${productName} (Per Piece)`;
+                            if (!dataPoint[key]) {
+                                dataPoint[key] = productData.price_per_pc;
+                            }
+                        }
                     }
                 });
             }
@@ -1170,7 +1160,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                     stroke={product.color} 
                                                     dot={false}
                                                     strokeWidth={2}
-                                                    connectNulls={false}
+                                                    connectNulls={true}
                                                 />
                                             ))}
                                         </LineChart>

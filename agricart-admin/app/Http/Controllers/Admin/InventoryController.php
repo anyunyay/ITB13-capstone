@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\ProductPriceHistory;
+use App\Models\PriceTrend;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -110,7 +111,7 @@ class InventoryController extends Controller
                 'produce_type' => $request->input('produce_type'),
             ]);
 
-            // If any price changed, record snapshot
+            // If any price changed, record snapshot and handle price trends
             $changed = (
                 $original['price_kilo'] != $product->price_kilo ||
                 $original['price_pc'] != $product->price_pc ||
@@ -118,12 +119,20 @@ class InventoryController extends Controller
             );
 
             if ($changed) {
+                // Record in ProductPriceHistory
                 ProductPriceHistory::create([
                     'product_id' => $product->id,
                     'price_kilo' => $product->price_kilo,
                     'price_pc' => $product->price_pc,
                     'price_tali' => $product->price_tali,
                 ]);
+
+                // Get the very original prices for price trend comparison
+                $veryOriginalPrices = $this->getVeryOriginalPrices($product, $original);
+
+
+                // Handle PriceTrend records
+                $this->handlePriceTrendUpdate($product, $veryOriginalPrices);
             }
         }
         
@@ -315,5 +324,244 @@ class InventoryController extends Controller
         $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $pdf->download($filename);
+    }
+
+    /**
+     * Get the very original prices for price trend comparison
+     */
+    private function getVeryOriginalPrices(Product $product, array $immediateOriginal)
+    {
+        // For the first update, use immediate original prices
+        // For subsequent updates, we need to find the truly original prices
+        // by looking at the first price history record that was created at product creation time
+        
+        // Get all price history records ordered by creation time
+        $allPriceHistories = $product->priceHistories()
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        if ($allPriceHistories->count() <= 1) {
+            // This is the first update, use immediate original prices
+            return $immediateOriginal;
+        }
+
+        // For subsequent updates, we need to find the record that represents
+        // the original prices before any updates. This should be the first record
+        // that was created when the product was first created.
+        // We can identify this by checking if it matches the immediate original prices
+        // (which represent the prices before the current update)
+        
+        // If the first record matches the immediate original prices, then the immediate original
+        // prices are the truly original prices
+        $firstRecord = $allPriceHistories->first();
+        if ($firstRecord->price_kilo == $immediateOriginal['price_kilo'] &&
+            $firstRecord->price_pc == $immediateOriginal['price_pc'] &&
+            $firstRecord->price_tali == $immediateOriginal['price_tali']) {
+            return $immediateOriginal;
+        }
+
+        // Otherwise, the first record contains the original prices
+        return [
+            'price_kilo' => $firstRecord->price_kilo,
+            'price_pc' => $firstRecord->price_pc,
+            'price_tali' => $firstRecord->price_tali,
+        ];
+    }
+
+    /**
+     * Get the previous day's prices for same-day reversion detection
+     */
+    private function getPreviousDayPrices(Product $product)
+    {
+        $yesterday = now()->subDay()->toDateString();
+        
+        // Get the most recent price trend record from yesterday
+        $yesterdayPriceTrend = PriceTrend::where('product_name', $product->name)
+            ->whereDate('date', $yesterday)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($yesterdayPriceTrend) {
+            return [
+                'price_kilo' => $yesterdayPriceTrend->price_per_kg,
+                'price_pc' => $yesterdayPriceTrend->price_per_pc,
+                'price_tali' => $yesterdayPriceTrend->price_per_tali,
+            ];
+        }
+
+        // If no yesterday's price trend, get from the first price history record
+        $firstPriceHistory = $product->priceHistories()
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($firstPriceHistory) {
+            return [
+                'price_kilo' => $firstPriceHistory->price_kilo,
+                'price_pc' => $firstPriceHistory->price_pc,
+                'price_tali' => $firstPriceHistory->price_tali,
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle price trend updates when product prices change
+     */
+    private function handlePriceTrendUpdate(Product $product, array $originalPrices)
+    {
+        $today = now()->toDateString();
+        
+        // Check if there are price trend records for today
+        $todayPriceTrends = PriceTrend::where('product_name', $product->name)
+            ->whereDate('date', $today)
+            ->get();
+
+        // Only check for reversion if there are existing price trend records for today
+        $shouldCheckReversion = $todayPriceTrends->isNotEmpty();
+        
+        if ($shouldCheckReversion) {
+            // For same-day reversion detection, get the previous day's prices as reference
+            $previousDayPrices = $this->getPreviousDayPrices($product);
+
+            // Check if prices reverted to previous day's prices (same-day reversion)
+            $pricesRevertedToPrevious = false;
+            if ($previousDayPrices) {
+                $pricesRevertedToPrevious = (
+                    $previousDayPrices['price_kilo'] == $product->price_kilo &&
+                    $previousDayPrices['price_pc'] == $product->price_pc &&
+                    $previousDayPrices['price_tali'] == $product->price_tali
+                );
+            }
+
+            // Check if prices reverted to very original prices
+            $pricesRevertedToOriginal = (
+                $originalPrices['price_kilo'] == $product->price_kilo &&
+                $originalPrices['price_pc'] == $product->price_pc &&
+                $originalPrices['price_tali'] == $product->price_tali
+            );
+
+            if ($pricesRevertedToPrevious || $pricesRevertedToOriginal) {
+                // Delete all price trend records for same-day reversion
+                $todayPriceTrends->each->delete();
+                return; // Exit early if records were deleted
+            }
+        }
+
+        // Only create/update records if prices actually changed from original
+        $hasChanges = (
+            $originalPrices['price_kilo'] != $product->price_kilo ||
+            $originalPrices['price_pc'] != $product->price_pc ||
+            $originalPrices['price_tali'] != $product->price_tali
+        );
+
+        if ($hasChanges) {
+            if ($todayPriceTrends->isNotEmpty()) {
+                // Update existing records
+                $this->updatePriceTrendRecords($product, $todayPriceTrends, $originalPrices);
+            } else {
+                // Create new price trend records for changed prices only
+                $this->createPriceTrendRecords($product, $originalPrices);
+            }
+        }
+    }
+
+    /**
+     * Update existing price trend records
+     */
+    private function updatePriceTrendRecords(Product $product, $existingTrends, array $originalPrices)
+    {
+        $today = now()->toDateString();
+
+        // Update or create records for each price type that has a value and changed
+        if ($product->price_kilo && $originalPrices['price_kilo'] != $product->price_kilo) {
+            $kiloTrend = $existingTrends->where('unit_type', 'kg')->first();
+            if ($kiloTrend) {
+                $kiloTrend->update(['price_per_kg' => $product->price_kilo]);
+            } else {
+                PriceTrend::create([
+                    'product_name' => $product->name,
+                    'date' => $today,
+                    'price_per_kg' => $product->price_kilo,
+                    'price_per_tali' => null,
+                    'price_per_pc' => null,
+                    'unit_type' => 'kg',
+                ]);
+            }
+        }
+
+        if ($product->price_tali && $originalPrices['price_tali'] != $product->price_tali) {
+            $taliTrend = $existingTrends->where('unit_type', 'tali')->first();
+            if ($taliTrend) {
+                $taliTrend->update(['price_per_tali' => $product->price_tali]);
+            } else {
+                PriceTrend::create([
+                    'product_name' => $product->name,
+                    'date' => $today,
+                    'price_per_kg' => null,
+                    'price_per_tali' => $product->price_tali,
+                    'price_per_pc' => null,
+                    'unit_type' => 'tali',
+                ]);
+            }
+        }
+
+        if ($product->price_pc && $originalPrices['price_pc'] != $product->price_pc) {
+            $pcTrend = $existingTrends->where('unit_type', 'pc')->first();
+            if ($pcTrend) {
+                $pcTrend->update(['price_per_pc' => $product->price_pc]);
+            } else {
+                PriceTrend::create([
+                    'product_name' => $product->name,
+                    'date' => $today,
+                    'price_per_kg' => null,
+                    'price_per_tali' => null,
+                    'price_per_pc' => $product->price_pc,
+                    'unit_type' => 'pc',
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Create price trend records for changed price types only
+     */
+    private function createPriceTrendRecords(Product $product, array $originalPrices)
+    {
+        $today = now()->toDateString();
+
+        // Create records for each price type that has a value and changed
+        if ($product->price_kilo && $originalPrices['price_kilo'] != $product->price_kilo) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => $product->price_kilo,
+                'price_per_tali' => null,
+                'price_per_pc' => null,
+                'unit_type' => 'kg',
+            ]);
+        }
+
+        if ($product->price_tali && $originalPrices['price_tali'] != $product->price_tali) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => null,
+                'price_per_tali' => $product->price_tali,
+                'price_per_pc' => null,
+                'unit_type' => 'tali',
+            ]);
+        }
+
+        if ($product->price_pc && $originalPrices['price_pc'] != $product->price_pc) {
+            PriceTrend::create([
+                'product_name' => $product->name,
+                'date' => $today,
+                'price_per_kg' => null,
+                'price_per_tali' => null,
+                'price_per_pc' => $product->price_pc,
+                'unit_type' => 'pc',
+            ]);
+        }
     }
 }

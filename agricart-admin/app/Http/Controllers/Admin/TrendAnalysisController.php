@@ -132,9 +132,11 @@ class TrendAnalysisController extends Controller
             }
         }
 
-        // Filter by date range
+        // Filter by date range - include data before start_date for proper interpolation
         if (!empty($validated['start_date'])) {
-            $query->where('date', '>=', $validated['start_date']);
+            // Get data from 90 days before start_date to ensure we have historical data for interpolation
+            $extendedStartDate = Carbon::parse($validated['start_date'])->subDays(90)->toDateString();
+            $query->where('date', '>=', $extendedStartDate);
         }
         if (!empty($validated['end_date'])) {
             $query->where('date', '<=', $validated['end_date']);
