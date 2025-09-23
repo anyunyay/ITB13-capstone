@@ -173,9 +173,12 @@ class SalesController extends Controller
 
     private function getMemberSales(Request $request)
     {
-        $query = DB::table('member_earnings')
-            ->join('sales', 'member_earnings.sale_id', '=', 'sales.id')
-            ->join('users as members', 'member_earnings.member_id', '=', 'members.id')
+        // Base query to get member sales data from sales and audit trails
+        $query = DB::table('sales')
+            ->join('audit_trails', 'sales.id', '=', 'audit_trails.sale_id')
+            ->join('stocks', 'audit_trails.stock_id', '=', 'stocks.id')
+            ->join('users as members', 'stocks.member_id', '=', 'members.id')
+            ->join('products', 'audit_trails.product_id', '=', 'products.id')
             ->where('sales.status', 'approved')
             ->where('members.type', 'member')
             ->select(
@@ -183,8 +186,18 @@ class SalesController extends Controller
                 'members.name as member_name',
                 'members.email as member_email',
                 DB::raw('COUNT(DISTINCT sales.id) as total_orders'),
-                DB::raw('SUM(member_earnings.amount) as total_revenue'),
-                DB::raw('SUM(member_earnings.quantity) as total_quantity_sold')
+                DB::raw('SUM(
+                    CASE 
+                        WHEN audit_trails.category = "Kilo" AND products.price_kilo IS NOT NULL 
+                        THEN audit_trails.quantity * products.price_kilo
+                        WHEN audit_trails.category = "Pc" AND products.price_pc IS NOT NULL 
+                        THEN audit_trails.quantity * products.price_pc
+                        WHEN audit_trails.category = "Tali" AND products.price_tali IS NOT NULL 
+                        THEN audit_trails.quantity * products.price_tali
+                        ELSE 0
+                    END
+                ) as total_revenue'),
+                DB::raw('SUM(audit_trails.quantity) as total_quantity_sold')
             )
             ->groupBy('members.id', 'members.name', 'members.email');
 
