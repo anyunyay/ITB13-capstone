@@ -203,6 +203,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/sold-stocks', [MemberController::class, 'soldStocks'])->name('member.soldStocks');
         Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
         Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
+        Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
         
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');
