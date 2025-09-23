@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 
 interface Product {
@@ -315,14 +315,14 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
                          {getStatusBadge(stock)}
                        </td>
                        <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                         {format(new Date(stock.created_at), 'MMM dd, yyyy')}
-                         <div className="text-xs text-gray-400">{format(new Date(stock.created_at), 'HH:mm')}</div>
+                         {dayjs(stock.created_at).format('MMM DD, YYYY')}
+                         <div className="text-xs text-gray-400">{dayjs(stock.created_at).format('HH:mm')}</div>
                        </td>
                        <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
                          {stock.removed_at ? (
                            <>
-                             {format(new Date(stock.removed_at), 'MMM dd, yyyy')}
-                             <div className="text-xs text-red-500">{format(new Date(stock.removed_at), 'HH:mm')}</div>
+                             {dayjs(stock.removed_at).format('MMM DD, YYYY')}
+                             <div className="text-xs text-red-500">{dayjs(stock.removed_at).format('HH:mm')}</div>
                            </>
                          ) : (
                            <span className="text-gray-400">—</span>

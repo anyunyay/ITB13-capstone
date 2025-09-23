@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
 
@@ -227,8 +227,8 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                         </div>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                        {format(new Date(sale.created_at), 'MMM dd, yyyy')}
-                        <div className="text-xs text-gray-400">{format(new Date(sale.created_at), 'HH:mm')}</div>
+                        {dayjs(sale.created_at).format('MMM DD, YYYY')}
+                        <div className="text-xs text-gray-400">{dayjs(sale.created_at).format('HH:mm')}</div>
                       </td>
                     </tr>
                   ))}

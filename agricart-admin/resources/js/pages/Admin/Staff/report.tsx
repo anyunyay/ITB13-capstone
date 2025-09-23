@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { Users, Shield, CheckCircle, UserCheck } from 'lucide-react';
 
 interface Staff {
@@ -167,8 +167,8 @@ export default function StaffReport({ staff, summary }: ReportPageProps) {
                         )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                        {format(new Date(member.created_at), 'MMM dd, yyyy')}
-                        <div className="text-xs text-gray-400">{format(new Date(member.created_at), 'HH:mm')}</div>
+                        {dayjs(member.created_at).format('MMM DD, YYYY')}
+                        <div className="text-xs text-gray-400">{dayjs(member.created_at).format('HH:mm')}</div>
                       </td>
                     </tr>
                   ))}

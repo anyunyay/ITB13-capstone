@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 
 interface Order {
@@ -287,7 +287,7 @@ function OrderCard({ order }: { order: Order }) {
           <div>
             <CardTitle className="text-lg">Order #{order.id}</CardTitle>
             <p className="text-sm text-gray-500">
-              {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+              {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">

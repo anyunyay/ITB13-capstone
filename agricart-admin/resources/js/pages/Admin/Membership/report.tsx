@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { SafeImage } from '@/lib/image-utils';
@@ -202,7 +202,7 @@ function MemberCard({ member }: { member: Member }) {
           <div>
             <CardTitle className="text-lg">Member #{member.id}</CardTitle>
             <p className="text-sm text-gray-500">
-              {format(new Date(member.created_at), 'MMM dd, yyyy HH:mm')}
+              {dayjs(member.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -234,14 +234,14 @@ function MemberCard({ member }: { member: Member }) {
           <div>
             <h4 className="font-semibold mb-2">Registration Details</h4>
             <p className="text-sm">
-              <span className="font-medium">Registration Date:</span> {member.registration_date ? format(new Date(member.registration_date), 'MMM dd, yyyy') : 'N/A'}
+              <span className="font-medium">Registration Date:</span> {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : 'N/A'}
             </p>
             <p className="text-sm">
               <span className="font-medium">Email Verified:</span> {member.email_verified_at ? 'Yes' : 'No'}
             </p>
             {member.email_verified_at && (
               <p className="text-sm">
-                <span className="font-medium">Verified On:</span> {format(new Date(member.email_verified_at), 'MMM dd, yyyy')}
+                <span className="font-medium">Verified On:</span> {dayjs(member.email_verified_at).format('MMM DD, YYYY')}
               </p>
             )}
           </div>

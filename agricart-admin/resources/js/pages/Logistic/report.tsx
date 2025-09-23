@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LogisticHeader } from '@/components/logistic-header';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { FileText, FileSpreadsheet } from 'lucide-react';
 
 interface Order {
@@ -258,7 +258,7 @@ function OrderCard({ order }: { order: Order }) {
           <div>
             <CardTitle className="text-lg text-white">Order #{order.id}</CardTitle>
             <p className="text-sm text-gray-400">
-              {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+              {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">

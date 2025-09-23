@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
 
@@ -192,7 +192,7 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
           <div>
             <CardTitle className="text-lg">{logistic.name}</CardTitle>
             <p className="text-sm text-gray-500">
-              {format(new Date(logistic.created_at), 'MMM dd, yyyy HH:mm')}
+              {dayjs(logistic.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -217,10 +217,10 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
           <div>
             <h4 className="font-semibold mb-2">Registration Details</h4>
             <p className="text-sm">
-              <span className="font-medium">Registration Date:</span> {logistic.registration_date ? format(new Date(logistic.registration_date), 'MMM dd, yyyy') : 'N/A'}
+              <span className="font-medium">Registration Date:</span> {logistic.registration_date ? dayjs(logistic.registration_date).format('MMM DD, YYYY') : 'N/A'}
             </p>
             <p className="text-sm">
-              <span className="font-medium">Email Verified:</span> {logistic.email_verified_at ? format(new Date(logistic.email_verified_at), 'MMM dd, yyyy') : 'Not verified'}
+              <span className="font-medium">Email Verified:</span> {logistic.email_verified_at ? dayjs(logistic.email_verified_at).format('MMM DD, YYYY') : 'Not verified'}
             </p>
             <p className="text-sm">
               <span className="font-medium">Member ID:</span> #{logistic.id}
