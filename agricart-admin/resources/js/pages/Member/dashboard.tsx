@@ -5,7 +5,7 @@ import { type SharedData } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, History, TrendingUp } from 'lucide-react';
+import { Package, History, TrendingUp, FileText } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member-header';
 
@@ -100,8 +100,18 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
             <div className="p-6">
                 <Head title="Member Dashboard" />
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white">Welcome, {auth?.user?.name}!</h1>
-                    <p className="text-gray-400 mt-2">Track your stocks and view your activity history</p>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-white">Welcome, {auth?.user?.name}!</h1>
+                            <p className="text-gray-400 mt-2">Track your stocks and view your activity history</p>
+                        </div>
+                        <Button asChild variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                            <Link href={route('member.revenueReport')}>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Revenue Report
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
