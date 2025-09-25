@@ -254,7 +254,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                         }
                         className="px-2"
                       >
-                        {isKilo ? '-0.25' : '-1'}
+                        {isKilo ? '- 0.25' : '-'}
                       </Button>
                       <input
                         type="number"
@@ -312,7 +312,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                         disabled={selectedQuantity >= maxQty}
                         className="px-2"
                       >
-                        {isKilo ? '+0.25' : '+1'}
+                        {isKilo ? '+ 0.25' : '+'}
                       </Button>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
