@@ -49,6 +49,7 @@ interface PageProps {
     stocks: Stock[];
     members: Member[];
     availableCategories: string[];
+    defaultCategory?: string;
     [key: string]: unknown;
 }
 
@@ -60,12 +61,12 @@ export default function AddStock({product}: Props) {
         }
     }, [auth]);
 
-    const { members, availableCategories } = usePage<PageProps>().props;
+    const { members, availableCategories, defaultCategory } = usePage<PageProps>().props;
 
     const { data, setData, post, processing, errors } = useForm({
         member_id: '',
         quantity: '',
-        category: '',
+        category: defaultCategory || '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {

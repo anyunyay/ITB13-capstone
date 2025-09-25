@@ -30,7 +30,10 @@ class InventoryStockController extends Controller
         if ($product->price_pc) $availableCategories[] = 'Pc';
         if ($product->price_tali) $availableCategories[] = 'Tali';
         
-        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members', 'availableCategories'));
+        // Set default category if only one is available
+        $defaultCategory = count($availableCategories) === 1 ? $availableCategories[0] : null;
+        
+        return Inertia::render('Inventory/Stock/addStock', compact('product', 'products', 'members', 'availableCategories', 'defaultCategory'));
     }
 
     public function storeStock(Request $request, Product $product)
