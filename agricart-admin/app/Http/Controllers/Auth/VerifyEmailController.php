@@ -11,21 +11,27 @@ class VerifyEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
+     * Staff, member, and logistics users are automatically redirected to their dashboard.
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect($this->getRedirectUrl($request->user()).'?verified=1');
+        $user = $request->user();
+        
+        // Staff, member, and logistics don't need email verification
+        if (in_array($user->type, ['staff', 'member', 'logistic'])) {
+            return redirect($this->getRedirectUrl($user).'?verified=1');
+        }
+        
+        if ($user->hasVerifiedEmail()) {
+            return redirect($this->getRedirectUrl($user).'?verified=1');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
+        if ($user->markEmailAsVerified()) {
             /** @var \Illuminate\Contracts\Auth\MustVerifyEmail $user */
-            $user = $request->user();
-
             event(new Verified($user));
         }
 
-        return redirect()->intended($this->getRedirectUrl($request->user()).'?verified=1');
+        return redirect()->intended($this->getRedirectUrl($user).'?verified=1');
     }
 
     /**

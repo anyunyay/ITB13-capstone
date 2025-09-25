@@ -103,12 +103,50 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Send the email verification notification.
+     * Only send for customers - staff, member, and logistics don't need email verification.
      *
      * @return void
      */
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new VerifyEmailNotification);
+        // Only send verification email for customers
+        if ($this->type === 'customer') {
+            $this->notify(new VerifyEmailNotification);
+        }
+    }
+
+    /**
+     * Determine if the user has verified their email address.
+     * Staff, member, and logistics are considered verified by default.
+     *
+     * @return bool
+     */
+    public function hasVerifiedEmail()
+    {
+        // Staff, member, and logistics don't need email verification
+        if (in_array($this->type, ['staff', 'member', 'logistic'])) {
+            return true;
+        }
+        
+        return ! is_null($this->email_verified_at);
+    }
+
+    /**
+     * Mark the given user's email as verified.
+     * For staff, member, and logistics, this is a no-op.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        // Staff, member, and logistics don't need email verification
+        if (in_array($this->type, ['staff', 'member', 'logistic'])) {
+            return true;
+        }
+        
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
     }
 
     /**

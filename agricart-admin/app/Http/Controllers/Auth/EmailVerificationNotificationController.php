@@ -10,14 +10,22 @@ class EmailVerificationNotificationController extends Controller
 {
     /**
      * Send a new email verification notification.
+     * Staff, member, and logistics users are automatically redirected to their dashboard.
      */
     public function store(Request $request): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended($this->getRedirectUrl($request->user()));
+        $user = $request->user();
+        
+        // Staff, member, and logistics don't need email verification
+        if (in_array($user->type, ['staff', 'member', 'logistic'])) {
+            return redirect()->intended($this->getRedirectUrl($user));
+        }
+        
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->intended($this->getRedirectUrl($user));
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         return back()->with('status', 'verification-link-sent');
     }

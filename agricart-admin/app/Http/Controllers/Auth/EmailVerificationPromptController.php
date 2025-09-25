@@ -12,11 +12,19 @@ class EmailVerificationPromptController extends Controller
 {
     /**
      * Show the email verification prompt page.
+     * Staff, member, and logistics users are automatically redirected to their dashboard.
      */
     public function __invoke(Request $request): Response|RedirectResponse
     {
-        return $request->user()->hasVerifiedEmail()
-                    ? redirect()->intended($this->getRedirectUrl($request->user()))
+        $user = $request->user();
+        
+        // Staff, member, and logistics don't need email verification
+        if (in_array($user->type, ['staff', 'member', 'logistic'])) {
+            return redirect()->intended($this->getRedirectUrl($user));
+        }
+        
+        return $user->hasVerifiedEmail()
+                    ? redirect()->intended($this->getRedirectUrl($user))
                     : Inertia::render('auth/verify-email', ['status' => $request->session()->get('status')]);
     }
 
