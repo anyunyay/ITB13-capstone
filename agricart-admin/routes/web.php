@@ -27,8 +27,14 @@ Route::get('/search', [HomeController::class, 'search'])->name('search'); // Sea
 Route::get('/customer/products/{product}', [HomeController::class, 'show'])->name('products.show'); // Product Detail
 Route::get('/customer/product/{product}', [HomeController::class, 'product'])->name('products.product'); // Product Page
 
+// Password change routes (must be before other authenticated routes)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/password/change', [\App\Http\Controllers\PasswordChangeController::class, 'show'])->name('password.change');
+    Route::post('/password/change', [\App\Http\Controllers\PasswordChangeController::class, 'store'])->name('password.change.store');
+});
+
 // Authenticated routes
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
         // Dashboard routes

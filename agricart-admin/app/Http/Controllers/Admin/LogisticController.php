@@ -38,6 +38,7 @@ class LogisticController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
+            'password_change_required' => true, // Require password change
             'contact_number' => $request->input('contact_number'),
             'address' => $request->input('address'),
             'registration_date' => $request->input('registration_date', now()),

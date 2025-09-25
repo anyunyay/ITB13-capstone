@@ -63,6 +63,7 @@ class StaffController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'password_change_required' => true, // Require password change
             'type' => 'staff',
             'email_verified_at' => now(), // Automatically verify email for staff
         ]);

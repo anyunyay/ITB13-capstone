@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'password_change_required',
         // Customer fields
         'address line',
         'barangay',
@@ -60,6 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'registration_date' => 'datetime',
+            'password_change_required' => 'boolean',
         ];
     }
 

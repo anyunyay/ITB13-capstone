@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest' => RedirectIfAuthenticated::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'password.change.required' => \App\Http\Middleware\CheckPasswordChangeRequired::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
