@@ -60,7 +60,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming customer authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();
@@ -70,18 +70,12 @@ class AuthenticatedSessionController extends Controller
         // Ensure user has proper permissions for their type
         $user->ensurePermissions();
 
-        // Redirect based on user type (consistent with middleware)
-        if ($user->type === 'admin' || $user->type === 'staff') {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
-        } elseif ($user->type === 'customer') {
-            return redirect()->intended(route('home', absolute: false));
-        } elseif ($user->type === 'member') {
-            return redirect()->intended(route('member.dashboard', absolute: false));
-        } elseif ($user->type === 'logistic') {
-            return redirect()->intended(route('logistic.dashboard', absolute: false));
+        // Verify user is a customer
+        if ($user->type !== 'customer') {
+            Auth::guard('web')->logout();
+            return back()->withErrors(['email' => 'Access denied. Customer credentials required.']);
         }
 
-        // Default fallback
         return redirect()->intended(route('home', absolute: false));
     }
 
