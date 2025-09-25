@@ -28,6 +28,7 @@ class LogisticController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
             'contact_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
@@ -36,11 +37,11 @@ class LogisticController extends Controller
         User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
             'contact_number' => $request->input('contact_number'),
             'address' => $request->input('address'),
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
-            'password' => bcrypt('password'), // Default password
             'email_verified_at' => now(), // Automatically verify email
         ]);
 

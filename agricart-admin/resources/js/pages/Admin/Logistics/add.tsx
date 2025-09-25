@@ -42,6 +42,7 @@ export default function Index() {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
+        password: '',
         contact_number: '',
         address: '',
         registration_date: formattedToday,
@@ -100,6 +101,15 @@ export default function Index() {
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic email">Email</Label>
                         <Input placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                    </div>
+                    <div className='gap-1.5'>
+                        <Label htmlFor="logistic password">Password</Label>
+                        <Input 
+                            type="password" 
+                            placeholder="Password (minimum 8 characters)" 
+                            value={data.password} 
+                            onChange={(e) => setData('password', e.target.value)} 
+                        />
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic contact_number">Contact Number</Label>

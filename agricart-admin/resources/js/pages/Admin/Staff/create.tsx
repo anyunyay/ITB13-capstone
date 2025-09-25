@@ -22,7 +22,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
     name: '',
     email: '',
     password: '',
-    password_confirmation: '',
     permissions: [] as string[],
   });
 
@@ -193,19 +192,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password_confirmation">Confirm Password</Label>
-                  <Input
-                    id="password_confirmation"
-                    type="password"
-                    value={data.password_confirmation}
-                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                    className={errors.password_confirmation ? 'border-destructive' : ''}
-                  />
-                  {errors.password_confirmation && (
-                    <p className="text-sm text-destructive">{errors.password_confirmation}</p>
-                  )}
-                </div>
               </div>
 
               <div className="space-y-6">
