@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,6 +9,7 @@ import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { DollarSign, ShoppingCart, TrendingUp, Users, ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
 
 interface MemberSale {
   member_id: number;
@@ -30,12 +31,59 @@ interface MemberSalesPageProps {
 
 export default function MemberSales({ memberSales, filters }: MemberSalesPageProps) {
   const { can } = usePermissions();
+  const [localFilters, setLocalFilters] = useState(filters);
 
   // Calculate summary statistics
   const totalRevenue = memberSales.reduce((sum, member) => sum + Number(member.total_revenue || 0), 0);
   const totalOrders = memberSales.reduce((sum, member) => sum + Number(member.total_orders || 0), 0);
   const totalQuantity = memberSales.reduce((sum, member) => sum + Number(member.total_quantity_sold || 0), 0);
   const averageRevenue = memberSales.length > 0 ? totalRevenue / memberSales.length : 0;
+
+  const exportReport = (format: 'csv' | 'pdf') => {
+    const params = new URLSearchParams();
+    if (localFilters.start_date) params.append('start_date', localFilters.start_date);
+    if (localFilters.end_date) params.append('end_date', localFilters.end_date);
+    if (localFilters.member_id) params.append('member_id', localFilters.member_id);
+    params.append('format', format);
+    params.append('export_type', 'members');
+    
+    if (format === 'csv') {
+      // For CSV: just download, no display
+      const downloadUrl = `${route('admin.sales.report')}?${params.toString()}`;
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `member_sales_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      // For PDF: download and display
+      const downloadUrl = `${route('admin.sales.report')}?${params.toString()}`;
+      
+      // Create display URL for viewing
+      const displayParams = new URLSearchParams();
+      if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
+      if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      if (localFilters.member_id) displayParams.append('member_id', localFilters.member_id);
+      displayParams.append('format', format);
+      displayParams.append('export_type', 'members');
+      displayParams.append('display', 'true');
+      const displayUrl = `${route('admin.sales.report')}?${displayParams.toString()}`;
+      
+      // Download the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `member_sales_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Open display in new tab after a short delay
+      setTimeout(() => {
+        window.open(displayUrl, '_blank');
+      }, 500);
+    }
+  };
 
   return (
     <PermissionGuard 
@@ -45,17 +93,22 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
       <AppLayout>
         <Head title="Member Sales" />
         <div className="p-6">
-                     <div className="flex items-center justify-between mb-6">
-             <div>
-               <h1 className="text-3xl font-bold">Member Sales Performance</h1>
-             </div>
-                         <PermissionGate permission="generate sales report">
-               <Link href={route('admin.sales.report')}>
-                 <Button variant="outline">
-                   View Report
-                 </Button>
-               </Link>
-             </PermissionGate>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold">Member Sales Performance</h1>
+            </div>
+            <div className="flex gap-2">
+              <PermissionGate permission="generate sales report">
+                <div className="flex gap-1">
+                  <Button onClick={() => exportReport('csv')} variant="outline" size="sm">
+                    Export CSV
+                  </Button>
+                  <Button onClick={() => exportReport('pdf')} variant="outline" size="sm">
+                    Export PDF
+                  </Button>
+                </div>
+              </PermissionGate>
+            </div>
           </div>
 
           {/* Summary Cards */}
