@@ -102,7 +102,42 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
     if (localFilters.status !== 'all') params.append('status', localFilters.status);
     params.append('format', format);
     
-    window.open(`${route('inventory.report')}?${params.toString()}`, '_blank');
+    if (format === 'csv') {
+      // For CSV: just download, no display
+      const downloadUrl = `${route('inventory.report')}?${params.toString()}`;
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `inventory_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      // For PDF: download and display
+      const downloadUrl = `${route('inventory.report')}?${params.toString()}`;
+      
+      // Create display URL for viewing
+      const displayParams = new URLSearchParams();
+      if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
+      if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      if (localFilters.category !== 'all') displayParams.append('category', localFilters.category);
+      if (localFilters.status !== 'all') displayParams.append('status', localFilters.status);
+      displayParams.append('format', format);
+      displayParams.append('display', 'true');
+      const displayUrl = `${route('inventory.report')}?${displayParams.toString()}`;
+      
+      // Download the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `inventory_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Open display in new tab after a short delay
+      setTimeout(() => {
+        window.open(displayUrl, '_blank');
+      }, 500);
+    }
   };
 
   const getStatusBadge = (stock: Stock) => {
