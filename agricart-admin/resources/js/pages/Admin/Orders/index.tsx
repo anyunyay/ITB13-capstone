@@ -41,6 +41,7 @@ interface Order {
 
 interface OrdersPageProps {
   orders: Order[];
+  allOrders: Order[];
   currentStatus: string;
   logistics: Array<{
     id: number;
@@ -49,7 +50,7 @@ interface OrdersPageProps {
   }>;
 }
 
-export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) {
+export default function OrdersIndex({ orders, allOrders, currentStatus }: OrdersPageProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -77,9 +78,10 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
   };
 
 
-  const pendingOrders = orders.filter(order => order.status === 'pending');
-  const approvedOrders = orders.filter(order => order.status === 'approved');
-  const rejectedOrders = orders.filter(order => order.status === 'rejected');
+  // Use allOrders for consistent tab counts
+  const pendingOrders = allOrders.filter(order => order.status === 'pending');
+  const approvedOrders = allOrders.filter(order => order.status === 'approved');
+  const rejectedOrders = allOrders.filter(order => order.status === 'rejected');
 
   return (
     <PermissionGuard 
@@ -103,7 +105,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
         <Tabs defaultValue={currentStatus} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all" onClick={() => router.get(route('admin.orders.index'), { status: 'all' })}>
-              All Orders ({orders.length})
+              All Orders ({allOrders.length})
             </TabsTrigger>
             <TabsTrigger value="pending" onClick={() => router.get(route('admin.orders.index'), { status: 'pending' })}>
               Pending ({pendingOrders.length})
@@ -133,10 +135,10 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
 
           <TabsContent value="pending" className="mt-6">
             <div className="grid gap-4">
-              {pendingOrders.map((order) => (
+              {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}
-              {pendingOrders.length === 0 && (
+              {orders.length === 0 && (
                 <Card>
                   <CardContent className="p-6 text-center text-muted-foreground">
                     No pending orders.
@@ -148,10 +150,10 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
 
           <TabsContent value="approved" className="mt-6">
             <div className="grid gap-4">
-              {approvedOrders.map((order) => (
+              {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}
-              {approvedOrders.length === 0 && (
+              {orders.length === 0 && (
                 <Card>
                   <CardContent className="p-6 text-center text-muted-foreground">
                     No approved orders.
@@ -163,10 +165,10 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
 
           <TabsContent value="rejected" className="mt-6">
             <div className="grid gap-4">
-              {rejectedOrders.map((order) => (
+              {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}
-              {rejectedOrders.length === 0 && (
+              {orders.length === 0 && (
                 <Card>
                   <CardContent className="p-6 text-center text-muted-foreground">
                     No rejected orders.

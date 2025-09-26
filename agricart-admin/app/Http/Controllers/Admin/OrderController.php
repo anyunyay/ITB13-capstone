@@ -20,20 +20,24 @@ class OrderController extends Controller
     {
         $status = $request->get('status', 'all');
         
-        $query = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product']);
+        // Get all orders for tab counts
+        $allOrders = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
         
-        // Filter by status
-        if ($status !== 'all') {
-            $query->where('status', $status);
+        // Filter orders by status if needed
+        if ($status === 'all') {
+            $orders = $allOrders;
+        } else {
+            $orders = $allOrders->where('status', $status)->values();
         }
-        
-        $orders = $query->orderBy('created_at', 'desc')->get();
         
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
         
         return Inertia::render('Admin/Orders/index', [
             'orders' => $orders,
+            'allOrders' => $allOrders,
             'currentStatus' => $status,
             'logistics' => $logistics,
         ]);
