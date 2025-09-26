@@ -240,6 +240,7 @@ class MemberController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
 
         // Get all approved sales that involve stocks from this member
         $query = Sales::approved()
@@ -278,9 +279,9 @@ class MemberController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportRevenueToCsv($salesData, $summary);
+            return $this->exportRevenueToCsv($salesData, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportRevenueToPdf($salesData, $summary);
+            return $this->exportRevenueToPdf($salesData, $summary, $display);
         }
 
         // Return view for display
@@ -397,14 +398,23 @@ class MemberController extends Controller
         ];
     }
 
-    private function exportRevenueToCsv($salesData, $summary)
+    private function exportRevenueToCsv($salesData, $summary, $display = false)
     {
         $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($salesData, $summary) {
             $file = fopen('php://output', 'w');
@@ -444,10 +454,10 @@ class MemberController extends Controller
             fclose($file);
         };
 
-        return Response::stream($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
     }
 
-    private function exportRevenueToPdf($salesData, $summary)
+    private function exportRevenueToPdf($salesData, $summary, $display = false)
     {
         $html = view('reports.member-revenue-pdf', [
             'salesData' => $salesData,
@@ -458,6 +468,8 @@ class MemberController extends Controller
         $pdf = app('dompdf.wrapper');
         $pdf->loadHTML($html);
         
-        return $pdf->download('member_revenue_report_' . date('Y-m-d_H-i-s') . '.pdf');
+        $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.pdf';
+        
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 } 
