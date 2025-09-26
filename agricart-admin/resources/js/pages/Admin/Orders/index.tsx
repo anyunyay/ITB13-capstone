@@ -76,18 +76,6 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'text-yellow-600';
-      case 'approved':
-        return 'text-green-600';
-      case 'rejected':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
 
   const pendingOrders = orders.filter(order => order.status === 'pending');
   const approvedOrders = orders.filter(order => order.status === 'approved');
@@ -135,7 +123,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
               ))}
               {orders.length === 0 && (
                 <Card>
-                  <CardContent className="p-6 text-center text-gray-500">
+                  <CardContent className="p-6 text-center text-muted-foreground">
                     No orders found.
                   </CardContent>
                 </Card>
@@ -150,7 +138,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
               ))}
               {pendingOrders.length === 0 && (
                 <Card>
-                  <CardContent className="p-6 text-center text-gray-500">
+                  <CardContent className="p-6 text-center text-muted-foreground">
                     No pending orders.
                   </CardContent>
                 </Card>
@@ -165,7 +153,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
               ))}
               {approvedOrders.length === 0 && (
                 <Card>
-                  <CardContent className="p-6 text-center text-gray-500">
+                  <CardContent className="p-6 text-center text-muted-foreground">
                     No approved orders.
                   </CardContent>
                 </Card>
@@ -180,7 +168,7 @@ export default function OrdersIndex({ orders, currentStatus }: OrdersPageProps) 
               ))}
               {rejectedOrders.length === 0 && (
                 <Card>
-                  <CardContent className="p-6 text-center text-gray-500">
+                  <CardContent className="p-6 text-center text-muted-foreground">
                     No rejected orders.
                   </CardContent>
                 </Card>
@@ -227,7 +215,7 @@ function OrderCard({ order }: { order: Order }) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
@@ -271,7 +259,7 @@ function OrderCard({ order }: { order: Order }) {
               <p className="text-sm">
                 <span className="font-medium">Assigned to:</span> {order.logistic.name}
                 {order.logistic.contact_number && (
-                  <span className="text-gray-500 ml-2">({order.logistic.contact_number})</span>
+                  <span className="text-muted-foreground ml-2">({order.logistic.contact_number})</span>
                 )}
               </p>
             )}
@@ -281,7 +269,7 @@ function OrderCard({ order }: { order: Order }) {
                   <span className="font-medium">Delivery Status:</span> {getDeliveryStatusBadge(order.delivery_status)}
                 </p>
                 {!order.logistic && (
-                  <p className="text-sm text-orange-600">
+                  <p className="text-sm text-orange-600 dark:text-orange-400">
                     <span className="font-medium">⚠️ Needs logistic assignment</span>
                   </p>
                 )}
@@ -291,9 +279,9 @@ function OrderCard({ order }: { order: Order }) {
         </div>
         
         {order.admin_notes && (
-          <div className="mt-4 p-3 bg-gray-50 rounded">
+          <div className="mt-4 p-3 bg-muted rounded">
             <h5 className="font-semibold text-sm mb-1">Admin Notes:</h5>
-            <p className="text-sm text-gray-700">{order.admin_notes}</p>
+            <p className="text-sm text-muted-foreground">{order.admin_notes}</p>
           </div>
         )}
 
@@ -326,7 +314,7 @@ function OrderCard({ order }: { order: Order }) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No items found</p>
+                <p className="text-sm text-muted-foreground">No items found</p>
               );
             })()}
           </div>
