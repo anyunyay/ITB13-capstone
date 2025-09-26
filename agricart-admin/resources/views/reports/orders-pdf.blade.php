@@ -95,19 +95,6 @@
             color: #2563eb;
             font-weight: bold;
         }
-        .order-details {
-            margin-top: 15px;
-            page-break-inside: avoid;
-        }
-        .order-header {
-            background: #f8f9fa;
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-        }
-        .order-items {
-            margin-left: 20px;
-        }
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -157,33 +144,6 @@
         </tbody>
     </table>
 
-    <div class="order-details">
-        <h3>Order Details</h3>
-        @foreach($orders as $order)
-        <div class="order-header">
-            <strong>Order #{{ $order->id }}</strong> - {{ $order->customer->name ?? 'N/A' }} - PHP {{ number_format($order->total_amount, 2, '.', ',') }}
-            <br>
-            <small>Status: {{ ucfirst($order->status) }} | Delivery: {{ ucfirst($order->delivery_status ?? 'pending') }}</small>
-        </div>
-        
-        @if($order->auditTrail && $order->auditTrail->count() > 0)
-        <div class="order-items">
-            <strong>Items:</strong>
-            <ul>
-                @foreach($order->auditTrail as $item)
-                <li>{{ $item->product->name ?? 'N/A' }} ({{ $item->category }}) - {{ $item->quantity }} {{ $item->category }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-        
-        @if($order->admin_notes)
-        <div class="order-items">
-            <strong>Admin Notes:</strong> {{ $order->admin_notes }}
-        </div>
-        @endif
-        @endforeach
-    </div>
 
     <div class="footer">
         <p>This report was generated automatically by the Agricart Admin System.</p>

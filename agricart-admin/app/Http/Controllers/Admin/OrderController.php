@@ -261,16 +261,11 @@ class OrderController extends Controller
                 'Created Date',
                 'Processed By',
                 'Admin Notes',
-                'Logistic',
-                'Items'
+                'Logistic'
             ]);
 
             // Write order data
             foreach ($orders as $order) {
-                $items = $order->auditTrail->map(function($item) {
-                    return $item->product->name . ' (' . $item->category . ' x' . $item->quantity . ')';
-                })->join('; ');
-
                 fputcsv($file, [
                     $order->id,
                     $order->customer->name ?? 'N/A',
@@ -281,8 +276,7 @@ class OrderController extends Controller
                     $order->created_at->format('Y-m-d H:i:s'),
                     $order->admin->name ?? 'N/A',
                     $order->admin_notes ?? 'N/A',
-                    $order->logistic->name ?? 'N/A',
-                    $items
+                    $order->logistic->name ?? 'N/A'
                 ]);
             }
 
@@ -301,6 +295,7 @@ class OrderController extends Controller
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
         
         $filename = 'orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
