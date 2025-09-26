@@ -83,10 +83,11 @@ class SalesController extends Controller
 
         // Check if format is specified for export
         if ($request->filled('format')) {
+            $display = $request->get('display', false);
             if ($request->format === 'pdf') {
-                return $this->exportToPdf($sales, $memberSales, $summary, $request);
+                return $this->exportToPdf($sales, $memberSales, $summary, $request, $display);
             } elseif ($request->format === 'csv') {
-                return $this->exportCsv($sales, $memberSales, $summary, $request);
+                return $this->exportCsv($sales, $memberSales, $summary, $request, $display);
             }
         }
 
@@ -99,14 +100,23 @@ class SalesController extends Controller
         ]);
     }
 
-    private function exportCsv($sales, $memberSales, $summary, $request)
+    private function exportCsv($sales, $memberSales, $summary, $request, $display = false)
     {
         $filename = 'sales_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($sales, $memberSales, $summary, $request) {
             $file = fopen('php://output', 'w');
@@ -153,7 +163,7 @@ class SalesController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($sales, $memberSales, $summary, $request)
+    private function exportToPdf($sales, $memberSales, $summary, $request, $display = false)
     {
         $html = view('reports.sales-pdf', [
             'sales' => $sales,
@@ -168,7 +178,7 @@ class SalesController extends Controller
         
         $filename = 'sales_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
-        return $pdf->download($filename);
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
     private function getMemberSales(Request $request)
