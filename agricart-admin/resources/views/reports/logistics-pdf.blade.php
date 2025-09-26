@@ -26,38 +26,6 @@
             margin: 5px 0;
             color: #666;
         }
-        .summary {
-            background: #f5f5f5;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .summary h2 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        .summary-grid {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .summary-item {
-            display: table-cell;
-            width: 25%;
-            text-align: center;
-            padding: 10px;
-        }
-        .summary-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-        .summary-label {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -100,27 +68,6 @@
         <p>Generated on: {{ $generated_at }}</p>
     </div>
 
-    <div class="summary">
-        <h2>Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_logistics'] }}</div>
-                <div class="summary-label">Total Logistics</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['active_logistics'] }}</div>
-                <div class="summary-label">Active Logistics</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['pending_verification'] }}</div>
-                <div class="summary-label">Pending Verification</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['recent_registrations'] }}</div>
-                <div class="summary-label">Recent (30 days)</div>
-            </div>
-        </div>
-    </div>
 
     <table>
         <thead>

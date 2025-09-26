@@ -117,9 +117,9 @@ class LogisticController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportToCsv($logistics, $summary, $display);
+            return $this->exportToCsv($logistics, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($logistics, $summary, $display);
+            return $this->exportToPdf($logistics, $display);
         }
 
         // Return view for display
@@ -133,7 +133,7 @@ class LogisticController extends Controller
         ]);
     }
 
-    private function exportToCsv($logistics, $summary, $display = false)
+    private function exportToCsv($logistics, $display = false)
     {
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.csv';
         
@@ -151,17 +151,8 @@ class LogisticController extends Controller
             ];
         }
 
-        $callback = function() use ($logistics, $summary) {
+        $callback = function() use ($logistics) {
             $file = fopen('php://output', 'w');
-            
-            // Write summary
-            fputcsv($file, ['Logistics Report Summary']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Logistics', $summary['total_logistics']]);
-            fputcsv($file, ['Active Logistics', $summary['active_logistics']]);
-            fputcsv($file, ['Pending Verification', $summary['pending_verification']]);
-            fputcsv($file, ['Recent Registrations (30 days)', $summary['recent_registrations']]);
-            fputcsv($file, ['']);
             
             // Write headers
             fputcsv($file, [
@@ -195,11 +186,10 @@ class LogisticController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($logistics, $summary, $display = false)
+    private function exportToPdf($logistics, $display = false)
     {
         $html = view('reports.logistics-pdf', [
             'logistics' => $logistics,
-            'summary' => $summary,
             'generated_at' => now()->format('Y-m-d H:i:s')
         ])->render();
 
