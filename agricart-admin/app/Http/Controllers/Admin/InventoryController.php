@@ -187,6 +187,7 @@ class InventoryController extends Controller
         $category = $request->get('category', 'all');
         $status = $request->get('status', 'all');
         $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
 
         $query = Stock::with(['product', 'member', 'lastCustomer']);
 
@@ -237,9 +238,9 @@ class InventoryController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportToCsv($stocks, $summary);
+            return $this->exportToCsv($stocks, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($stocks, $summary);
+            return $this->exportToPdf($stocks, $summary, $display);
         }
 
         // Return view for display
@@ -255,14 +256,23 @@ class InventoryController extends Controller
         ]);
     }
 
-    private function exportToCsv($stocks, $summary)
+    private function exportToCsv($stocks, $summary, $display = false)
     {
         $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($stocks, $summary) {
             $file = fopen('php://output', 'w');
@@ -307,10 +317,10 @@ class InventoryController extends Controller
             fclose($file);
         };
 
-        return Response::stream($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($stocks, $summary)
+    private function exportToPdf($stocks, $summary, $display = false)
     {
         $html = view('reports.inventory-pdf', [
             'stocks' => $stocks,
@@ -323,7 +333,7 @@ class InventoryController extends Controller
         
         $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
-        return $pdf->download($filename);
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
     /**
