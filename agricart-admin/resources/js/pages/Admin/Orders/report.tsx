@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import dayjs from 'dayjs';
+import { format } from 'date-fns';
 import { useState } from 'react';
 
 interface Order {
@@ -275,7 +275,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                 <OrderCard key={order.id} order={order} />
               ))}
               {orders.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-muted-foreground py-8">
                   No orders found for the selected filters.
                 </div>
               )}
@@ -320,8 +320,8 @@ function OrderCard({ order }: { order: Order }) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-            <p className="text-sm text-gray-500">
-              {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
+            <p className="text-sm text-muted-foreground">
+              {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -358,17 +358,29 @@ function OrderCard({ order }: { order: Order }) {
               <p className="text-sm">
                 <span className="font-medium">Assigned to:</span> {order.logistic.name}
                 {order.logistic.contact_number && (
-                  <span className="text-gray-500 ml-2">({order.logistic.contact_number})</span>
+                  <span className="text-muted-foreground ml-2">({order.logistic.contact_number})</span>
                 )}
               </p>
+            )}
+            {order.status === 'approved' && (
+              <div className="space-y-1">
+                <p className="text-sm">
+                  <span className="font-medium">Delivery Status:</span> {getDeliveryStatusBadge(order.delivery_status)}
+                </p>
+                {!order.logistic && (
+                  <p className="text-sm text-orange-600 dark:text-orange-400">
+                    <span className="font-medium">⚠️ Needs logistic assignment</span>
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
         
         {order.admin_notes && (
-          <div className="mt-4 p-3 bg-gray-50 rounded">
+          <div className="mt-4 p-3 bg-muted rounded">
             <h5 className="font-semibold text-sm mb-1">Admin Notes:</h5>
-            <p className="text-sm text-gray-700">{order.admin_notes}</p>
+            <p className="text-sm text-muted-foreground">{order.admin_notes}</p>
           </div>
         )}
 
@@ -401,7 +413,7 @@ function OrderCard({ order }: { order: Order }) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No items found</p>
+                <p className="text-sm text-muted-foreground">No items found</p>
               );
             })()}
           </div>
