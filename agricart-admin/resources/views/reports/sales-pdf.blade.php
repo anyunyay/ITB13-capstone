@@ -26,41 +26,6 @@
             margin: 5px 0;
             color: #666;
         }
-        .summary {
-            background: #f5f5f5;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .summary h2 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        .summary-grid {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .summary-item {
-            display: table-cell;
-            width: 25%;
-            text-align: center;
-            padding: 10px;
-        }
-        .summary-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-        .summary-label {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
-        .revenue {
-            color: #059669 !important;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -107,29 +72,6 @@
         @endif
     </div>
 
-    @if(isset($summary))
-    <div class="summary">
-        <h2>Sales Summary</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['total_revenue'], 2, '.', ',') }}</div>
-                <div class="summary-label">Total Revenue</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_orders'] }}</div>
-                <div class="summary-label">Total Orders</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value revenue">PHP {{ number_format($summary['average_order_value'], 2, '.', ',') }}</div>
-                <div class="summary-label">Average Order Value</div>
-            </div>
-            <div class="summary-item">
-                <div class="summary-value">{{ $summary['total_customers'] }}</div>
-                <div class="summary-label">Total Customers</div>
-            </div>
-        </div>
-    </div>
-    @endif
 
     <table>
         <thead>

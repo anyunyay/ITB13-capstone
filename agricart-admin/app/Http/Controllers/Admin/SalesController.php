@@ -85,9 +85,9 @@ class SalesController extends Controller
         if ($request->filled('format')) {
             $display = $request->get('display', false);
             if ($request->format === 'pdf') {
-                return $this->exportToPdf($sales, $memberSales, $summary, $request, $display);
+                return $this->exportToPdf($sales, $memberSales, $request, $display);
             } elseif ($request->format === 'csv') {
-                return $this->exportCsv($sales, $memberSales, $summary, $request, $display);
+                return $this->exportCsv($sales, $memberSales, $request, $display);
             }
         }
 
@@ -100,7 +100,7 @@ class SalesController extends Controller
         ]);
     }
 
-    private function exportCsv($sales, $memberSales, $summary, $request, $display = false)
+    private function exportCsv($sales, $memberSales, $request, $display = false)
     {
         $filename = 'sales_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
         
@@ -118,7 +118,7 @@ class SalesController extends Controller
             ];
         }
 
-        $callback = function() use ($sales, $memberSales, $summary, $request) {
+        $callback = function() use ($sales, $memberSales, $request) {
             $file = fopen('php://output', 'w');
             
             // Sales data
@@ -163,11 +163,10 @@ class SalesController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($sales, $memberSales, $summary, $request, $display = false)
+    private function exportToPdf($sales, $memberSales, $request, $display = false)
     {
         $html = view('reports.sales-pdf', [
             'sales' => $sales,
-            'summary' => $summary,
             'memberSales' => $memberSales,
             'generated_at' => now()->format('Y-m-d H:i:s'),
             'filters' => $request->only(['start_date', 'end_date']),
