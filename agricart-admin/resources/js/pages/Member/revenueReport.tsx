@@ -89,7 +89,40 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     params.append('format', format);
     
-    window.open(`${route('member.revenueReport')}?${params.toString()}`, '_blank');
+    if (format === 'csv') {
+      // For CSV: just download, no display
+      const downloadUrl = `${route('member.revenueReport')}?${params.toString()}`;
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `member_revenue_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      // For PDF: download and display
+      const downloadUrl = `${route('member.revenueReport')}?${params.toString()}`;
+      
+      // Create display URL for viewing
+      const displayParams = new URLSearchParams();
+      if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
+      if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      displayParams.append('format', format);
+      displayParams.append('display', 'true');
+      const displayUrl = `${route('member.revenueReport')}?${displayParams.toString()}`;
+      
+      // Download the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `member_revenue_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Open display in new tab after a short delay
+      setTimeout(() => {
+        window.open(displayUrl, '_blank');
+      }, 500);
+    }
   };
 
   return (
