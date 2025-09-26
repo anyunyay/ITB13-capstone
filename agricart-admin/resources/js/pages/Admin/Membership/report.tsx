@@ -61,7 +61,40 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     params.append('format', format);
     
-    window.open(`${route('membership.report')}?${params.toString()}`, '_blank');
+    if (format === 'csv') {
+      // For CSV: just download, no display
+      const downloadUrl = `${route('membership.report')}?${params.toString()}`;
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `membership_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } else {
+      // For PDF: download and display
+      const downloadUrl = `${route('membership.report')}?${params.toString()}`;
+      
+      // Create display URL for viewing
+      const displayParams = new URLSearchParams();
+      if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
+      if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      displayParams.append('format', format);
+      displayParams.append('display', 'true');
+      const displayUrl = `${route('membership.report')}?${displayParams.toString()}`;
+      
+      // Download the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `membership_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Open display in new tab after a short delay
+      setTimeout(() => {
+        window.open(displayUrl, '_blank');
+      }, 500);
+    }
   };
 
   const getVerificationBadge = (verified: boolean) => {
