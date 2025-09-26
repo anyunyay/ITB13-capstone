@@ -160,9 +160,9 @@ class MembershipController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportToCsv($members, $summary, $display);
+            return $this->exportToCsv($members, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($members, $summary, $display);
+            return $this->exportToPdf($members, $display);
         }
 
         // Return view for display
@@ -176,7 +176,7 @@ class MembershipController extends Controller
         ]);
     }
 
-    private function exportToCsv($members, $summary, $display = false)
+    private function exportToCsv($members, $display = false)
     {
         $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.csv';
         
@@ -194,17 +194,8 @@ class MembershipController extends Controller
             ];
         }
 
-        $callback = function() use ($members, $summary) {
+        $callback = function() use ($members) {
             $file = fopen('php://output', 'w');
-            
-            // Write summary
-            fputcsv($file, ['Membership Report Summary']);
-            fputcsv($file, ['']);
-            fputcsv($file, ['Total Members', $summary['total_members']]);
-            fputcsv($file, ['Active Members', $summary['active_members']]);
-            fputcsv($file, ['Pending Verification', $summary['pending_verification']]);
-            fputcsv($file, ['Recent Registrations (30 days)', $summary['recent_registrations']]);
-            fputcsv($file, ['']);
             
             // Write headers
             fputcsv($file, [
@@ -238,11 +229,10 @@ class MembershipController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($members, $summary, $display = false)
+    private function exportToPdf($members, $display = false)
     {
         $html = view('reports.membership-pdf', [
             'members' => $members,
-            'summary' => $summary,
             'generated_at' => now()->format('Y-m-d H:i:s')
         ])->render();
 
