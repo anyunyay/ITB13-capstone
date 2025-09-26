@@ -235,7 +235,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{summary.total_stocks}</div>
@@ -243,154 +243,185 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Quantity</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Quantity</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{summary.total_quantity}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.total_quantity}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Available Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{summary.available_stocks}</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.available_stocks}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Sold Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{summary.sold_stocks}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.sold_stocks}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Partial Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Partial Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{summary.partial_stocks}</div>
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.partial_stocks}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Removed Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Removed Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{summary.removed_stocks}</div>
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{summary.removed_stocks}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Products</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{summary.total_products}</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{summary.total_products}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Members</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-indigo-600">{summary.total_members}</div>
+              <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{summary.total_members}</div>
             </CardContent>
           </Card>
         </div>
 
-         {/* Stocks Table */}
-         <Card>
-           <CardHeader className="pb-3">
-             <CardTitle className="text-lg">Stocks ({stocks.length})</CardTitle>
-           </CardHeader>
-           <CardContent className="p-0">
-             <div className="overflow-x-auto">
-               <table className="w-full text-sm border-collapse">
-                 <thead>
-                   <tr className="bg-gray-50 border-b border-gray-200">
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">ID</th>
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Product</th>
-                     <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Qty</th>
-                     <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Cat</th>
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Member</th>
-                     <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Status</th>
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Created</th>
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Removed</th>
-                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Notes</th>
-                   </tr>
-                 </thead>
-                 <tbody className="bg-white divide-y divide-gray-200">
-                   {stocks.map((stock) => (
-                     <tr key={stock.id} className="hover:bg-gray-50 transition-colors">
-                       <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-gray-600">#{stock.id}</td>
-                       <td className="px-3 py-2 max-w-xs">
-                         <div className="text-sm font-medium text-gray-900 truncate" title={stock.product.name}>
-                           {stock.product.name}
-                         </div>
-                         <div className="text-xs text-gray-500 truncate">{stock.product.produce_type}</div>
-                       </td>
-                       <td className="px-3 py-2 text-center">
-                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                           {stock.quantity}
-                         </span>
-                       </td>
-                       <td className="px-3 py-2 text-center">
-                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                           {stock.category}
-                         </span>
-                       </td>
-                       <td className="px-3 py-2 max-w-xs">
-                         <div className="text-sm text-gray-900 truncate" title={stock.member.name}>
-                           {stock.member.name}
-                         </div>
-                         <div className="text-xs text-gray-500 truncate">{stock.member.email}</div>
-                       </td>
-                       <td className="px-3 py-2 text-center">
-                         {getStatusBadge(stock)}
-                       </td>
-                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                         {dayjs(stock.created_at).format('MMM DD, YYYY')}
-                         <div className="text-xs text-gray-400">{dayjs(stock.created_at).format('HH:mm')}</div>
-                       </td>
-                       <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                         {stock.removed_at ? (
-                           <>
-                             {dayjs(stock.removed_at).format('MMM DD, YYYY')}
-                             <div className="text-xs text-red-500">{dayjs(stock.removed_at).format('HH:mm')}</div>
-                           </>
-                         ) : (
-                           <span className="text-gray-400">—</span>
-                         )}
-                       </td>
-                       <td className="px-3 py-2 max-w-xs">
-                         <div className="text-xs text-gray-600 truncate" title={stock.notes || ''}>
-                           {stock.notes || <span className="text-gray-400">—</span>}
-                         </div>
-                       </td>
-                     </tr>
-                   ))}
-                   {stocks.length === 0 && (
-                     <tr>
-                       <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
-                         <div className="flex flex-col items-center">
-                           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                             <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                             </svg>
-                           </div>
-                           <p className="text-sm">No stocks found for the selected filters.</p>
-                         </div>
-                       </td>
-                     </tr>
-                   )}
-                 </tbody>
-               </table>
-             </div>
-           </CardContent>
-         </Card>
+        {/* Stocks List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Stocks ({stocks.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stocks.map((stock) => (
+                <StockCard key={stock.id} stock={stock} />
+              ))}
+              {stocks.length === 0 && (
+                <div className="text-center text-muted-foreground py-8">
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
+                      <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      </svg>
+                    </div>
+                    <p className="text-sm">No stocks found for the selected filters.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AppSidebarLayout>
+  );
+}
+
+function StockCard({ stock }: { stock: Stock }) {
+  const getStatusBadge = (stock: Stock) => {
+    if (stock.removed_at) {
+      return <Badge variant="destructive">Removed</Badge>;
+    } else if (stock.quantity == 0 && stock.last_customer_id) {
+      return <Badge variant="default">Sold</Badge>;
+    } else if (stock.quantity > 0 && stock.last_customer_id) {
+      return <Badge variant="secondary">Partial</Badge>;
+    } else {
+      return <Badge variant="outline">Available</Badge>;
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Stock #{stock.id}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {dayjs(stock.created_at).format('MMM DD, YYYY HH:mm')}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {getStatusBadge(stock)}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className="font-semibold mb-2">Product Information</h4>
+            <p className="text-sm">
+              <span className="font-medium">Name:</span> {stock.product.name}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Type:</span> {stock.product.produce_type}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Category:</span> 
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2">
+                {stock.category}
+              </span>
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">Stock Details</h4>
+            <p className="text-sm">
+              <span className="font-medium">Quantity:</span> 
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 ml-2">
+                {stock.quantity}
+              </span>
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Member:</span> {stock.member.name}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Email:</span> {stock.member.email}
+            </p>
+            {stock.member.contact_number && (
+              <p className="text-sm">
+                <span className="font-medium">Contact:</span> {stock.member.contact_number}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        {stock.lastCustomer && (
+          <div className="mt-4 p-3 bg-muted rounded">
+            <h5 className="font-semibold text-sm mb-1">Last Customer:</h5>
+            <p className="text-sm text-muted-foreground">
+              {stock.lastCustomer.name} ({stock.lastCustomer.email})
+            </p>
+          </div>
+        )}
+
+        {stock.removed_at && (
+          <div className="mt-4 p-3 bg-destructive/10 rounded">
+            <h5 className="font-semibold text-sm mb-1 text-destructive">Removed:</h5>
+            <p className="text-sm text-destructive">
+              {dayjs(stock.removed_at).format('MMM DD, YYYY HH:mm')}
+            </p>
+          </div>
+        )}
+
+        {stock.notes && (
+          <div className="mt-4 p-3 bg-muted rounded">
+            <h5 className="font-semibold text-sm mb-1">Notes:</h5>
+            <p className="text-sm text-muted-foreground">{stock.notes}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
