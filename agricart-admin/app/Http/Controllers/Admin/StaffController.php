@@ -179,10 +179,11 @@ class StaffController extends Controller
 
         // Check if format is specified for export
         if ($request->filled('format')) {
+            $display = $request->get('display', false);
             if ($request->format === 'pdf') {
-                return $this->exportToPdf($staff, $summary);
+                return $this->exportToPdf($staff, $summary, $display);
             } elseif ($request->format === 'csv') {
-                return $this->exportToCsv($staff, $summary);
+                return $this->exportToCsv($staff, $summary, $display);
             }
         }
 
@@ -196,14 +197,23 @@ class StaffController extends Controller
     /**
      * Export staff report to CSV
      */
-    private function exportToCsv($staff, $summary)
+    private function exportToCsv($staff, $summary, $display = false)
     {
         $filename = 'staff_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($staff, $summary) {
             $file = fopen('php://output', 'w');
@@ -239,7 +249,7 @@ class StaffController extends Controller
     /**
      * Export staff report to PDF
      */
-    private function exportToPdf($staff, $summary)
+    private function exportToPdf($staff, $summary, $display = false)
     {
         $html = view('reports.staff-pdf', [
             'staff' => $staff,
@@ -252,6 +262,6 @@ class StaffController extends Controller
         
         $filename = 'staff_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
-        return $pdf->download($filename);
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 } 

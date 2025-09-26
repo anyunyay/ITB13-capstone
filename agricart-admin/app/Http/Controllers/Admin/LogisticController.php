@@ -93,6 +93,7 @@ class LogisticController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
 
         $query = User::where('type', 'logistic');
 
@@ -116,9 +117,9 @@ class LogisticController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportToCsv($logistics, $summary);
+            return $this->exportToCsv($logistics, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($logistics, $summary);
+            return $this->exportToPdf($logistics, $summary, $display);
         }
 
         // Return view for display
@@ -132,14 +133,23 @@ class LogisticController extends Controller
         ]);
     }
 
-    private function exportToCsv($logistics, $summary)
+    private function exportToCsv($logistics, $summary, $display = false)
     {
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($logistics, $summary) {
             $file = fopen('php://output', 'w');
@@ -182,10 +192,10 @@ class LogisticController extends Controller
             fclose($file);
         };
 
-        return Response::stream($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($logistics, $summary)
+    private function exportToPdf($logistics, $summary, $display = false)
     {
         $html = view('reports.logistics-pdf', [
             'logistics' => $logistics,
@@ -197,6 +207,6 @@ class LogisticController extends Controller
         
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
-        return $pdf->download($filename);
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 }

@@ -136,6 +136,7 @@ class MembershipController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
 
         $query = User::where('type', 'member');
 
@@ -159,9 +160,9 @@ class MembershipController extends Controller
 
         // If export is requested
         if ($format === 'csv') {
-            return $this->exportToCsv($members, $summary);
+            return $this->exportToCsv($members, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($members, $summary);
+            return $this->exportToPdf($members, $summary, $display);
         }
 
         // Return view for display
@@ -175,14 +176,23 @@ class MembershipController extends Controller
         ]);
     }
 
-    private function exportToCsv($members, $summary)
+    private function exportToCsv($members, $summary, $display = false)
     {
         $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.csv';
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
+        if ($display) {
+            // For display mode, return as plain text to show in browser
+            $headers = [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            ];
+        } else {
+            // For download mode, return as CSV attachment
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+        }
 
         $callback = function() use ($members, $summary) {
             $file = fopen('php://output', 'w');
@@ -225,10 +235,10 @@ class MembershipController extends Controller
             fclose($file);
         };
 
-        return Response::stream($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($members, $summary)
+    private function exportToPdf($members, $summary, $display = false)
     {
         $html = view('reports.membership-pdf', [
             'members' => $members,
@@ -240,6 +250,6 @@ class MembershipController extends Controller
         
         $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
-        return $pdf->download($filename);
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 }
