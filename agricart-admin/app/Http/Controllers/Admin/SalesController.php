@@ -84,10 +84,12 @@ class SalesController extends Controller
         // Check if format is specified for export
         if ($request->filled('format')) {
             $display = $request->get('display', false);
+            $exportType = $request->get('export_type', 'sales'); // 'sales' or 'members'
+            
             if ($request->format === 'pdf') {
-                return $this->exportToPdf($sales, $memberSales, $request, $display);
+                return $this->exportToPdf($sales, $memberSales, $request, $display, $exportType);
             } elseif ($request->format === 'csv') {
-                return $this->exportCsv($sales, $memberSales, $request, $display);
+                return $this->exportCsv($sales, $memberSales, $request, $display, $exportType);
             }
         }
 
@@ -100,9 +102,10 @@ class SalesController extends Controller
         ]);
     }
 
-    private function exportCsv($sales, $memberSales, $request, $display = false)
+    private function exportCsv($sales, $memberSales, $request, $display = false, $exportType = 'sales')
     {
-        $filename = 'sales_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
+        $filename .= now()->format('Y-m-d_H-i-s') . '.csv';
         
         if ($display) {
             // For display mode, return as plain text to show in browser
@@ -118,29 +121,26 @@ class SalesController extends Controller
             ];
         }
 
-        $callback = function() use ($sales, $memberSales, $request) {
+        $callback = function() use ($sales, $memberSales, $request, $exportType) {
             $file = fopen('php://output', 'w');
             
-            // Sales data
-            fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
-            
-            foreach ($sales as $sale) {
-                fputcsv($file, [
-                    $sale->id,
-                    $sale->customer->name,
-                    $sale->customer->email,
-                    number_format($sale->total_amount, 2),
-                    $sale->created_at->format('Y-m-d H:i:s'),
-                    $sale->admin->name ?? 'N/A',
-                    $sale->logistic->name ?? 'N/A'
-                ]);
-            }
-            
-            fputcsv($file, ['']);
-            
-            // Member sales data
-            if ($memberSales->count() > 0) {
-                fputcsv($file, ['MEMBER SALES PERFORMANCE']);
+            if ($exportType === 'sales') {
+                // Sales data only
+                fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
+                
+                foreach ($sales as $sale) {
+                    fputcsv($file, [
+                        $sale->id,
+                        $sale->customer->name,
+                        $sale->customer->email,
+                        number_format($sale->total_amount, 2),
+                        $sale->created_at->format('Y-m-d H:i:s'),
+                        $sale->admin->name ?? 'N/A',
+                        $sale->logistic->name ?? 'N/A'
+                    ]);
+                }
+            } else {
+                // Member sales data only
                 fputcsv($file, ['Rank', 'Member Name', 'Member Email', 'Total Orders', 'Total Revenue', 'Quantity Sold', 'Average Revenue']);
                 
                 foreach ($memberSales as $index => $member) {
@@ -163,19 +163,21 @@ class SalesController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($sales, $memberSales, $request, $display = false)
+    private function exportToPdf($sales, $memberSales, $request, $display = false, $exportType = 'sales')
     {
+        $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
+        $filename .= date('Y-m-d_H-i-s') . '.pdf';
+        
         $html = view('reports.sales-pdf', [
             'sales' => $sales,
             'memberSales' => $memberSales,
+            'exportType' => $exportType,
             'generated_at' => now()->format('Y-m-d H:i:s'),
             'filters' => $request->only(['start_date', 'end_date']),
         ])->render();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
-        $filename = 'sales_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }

@@ -69,18 +69,21 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
     router.get(route('admin.sales.report'), Object.fromEntries(params));
   };
 
-  const exportReport = (format: 'csv' | 'pdf') => {
+  const exportReport = (format: 'csv' | 'pdf', exportType: 'sales' | 'members' = 'sales') => {
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     params.append('format', format);
+    params.append('export_type', exportType);
+    
+    const filename = exportType === 'members' ? 'member_sales_report' : 'sales_report';
     
     if (format === 'csv') {
       // For CSV: just download, no display
       const downloadUrl = `${route('admin.sales.report')}?${params.toString()}`;
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
-      downloadLink.download = `sales_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      downloadLink.download = `${filename}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -93,13 +96,14 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       displayParams.append('format', format);
+      displayParams.append('export_type', exportType);
       displayParams.append('display', 'true');
       const displayUrl = `${route('admin.sales.report')}?${displayParams.toString()}`;
       
       // Download the file
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
-      downloadLink.download = `sales_report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
+      downloadLink.download = `${filename}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -118,10 +122,10 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Sales Report</h1>
           <div className="flex gap-2">
-            <Button onClick={() => exportReport('csv')} variant="outline">
+            <Button onClick={() => exportReport('csv', 'sales')} variant="outline">
               Export CSV
             </Button>
-            <Button onClick={() => exportReport('pdf')} variant="outline">
+            <Button onClick={() => exportReport('pdf', 'sales')} variant="outline">
               Export PDF
             </Button>
           </div>
