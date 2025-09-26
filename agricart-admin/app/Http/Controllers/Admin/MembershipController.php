@@ -237,6 +237,7 @@ class MembershipController extends Controller
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
         
         $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
