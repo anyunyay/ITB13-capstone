@@ -24,6 +24,8 @@ These are the main access areas that staff members can be granted:
 These permissions allow staff to generate specific reports:
 - generate order report
 - generate logistics report
+- generate inventory report
+- generate sales report
 
 ### Delete Permissions (Advanced - Admin Approval Required)
 These permissions allow permanent deletion of records and require explicit admin approval:
@@ -44,6 +46,16 @@ These permissions are restricted to admin users only:
 - Related permissions are grouped into logical access categories
 - Reduces complexity while maintaining granular control over reports and deletions
 - Makes it easier to understand what access a staff member has
+
+### Default View Permissions
+When assigning create, edit, or delete permissions to staff members, the system automatically includes the corresponding view permissions:
+- **Create/Edit/Delete Products** → Automatically includes `view inventory`
+- **Archive/Unarchive Products** → Automatically includes `view archive`
+- **Create/Edit/Delete Stocks** → Automatically includes `view stocks`
+- **Create/Edit/Delete Orders** → Automatically includes `view orders`
+- **Create/Edit/Delete Logistics** → Automatically includes `view logistics`
+
+This ensures staff members always have the necessary view access to perform their assigned actions.
 
 ### Warning System
 When creating or editing staff members, delete permissions are displayed in a separate section with:

@@ -10,6 +10,17 @@ The staff management system allows administrators to create, edit, and manage st
 
 ## Features
 
+### Default View Permissions
+When creating or editing staff members, the system automatically includes the necessary view permissions when assigning create, edit, or delete permissions:
+
+- **Products**: Assigning `create products`, `edit products`, or `delete products` automatically includes `view inventory`
+- **Archive**: Assigning `archive products`, `unarchive products`, or `delete archived products` automatically includes `view archive`
+- **Stocks**: Assigning `create stocks`, `edit stocks`, or `delete stocks` automatically includes `view stocks`
+- **Orders**: Assigning `create orders`, `edit orders`, or `delete orders` automatically includes `view orders`
+- **Logistics**: Assigning `create logistics`, `edit logistics`, or `delete logistics` automatically includes `view logistics`
+
+This ensures staff members always have the necessary view access to perform their assigned actions without requiring manual selection of view permissions.
+
 ### 1. Staff List View
 - **Route**: `/admin/staff`
 - **Permission**: `view staffs`
@@ -63,6 +74,12 @@ Staff members can be assigned the following permissions:
 - `create logistics` - Create new logistics entries
 - `edit logistics` - Edit existing logistics
 
+### Report Generation
+- `generate order report` - Generate order reports
+- `generate logistics report` - Generate logistics reports
+- `generate inventory report` - Generate inventory reports
+- `generate sales report` - Generate sales reports
+
 ## Restricted Permissions
 
 The following permissions are **NOT** available to staff members:
@@ -78,6 +95,10 @@ The following permissions are **NOT** available to staff members:
 - `create members`
 - `edit members`
 - `delete members`
+- `generate membership report`
+
+### Staff Management Reports
+- `generate staff report`
 
 ### Delete Operations
 - `delete products`

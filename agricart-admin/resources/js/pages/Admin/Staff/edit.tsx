@@ -76,7 +76,9 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
   // Separate permissions for reports and deletions
   const reportPermissions = [
     'generate order report',
-    'generate logistics report'
+    'generate logistics report',
+    'generate inventory report',
+    'generate sales report'
   ];
 
   const deletePermissions = [

@@ -38,7 +38,8 @@ class StaffController extends Controller
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members'
+            'view membership', 'create members', 'edit members', 'delete members',
+            'generate staff report', 'generate membership report'
         ])->get();
 
         return Inertia::render('Admin/Staff/create', [
@@ -63,7 +64,6 @@ class StaffController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'password_change_required' => true, // Require password change
             'type' => 'staff',
             'email_verified_at' => now(), // Automatically verify email for staff
         ]);
@@ -72,9 +72,10 @@ class StaffController extends Controller
         $staffRole = Role::where('name', 'staff')->first();
         $user->assignRole($staffRole);
 
-        // Assign selected permissions
+        // Assign selected permissions with default view permissions
         if ($request->has('permissions')) {
-            $user->syncPermissions($request->permissions);
+            $permissions = $this->addDefaultViewPermissions($request->permissions);
+            $user->syncPermissions($permissions);
         }
 
         return redirect()->route('staff.index')
@@ -93,7 +94,8 @@ class StaffController extends Controller
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members'
+            'view membership', 'create members', 'edit members', 'delete members',
+            'generate staff report', 'generate membership report'
         ])->get();
 
         return Inertia::render('Admin/Staff/edit', [
@@ -130,9 +132,10 @@ class StaffController extends Controller
             ]);
         }
 
-        // Sync permissions
+        // Sync permissions with default view permissions
         if ($request->has('permissions')) {
-            $staff->syncPermissions($request->permissions);
+            $permissions = $this->addDefaultViewPermissions($request->permissions);
+            $staff->syncPermissions($permissions);
         } else {
             $staff->syncPermissions([]);
         }
@@ -263,5 +266,42 @@ class StaffController extends Controller
         $filename = 'staff_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Add default view permissions when create/edit/delete permissions are assigned
+     */
+    private function addDefaultViewPermissions(array $permissions): array
+    {
+        $permissionMappings = [
+            'create products' => 'view inventory',
+            'edit products' => 'view inventory',
+            'delete products' => 'view inventory',
+            'archive products' => 'view archive',
+            'unarchive products' => 'view archive',
+            'delete archived products' => 'view archive',
+            'create stocks' => 'view stocks',
+            'edit stocks' => 'view stocks',
+            'delete stocks' => 'view stocks',
+            'create orders' => 'view orders',
+            'edit orders' => 'view orders',
+            'delete orders' => 'view orders',
+            'create logistics' => 'view logistics',
+            'edit logistics' => 'view logistics',
+            'delete logistics' => 'view logistics',
+        ];
+
+        $finalPermissions = $permissions;
+
+        foreach ($permissions as $permission) {
+            if (isset($permissionMappings[$permission])) {
+                $viewPermission = $permissionMappings[$permission];
+                if (!in_array($viewPermission, $finalPermissions)) {
+                    $finalPermissions[] = $viewPermission;
+                }
+            }
+        }
+
+        return array_unique($finalPermissions);
     }
 } 
