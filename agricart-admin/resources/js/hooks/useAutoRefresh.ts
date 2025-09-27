@@ -13,7 +13,7 @@ interface UseAutoRefreshOptions {
 
 export function useAutoRefresh(options: UseAutoRefreshOptions = {}) {
   const {
-    interval = 120000, // 2 minutes default
+    interval = 60000, // 1 minute default
     enabled = true,
     refreshOnFocus = true,
     refreshOnVisibilityChange = true,

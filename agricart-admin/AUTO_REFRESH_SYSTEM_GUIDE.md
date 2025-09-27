@@ -7,12 +7,12 @@ The Agricart Admin system now includes a comprehensive auto-refresh system that 
 ## Features
 
 ### 1. Notification-Based Auto-Refresh
-- **Automatic Detection**: The system polls for new notifications every 10 seconds
-- **Smart Refresh**: When new notifications are detected, the page automatically refreshes
+- **Ultra-Fast Detection**: The system polls for new notifications every 3 seconds
+- **Instant Response**: When new notifications are detected, the page automatically refreshes within 3-5 seconds
 - **Targeted Updates**: Only refreshes notification data to minimize disruption
 
 ### 2. General Auto-Refresh
-- **Periodic Refresh**: Performs general page refresh every 2 minutes
+- **Rapid Updates**: Performs general page refresh every 1 minute
 - **Background Updates**: Keeps data fresh even when no notifications are present
 - **Configurable Intervals**: Refresh intervals can be customized per component
 
@@ -64,11 +64,11 @@ The Agricart Admin system now includes a comprehensive auto-refresh system that 
 ```typescript
 interface RefreshOptions {
   // Notification polling
-  notificationInterval?: number; // Default: 10000ms (10 seconds)
+  notificationInterval?: number; // Default: 3000ms (3 seconds)
   autoRefreshOnNewNotifications?: boolean; // Default: true
   
   // General refresh
-  generalRefreshInterval?: number; // Default: 120000ms (2 minutes)
+  generalRefreshInterval?: number; // Default: 60000ms (1 minute)
   enableGeneralRefresh?: boolean; // Default: true
   
   // Window events
@@ -107,8 +107,8 @@ To customize refresh behavior, modify the options in `AppShell` component:
 <RefreshProvider 
   initialNotifications={notifications}
   options={{
-    notificationInterval: 5000, // 5 seconds
-    generalRefreshInterval: 60000, // 1 minute
+    notificationInterval: 2000, // 2 seconds (ultra-fast)
+    generalRefreshInterval: 30000, // 30 seconds (very fast)
     enableGeneralRefresh: false, // Disable general refresh
   }}
 >
@@ -118,10 +118,13 @@ To customize refresh behavior, modify the options in `AppShell` component:
 
 ## Performance Considerations
 
-### 1. Optimized Polling
+### 1. Ultra-Fast Polling
 - **Lightweight Requests**: API endpoint returns only essential data
 - **Efficient Updates**: Only refreshes specific data when possible
 - **Smart Detection**: Avoids unnecessary refreshes
+- **Request Debouncing**: Prevents excessive API calls (max 1 request per 2 seconds)
+- **Response Caching**: 2-second cache to handle high-frequency requests
+- **Rate Limiting**: 60 requests per minute to prevent abuse
 
 ### 2. User Experience
 - **Preserve State**: Maintains user's current state during refresh

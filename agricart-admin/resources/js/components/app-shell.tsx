@@ -17,9 +17,9 @@ export function AppShell({ children, variant = 'header' }: AppShellProps) {
         <RefreshProvider 
             initialNotifications={notifications}
             options={{
-                notificationInterval: 10000, // Check for notifications every 10 seconds
+                notificationInterval: 3000, // Check for notifications every 3 seconds
                 autoRefreshOnNewNotifications: true, // Automatically refresh page when new notifications are detected
-                generalRefreshInterval: 120000, // General refresh every 2 minutes
+                generalRefreshInterval: 60000, // General refresh every 1 minute
                 enableGeneralRefresh: true, // Enable general auto-refresh
                 refreshOnFocus: true, // Refresh when window gains focus
                 refreshOnVisibilityChange: true, // Refresh when page becomes visible

@@ -36,11 +36,11 @@ export function useSmartRefresh(
 ) {
   const {
     // Notification polling
-    notificationInterval = 10000, // 10 seconds
+    notificationInterval = 3000, // 3 seconds
     autoRefreshOnNewNotifications = true,
     
     // General refresh
-    generalRefreshInterval = 120000, // 2 minutes
+    generalRefreshInterval = 60000, // 1 minute
     enableGeneralRefresh = true,
     
     // Window events
@@ -63,10 +63,18 @@ export function useSmartRefresh(
   const generalIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isPollingRef = useRef(false);
   const isRefreshingRef = useRef(false);
+  const lastRequestTimeRef = useRef(0);
 
   // Function to fetch latest notifications
   const fetchNotifications = async () => {
     if (isPollingRef.current) return;
+    
+    // Debounce requests - don't make requests more than once every 2 seconds
+    const now = Date.now();
+    if (now - lastRequestTimeRef.current < 2000) {
+      return;
+    }
+    lastRequestTimeRef.current = now;
     
     try {
       isPollingRef.current = true;
@@ -121,7 +129,6 @@ export function useSmartRefresh(
       
       router.reload({
         only,
-        preserveScroll,
       });
     } catch (error) {
       console.error('Error during refresh:', error);
