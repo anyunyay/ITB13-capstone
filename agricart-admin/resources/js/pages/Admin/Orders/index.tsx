@@ -8,11 +8,6 @@ import { format } from 'date-fns';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
-import { useSubsystemRefresh } from '@/hooks/useSubsystemRefresh';
-import { useMemo, useState } from 'react';
-import { LoadingOverlay } from '@/components/LoadingOverlay';
-import { SkeletonTable } from '@/components/SkeletonLoader';
-import { SmoothTransition, FadeIn } from '@/components/SmoothTransition';
 
 interface Order {
   id: number;
@@ -56,34 +51,6 @@ interface OrdersPageProps {
 }
 
 export default function OrdersIndex({ orders, allOrders, currentStatus }: OrdersPageProps) {
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  // Memoize the initial data to prevent infinite loops
-  const initialData = useMemo(() => ({
-    orders: { data: orders }
-  }), [orders]);
-
-  // Memoize the options to prevent infinite loops
-  const options = useMemo(() => ({
-    checkInterval: 5000, // Check for changes every 5 seconds
-    refreshInterval: 60000, // General refresh every 1 minute
-    enableChangeDetection: true,
-    enablePeriodicRefresh: true,
-    refreshOnFocus: true,
-    refreshOnVisibilityChange: true,
-    only: ['orders'], // Only refresh orders data
-  }), []);
-
-  // Enable subsystem refresh for orders
-  useSubsystemRefresh(initialData, options);
-
-  // Handle initial load
-  useMemo(() => {
-    if (orders && orders.length > 0) {
-      setTimeout(() => setIsInitialLoad(false), 500);
-    }
-  }, [orders]);
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -121,130 +88,96 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
       permissions={['view orders', 'create orders', 'edit orders', 'generate order report']}
       pageTitle="Order Management Access Denied"
     >
-      <LoadingOverlay 
-        isLoading={isInitialLoad} 
-        message="Loading orders..." 
-        excludeSidebar={true}
-      />
-      
       <AppSidebarLayout>
         <Head title="Order Management" />
         <div className="p-6">
-        <FadeIn delay={100}>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Order Management</h1>
-            <PermissionGate permission="generate order report">
-              <Link href={route('admin.orders.report')}>
-                <Button variant="outline">
-                  Generate Report
-                </Button>
-              </Link>
-            </PermissionGate>
-          </div>
-        </FadeIn>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">Order Management</h1>
+          <PermissionGate permission="generate order report">
+            <Link href={route('admin.orders.report')}>
+              <Button variant="outline">
+                Generate Report
+              </Button>
+            </Link>
+          </PermissionGate>
+        </div>
 
-        <SmoothTransition delay={200}>
-          <Tabs defaultValue={currentStatus} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all" onClick={() => router.get(route('admin.orders.index'), { status: 'all' })}>
-                All Orders ({allOrders.length})
-              </TabsTrigger>
-              <TabsTrigger value="pending" onClick={() => router.get(route('admin.orders.index'), { status: 'pending' })}>
-                Pending ({pendingOrders.length})
-              </TabsTrigger>
-              <TabsTrigger value="approved" onClick={() => router.get(route('admin.orders.index'), { status: 'approved' })}>
-                Approved ({approvedOrders.length})
-              </TabsTrigger>
-              <TabsTrigger value="rejected" onClick={() => router.get(route('admin.orders.index'), { status: 'rejected' })}>
-                Rejected ({rejectedOrders.length})
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue={currentStatus} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all" onClick={() => router.get(route('admin.orders.index'), { status: 'all' })}>
+              All Orders ({allOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="pending" onClick={() => router.get(route('admin.orders.index'), { status: 'pending' })}>
+              Pending ({pendingOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="approved" onClick={() => router.get(route('admin.orders.index'), { status: 'approved' })}>
+              Approved ({approvedOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="rejected" onClick={() => router.get(route('admin.orders.index'), { status: 'rejected' })}>
+              Rejected ({rejectedOrders.length})
+            </TabsTrigger>
+          </TabsList>
 
           <TabsContent value="all" className="mt-6">
             <div className="grid gap-4">
-              {isInitialLoad ? (
-                <SkeletonTable rows={5} columns={4} />
-              ) : (
-                <>
-                  {orders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                  ))}
-                  {orders.length === 0 && (
-                    <Card>
-                      <CardContent className="p-6 text-center text-muted-foreground">
-                        No orders found.
-                      </CardContent>
-                    </Card>
-                  )}
-                </>
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+              {orders.length === 0 && (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No orders found.
+                  </CardContent>
+                </Card>
               )}
             </div>
           </TabsContent>
 
           <TabsContent value="pending" className="mt-6">
             <div className="grid gap-4">
-              {isInitialLoad ? (
-                <SkeletonTable rows={3} columns={4} />
-              ) : (
-                <>
-                  {orders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                  ))}
-                  {orders.length === 0 && (
-                    <Card>
-                      <CardContent className="p-6 text-center text-muted-foreground">
-                        No pending orders.
-                      </CardContent>
-                    </Card>
-                  )}
-                </>
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+              {orders.length === 0 && (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No pending orders.
+                  </CardContent>
+                </Card>
               )}
             </div>
           </TabsContent>
 
           <TabsContent value="approved" className="mt-6">
             <div className="grid gap-4">
-              {isInitialLoad ? (
-                <SkeletonTable rows={4} columns={4} />
-              ) : (
-                <>
-                  {orders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                  ))}
-                  {orders.length === 0 && (
-                    <Card>
-                      <CardContent className="p-6 text-center text-muted-foreground">
-                        No approved orders.
-                      </CardContent>
-                    </Card>
-                  )}
-                </>
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+              {orders.length === 0 && (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No approved orders.
+                  </CardContent>
+                </Card>
               )}
             </div>
           </TabsContent>
 
           <TabsContent value="rejected" className="mt-6">
             <div className="grid gap-4">
-              {isInitialLoad ? (
-                <SkeletonTable rows={2} columns={4} />
-              ) : (
-                <>
-                  {orders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                  ))}
-                  {orders.length === 0 && (
-                    <Card>
-                      <CardContent className="p-6 text-center text-muted-foreground">
-                        No rejected orders.
-                      </CardContent>
-                    </Card>
-                  )}
-                </>
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+              {orders.length === 0 && (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No rejected orders.
+                  </CardContent>
+                </Card>
               )}
             </div>
           </TabsContent>
         </Tabs>
-        </SmoothTransition>
       </div>
     </AppSidebarLayout>
     </PermissionGuard>

@@ -35,7 +35,6 @@ export function useNotificationPolling(
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isPollingRef = useRef(false);
   const lastRequestTimeRef = useRef(0);
-  const previousNotificationsRef = useRef<Notification[]>(initialNotifications);
 
   // Function to fetch latest notifications
   const fetchNotifications = async () => {
@@ -130,15 +129,11 @@ export function useNotificationPolling(
     };
   }, [enabled, interval]);
 
-  // Update notifications when initialNotifications change (with ref comparison to prevent infinite loops)
+  // Update notifications when initialNotifications change
   useEffect(() => {
-    const notificationsChanged = JSON.stringify(initialNotifications) !== JSON.stringify(previousNotificationsRef.current);
-    if (notificationsChanged) {
-      setNotifications(initialNotifications);
-      setLastNotificationCount(initialNotifications.length);
-      setLastUnreadCount(initialNotifications.filter(n => !n.read_at).length);
-      previousNotificationsRef.current = initialNotifications;
-    }
+    setNotifications(initialNotifications);
+    setLastNotificationCount(initialNotifications.length);
+    setLastUnreadCount(initialNotifications.filter(n => !n.read_at).length);
   }, [initialNotifications]);
 
   return {
