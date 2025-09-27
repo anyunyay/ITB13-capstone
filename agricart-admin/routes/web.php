@@ -19,6 +19,7 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Member\MemberController;
+use App\Http\Controllers\Api\NotificationController as ApiNotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
 // Authenticated routes
 Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
+    // API routes for notifications
+    Route::get('/api/notifications/latest', [ApiNotificationController::class, 'getLatest'])->name('api.notifications.latest');
+    
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
         // Dashboard routes

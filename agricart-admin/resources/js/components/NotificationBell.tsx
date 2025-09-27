@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useRefresh } from '@/contexts/RefreshContext';
 
 interface Notification {
   id: string;
@@ -29,11 +30,14 @@ interface NotificationBellProps {
 
 export function NotificationBell({ notifications, userType }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
+  
+  // Use the refresh context
+  const { notifications: polledNotifications } = useRefresh();
 
   useEffect(() => {
-    const unread = notifications.filter(n => !n.read_at).length;
+    const unread = polledNotifications.filter(n => !n.read_at).length;
     setUnreadCount(unread);
-  }, [notifications]);
+  }, [polledNotifications]);
 
   const handleNotificationClick = (notification: Notification) => {
     try {
@@ -202,13 +206,13 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
         </div>
         <DropdownMenuSeparator />
         
-        {notifications.length === 0 ? (
+        {polledNotifications.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
             No notifications
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">
-            {notifications.slice(0, 10).map((notification) => (
+            {polledNotifications.slice(0, 10).map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
                 className={`p-3 cursor-pointer ${!notification.read_at ? 'bg-blue-50' : ''}`}
@@ -248,7 +252,7 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
           </div>
         )}
         
-        {notifications.length > 10 && (
+        {polledNotifications.length > 10 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
