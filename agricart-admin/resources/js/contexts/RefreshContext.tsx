@@ -19,6 +19,8 @@ interface RefreshContextType {
   stopAll: () => void;
   isPolling: boolean;
   isGeneralRefreshing: boolean;
+  isLoading: boolean;
+  loadingMessage: string;
 }
 
 const RefreshContext = createContext<RefreshContextType | undefined>(undefined);

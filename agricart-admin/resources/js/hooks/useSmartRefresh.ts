@@ -64,6 +64,8 @@ export function useSmartRefresh(
   const isPollingRef = useRef(false);
   const isRefreshingRef = useRef(false);
   const lastRequestTimeRef = useRef(0);
+  const lastRefreshTimeRef = useRef(0);
+  const previousNotificationsRef = useRef<Notification[]>(initialNotifications);
 
   // Function to fetch latest notifications
   const fetchNotifications = async () => {
@@ -122,6 +124,14 @@ export function useSmartRefresh(
   // Function to perform refresh
   const performRefresh = () => {
     if (isRefreshingRef.current) return;
+    
+    // Add cooldown period to prevent excessive refreshes (minimum 10 seconds between refreshes)
+    const now = Date.now();
+    if (now - lastRefreshTimeRef.current < 10000) {
+      console.log('Refresh cooldown active, skipping refresh...');
+      return;
+    }
+    lastRefreshTimeRef.current = now;
     
     try {
       isRefreshingRef.current = true;
@@ -217,11 +227,15 @@ export function useSmartRefresh(
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [refreshOnVisibilityChange]);
 
-  // Update notifications when initialNotifications change
+  // Update notifications when initialNotifications change (with ref comparison to prevent infinite loops)
   useEffect(() => {
-    setNotifications(initialNotifications);
-    setLastNotificationCount(initialNotifications.length);
-    setLastUnreadCount(initialNotifications.filter(n => !n.read_at).length);
+    const notificationsChanged = JSON.stringify(initialNotifications) !== JSON.stringify(previousNotificationsRef.current);
+    if (notificationsChanged) {
+      setNotifications(initialNotifications);
+      setLastNotificationCount(initialNotifications.length);
+      setLastUnreadCount(initialNotifications.filter(n => !n.read_at).length);
+      previousNotificationsRef.current = initialNotifications;
+    }
   }, [initialNotifications]);
 
   return {
@@ -232,5 +246,7 @@ export function useSmartRefresh(
     stopAll,
     isPolling: notificationIntervalRef.current !== null,
     isGeneralRefreshing: generalIntervalRef.current !== null,
+    isLoading: isRefreshingRef.current,
+    loadingMessage: 'Refreshing data...',
   };
 }

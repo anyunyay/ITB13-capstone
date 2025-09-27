@@ -11,6 +11,11 @@ import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Calendar, DollarSign, ShoppingCart, Users, TrendingUp } from 'lucide-react';
+import { useSubsystemRefresh } from '@/hooks/useSubsystemRefresh';
+import { useMemo, useState } from 'react';
+import { LoadingOverlay } from '@/components/LoadingOverlay';
+import { SkeletonCard, SkeletonTable } from '@/components/SkeletonLoader';
+import { SmoothTransition, FadeIn } from '@/components/SmoothTransition';
 
 interface Sale {
   id: number;
@@ -54,39 +59,75 @@ interface SalesPageProps {
 
 export default function SalesIndex({ sales, summary, memberSales, filters }: SalesPageProps) {
   const { can } = usePermissions();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Memoize the initial data to prevent infinite loops
+  const initialData = useMemo(() => ({
+    sales: { data: sales, summary }
+  }), [sales, summary]);
+
+  // Memoize the options to prevent infinite loops
+  const options = useMemo(() => ({
+    checkInterval: 5000, // Check for changes every 5 seconds
+    refreshInterval: 60000, // General refresh every 1 minute
+    enableChangeDetection: true,
+    enablePeriodicRefresh: true,
+    refreshOnFocus: true,
+    refreshOnVisibilityChange: true,
+    only: ['sales'], // Only refresh sales data
+  }), []);
+
+  // Enable subsystem refresh for sales
+  useSubsystemRefresh(initialData, options);
+
+  // Handle initial load
+  useMemo(() => {
+    if (sales && sales.length > 0) {
+      setTimeout(() => setIsInitialLoad(false), 500);
+    }
+  }, [sales]);
 
   return (
     <PermissionGuard 
       permissions={['view sales', 'generate sales report']}
       pageTitle="Sales Management Access Denied"
     >
+      <LoadingOverlay 
+        isLoading={isInitialLoad} 
+        message="Loading sales data..." 
+        excludeSidebar={true}
+      />
+      
       <AppLayout>
         <Head title="Sales Management" />
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">Sales Management</h1>
+          <FadeIn delay={100}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold">Sales Management</h1>
+              </div>
+              <div className="flex gap-2">
+                <PermissionGate permission="view sales">
+                  <Link href={route('admin.sales.memberSales')}>
+                    <Button variant="outline">
+                      Member Sales
+                    </Button>
+                  </Link>
+                </PermissionGate>
+                               <PermissionGate permission="generate sales report">
+                   <Link href={route('admin.sales.report')}>
+                     <Button variant="outline">
+                       View Report
+                     </Button>
+                   </Link>
+                 </PermissionGate>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <PermissionGate permission="view sales">
-                <Link href={route('admin.sales.memberSales')}>
-                  <Button variant="outline">
-                    Member Sales
-                  </Button>
-                </Link>
-              </PermissionGate>
-                             <PermissionGate permission="generate sales report">
-                 <Link href={route('admin.sales.report')}>
-                   <Button variant="outline">
-                     View Report
-                   </Button>
-                 </Link>
-               </PermissionGate>
-            </div>
-          </div>
+          </FadeIn>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <SmoothTransition delay={200}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -138,7 +179,8 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                 </p>
               </CardContent>
             </Card>
-          </div>
+            </div>
+          </SmoothTransition>
 
           <Tabs defaultValue="sales" className="w-full">
             <TabsList className="grid w-full grid-cols-2">

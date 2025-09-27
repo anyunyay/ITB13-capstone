@@ -20,6 +20,7 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\Api\NotificationController as ApiNotificationController;
+use App\Http\Controllers\Api\SubsystemController as ApiSubsystemController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,6 +41,11 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     Route::get('/api/notifications/latest', [ApiNotificationController::class, 'getLatest'])
         ->middleware('throttle:60,1') // Allow 60 requests per minute
         ->name('api.notifications.latest');
+    
+    // API routes for subsystem change detection
+    Route::post('/api/subsystem/changes', [ApiSubsystemController::class, 'checkChanges'])
+        ->middleware('throttle:30,1') // Allow 30 requests per minute
+        ->name('api.subsystem.changes');
     
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
