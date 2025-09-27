@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Notifications\VerifyEmailNotification;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -38,6 +39,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'document',
         // Type/role discriminator (optional, for user type distinction)
         'type',
+        // Session management
+        'current_session_id',
     ];
 
     /**
@@ -163,5 +166,59 @@ class User extends Authenticatable implements MustVerifyEmail
         } elseif ($this->type === 'member' && !$this->can('access member features')) {
             $this->givePermissionTo('access member features');
         }
+    }
+
+    /**
+     * Invalidate all other sessions for this user except the current one
+     */
+    public function invalidateOtherSessions($currentSessionId)
+    {
+        // Update the user's current session ID
+        $this->update(['current_session_id' => $currentSessionId]);
+
+        // Delete all other sessions for this user from the sessions table
+        DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->where('id', '!=', $currentSessionId)
+            ->delete();
+    }
+
+    /**
+     * Check if the current session is valid for this user
+     */
+    public function isCurrentSession($sessionId)
+    {
+        return $this->current_session_id === $sessionId;
+    }
+
+    /**
+     * Clear the current session ID when user logs out
+     */
+    public function clearCurrentSession()
+    {
+        $this->update(['current_session_id' => null]);
+    }
+
+    /**
+     * Check if user has an active session
+     */
+    public function hasActiveSession()
+    {
+        return !is_null($this->current_session_id);
+    }
+
+    /**
+     * Check if the current session is still valid (exists in sessions table)
+     */
+    public function isSessionValid()
+    {
+        if (!$this->hasActiveSession()) {
+            return false;
+        }
+
+        return DB::table('sessions')
+            ->where('id', $this->current_session_id)
+            ->where('user_id', $this->id)
+            ->exists();
     }
 } 

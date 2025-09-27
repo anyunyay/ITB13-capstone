@@ -76,6 +76,15 @@ public function store(LoginRequest $request): RedirectResponse
             return back()->withErrors(['email' => 'Access denied. Customer credentials required.']);
         }
 
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active
+        $user->invalidateOtherSessions($request->session()->getId());
+
         return redirect()->intended(route('home', absolute: false));
     }
 
@@ -97,6 +106,15 @@ public function store(LoginRequest $request): RedirectResponse
             Auth::guard('web')->logout();
             return back()->withErrors(['email' => 'Access denied. Admin credentials required.']);
         }
+
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active
+        $user->invalidateOtherSessions($request->session()->getId());
 
         return redirect()->intended(route('admin.dashboard', absolute: false));
     }
@@ -120,6 +138,15 @@ public function store(LoginRequest $request): RedirectResponse
             return back()->withErrors(['email' => 'Access denied. Member credentials required.']);
         }
 
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active
+        $user->invalidateOtherSessions($request->session()->getId());
+
         return redirect()->intended(route('member.dashboard', absolute: false));
     }
 
@@ -142,6 +169,15 @@ public function store(LoginRequest $request): RedirectResponse
             return back()->withErrors(['email' => 'Access denied. Logistics credentials required.']);
         }
 
+        // Check if user already has an active session
+        if ($user->hasActiveSession() && $user->isSessionValid()) {
+            // User already has an active session, redirect to restriction page
+            return redirect()->route('single-session.restricted');
+        }
+
+        // Set current session as active
+        $user->invalidateOtherSessions($request->session()->getId());
+
         return redirect()->intended(route('logistic.dashboard', absolute: false));
     }
 
@@ -150,6 +186,13 @@ public function store(LoginRequest $request): RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        
+        // Clear the current session ID from the user record
+        if ($user) {
+            $user->clearCurrentSession();
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

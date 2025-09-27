@@ -19,6 +19,7 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Member\MemberController;
+use App\Http\Controllers\SingleSessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -31,6 +32,12 @@ Route::get('/customer/product/{product}', [HomeController::class, 'product'])->n
 Route::middleware(['auth'])->group(function () {
     Route::get('/password/change', [\App\Http\Controllers\PasswordChangeController::class, 'show'])->name('password.change');
     Route::post('/password/change', [\App\Http\Controllers\PasswordChangeController::class, 'store'])->name('password.change.store');
+});
+
+// Single session routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/single-session/restricted', [SingleSessionController::class, 'showRestricted'])->name('single-session.restricted');
+    Route::post('/single-session/logout', [SingleSessionController::class, 'forceLogoutAndLogin'])->name('single-session.logout');
 });
 
 // Authenticated routes
