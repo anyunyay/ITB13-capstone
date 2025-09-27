@@ -19,15 +19,6 @@ class NotificationController extends Controller
             return response()->json(['notifications' => []]);
         }
 
-        // Add caching for better performance with frequent requests
-        $cacheKey = "notifications_latest_{$user->id}";
-        $cached = cache()->get($cacheKey);
-        
-        // Return cached data if it's less than 2 seconds old
-        if ($cached && $cached['timestamp'] > now()->subSeconds(2)->timestamp) {
-            return response()->json($cached['data']);
-        }
-
         $notificationTypes = [];
         
         switch ($user->type) {
@@ -82,21 +73,10 @@ class NotificationController extends Controller
                 });
         }
 
-        $responseData = [
+        return response()->json([
             'notifications' => $notifications,
             'unread_count' => $notifications->where('read_at', null)->count(),
             'total_count' => $notifications->count(),
-        ];
-
-        // Cache the response for 2 seconds to handle frequent requests
-        cache()->put($cacheKey, [
-            'data' => $responseData,
-            'timestamp' => now()->timestamp
-        ], 2);
-
-        return response()->json($responseData)
-            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
+        ]);
     }
 }

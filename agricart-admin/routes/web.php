@@ -37,9 +37,7 @@ Route::middleware(['auth'])->group(function () {
 // Authenticated routes
 Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
     // API routes for notifications
-    Route::get('/api/notifications/latest', [ApiNotificationController::class, 'getLatest'])
-        ->middleware('throttle:60,1') // Allow 60 requests per minute
-        ->name('api.notifications.latest');
+    Route::get('/api/notifications/latest', [ApiNotificationController::class, 'getLatest'])->name('api.notifications.latest');
     
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
