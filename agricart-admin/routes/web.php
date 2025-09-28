@@ -1,6 +1,7 @@
 <?php
 
 // Admin Controllers
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryArchiveController;
 use App\Http\Controllers\Admin\InventoryStockController;
@@ -48,7 +49,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     // Admin || Staff routes
     Route::prefix('/admin')->group(function () {
         // Dashboard routes
-        Route::get('/dashboard', fn() => Inertia::render('Admin/dashboard'))->name('admin.dashboard'); // Admin Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard'); // Admin Dashboard
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {

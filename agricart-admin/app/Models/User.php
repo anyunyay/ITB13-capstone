@@ -98,12 +98,24 @@ class User extends Authenticatable implements MustVerifyEmail
     // Member relationships
     public function stocks()
     {
-        return $this->hasMany(Stock::class);
+        return $this->hasMany(Stock::class, 'member_id');
     }
 
     public function removedStocks()
     {
-        return $this->hasMany(Stock::class)->removed();
+        return $this->hasMany(Stock::class, 'member_id')->removed();
+    }
+
+    // Logistic relationships
+    public function assignedOrders()
+    {
+        return $this->hasMany(Sales::class, 'logistic_id');
+    }
+
+    // Member earnings relationship
+    public function memberEarnings()
+    {
+        return $this->hasOne(MemberEarnings::class, 'member_id');
     }
 
     /**
