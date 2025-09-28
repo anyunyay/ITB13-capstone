@@ -6,14 +6,30 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { ChevronsUpDown } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export function NavUser() {
-    const { auth } = usePage<SharedData>().props;
+    const page = usePage<SharedData & { notifications?: Array<any> }>();
+    const { auth, notifications = [] } = page.props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
 
+    // Check if user is admin or staff
+    const isAdminOrStaff = auth.user?.type === 'admin' || auth.user?.type === 'staff';
+
     return (
         <SidebarMenu>
+            {/* Add notification bell for admin/staff users */}
+            {isAdminOrStaff && (
+                <SidebarMenuItem>
+                    <div className="flex items-center justify-center">
+                        <NotificationBell 
+                            notifications={notifications}
+                            userType={auth.user?.type || 'admin'}
+                        />
+                    </div>
+                </SidebarMenuItem>
+            )}
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { LogisticLayout } from '@/layouts/logistic-layout';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { NotificationPage } from '@/components/NotificationPage';
 
 interface Notification {
@@ -18,9 +18,9 @@ interface NotificationsPageProps {
 
 export default function NotificationsPage({ notifications }: NotificationsPageProps) {
   return (
-    <LogisticLayout>
+    <AppSidebarLayout>
       <Head title="Notifications" />
       <NotificationPage notifications={notifications} userType="logistic" />
-    </LogisticLayout>
+    </AppSidebarLayout>
   );
 }

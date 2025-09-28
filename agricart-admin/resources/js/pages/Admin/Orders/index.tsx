@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useEffect } from 'react';
 
 interface Order {
   id: number;
@@ -16,7 +17,7 @@ interface Order {
     email: string;
   };
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
@@ -37,6 +38,7 @@ interface Order {
     category: string;
     quantity: number;
   }>;
+  is_urgent?: boolean;
 }
 
 interface OrdersPageProps {
@@ -48,9 +50,31 @@ interface OrdersPageProps {
     name: string;
     contact_number?: string;
   }>;
+  highlightOrderId?: string;
+  urgentOrders?: Order[];
+  showUrgentApproval?: boolean;
 }
 
-export default function OrdersIndex({ orders, allOrders, currentStatus }: OrdersPageProps) {
+export default function OrdersIndex({ orders, allOrders, currentStatus, highlightOrderId, urgentOrders = [], showUrgentApproval = false }: OrdersPageProps) {
+  // Ensure urgentOrders is always an array
+  const safeUrgentOrders = Array.isArray(urgentOrders) ? urgentOrders : [];
+
+  // Handle highlighting effect when coming from notification
+  useEffect(() => {
+    if (highlightOrderId) {
+      // Add a temporary highlight effect
+      const timer = setTimeout(() => {
+        // Remove highlight after 3 seconds
+        const url = new URL(window.location.href);
+        url.searchParams.delete('highlight_order');
+        window.history.replaceState({}, '', url.toString());
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlightOrderId]);
+
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -59,6 +83,8 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'expired':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -121,7 +147,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
           <TabsContent value="all" className="mt-6">
             <div className="grid gap-4">
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  highlight={highlightOrderId === order.id.toString()}
+                  isUrgent={safeUrgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
+                />
               ))}
               {orders.length === 0 && (
                 <Card>
@@ -136,7 +167,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
           <TabsContent value="pending" className="mt-6">
             <div className="grid gap-4">
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  highlight={highlightOrderId === order.id.toString()}
+                  isUrgent={safeUrgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
+                />
               ))}
               {orders.length === 0 && (
                 <Card>
@@ -151,7 +187,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
           <TabsContent value="approved" className="mt-6">
             <div className="grid gap-4">
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  highlight={highlightOrderId === order.id.toString()}
+                  isUrgent={safeUrgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
+                />
               ))}
               {orders.length === 0 && (
                 <Card>
@@ -166,7 +207,12 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
           <TabsContent value="rejected" className="mt-6">
             <div className="grid gap-4">
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  highlight={highlightOrderId === order.id.toString()}
+                  isUrgent={safeUrgentOrders.some(urgent => urgent.id === order.id) || order.is_urgent}
+                />
               ))}
               {orders.length === 0 && (
                 <Card>
@@ -184,7 +230,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus }: Orders
   );
 }
 
-function OrderCard({ order }: { order: Order }) {
+function OrderCard({ order, highlight = false, isUrgent = false }: { order: Order; highlight?: boolean; isUrgent?: boolean }) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -193,6 +239,8 @@ function OrderCard({ order }: { order: Order }) {
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'expired':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -212,7 +260,10 @@ function OrderCard({ order }: { order: Order }) {
   };
 
   return (
-    <Card>
+    <Card className={`transition-all duration-1000 ${
+      highlight ? 'border-2 border-blue-500 shadow-lg' : 
+      isUrgent ? 'border-2 border-orange-500 shadow-lg' : ''
+    }`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -223,13 +274,59 @@ function OrderCard({ order }: { order: Order }) {
           </div>
           <div className="flex items-center gap-2">
             {getStatusBadge(order.status)}
-            <PermissionGate permission="view orders">
-              <Link href={route('admin.orders.show', order.id)}>
-                <Button variant="outline" size="sm">
-                  View Details
-                </Button>
-              </Link>
-            </PermissionGate>
+            {isUrgent && (
+              <Badge variant="destructive" className="animate-pulse">
+                {order.is_urgent ? 'Urgent (Manual)' : 'Urgent'}
+              </Badge>
+            )}
+            <div className="flex gap-2">
+              <PermissionGate permission="view orders">
+                <Link href={route('admin.orders.show', order.id)}>
+                  <Button variant="outline" size="sm">
+                    View Details
+                  </Button>
+                </Link>
+              </PermissionGate>
+              {order.status === 'pending' && (
+                <PermissionGate permission="edit orders">
+                  {order.is_urgent ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        console.log('Remove urgent clicked for order:', order.id);
+                        console.log('Route:', route('admin.orders.unmarkUrgent', order.id));
+                        router.post(`/admin/orders/${order.id}/unmark-urgent`, {}, {
+                          preserveState: true,
+                          preserveScroll: true,
+                          onSuccess: () => console.log('Remove urgent success'),
+                          onError: (errors) => console.error('Remove urgent error:', errors),
+                        });
+                      }}
+                    >
+                      Remove Urgent
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        console.log('Mark urgent clicked for order:', order.id);
+                        console.log('Route:', route('admin.orders.markUrgent', order.id));
+                        router.post(`/admin/orders/${order.id}/mark-urgent`, {}, {
+                          preserveState: true,
+                          preserveScroll: true,
+                          onSuccess: () => console.log('Mark urgent success'),
+                          onError: (errors) => console.error('Mark urgent error:', errors),
+                        });
+                      }}
+                    >
+                      Mark Urgent
+                    </Button>
+                  )}
+                </PermissionGate>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>

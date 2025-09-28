@@ -12,6 +12,7 @@ use App\Notifications\OrderReceipt;
 use App\Notifications\DeliveryTaskNotification;
 use App\Notifications\ProductSaleNotification;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
@@ -19,11 +20,14 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', 'all');
+        $highlightOrderId = $request->get('highlight_order');
+        $showUrgentApproval = $request->get('urgent_approval', false);
         
         // Get all orders for tab counts
         $allOrders = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->values(); // Convert to array
         
         // Filter orders by status if needed
         if ($status === 'all') {
@@ -35,24 +39,49 @@ class OrderController extends Controller
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
         
+        // Calculate orders that need urgent approval (within 8 hours of 24-hour limit OR manually marked as urgent)
+        $urgentOrders = $allOrders->filter(function ($order) {
+            if ($order->status !== 'pending') return false;
+            // Check if manually marked as urgent
+            if ($order->is_urgent) return true;
+            // Check if within 8 hours of 24-hour limit
+            $orderAge = now()->diffInHours($order->created_at);
+            return $orderAge >= 16; // 16+ hours old (8 hours left)
+        })->values(); // Convert to array
+        
         return Inertia::render('Admin/Orders/index', [
             'orders' => $orders,
             'allOrders' => $allOrders,
             'currentStatus' => $status,
             'logistics' => $logistics,
+            'highlightOrderId' => $highlightOrderId,
+            'urgentOrders' => $urgentOrders,
+            'showUrgentApproval' => $showUrgentApproval,
         ]);
     }
 
-    public function show(Sales $order)
+    public function show(Request $request, Sales $order)
     {
         $order->load(['customer', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
         
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
         
+        // Check if highlighting is requested (from notification click)
+        $highlight = $request->get('highlight', false);
+        
+        // Calculate order age and urgency
+        $orderAge = now()->diffInHours($order->created_at);
+        $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)
+        $canApprove = $order->status === 'pending' && $orderAge <= 24;
+        
         return Inertia::render('Admin/Orders/show', [
             'order' => $order,
             'logistics' => $logistics,
+            'highlight' => $highlight,
+            'isUrgent' => $isUrgent,
+            'canApprove' => $canApprove,
+            'orderAge' => $orderAge,
         ]);
     }
 
@@ -92,6 +121,12 @@ class OrderController extends Controller
         $request->validate([
             'admin_notes' => 'nullable|string|max:500',
         ]);
+
+        // Check if order is within 24-hour approval window
+        $orderAge = now()->diffInHours($order->created_at);
+        if ($orderAge > 24) {
+            return redirect()->back()->with('error', 'Order approval time has expired. Orders must be approved within 24 hours.');
+        }
 
         // Process the stock only when approving
         foreach ($order->auditTrail as $trail) {
@@ -159,6 +194,31 @@ class OrderController extends Controller
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'rejected', 'Your order has been declined. Please check your order history for details.'));
 
         return redirect()->route('admin.orders.index')->with('message', 'Order rejected successfully');
+    }
+
+    public function markUrgent(Request $request, Sales $order)
+    {
+        Log::info('Mark urgent called for order: ' . $order->id);
+        
+        if ($order->status !== 'pending') {
+            Log::info('Order is not pending, status: ' . $order->status);
+            return redirect()->back()->with('error', 'Only pending orders can be marked as urgent.');
+        }
+
+        $order->update(['is_urgent' => true]);
+        Log::info('Order marked as urgent successfully');
+
+        return redirect()->back()->with('message', 'Order marked as urgent successfully.');
+    }
+
+    public function unmarkUrgent(Request $request, Sales $order)
+    {
+        Log::info('Unmark urgent called for order: ' . $order->id);
+        
+        $order->update(['is_urgent' => false]);
+        Log::info('Order urgency removed successfully');
+
+        return redirect()->back()->with('message', 'Order urgency removed successfully.');
     }
 
     public function process(Request $request, Sales $order)

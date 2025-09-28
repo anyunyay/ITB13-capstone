@@ -35,7 +35,7 @@ interface Order {
     address?: string;
   };
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
@@ -48,6 +48,7 @@ interface Order {
     contact_number?: string;
   };
   audit_trail: OrderItem[];
+  is_urgent?: boolean;
 }
 
 interface OrderShowProps {
@@ -57,9 +58,13 @@ interface OrderShowProps {
     name: string;
     contact_number?: string;
   }>;
+  highlight?: boolean;
+  isUrgent?: boolean;
+  canApprove?: boolean;
+  orderAge?: number;
 }
 
-export default function OrderShow({ order, logistics }: OrderShowProps) {
+export default function OrderShow({ order, logistics, highlight = false, isUrgent = false, canApprove = true, orderAge = 0 }: OrderShowProps) {
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [assignLogisticDialogOpen, setAssignLogisticDialogOpen] = useState(false);
@@ -95,6 +100,21 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
     }
   }, [order.status, order.logistic]);
 
+  // Handle highlighting effect when coming from notification
+  useEffect(() => {
+    if (highlight) {
+      // Add a temporary highlight effect
+      const timer = setTimeout(() => {
+        // Remove highlight after 3 seconds
+        const url = new URL(window.location.href);
+        url.searchParams.delete('highlight');
+        window.history.replaceState({}, '', url.toString());
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlight]);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -103,6 +123,8 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'expired':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -153,7 +175,7 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
   return (
     <AppSidebarLayout>
       <Head title={`Order #${order.id}`} />
-      <div className="p-6">
+      <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-blue-500 rounded-lg shadow-lg' : ''}`}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Order #{order.id}</h1>
@@ -163,6 +185,16 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
           </div>
           <div className="flex items-center gap-2">
             {getStatusBadge(order.status)}
+            {isUrgent && (
+              <Badge variant="destructive" className="animate-pulse">
+                {order.is_urgent ? 'Urgent (Manual)' : `Urgent - ${24 - orderAge}h left`}
+              </Badge>
+            )}
+            {!canApprove && order.status === 'pending' && (
+              <Badge variant="destructive">
+                Approval Time Expired
+              </Badge>
+            )}
             <Link href={route('admin.orders.index')}>
               <Button variant="outline">Back to Orders</Button>
             </Link>
@@ -334,10 +366,21 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                   <CardTitle>Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {!canApprove && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded">
+                      <p className="text-sm text-red-800">
+                        <strong>Order approval time has expired.</strong> Orders must be approved within 24 hours of placement.
+                      </p>
+                    </div>
+                  )}
                   <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button className="w-full" variant="default">
-                        Approve Order
+                      <Button 
+                        className="w-full" 
+                        variant="default"
+                        disabled={!canApprove}
+                      >
+                        {canApprove ? 'Approve Order' : 'Approval Time Expired'}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -447,6 +490,64 @@ export default function OrderShow({ order, logistics }: OrderShowProps) {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Urgent Order Management */}
+            {order.status === 'pending' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Urgent Order Management</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {order.is_urgent ? (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-orange-50 border border-orange-200 rounded">
+                        <p className="text-sm text-orange-800">
+                          <strong>This order is marked as urgent.</strong> It will appear in urgent notifications and be highlighted.
+                        </p>
+                      </div>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => {
+                          console.log('Remove urgent clicked for order:', order.id);
+                          console.log('Route:', route('admin.orders.unmarkUrgent', order.id));
+                          router.post(`/admin/orders/${order.id}/unmark-urgent`, {}, {
+                            preserveState: true,
+                            preserveScroll: true,
+                            onSuccess: () => console.log('Remove urgent success'),
+                            onError: (errors) => console.error('Remove urgent error:', errors),
+                          });
+                        }}
+                      >
+                        Remove Urgent Status
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">
+                        Mark this order as urgent to simulate urgent approval requirements for testing.
+                      </p>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => {
+                          console.log('Mark urgent clicked for order:', order.id);
+                          console.log('Route:', route('admin.orders.markUrgent', order.id));
+                          router.post(`/admin/orders/${order.id}/mark-urgent`, {}, {
+                            preserveState: true,
+                            preserveScroll: true,
+                            onSuccess: () => console.log('Mark urgent success'),
+                            onError: (errors) => console.error('Mark urgent error:', errors),
+                          });
+                        }}
+                      >
+                        Mark as Urgent (Testing)
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

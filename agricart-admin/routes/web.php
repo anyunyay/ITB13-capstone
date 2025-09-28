@@ -102,6 +102,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->whereNumber('order')->name('admin.orders.reject');
             Route::post('/orders/{order}/process', [OrderController::class, 'process'])->whereNumber('order')->name('admin.orders.process');
             Route::post('/orders/{order}/assign-logistic', [OrderController::class, 'assignLogistic'])->whereNumber('order')->name('admin.orders.assignLogistic');
+            Route::post('/orders/{order}/mark-urgent', [OrderController::class, 'markUrgent'])->whereNumber('order')->name('admin.orders.markUrgent');
+            Route::post('/orders/{order}/unmark-urgent', [OrderController::class, 'unmarkUrgent'])->whereNumber('order')->name('admin.orders.unmarkUrgent');
         });
         Route::middleware(['can:generate order report'])->group(function () {
             Route::get('/orders/report', [OrderController::class, 'generateReport'])->name('admin.orders.report');

@@ -17,10 +17,12 @@ class Sales extends Model
         'admin_id',
         'admin_notes',
         'logistic_id',
+        'is_urgent',
     ];
 
     protected $casts = [
         'total_amount' => 'float',
+        'is_urgent' => 'boolean',
     ];
 
     public function customer()

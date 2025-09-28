@@ -223,15 +223,34 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
               className={`border-l-4 transition-all hover:shadow-md ${
                 !notification.read_at ? getNotificationColor(notification.type) : 'bg-white'
               } ${
-                notification.data?.order_id && 
-                ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)
+                (notification.data?.order_id && 
+                ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) ||
+                (userType === 'admin' || userType === 'staff') && notification.action_url
                   ? 'cursor-pointer hover:bg-gray-50' : ''
               }`}
               onClick={() => {
-                // For order-related notifications, navigate to order history with hash
-                if (notification.data?.order_id && 
-                    ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-                  router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+                // Handle navigation based on user type and notification type
+                if (userType === 'customer') {
+                  // For customer order-related notifications, navigate to order history with hash
+                  if (notification.data?.order_id && 
+                      ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+                    router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+                  }
+                } else if (userType === 'admin' || userType === 'staff') {
+                  // For admin/staff notifications, navigate to appropriate admin pages
+                  if (notification.type === 'new_order' && notification.data?.order_id) {
+                    // Navigate to orders index with the specific order highlighted
+                    router.visit(`/admin/orders?highlight_order=${notification.data.order_id}&status=pending`);
+                  } else if (notification.type === 'inventory_update') {
+                    router.visit('/admin/inventory');
+                  } else if (notification.type === 'membership_update') {
+                    router.visit('/admin/membership');
+                  } else if (notification.action_url) {
+                    router.visit(notification.action_url);
+                  }
+                } else if (notification.action_url) {
+                  // Fallback for other user types
+                  router.visit(notification.action_url);
                 }
               }}
             >
@@ -275,12 +294,30 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              // For order-related notifications, navigate to order history with hash
-                              if (notification.data?.order_id && 
-                                  ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
-                                router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
-                              } else {
-                                router.visit(notification.action_url!);
+                              // Handle navigation based on user type and notification type
+                              if (userType === 'customer') {
+                                // For customer order-related notifications, navigate to order history with hash
+                                if (notification.data?.order_id && 
+                                    ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
+                                  router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+                                } else {
+                                  router.visit(notification.action_url!);
+                                }
+                              } else if (userType === 'admin' || userType === 'staff') {
+                                // For admin/staff notifications, navigate to appropriate admin pages
+                                if (notification.type === 'new_order' && notification.data?.order_id) {
+                                  // Navigate to orders index with the specific order highlighted
+                                  router.visit(`/admin/orders?highlight_order=${notification.data.order_id}&status=pending`);
+                                } else if (notification.type === 'inventory_update') {
+                                  router.visit('/admin/inventory');
+                                } else if (notification.type === 'membership_update') {
+                                  router.visit('/admin/membership');
+                                } else if (notification.action_url) {
+                                  router.visit(notification.action_url);
+                                }
+                              } else if (notification.action_url) {
+                                // Fallback for other user types
+                                router.visit(notification.action_url);
                               }
                             }}
                           >
