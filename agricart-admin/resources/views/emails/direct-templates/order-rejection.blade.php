@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Receipt - Order #{{ $order->id }}</title>
+    <title>Order Rejection Email Template</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,16 +11,18 @@
             color: #333;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: #ffffff;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             padding: 30px;
             text-align: center;
@@ -40,7 +42,7 @@
             margin-bottom: 25px;
         }
         .order-info h2 {
-            color: #4CAF50;
+            color: #e74c3c;
             margin-top: 0;
             font-size: 20px;
         }
@@ -65,7 +67,7 @@
             margin-top: 25px;
         }
         .items-section h3 {
-            color: #4CAF50;
+            color: #e74c3c;
             margin-bottom: 15px;
             font-size: 18px;
         }
@@ -74,7 +76,7 @@
             border-radius: 6px;
             padding: 15px;
             margin-bottom: 10px;
-            border-left: 4px solid #4CAF50;
+            border-left: 4px solid #e74c3c;
         }
         .item-header {
             display: flex;
@@ -93,7 +95,7 @@
             color: #666;
         }
         .total-section {
-            background-color: #4CAF50;
+            background-color: #e74c3c;
             color: white;
             padding: 20px;
             border-radius: 8px;
@@ -111,8 +113,8 @@
             color: #666;
             font-size: 14px;
         }
-        .status-approved {
-            background-color: #4CAF50;
+        .status-declined {
+            background-color: #e74c3c;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -120,14 +122,14 @@
             font-weight: 600;
         }
         .admin-notes {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
             border-radius: 6px;
             padding: 15px;
             margin-top: 15px;
         }
         .admin-notes h4 {
-            color: #856404;
+            color: #721c24;
             margin-top: 0;
             font-size: 14px;
         }
@@ -152,24 +154,43 @@
             color: #0c5460;
         }
         .apology-section {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
             border-radius: 6px;
             padding: 20px;
             margin-top: 25px;
             text-align: center;
         }
         .apology-section h3 {
-            color: #155724;
+            color: #856404;
             margin-top: 0;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div style="padding: 20px; text-align: center;">
+            <a href="{{ route('direct.templates') }}" class="back-btn">← Back to All Templates</a>
+        </div>
+        
         <div class="header">
-            <h1>🎉 Order Approved!</h1>
-            <p>Your order has been successfully approved and is now being processed.</p>
+            <h1>📋 Order Update</h1>
+            <p>We regret to inform you that your order has been declined.</p>
         </div>
         
         <div class="content">
@@ -177,42 +198,42 @@
                 <h2>📋 Order Information</h2>
                 <div class="info-row">
                     <span class="label">Order ID:</span>
-                    <span class="value">#{{ $order->id }}</span>
+                    <span class="value">#{{ $testData['order']->id }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Order Date:</span>
-                    <span class="value">{{ $order->created_at ? $order->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="value">{{ $testData['order']->created_at ? $testData['order']->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Approval Date:</span>
-                    <span class="value">{{ $order->updated_at ? $order->updated_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="label">Declined Date:</span>
+                    <span class="value">{{ $testData['order']->updated_at ? $testData['order']->updated_at->format('F j, Y g:i A') : 'N/A' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Status:</span>
                     <span class="value">
-                        <span class="status-approved">✓ Approved</span>
+                        <span class="status-declined">✗ Declined</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Approved by:</span>
-                    <span class="value">{{ $admin->name ?? 'System Admin' }}</span>
+                    <span class="label">Declined by:</span>
+                    <span class="value">{{ $testData['admin']->name ?? 'System Admin' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Customer:</span>
-                    <span class="value">{{ $customer->name ?? 'Customer' }}</span>
+                    <span class="value">{{ $testData['customer']->name ?? 'Customer' }}</span>
                 </div>
             </div>
 
-            @if($order->admin_notes)
+            @if($testData['order']->admin_notes)
             <div class="admin-notes">
-                <h4>📝 Admin Notes:</h4>
-                <p>{{ $order->admin_notes }}</p>
+                <h4>📝 Reason for Decline:</h4>
+                <p>{{ $testData['order']->admin_notes }}</p>
             </div>
             @endif
 
             <div class="items-section">
                 <h3>🛒 Order Items</h3>
-                @foreach($order->auditTrail as $item)
+                @foreach($testData['order']->auditTrail as $item)
                 <div class="item">
                     <div class="item-header">
                         <span class="product-name">{{ $item->product->name }}</span>
@@ -227,33 +248,32 @@
 
             <div class="total-section">
                 <div class="total-amount">
-                    Total Amount: ₱{{ number_format($order->total_amount, 2) }}
+                    Total Amount: ₱{{ number_format($testData['order']->total_amount, 2) }}
                 </div>
-                <p style="margin: 10px 0 0 0; opacity: 0.9;">Thank you for your order!</p>
+                <p style="margin: 10px 0 0 0; opacity: 0.9;">This order has been declined</p>
             </div>
 
             <div class="next-steps">
-                <h3>📦 What happens next?</h3>
+                <h3>🔄 What happens next?</h3>
                 <ul>
-                    <li><strong>Order Preparation:</strong> Your order is being prepared for delivery</li>
-                    <li><strong>Logistic Assignment:</strong> A delivery provider will be assigned soon</li>
-                    <li><strong>Delivery Updates:</strong> You will receive email updates about delivery progress</li>
-                    <li><strong>Estimated Delivery:</strong> Within 48 hours from approval</li>
-                    <li><strong>Tracking:</strong> You can track your order in your account</li>
+                    <li><strong>Refund:</strong> If you made any payment, it will be refunded within 3-5 business days</li>
+                    <li><strong>New Order:</strong> You can place a new order with different items or quantities</li>
+                    <li><strong>Support:</strong> Contact our support team if you have any questions or concerns</li>
+                    <li><strong>Feedback:</strong> We appreciate your feedback to help us improve our service</li>
                 </ul>
             </div>
 
             <div class="apology-section">
-                <h3>🎉 Thank you for choosing AgriCart!</h3>
-                <p>We're excited to deliver fresh, quality products to your doorstep. Our team is working hard to ensure your order arrives on time and in perfect condition.</p>
+                <h3>🙏 We apologize for any inconvenience</h3>
+                <p>We understand this may be disappointing. Our team works hard to fulfill all orders, but sometimes circumstances beyond our control require us to decline orders. We appreciate your understanding and look forward to serving you in the future.</p>
             </div>
         </div>
 
         <div class="footer">
-            <p>This is an automated receipt from AgriCart Admin System.</p>
+            <p>This is an automated notification from AgriCart Admin System.</p>
             <p>If you have any questions, please contact our support team.</p>
             <p>&copy; {{ date('Y') }} AgriCart. All rights reserved.</p>
         </div>
     </div>
 </body>
-</html> 
+</html>

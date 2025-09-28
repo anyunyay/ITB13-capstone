@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
+use App\Notifications\OrderRejectionNotification;
 use App\Notifications\DeliveryTaskNotification;
 use App\Notifications\ProductSaleNotification;
 use App\Notifications\OrderDelayedNotification;
@@ -221,8 +222,8 @@ class OrderController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
-        // Notify the customer
-        $order->customer?->notify(new OrderStatusUpdate($order->id, 'rejected', 'Your order has been declined. Please check your order history for details.'));
+        // Notify the customer with detailed rejection notification
+        $order->customer?->notify(new OrderRejectionNotification($order));
 
         return redirect()->route('admin.orders.index')->with('message', 'Order rejected successfully');
     }

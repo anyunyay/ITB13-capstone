@@ -20,6 +20,9 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\SingleSessionController;
+use App\Http\Controllers\EmailPreviewController;
+use App\Http\Controllers\ComprehensiveEmailPreviewController;
+use App\Http\Controllers\DirectEmailTemplateController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -226,6 +229,30 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Member\NotificationController::class, 'markRead'])->name('member.notifications.markRead');
         Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Member\NotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
     });
+});
+
+// Email Preview routes (for development/testing)
+Route::prefix('email-preview')->name('email.preview.')->group(function () {
+    Route::get('/', [App\Http\Controllers\EmailPreviewController::class, 'index'])->name('index');
+    Route::get('/approval', [App\Http\Controllers\EmailPreviewController::class, 'approval'])->name('approval');
+    Route::get('/rejection', [App\Http\Controllers\EmailPreviewController::class, 'rejection'])->name('rejection');
+    Route::get('/approval/custom', [App\Http\Controllers\EmailPreviewController::class, 'approvalCustom'])->name('approval.custom');
+    Route::get('/rejection/custom', [App\Http\Controllers\EmailPreviewController::class, 'rejectionCustom'])->name('rejection.custom');
+    Route::get('/types', [App\Http\Controllers\EmailPreviewController::class, 'types'])->name('types');
+    Route::get('/{type}', [App\Http\Controllers\EmailPreviewController::class, 'preview'])->name('type');
+});
+
+// Comprehensive Email Preview routes
+Route::prefix('comprehensive-email-preview')->name('comprehensive.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ComprehensiveEmailPreviewController::class, 'index'])->name('index');
+    Route::get('/types', [App\Http\Controllers\ComprehensiveEmailPreviewController::class, 'types'])->name('types');
+    Route::get('/{type}', [App\Http\Controllers\ComprehensiveEmailPreviewController::class, 'preview'])->name('preview');
+});
+
+// Direct Email Template routes (shows actual templates directly)
+Route::prefix('direct-email-templates')->name('direct.')->group(function () {
+    Route::get('/', [App\Http\Controllers\DirectEmailTemplateController::class, 'index'])->name('templates');
+    Route::get('/{type}', [App\Http\Controllers\DirectEmailTemplateController::class, 'show'])->name('template');
 });
 
 // Auth routes

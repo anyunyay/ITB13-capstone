@@ -35,7 +35,7 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
             ->line('Order ID: #' . $this->order->id)
             ->line('Total Amount: ₱' . number_format($this->order->total_amount, 2))
             ->line('Status: ' . ucfirst($this->order->status))
-            ->line('Order Date: ' . $this->order->created_at->format('F j, Y g:i A'))
+            ->line('Order Date: ' . ($this->order->created_at ? $this->order->created_at->format('F j, Y g:i A') : 'N/A'))
             ->action('View Order History', url('/customer/orders/history'))
             ->line('We will notify you when your order status changes.');
     }

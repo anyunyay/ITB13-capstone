@@ -37,7 +37,7 @@ class NewOrderNotification extends Notification implements ShouldQueue
             ->line('Customer: ' . $customer->name)
             ->line('Total Amount: ₱' . number_format($this->order->total_amount, 2))
             ->line('Status: ' . ucfirst($this->order->status))
-            ->line('Order Date: ' . $this->order->created_at->format('F j, Y g:i A'))
+            ->line('Order Date: ' . ($this->order->created_at ? $this->order->created_at->format('F j, Y g:i A') : 'N/A'))
             ->action('View Order', url('/admin/orders/' . $this->order->id))
             ->line('Please review and process this order as soon as possible.');
     }

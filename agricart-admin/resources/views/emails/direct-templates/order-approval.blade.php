@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Receipt - Order #{{ $order->id }}</title>
+    <title>Order Approval Email Template</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,13 +11,15 @@
             color: #333;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: #ffffff;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         .header {
             background: linear-gradient(135deg, #4CAF50, #45a049);
@@ -163,10 +165,29 @@
             color: #155724;
             margin-top: 0;
         }
+        .back-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div style="padding: 20px; text-align: center;">
+            <a href="{{ route('direct.templates') }}" class="back-btn">← Back to All Templates</a>
+        </div>
+        
         <div class="header">
             <h1>🎉 Order Approved!</h1>
             <p>Your order has been successfully approved and is now being processed.</p>
@@ -177,15 +198,15 @@
                 <h2>📋 Order Information</h2>
                 <div class="info-row">
                     <span class="label">Order ID:</span>
-                    <span class="value">#{{ $order->id }}</span>
+                    <span class="value">#{{ $testData['order']->id }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Order Date:</span>
-                    <span class="value">{{ $order->created_at ? $order->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="value">{{ $testData['order']->created_at ? $testData['order']->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Approval Date:</span>
-                    <span class="value">{{ $order->updated_at ? $order->updated_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="value">{{ $testData['order']->updated_at ? $testData['order']->updated_at->format('F j, Y g:i A') : 'N/A' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Status:</span>
@@ -195,24 +216,24 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Approved by:</span>
-                    <span class="value">{{ $admin->name ?? 'System Admin' }}</span>
+                    <span class="value">{{ $testData['admin']->name ?? 'System Admin' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Customer:</span>
-                    <span class="value">{{ $customer->name ?? 'Customer' }}</span>
+                    <span class="value">{{ $testData['customer']->name ?? 'Customer' }}</span>
                 </div>
             </div>
 
-            @if($order->admin_notes)
+            @if($testData['order']->admin_notes)
             <div class="admin-notes">
                 <h4>📝 Admin Notes:</h4>
-                <p>{{ $order->admin_notes }}</p>
+                <p>{{ $testData['order']->admin_notes }}</p>
             </div>
             @endif
 
             <div class="items-section">
                 <h3>🛒 Order Items</h3>
-                @foreach($order->auditTrail as $item)
+                @foreach($testData['order']->auditTrail as $item)
                 <div class="item">
                     <div class="item-header">
                         <span class="product-name">{{ $item->product->name }}</span>
@@ -227,7 +248,7 @@
 
             <div class="total-section">
                 <div class="total-amount">
-                    Total Amount: ₱{{ number_format($order->total_amount, 2) }}
+                    Total Amount: ₱{{ number_format($testData['order']->total_amount, 2) }}
                 </div>
                 <p style="margin: 10px 0 0 0; opacity: 0.9;">Thank you for your order!</p>
             </div>
@@ -256,4 +277,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

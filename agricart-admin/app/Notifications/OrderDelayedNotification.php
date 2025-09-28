@@ -34,7 +34,7 @@ class OrderDelayedNotification extends Notification implements ShouldQueue
             ->line('Order Details:')
             ->line('Order ID: #' . $this->order->id)
             ->line('Total Amount: ₱' . number_format($this->order->total_amount, 2))
-            ->line('Order Date: ' . $this->order->created_at->format('F j, Y g:i A'))
+            ->line('Order Date: ' . ($this->order->created_at ? $this->order->created_at->format('F j, Y g:i A') : 'N/A'))
             ->line('If you have any concerns or questions about this delay, please contact us at:')
             ->line('Email: sample@email.com')
             ->line('We appreciate your patience and will process your order as soon as possible.')

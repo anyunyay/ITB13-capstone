@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Receipt - Order #{{ $order->id }}</title>
+    <title>New Order Notification Email Template</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,13 +11,15 @@
             color: #333;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: #ffffff;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         .header {
             background: linear-gradient(135deg, #4CAF50, #45a049);
@@ -111,65 +113,67 @@
             color: #666;
             font-size: 14px;
         }
-        .status-approved {
-            background-color: #4CAF50;
+        .status-pending {
+            background-color: #ff9800;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
         }
-        .admin-notes {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-        .admin-notes h4 {
-            color: #856404;
-            margin-top: 0;
-            font-size: 14px;
-        }
-        .next-steps {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-radius: 6px;
-            padding: 20px;
-            margin-top: 25px;
-        }
-        .next-steps h3 {
-            color: #0c5460;
-            margin-top: 0;
-            font-size: 18px;
-        }
-        .next-steps ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .next-steps li {
-            margin-bottom: 8px;
-            color: #0c5460;
-        }
-        .apology-section {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+        .action-section {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
             border-radius: 6px;
             padding: 20px;
             margin-top: 25px;
             text-align: center;
         }
-        .apology-section h3 {
-            color: #155724;
+        .action-section h3 {
+            color: #1976d2;
             margin-top: 0;
+        }
+        .action-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        .action-btn:hover {
+            background-color: #45a049;
+            color: white;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div style="padding: 20px; text-align: center;">
+            <a href="{{ route('direct.templates') }}" class="back-btn">← Back to All Templates</a>
+        </div>
+        
         <div class="header">
-            <h1>🎉 Order Approved!</h1>
-            <p>Your order has been successfully approved and is now being processed.</p>
+            <h1>🛒 New Order Received</h1>
+            <p>A new order has been placed and requires your attention.</p>
         </div>
         
         <div class="content">
@@ -177,42 +181,35 @@
                 <h2>📋 Order Information</h2>
                 <div class="info-row">
                     <span class="label">Order ID:</span>
-                    <span class="value">#{{ $order->id }}</span>
+                    <span class="value">#{{ $testData['order']->id }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Order Date:</span>
-                    <span class="value">{{ $order->created_at ? $order->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="label">Customer:</span>
+                    <span class="value">{{ $testData['customer']->name ?? 'Customer' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Approval Date:</span>
-                    <span class="value">{{ $order->updated_at ? $order->updated_at->format('F j, Y g:i A') : 'N/A' }}</span>
+                    <span class="label">Customer Email:</span>
+                    <span class="value">{{ $testData['customer']->email ?? 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Total Amount:</span>
+                    <span class="value">₱{{ number_format($testData['order']->total_amount, 2) }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Status:</span>
                     <span class="value">
-                        <span class="status-approved">✓ Approved</span>
+                        <span class="status-pending">⏳ Pending</span>
                     </span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Approved by:</span>
-                    <span class="value">{{ $admin->name ?? 'System Admin' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Customer:</span>
-                    <span class="value">{{ $customer->name ?? 'Customer' }}</span>
+                    <span class="label">Order Date:</span>
+                    <span class="value">{{ $testData['order']->created_at ? $testData['order']->created_at->format('F j, Y g:i A') : 'N/A' }}</span>
                 </div>
             </div>
-
-            @if($order->admin_notes)
-            <div class="admin-notes">
-                <h4>📝 Admin Notes:</h4>
-                <p>{{ $order->admin_notes }}</p>
-            </div>
-            @endif
 
             <div class="items-section">
                 <h3>🛒 Order Items</h3>
-                @foreach($order->auditTrail as $item)
+                @foreach($testData['order']->auditTrail as $item)
                 <div class="item">
                     <div class="item-header">
                         <span class="product-name">{{ $item->product->name }}</span>
@@ -227,33 +224,24 @@
 
             <div class="total-section">
                 <div class="total-amount">
-                    Total Amount: ₱{{ number_format($order->total_amount, 2) }}
+                    Total Amount: ₱{{ number_format($testData['order']->total_amount, 2) }}
                 </div>
-                <p style="margin: 10px 0 0 0; opacity: 0.9;">Thank you for your order!</p>
+                <p style="margin: 10px 0 0 0; opacity: 0.9;">New order awaiting approval</p>
             </div>
 
-            <div class="next-steps">
-                <h3>📦 What happens next?</h3>
-                <ul>
-                    <li><strong>Order Preparation:</strong> Your order is being prepared for delivery</li>
-                    <li><strong>Logistic Assignment:</strong> A delivery provider will be assigned soon</li>
-                    <li><strong>Delivery Updates:</strong> You will receive email updates about delivery progress</li>
-                    <li><strong>Estimated Delivery:</strong> Within 48 hours from approval</li>
-                    <li><strong>Tracking:</strong> You can track your order in your account</li>
-                </ul>
-            </div>
-
-            <div class="apology-section">
-                <h3>🎉 Thank you for choosing AgriCart!</h3>
-                <p>We're excited to deliver fresh, quality products to your doorstep. Our team is working hard to ensure your order arrives on time and in perfect condition.</p>
+            <div class="action-section">
+                <h3>⚡ Action Required</h3>
+                <p>This order requires your review and approval within 24 hours.</p>
+                <p>Please check the order details and approve or reject accordingly.</p>
+                <a href="#" class="action-btn">Review Order in Admin Panel</a>
             </div>
         </div>
 
         <div class="footer">
-            <p>This is an automated receipt from AgriCart Admin System.</p>
-            <p>If you have any questions, please contact our support team.</p>
+            <p>This is an automated notification from AgriCart Admin System.</p>
+            <p>Please review and process this order as soon as possible.</p>
             <p>&copy; {{ date('Y') }} AgriCart. All rights reserved.</p>
         </div>
     </div>
 </body>
-</html> 
+</html>
