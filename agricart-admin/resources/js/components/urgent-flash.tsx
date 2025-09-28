@@ -13,11 +13,11 @@ interface UrgentOrder {
   is_urgent?: boolean;
 }
 
-interface GlobalUrgentFlashProps {
+interface UrgentFlashProps {
   urgentOrders?: UrgentOrder[];
 }
 
-export function GlobalUrgentFlash({ urgentOrders = [] }: GlobalUrgentFlashProps) {
+export function UrgentFlash({ urgentOrders = [] }: UrgentFlashProps) {
   const [showFlashNotification, setShowFlashNotification] = useState(false);
 
   // Check if popup was dismissed and flash should be shown

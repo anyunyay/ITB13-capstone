@@ -2,8 +2,8 @@ import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import { GlobalUrgentPopup } from '@/components/GlobalUrgentPopup';
-import { GlobalUrgentFlash } from '@/components/GlobalUrgentFlash';
+import { UrgentOrderPopup } from '@/components/urgent-order-popup';
+import { UrgentFlash } from '@/components/urgent-flash';
 import { type BreadcrumbItem } from '@/types';
 import { type PropsWithChildren } from 'react';
 import { usePage } from '@inertiajs/react';
@@ -19,11 +19,11 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: PropsWi
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {/* Flash notification appears after header, before content */}
-                <GlobalUrgentFlash urgentOrders={urgentOrders} />
+                <UrgentFlash urgentOrders={urgentOrders} />
                 {children}
             </AppContent>
-            {/* Global Urgent Popup for Admin/Staff */}
-            <GlobalUrgentPopup urgentOrders={urgentOrders} />
+            {/* Urgent Order Popup for Admin/Staff */}
+            <UrgentOrderPopup urgentOrders={urgentOrders} />
         </AppShell>
     );
 }

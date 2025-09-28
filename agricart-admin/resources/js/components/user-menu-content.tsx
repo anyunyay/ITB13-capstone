@@ -14,6 +14,13 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
 
     const handleLogout = () => {
         cleanup();
+        // Clear login session storage when logging out
+        const loginSessionId = sessionStorage.getItem('loginSessionId');
+        if (loginSessionId) {
+            sessionStorage.removeItem('loginSessionId');
+            sessionStorage.removeItem(`urgentPopupShown_${loginSessionId}`);
+            console.log('Cleared login session data on logout');
+        }
         router.flushAll();
     };
 
