@@ -22,7 +22,33 @@ class LogisticController extends Controller
             ->where('status', 'approved')
             ->with(['customer', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'customer' => [
+                        'name' => $order->customer->name,
+                        'email' => $order->customer->email,
+                    ],
+                    'total_amount' => $order->total_amount,
+                    'delivery_status' => $order->delivery_status,
+                    'created_at' => $order->created_at->toISOString(),
+                    'audit_trail' => $order->auditTrail->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product' => [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'price_kilo' => $item->product->price_kilo,
+                                'price_pc' => $item->product->price_pc,
+                                'price_tali' => $item->product->price_tali,
+                            ],
+                            'category' => $item->category,
+                            'quantity' => $item->quantity,
+                        ];
+                    }),
+                ];
+            });
 
         // Count orders by delivery status
         $pendingCount = $assignedOrders->where('delivery_status', 'pending')->count();
@@ -54,7 +80,33 @@ class LogisticController extends Controller
             $query->where('delivery_status', $status);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        $orders = $query->orderBy('created_at', 'desc')->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'customer' => [
+                        'name' => $order->customer->name,
+                        'email' => $order->customer->email,
+                    ],
+                    'total_amount' => $order->total_amount,
+                    'delivery_status' => $order->delivery_status,
+                    'created_at' => $order->created_at->toISOString(),
+                    'audit_trail' => $order->auditTrail->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product' => [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'price_kilo' => $item->product->price_kilo,
+                                'price_pc' => $item->product->price_pc,
+                                'price_tali' => $item->product->price_tali,
+                            ],
+                            'category' => $item->category,
+                            'quantity' => $item->quantity,
+                        ];
+                    }),
+                ];
+            });
 
         return Inertia::render('Logistic/assignedOrders', [
             'orders' => $orders,
@@ -71,8 +123,34 @@ class LogisticController extends Controller
 
         $order->load(['customer', 'auditTrail.product', 'auditTrail.stock']);
 
+        // Transform the order data to include product price information
+        $transformedOrder = [
+            'id' => $order->id,
+            'customer' => [
+                'name' => $order->customer->name,
+                'email' => $order->customer->email,
+            ],
+            'total_amount' => $order->total_amount,
+            'delivery_status' => $order->delivery_status,
+            'created_at' => $order->created_at->toISOString(),
+            'audit_trail' => $order->auditTrail->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'price_kilo' => $item->product->price_kilo,
+                        'price_pc' => $item->product->price_pc,
+                        'price_tali' => $item->product->price_tali,
+                    ],
+                    'category' => $item->category,
+                    'quantity' => $item->quantity,
+                ];
+            }),
+        ];
+
         return Inertia::render('Logistic/showOrder', [
-            'order' => $order,
+            'order' => $transformedOrder,
         ]);
     }
 

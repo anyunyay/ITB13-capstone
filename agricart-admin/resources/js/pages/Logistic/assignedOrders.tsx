@@ -20,6 +20,9 @@ interface Order {
     product: {
       id: number;
       name: string;
+      price_kilo?: number;
+      price_pc?: number;
+      price_tali?: number;
     };
     category: string;
     quantity: number;
@@ -43,6 +46,53 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const formatQuantity = (quantity: number, category: string) => {
+    switch (category.toLowerCase()) {
+      case 'kilo':
+        return `${quantity} kg`;
+      case 'pc':
+        return `${quantity} pc`;
+      case 'tali':
+        return `${quantity} tali`;
+      default:
+        return `${quantity} ${category}`;
+    }
+  };
+
+  const combineOrderItems = (auditTrail: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+      price_kilo?: number;
+      price_pc?: number;
+      price_tali?: number;
+    };
+    category: string;
+    quantity: number;
+  }>) => {
+    const combinedItems = new Map<string, {
+      product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
+      category: string;
+      quantity: number;
+    }>();
+    
+    auditTrail.forEach((item) => {
+      const key = `${item.product.name}-${item.category}`;
+      
+      if (combinedItems.has(key)) {
+        // Combine quantities for the same product and category
+        const existingItem = combinedItems.get(key)!;
+        existingItem.quantity += item.quantity;
+      } else {
+        // Add new item
+        combinedItems.set(key, { ...item });
+      }
+    });
+    
+    return Array.from(combinedItems.values());
   };
 
   const handleStatusFilter = (status: string) => {
@@ -92,7 +142,13 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             ) : (
               <div className="grid gap-4">
                 {orders.map((order) => (
-                  <OrderCard key={order.id} order={order} getDeliveryStatusBadge={getDeliveryStatusBadge} />
+                  <OrderCard 
+                    key={order.id} 
+                    order={order} 
+                    getDeliveryStatusBadge={getDeliveryStatusBadge}
+                    formatQuantity={formatQuantity}
+                    combineOrderItems={combineOrderItems}
+                  />
                 ))}
               </div>
             )}
@@ -108,7 +164,13 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             ) : (
               <div className="grid gap-4">
                 {pendingOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} getDeliveryStatusBadge={getDeliveryStatusBadge} />
+                  <OrderCard 
+                    key={order.id} 
+                    order={order} 
+                    getDeliveryStatusBadge={getDeliveryStatusBadge}
+                    formatQuantity={formatQuantity}
+                    combineOrderItems={combineOrderItems}
+                  />
                 ))}
               </div>
             )}
@@ -124,7 +186,13 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             ) : (
               <div className="grid gap-4">
                 {outForDeliveryOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} getDeliveryStatusBadge={getDeliveryStatusBadge} />
+                  <OrderCard 
+                    key={order.id} 
+                    order={order} 
+                    getDeliveryStatusBadge={getDeliveryStatusBadge}
+                    formatQuantity={formatQuantity}
+                    combineOrderItems={combineOrderItems}
+                  />
                 ))}
               </div>
             )}
@@ -140,7 +208,13 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             ) : (
               <div className="grid gap-4">
                 {deliveredOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} getDeliveryStatusBadge={getDeliveryStatusBadge} />
+                  <OrderCard 
+                    key={order.id} 
+                    order={order} 
+                    getDeliveryStatusBadge={getDeliveryStatusBadge}
+                    formatQuantity={formatQuantity}
+                    combineOrderItems={combineOrderItems}
+                  />
                 ))}
               </div>
             )}
@@ -151,35 +225,76 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   );
 }
 
-function OrderCard({ order, getDeliveryStatusBadge }: { order: Order; getDeliveryStatusBadge: (status: string) => JSX.Element }) {
+function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, combineOrderItems }: { 
+  order: Order; 
+  getDeliveryStatusBadge: (status: string) => React.ReactElement;
+  formatQuantity: (quantity: number, category: string) => string;
+  combineOrderItems: (auditTrail: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+      price_kilo?: number;
+      price_pc?: number;
+      price_tali?: number;
+    };
+    category: string;
+    quantity: number;
+  }>) => Array<{
+    product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
+    category: string;
+    quantity: number;
+  }>;
+}) {
+  const combinedItems = combineOrderItems(order.audit_trail);
+  
   return (
     <Card className="bg-gray-800 border-gray-700">
       <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <h3 className="font-semibold text-white">Order #{order.id}</h3>
               {getDeliveryStatusBadge(order.delivery_status)}
             </div>
-                         <p className="text-sm text-gray-400">
-               Customer: {order.customer.name} ({order.customer.email})
-             </p>
-             <p className="text-sm text-gray-400">
-               Date: {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-             </p>
-             <p className="text-sm text-gray-400">
-               Total: ₱{order.total_amount.toFixed(2)}
-             </p>
-             <div className="text-sm text-gray-400">
-               Items: {order.audit_trail.length} product(s)
-             </div>
-          </div>
-          <div className="flex items-center space-x-2">
             <Link href={route('logistic.orders.show', order.id)}>
               <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white">
                 View Details
               </Button>
             </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">
+                <span className="font-medium text-gray-300">Customer:</span> {order.customer.name}
+              </p>
+              <p className="text-sm text-gray-400">
+                <span className="font-medium text-gray-300">Email:</span> {order.customer.email}
+              </p>
+              <p className="text-sm text-gray-400">
+                <span className="font-medium text-gray-300">Date:</span> {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+              </p>
+              <p className="text-sm text-gray-400">
+                <span className="font-medium text-gray-300">Total:</span> ₱{order.total_amount.toFixed(2)}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-300">Products in Order:</p>
+              <div className="space-y-1">
+                {combinedItems.slice(0, 3).map((item, index) => (
+                  <div key={`${item.product.name}-${item.category}-${index}`} className="text-sm text-gray-400">
+                    • {item.product.name} - {formatQuantity(item.quantity, item.category)}
+                  </div>
+                ))}
+                {combinedItems.length > 3 && (
+                  <div className="text-sm text-gray-500">
+                    +{combinedItems.length - 3} more item(s)
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>

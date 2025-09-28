@@ -21,6 +21,9 @@ interface Order {
     product: {
       id: number;
       name: string;
+      price_kilo?: number;
+      price_pc?: number;
+      price_tali?: number;
     };
     category: string;
     quantity: number;
@@ -40,18 +43,35 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     delivery_status: currentOrder.delivery_status,
   });
 
+  // Helper function to format quantities with proper units
+  const formatQuantity = (quantity: number, category: string) => {
+    switch (category.toLowerCase()) {
+      case 'kilo':
+        return `${quantity} kg`;
+      case 'pc':
+        return `${quantity} pc`;
+      case 'tali':
+        return `${quantity} tali`;
+      default:
+        return `${quantity} ${category}`;
+    }
+  };
+
   // Helper function to combine quantities for the same items
   const combineOrderItems = (auditTrail: Array<{
     id: number;
     product: {
       id: number;
       name: string;
+      price_kilo?: number;
+      price_pc?: number;
+      price_tali?: number;
     };
     category: string;
     quantity: number;
   }>) => {
     const combinedItems = new Map<string, {
-      product: { id: number; name: string };
+      product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
       category: string;
       quantity: number;
     }>();
@@ -225,19 +245,64 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {combineOrderItems(currentOrder.audit_trail).map((item, index) => (
-                <div key={`${item.product.name}-${item.category}-${index}`} className="flex items-center justify-between p-4 border border-gray-600 rounded-lg bg-gray-700">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-white">{item.product.name}</h4>
-                    <p className="text-sm text-gray-400">
-                      Category: {item.category}
-                    </p>
+              {combineOrderItems(currentOrder.audit_trail).map((item, index) => {
+                // Get the appropriate price based on category
+                const getPrice = () => {
+                  let rawPrice;
+                  switch (item.category.toLowerCase()) {
+                    case 'kilo':
+                      rawPrice = item.product.price_kilo;
+                      break;
+                    case 'pc':
+                      rawPrice = item.product.price_pc;
+                      break;
+                    case 'tali':
+                      rawPrice = item.product.price_tali;
+                      break;
+                    default:
+                      return null;
+                  }
+                  
+                  // Convert to number if it's a string, return null if invalid
+                  if (rawPrice === null || rawPrice === undefined) {
+                    return null;
+                  }
+                  
+                  const numPrice = typeof rawPrice === 'string' ? parseFloat(rawPrice) : rawPrice;
+                  return isNaN(numPrice) ? null : numPrice;
+                };
+
+                const price = getPrice();
+                const totalPrice = (price && typeof price === 'number') ? price * item.quantity : null;
+
+                return (
+                  <div key={`${item.product.name}-${item.category}-${index}`} className="p-4 border border-gray-600 rounded-lg bg-gray-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-white">{item.product.name}</h4>
+                        <p className="text-sm text-gray-400">
+                          Category: <span className="capitalize text-gray-300">{item.category}</span>
+                        </p>
+                        {price && typeof price === 'number' && (
+                          <p className="text-sm text-gray-400">
+                            Price per {item.category.toLowerCase()}: ₱{price.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-white">
+                          Quantity: {formatQuantity(item.quantity, item.category)}
+                        </p>
+                        {totalPrice && typeof totalPrice === 'number' && (
+                          <p className="text-sm text-gray-300">
+                            Subtotal: ₱{totalPrice.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-white">Quantity: {item.quantity}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
