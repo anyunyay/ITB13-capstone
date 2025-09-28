@@ -35,7 +35,7 @@ interface Order {
     address?: string;
   };
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
@@ -125,6 +125,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
         return <Badge variant="destructive">Rejected</Badge>;
       case 'expired':
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
+      case 'delayed':
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

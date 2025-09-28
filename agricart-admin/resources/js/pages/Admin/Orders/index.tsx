@@ -9,6 +9,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
 import { useEffect } from 'react';
+import { UrgentOrderPopup } from '@/components/urgent-order-popup';
 
 interface Order {
   id: number;
@@ -17,7 +18,7 @@ interface Order {
     email: string;
   };
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
@@ -108,6 +109,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const pendingOrders = allOrders.filter(order => order.status === 'pending');
   const approvedOrders = allOrders.filter(order => order.status === 'approved');
   const rejectedOrders = allOrders.filter(order => order.status === 'rejected');
+  const delayedOrders = allOrders.filter(order => order.status === 'delayed');
 
   return (
     <PermissionGuard 
@@ -129,7 +131,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
         </div>
 
         <Tabs defaultValue={currentStatus} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all" onClick={() => router.get(route('admin.orders.index'), { status: 'all' })}>
               All Orders ({allOrders.length})
             </TabsTrigger>
@@ -141,6 +143,9 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
             </TabsTrigger>
             <TabsTrigger value="rejected" onClick={() => router.get(route('admin.orders.index'), { status: 'rejected' })}>
               Rejected ({rejectedOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="delayed" onClick={() => router.get(route('admin.orders.index'), { status: 'delayed' })}>
+              Delayed ({delayedOrders.length})
             </TabsTrigger>
           </TabsList>
 
@@ -223,8 +228,31 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               )}
             </div>
           </TabsContent>
+
+          <TabsContent value="delayed" className="mt-6">
+            <div className="grid gap-4">
+              {orders.map((order) => (
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  highlight={highlightOrderId === order.id.toString()}
+                  isUrgent={false} // Delayed orders are not urgent
+                />
+              ))}
+              {orders.length === 0 && (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    No delayed orders.
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Urgent order popup */}
+      <UrgentOrderPopup urgentOrders={safeUrgentOrders} />
     </AppSidebarLayout>
     </PermissionGuard>
   );
@@ -241,6 +269,8 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
         return <Badge variant="destructive">Rejected</Badge>;
       case 'expired':
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
+      case 'delayed':
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -287,45 +317,6 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
                   </Button>
                 </Link>
               </PermissionGate>
-              {order.status === 'pending' && (
-                <PermissionGate permission="edit orders">
-                  {order.is_urgent ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        console.log('Remove urgent clicked for order:', order.id);
-                        console.log('Route:', route('admin.orders.unmarkUrgent', order.id));
-                        router.post(`/admin/orders/${order.id}/unmark-urgent`, {}, {
-                          preserveState: true,
-                          preserveScroll: true,
-                          onSuccess: () => console.log('Remove urgent success'),
-                          onError: (errors) => console.error('Remove urgent error:', errors),
-                        });
-                      }}
-                    >
-                      Remove Urgent
-                    </Button>
-                  ) : (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        console.log('Mark urgent clicked for order:', order.id);
-                        console.log('Route:', route('admin.orders.markUrgent', order.id));
-                        router.post(`/admin/orders/${order.id}/mark-urgent`, {}, {
-                          preserveState: true,
-                          preserveScroll: true,
-                          onSuccess: () => console.log('Mark urgent success'),
-                          onError: (errors) => console.error('Mark urgent error:', errors),
-                        });
-                      }}
-                    >
-                      Mark Urgent
-                    </Button>
-                  )}
-                </PermissionGate>
-              )}
             </div>
           </div>
         </div>

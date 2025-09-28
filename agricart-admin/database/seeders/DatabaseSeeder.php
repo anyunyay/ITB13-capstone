@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             StockSeeder::class,
             PriceTrendSeeder::class,
+            UrgentOrderTestSeeder::class,
         ]);
 
         // Create another user manually

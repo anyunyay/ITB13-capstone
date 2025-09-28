@@ -29,23 +29,36 @@ class OrderController extends Controller
             ->get()
             ->values(); // Convert to array
         
+        // Process orders to check for delayed status and calculate urgent orders
+        $processedOrders = $allOrders->map(function ($order) {
+            $orderAge = $order->created_at->diffInHours(now());
+            
+            // Check if order should be marked as delayed (over 24 hours and still pending)
+            if ($order->status === 'pending' && $orderAge > 24) {
+                $order->update(['status' => 'delayed']);
+                $order->status = 'delayed';
+            }
+            
+            return $order;
+        });
+        
         // Filter orders by status if needed
         if ($status === 'all') {
-            $orders = $allOrders;
+            $orders = $processedOrders;
         } else {
-            $orders = $allOrders->where('status', $status)->values();
+            $orders = $processedOrders->where('status', $status)->values();
         }
         
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
-        
+
         // Calculate orders that need urgent approval (within 8 hours of 24-hour limit OR manually marked as urgent)
-        $urgentOrders = $allOrders->filter(function ($order) {
+        $urgentOrders = $processedOrders->filter(function ($order) {
             if ($order->status !== 'pending') return false;
             // Check if manually marked as urgent
             if ($order->is_urgent) return true;
             // Check if within 8 hours of 24-hour limit
-            $orderAge = now()->diffInHours($order->created_at);
+            $orderAge = $order->created_at->diffInHours(now());
             return $orderAge >= 16; // 16+ hours old (8 hours left)
         })->values(); // Convert to array
         
@@ -71,7 +84,14 @@ class OrderController extends Controller
         $highlight = $request->get('highlight', false);
         
         // Calculate order age and urgency
-        $orderAge = now()->diffInHours($order->created_at);
+        $orderAge = $order->created_at->diffInHours(now());
+        
+        // Check if order should be marked as delayed (over 24 hours and still pending)
+        if ($order->status === 'pending' && $orderAge > 24) {
+            $order->update(['status' => 'delayed']);
+            $order->status = 'delayed';
+        }
+        
         $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)
         $canApprove = $order->status === 'pending' && $orderAge <= 24;
         
@@ -123,7 +143,7 @@ class OrderController extends Controller
         ]);
 
         // Check if order is within 24-hour approval window
-        $orderAge = now()->diffInHours($order->created_at);
+        $orderAge = $order->created_at->diffInHours(now());
         if ($orderAge > 24) {
             return redirect()->back()->with('error', 'Order approval time has expired. Orders must be approved within 24 hours.');
         }
@@ -361,4 +381,5 @@ class OrderController extends Controller
         
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
+
 }

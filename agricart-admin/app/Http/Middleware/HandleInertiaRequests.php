@@ -127,7 +127,7 @@ class HandleInertiaRequests extends Middleware
                         // Check if manually marked as urgent
                         if ($order->is_urgent) return true;
                         // Check if within 8 hours of 24-hour limit
-                        $orderAge = now()->diffInHours($order->created_at);
+                        $orderAge = $order->created_at->diffInHours(now());
                         return $orderAge >= 16; // 16+ hours old (8 hours left)
                     })
                     ->values();
