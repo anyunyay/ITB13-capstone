@@ -127,6 +127,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
       case 'delayed':
         return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

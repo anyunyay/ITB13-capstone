@@ -11,6 +11,7 @@ use App\Notifications\OrderStatusUpdate;
 use App\Notifications\OrderReceipt;
 use App\Notifications\DeliveryTaskNotification;
 use App\Notifications\ProductSaleNotification;
+use App\Notifications\OrderDelayedNotification;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -37,6 +38,11 @@ class OrderController extends Controller
             if ($order->status === 'pending' && $orderAge > 24) {
                 $order->update(['status' => 'delayed']);
                 $order->status = 'delayed';
+                
+                // Send notification to customer about delay
+                if ($order->customer) {
+                    $order->customer->notify(new OrderDelayedNotification($order));
+                }
             }
             
             return $order;
@@ -90,6 +96,11 @@ class OrderController extends Controller
         if ($order->status === 'pending' && $orderAge > 24) {
             $order->update(['status' => 'delayed']);
             $order->status = 'delayed';
+            
+            // Send notification to customer about delay
+            if ($order->customer) {
+                $order->customer->notify(new OrderDelayedNotification($order));
+            }
         }
         
         $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)

@@ -18,7 +18,7 @@ interface Order {
     email: string;
   };
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
+  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
   admin?: {
@@ -86,6 +86,10 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
         return <Badge variant="destructive">Rejected</Badge>;
       case 'expired':
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
+      case 'delayed':
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -271,6 +275,8 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
         return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
       case 'delayed':
         return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

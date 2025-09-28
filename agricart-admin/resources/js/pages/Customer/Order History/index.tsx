@@ -11,7 +11,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { CalendarIcon, Download, FileText } from 'lucide-react';
+import { CalendarIcon, Download, FileText, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface OrderItem {
   id: number;
@@ -28,7 +29,7 @@ interface OrderItem {
 interface Order {
   id: number;
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered' | null;
   created_at: string;
   admin_notes?: string;
@@ -59,6 +60,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [reportOpen, setReportOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
 
   // Helper function to combine quantities for the same items
   const combineOrderItems = (auditTrail: OrderItem[]) => {
@@ -147,6 +149,19 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     window.open(`/customer/orders/report?${params.toString()}`, '_blank');
   };
 
+  const handleCancelOrder = (orderId: number) => {
+    router.post(`/customer/orders/${orderId}/cancel`, {}, {
+      onSuccess: () => {
+        // Close the dialog
+        setCancelDialogOpen(prev => ({ ...prev, [orderId]: false }));
+        // The page will refresh automatically due to Inertia
+      },
+      onError: (errors) => {
+        console.error('Cancellation failed:', errors);
+      }
+    });
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -155,6 +170,10 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         return <Badge variant="default">Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'delayed':
+        return <Badge variant="destructive">Delayed</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline">Cancelled</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -168,6 +187,10 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         return 'text-green-600';
       case 'rejected':
         return 'text-red-600';
+      case 'delayed':
+        return 'text-red-600';
+      case 'cancelled':
+        return 'text-gray-600';
       default:
         return 'text-gray-600';
     }
@@ -362,6 +385,58 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     <div className="mb-4 p-3 bg-amber-100 border-l-4 border-amber-400 rounded">
                       <h5 className="font-semibold text-sm mb-1 text-amber-800">Admin Notes:</h5>
                       <p className="text-sm text-amber-900">{order.admin_notes}</p>
+                    </div>
+                  )}
+
+                  {/* Delayed Order Notice and Cancellation Button */}
+                  {order.status === 'delayed' && (
+                    <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h5 className="font-semibold text-sm mb-2 text-red-800">Order Delayed</h5>
+                          <p className="text-sm text-red-900 mb-2">
+                            Your order has exceeded the standard 24-hour approval time. We apologize for the delay.
+                          </p>
+                          <p className="text-sm text-red-900">
+                            If you have any concerns, please contact us at: <strong>sample@email.com</strong>
+                          </p>
+                        </div>
+                        <Dialog 
+                          open={cancelDialogOpen[order.id] || false} 
+                          onOpenChange={(open) => setCancelDialogOpen(prev => ({ ...prev, [order.id]: open }))}
+                        >
+                          <DialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="ml-4">
+                              <X className="h-4 w-4 mr-1" />
+                              Cancel Order
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Cancel Order #{order.id}</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to cancel this delayed order? This action cannot be undone.
+                                <br /><br />
+                                <strong>Order Total:</strong> ₱{Number(order.total_amount).toFixed(2)}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setCancelDialogOpen(prev => ({ ...prev, [order.id]: false }))}
+                              >
+                                Keep Order
+                              </Button>
+                              <Button
+                                onClick={() => handleCancelOrder(order.id)}
+                                variant="destructive"
+                              >
+                                Yes, Cancel Order
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   )}
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
+use App\Models\Sales;
+use App\Notifications\OrderStatusUpdate;
 
 class OrderController extends Controller
 {
@@ -31,6 +33,13 @@ class OrderController extends Controller
         $orders = $query->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sale) {
+                // Check if order should be marked as delayed (over 24 hours and still pending)
+                $orderAge = $sale->created_at->diffInHours(now());
+                if ($sale->status === 'pending' && $orderAge > 24) {
+                    $sale->update(['status' => 'delayed']);
+                    $sale->status = 'delayed';
+                }
+                
                 return [
                     'id' => $sale->id,
                     'total_amount' => $sale->total_amount,
@@ -201,5 +210,32 @@ class OrderController extends Controller
         $filename = 'my_orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $pdf->download($filename);
+    }
+
+    public function cancel(Request $request, Sales $order)
+    {
+        $user = $request->user();
+        
+        // Verify the order belongs to the authenticated customer
+        if ($order->customer_id !== $user->id) {
+            return redirect()->back()->with('error', 'You can only cancel your own orders.');
+        }
+        
+        // Only allow cancellation of delayed orders
+        if ($order->status !== 'delayed') {
+            return redirect()->back()->with('error', 'Only delayed orders can be cancelled.');
+        }
+        
+        // Update order status to cancelled
+        $order->update([
+            'status' => 'cancelled',
+            'delivery_status' => null,
+        ]);
+        
+        // Notify the customer
+        $user->notify(new OrderStatusUpdate($order->id, 'cancelled', 'Your order has been cancelled as requested.'));
+        
+        return redirect()->route('orders.history')
+            ->with('message', 'Order #' . $order->id . ' has been cancelled successfully.');
     }
 }
