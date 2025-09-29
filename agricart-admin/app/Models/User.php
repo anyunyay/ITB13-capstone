@@ -27,13 +27,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'password_change_required',
         // Customer fields
-        'address line',
+        'address',
         'barangay',
         'city',
         'province',
         'contact_number',
         // Logistic fields
-        'address',
         'registration_date',
         // Member fields
         'document',

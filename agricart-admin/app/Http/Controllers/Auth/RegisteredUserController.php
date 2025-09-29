@@ -34,12 +34,26 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'contact_number' => [
+                'required',
+                'string',
+                'regex:/^(\+639|09)\d{9}$/',
+            ],
+            'address' => 'required|string|max:500',
+            'barangay' => 'required|string|in:Sala',
+            'city' => 'required|string|in:Cabuyao',
+            'province' => 'required|string|in:Laguna',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'contact_number' => $request->contact_number,
+            'address' => $request->address,
+            'barangay' => $request->barangay,
+            'city' => $request->city,
+            'province' => $request->province,
             'type' => 'customer', // Ensure type is set to customer
         ]);
 
@@ -51,6 +65,9 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        // Ensure permissions are set for the user
+        $user->ensurePermissions();
 
         // Send email verification notification
         $user->sendEmailVerificationNotification();

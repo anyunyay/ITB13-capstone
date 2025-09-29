@@ -7,6 +7,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AuthLayout from '@/layouts/auth-layout';
 
 type RegisterForm = {
@@ -14,14 +15,43 @@ type RegisterForm = {
     email: string;
     password: string;
     password_confirmation: string;
+    contact_number: string;
+    address: string;
+    barangay: string;
+    city: string;
+    province: string;
 };
 
 export default function Register() {
+    // List of all barangays in Cabuyao, Laguna (only Sala is selectable)
+    const cabuyaoBarangays = [
+        'Banaybanay',
+        'Bigaa',
+        'Butong',
+        'Diezmo',
+        'Gulod',
+        'Mamatid',
+        'Marinig',
+        'Niugan',
+        'Pittland',
+        'Pulo',
+        'Puntod',
+        'Sala',
+        'San Isidro',
+        'Tulo',
+        'Ulong Tubig'
+    ];
+
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        contact_number: '',
+        address: '',
+        barangay: 'Sala', // Default to Sala
+        city: 'Cabuyao', // Default to Cabuyao
+        province: 'Laguna', // Default to Laguna
     });
 
     const submit: FormEventHandler = (e) => {
@@ -101,7 +131,111 @@ export default function Register() {
                         <InputError message={errors.password_confirmation} />
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
+                    <div className="grid gap-2">
+                        <Label htmlFor="contact_number">Contact Number</Label>
+                        <Input
+                            id="contact_number"
+                            type="tel"
+                            required
+                            tabIndex={5}
+                            autoComplete="tel"
+                            value={data.contact_number}
+                            onChange={(e) => setData('contact_number', e.target.value)}
+                            disabled={processing}
+                            placeholder="+63 9XX XXX XXXX (Philippine format only)"
+                        />
+                        <InputError message={errors.contact_number} />
+                        <p className="text-xs text-muted-foreground">
+                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                        </p>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="address">Address Line</Label>
+                        <Input
+                            id="address"
+                            type="text"
+                            required
+                            tabIndex={6}
+                            autoComplete="address-line1"
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            disabled={processing}
+                            placeholder="House number, street name"
+                        />
+                        <InputError message={errors.address} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="province">Province</Label>
+                            <Select 
+                                value={data.province} 
+                                onValueChange={(value) => setData('province', value)}
+                                disabled={processing}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select province" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Laguna">
+                                        Laguna
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError message={errors.province} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="city">City</Label>
+                            <Select 
+                                value={data.city} 
+                                onValueChange={(value) => setData('city', value)}
+                                disabled={processing}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select city" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Cabuyao">
+                                        Cabuyao
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError message={errors.city} />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="barangay">Barangay</Label>
+                        <Select 
+                            value={data.barangay} 
+                            onValueChange={(value) => setData('barangay', value)}
+                            disabled={processing}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select barangay" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {cabuyaoBarangays.map((barangay) => (
+                                    <SelectItem 
+                                        key={barangay} 
+                                        value={barangay}
+                                        disabled={barangay !== 'Sala'}
+                                        className={barangay !== 'Sala' ? 'opacity-50 cursor-not-allowed' : ''}
+                                    >
+                                        {barangay}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.barangay} />
+                        <p className="text-xs text-muted-foreground">
+                            Only Barangay Sala is currently available
+                        </p>
+                    </div>
+
+                    <Button type="submit" className="mt-2 w-full" tabIndex={10} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Create account
                     </Button>
@@ -109,7 +243,7 @@ export default function Register() {
 
                 <div className="text-center text-sm text-muted-foreground">
                     Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    <TextLink href={route('login')} tabIndex={11}>
                         Log in
                     </TextLink>
                 </div>

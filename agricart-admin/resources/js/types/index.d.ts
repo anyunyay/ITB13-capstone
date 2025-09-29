@@ -59,5 +59,13 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    // Customer address fields
+    contact_number?: string;
+    address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
+    // User type
+    type?: string;
     [key: string]: unknown; // This allows for additional properties...
 }
