@@ -58,7 +58,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
 }) {
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [selectedQuantity, setSelectedQuantity] = useState<number | string>(1);
   const [message, setMessage] = useState<string | null>(null);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
   const { auth } = usePage<PageProps & SharedData>().props;
@@ -106,8 +106,13 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
       setMessage('Please select a category.');
       return;
     }
-
-    const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
+    // Normalize quantity to number
+    const rawQty = typeof selectedQuantity === 'number'
+      ? selectedQuantity
+      : selectedQuantity === ''
+      ? 1
+      : parseFloat(selectedQuantity);
+    const sendQty = isKilo ? Number(rawQty.toFixed(2)) : Math.floor(rawQty);
 
     // Add to shared stock manager
     stockManager.addToCart(product.id, selectedCategory, sendQty);
@@ -241,56 +246,64 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          const currentQty =
+                            typeof selectedQuantity === 'number'
+                              ? selectedQuantity
+                              : selectedQuantity === ''
+                              ? 1
+                              : parseFloat(selectedQuantity);
                           if (isKilo) {
-                            const newQty = Math.max(0.25, selectedQuantity - 0.25);
+                            const newQty = Math.max(1, currentQty - 0.25);
                             setSelectedQuantity(Number(newQty.toFixed(2)));
                           } else {
-                            const newQty = Math.max(1, selectedQuantity - 1);
+                            const newQty = Math.max(1, Math.floor(currentQty) - 1);
                             setSelectedQuantity(newQty);
                           }
                         }}
-                        disabled={
-                          isKilo ? selectedQuantity <= 0.25 : selectedQuantity <= 1
-                        }
+                        disabled={Number((selectedQuantity as any) || 0) <= 1}
                         className="px-2"
                       >
                         {isKilo ? '- 0.25' : '-'}
                       </Button>
                       <input
                         type="number"
-                        min={isKilo ? 0.25 : 1}
-                        step={isKilo ? 0.01 : 1}
+                        min={1}
+                        step={isKilo ? 0.25 : 1}
                         max={maxQty}
                         value={selectedQuantity}
                         onChange={(e) => {
                           const value = e.target.value;
+                          if (value === '') {
+                            setSelectedQuantity('');
+                            return;
+                          }
                           if (isKilo) {
-                            // For Kilo, allow free typing - rounding happens on blur
                             const numValue = parseFloat(value);
-                            if (!isNaN(numValue) && numValue >= 0.25 && numValue <= maxQty) {
+                            if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
                               setSelectedQuantity(numValue);
-                            } else if (value === '') {
-                              setSelectedQuantity(0.25);
                             }
                           } else {
                             // For PC and Tali, only allow integers
-                            const numValue = parseInt(value);
-                            if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
-                              setSelectedQuantity(numValue);
-                            } else if (value === '') {
-                              setSelectedQuantity(1);
+                            const isIntegerString = /^\d+$/.test(value);
+                            if (isIntegerString) {
+                              const numValue = parseInt(value);
+                              if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
+                                setSelectedQuantity(numValue);
+                              }
                             }
                           }
                         }}
                         onBlur={(e) => {
+                          if (e.target.value === '') {
+                            setSelectedQuantity(1);
+                            return;
+                          }
                           if (isKilo) {
-                            // Round to nearest quarter when user finishes typing
                             const numValue = parseFloat(e.target.value);
-                            if (!isNaN(numValue) && numValue >= 0.25 && numValue <= maxQty) {
-                              const rounded = Math.round(numValue * 4) / 4;
-                              setSelectedQuantity(Number(rounded.toFixed(2)));
-                            } else if (e.target.value === '') {
-                              setSelectedQuantity(0.25);
+                            if (!isNaN(numValue)) {
+                              const clamped = Math.max(1, Math.min(maxQty, numValue));
+                              const roundedQuarter = Math.round(clamped * 4) / 4;
+                              setSelectedQuantity(Number(roundedQuarter.toFixed(2)));
                             }
                           }
                         }}
@@ -301,15 +314,22 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          const currentQty =
+                            typeof selectedQuantity === 'number'
+                              ? selectedQuantity
+                              : selectedQuantity === ''
+                              ? 1
+                              : parseFloat(selectedQuantity);
                           if (isKilo) {
-                            const newQty = Math.min(maxQty, selectedQuantity + 0.25);
+                            const newQty = Math.min(maxQty, currentQty + 0.25);
                             setSelectedQuantity(Number(newQty.toFixed(2)));
                           } else {
-                            const newQty = Math.min(maxQty, selectedQuantity + 1);
+                            const base = Math.max(1, Math.floor(currentQty));
+                            const newQty = Math.min(maxQty, base + 1);
                             setSelectedQuantity(newQty);
                           }
                         }}
-                        disabled={selectedQuantity >= maxQty}
+                        disabled={Number((selectedQuantity as any) || 0) >= maxQty}
                         className="px-2"
                       >
                         {isKilo ? '+ 0.25' : '+'}
@@ -337,8 +357,8 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                     disabled={
                       processing ||
                       !selectedCategory ||
-                      selectedQuantity < (isKilo ? 0.25 : 1) ||
-                      selectedQuantity > maxQty
+                      Number((selectedQuantity as any) || 0) < 1 ||
+                      Number((selectedQuantity as any) || 0) > maxQty
                     }
                   >
                     {processing ? 'Adding...' : 'Add to Cart'}
