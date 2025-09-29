@@ -67,6 +67,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     const cartCount = Object.keys(cart).length;
     const unreadCount = notifications.filter((n: any) => !n.read_at).length;
+    const showSearchBar =
+        page.url === '/' ||
+        page.url.startsWith('/customer/fruits') ||
+        page.url.startsWith('/customer/vegetables') ||
+        page.url.startsWith('/customer/product');
 
     const handleNotificationClick = (n: any) => {
         const orderId = n.data?.order_id;
@@ -107,9 +112,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <div className="flex h-full flex-col justify-between text-sm">
                                         <div className="flex flex-col space-y-4">
                                             {/* Search Bar for Mobile */}
-                                            <div className="mb-4">
-                                                <SearchBar />
-                                            </div>
+                                            {showSearchBar && (
+                                                <div className="mb-4">
+                                                    <SearchBar />
+                                                </div>
+                                            )}
                                             {mainNavItems.map((item) => (
                                                 <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
                                                     {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
@@ -184,7 +191,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                     <div className="ml-auto flex items-center space-x-2">
                         <div className="relative flex items-center space-x-1">
-                            <SearchBar />
+                            {showSearchBar && <SearchBar />}
                             <div className="hidden lg:flex">
                                 {rightNavItems.map((item) => (
                                     item.title === 'Notifications' && auth.user ? (
