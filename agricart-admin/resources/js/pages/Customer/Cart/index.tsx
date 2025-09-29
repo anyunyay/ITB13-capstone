@@ -23,12 +23,12 @@ export default function CartPage() {
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
-  const [tempQuantities, setTempQuantities] = useState<Record<number, number>>({});
+  const [tempQuantities, setTempQuantities] = useState<Record<number, number | string>>({});
   const [quantityErrors, setQuantityErrors] = useState<Record<number, string>>({});
 
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
   const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
-  const [confirmUpdateItem, setConfirmUpdateItem] = useState<number | null>(null);
+  // Removed confirm dialog; updates happen instantly on change/blur
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -59,9 +59,10 @@ export default function CartPage() {
       // Only set if not currently being edited
       if (!editingItems.has(item.item_id)) {
         // Ensure proper formatting based on category
+        const baseQty = Number(item.quantity) || 0;
         const formattedQuantity = item.category === 'Kilo' 
-          ? Number(item.quantity) || 0
-          : Math.floor(Number(item.quantity) || 0);
+          ? Number((Math.max(1, baseQty) * 4).toFixed(0)) / 4
+          : Math.floor(Math.max(1, baseQty));
         tempQty[item.item_id] = formattedQuantity;
       }
     });
@@ -190,8 +191,8 @@ export default function CartPage() {
       
       // Set temp quantities to current cart quantity, ensuring proper formatting
       const formattedQuantity = currentItem.category === 'Kilo' 
-        ? Number(currentQuantity) || 0
-        : Math.floor(Number(currentQuantity) || 0);
+        ? Number((Math.max(1, currentQuantity) * 4).toFixed(0)) / 4
+        : Math.floor(Math.max(1, currentQuantity));
       
       setTempQuantities(prev => ({ 
         ...prev, 
@@ -214,9 +215,10 @@ export default function CartPage() {
     const currentItem = cart[cartItem];
     if (currentItem) {
       // Ensure proper formatting when resetting
+      const baseQty = Number(currentItem.quantity) || 0;
       const formattedQuantity = currentItem.category === 'Kilo' 
-        ? Number(currentItem.quantity) || 0
-        : Math.floor(Number(currentItem.quantity) || 0);
+        ? Number((Math.max(1, baseQty) * 4).toFixed(0)) / 4
+        : Math.floor(Math.max(1, baseQty));
       
       setTempQuantities(prev => ({
         ...prev,
@@ -270,8 +272,9 @@ export default function CartPage() {
     const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
     
     if (category === 'Kilo') {
-      // For kilo items, keep as decimal
-      return numQuantity;
+      // For kilo items, clamp to min 1 and round to nearest quarter
+      const clamped = Math.max(1, numQuantity);
+      return Math.round(clamped * 4) / 4;
     } else {
       // For Tali, Pc, and other items, convert to integer
       return Math.floor(numQuantity);
@@ -334,58 +337,143 @@ export default function CartPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              const currentQty = Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                              const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                                ? (tempQuantities[item.item_id] as number)
+                                : tempQuantities[item.item_id] === ''
+                                ? 1
+                                : Number(tempQuantities[item.item_id] || item.quantity) || 0;
                               if (item.category === 'Kilo') {
-                                const newQty = Math.max(0.25, currentQty - 0.25);
-                                setTempQuantities(prev => ({ ...prev, [item.item_id]: Number(newQty.toFixed(2)) }));
+                                const newQty = Math.max(1, currentQty - 0.25);
+                                const roundedQuarter = Math.round(newQty * 4) / 4;
+                                const next = Number(roundedQuarter.toFixed(2));
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
                               } else {
                                 const newQty = Math.max(1, Math.floor(currentQty - 1));
                                 setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
                               }
                             }}
                             disabled={
-                              item.category === 'Kilo' 
-                                ? (Number(tempQuantities[item.item_id] || item.quantity) || 0) <= 0.25
-                                : (Number(tempQuantities[item.item_id] || item.quantity) || 0) <= 1
+                              (Number((tempQuantities[item.item_id] as any) || item.quantity) || 0) <= 1
                             }
-                            className="px-2"
+                            className="px-2 dark:border-gray-600 dark:text-gray-200"
                           >
-                            {item.category === 'Kilo' ? '-0.25' : '-1'}
+                            {item.category === 'Kilo' ? '-0.25' : '-'}
                           </Button>
-                          <div className="w-20 text-center border rounded p-2 bg-blue-50 border-blue-200 text-blue-700 font-medium">
-                            {item.category === 'Kilo' 
-                              ? (Number(tempQuantities[item.item_id] || item.quantity) || 0).toFixed(2)
-                              : Math.floor(Number(tempQuantities[item.item_id] || item.quantity) || 0)
-                            }
-                          </div>
+                          <input
+                            type="number"
+                            min={1}
+                            step={item.category === 'Kilo' ? 0.25 : 1}
+                            max={typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0}
+                            value={tempQuantities[item.item_id] ?? ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === '') {
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: '' }));
+                                return;
+                              }
+                              if (item.category === 'Kilo') {
+                                const numValue = parseFloat(value);
+                                if (!isNaN(numValue) && numValue >= 1) {
+                                  setTempQuantities(prev => ({ ...prev, [item.item_id]: numValue }));
+                                }
+                              } else {
+                                const isIntegerString = /^\d+$/.test(value);
+                                if (isIntegerString) {
+                                  const numValue = parseInt(value);
+                                  if (!isNaN(numValue) && numValue >= 1) {
+                                    setTempQuantities(prev => ({ ...prev, [item.item_id]: numValue }));
+                                  }
+                                }
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value === '') {
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: 1 }));
+                                return;
+                              }
+                              if (item.category === 'Kilo') {
+                                const numValue = parseFloat(e.target.value);
+                                if (!isNaN(numValue)) {
+                                  const clamped = Math.max(1, numValue);
+                                  const availableStock = typeof item.available_stock === 'number' 
+                                    ? item.available_stock 
+                                    : parseFloat(String(item.available_stock)) || 0;
+                                  const capped = Math.min(availableStock, clamped);
+                                  const roundedQuarter = Math.round(capped * 4) / 4;
+                                  const next = Number(roundedQuarter.toFixed(2));
+                                  setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
+                                  if (next > availableStock) {
+                                    setQuantityErrors(prev => ({ ...prev, [item.item_id]: `Maximum available: ${formatQuantityDisplay(availableStock, item.category)} ${item.category}` }));
+                                  } else {
+                                    setQuantityErrors(prev => ({ ...prev, [item.item_id]: '' }));
+                                  }
+                                }
+                              } else {
+                                const numValue = parseInt(e.target.value);
+                                if (!isNaN(numValue)) {
+                                  const availableStock = typeof item.available_stock === 'number' 
+                                    ? item.available_stock 
+                                    : parseFloat(String(item.available_stock)) || 0;
+                                  const next = Math.min(availableStock, Math.max(1, Math.floor(numValue)));
+                                  setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
+                                  if (next > availableStock) {
+                                    setQuantityErrors(prev => ({ ...prev, [item.item_id]: `Maximum available: ${formatQuantityDisplay(availableStock, item.category)} ${item.category}` }));
+                                  } else {
+                                    setQuantityErrors(prev => ({ ...prev, [item.item_id]: '' }));
+                                  }
+                                }
+                              }
+                            }}
+                            className="w-24 text-center border rounded p-2 border-blue-200 bg-blue-50 text-blue-700 font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                          />
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              const currentQty = Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                              const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                                ? (tempQuantities[item.item_id] as number)
+                                : tempQuantities[item.item_id] === ''
+                                ? 1
+                                : Number(tempQuantities[item.item_id] || item.quantity) || 0;
                               const availableStock = typeof item.available_stock === 'number' 
                                 ? item.available_stock 
                                 : parseFloat(String(item.available_stock)) || 0;
                               if (item.category === 'Kilo') {
-                                const newQty = Math.min(availableStock, currentQty + 0.25);
-                                setTempQuantities(prev => ({ ...prev, [item.item_id]: Number(newQty.toFixed(2)) }));
+                                const incremented = currentQty + 0.25;
+                                const clamped = Math.min(availableStock, Math.max(1, incremented));
+                                const roundedQuarter = Math.round(clamped * 4) / 4;
+                                const next = Number(roundedQuarter.toFixed(2));
+                                setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
+                                if (next >= availableStock) {
+                                  setQuantityErrors(prev => ({ ...prev, [item.item_id]: `Maximum available: ${formatQuantityDisplay(availableStock, item.category)} ${item.category}` }));
+                                } else {
+                                  setQuantityErrors(prev => ({ ...prev, [item.item_id]: '' }));
+                                }
                               } else {
                                 const newQty = Math.min(availableStock, Math.floor(currentQty + 1));
                                 setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
+                                if (newQty >= availableStock) {
+                                  setQuantityErrors(prev => ({ ...prev, [item.item_id]: `Maximum available: ${formatQuantityDisplay(availableStock, item.category)} ${item.category}` }));
+                                } else {
+                                  setQuantityErrors(prev => ({ ...prev, [item.item_id]: '' }));
+                                }
                               }
                             }}
                             disabled={
-                              (Number(tempQuantities[item.item_id] || item.quantity) || 0) >= 
+                              (Number((tempQuantities[item.item_id] as any) || item.quantity) || 0) >= 
                               (typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0)
                             }
-                            className="px-2"
+                            className="px-2 dark:border-gray-600 dark:text-gray-200"
                           >
-                            {item.category === 'Kilo' ? '+0.25' : '+1'}
+                            {item.category === 'Kilo' ? '+0.25' : '+'}
                           </Button>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                            Available: {formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0, item.category)} {item.category}
+                          </div>
                         </>
                       ) : (
-                        <div className="w-20 text-center border rounded p-2 bg-blue-50 border-blue-200 text-blue-700 font-medium">
+                        <div className="w-20 text-center border rounded p-2 bg-blue-50 border-blue-200 text-blue-700 font-medium dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
                           {formatQuantityDisplay(item.quantity, item.category)}
                         </div>
                       )}
@@ -396,12 +484,33 @@ export default function CartPage() {
                           variant="default"
                           size="sm"
                           onClick={() => {
-                            setConfirmUpdateItem(item.item_id);
+                            // Save normalized value on Done
+                            const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                              ? (tempQuantities[item.item_id] as number)
+                              : tempQuantities[item.item_id] === ''
+                              ? 1
+                              : Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                            const availableStock = typeof item.available_stock === 'number' 
+                              ? item.available_stock 
+                              : parseFloat(String(item.available_stock)) || 0;
+                            let normalized: number;
+                            if (item.category === 'Kilo') {
+                              normalized = Math.max(1, currentQty);
+                              normalized = Math.min(availableStock, normalized);
+                              normalized = Math.round(normalized * 4) / 4;
+                              normalized = Number(normalized.toFixed(2));
+                            } else {
+                              normalized = Math.max(1, Math.floor(currentQty));
+                              normalized = Math.min(availableStock, normalized);
+                            }
+                            setTempQuantities(prev => ({ ...prev, [item.item_id]: normalized }));
+                            updateItemQuantity(item.item_id, normalized);
+                            exitEditMode(item.item_id);
                           }}
                           disabled={updatingItems.has(item.item_id) || !!quantityErrors[item.item_id]}
                           className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                          {updatingItems.has(item.item_id) ? 'Updating...' : 'Confirm Update'}
+                          Done
                         </Button>
                         <Button
                           variant="outline"
@@ -434,14 +543,10 @@ export default function CartPage() {
                   </Button>
                 </div>
                 {quantityErrors[item.item_id] && (
-                  <div className="text-red-500 text-sm mt-1">
+                  <div className="text-red-500 text-sm mt-1 dark:text-red-400">
                     {quantityErrors[item.item_id]}
                   </div>
                 )}
-                <div className="text-sm text-gray-500 mt-1">
-                  Available: {formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0, item.category)} {item.category}
-                </div>
-                {editingItems.has(item.item_id)}
               </div>
             ))}
           </div>
@@ -501,38 +606,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
-      {confirmUpdateItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Confirm Quantity Update</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to update the quantity for this item?
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="default"
-                onClick={() => {
-                  const newQuantity = Number(tempQuantities[confirmUpdateItem] || cart[confirmUpdateItem]?.quantity) || 0;
-                  updateItemQuantity(confirmUpdateItem, newQuantity);
-                  exitEditMode(confirmUpdateItem);
-                  setConfirmUpdateItem(null);
-                }}
-                className="flex-1"
-              >
-                Confirm Update
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setConfirmUpdateItem(null)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Confirmation Dialog removed; updates are instant */}
     </AppHeaderLayout>
   );
 } 
