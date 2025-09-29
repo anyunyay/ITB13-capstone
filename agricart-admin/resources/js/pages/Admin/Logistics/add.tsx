@@ -113,7 +113,15 @@ export default function Index() {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic contact_number">Contact Number</Label>
-                        <Input placeholder="Contact Number" value={data.contact_number} onChange={(e) => setData('contact_number', e.target.value)} />
+                        <Input 
+                            type="tel"
+                            placeholder="+63 9XX XXX XXXX (Philippine format only)" 
+                            value={data.contact_number} 
+                            onChange={(e) => setData('contact_number', e.target.value)} 
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                        </p>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic address">Address</Label>

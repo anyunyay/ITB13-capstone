@@ -29,7 +29,11 @@ class LogisticController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'contact_number' => 'nullable|string|max:20',
+            'contact_number' => [
+                'required',
+                'string',
+                'regex:/^(\+639|09)\d{9}$/',
+            ],
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
@@ -61,7 +65,11 @@ class LogisticController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'contact_number' => 'nullable|string|max:20',
+            'contact_number' => [
+                'required',
+                'string',
+                'regex:/^(\+639|09)\d{9}$/',
+            ],
             'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
