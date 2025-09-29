@@ -8,6 +8,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,8 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'guest' => RedirectIfAuthenticated::class,
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-            'password.change.required' => \App\Http\Middleware\CheckPasswordChangeRequired::class,
+            'verified' => EnsureEmailIsVerified::class,
+            'password.change.required' => CheckPasswordChangeRequired::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
