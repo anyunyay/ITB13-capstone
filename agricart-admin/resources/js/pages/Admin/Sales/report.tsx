@@ -6,6 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
@@ -225,67 +234,68 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Sales ({sales.length})</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">ID</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Customer</th>
-                    <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Amount</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Processed By</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Logistic</th>
-                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Created</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {sales.map((sale) => (
-                    <tr key={sale.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-gray-600">#{sale.id}</td>
-                      <td className="px-3 py-2 max-w-xs">
-                        <div className="text-sm font-medium text-gray-900 truncate" title={sale.customer.name}>
-                          {sale.customer.name}
-                        </div>
-                        <div className="text-xs text-gray-500 truncate">{sale.customer.email}</div>
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          ₱{Number(sale.total_amount).toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 max-w-xs">
-                        <div className="text-sm text-gray-900 truncate" title={sale.admin?.name || 'N/A'}>
-                          {sale.admin?.name || 'N/A'}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 max-w-xs">
-                        <div className="text-sm text-gray-900 truncate" title={sale.logistic?.name || 'N/A'}>
-                          {sale.logistic?.name || 'N/A'}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-600">
-                        {dayjs(sale.created_at).format('MMM DD, YYYY')}
-                        <div className="text-xs text-gray-400">{dayjs(sale.created_at).format('HH:mm')}</div>
-                      </td>
-                    </tr>
-                  ))}
-                  {sales.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                        <div className="flex flex-col items-center">
-                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                            </svg>
+          <CardContent>
+            {sales.length > 0 && (
+              <div className='w-full pt-8'>
+                <Table>
+                  <TableCaption>List of sales transactions</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-center">ID</TableHead>
+                      <TableHead className="text-center">Customer</TableHead>
+                      <TableHead className="text-center">Amount</TableHead>
+                      <TableHead className="text-center">Processed By</TableHead>
+                      <TableHead className="text-center">Logistic</TableHead>
+                      <TableHead className="text-center">Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sales.map((sale) => (
+                      <TableRow className="text-center" key={sale.id}>
+                        <TableCell className="font-mono">#{sale.id}</TableCell>
+                        <TableCell>
+                          <div className="text-sm font-medium" title={sale.customer.name}>
+                            {sale.customer.name}
                           </div>
-                          <p className="text-sm">No sales found for the selected filters.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          <div className="text-xs text-muted-foreground">{sale.customer.email}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            ₱{Number(sale.total_amount).toFixed(2)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm" title={sale.admin?.name || 'N/A'}>
+                            {sale.admin?.name || 'N/A'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm" title={sale.logistic?.name || 'N/A'}>
+                            {sale.logistic?.name || 'N/A'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">{dayjs(sale.created_at).format('MMM DD, YYYY')}</div>
+                          <div className="text-xs text-muted-foreground">{dayjs(sale.created_at).format('HH:mm')}</div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+            {sales.length === 0 && (
+              <div className="text-center text-muted-foreground py-8">
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                  </div>
+                  <p className="text-sm">No sales found for the selected filters.</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
