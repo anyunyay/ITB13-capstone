@@ -326,6 +326,7 @@ class LogisticController extends Controller
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
         
         $filename = 'logistic_orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
