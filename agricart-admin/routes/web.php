@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
 // Authenticated routes
 Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
     // Admin || Staff routes
-    Route::prefix('/admin')->group(function () {
+    Route::prefix('/admin')->middleware(['role:admin|staff'])->group(function () {
         // Dashboard routes
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard'); // Admin Dashboard
 

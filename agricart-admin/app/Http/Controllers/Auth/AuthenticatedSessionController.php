@@ -14,6 +14,19 @@ use Inertia\Response;
 class AuthenticatedSessionController extends Controller
 {
     /**
+     * Resolve the correct dashboard route name for a given user type
+     */
+    private function dashboardRouteForType(?string $type): string
+    {
+        return match ($type) {
+            'admin', 'staff' => 'admin.dashboard',
+            'member' => 'member.dashboard',
+            'logistic' => 'logistic.dashboard',
+            default => 'home',
+        };
+    }
+
+    /**
      * Show the customer login page.
      */
     public function create(Request $request): Response
@@ -58,23 +71,17 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming customer authentication request.
+     * Handle an incoming authentication request (customer portal entry point).
+     * Always redirect to the appropriate dashboard for the authenticated user's type.
      */
-public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();
 
         $user = $request->user();
 
-        // Ensure user has proper permissions for their type
         $user->ensurePermissions();
-
-        // Verify user is a customer
-        if ($user->type !== 'customer') {
-            Auth::guard('web')->logout();
-            return back()->withErrors(['email' => 'Access denied. Customer credentials required.']);
-        }
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -85,11 +92,12 @@ public function store(LoginRequest $request): RedirectResponse
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
-        return redirect()->intended(route('home', absolute: false));
+        return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
     /**
-     * Handle an incoming admin authentication request.
+     * Handle an incoming admin authentication request (admin portal entry point).
+     * Always redirect to the appropriate dashboard for the authenticated user's type.
      */
     public function storeAdmin(LoginRequest $request): RedirectResponse
     {
@@ -98,14 +106,7 @@ public function store(LoginRequest $request): RedirectResponse
 
         $user = $request->user();
 
-        // Ensure user has proper permissions for their type
         $user->ensurePermissions();
-
-        // Verify user is admin or staff
-        if ($user->type !== 'admin' && $user->type !== 'staff') {
-            Auth::guard('web')->logout();
-            return back()->withErrors(['email' => 'Access denied. Admin credentials required.']);
-        }
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -116,11 +117,12 @@ public function store(LoginRequest $request): RedirectResponse
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
     /**
-     * Handle an incoming member authentication request.
+     * Handle an incoming member authentication request (member portal entry point).
+     * Always redirect to the appropriate dashboard for the authenticated user's type.
      */
     public function storeMember(LoginRequest $request): RedirectResponse
     {
@@ -129,14 +131,7 @@ public function store(LoginRequest $request): RedirectResponse
 
         $user = $request->user();
 
-        // Ensure user has proper permissions for their type
         $user->ensurePermissions();
-
-        // Verify user is a member
-        if ($user->type !== 'member') {
-            Auth::guard('web')->logout();
-            return back()->withErrors(['email' => 'Access denied. Member credentials required.']);
-        }
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -147,11 +142,12 @@ public function store(LoginRequest $request): RedirectResponse
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
-        return redirect()->intended(route('member.dashboard', absolute: false));
+        return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
     /**
-     * Handle an incoming logistic authentication request.
+     * Handle an incoming logistic authentication request (logistic portal entry point).
+     * Always redirect to the appropriate dashboard for the authenticated user's type.
      */
     public function storeLogistic(LoginRequest $request): RedirectResponse
     {
@@ -160,14 +156,7 @@ public function store(LoginRequest $request): RedirectResponse
 
         $user = $request->user();
 
-        // Ensure user has proper permissions for their type
         $user->ensurePermissions();
-
-        // Verify user is logistic
-        if ($user->type !== 'logistic') {
-            Auth::guard('web')->logout();
-            return back()->withErrors(['email' => 'Access denied. Logistics credentials required.']);
-        }
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -178,7 +167,7 @@ public function store(LoginRequest $request): RedirectResponse
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
-        return redirect()->intended(route('logistic.dashboard', absolute: false));
+        return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
     /**
