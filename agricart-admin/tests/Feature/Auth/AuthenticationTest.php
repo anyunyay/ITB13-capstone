@@ -56,8 +56,8 @@ test('customers are blocked from admin login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('admin.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('customers are blocked from member login', function () {
@@ -69,8 +69,8 @@ test('customers are blocked from member login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('member.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('customers are blocked from logistics login', function () {
@@ -82,8 +82,8 @@ test('customers are blocked from logistics login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('logistic.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('admin users are blocked from customer login', function () {
@@ -95,8 +95,8 @@ test('admin users are blocked from customer login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('admin.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('staff users are blocked from customer login', function () {
@@ -108,8 +108,8 @@ test('staff users are blocked from customer login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('admin.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('member users are blocked from customer login', function () {
@@ -121,8 +121,8 @@ test('member users are blocked from customer login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('member.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('logistic users are blocked from customer login', function () {
@@ -134,8 +134,8 @@ test('logistic users are blocked from customer login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('logistic.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('member users are blocked from admin login', function () {
@@ -147,8 +147,8 @@ test('member users are blocked from admin login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('admin.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('member.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('logistic users are blocked from admin login', function () {
@@ -160,8 +160,8 @@ test('logistic users are blocked from admin login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('admin.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('logistic.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('admin users are blocked from member login', function () {
@@ -173,8 +173,8 @@ test('admin users are blocked from member login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('member.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('admin.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('logistic users are blocked from member login', function () {
@@ -186,8 +186,8 @@ test('logistic users are blocked from member login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('member.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('logistic.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('admin users are blocked from logistics login', function () {
@@ -199,8 +199,8 @@ test('admin users are blocked from logistics login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('logistic.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('admin.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('member users are blocked from logistics login', function () {
@@ -212,8 +212,8 @@ test('member users are blocked from logistics login', function () {
     ]);
 
     $this->assertGuest();
-    $response->assertRedirect(route('logistic.login'));
-    $response->assertSessionHasErrors(['email']);
+    $response->assertRedirect(route('member.login'));
+    $response->assertSessionHas('restrictionPopup');
 });
 
 test('staff users can login through admin login', function () {

@@ -53,6 +53,20 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Get the correct login route for a user type
+     */
+    private function getCorrectLoginRoute(string $userType): string
+    {
+        return match ($userType) {
+            'customer' => 'login',
+            'admin', 'staff' => 'admin.login',
+            'member' => 'member.login',
+            'logistic' => 'logistic.login',
+            default => 'login',
+        };
+    }
+
+    /**
      * Show the customer login page.
      */
     public function create(Request $request): Response
@@ -74,6 +88,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -99,6 +114,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/admin-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -124,6 +140,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/member-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -149,6 +166,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/logistic-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'restrictionPopup' => $request->session()->get('restrictionPopup'),
         ]);
     }
 
@@ -168,8 +186,11 @@ class AuthenticatedSessionController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('login')->withErrors([
-                'email' => $this->getUserTypeErrorMessage($user->type, 'customer')
+            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
+                'restrictionPopup' => [
+                    'userType' => $user->type,
+                    'targetPortal' => 'customer'
+                ]
             ]);
         }
 
@@ -203,8 +224,11 @@ class AuthenticatedSessionController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('admin.login')->withErrors([
-                'email' => $this->getUserTypeErrorMessage($user->type, 'admin')
+            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
+                'restrictionPopup' => [
+                    'userType' => $user->type,
+                    'targetPortal' => 'admin'
+                ]
             ]);
         }
 
@@ -238,8 +262,11 @@ class AuthenticatedSessionController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('member.login')->withErrors([
-                'email' => $this->getUserTypeErrorMessage($user->type, 'member')
+            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
+                'restrictionPopup' => [
+                    'userType' => $user->type,
+                    'targetPortal' => 'member'
+                ]
             ]);
         }
 
@@ -273,8 +300,11 @@ class AuthenticatedSessionController extends Controller
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('logistic.login')->withErrors([
-                'email' => $this->getUserTypeErrorMessage($user->type, 'logistic')
+            return redirect()->route($this->getCorrectLoginRoute($user->type))->with([
+                'restrictionPopup' => [
+                    'userType' => $user->type,
+                    'targetPortal' => 'logistic'
+                ]
             ]);
         }
 

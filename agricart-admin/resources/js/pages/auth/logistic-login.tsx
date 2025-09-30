@@ -1,6 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle, Truck } from 'lucide-react';
-import { FormEventHandler, useEffect } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import LoginRestrictionPopup from '@/components/LoginRestrictionPopup';
 
 type LogisticLoginForm = {
     email: string;
@@ -19,9 +20,13 @@ type LogisticLoginForm = {
 interface LogisticLoginProps {
     status?: string;
     canResetPassword: boolean;
+    restrictionPopup?: {
+        userType: string;
+        targetPortal: string;
+    };
 }
 
-export default function LogisticLogin({ status, canResetPassword }: LogisticLoginProps) {
+export default function LogisticLogin({ status, canResetPassword, restrictionPopup }: LogisticLoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LogisticLoginForm>>({
         email: '',
         password: '',
@@ -29,6 +34,14 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
+    const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
+
+    // Show restriction popup if needed
+    useEffect(() => {
+        if (restrictionPopup) {
+            setShowRestrictionPopup(true);
+        }
+    }, [restrictionPopup]);
 
     // If user is already authenticated and navigates back to login, redirect them
     useEffect(() => {
@@ -55,11 +68,12 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
     };
 
     return (
-        <AuthLayout 
-            title="Logistics Portal Access" 
-            description="Sign in to manage deliveries and track shipments"
-        >
-            <Head title="Logistics Login" />
+        <>
+            <AuthLayout 
+                title="Logistics Portal Access" 
+                description="Sign in to manage deliveries and track shipments"
+            >
+                <Head title="Logistics Login" />
 
             <div className="mb-6 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
@@ -139,13 +153,22 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
                 </div>
             </form>
 
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-            
-            {errors.email && (
-                <div className="mb-4 text-center text-sm font-medium text-red-600">
-                    {errors.email}
-                </div>
+                {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
+                
+                {errors.email && (
+                    <div className="mb-4 text-center text-sm font-medium text-red-600">
+                        {errors.email}
+                    </div>
+                )}
+            </AuthLayout>
+
+            {restrictionPopup && (
+                <LoginRestrictionPopup
+                    isOpen={showRestrictionPopup}
+                    userType={restrictionPopup.userType}
+                    targetPortal={restrictionPopup.targetPortal}
+                />
             )}
-        </AuthLayout>
+        </>
     );
 }
