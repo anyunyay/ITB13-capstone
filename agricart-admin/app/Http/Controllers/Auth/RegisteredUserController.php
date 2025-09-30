@@ -66,6 +66,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Set current session as active to prevent single-session conflicts
+        $user->invalidateOtherSessions(request()->session()->getId());
+
         // Ensure permissions are set for the user
         $user->ensurePermissions();
 
