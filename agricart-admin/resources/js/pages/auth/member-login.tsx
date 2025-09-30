@@ -143,6 +143,12 @@ export default function MemberLogin({ status, canResetPassword }: MemberLoginPro
             </form>
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
+            
+            {errors.email && (
+                <div className="mb-4 text-center text-sm font-medium text-red-600">
+                    {errors.email}
+                </div>
+            )}
         </AuthLayout>
     );
 }

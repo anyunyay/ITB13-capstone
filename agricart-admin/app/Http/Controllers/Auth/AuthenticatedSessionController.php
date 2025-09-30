@@ -27,10 +27,50 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Get appropriate error message for user type restrictions
+     */
+    private function getUserTypeErrorMessage(string $userType, string $targetPortal): string
+    {
+        $portalNames = [
+            'customer' => 'customer portal',
+            'admin' => 'admin portal',
+            'member' => 'member portal',
+            'logistic' => 'logistics portal',
+        ];
+
+        $userTypeNames = [
+            'customer' => 'Customers',
+            'admin' => 'Admins',
+            'staff' => 'Staff',
+            'member' => 'Members',
+            'logistic' => 'Logistics',
+        ];
+
+        $targetPortalName = $portalNames[$targetPortal] ?? $targetPortal . ' portal';
+        $userTypeName = $userTypeNames[$userType] ?? ucfirst($userType);
+
+        return "{$userTypeName} cannot access the {$targetPortalName}. Please use the appropriate login page for your account type.";
+    }
+
+    /**
      * Show the customer login page.
      */
     public function create(Request $request): Response
     {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'customer') {
+                return redirect()->route('home');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the customer portal. Please use the admin login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the customer portal. Please use the member login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the customer portal. Please use the logistics login page.');
+            }
+        }
+
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
@@ -42,6 +82,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function createAdmin(Request $request): Response
     {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the admin portal. Please use the customer login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the admin portal. Please use the member login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the admin portal. Please use the logistics login page.');
+            }
+        }
+
         return Inertia::render('auth/admin-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
@@ -53,6 +107,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function createMember(Request $request): Response
     {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'member') {
+                return redirect()->route('member.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the member portal. Please use the customer login page.');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the member portal. Please use the admin login page.');
+            } elseif ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard')->with('error', 'Logistics cannot access the member portal. Please use the logistics login page.');
+            }
+        }
+
         return Inertia::render('auth/member-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
@@ -64,6 +132,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function createLogistic(Request $request): Response
     {
+        // Check if user is already authenticated and redirect to appropriate dashboard
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->type === 'logistic') {
+                return redirect()->route('logistic.dashboard');
+            } elseif ($user->type === 'customer') {
+                return redirect()->route('home')->with('error', 'Customers cannot access the logistics portal. Please use the customer login page.');
+            } elseif (in_array($user->type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin/Staff cannot access the logistics portal. Please use the admin login page.');
+            } elseif ($user->type === 'member') {
+                return redirect()->route('member.dashboard')->with('error', 'Members cannot access the logistics portal. Please use the member login page.');
+            }
+        }
+
         return Inertia::render('auth/logistic-login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
@@ -72,7 +154,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request (customer portal entry point).
-     * Always redirect to the appropriate dashboard for the authenticated user's type.
+     * Only allows customers to login through this endpoint.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -80,6 +162,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+
+        // Block non-customers from using customer login
+        if ($user->type !== 'customer') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->withErrors([
+                'email' => $this->getUserTypeErrorMessage($user->type, 'customer')
+            ]);
+        }
 
         $user->ensurePermissions();
 
@@ -97,7 +189,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming admin authentication request (admin portal entry point).
-     * Always redirect to the appropriate dashboard for the authenticated user's type.
+     * Only allows admin and staff users to login through this endpoint.
      */
     public function storeAdmin(LoginRequest $request): RedirectResponse
     {
@@ -105,6 +197,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+
+        // Block non-admin/staff users from using admin login
+        if (!in_array($user->type, ['admin', 'staff'])) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('admin.login')->withErrors([
+                'email' => $this->getUserTypeErrorMessage($user->type, 'admin')
+            ]);
+        }
 
         $user->ensurePermissions();
 
@@ -122,7 +224,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming member authentication request (member portal entry point).
-     * Always redirect to the appropriate dashboard for the authenticated user's type.
+     * Only allows member users to login through this endpoint.
      */
     public function storeMember(LoginRequest $request): RedirectResponse
     {
@@ -130,6 +232,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+
+        // Block non-members from using member login
+        if ($user->type !== 'member') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('member.login')->withErrors([
+                'email' => $this->getUserTypeErrorMessage($user->type, 'member')
+            ]);
+        }
 
         $user->ensurePermissions();
 
@@ -147,7 +259,7 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming logistic authentication request (logistic portal entry point).
-     * Always redirect to the appropriate dashboard for the authenticated user's type.
+     * Only allows logistic users to login through this endpoint.
      */
     public function storeLogistic(LoginRequest $request): RedirectResponse
     {
@@ -155,6 +267,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
+
+        // Block non-logistics from using logistics login
+        if ($user->type !== 'logistic') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('logistic.login')->withErrors([
+                'email' => $this->getUserTypeErrorMessage($user->type, 'logistic')
+            ]);
+        }
 
         $user->ensurePermissions();
 
