@@ -126,13 +126,11 @@ class SalesController extends Controller
             
             if ($exportType === 'sales') {
                 // Sales data only
-                fputcsv($file, ['Sale ID', 'Customer Name', 'Customer Email', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
+                fputcsv($file, ['Sale ID', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
                 
                 foreach ($sales as $sale) {
                     fputcsv($file, [
                         $sale->id,
-                        $sale->customer->name,
-                        $sale->customer->email,
                         number_format($sale->total_amount, 2),
                         $sale->created_at->format('Y-m-d H:i:s'),
                         $sale->admin->name ?? 'N/A',

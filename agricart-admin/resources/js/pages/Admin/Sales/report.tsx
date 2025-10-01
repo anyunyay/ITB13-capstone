@@ -242,7 +242,6 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-center">ID</TableHead>
-                      <TableHead className="text-center">Customer</TableHead>
                       <TableHead className="text-center">Amount</TableHead>
                       <TableHead className="text-center">Processed By</TableHead>
                       <TableHead className="text-center">Logistic</TableHead>
@@ -253,12 +252,6 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                     {sales.map((sale) => (
                       <TableRow className="text-center" key={sale.id}>
                         <TableCell className="font-mono">#{sale.id}</TableCell>
-                        <TableCell>
-                          <div className="text-sm font-medium" title={sale.customer.name}>
-                            {sale.customer.name}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{sale.customer.email}</div>
-                        </TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="bg-green-100 text-green-800">
                             ₱{Number(sale.total_amount).toFixed(2)}

@@ -78,8 +78,6 @@
         <thead>
             <tr>
                 <th>Sale ID</th>
-                <th>Customer Name</th>
-                <th>Customer Email</th>
                 <th>Total Amount</th>
                 <th>Processed By</th>
                 <th>Logistic</th>
@@ -90,8 +88,6 @@
             @foreach($sales as $sale)
             <tr>
                 <td>#{{ $sale->id }}</td>
-                <td>{{ $sale->customer->name ?? 'N/A' }}</td>
-                <td>{{ $sale->customer->email ?? 'N/A' }}</td>
                 <td>PHP {{ number_format($sale->total_amount, 2, '.', ',') }}</td>
                 <td>{{ $sale->admin->name ?? 'N/A' }}</td>
                 <td>{{ $sale->logistic->name ?? 'N/A' }}</td>
