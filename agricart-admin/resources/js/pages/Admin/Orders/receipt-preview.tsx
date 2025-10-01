@@ -25,6 +25,11 @@ interface Order {
   customer: {
     name: string;
     email: string;
+    contact_number?: string;
+    address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
   };
   admin: {
     name: string;

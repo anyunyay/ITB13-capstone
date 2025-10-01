@@ -105,7 +105,7 @@ class OrderController extends Controller
         }
         
         $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)
-        $canApprove = $order->status === 'pending' && $orderAge <= 24;
+        $canApprove = in_array($order->status, ['pending', 'delayed']);
         
         return Inertia::render('Admin/Orders/show', [
             'order' => $order,
@@ -154,10 +154,9 @@ class OrderController extends Controller
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
-        // Check if order is within 24-hour approval window
-        $orderAge = $order->created_at->diffInHours(now());
-        if ($orderAge > 24) {
-            return redirect()->back()->with('error', 'Order approval time has expired. Orders must be approved within 24 hours.');
+        // Allow approval for pending and delayed orders
+        if (!in_array($order->status, ['pending', 'delayed'])) {
+            return redirect()->back()->with('error', 'Only pending or delayed orders can be approved.');
         }
 
         // Process the stock only when approving

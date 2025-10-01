@@ -22,6 +22,11 @@ interface Order {
   customer: {
     name: string;
     email: string;
+    contact_number?: string;
+    address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
   };
   admin: {
     name: string;
@@ -125,6 +130,36 @@ export default function OrderReceiptPreview({ order }: OrderReceiptPreviewProps)
               <span className="font-semibold text-gray-600 text-sm">Customer:</span>
               <span className="text-gray-800 text-sm">{order.customer.name}</span>
             </div>
+            {order.customer.contact_number && (
+              <div className="flex justify-between items-center py-1 border-b border-gray-200">
+                <span className="font-semibold text-gray-600 text-sm">Contact Number:</span>
+                <span className="text-gray-800 text-sm">{order.customer.contact_number}</span>
+              </div>
+            )}
+            {order.customer.address && (
+              <div className="flex justify-between items-center py-1 border-b border-gray-200">
+                <span className="font-semibold text-gray-600 text-sm">Address:</span>
+                <span className="text-gray-800 text-sm">{order.customer.address}</span>
+              </div>
+            )}
+            {order.customer.barangay && (
+              <div className="flex justify-between items-center py-1 border-b border-gray-200">
+                <span className="font-semibold text-gray-600 text-sm">Barangay:</span>
+                <span className="text-gray-800 text-sm">{order.customer.barangay}</span>
+              </div>
+            )}
+            {order.customer.city && (
+              <div className="flex justify-between items-center py-1 border-b border-gray-200">
+                <span className="font-semibold text-gray-600 text-sm">City:</span>
+                <span className="text-gray-800 text-sm">{order.customer.city}</span>
+              </div>
+            )}
+            {order.customer.province && (
+              <div className="flex justify-between items-center py-1">
+                <span className="font-semibold text-gray-600 text-sm">Province:</span>
+                <span className="text-gray-800 text-sm">{order.customer.province}</span>
+              </div>
+            )}
           </div>
         </div>
 

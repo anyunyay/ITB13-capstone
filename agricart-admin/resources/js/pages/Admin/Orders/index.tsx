@@ -16,6 +16,11 @@ interface Order {
   customer: {
     name: string;
     email: string;
+    contact_number?: string;
+    address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';

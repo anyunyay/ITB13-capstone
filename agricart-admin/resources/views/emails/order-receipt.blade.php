@@ -201,6 +201,36 @@
                     <span class="label">Customer:</span>
                     <span class="value">{{ $customer->name ?? 'Customer' }}</span>
                 </div>
+                @if($customer->contact_number)
+                <div class="info-row">
+                    <span class="label">Contact Number:</span>
+                    <span class="value">{{ $customer->contact_number }}</span>
+                </div>
+                @endif
+                @if($customer->address)
+                <div class="info-row">
+                    <span class="label">Address:</span>
+                    <span class="value">{{ $customer->address }}</span>
+                </div>
+                @endif
+                @if($customer->barangay)
+                <div class="info-row">
+                    <span class="label">Barangay:</span>
+                    <span class="value">{{ $customer->barangay }}</span>
+                </div>
+                @endif
+                @if($customer->city)
+                <div class="info-row">
+                    <span class="label">City:</span>
+                    <span class="value">{{ $customer->city }}</span>
+                </div>
+                @endif
+                @if($customer->province)
+                <div class="info-row">
+                    <span class="label">Province:</span>
+                    <span class="value">{{ $customer->province }}</span>
+                </div>
+                @endif
             </div>
 
             @if($order->admin_notes)
