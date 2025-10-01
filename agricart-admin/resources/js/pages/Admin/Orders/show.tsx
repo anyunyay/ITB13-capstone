@@ -235,6 +235,24 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                       <p className="text-sm">{order.customer.address}</p>
                     </div>
                   )}
+                  {order.customer.barangay && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Barangay</p>
+                      <p className="text-sm">{order.customer.barangay}</p>
+                    </div>
+                  )}
+                  {order.customer.city && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">City</p>
+                      <p className="text-sm">{order.customer.city}</p>
+                    </div>
+                  )}
+                  {order.customer.province && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Province</p>
+                      <p className="text-sm">{order.customer.province}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
