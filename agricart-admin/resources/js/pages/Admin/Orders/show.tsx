@@ -33,6 +33,9 @@ interface Order {
     email: string;
     contact_number?: string;
     address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
@@ -382,16 +385,16 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
             </Card>
 
             {/* Action Buttons */}
-            {order.status === 'pending' && (
+            {(order.status === 'pending' || order.status === 'delayed') && (
               <Card>
                 <CardHeader>
                   <CardTitle>Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {!canApprove && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded">
-                      <p className="text-sm text-red-800">
-                        <strong>Order approval time has expired.</strong> Orders must be approved within 24 hours of placement.
+                  {order.status === 'delayed' && (
+                    <div className="p-3 bg-orange-50 border border-orange-200 rounded">
+                      <p className="text-sm text-orange-800">
+                        <strong>This order is delayed.</strong> It has exceeded the standard 24-hour processing time but can still be approved or rejected.
                       </p>
                     </div>
                   )}
@@ -400,9 +403,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                       <Button 
                         className="w-full" 
                         variant="default"
-                        disabled={!canApprove}
                       >
-                        {canApprove ? 'Approve Order' : 'Approval Time Expired'}
+                        Approve Order
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -516,63 +518,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               </Card>
             )}
 
-            {/* Urgent Order Management */}
-            {order.status === 'pending' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Urgent Order Management</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {order.is_urgent ? (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-orange-50 border border-orange-200 rounded">
-                        <p className="text-sm text-orange-800">
-                          <strong>This order is marked as urgent.</strong> It will appear in urgent notifications and be highlighted.
-                        </p>
-                      </div>
-                      <Button 
-                        className="w-full" 
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Remove urgent clicked for order:', order.id);
-                          console.log('Route:', route('admin.orders.unmarkUrgent', order.id));
-                          router.post(`/admin/orders/${order.id}/unmark-urgent`, {}, {
-                            preserveState: true,
-                            preserveScroll: true,
-                            onSuccess: () => console.log('Remove urgent success'),
-                            onError: (errors) => console.error('Remove urgent error:', errors),
-                          });
-                        }}
-                      >
-                        Remove Urgent Status
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-600">
-                        Mark this order as urgent to simulate urgent approval requirements for testing.
-                      </p>
-                      <Button 
-                        className="w-full" 
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Mark urgent clicked for order:', order.id);
-                          console.log('Route:', route('admin.orders.markUrgent', order.id));
-                          router.post(`/admin/orders/${order.id}/mark-urgent`, {}, {
-                            preserveState: true,
-                            preserveScroll: true,
-                            onSuccess: () => console.log('Mark urgent success'),
-                            onError: (errors) => console.error('Mark urgent error:', errors),
-                          });
-                        }}
-                      >
-                        Mark as Urgent (Testing)
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
 
             {/* Receipt Preview for Approved Orders */}
             {order.status === 'approved' && (
