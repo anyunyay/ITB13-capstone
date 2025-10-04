@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -78,6 +79,20 @@ class StaffController extends Controller
             $user->syncPermissions($permissions);
         }
 
+        // Log staff creation
+        SystemLogger::logUserManagement(
+            'create_staff',
+            $user->id,
+            $request->user()->id,
+            'admin',
+            [
+                'staff_name' => $user->name,
+                'staff_email' => $user->email,
+                'permissions_count' => count($request->permissions ?? []),
+                'permissions' => $request->permissions
+            ]
+        );
+
         return redirect()->route('staff.index')
             ->with('message', 'Staff member created successfully.');
     }
@@ -140,6 +155,21 @@ class StaffController extends Controller
             $staff->syncPermissions([]);
         }
 
+        // Log staff update
+        SystemLogger::logUserManagement(
+            'update_staff',
+            $staff->id,
+            $request->user()->id,
+            'admin',
+            [
+                'staff_name' => $staff->name,
+                'staff_email' => $staff->email,
+                'permissions_count' => count($request->permissions ?? []),
+                'permissions' => $request->permissions,
+                'password_changed' => $request->filled('password')
+            ]
+        );
+
         return redirect()->route('staff.index')
             ->with('message', 'Staff member updated successfully.');
     }
@@ -152,6 +182,18 @@ class StaffController extends Controller
         if ($staff->type !== 'staff') {
             abort(404);
         }
+
+        // Log staff deletion
+        SystemLogger::logUserManagement(
+            'delete_staff',
+            $staff->id,
+            request()->user()->id,
+            'admin',
+            [
+                'staff_name' => $staff->name,
+                'staff_email' => $staff->email
+            ]
+        );
 
         $staff->delete();
 

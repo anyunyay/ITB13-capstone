@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Stock;
@@ -99,14 +100,39 @@ class CartController extends Controller
                 ->first();
 
             if ($cartItem) { // If it exists, update the quantity
+                $oldQuantity = $cartItem->quantity;
                 $cartItem->quantity += $quantity;
                 $cartItem->save();
+                
+                // Log cart item update
+                SystemLogger::logCustomerActivity(
+                    'cart_item_updated',
+                    $user->id,
+                    [
+                        'product_id' => $productId,
+                        'category' => $category,
+                        'old_quantity' => $oldQuantity,
+                        'new_quantity' => $cartItem->quantity,
+                        'added_quantity' => $quantity
+                    ]
+                );
             } else { // If it doesn't exist, create a new cart item
                 $cart->items()->create([
                     'product_id' => $productId,
                     'category' => $category,
                     'quantity' => $quantity,
                 ]);
+                
+                // Log cart item addition
+                SystemLogger::logCustomerActivity(
+                    'cart_item_added',
+                    $user->id,
+                    [
+                        'product_id' => $productId,
+                        'category' => $category,
+                        'quantity' => $quantity
+                    ]
+                );
             }
 
             return back()->with('message', 'Added to cart!');
@@ -204,6 +230,19 @@ class CartController extends Controller
             // Update the sale with total amount
             $sale->update(['total_amount' => $totalPrice]);
 
+            // Log successful checkout
+            SystemLogger::logCheckout(
+                $user->id,
+                $sale->id,
+                $totalPrice,
+                'success',
+                [
+                    'cart_items_count' => $cart->items->count(),
+                    'minimum_order_met' => $totalPrice >= 75,
+                    'order_status' => 'pending'
+                ]
+            );
+
             // Notify customer of order confirmation
             $user->notify(new OrderConfirmationNotification($sale));
 
@@ -222,6 +261,19 @@ class CartController extends Controller
                 'user_id' => $user->id,
                 'error' => $e->getTraceAsString()
             ]);
+
+            // Log checkout failure
+            SystemLogger::logCheckout(
+                $user->id,
+                null,
+                0,
+                'failed',
+                [
+                    'error_message' => $e->getMessage(),
+                    'error_type' => get_class($e)
+                ]
+            );
+
             $message = 'An unexpected error occurred during checkout.';
         }
 
@@ -240,6 +292,17 @@ class CartController extends Controller
 
         $item = $cart->items()->where('id', $cartItemId)->first();
         if ($item) {
+            // Log cart item removal
+            SystemLogger::logCustomerActivity(
+                'cart_item_removed',
+                $user->id,
+                [
+                    'product_id' => $item->product_id,
+                    'category' => $item->category,
+                    'quantity' => $item->quantity
+                ]
+            );
+            
             $item->delete();
             $message = 'Item removed from cart.';
         } else {

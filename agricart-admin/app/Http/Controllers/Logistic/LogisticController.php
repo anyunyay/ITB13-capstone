@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Logistic;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -191,6 +192,21 @@ class LogisticController extends Controller
         $order->update([
             'delivery_status' => $newStatus,
         ]);
+
+        // Log delivery status change
+        if ($oldStatus !== $newStatus) {
+            SystemLogger::logDeliveryStatusChange(
+                $order->id,
+                $oldStatus,
+                $newStatus,
+                Auth::id(),
+                [
+                    'customer_id' => $order->customer_id,
+                    'order_status' => $order->status,
+                    'total_amount' => $order->total_amount
+                ]
+            );
+        }
 
         // Send notification to customer if status changed
         if ($oldStatus !== $newStatus && $order->customer) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -141,6 +142,20 @@ class OrderController extends Controller
             'logistic_id' => $logistic->id,
         ]);
 
+        // Log logistic assignment
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            $order->logistic_id ? 'assigned' : 'unassigned',
+            'assigned',
+            $request->user()->id,
+            $request->user()->type,
+            [
+                'logistic_id' => $logistic->id,
+                'logistic_name' => $logistic->name,
+                'order_status' => $order->status
+            ]
+        );
+
         // Notify logistic about delivery task
         $logistic->notify(new DeliveryTaskNotification($order));
 
@@ -185,6 +200,20 @@ class OrderController extends Controller
             'admin_notes' => $request->input('admin_notes'),
         ]);
 
+        // Log order approval
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            'pending',
+            'approved',
+            $request->user()->id,
+            $request->user()->type,
+            [
+                'admin_notes' => $request->input('admin_notes'),
+                'total_amount' => $order->total_amount,
+                'customer_id' => $order->customer_id
+            ]
+        );
+
         // Notify the customer with status update
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
         
@@ -220,6 +249,21 @@ class OrderController extends Controller
             'admin_id' => $request->user()->id,
             'admin_notes' => $request->input('admin_notes'),
         ]);
+
+        // Log order rejection
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            $order->status === 'approved' ? 'approved' : 'pending',
+            'rejected',
+            $request->user()->id,
+            $request->user()->type,
+            [
+                'admin_notes' => $request->input('admin_notes'),
+                'total_amount' => $order->total_amount,
+                'customer_id' => $order->customer_id,
+                'stock_reversed' => $order->status === 'approved'
+            ]
+        );
 
         // Notify the customer with detailed rejection notification
         $order->customer?->notify(new OrderRejectionNotification($order));

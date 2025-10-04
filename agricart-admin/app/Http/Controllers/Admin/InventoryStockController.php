@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
@@ -58,6 +59,22 @@ class InventoryStockController extends Controller
             'category' => $request->input('category'),
         ]);
 
+        // Log stock creation
+        SystemLogger::logStockUpdate(
+            $stock->id,
+            $product->id,
+            0,
+            $request->input('quantity'),
+            $request->user()->id,
+            $request->user()->type,
+            'stock_created',
+            [
+                'member_id' => $request->input('member_id'),
+                'category' => $request->input('category'),
+                'product_name' => $product->name
+            ]
+        );
+
         // Notify admin and staff about inventory update
         $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
         foreach ($adminUsers as $admin) {
@@ -98,11 +115,29 @@ class InventoryStockController extends Controller
             'member_id' => 'required|exists:users,id',
             'category' => 'required|in:' . implode(',', $availableCategories),
         ]);
+        $oldQuantity = $stock->quantity;
+        
         $stock->update([
             'quantity' => $request->input('quantity'),
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
         ]);
+
+        // Log stock update
+        SystemLogger::logStockUpdate(
+            $stock->id,
+            $product->id,
+            $oldQuantity,
+            $request->input('quantity'),
+            $request->user()->id,
+            $request->user()->type,
+            'stock_updated',
+            [
+                'member_id' => $request->input('member_id'),
+                'category' => $request->input('category'),
+                'product_name' => $product->name
+            ]
+        );
 
         // Notify admin and staff about inventory update
         $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
@@ -139,6 +174,23 @@ class InventoryStockController extends Controller
         // Mark stock as removed using the new method
         $stock->remove($request->reason);
 
+        // Log stock removal
+        SystemLogger::logStockUpdate(
+            $stock->id,
+            $product->id,
+            $stock->quantity,
+            0,
+            $request->user()->id,
+            $request->user()->type,
+            'stock_removed',
+            [
+                'member_id' => $stock->member_id,
+                'category' => $stock->category,
+                'product_name' => $product->name,
+                'reason' => $request->reason
+            ]
+        );
+
         // Notify admin and staff about inventory update
         $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
         foreach ($adminUsers as $admin) {
@@ -159,6 +211,23 @@ class InventoryStockController extends Controller
     public function restoreStock(Stock $stock)
     {
         $stock->restore();
+        
+        // Log stock restoration
+        SystemLogger::logStockUpdate(
+            $stock->id,
+            $stock->product_id,
+            0,
+            $stock->quantity,
+            request()->user()->id,
+            request()->user()->type,
+            'stock_restored',
+            [
+                'member_id' => $stock->member_id,
+                'category' => $stock->category,
+                'product_name' => $stock->product->name
+            ]
+        );
+        
         return redirect()->back()->with('message', 'Stock restored successfully');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\SystemLogger;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -141,6 +142,21 @@ class Stock extends Model
         if ($this->quantity > 0 && !is_null($this->last_customer_id)) {
             $this->status = 'partial';
             $this->save();
+            
+            // Log stock status change
+            SystemLogger::logStockUpdate(
+                $this->id,
+                $this->product_id,
+                $this->quantity,
+                $this->quantity,
+                null, // System change
+                'system',
+                'status_change',
+                [
+                    'new_status' => 'partial',
+                    'last_customer_id' => $this->last_customer_id
+                ]
+            );
         }
     }
 
@@ -153,6 +169,21 @@ class Stock extends Model
         if ($this->quantity == 0 && !is_null($this->last_customer_id)) {
             $this->status = 'sold';
             $this->save();
+            
+            // Log stock status change
+            SystemLogger::logStockUpdate(
+                $this->id,
+                $this->product_id,
+                $this->quantity,
+                $this->quantity,
+                null, // System change
+                'system',
+                'status_change',
+                [
+                    'new_status' => 'sold',
+                    'last_customer_id' => $this->last_customer_id
+                ]
+            );
         }
     }
 }

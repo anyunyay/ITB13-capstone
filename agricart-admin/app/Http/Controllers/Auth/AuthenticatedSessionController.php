@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -183,6 +184,17 @@ class AuthenticatedSessionController extends Controller
 
         // Block non-customers from using customer login
         if ($user->type !== 'customer') {
+            // Log failed login attempt
+            SystemLogger::logAuthentication(
+                'login_failed_wrong_portal',
+                $user->id,
+                $user->type,
+                [
+                    'target_portal' => 'customer',
+                    'ip_address' => $request->ip()
+                ]
+            );
+            
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -195,6 +207,14 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user->ensurePermissions();
+
+        // Log successful customer login
+        SystemLogger::logAuthentication(
+            'login_success',
+            $user->id,
+            'customer',
+            ['ip_address' => $request->ip()]
+        );
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -329,8 +349,16 @@ class AuthenticatedSessionController extends Controller
     {
         $user = Auth::user();
         
-        // Clear the current session ID from the user record
+        // Log logout event
         if ($user) {
+            SystemLogger::logAuthentication(
+                'logout',
+                $user->id,
+                $user->type,
+                ['ip_address' => $request->ip()]
+            );
+            
+            // Clear the current session ID from the user record
             $user->clearCurrentSession();
         }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\SystemLogger;
 use App\Models\Stock;
 use App\Models\Sales;
 use Illuminate\Http\Request;
@@ -15,6 +16,13 @@ class MemberController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
+        
+        // Log member dashboard access
+        SystemLogger::logMemberActivity(
+            'dashboard_access',
+            $user->id,
+            ['ip_address' => request()->ip()]
+        );
         
         // Get stocks using scopes
         $availableStocks = Stock::available()
@@ -241,6 +249,19 @@ class MemberController extends Controller
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+
+        // Log report generation
+        SystemLogger::logReportGeneration(
+            'member_revenue_report',
+            $user->id,
+            'member',
+            [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'format' => $format,
+                'display_mode' => $display
+            ]
+        );
 
         // Get all approved sales that involve stocks from this member
         $query = Sales::approved()
