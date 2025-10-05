@@ -213,6 +213,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::delete('/profile/addresses/{address}', [AddressController::class, 'destroy'])->name('customer.profile.addresses.destroy');
         Route::post('/profile/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('customer.profile.addresses.setDefault');
         Route::post('/profile/addresses/{address}/update-main', [AddressController::class, 'updateMainAddress'])->name('customer.profile.addresses.updateMain');
+        Route::put('/profile/main-address', [AddressController::class, 'updateMainAddressFields'])->name('customer.profile.main-address.update');
         Route::get('/profile/current-address', [AddressController::class, 'getCurrentAddress'])->name('customer.profile.currentAddress');
         
         // Help/Support routes

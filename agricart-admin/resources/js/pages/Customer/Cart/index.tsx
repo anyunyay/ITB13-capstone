@@ -42,7 +42,7 @@ export default function CartPage() {
     checkoutMessage?: string; 
     cartTotal?: number;
     addresses?: Address[];
-    mainAddress?: MainAddress;
+    activeAddress?: Address;
     flash?: {
       success?: string;
       error?: string;
@@ -51,7 +51,7 @@ export default function CartPage() {
   const auth = page?.props?.auth;
   const initialCart = page?.props?.cart || {};
   const addresses = page?.props?.addresses || [];
-  const mainAddress = page?.props?.mainAddress;
+  const activeAddress = page?.props?.activeAddress;
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
@@ -127,7 +127,7 @@ export default function CartPage() {
   // Set default address when addresses are loaded
   useEffect(() => {
     // If we have a main address but no selected address, we're using the active address
-    if (mainAddress && !selectedAddressId) {
+    if (activeAddress && !selectedAddressId) {
       // Don't set selectedAddressId - we'll use the main address for checkout
       return;
     }
@@ -141,7 +141,7 @@ export default function CartPage() {
         setSelectedAddressId(addresses[0].id);
       }
     }
-  }, [addresses, selectedAddressId, mainAddress]);
+  }, [addresses, selectedAddressId, activeAddress]);
 
   // Handle flash messages from server
   useEffect(() => {
@@ -405,20 +405,20 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    // If no address is selected and we have a main address, we're using the active address
-    if (!selectedAddressId && !mainAddress) {
+    // If no address is selected and we have an active address, we're using the active address
+    if (!selectedAddressId && !activeAddress) {
       setCheckoutMessage('Please select a delivery address.');
       return;
     }
 
-    // If we have a selected address, use it; otherwise use the main address
-    const addressToUse = selectedAddressId || 'main';
+    // If we have a selected address, use it; otherwise use the active address
+    const addressToUse = selectedAddressId || 'active';
 
     router.post(
       '/customer/cart/checkout',
       { 
         delivery_address_id: selectedAddressId,
-        use_main_address: !selectedAddressId && !!mainAddress
+        use_main_address: !selectedAddressId && !!activeAddress
       },
       {
         preserveScroll: true,
@@ -693,20 +693,23 @@ export default function CartPage() {
               <h3 className="text-lg font-semibold text-blue-800">Delivery Address</h3>
             </div>
             
-            {mainAddress ? (
+            {activeAddress ? (
               <div className="space-y-3">
                 {/* Currently Active Address */}
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm font-semibold text-green-700 uppercase tracking-wide">
-                      Currently Active Address
+                      Active Address (Auto-Selected)
                     </span>
                   </div>
                   <div className="pl-4">
-                    <span className="font-medium text-gray-900">{mainAddress.address}</span>
+                    <span className="font-medium text-gray-900">{activeAddress.street}</span>
                     <span className="text-sm text-gray-600 block">
-                      {mainAddress.barangay}, {mainAddress.city}, {mainAddress.province}
+                      {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
+                    </span>
+                    <span className="text-xs text-green-600 mt-1 block">
+                      ✓ This address will be used for delivery automatically
                     </span>
                   </div>
                 </div>
@@ -791,8 +794,8 @@ export default function CartPage() {
         <div className="mt-6">
           <Button 
             onClick={handleCheckout} 
-            disabled={cartItems.length === 0 || editingItems.size > 0 || !meetsMinimumOrder || (!selectedAddressId && !mainAddress)}
-            className={!meetsMinimumOrder || (!selectedAddressId && !mainAddress) ? 'opacity-50 cursor-not-allowed' : ''}
+            disabled={cartItems.length === 0 || editingItems.size > 0 || !meetsMinimumOrder || (!selectedAddressId && !activeAddress)}
+            className={!meetsMinimumOrder || (!selectedAddressId && !activeAddress) ? 'opacity-50 cursor-not-allowed' : ''}
           >
             Checkout
           </Button>
@@ -815,7 +818,7 @@ export default function CartPage() {
               Please add more items to meet the minimum order requirement of Php{minimumOrder}
             </div>
           )}
-          {(!selectedAddressId && !mainAddress) && cartItems.length > 0 && (
+          {(!selectedAddressId && !activeAddress) && cartItems.length > 0 && (
             <div className="mt-2 text-blue-600 text-sm">
               Please select a delivery address to continue with checkout
             </div>

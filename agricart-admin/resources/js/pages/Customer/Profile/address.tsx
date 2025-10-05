@@ -23,6 +23,10 @@ interface PageProps {
         id: number;
         name: string;
         email: string;
+        address?: string;
+        barangay?: string;
+        city?: string;
+        province?: string;
     };
     addresses: Address[];
     flash?: {
@@ -43,6 +47,7 @@ export default function AddressPage() {
         barangay: 'Sala', // Fixed default
         city: 'Cabuyao', // Fixed default
         province: 'Laguna', // Fixed default
+        is_default: false as boolean, // Default to false - user must explicitly choose
     });
 
     // List of all barangays in Cabuyao, Laguna (only Sala is selectable)
@@ -66,6 +71,27 @@ export default function AddressPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // If editing the main address (id = 0), update user's main address fields
+        if (editingAddress && editingAddress.id === 0) {
+            router.put('/customer/profile/main-address', {
+                address: data.street,
+                barangay: data.barangay,
+                city: data.city,
+                province: data.province,
+            }, {
+                onSuccess: () => {
+                    reset();
+                    setIsDialogOpen(false);
+                    setEditingAddress(null);
+                },
+                onError: () => {
+                    // Error will be handled by flash messages
+                },
+            });
+            return;
+        }
+        
         const url = editingAddress ? `/customer/profile/addresses/${editingAddress.id}` : '/customer/profile/addresses';
         const method = editingAddress ? put : post;
 
@@ -88,6 +114,7 @@ export default function AddressPage() {
             barangay: address.barangay,
             city: address.city,
             province: address.province,
+            is_default: address.is_default,
         });
         setIsDialogOpen(true);
     };
@@ -134,7 +161,12 @@ export default function AddressPage() {
         ]}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Address Management</h2>
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight">Address Management</h2>
+                        <p className="text-sm text-gray-600 mt-1">
+                            Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
+                        </p>
+                    </div>
                     <Button onClick={handleAddNew} className="flex items-center gap-2">
                         <PlusCircle className="h-4 w-4" />
                         Add New Address
@@ -173,6 +205,67 @@ export default function AddressPage() {
                 )}
 
             <div className="space-y-6">
+                {/* Currently Active Address */}
+                {addresses.find(addr => addr.is_default) && (
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-900">Currently Active Address</h3>
+                        <Card className="border-2 border-blue-200 bg-blue-50">
+                            <CardContent className="p-6">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex items-center gap-2 text-blue-700">
+                                            {getAddressIcon()}
+                                            <span className="text-sm font-medium">Active Address</span>
+                                            <div className="flex items-center gap-1 text-blue-600">
+                                                <CheckCircle className="h-4 w-4" />
+                                                <span className="text-xs font-medium">Default</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(addresses.find(addr => addr.is_default)!)}
+                                            className="flex items-center gap-1"
+                                        >
+                                            <Edit className="h-3 w-3" />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled
+                                            className="flex items-center gap-1 text-gray-400 cursor-not-allowed opacity-50"
+                                        >
+                                            <CheckCircle className="h-3 w-3" />
+                                            Currently Active
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDelete(addresses.find(addr => addr.is_default)!.id)}
+                                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-3 space-y-1">
+                                    <p className="font-medium text-gray-900">{addresses.find(addr => addr.is_default)!.street}</p>
+                                    <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.barangay}, {addresses.find(addr => addr.is_default)!.city}</p>
+                                    <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.province}</p>
+                                </div>
+                                <div className="mt-2 text-xs text-blue-600">
+                                    This address is used for checkout and other operations
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
                 {addresses.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center justify-center py-12">
@@ -189,65 +282,6 @@ export default function AddressPage() {
                     </Card>
                 ) : (
                     <>
-                        {/* Current Active Address - Top Card */}
-                        {addresses.find(addr => addr.is_default) && (
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-gray-900">Current Active Address</h3>
-                                <Card className="border-2 border-blue-200 bg-blue-50">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-start gap-3">
-                                                <div className="flex items-center gap-2 text-blue-700">
-                                                    {getAddressIcon()}
-                                                    <span className="text-sm font-medium">Active Address</span>
-                                                    <div className="flex items-center gap-1 text-blue-600">
-                                                        <CheckCircle className="h-4 w-4" />
-                                                        <span className="text-xs font-medium">Default</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleEdit(addresses.find(addr => addr.is_default)!)}
-                                                    className="flex items-center gap-1"
-                                                >
-                                                    <Edit className="h-3 w-3" />
-                                                    Edit
-                                                </Button>
-                                                {/* Set as Active button is hidden for the current active address */}
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    disabled
-                                                    className="flex items-center gap-1 text-gray-400 cursor-not-allowed opacity-50"
-                                                >
-                                                    <CheckCircle className="h-3 w-3" />
-                                                    Currently Active
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(addresses.find(addr => addr.is_default)!.id)}
-                                                    className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                                                >
-                                                    <Trash2 className="h-3 w-3" />
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="mt-3 space-y-1">
-                                            <p className="font-medium text-gray-900">{addresses.find(addr => addr.is_default)!.street}</p>
-                                            <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.barangay}, {addresses.find(addr => addr.is_default)!.city}</p>
-                                            <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.province}</p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        )}
-
                         {/* Other Saved Addresses */}
                         {addresses.filter(addr => !addr.is_default).length > 0 && (
                             <div className="space-y-2">
@@ -313,10 +347,16 @@ export default function AddressPage() {
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>
-                            {editingAddress ? 'Edit Address' : 'Add New Address'}
+                            {editingAddress ? (editingAddress.id === 0 ? 'Edit Main Address' : 'Edit Address') : 'Add New Address'}
                         </DialogTitle>
                         <DialogDescription>
-                            {editingAddress ? 'Update your address information' : 'Add a new address for deliveries'}
+                            {editingAddress ? 
+                                (editingAddress.id === 0 ? 
+                                    'Update your main address that is automatically used for checkout' : 
+                                    'Update your address information'
+                                ) : 
+                                'Add a new address for deliveries'
+                            }
                         </DialogDescription>
                     </DialogHeader>
                     
@@ -334,6 +374,9 @@ export default function AddressPage() {
                                 placeholder="House number, street name"
                             />
                             {errors.street && <p className="text-sm text-red-500">{errors.street}</p>}
+                            <p className="text-xs text-muted-foreground">
+                                Note: Identical addresses will not be saved to prevent duplicates
+                            </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -435,6 +478,23 @@ export default function AddressPage() {
                             </p>
                         </div>
 
+                        {/* Set as Active Address Checkbox */}
+                        {!editingAddress && (
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="is_default"
+                                    checked={data.is_default || false}
+                                    onChange={(e) => setData('is_default', e.target.checked)}
+                                    disabled={processing}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <Label htmlFor="is_default" className="text-sm font-medium">
+                                    Set as active address (used for checkout)
+                                </Label>
+                            </div>
+                        )}
+
                         <DialogFooter>
                             <Button
                                 type="button"
@@ -448,7 +508,7 @@ export default function AddressPage() {
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Saving...' : editingAddress ? 'Update Address' : 'Add Address'}
+                                {processing ? 'Saving...' : editingAddress ? (editingAddress.id === 0 ? 'Update Main Address' : 'Update Address') : 'Add Address'}
                             </Button>
                         </DialogFooter>
                     </form>

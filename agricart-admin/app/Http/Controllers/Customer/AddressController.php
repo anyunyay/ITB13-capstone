@@ -58,15 +58,25 @@ class AddressController extends Controller
             'is_default' => $validated['is_default'] ?? false,
         ];
 
+        // Check if an identical address already exists
+        $existingAddress = $user->addresses()
+            ->where('street', $addressData['street'])
+            ->where('barangay', $addressData['barangay'])
+            ->where('city', $addressData['city'])
+            ->where('province', $addressData['province'])
+            ->first();
+
+        if ($existingAddress) {
+            return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
+        }
+
         // If this is being set as default, unset any existing default
         if ($addressData['is_default']) {
             $user->addresses()->update(['is_default' => false]);
         }
 
-        // If this is the first address, make it default
-        if ($user->addresses()->count() === 0) {
-            $addressData['is_default'] = true;
-        }
+        // Only set as default if explicitly requested by user
+        // Removed automatic default setting for first address
 
         $address = $user->addresses()->create($addressData);
 
@@ -115,6 +125,19 @@ class AddressController extends Controller
             'street' => 'required|string|max:500',
             'is_default' => 'boolean',
         ]);
+
+        // Check if an identical address already exists (excluding current address)
+        $existingAddress = $user->addresses()
+            ->where('id', '!=', $address->id)
+            ->where('street', $validated['street'])
+            ->where('barangay', $address->barangay) // Keep existing barangay, city, province
+            ->where('city', $address->city)
+            ->where('province', $address->province)
+            ->first();
+
+        if ($existingAddress) {
+            return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
+        }
 
         // If this is being set as default, unset any existing default
         if ($validated['is_default']) {
@@ -253,6 +276,43 @@ class AddressController extends Controller
             'city' => $address->city,
             'province' => $address->province,
         ]);
+    }
+
+    /**
+     * Update the user's main address fields directly.
+     */
+    public function updateMainAddressFields(Request $request)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'address' => 'required|string|max:500',
+            'barangay' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'province' => 'required|string|max:100',
+        ]);
+
+        // Check if an identical address already exists in saved addresses
+        $existingAddress = $user->addresses()
+            ->where('street', $validated['address'])
+            ->where('barangay', $validated['barangay'])
+            ->where('city', $validated['city'])
+            ->where('province', $validated['province'])
+            ->first();
+
+        if ($existingAddress) {
+            return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
+        }
+
+        $user->update([
+            'address' => $validated['address'],
+            'barangay' => $validated['barangay'],
+            'city' => $validated['city'],
+            'province' => $validated['province'],
+        ]);
+
+        return redirect()->back()->with('success', 'Main address updated successfully');
     }
 
     /**
