@@ -33,36 +33,36 @@ export function CustomerProfileDropdown({ user }: CustomerProfileDropdownProps) 
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href="/customer/profile" as="button" prefetch onClick={cleanup}>
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        Profile
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href="/customer/profile/address" as="button" prefetch onClick={cleanup}>
-                        <MapPin className="mr-2 h-4 w-4" />
-                        Add/Edit Address
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href="/customer/profile/password" as="button" prefetch onClick={cleanup}>
-                        <Lock className="mr-2 h-4 w-4" />
-                        Change Password
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href="/customer/profile/appearance" as="button" prefetch onClick={cleanup}>
-                        <Palette className="mr-2 h-4 w-4" />
-                        Appearance
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link className="block w-full" href="/customer/profile/help" as="button" prefetch onClick={cleanup}>
-                        <HelpCircle className="mr-2 h-4 w-4" />
-                        Help
-                    </Link>
-                </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href="/customer/profile/info" as="button" prefetch onClick={cleanup}>
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                Profile
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href="/customer/profile/address" as="button" prefetch onClick={cleanup}>
+                                <MapPin className="mr-2 h-4 w-4" />
+                                Add/Edit Address
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href="/customer/profile/password" as="button" prefetch onClick={cleanup}>
+                                <Lock className="mr-2 h-4 w-4" />
+                                Change Password
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href="/customer/profile/appearance" as="button" prefetch onClick={cleanup}>
+                                <Palette className="mr-2 h-4 w-4" />
+                                Appearance
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href="/customer/profile/help" as="button" prefetch onClick={cleanup}>
+                                <HelpCircle className="mr-2 h-4 w-4" />
+                                Help
+                            </Link>
+                        </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

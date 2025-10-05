@@ -19,6 +19,7 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
+use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\SingleSessionController;
 use App\Http\Controllers\EmailPreviewController;
@@ -194,6 +195,19 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
         Route::get('/orders/report', [CustomerOrderController::class, 'generateReport'])->name('orders.report');
         Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('customer.orders.cancel');
+        
+        // Customer Profile routes - Individual pages only
+        Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+        Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('customer.profile.changePassword');
+        Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
+        
+        // Individual profile section pages
+        Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
+        Route::get('/profile/address', [ProfileController::class, 'address'])->name('customer.profile.address');
+        Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
+        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
+        Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
+        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('customer.profile.logout.page');
         
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
