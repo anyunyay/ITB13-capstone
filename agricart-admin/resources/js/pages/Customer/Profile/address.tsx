@@ -50,6 +50,8 @@ export default function AddressPage() {
         is_default: false as boolean, // Default to false - user must explicitly choose
     });
 
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
     // List of all barangays in Cabuyao, Laguna (only Sala is selectable)
     const cabuyaoBarangays = [
         'Banaybanay',
@@ -116,6 +118,7 @@ export default function AddressPage() {
             province: address.province,
             is_default: address.is_default,
         });
+        setOpenDropdown(null);
         setIsDialogOpen(true);
     };
 
@@ -135,6 +138,7 @@ export default function AddressPage() {
     const handleAddNew = () => {
         setEditingAddress(null);
         reset();
+        setOpenDropdown(null);
         setIsDialogOpen(true);
     };
 
@@ -386,6 +390,8 @@ export default function AddressPage() {
                                     value={data.province} 
                                     onValueChange={(value) => setData('province', value)}
                                     disabled={processing}
+                                    open={openDropdown === 'province'}
+                                    onOpenChange={(open) => setOpenDropdown(open ? 'province' : null)}
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select province" />
@@ -393,21 +399,6 @@ export default function AddressPage() {
                                     <SelectContent>
                                         <SelectItem value="Laguna" className="text-green-600 font-medium">
                                             Laguna ✓
-                                        </SelectItem>
-                                        <SelectItem value="Metro Manila" disabled className="text-gray-400">
-                                            Metro Manila (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Cavite" disabled className="text-gray-400">
-                                            Cavite (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Batangas" disabled className="text-gray-400">
-                                            Batangas (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Rizal" disabled className="text-gray-400">
-                                            Rizal (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Quezon" disabled className="text-gray-400">
-                                            Quezon (Not Available)
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -420,6 +411,8 @@ export default function AddressPage() {
                                     value={data.city} 
                                     onValueChange={(value) => setData('city', value)}
                                     disabled={processing}
+                                    open={openDropdown === 'city'}
+                                    onOpenChange={(open) => setOpenDropdown(open ? 'city' : null)}
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select city" />
@@ -427,21 +420,6 @@ export default function AddressPage() {
                                     <SelectContent>
                                         <SelectItem value="Cabuyao" className="text-green-600 font-medium">
                                             Cabuyao ✓
-                                        </SelectItem>
-                                        <SelectItem value="Calamba" disabled className="text-gray-400">
-                                            Calamba (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="San Pablo" disabled className="text-gray-400">
-                                            San Pablo (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Santa Rosa" disabled className="text-gray-400">
-                                            Santa Rosa (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Biñan" disabled className="text-gray-400">
-                                            Biñan (Not Available)
-                                        </SelectItem>
-                                        <SelectItem value="Los Baños" disabled className="text-gray-400">
-                                            Los Baños (Not Available)
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -455,6 +433,8 @@ export default function AddressPage() {
                                 value={data.barangay} 
                                 onValueChange={(value) => setData('barangay', value)}
                                 disabled={processing}
+                                open={openDropdown === 'barangay'}
+                                onOpenChange={(open) => setOpenDropdown(open ? 'barangay' : null)}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select barangay" />
@@ -502,6 +482,7 @@ export default function AddressPage() {
                                 onClick={() => {
                                     setIsDialogOpen(false);
                                     setEditingAddress(null);
+                                    setOpenDropdown(null);
                                     reset();
                                 }}
                             >
