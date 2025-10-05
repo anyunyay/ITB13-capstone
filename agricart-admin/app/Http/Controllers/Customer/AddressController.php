@@ -54,7 +54,6 @@ class AddressController extends Controller
             'barangay' => 'Sala', // Fixed barangay
             'city' => 'Cabuyao', // Fixed city
             'province' => 'Laguna', // Fixed province
-            'postal_code' => null, // No postal code
             'is_default' => $validated['is_default'] ?? false,
         ];
 
@@ -255,7 +254,6 @@ class AddressController extends Controller
             'barangay' => $user->barangay,
             'city' => $user->city,
             'province' => $user->province,
-            'postal_code' => null, // Not stored in user table
         ];
 
         return Inertia::render('Customer/Profile/address', [

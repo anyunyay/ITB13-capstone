@@ -20,7 +20,6 @@ class Address extends Model
         'barangay',
         'city',
         'province',
-        'postal_code',
         'is_default',
     ];
 
@@ -62,10 +61,6 @@ class Address extends Model
      */
     public function getFullAddressAttribute(): string
     {
-        $address = "{$this->street}, {$this->barangay}, {$this->city}, {$this->province}";
-        if ($this->postal_code) {
-            $address .= " {$this->postal_code}";
-        }
-        return $address;
+        return "{$this->street}, {$this->barangay}, {$this->city}, {$this->province}";
     }
 }
