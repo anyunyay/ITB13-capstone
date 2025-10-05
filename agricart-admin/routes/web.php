@@ -198,10 +198,19 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         
         // Customer Profile routes - Individual pages only
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('customer.profile.update.patch');
         Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('customer.profile.changePassword');
         Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('customer.profile.avatar.upload');
         Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
+        
+        // Address management routes (placeholder for future implementation)
+        Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('customer.profile.addresses.store');
+        Route::put('/profile/addresses/{id}', [ProfileController::class, 'updateAddress'])->name('customer.profile.addresses.update');
+        Route::delete('/profile/addresses/{id}', [ProfileController::class, 'deleteAddress'])->name('customer.profile.addresses.delete');
+        
+        // Help/Support routes
+        Route::post('/profile/help/contact', [ProfileController::class, 'sendHelpMessage'])->name('customer.profile.help.contact');
         
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');

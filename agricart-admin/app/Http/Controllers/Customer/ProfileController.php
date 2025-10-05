@@ -200,4 +200,40 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Profile picture removed successfully.');
     }
+
+    /**
+     * Store a new address for the customer.
+     */
+    public function storeAddress(Request $request)
+    {
+        // TODO: Implement address functionality when address model is ready
+        return redirect()->back()->with('info', 'Address functionality coming soon.');
+    }
+
+    /**
+     * Update an existing address.
+     */
+    public function updateAddress(Request $request, $id)
+    {
+        // TODO: Implement address functionality when address model is ready
+        return redirect()->back()->with('info', 'Address functionality coming soon.');
+    }
+
+    /**
+     * Delete an address.
+     */
+    public function deleteAddress($id)
+    {
+        // TODO: Implement address functionality when address model is ready
+        return redirect()->back()->with('info', 'Address functionality coming soon.');
+    }
+
+    /**
+     * Send a help/support message.
+     */
+    public function sendHelpMessage(Request $request)
+    {
+        // TODO: Implement help message functionality
+        return redirect()->back()->with('info', 'Help message functionality coming soon.');
+    }
 }
