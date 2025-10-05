@@ -9,6 +9,7 @@ use App\Models\CartItem;
 use App\Models\Stock;
 use App\Models\Sales;
 use App\Models\AuditTrail;
+use App\Models\Address;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
@@ -73,7 +74,35 @@ class CartController extends Controller
         }
         $checkoutMessage = session('checkoutMessage');
         $cart = $cartData;
-        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal'));
+        
+        // Get user's addresses for delivery selection
+        $allAddresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
+        
+        // Get user's main address information
+        $mainAddress = [
+            'address' => $user->address,
+            'barangay' => $user->barangay,
+            'city' => $user->city,
+            'province' => $user->province,
+        ];
+        
+        // Filter out the currently active address from the dropdown
+        $addresses = $allAddresses->filter(function ($address) use ($mainAddress) {
+            return !(
+                $address->street === $mainAddress['address'] &&
+                $address->barangay === $mainAddress['barangay'] &&
+                $address->city === $mainAddress['city'] &&
+                $address->province === $mainAddress['province']
+            );
+        })->values();
+        
+        // Get flash messages
+        $flash = [
+            'success' => session('success'),
+            'error' => session('error'),
+        ];
+        
+        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal', 'addresses', 'mainAddress', 'flash'));
     }
 
     public function store(Request $request)
@@ -152,11 +181,39 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('checkoutMessage', 'Your cart is empty.');
         }
 
+        // Validate address selection
+        $validated = $request->validate([
+            'delivery_address_id' => 'nullable|exists:addresses,id',
+            'use_main_address' => 'boolean',
+        ]);
+
+        $deliveryAddress = null;
+        
+        // If using main address
+        if ($validated['use_main_address']) {
+            $deliveryAddress = (object) [
+                'street' => $user->address,
+                'barangay' => $user->barangay,
+                'city' => $user->city,
+                'province' => $user->province,
+            ];
+        } else {
+            // Ensure the address belongs to the user
+            $deliveryAddress = Address::where('id', $validated['delivery_address_id'])
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$deliveryAddress) {
+                return redirect()->route('cart.index')->with('checkoutMessage', 'Invalid delivery address selected.');
+            }
+        }
+
         try {
-            // Create a new sale record
+            // Create a new sale record with delivery address
             $sale = Sales::create([
                 'customer_id' => $user->id,
                 'status' => 'pending',
+                'delivery_address' => $deliveryAddress->street . ', ' . $deliveryAddress->barangay . ', ' . $deliveryAddress->city . ', ' . $deliveryAddress->province,
             ]);
 
             $totalPrice = 0;

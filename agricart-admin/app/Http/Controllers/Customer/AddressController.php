@@ -16,15 +16,19 @@ class AddressController extends Controller
     /**
      * Display a listing of the customer's addresses.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::user();
         $addresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
         
+        // Check if we should auto-open the add address form
+        $autoOpenAddForm = $request->query('add_address') === 'true';
+        
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $addresses,
-            'user' => $user
+            'user' => $user,
+            'autoOpenAddForm' => $autoOpenAddForm
         ]);
     }
 
@@ -129,6 +133,30 @@ class AddressController extends Controller
         }
 
         return redirect()->back()->with('success', 'Address updated successfully');
+    }
+
+    /**
+     * Update the user's main address fields based on the selected address.
+     */
+    public function updateMainAddress(Request $request, Address $address)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        // Ensure the address belongs to the authenticated user
+        if ($address->user_id !== $user->id) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        // Update the user's main address fields
+        $user->update([
+            'address' => $address->street,
+            'barangay' => $address->barangay,
+            'city' => $address->city,
+            'province' => $address->province,
+        ]);
+
+        return redirect()->back()->with('success', 'Main address updated successfully');
     }
 
     /**

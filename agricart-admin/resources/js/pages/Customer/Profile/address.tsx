@@ -29,12 +29,13 @@ interface PageProps {
         success?: string;
         error?: string;
     };
+    autoOpenAddForm?: boolean;
     [key: string]: any;
 }
 
 export default function AddressPage() {
-    const { user, addresses = [], flash } = usePage<PageProps>().props;
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { user, addresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
+    const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({

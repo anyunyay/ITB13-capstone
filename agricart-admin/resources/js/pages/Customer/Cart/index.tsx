@@ -2,6 +2,10 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { MapPin, Plus, AlertTriangle } from 'lucide-react';
 
 import type { SharedData } from '@/types';
 import StockManager from '@/lib/stock-manager';
@@ -16,10 +20,38 @@ interface CartItem {
   total_price: number;
 }
 
+interface Address {
+  id: number;
+  street: string;
+  barangay: string;
+  city: string;
+  province: string;
+  is_default: boolean;
+}
+
+interface MainAddress {
+  address: string;
+  barangay: string;
+  city: string;
+  province: string;
+}
+
 export default function CartPage() {
-  const page = usePage<Partial<SharedData> & { cart?: Record<string, CartItem>; checkoutMessage?: string; cartTotal?: number }>();
+  const page = usePage<Partial<SharedData> & { 
+    cart?: Record<string, CartItem>; 
+    checkoutMessage?: string; 
+    cartTotal?: number;
+    addresses?: Address[];
+    mainAddress?: MainAddress;
+    flash?: {
+      success?: string;
+      error?: string;
+    };
+  }>();
   const auth = page?.props?.auth;
   const initialCart = page?.props?.cart || {};
+  const addresses = page?.props?.addresses || [];
+  const mainAddress = page?.props?.mainAddress;
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
@@ -28,6 +60,13 @@ export default function CartPage() {
 
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
   const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  
+  // Address confirmation dialog state
+  const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
+  const [pendingAddressId, setPendingAddressId] = useState<number | null>(null);
+  const [pendingAddress, setPendingAddress] = useState<Address | null>(null);
+  const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
   // Removed confirm dialog; updates happen instantly on change/blur
 
   // Redirect to login if not authenticated
@@ -84,6 +123,34 @@ export default function CartPage() {
   useEffect(() => {
     setCheckoutMessage(page?.props?.checkoutMessage || null);
   }, [page?.props?.checkoutMessage]);
+
+  // Set default address when addresses are loaded
+  useEffect(() => {
+    // If we have a main address but no selected address, we're using the active address
+    if (mainAddress && !selectedAddressId) {
+      // Don't set selectedAddressId - we'll use the main address for checkout
+      return;
+    }
+    
+    // If we have other addresses and no selected address, pick the first one
+    if (addresses.length > 0 && !selectedAddressId) {
+      const defaultAddress = addresses.find(addr => addr.is_default);
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+      } else {
+        setSelectedAddressId(addresses[0].id);
+      }
+    }
+  }, [addresses, selectedAddressId, mainAddress]);
+
+  // Handle flash messages from server
+  useEffect(() => {
+    if (page?.props?.flash?.success) {
+      setCheckoutMessage(page.props.flash.success);
+    } else if (page?.props?.flash?.error) {
+      setCheckoutMessage(page.props.flash.error);
+    }
+  }, [page?.props?.flash]);
 
   const removeItem = (cartItem: number) => {
     // Find the item to get its details for stock manager
@@ -281,12 +348,78 @@ export default function CartPage() {
     }
   };
 
+  const handleAddressChange = (addressId: number) => {
+    const address = addresses.find(addr => addr.id === addressId);
+    
+    if (!address) return;
+    
+    // If this is the first address selection or the same address, just set it
+    if (!selectedAddressId || selectedAddressId === addressId) {
+      setSelectedAddressId(addressId);
+      return;
+    }
+    
+    // If changing to a different address, show confirmation dialog
+    setPendingAddressId(addressId);
+    setPendingAddress(address);
+    setShowAddressConfirmation(true);
+  };
 
+  const confirmAddressChange = () => {
+    if (!pendingAddressId || !pendingAddress) return;
+    
+    setIsUpdatingAddress(true);
+    
+    // Update the user's main address
+    router.post(
+      `/customer/profile/addresses/${pendingAddressId}/update-main`,
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: (page: any) => {
+          setSelectedAddressId(pendingAddressId);
+          setShowAddressConfirmation(false);
+          setPendingAddressId(null);
+          setPendingAddress(null);
+          setIsUpdatingAddress(false);
+          
+          // Check for success message in flash data
+          if (page.props?.flash?.success) {
+            setCheckoutMessage(page.props.flash.success);
+          } else {
+            setCheckoutMessage('Address updated successfully!');
+          }
+        },
+        onError: (errors) => {
+          setIsUpdatingAddress(false);
+          setCheckoutMessage('Failed to update address. Please try again.');
+        },
+      }
+    );
+  };
+
+  const cancelAddressChange = () => {
+    setShowAddressConfirmation(false);
+    setPendingAddressId(null);
+    setPendingAddress(null);
+  };
 
   const handleCheckout = () => {
+    // If no address is selected and we have a main address, we're using the active address
+    if (!selectedAddressId && !mainAddress) {
+      setCheckoutMessage('Please select a delivery address.');
+      return;
+    }
+
+    // If we have a selected address, use it; otherwise use the main address
+    const addressToUse = selectedAddressId || 'main';
+
     router.post(
       '/customer/cart/checkout',
-      {},
+      { 
+        delivery_address_id: selectedAddressId,
+        use_main_address: !selectedAddressId && !!mainAddress
+      },
       {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -552,6 +685,85 @@ export default function CartPage() {
           </div>
         )}
         
+        {/* Delivery Address Selection */}
+        {cartItems.length > 0 && (
+          <div className="mt-6 p-4 border rounded-lg bg-blue-50">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="h-5 w-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-blue-800">Delivery Address</h3>
+            </div>
+            
+            {mainAddress ? (
+              <div className="space-y-3">
+                {/* Currently Active Address */}
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-semibold text-green-700 uppercase tracking-wide">
+                      Currently Active Address
+                    </span>
+                  </div>
+                  <div className="pl-4">
+                    <span className="font-medium text-gray-900">{mainAddress.address}</span>
+                    <span className="text-sm text-gray-600 block">
+                      {mainAddress.barangay}, {mainAddress.city}, {mainAddress.province}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Address Selection Dropdown */}
+                {addresses.length > 0 && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="delivery-address">Switch to Different Address</Label>
+                    <Select 
+                      value={selectedAddressId?.toString() || ''} 
+                      onValueChange={(value) => handleAddressChange(parseInt(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a different address" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {addresses.map((address) => (
+                          <SelectItem key={address.id} value={address.id.toString()}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{address.street}</span>
+                              <span className="text-sm text-gray-500">
+                                {address.barangay}, {address.city}, {address.province}
+                                {address.is_default && <span className="ml-2 text-blue-600">(Default)</span>}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add New Address
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-gray-600">No delivery addresses found. Please add an address to continue.</p>
+                <Button
+                  onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Address
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Cart Summary */}
         {cartItems.length > 0 && (
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
@@ -579,8 +791,8 @@ export default function CartPage() {
         <div className="mt-6">
           <Button 
             onClick={handleCheckout} 
-            disabled={cartItems.length === 0 || editingItems.size > 0 || !meetsMinimumOrder}
-            className={!meetsMinimumOrder ? 'opacity-50 cursor-not-allowed' : ''}
+            disabled={cartItems.length === 0 || editingItems.size > 0 || !meetsMinimumOrder || (!selectedAddressId && !mainAddress)}
+            className={!meetsMinimumOrder || (!selectedAddressId && !mainAddress) ? 'opacity-50 cursor-not-allowed' : ''}
           >
             Checkout
           </Button>
@@ -603,8 +815,65 @@ export default function CartPage() {
               Please add more items to meet the minimum order requirement of Php{minimumOrder}
             </div>
           )}
+          {(!selectedAddressId && !mainAddress) && cartItems.length > 0 && (
+            <div className="mt-2 text-blue-600 text-sm">
+              Please select a delivery address to continue with checkout
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Address Confirmation Dialog */}
+      <Dialog open={showAddressConfirmation} onOpenChange={setShowAddressConfirmation}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Confirm Address Change
+            </DialogTitle>
+            <DialogDescription>
+              You are about to change your delivery address. This will also update your main address in your profile.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {pendingAddress && (
+            <div className="space-y-3">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-1">New Address:</h4>
+                <p className="text-blue-700">{pendingAddress.street}</p>
+                <p className="text-sm text-blue-600">
+                  {pendingAddress.barangay}, {pendingAddress.city}, {pendingAddress.province}
+                </p>
+              </div>
+              
+              <div className="text-sm text-gray-600">
+                <p>This will:</p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>Set this as your delivery address for this order</li>
+                  <li>Update your main address in your profile</li>
+                </ul>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={cancelAddressChange}
+              disabled={isUpdatingAddress}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmAddressChange}
+              disabled={isUpdatingAddress}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isUpdatingAddress ? 'Updating...' : 'Confirm Change'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirmation Dialog removed; updates are instant */}
     </AppHeaderLayout>
