@@ -31,7 +31,7 @@ class ProfileController extends Controller
     public function address()
     {
         $user = Auth::user();
-        $addresses = $user->addresses ?? collect(); // Assuming addresses relationship
+        $addresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
         
         return Inertia::render('Customer/Profile/address', [
             'user' => $user,
@@ -201,32 +201,6 @@ class ProfileController extends Controller
         return redirect()->back()->with('success', 'Profile picture removed successfully.');
     }
 
-    /**
-     * Store a new address for the customer.
-     */
-    public function storeAddress(Request $request)
-    {
-        // TODO: Implement address functionality when address model is ready
-        return redirect()->back()->with('info', 'Address functionality coming soon.');
-    }
-
-    /**
-     * Update an existing address.
-     */
-    public function updateAddress(Request $request, $id)
-    {
-        // TODO: Implement address functionality when address model is ready
-        return redirect()->back()->with('info', 'Address functionality coming soon.');
-    }
-
-    /**
-     * Delete an address.
-     */
-    public function deleteAddress($id)
-    {
-        // TODO: Implement address functionality when address model is ready
-        return redirect()->back()->with('info', 'Address functionality coming soon.');
-    }
 
     /**
      * Send a help/support message.

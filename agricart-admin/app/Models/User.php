@@ -102,6 +102,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Sales::class, 'customer_id');
     }
 
+    public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Address::class)->where('is_default', true);
+    }
+
     // Member relationships
     public function stocks()
     {
