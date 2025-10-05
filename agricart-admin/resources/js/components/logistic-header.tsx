@@ -37,7 +37,7 @@ export function LogisticHeader() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src="" alt={user?.name} />
+                                    <AvatarImage src={(user as any)?.avatar_url || ''} alt={user?.name} />
                                     <AvatarFallback>
                                         {user?.name?.charAt(0)?.toUpperCase() || 'L'}
                                     </AvatarFallback>

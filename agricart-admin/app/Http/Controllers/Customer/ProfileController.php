@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\File;
 
 class ProfileController extends Controller
 {
@@ -143,5 +145,59 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Upload or update the customer's avatar.
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old avatar if exists
+        if ($user->avatar) {
+            $oldAvatarPath = public_path($user->avatar);
+            if (File::exists($oldAvatarPath)) {
+                File::delete($oldAvatarPath);
+            }
+        }
+
+        // Upload new avatar
+        if ($request->file('avatar')) {
+            $avatar = $request->file('avatar');
+            $avatarName = 'avatar_' . $user->id . '_' . time() . '.' . $avatar->getClientOriginalExtension();
+            $avatar->move(public_path('images/avatars/'), $avatarName);
+            
+            $user->update([
+                'avatar' => 'images/avatars/' . $avatarName,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Profile picture updated successfully.');
+    }
+
+    /**
+     * Delete the customer's avatar.
+     */
+    public function deleteAvatar(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->avatar) {
+            $avatarPath = public_path($user->avatar);
+            if (File::exists($avatarPath)) {
+                File::delete($avatarPath);
+            }
+
+            $user->update([
+                'avatar' => null,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Profile picture removed successfully.');
     }
 }

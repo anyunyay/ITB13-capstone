@@ -199,6 +199,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Customer Profile routes - Individual pages only
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
         Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('customer.profile.changePassword');
+        Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('customer.profile.avatar.upload');
+        Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
         
         // Individual profile section pages

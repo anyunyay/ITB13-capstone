@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'password_change_required',
+        'avatar',
         // Customer fields
         'address',
         'barangay',
@@ -51,6 +52,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['avatar_url'];
 
     /**
      * The attributes that should be cast.
@@ -231,5 +239,32 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('id', $this->current_session_id)
             ->where('user_id', $this->id)
             ->exists();
+    }
+
+    /**
+     * Get the avatar URL with proper path handling
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if (!$this->avatar) {
+            return null;
+        }
+
+        // If it's already a full URL, return as is
+        if (filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+            return $this->avatar;
+        }
+
+        // If it's a local path, ensure it starts with /
+        if (str_starts_with($this->avatar, 'images/')) {
+            return '/' . $this->avatar;
+        }
+
+        // If it doesn't start with /, add it
+        if (!str_starts_with($this->avatar, '/')) {
+            return '/' . $this->avatar;
+        }
+
+        return $this->avatar;
     }
 } 
