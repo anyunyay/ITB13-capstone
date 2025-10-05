@@ -353,13 +353,22 @@ export default function CartPage() {
     
     if (!address) return;
     
-    // If this is the first address selection or the same address, just set it
-    if (!selectedAddressId || selectedAddressId === addressId) {
+    // If we have an active address and this is the first selection from dropdown,
+    // or if we're changing to a different address, show confirmation dialog
+    if ((activeAddress && !selectedAddressId) || (selectedAddressId && selectedAddressId !== addressId)) {
+      setPendingAddressId(addressId);
+      setPendingAddress(address);
+      setShowAddressConfirmation(true);
+      return;
+    }
+    
+    // If this is the same address, just set it (no confirmation needed)
+    if (selectedAddressId === addressId) {
       setSelectedAddressId(addressId);
       return;
     }
     
-    // If changing to a different address, show confirmation dialog
+    // For any other case, show confirmation dialog
     setPendingAddressId(addressId);
     setPendingAddress(address);
     setShowAddressConfirmation(true);
