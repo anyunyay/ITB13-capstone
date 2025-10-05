@@ -204,6 +204,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
         
+        // Email change routes
+        Route::post('/profile/email/request-change', [ProfileController::class, 'requestEmailChange'])->name('customer.profile.email.request-change');
+        Route::get('/profile/email/verify', [ProfileController::class, 'showOtpVerification'])->name('customer.profile.email.verify');
+        Route::post('/profile/email/verify-otp', [ProfileController::class, 'verifyOtp'])->name('customer.profile.email.verify-otp');
+        Route::get('/profile/email/confirm', [ProfileController::class, 'showEmailConfirmation'])->name('customer.profile.email.confirm');
+        Route::post('/profile/email/confirm-change', [ProfileController::class, 'confirmEmailChange'])->name('customer.profile.email.confirm-change');
+        
         // Address management routes (placeholder for future implementation)
         Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('customer.profile.addresses.store');
         Route::put('/profile/addresses/{id}', [ProfileController::class, 'updateAddress'])->name('customer.profile.addresses.update');

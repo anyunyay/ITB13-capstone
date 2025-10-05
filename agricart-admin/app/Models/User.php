@@ -125,6 +125,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(MemberEarnings::class, 'member_id');
     }
 
+    // Email change requests relationship
+    public function emailChangeRequests()
+    {
+        return $this->hasMany(EmailChangeRequest::class);
+    }
+
     /**
      * Send the email verification notification.
      * Only send for customers - staff, member, and logistics don't need email verification.

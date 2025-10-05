@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,7 @@ interface User {
 
 interface PageProps {
     user: User;
+    [key: string]: unknown;
 }
 
 export default function ProfilePage() {
@@ -41,11 +42,6 @@ export default function ProfilePage() {
     // Email change states
     const [showEmailChange, setShowEmailChange] = useState(false);
     const [newEmail, setNewEmail] = useState('');
-    const [emailRequestId, setEmailRequestId] = useState<number | null>(null);
-    const [showOtpInput, setShowOtpInput] = useState(false);
-    const [otp, setOtp] = useState('');
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false);
     const [emailError, setEmailError] = useState('');
 
     const { data, setData, patch, processing, errors, reset } = useForm({
@@ -57,7 +53,7 @@ export default function ProfilePage() {
     // Email change form
     const emailChangeForm = useForm({
         new_email: '',
-        request_id: null,
+        request_id: null as any,
         otp: '',
     });
 
@@ -145,57 +141,30 @@ export default function ProfilePage() {
         setEmailError('');
         emailChangeForm.setData('new_email', newEmail);
         
+        console.log('Requesting email change for:', newEmail);
+        
         emailChangeForm.post('/customer/profile/email/request-change', {
             onSuccess: (page) => {
-                const flash = page.props.flash;
+                console.log('Email change request successful:', page.props.flash);
+                const flash = page.props.flash as any;
                 if (flash?.request_id) {
-                    setEmailRequestId(flash.request_id);
-                    setShowOtpInput(true);
-                    alert(flash.message || 'OTP sent successfully!');
+                    console.log('Redirecting to OTP verification page');
+                    // Redirect to OTP verification page
+                    router.visit(`/customer/profile/email/verify?request_id=${flash.request_id}&new_email=${encodeURIComponent(newEmail)}`);
+                } else {
+                    console.log('No request_id in flash message:', flash);
+                    setEmailError('Unexpected response from server');
                 }
             },
             onError: (errors) => {
-                setEmailError(errors.error || 'Failed to send OTP');
-            },
-        });
-    };
-
-    const handleVerifyOTP = (e?: React.MouseEvent) => {
-        e?.preventDefault();
-        setEmailError('');
-        emailChangeForm.setData('request_id', emailRequestId);
-        emailChangeForm.setData('otp', otp);
-
-        emailChangeForm.post('/customer/profile/email/verify-otp', {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.success) {
-                    setShowConfirmation(true);
-                    setShowOtpInput(false);
+                console.log('Email change request failed:', errors);
+                if (errors.new_email) {
+                    setEmailError(errors.new_email[0]);
+                } else if (errors.error) {
+                    setEmailError(errors.error);
+                } else {
+                    setEmailError('Failed to send OTP. Please try again.');
                 }
-            },
-            onError: (errors) => {
-                setEmailError(errors.error || 'Invalid OTP');
-            },
-        });
-    };
-
-    const handleConfirmEmailChange = (e?: React.MouseEvent) => {
-        e?.preventDefault();
-        setEmailError('');
-        emailChangeForm.setData('request_id', emailRequestId);
-
-        emailChangeForm.post('/customer/profile/email/confirm-change', {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.success) {
-                    alert(flash.message || 'Email updated successfully!');
-                    router.reload();
-                    handleCancelEmailChange();
-                }
-            },
-            onError: (errors) => {
-                setEmailError(errors.error || 'Failed to update email');
             },
         });
     };
@@ -203,16 +172,12 @@ export default function ProfilePage() {
     const handleCancelEmailChange = () => {
         setShowEmailChange(false);
         setNewEmail('');
-        setEmailRequestId(null);
-        setShowOtpInput(false);
-        setOtp('');
-        setShowConfirmation(false);
         setEmailError('');
     };
 
     return (
         <AppHeaderLayout breadcrumbs={[
-            { label: 'Profile Information', href: '/customer/profile/info' }
+            { title: 'Profile Information', href: '/customer/profile/info' }
         ]}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
@@ -427,137 +392,46 @@ export default function ProfilePage() {
                                         </Alert>
                                     )}
 
-                                    {!showOtpInput && !showConfirmation && (
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="new_email">New Email Address</Label>
-                                                <Input
-                                                    id="new_email"
-                                                    type="email"
-                                                    value={newEmail}
-                                                    onChange={(e) => setNewEmail(e.target.value)}
-                                                    placeholder="Enter new email address"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            handleRequestEmailChange();
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleRequestEmailChange}
-                                                    disabled={!newEmail || emailChangeForm.processing}
-                                                >
-                                                    {emailChangeForm.processing ? 'Sending...' : 'Send OTP'}
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={handleCancelEmailChange}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </div>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="new_email">New Email Address</Label>
+                                            <Input
+                                                id="new_email"
+                                                type="email"
+                                                value={newEmail}
+                                                onChange={(e) => setNewEmail(e.target.value)}
+                                                placeholder="Enter new email address"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleRequestEmailChange();
+                                                    }
+                                                }}
+                                            />
                                         </div>
-                                    )}
-
-                                    {showOtpInput && (
-                                        <div className="space-y-4">
-                                            <Alert>
-                                                <CheckCircle className="h-4 w-4" />
-                                                <AlertDescription>
-                                                    A 6-digit OTP has been sent to <strong>{user?.email}</strong>. 
-                                                    It will expire in 5 minutes.
-                                                </AlertDescription>
-                                            </Alert>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="otp">Enter OTP</Label>
-                                                <Input
-                                                    id="otp"
-                                                    type="text"
-                                                    maxLength={6}
-                                                    value={otp}
-                                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                                    placeholder="Enter 6-digit OTP"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            handleVerifyOTP();
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleVerifyOTP}
-                                                    disabled={otp.length !== 6 || emailChangeForm.processing}
-                                                >
-                                                    {emailChangeForm.processing ? 'Verifying...' : 'Verify OTP'}
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={handleCancelEmailChange}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                onClick={handleRequestEmailChange}
+                                                disabled={!newEmail || emailChangeForm.processing}
+                                            >
+                                                {emailChangeForm.processing ? 'Sending...' : 'Send OTP'}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleCancelEmailChange}
+                                            >
+                                                Cancel
+                                            </Button>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Email Change Confirmation Dialog */}
-                <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Confirm Email Change</DialogTitle>
-                            <DialogDescription>
-                                Are you sure you want to change your email address?
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">From:</span>
-                                <span className="text-sm font-medium">{user?.email}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">To:</span>
-                                <span className="text-sm font-medium">{newEmail}</span>
-                            </div>
-                        </div>
-                        {emailError && (
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{emailError}</AlertDescription>
-                            </Alert>
-                        )}
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleCancelEmailChange}
-                                disabled={emailChangeForm.processing}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={handleConfirmEmailChange}
-                                disabled={emailChangeForm.processing}
-                            >
-                                {emailChangeForm.processing ? 'Updating...' : 'Confirm & Update'}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
             </div>
         </AppHeaderLayout>
     );

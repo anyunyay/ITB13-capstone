@@ -11,12 +11,16 @@ class EmailChangeOtpNotification extends Notification
 {
     use Queueable;
 
+    protected $otp;
+    protected $newEmail;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(string $otp, string $newEmail)
     {
-        //
+        $this->otp = $otp;
+        $this->newEmail = $newEmail;
     }
 
     /**
@@ -35,9 +39,14 @@ class EmailChangeOtpNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject('Email Change Verification Code')
+            ->greeting('Hello!')
+            ->line('You have requested to change your email address to: **' . $this->newEmail . '**')
+            ->line('Your verification code is:')
+            ->line('## **' . $this->otp . '**')
+            ->line('This code will expire in 30 seconds.')
+            ->line('If you did not request this email change, please ignore this message.')
+            ->salutation('Thank you for using our application!');
     }
 
     /**
@@ -48,7 +57,8 @@ class EmailChangeOtpNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'otp' => $this->otp,
+            'new_email' => $this->newEmail,
         ];
     }
 }
