@@ -37,7 +37,7 @@ class RegisteredUserController extends Controller
             'contact_number' => [
                 'required',
                 'string',
-                'regex:/^9\d{9}$/',
+                'regex:/^(\+639|09)\d{9}$/',
             ],
             'address' => 'required|string|max:500',
             'barangay' => 'required|string|in:Sala',
@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'contact_number' => '+63' . $request->contact_number,
+            'contact_number' => $request->contact_number,
             'address' => $request->address,
             'barangay' => $request->barangay,
             'city' => $request->city,

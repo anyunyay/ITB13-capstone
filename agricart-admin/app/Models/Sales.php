@@ -14,7 +14,6 @@ class Sales extends Model
         'total_amount',
         'status',
         'delivery_status',
-        'delivery_address',
         'admin_id',
         'admin_notes',
         'logistic_id',

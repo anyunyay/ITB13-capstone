@@ -42,7 +42,6 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => 'customer@customer.com',
             'password' => Hash::make('12345678'),
-            'address' => $this->faker->address(),
             'province' => $this->faker->state(),
             'barangay' => $this->faker->city(),
             'city' => $this->faker->city(),
