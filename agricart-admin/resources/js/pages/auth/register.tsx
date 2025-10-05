@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
+import PasswordValidation from '@/components/ui/password-validation';
+import PasswordError from '@/components/ui/password-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AuthLayout from '@/layouts/auth-layout';
 
@@ -55,10 +57,18 @@ export default function Register() {
         province: 'Laguna', // Default to Laguna
     });
 
+    // State to track if user is typing in password fields
+    const [isTypingPassword, setIsTypingPassword] = useState(false);
+    const [isTypingPasswordConfirmation, setIsTypingPasswordConfirmation] = useState(false);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onFinish: () => {
+                reset('password', 'password_confirmation');
+                setIsTypingPassword(false);
+                setIsTypingPasswordConfirmation(false);
+            },
         });
     };
 
@@ -108,11 +118,18 @@ export default function Register() {
                             tabIndex={3}
                             autoComplete="new-password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) => {
+                                setData('password', e.target.value);
+                                setIsTypingPassword(true);
+                            }}
                             disabled={processing}
                             placeholder="Password"
                         />
-                        <InputError message={errors.password} />
+                        <PasswordError 
+                            error={errors.password} 
+                            showError={!isTypingPassword} 
+                        />
+                        <PasswordValidation password={data.password} />
                     </div>
 
                     <div className="grid gap-2">
@@ -123,11 +140,17 @@ export default function Register() {
                             tabIndex={4}
                             autoComplete="new-password"
                             value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            onChange={(e) => {
+                                setData('password_confirmation', e.target.value);
+                                setIsTypingPasswordConfirmation(true);
+                            }}
                             disabled={processing}
                             placeholder="Confirm password"
                         />
-                        <InputError message={errors.password_confirmation} />
+                        <PasswordError 
+                            error={errors.password_confirmation} 
+                            showError={!isTypingPasswordConfirmation} 
+                        />
                     </div>
 
                     <div className="grid gap-2">
