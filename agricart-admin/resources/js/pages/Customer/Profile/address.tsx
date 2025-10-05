@@ -66,9 +66,7 @@ export default function AddressPage() {
         'Pulo',
         'Puntod',
         'Sala',
-        'San Isidro',
-        'Tulo',
-        'Ulong Tubig'
+        'San Isidro'
     ];
 
     const handleSubmit = (e: React.FormEvent) => {

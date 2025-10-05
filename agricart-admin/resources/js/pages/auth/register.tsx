@@ -40,9 +40,7 @@ export default function Register() {
         'Pulo',
         'Puntod',
         'Sala',
-        'San Isidro',
-        'Tulo',
-        'Ulong Tubig'
+        'San Isidro'
     ];
 
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
