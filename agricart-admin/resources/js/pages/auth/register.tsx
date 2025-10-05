@@ -153,20 +153,49 @@ export default function Register() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="contact_number">Contact Number</Label>
-                        <Input
-                            id="contact_number"
-                            type="tel"
-                            required
-                            tabIndex={5}
-                            autoComplete="tel"
-                            value={data.contact_number}
-                            onChange={(e) => setData('contact_number', e.target.value)}
-                            disabled={processing}
-                            placeholder="+63 9XX XXX XXXX (Philippine format only)"
-                        />
+                        <div className="flex gap-2">
+                            <div className="w-20">
+                                <Select disabled value="+63">
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="+63">+63</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Input
+                                id="contact_number"
+                                type="tel"
+                                required
+                                tabIndex={5}
+                                autoComplete="tel"
+                                value={data.contact_number}
+                                onChange={(e) => {
+                                    let value = e.target.value;
+                                    // Remove any non-digit characters
+                                    value = value.replace(/\D/g, '');
+                                    
+                                    // Remove leading 0 if present
+                                    if (value.startsWith('0')) {
+                                        value = value.substring(1);
+                                    }
+                                    
+                                    // Limit to 10 digits
+                                    if (value.length > 10) {
+                                        value = value.substring(0, 10);
+                                    }
+                                    
+                                    setData('contact_number', value);
+                                }}
+                                disabled={processing}
+                                placeholder="9XX XXX XXXX"
+                                className="flex-1"
+                            />
+                        </div>
                         <InputError message={errors.contact_number} />
                         <p className="text-xs text-muted-foreground">
-                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                            Format: 9XX XXX XXXX (10 digits without leading 0)
                         </p>
                     </div>
 
