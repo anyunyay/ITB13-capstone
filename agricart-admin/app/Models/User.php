@@ -102,6 +102,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Sales::class, 'customer_id');
     }
 
+    public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Address::class)->where('is_default', true);
+    }
+
     // Member relationships
     public function stocks()
     {
@@ -272,5 +282,42 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $this->avatar;
+    }
+
+    /**
+     * Get the main address as a formatted string
+     */
+    public function getMainAddressAttribute(): ?string
+    {
+        if (!$this->address || !$this->barangay || !$this->city || !$this->province) {
+            return null;
+        }
+
+        return "{$this->address}, {$this->barangay}, {$this->city}, {$this->province}";
+    }
+
+    /**
+     * Check if the user has a complete main address
+     */
+    public function hasMainAddress(): bool
+    {
+        return !empty($this->address) && !empty($this->barangay) && !empty($this->city) && !empty($this->province);
+    }
+
+    /**
+     * Get the main address as an object for easy access
+     */
+    public function getMainAddressObject(): ?object
+    {
+        if (!$this->hasMainAddress()) {
+            return null;
+        }
+
+        return (object) [
+            'street' => $this->address,
+            'barangay' => $this->barangay,
+            'city' => $this->city,
+            'province' => $this->province,
+        ];
     }
 } 

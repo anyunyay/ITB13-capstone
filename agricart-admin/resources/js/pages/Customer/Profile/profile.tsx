@@ -4,18 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage, router } from '@inertiajs/react';
-import { User, Edit, Save, X, Camera, Trash2, Upload, Mail, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Edit, Save, X, Camera, Trash2, Upload } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 
 interface User {
     id: number;
@@ -39,17 +30,21 @@ export default function ProfilePage() {
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
+<<<<<<< HEAD
     // Email change states
     const [showEmailChange, setShowEmailChange] = useState(false);
     const [newEmail, setNewEmail] = useState('');
     const [emailError, setEmailError] = useState('');
 
+=======
+>>>>>>> ec1f459f3832b356736d15c74732dafb025dab7f
     const { data, setData, patch, processing, errors, reset } = useForm({
         name: user?.name || '',
         email: user?.email || '',
         phone: user?.contact_number || '',
     });
 
+<<<<<<< HEAD
     // Email change form
     const emailChangeForm = useForm({
         new_email: '',
@@ -57,6 +52,8 @@ export default function ProfilePage() {
         otp: '',
     });
 
+=======
+>>>>>>> ec1f459f3832b356736d15c74732dafb025dab7f
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         patch('/customer/profile', {
@@ -135,6 +132,7 @@ export default function ProfilePage() {
             .slice(0, 2);
     };
 
+<<<<<<< HEAD
     // Email change handlers
     const handleRequestEmailChange = (e?: React.MouseEvent) => {
         e?.preventDefault();
@@ -175,6 +173,8 @@ export default function ProfilePage() {
         setEmailError('');
     };
 
+=======
+>>>>>>> ec1f459f3832b356736d15c74732dafb025dab7f
     return (
         <AppHeaderLayout breadcrumbs={[
             { title: 'Profile Information', href: '/customer/profile/info' }
@@ -354,6 +354,7 @@ export default function ProfilePage() {
                         </form>
                     </CardContent>
                 </Card>
+<<<<<<< HEAD
 
                 {/* Email Change Section */}
                 <Card>
@@ -432,6 +433,8 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
 
+=======
+>>>>>>> ec1f459f3832b356736d15c74732dafb025dab7f
             </div>
         </AppHeaderLayout>
     );
