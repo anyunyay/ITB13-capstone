@@ -194,9 +194,6 @@ export default function Register() {
                             />
                         </div>
                         <InputError message={errors.contact_number} />
-                        <p className="text-xs text-muted-foreground">
-                            Format: 9XX XXX XXXX (10 digits without leading 0)
-                        </p>
                     </div>
 
                     <div className="grid gap-2">
