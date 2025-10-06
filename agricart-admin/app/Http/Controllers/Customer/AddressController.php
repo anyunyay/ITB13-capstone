@@ -48,8 +48,6 @@ class AddressController extends Controller
         // Set fixed values following registration pattern
         $addressData = [
             'user_id' => $user->id,
-            'type' => 'home', // Fixed type
-            'label' => null, // No label
             'street' => $validated['street'],
             'barangay' => 'Sala', // Fixed barangay
             'city' => 'Cabuyao', // Fixed city
@@ -69,8 +67,31 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
         }
 
-        // If this is being set as default, unset any existing default
+        // If this is being set as default, save current main address first
         if ($addressData['is_default']) {
+            // Save the current main address to the addresses table before updating
+            if ($user->address || $user->barangay || $user->city || $user->province) {
+                // Check if the current main address already exists in saved addresses
+                $currentMainAddressExists = $user->addresses()
+                    ->where('street', $user->address)
+                    ->where('barangay', $user->barangay)
+                    ->where('city', $user->city)
+                    ->where('province', $user->province)
+                    ->first();
+
+                // Only save if it doesn't already exist and has valid data
+                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
+                    $user->addresses()->create([
+                        'street' => $user->address,
+                        'barangay' => $user->barangay,
+                        'city' => $user->city,
+                        'province' => $user->province,
+                        'is_default' => false, // Don't set as default automatically
+                    ]);
+                }
+            }
+
+            // Unset any existing default addresses
             $user->addresses()->update(['is_default' => false]);
         }
 
@@ -138,8 +159,31 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
         }
 
-        // If this is being set as default, unset any existing default
+        // If this is being set as default, save current main address first
         if ($validated['is_default']) {
+            // Save the current main address to the addresses table before updating
+            if ($user->address || $user->barangay || $user->city || $user->province) {
+                // Check if the current main address already exists in saved addresses
+                $currentMainAddressExists = $user->addresses()
+                    ->where('street', $user->address)
+                    ->where('barangay', $user->barangay)
+                    ->where('city', $user->city)
+                    ->where('province', $user->province)
+                    ->first();
+
+                // Only save if it doesn't already exist and has valid data
+                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
+                    $user->addresses()->create([
+                        'street' => $user->address,
+                        'barangay' => $user->barangay,
+                        'city' => $user->city,
+                        'province' => $user->province,
+                        'is_default' => false, // Don't set as default automatically
+                    ]);
+                }
+            }
+
+            // Unset any existing default addresses
             $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
         }
 
@@ -228,6 +272,28 @@ class AddressController extends Controller
         }
 
         DB::transaction(function () use ($user, $address) {
+            // Save the current main address to the addresses table before updating
+            if ($user->address || $user->barangay || $user->city || $user->province) {
+                // Check if the current main address already exists in saved addresses
+                $currentMainAddressExists = $user->addresses()
+                    ->where('street', $user->address)
+                    ->where('barangay', $user->barangay)
+                    ->where('city', $user->city)
+                    ->where('province', $user->province)
+                    ->first();
+
+                // Only save if it doesn't already exist and has valid data
+                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
+                    $user->addresses()->create([
+                        'street' => $user->address,
+                        'barangay' => $user->barangay,
+                        'city' => $user->city,
+                        'province' => $user->province,
+                        'is_default' => false, // Don't set as default automatically
+                    ]);
+                }
+            }
+
             // Unset all other default addresses
             $user->addresses()->update(['is_default' => false]);
             
@@ -301,6 +367,30 @@ class AddressController extends Controller
 
         if ($existingAddress) {
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
+        }
+
+        // Save the old address to the addresses table before updating
+        if ($user->address || $user->barangay || $user->city || $user->province) {
+            // Check if the old address already exists in saved addresses
+            $oldAddressExists = $user->addresses()
+                ->where('street', $user->address)
+                ->where('barangay', $user->barangay)
+                ->where('city', $user->city)
+                ->where('province', $user->province)
+                ->first();
+
+            // Only save if it doesn't already exist and has valid data
+            if (!$oldAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
+                $user->addresses()->create([
+                    'type' => 'home',
+                    'label' => null,
+                    'street' => $user->address,
+                    'barangay' => $user->barangay,
+                    'city' => $user->city,
+                    'province' => $user->province,
+                    'is_default' => false, // Don't set as default automatically
+                ]);
+            }
         }
 
         $user->update([

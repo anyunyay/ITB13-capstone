@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useForm, usePage, router } from '@inertiajs/react';
-import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 
 interface Address {
@@ -41,6 +41,13 @@ export default function AddressPage() {
     const { user, addresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [confirmationData, setConfirmationData] = useState<{
+        type: 'edit_main' | 'add_default' | 'update_default' | 'set_active';
+        address: Address | null;
+        newAddress?: any;
+        onConfirm: () => void;
+    } | null>(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         street: '',
@@ -72,8 +79,13 @@ export default function AddressPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // If editing the main address (id = 0), update user's main address fields
+        // If editing the main address (id = 0), show confirmation
         if (editingAddress && editingAddress.id === 0) {
+            setConfirmationData({
+                type: 'edit_main',
+                address: editingAddress,
+                newAddress: data,
+                onConfirm: () => {
             router.put('/customer/profile/main-address', {
                 address: data.street,
                 barangay: data.barangay,
@@ -84,14 +96,72 @@ export default function AddressPage() {
                     reset();
                     setIsDialogOpen(false);
                     setEditingAddress(null);
+                            setShowConfirmationModal(false);
+                            setConfirmationData(null);
+                        },
+                        onError: () => {
+                            // Error will be handled by flash messages
+                        },
+                    });
+                }
+            });
+            setShowConfirmationModal(true);
+            return;
+        }
+        
+        // Check if this is a new address being set as default
+        if (!editingAddress && data.is_default) {
+            setConfirmationData({
+                type: 'add_default',
+                address: null,
+                newAddress: data,
+                onConfirm: () => {
+                    const url = '/customer/profile/addresses';
+                    post(url, {
+                        onSuccess: () => {
+                            reset();
+                            setIsDialogOpen(false);
+                            setEditingAddress(null);
+                            setShowConfirmationModal(false);
+                            setConfirmationData(null);
+                        },
+                        onError: () => {
+                            // Error will be handled by flash messages
+                        },
+                    });
+                }
+            });
+            setShowConfirmationModal(true);
+            return;
+        }
+
+        // Check if this is an existing address being set as default
+        if (editingAddress && data.is_default && !editingAddress.is_default) {
+            setConfirmationData({
+                type: 'update_default',
+                address: editingAddress,
+                newAddress: data,
+                onConfirm: () => {
+                    const url = `/customer/profile/addresses/${editingAddress.id}`;
+                    put(url, {
+                        onSuccess: () => {
+                            reset();
+                            setIsDialogOpen(false);
+                            setEditingAddress(null);
+                            setShowConfirmationModal(false);
+                            setConfirmationData(null);
                 },
                 onError: () => {
                     // Error will be handled by flash messages
                 },
             });
+                }
+            });
+            setShowConfirmationModal(true);
             return;
         }
         
+        // Regular address operations (no confirmation needed)
         const url = editingAddress ? `/customer/profile/addresses/${editingAddress.id}` : '/customer/profile/addresses';
         const method = editingAddress ? put : post;
 
@@ -141,26 +211,44 @@ export default function AddressPage() {
     };
 
     const handleSetActive = (addressId: number) => {
-        if (confirm('Are you sure you want to set this address as your active address?')) {
+        const address = addresses.find(addr => addr.id === addressId);
+        if (!address) return;
+
+        setConfirmationData({
+            type: 'set_active',
+            address: address,
+            onConfirm: () => {
             router.post(`/customer/profile/addresses/${addressId}/set-default`, {}, {
                 onSuccess: () => {
-                    // Success message will be handled by flash messages
+                        setShowConfirmationModal(false);
+                        setConfirmationData(null);
                 },
                 onError: () => {
                     // Error will be handled by flash messages
                 },
             });
         }
+        });
+        setShowConfirmationModal(true);
     };
 
     const getAddressIcon = () => {
         return <Home className="h-4 w-4" />;
     };
 
+    // Check if the currently active address matches the main address from registration
+    const isActiveAddressSameAsMain = () => {
+        const activeAddress = addresses.find(addr => addr.is_default);
+        if (!activeAddress || !user.address) return false;
+        
+        return activeAddress.street === user.address &&
+               activeAddress.barangay === user.barangay &&
+               activeAddress.city === user.city &&
+               activeAddress.province === user.province;
+    };
+
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { title: 'Address Management', href: '/customer/profile/address' }
-        ]}>
+        <AppHeaderLayout>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
                     <div>
@@ -207,8 +295,72 @@ export default function AddressPage() {
                 )}
 
             <div className="space-y-6">
-                {/* Currently Active Address */}
-                {addresses.find(addr => addr.is_default) && (
+                {/* Main Address from Registration */}
+                {(user.address || user.barangay || user.city || user.province) && (
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                            {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
+                        </h3>
+                        <Card className={`border-2 ${isActiveAddressSameAsMain() ? 'border-blue-200 bg-blue-50' : 'border-green-200 bg-green-50'}`}>
+                            <CardContent className="p-6">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className={`flex items-center gap-2 ${isActiveAddressSameAsMain() ? 'text-blue-700' : 'text-green-700'}`}>
+                                            <MapPin className="h-4 w-4" />
+                                            <span className="text-sm font-medium">Registration Address</span>
+                                            <div className={`flex items-center gap-1 ${isActiveAddressSameAsMain() ? 'text-blue-600' : 'text-green-600'}`}>
+                                                <CheckCircle className="h-4 w-4" />
+                                                <span className="text-xs font-medium">
+                                                    {isActiveAddressSameAsMain() ? 'Active' : 'Main'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_default: false })}
+                                            className="flex items-center gap-1"
+                                        >
+                                            <Edit className="h-3 w-3" />
+                                            Edit
+                                        </Button>
+                                        {isActiveAddressSameAsMain() && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                disabled
+                                                className="flex items-center gap-1 text-gray-400 cursor-not-allowed opacity-50"
+                                            >
+                                                <CheckCircle className="h-3 w-3" />
+                                                Currently Active
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-3 space-y-1">
+                                    {user.address && <p className="font-medium text-gray-900">{user.address}</p>}
+                                    {(user.barangay || user.city) && (
+                                        <p className="text-gray-600">
+                                            {user.barangay && user.city ? `${user.barangay}, ${user.city}` : user.barangay || user.city}
+                                        </p>
+                                    )}
+                                    {user.province && <p className="text-gray-600">{user.province}</p>}
+                                </div>
+                                {!isActiveAddressSameAsMain() && (
+                                    <div className="mt-2 text-xs text-green-600">
+                                        This is your main address from registration. You can edit it or add additional addresses below.
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
+                {/* Currently Active Address - Only show if different from main address */}
+                {addresses.find(addr => addr.is_default) && !isActiveAddressSameAsMain() && (
                     <div className="space-y-2">
                         <h3 className="text-lg font-semibold text-gray-900">Currently Active Address</h3>
                         <Card className="border-2 border-blue-200 bg-blue-50">
@@ -268,21 +420,7 @@ export default function AddressPage() {
                     </div>
                 )}
 
-                {addresses.length === 0 ? (
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-12">
-                            <MapPin className="h-12 w-12 text-gray-400 mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">No addresses found</h3>
-                            <p className="text-gray-500 text-center mb-4">
-                                Add your first address to make ordering easier and faster.
-                            </p>
-                            <Button onClick={handleAddNew} className="flex items-center gap-2">
-                                <PlusCircle className="h-4 w-4" />
-                                Add Your First Address
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ) : (
+                {addresses.length > 0 && (
                     <>
                         {/* Other Saved Addresses */}
                         {addresses.filter(addr => !addr.is_default).length > 0 && (
@@ -491,6 +629,74 @@ export default function AddressPage() {
                             </Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Address Change Confirmation Modal */}
+            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-amber-500" />
+                            Confirm Address Change
+                        </DialogTitle>
+                        <DialogDescription>
+                            Please review the impact of this address change before proceeding.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {confirmationData && (
+                        <Card className="border border-amber-200 bg-amber-50">
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-medium text-amber-700">Impact of This Change</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-0 space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <ShoppingCart className="h-4 w-4 text-amber-600 mt-1" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">Checkout & Orders</p>
+                                        <p className="text-xs text-gray-600">This address will be used for all future orders and checkout processes</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <Package className="h-4 w-4 text-amber-600 mt-1" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">Delivery Address</p>
+                                        <p className="text-xs text-gray-600">All deliveries will be sent to this new address</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <Clock className="h-4 w-4 text-amber-600 mt-1" />
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">Address History</p>
+                                        <p className="text-xs text-gray-600">Your current address will be saved in your address list for future use</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    <DialogFooter className="gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowConfirmationModal(false);
+                                setConfirmationData(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                if (confirmationData) {
+                                    confirmationData.onConfirm();
+                                }
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700"
+                        >
+                            Confirm Address Change
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

@@ -14,8 +14,6 @@ class Address extends Model
      */
     protected $fillable = [
         'user_id',
-        'type',
-        'label',
         'street',
         'barangay',
         'city',
@@ -48,13 +46,6 @@ class Address extends Model
         return $query->where('is_default', true);
     }
 
-    /**
-     * Scope to get addresses by type.
-     */
-    public function scopeByType($query, $type)
-    {
-        return $query->where('type', $type);
-    }
 
     /**
      * Get the full address as a formatted string.
