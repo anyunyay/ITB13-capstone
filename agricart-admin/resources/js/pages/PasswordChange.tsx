@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PasswordInput from '@/components/ui/password-input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock, AlertTriangle } from 'lucide-react';
 
@@ -51,9 +52,8 @@ export default function PasswordChange() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="current_password" className="text-gray-200">Current Password</Label>
-                <Input
+                <PasswordInput
                   id="current_password"
-                  type="password"
                   value={data.current_password}
                   onChange={(e) => setData('current_password', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.current_password ? 'border-red-500' : ''}`}
@@ -67,9 +67,8 @@ export default function PasswordChange() {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-200">New Password</Label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.password ? 'border-red-500' : ''}`}
@@ -83,9 +82,8 @@ export default function PasswordChange() {
 
               <div className="space-y-2">
                 <Label htmlFor="password_confirmation" className="text-gray-200">Confirm New Password</Label>
-                <Input
+                <PasswordInput
                   id="password_confirmation"
-                  type="password"
                   value={data.password_confirmation}
                   onChange={(e) => setData('password_confirmation', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.password_confirmation ? 'border-red-500' : ''}`}

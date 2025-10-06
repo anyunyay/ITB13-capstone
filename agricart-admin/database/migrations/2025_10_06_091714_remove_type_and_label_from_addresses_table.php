@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('email_change_requests', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('addresses', function (Blueprint $table) {
+            $table->dropColumn(['type', 'label']);
         });
     }
 
@@ -22,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('email_change_requests');
+        Schema::table('addresses', function (Blueprint $table) {
+            $table->enum('type', ['home', 'work', 'other'])->default('home');
+            $table->string('label')->nullable();
+        });
     }
 };
