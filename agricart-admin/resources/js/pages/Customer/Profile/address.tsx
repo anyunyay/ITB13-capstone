@@ -9,26 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useForm, usePage } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, Briefcase, Tag, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import InputError from '@/components/input-error';
-
-// List of all barangays in Cabuyao, Laguna (only Sala is selectable)
-const CABUYAO_BARANGAYS = [
-    'Banaybanay',
-    'Bigaa',
-    'Butong',
-    'Diezmo',
-    'Gulod',
-    'Mamatid',
-    'Marinig',
-    'Niugan',
-    'Pittland',
-    'Pulo',
-    'Puntod',
-    'Sala',
-    'San Isidro',
-    'Tulo',
-    'Ulong Tubig'
-];
 
 interface Address {
     id: number;
@@ -39,7 +19,6 @@ interface Address {
     city: string;
     province: string;
     postal_code: string;
-    contact_number: string;
     is_default: boolean;
 }
 
@@ -60,14 +39,28 @@ export default function AddressPage() {
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         type: 'home' as 'home' | 'work' | 'other',
         street: '',
-        barangay: 'Sala', // Default to Sala
-        city: 'Cabuyao', // Default to Cabuyao
-        province: 'Laguna', // Default to Laguna
+        barangay: '',
+        city: '',
+        province: '',
         postal_code: '',
-        contact_number: '',
         is_default: false,
         label: '',
     });
+
+    const provinces = [
+        'Metro Manila', 'Cavite', 'Laguna', 'Batangas', 'Rizal', 'Quezon',
+        'Bulacan', 'Pampanga', 'Tarlac', 'Nueva Ecija', 'Bataan', 'Zambales',
+        'Aurora', 'Ilocos Norte', 'Ilocos Sur', 'La Union', 'Pangasinan',
+        'Abra', 'Benguet', 'Ifugao', 'Kalinga', 'Mountain Province', 'Apayao',
+        'Cagayan', 'Isabela', 'Nueva Vizcaya', 'Quirino', 'Batanes'
+    ];
+
+    const cities = {
+        'Metro Manila': ['Manila', 'Quezon City', 'Makati', 'Taguig', 'Pasig', 'Mandaluyong', 'San Juan', 'Marikina', 'Caloocan', 'Malabon', 'Navotas', 'Las Piñas', 'Muntinlupa', 'Parañaque', 'Pasay', 'Pateros', 'Valenzuela'],
+        'Cavite': ['Bacoor', 'Cavite City', 'Dasmariñas', 'Imus', 'Tagaytay', 'Trece Martires', 'General Trias', 'Kawit', 'Noveleta', 'Rosario', 'Silang', 'Alfonso', 'Amadeo', 'Carmona', 'General Emilio Aguinaldo', 'General Mariano Alvarez', 'Indang', 'Magallanes', 'Maragondon', 'Mendez', 'Naic', 'Tanza', 'Ternate'],
+        'Laguna': ['Calamba', 'San Pablo', 'Santa Rosa', 'Biñan', 'Cabuyao', 'Los Baños', 'San Pedro', 'Alaminos', 'Bay', 'Calauan', 'Cavinti', 'Famy', 'Kalayaan', 'Liliw', 'Luisiana', 'Lumban', 'Mabitac', 'Magdalena', 'Majayjay', 'Nagcarlan', 'Paete', 'Pagsanjan', 'Pakil', 'Pangil', 'Pila', 'Rizal', 'Santa Cruz', 'Santa Maria', 'Siniloan', 'Victoria'],
+        'Batangas': ['Batangas City', 'Lipa', 'Tanauan', 'Santo Tomas', 'Bauan', 'Calaca', 'Lemery', 'Nasugbu', 'Balayan', 'Calatagan', 'Cuenca', 'Ibaan', 'Laurel', 'Lian', 'Lobo', 'Mabini', 'Malvar', 'Mataasnakahoy', 'Padre Garcia', 'Rosario', 'San Jose', 'San Juan', 'San Luis', 'San Nicolas', 'San Pascual', 'Santa Teresita', 'Taal', 'Talisay', 'Taysan', 'Tingloy', 'Tuy']
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -96,7 +89,6 @@ export default function AddressPage() {
             city: address.city,
             province: address.province,
             postal_code: address.postal_code,
-            contact_number: address.contact_number,
             is_default: address.is_default,
             label: address.label || '',
         });
@@ -201,9 +193,6 @@ export default function AddressPage() {
                                     <p className="font-medium text-gray-900">{address.street}</p>
                                     <p className="text-gray-600">{address.barangay}, {address.city}</p>
                                     <p className="text-gray-600">{address.province} {address.postal_code}</p>
-                                    {address.contact_number && (
-                                        <p className="text-sm text-gray-500">Contact: {address.contact_number}</p>
-                                    )}
                                     {address.label && (
                                         <p className="text-sm text-gray-500">Label: {address.label}</p>
                                     )}
@@ -252,118 +241,82 @@ export default function AddressPage() {
                             </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="contact_number">Contact Number</Label>
-                            <Input
-                                id="contact_number"
-                                type="tel"
-                                required
-                                autoComplete="tel"
-                                value={data.contact_number}
-                                onChange={(e) => setData('contact_number', e.target.value)}
-                                disabled={processing}
-                                placeholder="+63 9XX XXX XXXX (Philippine format only)"
-                            />
-                            <InputError message={errors.contact_number} />
-                            <p className="text-xs text-muted-foreground">
-                                Format: +639XXXXXXXXX or 09XXXXXXXXX
-                            </p>
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="street">Address Line</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="street">Street Address</Label>
                             <Input
                                 id="street"
-                                type="text"
-                                required
-                                autoComplete="address-line1"
                                 value={data.street}
                                 onChange={(e) => setData('street', e.target.value)}
-                                disabled={processing}
-                                placeholder="House number, street name"
+                                placeholder="Enter street address"
+                                required
                             />
-                            <InputError message={errors.street} />
+                            {errors.street && <p className="text-sm text-red-500">{errors.street}</p>}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="barangay">Barangay</Label>
+                                <Input
+                                    id="barangay"
+                                    value={data.barangay}
+                                    onChange={(e) => setData('barangay', e.target.value)}
+                                    placeholder="Enter barangay"
+                                    required
+                                />
+                                {errors.barangay && <p className="text-sm text-red-500">{errors.barangay}</p>}
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="postal_code">Postal Code</Label>
+                                <Input
+                                    id="postal_code"
+                                    value={data.postal_code}
+                                    onChange={(e) => setData('postal_code', e.target.value)}
+                                    placeholder="Enter postal code"
+                                    required
+                                />
+                                {errors.postal_code && <p className="text-sm text-red-500">{errors.postal_code}</p>}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
                                 <Label htmlFor="province">Province</Label>
-                                <Select 
-                                    value={data.province || 'Laguna'} 
-                                    onValueChange={(value) => setData('province', value)}
-                                    disabled={processing}
-                                >
-                                    <SelectTrigger className="w-full">
+                                <Select value={data.province} onValueChange={(value) => setData('province', value)}>
+                                    <SelectTrigger>
                                         <SelectValue placeholder="Select province" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Laguna">
-                                            Laguna
-                                        </SelectItem>
+                                        {provinces.map((province) => (
+                                            <SelectItem key={province} value={province}>
+                                                {province}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
-                                <InputError message={errors.province} />
+                                {errors.province && <p className="text-sm text-red-500">{errors.province}</p>}
                             </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="city">City</Label>
+                            
+                            <div className="space-y-2">
+                                <Label htmlFor="city">City/Municipality</Label>
                                 <Select 
-                                    value={data.city || 'Cabuyao'} 
+                                    value={data.city} 
                                     onValueChange={(value) => setData('city', value)}
-                                    disabled={processing}
+                                    disabled={!data.province}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger>
                                         <SelectValue placeholder="Select city" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Cabuyao">
-                                            Cabuyao
-                                        </SelectItem>
+                                        {data.province && cities[data.province as keyof typeof cities]?.map((city) => (
+                                            <SelectItem key={city} value={city}>
+                                                {city}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
-                                <InputError message={errors.city} />
+                                {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
                             </div>
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="barangay">Barangay</Label>
-                            <Select 
-                                value={data.barangay || 'Sala'} 
-                                onValueChange={(value) => setData('barangay', value)}
-                                disabled={processing}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select barangay" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {CABUYAO_BARANGAYS.map((barangay) => (
-                                        <SelectItem 
-                                            key={barangay} 
-                                            value={barangay}
-                                            disabled={barangay !== 'Sala'}
-                                            className={barangay !== 'Sala' ? 'opacity-50 cursor-not-allowed' : ''}
-                                        >
-                                            {barangay}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <InputError message={errors.barangay} />
-                            <p className="text-xs text-muted-foreground">
-                                Only Barangay Sala is currently available
-                            </p>
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="postal_code">Postal Code</Label>
-                            <Input
-                                id="postal_code"
-                                value={data.postal_code}
-                                onChange={(e) => setData('postal_code', e.target.value)}
-                                placeholder="Enter postal code"
-                                required
-                            />
-                            <InputError message={errors.postal_code} />
                         </div>
 
                         <div className="flex items-center space-x-2">
