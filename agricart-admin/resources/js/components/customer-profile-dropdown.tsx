@@ -40,7 +40,7 @@ export function CustomerProfileDropdown({ user }: CustomerProfileDropdownProps) 
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link className="block w-full" href="/customer/profile/address" as="button" prefetch onClick={cleanup}>
+                            <Link className="block w-full" href="/customer/profile/addresses" as="button" prefetch onClick={cleanup}>
                                 <MapPin className="mr-2 h-4 w-4" />
                                 Add/Edit Address
                             </Link>

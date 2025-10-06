@@ -20,7 +20,12 @@ class AddressController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        $addresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
+        
+        // Always reload addresses from database to ensure fresh data
+        $addresses = $user->addresses()
+            ->orderBy('is_default', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
         
         // Check if we should auto-open the add address form
         $autoOpenAddForm = $request->query('add_address') === 'true';
@@ -28,7 +33,11 @@ class AddressController extends Controller
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $addresses,
             'user' => $user,
-            'autoOpenAddForm' => $autoOpenAddForm
+            'autoOpenAddForm' => $autoOpenAddForm,
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error')
+            ]
         ]);
     }
 
@@ -124,7 +133,11 @@ class AddressController extends Controller
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get(),
             'user' => $user,
-            'selectedAddress' => $address
+            'selectedAddress' => $address,
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error')
+            ]
         ]);
     }
 
@@ -325,7 +338,11 @@ class AddressController extends Controller
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get(),
             'user' => $user,
-            'currentAddress' => $currentAddress
+            'currentAddress' => $currentAddress,
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error')
+            ]
         ]);
     }
 

@@ -25,19 +25,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Display the address management page.
-     */
-    public function address()
-    {
-        $user = Auth::user();
-        $addresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
-        
-        return Inertia::render('Customer/Profile/address', [
-            'user' => $user,
-            'addresses' => $addresses
-        ]);
-    }
 
     /**
      * Display the password change page.

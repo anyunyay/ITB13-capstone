@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ interface Address {
     city: string;
     province: string;
     is_default: boolean;
+    created_at: string;
 }
 
 interface PageProps {
@@ -38,7 +39,8 @@ interface PageProps {
 }
 
 export default function AddressPage() {
-    const { user, addresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
+    const { user, addresses: initialAddresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
+    const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -58,6 +60,58 @@ export default function AddressPage() {
     });
 
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+    // Helper function to add a new address to local state
+    const addAddressToState = (newAddress: Address) => {
+        setAddresses(prev => {
+            // If this is set as default, unset all other defaults first
+            if (newAddress.is_default) {
+                const updated = prev.map(addr => ({ ...addr, is_default: false }));
+                return [...updated, newAddress].sort((a, b) => {
+                    if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                });
+            }
+            return [...prev, newAddress].sort((a, b) => {
+                if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            });
+        });
+    };
+
+    // Helper function to update an address in local state
+    const updateAddressInState = (updatedAddress: Address) => {
+        setAddresses(prev => {
+            const updated = prev.map(addr => 
+                addr.id === updatedAddress.id ? updatedAddress : addr
+            );
+            
+            // If this address is set as default, unset all other defaults
+            if (updatedAddress.is_default) {
+                return updated.map(addr => 
+                    addr.id === updatedAddress.id ? addr : { ...addr, is_default: false }
+                ).sort((a, b) => {
+                    if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                });
+            }
+            
+            return updated.sort((a, b) => {
+                if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            });
+        });
+    };
+
+    // Helper function to remove an address from local state
+    const removeAddressFromState = (addressId: number) => {
+        setAddresses(prev => prev.filter(addr => addr.id !== addressId));
+    };
+
+    // Sync local state with server data when component mounts or data changes
+    useEffect(() => {
+        setAddresses(initialAddresses);
+    }, [initialAddresses]);
 
     // List of all barangays in Cabuyao, Laguna (only Sala is selectable)
     const cabuyaoBarangays = [
@@ -118,7 +172,19 @@ export default function AddressPage() {
                 onConfirm: () => {
                     const url = '/customer/profile/addresses';
                     post(url, {
-                        onSuccess: () => {
+                        onSuccess: (page) => {
+                            // Add the new address to local state immediately
+                            const newAddress: Address = {
+                                id: Date.now(), // Temporary ID for immediate display
+                                street: data.street,
+                                barangay: data.barangay,
+                                city: data.city,
+                                province: data.province,
+                                is_default: data.is_default,
+                                created_at: new Date().toISOString(),
+                            };
+                            addAddressToState(newAddress);
+                            
                             reset();
                             setIsDialogOpen(false);
                             setEditingAddress(null);
@@ -166,7 +232,32 @@ export default function AddressPage() {
         const method = editingAddress ? put : post;
 
         method(url, {
-            onSuccess: () => {
+            onSuccess: (page) => {
+                if (editingAddress) {
+                    // Update existing address in local state
+                    const updatedAddress: Address = {
+                        ...editingAddress,
+                        street: data.street,
+                        barangay: data.barangay,
+                        city: data.city,
+                        province: data.province,
+                        is_default: data.is_default,
+                    };
+                    updateAddressInState(updatedAddress);
+                } else {
+                    // Add new address to local state
+                    const newAddress: Address = {
+                        id: Date.now(), // Temporary ID for immediate display
+                        street: data.street,
+                        barangay: data.barangay,
+                        city: data.city,
+                        province: data.province,
+                        is_default: data.is_default,
+                        created_at: new Date().toISOString(),
+                    };
+                    addAddressToState(newAddress);
+                }
+                
                 reset();
                 setIsDialogOpen(false);
                 setEditingAddress(null);
@@ -194,7 +285,8 @@ export default function AddressPage() {
         if (confirm('Are you sure you want to delete this address?')) {
             destroy(`/customer/profile/addresses/${id}`, {
                 onSuccess: () => {
-                    // Success message will be handled by flash messages
+                    // Remove address from local state immediately
+                    removeAddressFromState(id);
                 },
                 onError: () => {
                     // Error will be handled by flash messages
@@ -218,16 +310,20 @@ export default function AddressPage() {
             type: 'set_active',
             address: address,
             onConfirm: () => {
-            router.post(`/customer/profile/addresses/${addressId}/set-default`, {}, {
-                onSuccess: () => {
+                router.post(`/customer/profile/addresses/${addressId}/set-default`, {}, {
+                    onSuccess: () => {
+                        // Update local state to reflect the new active address
+                        const updatedAddress = { ...address, is_default: true };
+                        updateAddressInState(updatedAddress);
+                        
                         setShowConfirmationModal(false);
                         setConfirmationData(null);
-                },
-                onError: () => {
-                    // Error will be handled by flash messages
-                },
-            });
-        }
+                    },
+                    onError: () => {
+                        // Error will be handled by flash messages
+                    },
+                });
+            }
         });
         setShowConfirmationModal(true);
     };
@@ -320,7 +416,7 @@ export default function AddressPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_default: false })}
+                                            onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_default: false, created_at: new Date().toISOString() })}
                                             className="flex items-center gap-1"
                                         >
                                             <Edit className="h-3 w-3" />

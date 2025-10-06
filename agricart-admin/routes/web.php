@@ -221,7 +221,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
-        Route::get('/profile/address', [ProfileController::class, 'address'])->name('customer.profile.address');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
