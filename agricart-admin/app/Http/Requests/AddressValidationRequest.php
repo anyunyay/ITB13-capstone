@@ -22,15 +22,19 @@ class AddressValidationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'type' => 'required|in:home,work,other',
+            'label' => 'nullable|string|max:255',
+            'street' => 'required|string|max:500',
+            'barangay' => 'required|string|in:Sala',
+            'city' => 'required|string|in:Cabuyao',
+            'province' => 'required|string|in:Laguna',
+            'postal_code' => 'required|string|max:10',
+            'is_default' => 'boolean',
             'contact_number' => [
                 'required',
                 'string',
                 'regex:/^(\+639|09)\d{9}$/',
             ],
-            'address' => 'required|string|max:500',
-            'barangay' => 'required|string|in:Sala',
-            'city' => 'required|string|in:Cabuyao',
-            'province' => 'required|string|in:Laguna',
         ];
     }
 
@@ -42,10 +46,20 @@ class AddressValidationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g., +639XXXXXXXXX or 09XXXXXXXXX).',
+            'type.required' => 'Please select an address type.',
+            'type.in' => 'Address type must be home, work, or other.',
+            'street.required' => 'Street address is required.',
+            'street.max' => 'Street address must not exceed 500 characters.',
+            'barangay.required' => 'Barangay is required.',
             'barangay.in' => 'Only Barangay Sala is available for registration.',
+            'city.required' => 'City is required.',
             'city.in' => 'Only Cabuyao City is available for registration.',
+            'province.required' => 'Province is required.',
             'province.in' => 'Only Laguna Province is available for registration.',
+            'postal_code.required' => 'Postal code is required.',
+            'postal_code.max' => 'Postal code must not exceed 10 characters.',
+            'contact_number.required' => 'Contact number is required.',
+            'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g., +639XXXXXXXXX or 09XXXXXXXXX).',
         ];
     }
 }
