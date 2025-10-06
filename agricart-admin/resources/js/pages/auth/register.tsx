@@ -1,15 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import PasswordInput from '@/components/ui/password-input';
-import PasswordValidation from '@/components/ui/password-validation';
-import PasswordError from '@/components/ui/password-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AuthLayout from '@/layouts/auth-layout';
 
@@ -40,7 +37,9 @@ export default function Register() {
         'Pulo',
         'Puntod',
         'Sala',
-        'San Isidro'
+        'San Isidro',
+        'Tulo',
+        'Ulong Tubig'
     ];
 
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
@@ -55,18 +54,10 @@ export default function Register() {
         province: 'Laguna', // Default to Laguna
     });
 
-    // State to track if user is typing in password fields
-    const [isTypingPassword, setIsTypingPassword] = useState(false);
-    const [isTypingPasswordConfirmation, setIsTypingPasswordConfirmation] = useState(false);
-
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
-            onFinish: () => {
-                reset('password', 'password_confirmation');
-                setIsTypingPassword(false);
-                setIsTypingPasswordConfirmation(false);
-            },
+            onFinish: () => reset('password', 'password_confirmation'),
         });
     };
 
@@ -110,90 +101,53 @@ export default function Register() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
-                        <PasswordInput
+                        <Input
                             id="password"
+                            type="password"
                             required
                             tabIndex={3}
                             autoComplete="new-password"
                             value={data.password}
-                            onChange={(e) => {
-                                setData('password', e.target.value);
-                                setIsTypingPassword(true);
-                            }}
+                            onChange={(e) => setData('password', e.target.value)}
                             disabled={processing}
                             placeholder="Password"
                         />
-                        <PasswordError 
-                            error={errors.password} 
-                            showError={!isTypingPassword} 
-                        />
-                        <PasswordValidation password={data.password} />
+                        <InputError message={errors.password} />
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="password_confirmation">Confirm password</Label>
-                        <PasswordInput
+                        <Input
                             id="password_confirmation"
+                            type="password"
                             required
                             tabIndex={4}
                             autoComplete="new-password"
                             value={data.password_confirmation}
-                            onChange={(e) => {
-                                setData('password_confirmation', e.target.value);
-                                setIsTypingPasswordConfirmation(true);
-                            }}
+                            onChange={(e) => setData('password_confirmation', e.target.value)}
                             disabled={processing}
                             placeholder="Confirm password"
                         />
-                        <PasswordError 
-                            error={errors.password_confirmation} 
-                            showError={!isTypingPasswordConfirmation} 
-                        />
+                        <InputError message={errors.password_confirmation} />
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="contact_number">Contact Number</Label>
-                        <div className="flex gap-2">
-                            <div className="w-20">
-                                <Select disabled value="+63">
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="+63">+63</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <Input
-                                id="contact_number"
-                                type="tel"
-                                required
-                                tabIndex={5}
-                                autoComplete="tel"
-                                value={data.contact_number}
-                                onChange={(e) => {
-                                    let value = e.target.value;
-                                    // Remove any non-digit characters
-                                    value = value.replace(/\D/g, '');
-                                    
-                                    // Remove leading 0 if present
-                                    if (value.startsWith('0')) {
-                                        value = value.substring(1);
-                                    }
-                                    
-                                    // Limit to 10 digits
-                                    if (value.length > 10) {
-                                        value = value.substring(0, 10);
-                                    }
-                                    
-                                    setData('contact_number', value);
-                                }}
-                                disabled={processing}
-                                placeholder="9XX XXX XXXX"
-                                className="flex-1"
-                            />
-                        </div>
+                        <Input
+                            id="contact_number"
+                            type="tel"
+                            required
+                            tabIndex={5}
+                            autoComplete="tel"
+                            value={data.contact_number}
+                            onChange={(e) => setData('contact_number', e.target.value)}
+                            disabled={processing}
+                            placeholder="+63 9XX XXX XXXX (Philippine format only)"
+                        />
                         <InputError message={errors.contact_number} />
+                        <p className="text-xs text-muted-foreground">
+                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                        </p>
                     </div>
 
                     <div className="grid gap-2">

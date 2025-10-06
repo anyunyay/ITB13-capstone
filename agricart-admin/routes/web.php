@@ -20,7 +20,6 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\ProfileController;
-use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\SingleSessionController;
 use App\Http\Controllers\EmailPreviewController;
@@ -205,16 +204,17 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
         
-        // Address management routes
-        Route::get('/profile/addresses', [AddressController::class, 'index'])->name('customer.profile.addresses.index');
-        Route::post('/profile/addresses', [AddressController::class, 'store'])->name('customer.profile.addresses.store');
-        Route::get('/profile/addresses/{address}', [AddressController::class, 'show'])->name('customer.profile.addresses.show');
-        Route::put('/profile/addresses/{address}', [AddressController::class, 'update'])->name('customer.profile.addresses.update');
-        Route::delete('/profile/addresses/{address}', [AddressController::class, 'destroy'])->name('customer.profile.addresses.destroy');
-        Route::post('/profile/addresses/{address}/set-default', [AddressController::class, 'setDefault'])->name('customer.profile.addresses.setDefault');
-        Route::post('/profile/addresses/{address}/update-main', [AddressController::class, 'updateMainAddress'])->name('customer.profile.addresses.updateMain');
-        Route::put('/profile/main-address', [AddressController::class, 'updateMainAddressFields'])->name('customer.profile.main-address.update');
-        Route::get('/profile/current-address', [AddressController::class, 'getCurrentAddress'])->name('customer.profile.currentAddress');
+        // Email change routes
+        Route::post('/profile/email/request-change', [ProfileController::class, 'requestEmailChange'])->name('customer.profile.email.request-change');
+        Route::get('/profile/email/verify', [ProfileController::class, 'showOtpVerification'])->name('customer.profile.email.verify');
+        Route::post('/profile/email/verify-otp', [ProfileController::class, 'verifyOtp'])->name('customer.profile.email.verify-otp');
+        Route::get('/profile/email/confirm', [ProfileController::class, 'showEmailConfirmation'])->name('customer.profile.email.confirm');
+        Route::post('/profile/email/confirm-change', [ProfileController::class, 'confirmEmailChange'])->name('customer.profile.email.confirm-change');
+        
+        // Address management routes (placeholder for future implementation)
+        Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('customer.profile.addresses.store');
+        Route::put('/profile/addresses/{id}', [ProfileController::class, 'updateAddress'])->name('customer.profile.addresses.update');
+        Route::delete('/profile/addresses/{id}', [ProfileController::class, 'deleteAddress'])->name('customer.profile.addresses.delete');
         
         // Help/Support routes
         Route::post('/profile/help/contact', [ProfileController::class, 'sendHelpMessage'])->name('customer.profile.help.contact');

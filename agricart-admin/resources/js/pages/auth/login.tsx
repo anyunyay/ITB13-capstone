@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
 import LoginRestrictionPopup from '@/components/LoginRestrictionPopup';
 
@@ -110,8 +109,9 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
                                 </TextLink>
                             )}
                         </div>
-                        <PasswordInput
+                        <Input
                             id="password"
+                            type="password"
                             required
                             tabIndex={2}
                             autoComplete="current-password"

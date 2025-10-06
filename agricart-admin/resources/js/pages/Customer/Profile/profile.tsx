@@ -1,12 +1,21 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage, router } from '@inertiajs/react';
-import { User, Edit, Save, X, Camera, Trash2, Upload } from 'lucide-react';
+import { User, Edit, Save, X, Camera, Trash2, Upload, Mail, AlertCircle, CheckCircle } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 interface User {
     id: number;
@@ -20,6 +29,7 @@ interface User {
 
 interface PageProps {
     user: User;
+    [key: string]: unknown;
 }
 
 export default function ProfilePage() {
@@ -29,10 +39,22 @@ export default function ProfilePage() {
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
+    // Email change states
+    const [showEmailChange, setShowEmailChange] = useState(false);
+    const [newEmail, setNewEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
+
     const { data, setData, patch, processing, errors, reset } = useForm({
         name: user?.name || '',
         email: user?.email || '',
         phone: user?.contact_number || '',
+    });
+
+    // Email change form
+    const emailChangeForm = useForm({
+        new_email: '',
+        request_id: null as any,
+        otp: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -113,9 +135,49 @@ export default function ProfilePage() {
             .slice(0, 2);
     };
 
+    // Email change handlers
+    const handleRequestEmailChange = (e?: React.MouseEvent) => {
+        e?.preventDefault();
+        setEmailError('');
+        emailChangeForm.setData('new_email', newEmail);
+        
+        console.log('Requesting email change for:', newEmail);
+        
+        emailChangeForm.post('/customer/profile/email/request-change', {
+            onSuccess: (page) => {
+                console.log('Email change request successful:', page.props.flash);
+                const flash = page.props.flash as any;
+                if (flash?.request_id) {
+                    console.log('Redirecting to OTP verification page');
+                    // Redirect to OTP verification page
+                    router.visit(`/customer/profile/email/verify?request_id=${flash.request_id}&new_email=${encodeURIComponent(newEmail)}`);
+                } else {
+                    console.log('No request_id in flash message:', flash);
+                    setEmailError('Unexpected response from server');
+                }
+            },
+            onError: (errors) => {
+                console.log('Email change request failed:', errors);
+                if (errors.new_email) {
+                    setEmailError(errors.new_email[0]);
+                } else if (errors.error) {
+                    setEmailError(errors.error);
+                } else {
+                    setEmailError('Failed to send OTP. Please try again.');
+                }
+            },
+        });
+    };
+
+    const handleCancelEmailChange = () => {
+        setShowEmailChange(false);
+        setNewEmail('');
+        setEmailError('');
+    };
+
     return (
         <AppHeaderLayout breadcrumbs={[
-            { label: 'Profile Information', href: '/customer/profile/info' }
+            { title: 'Profile Information', href: '/customer/profile/info' }
         ]}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
@@ -292,6 +354,84 @@ export default function ProfilePage() {
                         </form>
                     </CardContent>
                 </Card>
+
+                {/* Email Change Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Mail className="h-5 w-5" />
+                            Change Email Address
+                        </CardTitle>
+                        <CardDescription>
+                            For security, we'll send a verification code to your current email
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 text-sm">
+                                <span className="text-muted-foreground">Current Email:</span>
+                                <span className="font-medium">{user?.email}</span>
+                            </div>
+                            
+                            {!showEmailChange ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowEmailChange(true)}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Edit className="h-4 w-4" />
+                                    Request Email Change
+                                </Button>
+                            ) : (
+                                <div className="space-y-4 border rounded-lg p-4">
+                                    {emailError && (
+                                        <Alert variant="destructive">
+                                            <AlertCircle className="h-4 w-4" />
+                                            <AlertDescription>{emailError}</AlertDescription>
+                                        </Alert>
+                                    )}
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="new_email">New Email Address</Label>
+                                            <Input
+                                                id="new_email"
+                                                type="email"
+                                                value={newEmail}
+                                                onChange={(e) => setNewEmail(e.target.value)}
+                                                placeholder="Enter new email address"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleRequestEmailChange();
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                onClick={handleRequestEmailChange}
+                                                disabled={!newEmail || emailChangeForm.processing}
+                                            >
+                                                {emailChangeForm.processing ? 'Sending...' : 'Send OTP'}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleCancelEmailChange}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
             </div>
         </AppHeaderLayout>
     );
