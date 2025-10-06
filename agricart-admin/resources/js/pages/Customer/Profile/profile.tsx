@@ -43,9 +43,6 @@ export default function ProfilePage() {
     const [showEmailChange, setShowEmailChange] = useState(false);
     const [newEmail, setNewEmail] = useState('');
     const [emailError, setEmailError] = useState('');
-    const [emailValidationStatus, setEmailValidationStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
-    const [errorClearKey, setErrorClearKey] = useState(0);
-    const [isProcessingEmailChange, setIsProcessingEmailChange] = useState(false);
 
     const { data, setData, patch, processing, errors, reset } = useForm({
         name: user?.name || '',
@@ -56,9 +53,9 @@ export default function ProfilePage() {
     // Email change form
     const emailChangeForm = useForm({
         new_email: '',
-        error: '',
+        request_id: null as any,
+        otp: '',
     });
-
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -138,122 +135,29 @@ export default function ProfilePage() {
             .slice(0, 2);
     };
 
-    // Email validation helper
-    const isValidEmail = (email: string) => {
-        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-        return emailRegex.test(email.trim());
-    };
-
-    // Real-time email validation
-    const validateEmailInput = (email: string) => {
-        if (!email.trim()) {
-            setEmailValidationStatus('idle');
-            return;
-        }
-        
-        if (isValidEmail(email) && email.toLowerCase() !== user?.email?.toLowerCase()) {
-            setEmailValidationStatus('valid');
-        } else {
-            setEmailValidationStatus('invalid');
-        }
-    };
-
-    // Debounced validation effect
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (newEmail) {
-                validateEmailInput(newEmail);
-            }
-        }, 300);
-
-        return () => clearTimeout(timeoutId);
-    }, [newEmail]);
-
-    // Clear errors when email becomes valid
-    useEffect(() => {
-        if (emailValidationStatus === 'valid' && (emailError || emailChangeForm.errors.new_email)) {
-            setEmailError('');
-            emailChangeForm.clearErrors();
-            setErrorClearKey(prev => prev + 1);
-        }
-    }, [emailValidationStatus, emailError, emailChangeForm]);
-
     // Email change handlers
     const handleRequestEmailChange = (e?: React.MouseEvent) => {
         e?.preventDefault();
-        
-        console.log('handleRequestEmailChange called with newEmail:', newEmail);
-        
-        // Clear all errors first
         setEmailError('');
-        emailChangeForm.clearErrors();
+        emailChangeForm.setData('new_email', newEmail);
         
-        // Trim and validate email
-        const trimmedEmail = newEmail.trim();
+        console.log('Requesting email change for:', newEmail);
         
-        // Basic email validation
-        if (!trimmedEmail) {
-            setEmailError('Please enter an email address');
-            return;
-        }
-        
-        if (!isValidEmail(trimmedEmail)) {
-            setEmailError('Please enter a valid email address');
-            return;
-        }
-        
-        if (trimmedEmail.toLowerCase() === user?.email?.toLowerCase()) {
-            setEmailError('The new email must be different from your current email');
-            return;
-        }
-        
-        // Update the trimmed email
-        setNewEmail(trimmedEmail);
-        
-        // Set processing state
-        setIsProcessingEmailChange(true);
-        
-        // Debug logging
-        console.log('Frontend - Sending email change request:', {
-            trimmedEmail,
-            newEmailState: newEmail,
-            userEmail: user?.email
-        });
-        
-        // Use router.post to ensure proper data transmission
-        router.post('/customer/profile/email/request-change', {
-            new_email: trimmedEmail
-        }, {
-            onSuccess: (page: any) => {
-                // Backend will handle redirection to OTP verification page
-                console.log('Email change request successful, redirecting to OTP page');
-                console.log('Page props:', page.props);
-                console.log('Flash data:', page.props.flash);
-                
-                // Force redirect to OTP page as backup
+        emailChangeForm.post('/customer/profile/email/request-change', {
+            onSuccess: (page) => {
+                console.log('Email change request successful:', page.props.flash);
                 const flash = page.props.flash as any;
-                const requestId = flash?.request_id;
-                
-                if (requestId) {
-                    router.visit('/customer/profile/email/verify', {
-                        data: { 
-                            request_id: requestId,
-                            new_email: trimmedEmail 
-                        }
-                    });
+                if (flash?.request_id) {
+                    console.log('Redirecting to OTP verification page');
+                    // Redirect to OTP verification page
+                    router.visit(`/customer/profile/email/verify?request_id=${flash.request_id}&new_email=${encodeURIComponent(newEmail)}`);
                 } else {
-                    // Fallback redirect if no request_id
-                    window.location.href = `/customer/profile/email/verify?request_id=${requestId}&new_email=${encodeURIComponent(trimmedEmail)}`;
+                    console.log('No request_id in flash message:', flash);
+                    setEmailError('Unexpected response from server');
                 }
             },
-            onError: (errors: any) => {
-                setIsProcessingEmailChange(false);
-                console.log('Frontend - Email change request failed:', {
-                    errors,
-                    trimmedEmail,
-                    newEmailState: newEmail
-                });
-                
+            onError: (errors) => {
+                console.log('Email change request failed:', errors);
                 if (errors.new_email) {
                     setEmailError(errors.new_email[0]);
                 } else if (errors.error) {
@@ -269,13 +173,7 @@ export default function ProfilePage() {
         setShowEmailChange(false);
         setNewEmail('');
         setEmailError('');
-        setEmailValidationStatus('idle');
-        setIsProcessingEmailChange(false);
-        setErrorClearKey(prev => prev + 1);
-        emailChangeForm.clearErrors();
     };
-
-
 
     return (
         <AppHeaderLayout breadcrumbs={[
@@ -391,7 +289,6 @@ export default function ProfilePage() {
                                         onChange={(e) => setData('name', e.target.value)}
                                         disabled={!isEditing}
                                         placeholder="Enter your full name"
-                                        autoComplete="name"
                                     />
                                     {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                                 </div>
@@ -405,7 +302,6 @@ export default function ProfilePage() {
                                         onChange={(e) => setData('email', e.target.value)}
                                         disabled={!isEditing}
                                         placeholder="Enter your email"
-                                        autoComplete="email"
                                     />
                                     {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                                 </div>
@@ -414,12 +310,10 @@ export default function ProfilePage() {
                                     <Label htmlFor="phone">Contact Number</Label>
                                     <Input
                                         id="phone"
-                                        type="tel"
                                         value={data.phone}
                                         onChange={(e) => setData('phone', e.target.value)}
                                         disabled={!isEditing}
                                         placeholder="Enter your contact number"
-                                        autoComplete="tel"
                                     />
                                     {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                                 </div>
@@ -469,7 +363,7 @@ export default function ProfilePage() {
                             Change Email Address
                         </CardTitle>
                         <CardDescription>
-                            For security, we'll send a verification code to your new email address
+                            For security, we'll send a verification code to your current email
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -491,145 +385,45 @@ export default function ProfilePage() {
                                 </Button>
                             ) : (
                                 <div className="space-y-4 border rounded-lg p-4">
-                                    {(emailError || (emailChangeForm.errors as any).error) && (
+                                    {emailError && (
                                         <Alert variant="destructive">
                                             <AlertCircle className="h-4 w-4" />
-                                            <AlertDescription>{emailError || (emailChangeForm.errors as any).error}</AlertDescription>
+                                            <AlertDescription>{emailError}</AlertDescription>
                                         </Alert>
                                     )}
 
-                                    {/* Test success message */}
-                                    {(usePage().props.flash as any)?.test_success && (
-                                        <Alert>
-                                            <CheckCircle className="h-4 w-4" />
-                                            <AlertDescription>
-                                                Test successful! Received email: {(usePage().props.flash as any).new_email}
-                                            </AlertDescription>
-                                        </Alert>
-                                    )}
-
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="new_email">New Email Address</Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Enter a valid email address different from your current one
-                                            </p>
-                                                <Input
-                                                    id="new_email"
-                                                    type="email"
-                                                    value={newEmail}
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    console.log('Input onChange - Raw value:', value);
-                                                    
-                                                    // Allow only valid email characters and prevent multiple @ symbols
-                                                    const sanitizedValue = value
-                                                        .replace(/[^a-zA-Z0-9.!#$%&'*+/=?^_`{|}~\-@]/g, '')
-                                                        .replace(/@+/g, '@')
-                                                        .replace(/\.+/g, '.');
-                                                    
-                                                    console.log('Input onChange - Sanitized value:', sanitizedValue);
-                                                    setNewEmail(sanitizedValue);
-                                                    
-                                                    // Clear errors when user starts typing
-                                                    if (emailError) {
-                                                        setEmailError('');
-                                                    }
-                                                    // Clear all form errors when user types
-                                                    emailChangeForm.clearErrors();
-                                                    setErrorClearKey(prev => prev + 1);
-                                                }}
-                                                onBlur={() => {
-                                                    // Trim whitespace on blur
-                                                    const trimmed = newEmail.trim();
-                                                    if (trimmed !== newEmail) {
-                                                        setNewEmail(trimmed);
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="new_email">New Email Address</Label>
+                                            <Input
+                                                id="new_email"
+                                                type="email"
+                                                value={newEmail}
+                                                onChange={(e) => setNewEmail(e.target.value)}
+                                                placeholder="Enter new email address"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleRequestEmailChange();
                                                     }
                                                 }}
-                                                    placeholder="Enter new email address"
-                                                autoComplete="email"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            handleRequestEmailChange();
-                                                        }
-                                                    }}
-                                                disabled={isProcessingEmailChange}
-                                                className={
-                                                    emailValidationStatus === 'valid' 
-                                                        ? 'border-green-500 focus:border-green-500' 
-                                                        : emailValidationStatus === 'invalid' || emailChangeForm.errors.new_email || emailError
-                                                        ? 'border-red-500 focus:border-red-500' 
-                                                        : ''
-                                                }
                                             />
-                                            {/* Real-time validation feedback */}
-                                            {newEmail && emailValidationStatus === 'valid' && !emailChangeForm.errors.new_email && !emailError && (
-                                                <p className="text-sm text-green-600 flex items-center gap-1">
-                                                    <CheckCircle className="h-4 w-4" />
-                                                    Valid email address
-                                                </p>
-                                            )}
-                                            {newEmail && emailValidationStatus === 'invalid' && !emailError && !emailChangeForm.errors.new_email && (
-                                                <p className="text-sm text-red-500 flex items-center gap-1">
-                                                    <AlertCircle className="h-4 w-4" />
-                                                    {newEmail.toLowerCase() === user?.email?.toLowerCase() 
-                                                        ? 'Must be different from current email' 
-                                                        : 'Please enter a valid email address'}
-                                                </p>
-                                            )}
-                                            {(emailChangeForm.errors.new_email || emailError) && (
-                                                <p key={errorClearKey} className="text-sm text-red-500">
-                                                    {emailChangeForm.errors.new_email || emailError}
-                                                </p>
-                                            )}
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    type="button"
-                                                    onClick={handleRequestEmailChange}
-                                                disabled={
-                                                    !newEmail.trim() || 
-                                                    isProcessingEmailChange || 
-                                                    emailValidationStatus !== 'valid' || 
-                                                    Boolean(emailError)
-                                                }
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                onClick={handleRequestEmailChange}
+                                                disabled={!newEmail || emailChangeForm.processing}
                                             >
-                                                {isProcessingEmailChange ? 'Sending...' : 'Send OTP'}
+                                                {emailChangeForm.processing ? 'Sending...' : 'Send OTP'}
                                             </Button>
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                onClick={() => {
-                                                    console.log('Testing email input with:', newEmail);
-                                                    router.post('/customer/profile/email/test-input', {
-                                                        new_email: newEmail
-                                                    }, {
-                                                        onSuccess: (page: any) => {
-                                                            console.log('Test response:', page.props.flash);
-                                                            const flash = page.props.flash as any;
-                                                            if (flash?.test_success) {
-                                                                alert(`Test successful!\nReceived email: ${flash.new_email}\nData: ${JSON.stringify(flash.received_data)}`);
-                                                            }
-                                                        },
-                                                        onError: (errors: any) => {
-                                                            console.log('Test errors:', errors);
-                                                            alert('Test failed: ' + JSON.stringify(errors));
-                                                        }
-                                                    });
-                                                }}
-                                                disabled={!newEmail.trim()}
+                                                onClick={handleCancelEmailChange}
                                             >
-                                                Test Input
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={handleCancelEmailChange}
-                                                disabled={isProcessingEmailChange}
-                                                >
-                                                    Cancel
-                                                </Button>
+                                                Cancel
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
@@ -637,7 +431,6 @@ export default function ProfilePage() {
                         </div>
                     </CardContent>
                 </Card>
-
 
             </div>
         </AppHeaderLayout>
