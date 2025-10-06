@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage, router } from '@inertiajs/react';
-import { User, Edit, Save, X, Camera, Trash2, Upload } from 'lucide-react';
+import { User, Edit, Save, X, Camera, Trash2, Upload, Mail } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -232,7 +232,21 @@ export default function ProfilePage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="email">Email Address</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="email">Email Address</Label>
+                                        {!isEditing && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => router.visit('/customer/profile/email-change')}
+                                                className="flex items-center gap-1"
+                                            >
+                                                <Mail className="h-3 w-3" />
+                                                Change Email
+                                            </Button>
+                                        )}
+                                    </div>
                                     <Input
                                         id="email"
                                         type="email"

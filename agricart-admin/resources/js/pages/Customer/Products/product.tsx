@@ -40,6 +40,7 @@ function ProductCard({ product }: { product: Product }) {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [message, setMessage] = useState<string | null>(null);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { auth } = usePage<PageProps & SharedData>().props;
   const stockManager = StockManager.getInstance();
 
@@ -68,6 +69,11 @@ function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Prevent multiple clicks
+    if (isAddingToCart) {
+      return;
+    }
+
     if (!auth?.user) {
       router.visit('/login');
       return;
@@ -79,6 +85,9 @@ function ProductCard({ product }: { product: Product }) {
     }
 
     const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
+
+    // Set adding state immediately to prevent multiple clicks
+    setIsAddingToCart(true);
 
     // Add to shared stock manager
     stockManager.addToCart(product.id, selectedCategory, sendQty);
@@ -95,6 +104,7 @@ function ProductCard({ product }: { product: Product }) {
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         router.reload({ only: ['cart'] });
         setTimeout(() => setMessage(null), 3000);
+        setIsAddingToCart(false);
       },
       onError: () => {
         // Remove from shared stock manager on error
@@ -102,6 +112,7 @@ function ProductCard({ product }: { product: Product }) {
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         setMessage('Failed to add to cart.');
         setTimeout(() => setMessage(null), 3000);
+        setIsAddingToCart(false);
       },
       preserveScroll: true,
     });
@@ -332,6 +343,7 @@ function ProductCard({ product }: { product: Product }) {
               onClick={handleAddToCart}
               disabled={
                 processing ||
+                isAddingToCart ||
                 !selectedCategory ||
                 selectedQuantity < (isKilo ? 0.25 : 1) ||
                 selectedQuantity > maxQty ||
@@ -340,7 +352,7 @@ function ProductCard({ product }: { product: Product }) {
             >
               <ShoppingBasket className="h-5 w-5" />
               <span>
-                {processing ? 'Adding...' : 
+                {processing || isAddingToCart ? 'Adding...' : 
                  totalStock === 0 ? 'Out of Stock' : 'Add to Cart'}
               </span>
             </Button>

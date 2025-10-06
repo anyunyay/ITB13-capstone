@@ -245,6 +245,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the email change requests for this user.
+     */
+    public function emailChangeRequests()
+    {
+        return $this->hasMany(EmailChangeRequest::class);
+    }
+
+    /**
      * Check if the current session is still valid (exists in sessions table)
      */
     public function isSessionValid()

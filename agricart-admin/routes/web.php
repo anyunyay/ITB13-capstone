@@ -220,6 +220,14 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Help/Support routes
         Route::post('/profile/help/contact', [ProfileController::class, 'sendHelpMessage'])->name('customer.profile.help.contact');
         
+        // Email Change routes
+        Route::get('/profile/email-change', [\App\Http\Controllers\Customer\EmailChangeController::class, 'show'])->name('customer.profile.email-change.show');
+        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Customer\EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
+        
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
