@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MapPin, Plus, AlertTriangle } from 'lucide-react';
+import { MapPin, Plus, AlertTriangle, Home, Building2, CheckCircle, Circle } from 'lucide-react';
 
 import type { SharedData } from '@/types';
 import StockManager from '@/lib/stock-manager';
@@ -126,7 +126,7 @@ export default function CartPage() {
 
   // Set default address when addresses are loaded
   useEffect(() => {
-    // If we have an active address from the backend, use it as the selected address
+    // Always prioritize the active address from user_addresses table where is_active = 1
     if (activeAddress && activeAddress.id) {
       setSelectedAddressId(activeAddress.id);
     } else if (addresses.length > 0 && !selectedAddressId) {
@@ -702,8 +702,24 @@ export default function CartPage() {
                   </div>
                   <div className="pl-4">
                     {selectedAddressId ? (
-                      // Show selected address from dropdown
+                      // Show selected address - check if it's the active address or from dropdown
                       (() => {
+                        // First check if the selected address is the active address
+                        if (activeAddress && activeAddress.id === selectedAddressId) {
+                          return (
+                            <>
+                              <span className="font-medium text-gray-900">{activeAddress.street}</span>
+                              <span className="text-sm text-gray-600 block">
+                                {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
+                              </span>
+                              <span className="text-xs text-green-600 mt-1 block">
+                                ✓ Active address will be used for delivery
+                              </span>
+                            </>
+                          );
+                        }
+                        
+                        // Otherwise, look for it in the addresses dropdown
                         const selectedAddr = addresses.find(addr => addr.id === selectedAddressId);
                         return selectedAddr ? (
                           <>
@@ -718,7 +734,7 @@ export default function CartPage() {
                         ) : null;
                       })()
                     ) : (
-                      // Show active address
+                      // Show active address when no specific selection
                       <>
                         <span className="font-medium text-gray-900">{activeAddress.street}</span>
                         <span className="text-sm text-gray-600 block">
@@ -733,8 +749,14 @@ export default function CartPage() {
                 </div>
                 
                 {/* Address Selection Dropdown */}
-                <div className="grid gap-2">
-                  <Label htmlFor="delivery-address">Switch to Different Address</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-blue-600" />
+                    <Label htmlFor="delivery-address" className="text-sm font-semibold text-gray-700">
+                      Switch to Different Address
+                    </Label>
+                  </div>
+                  
                   <Select 
                     value={selectedAddressId?.toString() || ''} 
                     onValueChange={(value) => {
@@ -757,36 +779,69 @@ export default function CartPage() {
                       }
                     }}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a different address" />
+                    <SelectTrigger className="w-full h-12 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-500 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                        <SelectValue placeholder="Choose a different address" />
+                      </div>
                     </SelectTrigger>
-                    <SelectContent>
-                      {/* Active Address Option - only show if we have a selected address (not using active) */}
-                      {activeAddress && selectedAddressId && (
-                        <SelectItem value="active">
-                          <div className="flex flex-col">
-                            <span className="font-medium">{activeAddress.street}</span>
-                            <span className="text-sm text-gray-500">
-                              {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
-                              <span className="ml-2 text-green-600">(Active Address)</span>
-                            </span>
+                    <SelectContent className="max-h-64 overflow-y-auto">
+                      {/* Active Address Option - show if we have an active address and it's not currently selected */}
+                      {activeAddress && activeAddress.id !== selectedAddressId && (
+                        <SelectItem value="active" className="p-3 hover:bg-green-50 focus:bg-green-50">
+                          <div className="flex items-start gap-3 w-full">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <CheckCircle className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-gray-900 truncate">{activeAddress.street}</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Active
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 truncate">
+                                {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
+                              </p>
+                            </div>
                           </div>
                         </SelectItem>
                       )}
+                      
                       {/* All Addresses - exclude currently selected one */}
                       {addresses
                         .filter(address => address.id !== selectedAddressId)
                         .map((address) => (
-                        <SelectItem key={address.id} value={address.id.toString()}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{address.street}</span>
-                            <span className="text-sm text-gray-500">
-                              {address.barangay}, {address.city}, {address.province}
-                              {address.is_active && <span className="ml-2 text-blue-600">(Active)</span>}
-                            </span>
+                        <SelectItem key={address.id} value={address.id.toString()} className="p-3 hover:bg-blue-50 focus:bg-blue-50">
+                          <div className="flex items-start gap-3 w-full">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <Home className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-gray-900 truncate">{address.street}</span>
+                                {address.is_active && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Active
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 truncate">
+                                {address.barangay}, {address.city}, {address.province}
+                              </p>
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
+                      
+                      {/* Empty state */}
+                      {addresses.filter(address => address.id !== selectedAddressId).length === 0 && 
+                       (!activeAddress || activeAddress.id === selectedAddressId) && (
+                        <div className="p-4 text-center text-gray-500">
+                          <MapPin className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                          <p className="text-sm">No other addresses available</p>
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -795,7 +850,7 @@ export default function CartPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Add New Address
@@ -806,7 +861,7 @@ export default function CartPage() {
                 <p className="text-gray-600">No delivery addresses found. Please add an address to continue.</p>
                 <Button
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="h-4 w-4" />
                   Add Address
