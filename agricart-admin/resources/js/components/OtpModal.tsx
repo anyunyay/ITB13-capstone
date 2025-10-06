@@ -153,6 +153,9 @@ export function OtpModal({
                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                             placeholder={isWaitingForOtp ? "Waiting for code..." : "Enter 6-digit code"}
                             className="text-center text-lg tracking-widest font-mono"
+                            autoComplete="one-time-code"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();

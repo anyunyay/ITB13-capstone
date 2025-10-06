@@ -206,6 +206,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
         
         // Email change routes
+        Route::post('/profile/email/test-input', [ProfileController::class, 'testEmailInput'])->name('customer.profile.email.test-input');
         Route::post('/profile/email/request-change', [ProfileController::class, 'requestEmailChange'])->name('customer.profile.email.request-change');
         Route::get('/profile/email/verify', [ProfileController::class, 'showOtpVerification'])->name('customer.profile.email.verify');
         Route::post('/profile/email/verify-otp', [ProfileController::class, 'verifyOtp'])->name('customer.profile.email.verify-otp');

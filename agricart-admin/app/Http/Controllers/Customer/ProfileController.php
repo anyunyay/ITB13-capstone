@@ -210,22 +210,68 @@ class ProfileController extends Controller
     }
 
     /**
+     * Test endpoint to verify email input is working.
+     */
+    public function testEmailInput(Request $request)
+    {
+        Log::info('=== TEST EMAIL INPUT ENDPOINT ===');
+        Log::info('Request method: ' . $request->method());
+        Log::info('Request all data: ', $request->all());
+        Log::info('Request input new_email: ' . $request->input('new_email'));
+        Log::info('Request has new_email: ' . ($request->has('new_email') ? 'YES' : 'NO'));
+        Log::info('Request getContent: ' . $request->getContent());
+        Log::info('=== END TEST ===');
+        
+        return back()->with([
+            'test_success' => true,
+            'test_message' => 'Test endpoint reached successfully',
+            'received_data' => $request->all(),
+            'new_email' => $request->input('new_email')
+        ]);
+    }
+
+    /**
      * Request email change by sending OTP to new email.
      */
     public function requestEmailChange(Request $request)
     {
         $user = Auth::user();
         
+        // Log EVERYTHING about the request
+        Log::info('=== EMAIL CHANGE REQUEST DEBUG ===');
+        Log::info('Request method: ' . $request->method());
+        Log::info('Request URL: ' . $request->fullUrl());
+        Log::info('Request headers: ', $request->headers->all());
+        Log::info('Request all data: ', $request->all());
+        Log::info('Request input new_email: ' . $request->input('new_email'));
+        Log::info('Request has new_email: ' . ($request->has('new_email') ? 'YES' : 'NO'));
+        Log::info('Request getContent: ' . $request->getContent());
+        Log::info('User ID: ' . $user->id);
+        Log::info('User email: ' . $user->email);
+        Log::info('=== END DEBUG ===');
+        
         // Log the incoming request
         Log::info('Email change request received', [
             'user_id' => $user->id,
             'current_email' => $user->email,
             'new_email' => $request->new_email,
-            'request_data' => $request->all()
+            'request_data' => $request->all(),
+            'has_new_email' => $request->has('new_email'),
+            'new_email_value' => $request->input('new_email'),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'raw_input' => $request->getContent()
         ]);
         
         $request->validate([
             'new_email' => 'required|email|max:255|unique:users,email',
+        ]);
+
+        Log::info('Email validation passed', [
+            'user_id' => $user->id,
+            'validated_new_email' => $request->new_email,
+            'validation_passed' => true,
+            'request_all_data' => $request->all()
         ]);
 
         // Additional validation to ensure new email is different from current
@@ -248,14 +294,18 @@ class ProfileController extends Controller
             ->first();
 
         if ($existingRequest) {
-            return back()->withErrors([
-                'error' => 'You already have a pending email change request. Please wait for it to expire or verify the existing OTP.'
+            return redirect()->route('customer.profile.email.verify', [
+                'request_id' => $existingRequest->id,
+                'new_email' => $existingRequest->new_email
+            ])->with([
+                'warning' => true,
+                'message' => 'You already have a pending email change request. Please verify the existing OTP.'
             ]);
         }
 
         // Generate OTP and create request
         $otp = EmailChangeRequest::generateOtp();
-        $expiresAt = Carbon::now()->addSeconds(30);
+        $expiresAt = Carbon::now()->addMinutes(15); // 15 minutes expiration
 
         $emailChangeRequest = EmailChangeRequest::create([
             'user_id' => $user->id,
@@ -304,7 +354,11 @@ class ProfileController extends Controller
             'request_id' => $emailChangeRequest->id,
             'new_email' => $newEmail
         ])->with([
-            'message' => 'OTP sent successfully to ' . $newEmail . '. Please check your email.'
+            'success' => true,
+            'message' => 'OTP sent successfully to ' . $newEmail . '. Please check your email.',
+            'request_id' => $emailChangeRequest->id,
+            'expires_at' => $expiresAt->toISOString(),
+            'expires_in' => $expiresAt->diffInSeconds(now())
         ]);
     }
 

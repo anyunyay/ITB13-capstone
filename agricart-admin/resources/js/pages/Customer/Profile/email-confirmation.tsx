@@ -38,8 +38,8 @@ export default function EmailChangeConfirmationPage() {
                 const flash = page.props.flash as any;
                 if (flash?.success) {
                     alert(flash.message || 'Email updated successfully!');
-                    // Clear any saved state
-                    localStorage.removeItem('otpModalState');
+                    // Clear saved state
+                    localStorage.removeItem('emailChangeState');
                     router.visit('/customer/profile/info');
                 }
             },
@@ -50,8 +50,8 @@ export default function EmailChangeConfirmationPage() {
     };
 
     const handleCancel = () => {
-        // Clear any saved state and go back to profile
-        localStorage.removeItem('otpModalState');
+        // Clear saved state
+        localStorage.removeItem('emailChangeState');
         router.visit('/customer/profile/info');
     };
 
