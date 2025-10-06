@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Address extends Model
 {
-<<<<<<< HEAD
     /**
      * The attributes that are mass assignable.
      *
@@ -54,7 +54,4 @@ class Address extends Model
     {
         return "{$this->street}, {$this->barangay}, {$this->city}, {$this->province}";
     }
-=======
-    //
->>>>>>> 280b2d6e2953a45be89050d7aeefdafc4dd69e90
 }
