@@ -21,12 +21,12 @@ interface CartItem {
 }
 
 interface Address {
-  id: number;
+  id: number | null; // Can be null for registration address
   street: string;
   barangay: string;
   city: string;
   province: string;
-  is_default: boolean;
+  is_active: boolean;
 }
 
 interface MainAddress {
@@ -126,22 +126,14 @@ export default function CartPage() {
 
   // Set default address when addresses are loaded
   useEffect(() => {
-    // If we have a main address but no selected address, we're using the active address
-    if (activeAddress && !selectedAddressId) {
-      // Don't set selectedAddressId - we'll use the main address for checkout
-      return;
+    // If we have an active address from the backend, use it as the selected address
+    if (activeAddress && activeAddress.id) {
+      setSelectedAddressId(activeAddress.id);
+    } else if (addresses.length > 0 && !selectedAddressId) {
+      // If no active address but we have addresses, pick the first one
+      setSelectedAddressId(addresses[0].id);
     }
-    
-    // If we have other addresses and no selected address, pick the first one
-    if (addresses.length > 0 && !selectedAddressId) {
-      const defaultAddress = addresses.find(addr => addr.is_default);
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress.id);
-      } else {
-        setSelectedAddressId(addresses[0].id);
-      }
-    }
-  }, [addresses, selectedAddressId, activeAddress]);
+  }, [addresses, activeAddress]);
 
   // Handle flash messages from server
   useEffect(() => {
@@ -353,58 +345,54 @@ export default function CartPage() {
     
     if (!address) return;
     
-    // If we have an active address and this is the first selection from dropdown,
-    // or if we're changing to a different address, show confirmation dialog
-    if ((activeAddress && !selectedAddressId) || (selectedAddressId && selectedAddressId !== addressId)) {
-      setPendingAddressId(addressId);
-      setPendingAddress(address);
-      setShowAddressConfirmation(true);
-      return;
-    }
-    
-    // If this is the same address, just set it (no confirmation needed)
-    if (selectedAddressId === addressId) {
-      setSelectedAddressId(addressId);
-      return;
-    }
-    
-    // For any other case, show confirmation dialog
+    // Always show confirmation dialog when switching addresses
     setPendingAddressId(addressId);
     setPendingAddress(address);
     setShowAddressConfirmation(true);
   };
 
   const confirmAddressChange = () => {
-    if (!pendingAddressId || !pendingAddress) return;
+    if (!pendingAddress) return;
     
     setIsUpdatingAddress(true);
     
-    // Update the user's main address
-    router.post(
-      `/customer/profile/addresses/${pendingAddressId}/update-main`,
-      {},
-      {
-        preserveScroll: true,
-        onSuccess: (page: any) => {
-          setSelectedAddressId(pendingAddressId);
-          setShowAddressConfirmation(false);
-          setPendingAddressId(null);
-          setPendingAddress(null);
-          setIsUpdatingAddress(false);
-          
-          // Check for success message in flash data
-          if (page.props?.flash?.success) {
-            setCheckoutMessage(page.props.flash.success);
-          } else {
-            setCheckoutMessage('Address updated successfully!');
-          }
-        },
-        onError: (errors) => {
-          setIsUpdatingAddress(false);
-          setCheckoutMessage('Failed to update address. Please try again.');
-        },
-      }
-    );
+    if (pendingAddressId === null) {
+      // Switching back to registration address - just update local state
+      setSelectedAddressId(null);
+      setShowAddressConfirmation(false);
+      setPendingAddressId(null);
+      setPendingAddress(null);
+      setIsUpdatingAddress(false);
+      setCheckoutMessage('Switched to active address successfully!');
+    } else {
+      // Switching to a different address from addresses table
+      router.post(
+        `/customer/profile/addresses/${pendingAddressId}/update-main`,
+        {},
+        {
+          preserveScroll: true,
+          onSuccess: (page: any) => {
+            // Update local state immediately to reflect the change
+            setSelectedAddressId(pendingAddressId);
+            setShowAddressConfirmation(false);
+            setPendingAddressId(null);
+            setPendingAddress(null);
+            setIsUpdatingAddress(false);
+            
+            // Show success message
+            if (page.props?.flash?.success) {
+              setCheckoutMessage(page.props.flash.success);
+            } else {
+              setCheckoutMessage('Address updated successfully!');
+            }
+          },
+          onError: (errors) => {
+            setIsUpdatingAddress(false);
+            setCheckoutMessage('Failed to update address. Please try again.');
+          },
+        }
+      );
+    }
   };
 
   const cancelAddressChange = () => {
@@ -419,9 +407,6 @@ export default function CartPage() {
       setCheckoutMessage('Please select a delivery address.');
       return;
     }
-
-    // If we have a selected address, use it; otherwise use the active address
-    const addressToUse = selectedAddressId || 'active';
 
     router.post(
       '/customer/cart/checkout',
@@ -704,52 +689,107 @@ export default function CartPage() {
             
             {activeAddress ? (
               <div className="space-y-3">
-                {/* Currently Active Address */}
+                {/* Currently Selected Address */}
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm font-semibold text-green-700 uppercase tracking-wide">
-                      Active Address (Auto-Selected)
+                      {selectedAddressId 
+                        ? 'Selected Address' 
+                        : 'Active Address (Auto-Selected)'
+                      }
                     </span>
                   </div>
                   <div className="pl-4">
-                    <span className="font-medium text-gray-900">{activeAddress.street}</span>
-                    <span className="text-sm text-gray-600 block">
-                      {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
-                    </span>
-                    <span className="text-xs text-green-600 mt-1 block">
-                      ✓ This address will be used for delivery automatically
-                    </span>
+                    {selectedAddressId ? (
+                      // Show selected address from dropdown
+                      (() => {
+                        const selectedAddr = addresses.find(addr => addr.id === selectedAddressId);
+                        return selectedAddr ? (
+                          <>
+                            <span className="font-medium text-gray-900">{selectedAddr.street}</span>
+                            <span className="text-sm text-gray-600 block">
+                              {selectedAddr.barangay}, {selectedAddr.city}, {selectedAddr.province}
+                            </span>
+                            <span className="text-xs text-green-600 mt-1 block">
+                              ✓ This address will be used for delivery
+                            </span>
+                          </>
+                        ) : null;
+                      })()
+                    ) : (
+                      // Show active address
+                      <>
+                        <span className="font-medium text-gray-900">{activeAddress.street}</span>
+                        <span className="text-sm text-gray-600 block">
+                          {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
+                        </span>
+                        <span className="text-xs text-green-600 mt-1 block">
+                          ✓ This address will be used for delivery automatically
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 
                 {/* Address Selection Dropdown */}
-                {addresses.length > 0 && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="delivery-address">Switch to Different Address</Label>
-                    <Select 
-                      value={selectedAddressId?.toString() || ''} 
-                      onValueChange={(value) => handleAddressChange(parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a different address" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {addresses.map((address) => (
-                          <SelectItem key={address.id} value={address.id.toString()}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{address.street}</span>
-                              <span className="text-sm text-gray-500">
-                                {address.barangay}, {address.city}, {address.province}
-                                {address.is_default && <span className="ml-2 text-blue-600">(Default)</span>}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                <div className="grid gap-2">
+                  <Label htmlFor="delivery-address">Switch to Different Address</Label>
+                  <Select 
+                    value={selectedAddressId?.toString() || ''} 
+                    onValueChange={(value) => {
+                      if (value === 'active') {
+                        // Switching back to active address
+                        if (selectedAddressId) {
+                          setPendingAddressId(null);
+                          setPendingAddress({
+                            id: null,
+                            street: activeAddress.street,
+                            barangay: activeAddress.barangay,
+                            city: activeAddress.city,
+                            province: activeAddress.province,
+                            is_active: true
+                          });
+                          setShowAddressConfirmation(true);
+                        }
+                      } else {
+                        handleAddressChange(parseInt(value));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a different address" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {/* Active Address Option - only show if we have a selected address (not using active) */}
+                      {activeAddress && selectedAddressId && (
+                        <SelectItem value="active">
+                          <div className="flex flex-col">
+                            <span className="font-medium">{activeAddress.street}</span>
+                            <span className="text-sm text-gray-500">
+                              {activeAddress.barangay}, {activeAddress.city}, {activeAddress.province}
+                              <span className="ml-2 text-green-600">(Active Address)</span>
+                            </span>
+                          </div>
+                        </SelectItem>
+                      )}
+                      {/* All Addresses - exclude currently selected one */}
+                      {addresses
+                        .filter(address => address.id !== selectedAddressId)
+                        .map((address) => (
+                        <SelectItem key={address.id} value={address.id.toString()}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{address.street}</span>
+                            <span className="text-sm text-gray-500">
+                              {address.barangay}, {address.city}, {address.province}
+                              {address.is_active && <span className="ml-2 text-blue-600">(Active)</span>}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 
                 <Button
                   variant="outline"
@@ -844,25 +884,37 @@ export default function CartPage() {
               Confirm Address Change
             </DialogTitle>
             <DialogDescription>
-              You are about to change your delivery address. This will also update your main address in your profile.
+              {pendingAddressId === null 
+                ? "You are about to switch back to your active address for delivery."
+                : "You are about to change your delivery address. This will also update your main address in your profile."
+              }
             </DialogDescription>
           </DialogHeader>
           
           {pendingAddress && (
             <div className="space-y-3">
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-1">New Address:</h4>
+                <h4 className="font-medium text-blue-800 mb-1">
+                  {pendingAddressId === null ? 'Active Address:' : 'New Address:'}
+                </h4>
                 <p className="text-blue-700">{pendingAddress.street}</p>
                 <p className="text-sm text-blue-600">
                   {pendingAddress.barangay}, {pendingAddress.city}, {pendingAddress.province}
                 </p>
+                {pendingAddressId === null && (
+                  <p className="text-xs text-green-600 mt-1">
+                    This is your active address
+                  </p>
+                )}
               </div>
               
               <div className="text-sm text-gray-600">
                 <p>This will:</p>
                 <ul className="list-disc list-inside mt-1 space-y-1">
                   <li>Set this as your delivery address for this order</li>
-                  <li>Update your main address in your profile</li>
+                  {pendingAddressId !== null && (
+                    <li>Update your main address in your profile</li>
+                  )}
                 </ul>
               </div>
             </div>

@@ -10,6 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\VerifyEmailNotification;
+use App\Models\UserAddress;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -28,10 +29,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_change_required',
         'avatar',
         // Customer fields
-        'address',
-        'barangay',
-        'city',
-        'province',
         'contact_number',
         // Logistic fields
         'registration_date',
@@ -102,14 +99,25 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Sales::class, 'customer_id');
     }
 
+    // Legacy method - kept for backward compatibility but now points to user_addresses
     public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Address::class);
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function userAddresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserAddress::class);
     }
 
     public function defaultAddress(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(Address::class)->where('is_default', true);
+        return $this->hasOne(UserAddress::class)->where('is_active', true);
+    }
+
+    public function activeAddresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserAddress::class)->where('is_active', true);
     }
 
     // Member relationships
@@ -283,11 +291,12 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getMainAddressAttribute(): ?string
     {
-        if (!$this->address || !$this->barangay || !$this->city || !$this->province) {
+        $defaultAddress = $this->defaultAddress;
+        if (!$defaultAddress) {
             return null;
         }
 
-        return "{$this->address}, {$this->barangay}, {$this->city}, {$this->province}";
+        return "{$defaultAddress->street}, {$defaultAddress->barangay}, {$defaultAddress->city}, {$defaultAddress->province}";
     }
 
     /**
@@ -295,7 +304,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasMainAddress(): bool
     {
-        return !empty($this->address) && !empty($this->barangay) && !empty($this->city) && !empty($this->province);
+        $defaultAddress = $this->defaultAddress;
+        return $defaultAddress && !empty($defaultAddress->street) && !empty($defaultAddress->barangay) && !empty($defaultAddress->city) && !empty($defaultAddress->province);
     }
 
     /**
@@ -303,15 +313,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getMainAddressObject(): ?object
     {
+        $defaultAddress = $this->defaultAddress;
         if (!$this->hasMainAddress()) {
             return null;
         }
 
         return (object) [
-            'street' => $this->address,
-            'barangay' => $this->barangay,
-            'city' => $this->city,
-            'province' => $this->province,
+            'street' => $defaultAddress->street,
+            'barangay' => $defaultAddress->barangay,
+            'city' => $defaultAddress->city,
+            'province' => $defaultAddress->province,
         ];
     }
 } 

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Models\Stock;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -27,10 +28,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create another user manually
-        User::create([
+        $memberUser = User::create([
             'type' => 'member',
             'name' => 'John Doe',
-            'address' => '123 Main St',
             'email' => 'member@member.com',
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
@@ -38,14 +38,33 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(), // Automatically verify email
         ]);
 
-        User::create([
+        // Create default address for the member
+        UserAddress::create([
+            'user_id' => $memberUser->id,
+            'street' => '123 Main St',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
+        ]);
+
+        $logisticUser = User::create([
             'type' => 'logistic',
             'name' => 'Logistic User',
-            'address' => '456 Logistics Ave',
             'email' => 'logistic@logistic.com',
             'registration_date' => now(),
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(), // Automatically verify email
+        ]);
+
+        // Create default address for the logistic
+        UserAddress::create([
+            'user_id' => $logisticUser->id,
+            'street' => '456 Logistics Ave',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
         ]);
     }
 }

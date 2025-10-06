@@ -9,7 +9,7 @@ use App\Models\CartItem;
 use App\Models\Stock;
 use App\Models\Sales;
 use App\Models\AuditTrail;
-use App\Models\Address;
+use App\Models\UserAddress;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
@@ -75,11 +75,11 @@ class CartController extends Controller
         $checkoutMessage = session('checkoutMessage');
         $cart = $cartData;
         
-        // Get user's addresses for delivery selection
-        $allAddresses = $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
+        // Get user's addresses for delivery selection (all addresses)
+        $allAddresses = $user->addresses()->orderBy('created_at', 'desc')->get();
         
-        // Get user's active address from addresses table
-        $activeAddress = $user->addresses()->where('is_default', true)->first();
+        // Get user's active address from user_addresses table
+        $activeAddress = $user->defaultAddress;
         
         // Filter out the currently active address from the dropdown
         $addresses = $allAddresses->filter(function ($address) use ($activeAddress) {
@@ -176,7 +176,7 @@ class CartController extends Controller
 
         // Validate address selection
         $validated = $request->validate([
-            'delivery_address_id' => 'nullable|exists:addresses,id',
+            'delivery_address_id' => 'nullable|exists:user_addresses,id',
             'use_main_address' => 'boolean',
         ]);
 
@@ -184,21 +184,21 @@ class CartController extends Controller
         
         // If using main address
         if ($validated['use_main_address']) {
-            $activeAddress = $user->addresses()->where('is_default', true)->first();
+            $activeAddress = $user->defaultAddress;
             
-            if (!$activeAddress) {
-                return redirect()->route('cart.index')->with('checkoutMessage', 'No active address found. Please set an address as active first.');
+            if ($activeAddress) {
+                $deliveryAddress = (object) [
+                    'street' => $activeAddress->street,
+                    'barangay' => $activeAddress->barangay,
+                    'city' => $activeAddress->city,
+                    'province' => $activeAddress->province,
+                ];
+            } else {
+                return redirect()->route('cart.index')->with('checkoutMessage', 'No default address found. Please set a default address first.');
             }
-            
-            $deliveryAddress = (object) [
-                'street' => $activeAddress->street,
-                'barangay' => $activeAddress->barangay,
-                'city' => $activeAddress->city,
-                'province' => $activeAddress->province,
-            ];
         } else {
             // Ensure the address belongs to the user
-            $deliveryAddress = Address::where('id', $validated['delivery_address_id'])
+            $deliveryAddress = UserAddress::where('id', $validated['delivery_address_id'])
                 ->where('user_id', $user->id)
                 ->first();
 

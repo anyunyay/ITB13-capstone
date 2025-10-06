@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Address extends Model
+class UserAddress extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -18,7 +18,6 @@ class Address extends Model
         'barangay',
         'city',
         'province',
-        'is_default',
         'is_active',
     ];
 
@@ -28,7 +27,6 @@ class Address extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_default' => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -41,11 +39,11 @@ class Address extends Model
     }
 
     /**
-     * Scope to get default address for a user.
+     * Scope to get active address for a user (now serves as default).
      */
     public function scopeDefault($query)
     {
-        return $query->where('is_default', true);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -55,7 +53,6 @@ class Address extends Model
     {
         return $query->where('is_active', true);
     }
-
 
     /**
      * Get the full address as a formatted string.

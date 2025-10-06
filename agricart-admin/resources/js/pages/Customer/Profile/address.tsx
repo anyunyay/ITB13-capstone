@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,8 +15,7 @@ interface Address {
     barangay: string;
     city: string;
     province: string;
-    is_default: boolean;
-    created_at: string;
+    is_active: boolean;
 }
 
 interface PageProps {
@@ -39,13 +38,12 @@ interface PageProps {
 }
 
 export default function AddressPage() {
-    const { user, addresses: initialAddresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
-    const [addresses, setAddresses] = useState<Address[]>(initialAddresses);
+    const { user, addresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [confirmationData, setConfirmationData] = useState<{
-        type: 'edit_main' | 'add_default' | 'update_default' | 'set_active';
+        type: 'edit_main' | 'set_active';
         address: Address | null;
         newAddress?: any;
         onConfirm: () => void;
@@ -56,62 +54,10 @@ export default function AddressPage() {
         barangay: 'Sala', // Fixed default
         city: 'Cabuyao', // Fixed default
         province: 'Laguna', // Fixed default
-        is_default: false as boolean, // Default to false - user must explicitly choose
+        is_active: false as boolean, // Default to false - user must explicitly choose
     });
 
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-
-    // Helper function to add a new address to local state
-    const addAddressToState = (newAddress: Address) => {
-        setAddresses(prev => {
-            // If this is set as default, unset all other defaults first
-            if (newAddress.is_default) {
-                const updated = prev.map(addr => ({ ...addr, is_default: false }));
-                return [...updated, newAddress].sort((a, b) => {
-                    if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                });
-            }
-            return [...prev, newAddress].sort((a, b) => {
-                if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            });
-        });
-    };
-
-    // Helper function to update an address in local state
-    const updateAddressInState = (updatedAddress: Address) => {
-        setAddresses(prev => {
-            const updated = prev.map(addr => 
-                addr.id === updatedAddress.id ? updatedAddress : addr
-            );
-            
-            // If this address is set as default, unset all other defaults
-            if (updatedAddress.is_default) {
-                return updated.map(addr => 
-                    addr.id === updatedAddress.id ? addr : { ...addr, is_default: false }
-                ).sort((a, b) => {
-                    if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                });
-            }
-            
-            return updated.sort((a, b) => {
-                if (a.is_default !== b.is_default) return b.is_default ? 1 : -1;
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            });
-        });
-    };
-
-    // Helper function to remove an address from local state
-    const removeAddressFromState = (addressId: number) => {
-        setAddresses(prev => prev.filter(addr => addr.id !== addressId));
-    };
-
-    // Sync local state with server data when component mounts or data changes
-    useEffect(() => {
-        setAddresses(initialAddresses);
-    }, [initialAddresses]);
 
     // List of all barangays in Cabuyao, Laguna (only Sala is selectable)
     const cabuyaoBarangays = [
@@ -140,16 +86,16 @@ export default function AddressPage() {
                 address: editingAddress,
                 newAddress: data,
                 onConfirm: () => {
-            router.put('/customer/profile/main-address', {
-                address: data.street,
-                barangay: data.barangay,
-                city: data.city,
-                province: data.province,
-            }, {
-                onSuccess: () => {
-                    reset();
-                    setIsDialogOpen(false);
-                    setEditingAddress(null);
+                    router.put('/customer/profile/main-address', {
+                        address: data.street,
+                        barangay: data.barangay,
+                        city: data.city,
+                        province: data.province,
+                    }, {
+                        onSuccess: () => {
+                            reset();
+                            setIsDialogOpen(false);
+                            setEditingAddress(null);
                             setShowConfirmationModal(false);
                             setConfirmationData(null);
                         },
@@ -163,28 +109,16 @@ export default function AddressPage() {
             return;
         }
         
-        // Check if this is a new address being set as default
-        if (!editingAddress && data.is_default) {
+        // Check if this is a new address being set as active
+        if (!editingAddress && data.is_active) {
             setConfirmationData({
-                type: 'add_default',
+                type: 'set_active',
                 address: null,
                 newAddress: data,
                 onConfirm: () => {
                     const url = '/customer/profile/addresses';
                     post(url, {
-                        onSuccess: (page) => {
-                            // Add the new address to local state immediately
-                            const newAddress: Address = {
-                                id: Date.now(), // Temporary ID for immediate display
-                                street: data.street,
-                                barangay: data.barangay,
-                                city: data.city,
-                                province: data.province,
-                                is_default: data.is_default,
-                                created_at: new Date().toISOString(),
-                            };
-                            addAddressToState(newAddress);
-                            
+                        onSuccess: () => {
                             reset();
                             setIsDialogOpen(false);
                             setEditingAddress(null);
@@ -201,10 +135,10 @@ export default function AddressPage() {
             return;
         }
 
-        // Check if this is an existing address being set as default
-        if (editingAddress && data.is_default && !editingAddress.is_default) {
+        // Check if this is an existing address being set as active
+        if (editingAddress && data.is_active && !editingAddress.is_active) {
             setConfirmationData({
-                type: 'update_default',
+                type: 'set_active',
                 address: editingAddress,
                 newAddress: data,
                 onConfirm: () => {
@@ -216,11 +150,11 @@ export default function AddressPage() {
                             setEditingAddress(null);
                             setShowConfirmationModal(false);
                             setConfirmationData(null);
-                },
-                onError: () => {
-                    // Error will be handled by flash messages
-                },
-            });
+                        },
+                        onError: () => {
+                            // Error will be handled by flash messages
+                        },
+                    });
                 }
             });
             setShowConfirmationModal(true);
@@ -232,32 +166,7 @@ export default function AddressPage() {
         const method = editingAddress ? put : post;
 
         method(url, {
-            onSuccess: (page) => {
-                if (editingAddress) {
-                    // Update existing address in local state
-                    const updatedAddress: Address = {
-                        ...editingAddress,
-                        street: data.street,
-                        barangay: data.barangay,
-                        city: data.city,
-                        province: data.province,
-                        is_default: data.is_default,
-                    };
-                    updateAddressInState(updatedAddress);
-                } else {
-                    // Add new address to local state
-                    const newAddress: Address = {
-                        id: Date.now(), // Temporary ID for immediate display
-                        street: data.street,
-                        barangay: data.barangay,
-                        city: data.city,
-                        province: data.province,
-                        is_default: data.is_default,
-                        created_at: new Date().toISOString(),
-                    };
-                    addAddressToState(newAddress);
-                }
-                
+            onSuccess: () => {
                 reset();
                 setIsDialogOpen(false);
                 setEditingAddress(null);
@@ -275,7 +184,7 @@ export default function AddressPage() {
             barangay: address.barangay,
             city: address.city,
             province: address.province,
-            is_default: address.is_default,
+            is_active: address.is_active,
         });
         setOpenDropdown(null);
         setIsDialogOpen(true);
@@ -285,8 +194,7 @@ export default function AddressPage() {
         if (confirm('Are you sure you want to delete this address?')) {
             destroy(`/customer/profile/addresses/${id}`, {
                 onSuccess: () => {
-                    // Remove address from local state immediately
-                    removeAddressFromState(id);
+                    // Success message will be handled by flash messages
                 },
                 onError: () => {
                     // Error will be handled by flash messages
@@ -310,12 +218,8 @@ export default function AddressPage() {
             type: 'set_active',
             address: address,
             onConfirm: () => {
-                router.post(`/customer/profile/addresses/${addressId}/set-default`, {}, {
+                router.post(`/customer/profile/addresses/${addressId}/set-active`, {}, {
                     onSuccess: () => {
-                        // Update local state to reflect the new active address
-                        const updatedAddress = { ...address, is_default: true };
-                        updateAddressInState(updatedAddress);
-                        
                         setShowConfirmationModal(false);
                         setConfirmationData(null);
                     },
@@ -334,7 +238,7 @@ export default function AddressPage() {
 
     // Check if the currently active address matches the main address from registration
     const isActiveAddressSameAsMain = () => {
-        const activeAddress = addresses.find(addr => addr.is_default);
+        const activeAddress = addresses.find(addr => addr.is_active);
         if (!activeAddress || !user.address) return false;
         
         return activeAddress.street === user.address &&
@@ -416,7 +320,7 @@ export default function AddressPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_default: false, created_at: new Date().toISOString() })}
+                                            onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
                                             className="flex items-center gap-1"
                                         >
                                             <Edit className="h-3 w-3" />
@@ -456,7 +360,7 @@ export default function AddressPage() {
                 )}
 
                 {/* Currently Active Address - Only show if different from main address */}
-                {addresses.find(addr => addr.is_default) && !isActiveAddressSameAsMain() && (
+                {addresses.find(addr => addr.is_active) && !isActiveAddressSameAsMain() && (
                     <div className="space-y-2">
                         <h3 className="text-lg font-semibold text-gray-900">Currently Active Address</h3>
                         <Card className="border-2 border-blue-200 bg-blue-50">
@@ -468,7 +372,7 @@ export default function AddressPage() {
                                             <span className="text-sm font-medium">Active Address</span>
                                             <div className="flex items-center gap-1 text-blue-600">
                                                 <CheckCircle className="h-4 w-4" />
-                                                <span className="text-xs font-medium">Default</span>
+                                                <span className="text-xs font-medium">Active</span>
                                             </div>
                                         </div>
                                     </div>
@@ -476,7 +380,7 @@ export default function AddressPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleEdit(addresses.find(addr => addr.is_default)!)}
+                                            onClick={() => handleEdit(addresses.find(addr => addr.is_active)!)}
                                             className="flex items-center gap-1"
                                         >
                                             <Edit className="h-3 w-3" />
@@ -494,7 +398,7 @@ export default function AddressPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleDelete(addresses.find(addr => addr.is_default)!.id)}
+                                            onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
                                             className="flex items-center gap-1 text-red-600 hover:text-red-700"
                                         >
                                             <Trash2 className="h-3 w-3" />
@@ -504,9 +408,9 @@ export default function AddressPage() {
                                 </div>
                                 
                                 <div className="mt-3 space-y-1">
-                                    <p className="font-medium text-gray-900">{addresses.find(addr => addr.is_default)!.street}</p>
-                                    <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.barangay}, {addresses.find(addr => addr.is_default)!.city}</p>
-                                    <p className="text-gray-600">{addresses.find(addr => addr.is_default)!.province}</p>
+                                    <p className="font-medium text-gray-900">{addresses.find(addr => addr.is_active)!.street}</p>
+                                    <p className="text-gray-600">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
+                                    <p className="text-gray-600">{addresses.find(addr => addr.is_active)!.province}</p>
                                 </div>
                                 <div className="mt-2 text-xs text-blue-600">
                                     This address is used for checkout and other operations
@@ -519,11 +423,11 @@ export default function AddressPage() {
                 {addresses.length > 0 && (
                     <>
                         {/* Other Saved Addresses */}
-                        {addresses.filter(addr => !addr.is_default).length > 0 && (
+                        {addresses.filter(addr => !addr.is_active).length > 0 && (
                             <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-gray-900">Other Saved Addresses</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Other Addresses</h3>
                                 <div className="grid gap-4">
-                                    {addresses.filter(addr => !addr.is_default).map((address) => (
+                                    {addresses.filter(addr => !addr.is_active).map((address) => (
                                         <Card key={address.id} className="border border-gray-200">
                                             <CardContent className="p-6">
                                                 <div className="flex items-start justify-between">
@@ -695,13 +599,13 @@ export default function AddressPage() {
                             <div className="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    id="is_default"
-                                    checked={data.is_default || false}
-                                    onChange={(e) => setData('is_default', e.target.checked)}
+                                    id="is_active"
+                                    checked={data.is_active || false}
+                                    onChange={(e) => setData('is_active', e.target.checked)}
                                     disabled={processing}
                                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
-                                <Label htmlFor="is_default" className="text-sm font-medium">
+                                <Label htmlFor="is_active" className="text-sm font-medium">
                                     Set as active address (used for checkout)
                                 </Label>
                             </div>

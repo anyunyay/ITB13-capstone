@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,11 +51,17 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => '+63' . $request->contact_number,
-            'address' => $request->address,
+            'type' => 'customer', // Ensure type is set to customer
+        ]);
+
+        // Create the default address for the user
+        UserAddress::create([
+            'user_id' => $user->id,
+            'street' => $request->address,
             'barangay' => $request->barangay,
             'city' => $request->city,
             'province' => $request->province,
-            'type' => 'customer', // Ensure type is set to customer
+            'is_active' => true,
         ]);
 
         // Explicitly assign the 'customer' role

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Address;
+use App\Models\UserAddress;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +21,8 @@ class AddressController extends Controller
         /** @var User $user */
         $user = Auth::user();
         
-        // Always reload addresses from database to ensure fresh data
+        // Always reload addresses from database to ensure fresh data (all addresses)
         $addresses = $user->addresses()
-            ->orderBy('is_default', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -51,7 +50,7 @@ class AddressController extends Controller
         
         $validated = $request->validate([
             'street' => 'required|string|max:500',
-            'is_default' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         // Set fixed values following registration pattern
@@ -61,7 +60,7 @@ class AddressController extends Controller
             'barangay' => 'Sala', // Fixed barangay
             'city' => 'Cabuyao', // Fixed city
             'province' => 'Laguna', // Fixed province
-            'is_default' => $validated['is_default'] ?? false,
+            'is_active' => $validated['is_active'] ?? false,
         ];
 
         // Check if an identical address already exists
@@ -76,42 +75,25 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
         }
 
-        // If this is being set as default, save current main address first
-        if ($addressData['is_default']) {
-            // Save the current main address to the addresses table before updating
-            if ($user->address || $user->barangay || $user->city || $user->province) {
-                // Check if the current main address already exists in saved addresses
-                $currentMainAddressExists = $user->addresses()
-                    ->where('street', $user->address)
-                    ->where('barangay', $user->barangay)
-                    ->where('city', $user->city)
-                    ->where('province', $user->province)
-                    ->first();
-
-                // Only save if it doesn't already exist and has valid data
-                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
-                    $user->addresses()->create([
-                        'street' => $user->address,
-                        'barangay' => $user->barangay,
-                        'city' => $user->city,
-                        'province' => $user->province,
-                        'is_default' => false, // Don't set as default automatically
-                    ]);
-                }
-            }
-
-            // Unset any existing default addresses
-            $user->addresses()->update(['is_default' => false]);
-        }
-
-        // Only set as default if explicitly requested by user
-        // Removed automatic default setting for first address
-
-        $address = $user->addresses()->create($addressData);
-
-        // If this address is set as default, update the user's main address fields
-        if ($addressData['is_default']) {
-            $this->updateUserMainAddress($user, $address);
+        // Create the new address
+        if ($addressData['is_active']) {
+            // If this is being set as active, handle the activation properly
+            $address = DB::transaction(function () use ($user, $addressData) {
+                // First, create the new address as active
+                $addressData['is_active'] = true;
+                $address = $user->addresses()->create($addressData);
+                
+                // Then, set all other addresses to inactive
+                $user->addresses()->where('id', '!=', $address->id)->update([
+                    'is_active' => false
+                ]);
+                
+                return $address;
+            });
+        } else {
+            // Create address as inactive
+            $addressData['is_active'] = false;
+            $address = $user->addresses()->create($addressData);
         }
 
         return redirect()->back()->with('success', 'Address created successfully');
@@ -120,7 +102,7 @@ class AddressController extends Controller
     /**
      * Display the specified address.
      */
-    public function show(Address $address)
+    public function show(UserAddress $address)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -131,7 +113,7 @@ class AddressController extends Controller
         }
 
         return Inertia::render('Customer/Profile/address', [
-            'addresses' => $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get(),
+            'addresses' => $user->activeAddresses()->orderBy('created_at', 'desc')->get(),
             'user' => $user,
             'selectedAddress' => $address,
             'flash' => [
@@ -144,7 +126,7 @@ class AddressController extends Controller
     /**
      * Update the specified address.
      */
-    public function update(Request $request, Address $address)
+    public function update(Request $request, UserAddress $address)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -156,7 +138,7 @@ class AddressController extends Controller
 
         $validated = $request->validate([
             'street' => 'required|string|max:500',
-            'is_default' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         // Check if an identical address already exists (excluding current address)
@@ -172,43 +154,26 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
         }
 
-        // If this is being set as default, save current main address first
-        if ($validated['is_default']) {
-            // Save the current main address to the addresses table before updating
-            if ($user->address || $user->barangay || $user->city || $user->province) {
-                // Check if the current main address already exists in saved addresses
-                $currentMainAddressExists = $user->addresses()
-                    ->where('street', $user->address)
-                    ->where('barangay', $user->barangay)
-                    ->where('city', $user->city)
-                    ->where('province', $user->province)
-                    ->first();
-
-                // Only save if it doesn't already exist and has valid data
-                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
-                    $user->addresses()->create([
-                        'street' => $user->address,
-                        'barangay' => $user->barangay,
-                        'city' => $user->city,
-                        'province' => $user->province,
-                        'is_default' => false, // Don't set as default automatically
-                    ]);
-                }
-            }
-
-            // Unset any existing default addresses
-            $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
-        }
-
-        // Only update the street address and is_default flag
-        $address->update([
-            'street' => $validated['street'],
-            'is_default' => $validated['is_default'] ?? $address->is_default,
-        ]);
-
-        // If this address is set as default, update the user's main address fields
-        if ($validated['is_default']) {
-            $this->updateUserMainAddress($user, $address);
+        // Update the address
+        if ($validated['is_active']) {
+            // If this is being set as active, handle the activation properly
+            DB::transaction(function () use ($user, $address, $validated) {
+                // First, set this address as active
+                $address->update([
+                    'street' => $validated['street'],
+                    'is_active' => true
+                ]);
+                
+                // Then, set all other addresses to inactive
+                $user->addresses()->where('id', '!=', $address->id)->update([
+                    'is_active' => false
+                ]);
+            });
+        } else {
+            // Only update the street address
+            $address->update([
+                'street' => $validated['street'],
+            ]);
         }
 
         return redirect()->back()->with('success', 'Address updated successfully');
@@ -216,32 +181,63 @@ class AddressController extends Controller
 
     /**
      * Update the user's main address fields based on the selected address.
+     * This method is called from the cart when user selects a different address.
      */
-    public function updateMainAddress(Request $request, Address $address)
+    public function updateMainAddress(Request $request, UserAddress $address)
     {
         /** @var User $user */
         $user = Auth::user();
         
         // Ensure the address belongs to the authenticated user
         if ($address->user_id !== $user->id) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Update the user's main address fields
-        $user->update([
-            'address' => $address->street,
-            'barangay' => $address->barangay,
-            'city' => $address->city,
-            'province' => $address->province,
-        ]);
+        DB::transaction(function () use ($user, $address) {
+            // First, set this address as active
+            $address->update([
+                'is_active' => true
+            ]);
+            
+            // Then, set all other addresses to inactive
+            $user->addresses()->where('id', '!=', $address->id)->update([
+                'is_active' => false
+            ]);
+        });
 
-        return redirect()->back()->with('success', 'Main address updated successfully');
+        // Refresh the address data after update
+        $address->refresh();
+        $user->refresh();
+
+        // Get updated addresses for the response
+        $updatedAddresses = $user->addresses()->orderBy('created_at', 'desc')->get();
+        $updatedActiveAddress = $user->defaultAddress;
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Address updated successfully',
+                'addresses' => $updatedAddresses,
+                'activeAddress' => $updatedActiveAddress,
+                'selectedAddress' => $address
+            ]);
+        }
+
+        // For Inertia requests, return the updated data
+        return redirect()->back()->with([
+            'success' => 'Address updated successfully',
+            'addresses' => $updatedAddresses,
+            'activeAddress' => $updatedActiveAddress
+        ]);
     }
 
     /**
      * Remove the specified address.
      */
-    public function destroy(Address $address)
+    public function destroy(UserAddress $address)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -251,18 +247,14 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // If this is the default address, we need to handle it carefully
-        if ($address->is_default) {
+        // If this is the active address, we need to handle it carefully
+        if ($address->is_active) {
             $remainingAddresses = $user->addresses()->where('id', '!=', $address->id)->get();
             
             if ($remainingAddresses->count() > 0) {
-                // Set the first remaining address as default
-                $newDefault = $remainingAddresses->first();
-                $newDefault->update(['is_default' => true]);
-                $this->updateUserMainAddress($user, $newDefault);
-            } else {
-                // No remaining addresses, clear user's main address
-                $this->clearUserMainAddress($user);
+                // Set the first remaining address as active
+                $newActive = $remainingAddresses->first();
+                $newActive->update(['is_active' => true]);
             }
         }
 
@@ -272,9 +264,10 @@ class AddressController extends Controller
     }
 
     /**
-     * Set an address as the default address.
+     * Set an address as active (this becomes the selected address).
+     * This method is useful when you want to activate an address.
      */
-    public function setDefault(Address $address)
+    public function setActive(UserAddress $address)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -285,58 +278,67 @@ class AddressController extends Controller
         }
 
         DB::transaction(function () use ($user, $address) {
-            // Save the current main address to the addresses table before updating
-            if ($user->address || $user->barangay || $user->city || $user->province) {
-                // Check if the current main address already exists in saved addresses
-                $currentMainAddressExists = $user->addresses()
-                    ->where('street', $user->address)
-                    ->where('barangay', $user->barangay)
-                    ->where('city', $user->city)
-                    ->where('province', $user->province)
-                    ->first();
-
-                // Only save if it doesn't already exist and has valid data
-                if (!$currentMainAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
-                    $user->addresses()->create([
-                        'street' => $user->address,
-                        'barangay' => $user->barangay,
-                        'city' => $user->city,
-                        'province' => $user->province,
-                        'is_default' => false, // Don't set as default automatically
-                    ]);
-                }
-            }
-
-            // Unset all other default addresses
-            $user->addresses()->update(['is_default' => false]);
+            // First, set this address as active
+            $address->update([
+                'is_active' => true
+            ]);
             
-            // Set this address as default
-            $address->update(['is_default' => true]);
-            
-            // Update user's main address fields
-            $this->updateUserMainAddress($user, $address);
+            // Then, set all other addresses to inactive
+            $user->addresses()->where('id', '!=', $address->id)->update([
+                'is_active' => false
+            ]);
         });
 
         return redirect()->back()->with('success', 'Address set as active successfully');
     }
 
     /**
-     * Get the user's current main address from the user table.
+     * Set an address as the active address (now serves as default).
+     */
+    public function setDefault(UserAddress $address)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        // Ensure the address belongs to the authenticated user
+        if ($address->user_id !== $user->id) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        DB::transaction(function () use ($user, $address) {
+            // First, set this address as active
+            $address->update([
+                'is_active' => true
+            ]);
+            
+            // Then, set all other addresses to inactive
+            $user->addresses()->where('id', '!=', $address->id)->update([
+                'is_active' => false
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Address set as active successfully');
+    }
+
+    /**
+     * Get the user's current main address from the user_addresses table.
      */
     public function getCurrentAddress()
     {
         /** @var User $user */
         $user = Auth::user();
         
-        $currentAddress = [
-            'street' => $user->address,
-            'barangay' => $user->barangay,
-            'city' => $user->city,
-            'province' => $user->province,
-        ];
+        $defaultAddress = $user->defaultAddress;
+        
+        $currentAddress = $defaultAddress ? [
+            'street' => $defaultAddress->street,
+            'barangay' => $defaultAddress->barangay,
+            'city' => $defaultAddress->city,
+            'province' => $defaultAddress->province,
+        ] : null;
 
         return Inertia::render('Customer/Profile/address', [
-            'addresses' => $user->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get(),
+            'addresses' => $user->addresses()->orderBy('created_at', 'desc')->get(),
             'user' => $user,
             'currentAddress' => $currentAddress,
             'flash' => [
@@ -349,14 +351,11 @@ class AddressController extends Controller
     /**
      * Update the user's main address fields with the default address data.
      */
-    private function updateUserMainAddress($user, Address $address)
+    private function updateUserMainAddress($user, UserAddress $address)
     {
-        $user->update([
-            'address' => $address->street,
-            'barangay' => $address->barangay,
-            'city' => $address->city,
-            'province' => $address->province,
-        ]);
+        // Since we're using the user_addresses table, we don't need to update user fields
+        // The default address is already tracked in the user_addresses table
+        return;
     }
 
     /**
@@ -386,36 +385,28 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'This address already exists in your saved addresses.');
         }
 
-        // Save the old address to the addresses table before updating
-        if ($user->address || $user->barangay || $user->city || $user->province) {
-            // Check if the old address already exists in saved addresses
-            $oldAddressExists = $user->addresses()
-                ->where('street', $user->address)
-                ->where('barangay', $user->barangay)
-                ->where('city', $user->city)
-                ->where('province', $user->province)
-                ->first();
-
-            // Only save if it doesn't already exist and has valid data
-            if (!$oldAddressExists && $user->address && $user->barangay && $user->city && $user->province) {
-                $user->addresses()->create([
-                    'type' => 'home',
-                    'label' => null,
-                    'street' => $user->address,
-                    'barangay' => $user->barangay,
-                    'city' => $user->city,
-                    'province' => $user->province,
-                    'is_default' => false, // Don't set as default automatically
-                ]);
-            }
+        // Get the current default address
+        $currentDefaultAddress = $user->defaultAddress;
+        
+        // If there's a current default address, update it
+        if ($currentDefaultAddress) {
+            $currentDefaultAddress->update([
+                'street' => $validated['address'],
+                'barangay' => $validated['barangay'],
+                'city' => $validated['city'],
+                'province' => $validated['province'],
+            ]);
+        } else {
+            // Create a new default address if none exists
+            $user->addresses()->create([
+                'street' => $validated['address'],
+                'barangay' => $validated['barangay'],
+                'city' => $validated['city'],
+                'province' => $validated['province'],
+                'is_default' => true,
+                'is_active' => true,
+            ]);
         }
-
-        $user->update([
-            'address' => $validated['address'],
-            'barangay' => $validated['barangay'],
-            'city' => $validated['city'],
-            'province' => $validated['province'],
-        ]);
 
         return redirect()->back()->with('success', 'Main address updated successfully');
     }
@@ -425,11 +416,11 @@ class AddressController extends Controller
      */
     private function clearUserMainAddress($user)
     {
-        $user->update([
-            'address' => null,
-            'barangay' => null,
-            'city' => null,
-            'province' => null,
-        ]);
+        // Since we're using the user_addresses table, we don't need to clear user fields
+        // We can deactivate the default address instead
+        $defaultAddress = $user->defaultAddress;
+        if ($defaultAddress) {
+            $defaultAddress->update(['is_active' => false]);
+        }
     }
 }

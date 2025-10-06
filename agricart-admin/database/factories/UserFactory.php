@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\UserAddress;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -42,12 +43,18 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => 'customer@customer.com',
             'password' => Hash::make('12345678'),
-            'address' => $this->faker->address(),
-            'province' => $this->faker->state(),
-            'barangay' => $this->faker->city(),
-            'city' => $this->faker->city(),
             'email_verified_at' => now(), // Automatically verify email for customers
-        ]);
+        ])->afterCreating(function ($user) {
+            // Create a default address for the customer
+                UserAddress::create([
+                    'user_id' => $user->id,
+                    'street' => $this->faker->streetAddress(),
+                    'barangay' => 'Sala',
+                    'city' => 'Cabuyao',
+                    'province' => 'Laguna',
+                    'is_active' => true,
+                ]);
+        });
     }
 
     public function member()
@@ -55,13 +62,22 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'member',
             'name' => $this->faker->name(),
-            'address' => $this->faker->address(),
             'email' => $this->faker->unique()->safeEmail(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'document' => $this->faker->imageUrl(640, 480, 'member', true),
             'password' => Hash::make('password'),
             'email_verified_at' => now(), // Automatically verify email for members
-        ]);
+        ])->afterCreating(function ($user) {
+            // Create a default address for the member
+                UserAddress::create([
+                    'user_id' => $user->id,
+                    'street' => $this->faker->streetAddress(),
+                    'barangay' => 'Sala',
+                    'city' => 'Cabuyao',
+                    'province' => 'Laguna',
+                    'is_active' => true,
+                ]);
+        });
     }
 
     public function logistic()
@@ -69,12 +85,21 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'type' => 'logistic',
             'name' => $this->faker->name(),
-            'address' => $this->faker->address(),
             'email' => $this->faker->unique()->safeEmail(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'password' => Hash::make('password'),
             'email_verified_at' => now(), // Automatically verify email for logistics
-        ]);
+        ])->afterCreating(function ($user) {
+            // Create a default address for the logistic
+                UserAddress::create([
+                    'user_id' => $user->id,
+                    'street' => $this->faker->streetAddress(),
+                    'barangay' => 'Sala',
+                    'city' => 'Cabuyao',
+                    'province' => 'Laguna',
+                    'is_active' => true,
+                ]);
+        });
     }
 
     public function staff()
