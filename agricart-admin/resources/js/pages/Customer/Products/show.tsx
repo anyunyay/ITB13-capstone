@@ -41,6 +41,7 @@ export default function ProductShow({ product, auth }: Props) {
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [message, setMessage] = useState<string | null>(null);
     const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         product_id: product.id,
@@ -55,6 +56,11 @@ export default function ProductShow({ product, auth }: Props) {
     const handleAddToCart = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Prevent multiple clicks
+        if (isAddingToCart) {
+            return;
+        }
+
         if (!auth?.user) {
             setShowLoginConfirm(true);
             setOpen(false);
@@ -68,6 +74,9 @@ export default function ProductShow({ product, auth }: Props) {
 
         const sendQty = isKilo ? Number(Number(selectedQuantity).toFixed(2)) : selectedQuantity;
 
+        // Set adding state immediately to prevent multiple clicks
+        setIsAddingToCart(true);
+
         router.post('/customer/cart/store', {
             product_id: product.id,
             category: selectedCategory,
@@ -77,9 +86,11 @@ export default function ProductShow({ product, auth }: Props) {
                 setMessage('Added to cart!');
                 router.reload({ only: ['cart'] });
                 setTimeout(() => setOpen(false), 800);
+                setIsAddingToCart(false);
             },
             onError: () => {
                 setMessage('Failed to add to cart.');
+                setIsAddingToCart(false);
             },
             preserveScroll: true,
         });
@@ -375,12 +386,13 @@ export default function ProductShow({ product, auth }: Props) {
                                                 onClick={handleAddToCart}
                                                 disabled={
                                                     processing ||
+                                                    isAddingToCart ||
                                                     !selectedCategory ||
                                                     selectedQuantity < (isKilo ? 0.25 : 1) ||
                                                     selectedQuantity > maxQty
                                                 }
                                             >
-                                                {processing ? 'Adding...' : 'Add to Cart'}
+                                                {processing || isAddingToCart ? 'Adding...' : 'Add to Cart'}
                                             </Button>
                                             {message && (
                                                 <div className="mt-2 text-center text-sm text-green-600">{message}</div>

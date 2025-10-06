@@ -61,6 +61,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   const [selectedQuantity, setSelectedQuantity] = useState<number | string>(1);
   const [message, setMessage] = useState<string | null>(null);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { auth } = usePage<PageProps & SharedData>().props;
   const stockManager = StockManager.getInstance();
 
@@ -96,6 +97,11 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Prevent multiple clicks
+    if (isAddingToCart) {
+      return;
+    }
+
     if (!auth?.user) {
       onRequireLogin();
       setOpen(false);
@@ -114,6 +120,9 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
       : parseFloat(selectedQuantity);
     const sendQty = isKilo ? Number(rawQty.toFixed(2)) : Math.floor(rawQty);
 
+    // Set adding state immediately to prevent multiple clicks
+    setIsAddingToCart(true);
+
     // Add to shared stock manager
     stockManager.addToCart(product.id, selectedCategory, sendQty);
     setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
@@ -131,12 +140,14 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         router.reload({ only: ['cart'] });
         setTimeout(() => setOpen(false), 800);
+        setIsAddingToCart(false);
       },
       onError: () => {
         // Remove from shared stock manager on error
         stockManager.removeFromCart(product.id, selectedCategory, sendQty);
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         setMessage('Failed to add to cart.');
+        setIsAddingToCart(false);
       },
       preserveScroll: true,
     });
@@ -356,12 +367,13 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
                     onClick={handleAddToCart}
                     disabled={
                       processing ||
+                      isAddingToCart ||
                       !selectedCategory ||
                       Number((selectedQuantity as any) || 0) < 1 ||
                       Number((selectedQuantity as any) || 0) > maxQty
                     }
                   >
-                    {processing ? 'Adding...' : 'Add to Cart'}
+                    {processing || isAddingToCart ? 'Adding...' : 'Add to Cart'}
                   </Button>
                   {message && (
                     <div className="mt-2 text-center text-sm text-green-600">{message}</div>
