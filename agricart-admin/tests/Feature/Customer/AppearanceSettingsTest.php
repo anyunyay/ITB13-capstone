@@ -64,11 +64,6 @@ class AppearanceSettingsTest extends TestCase
         $updateData = [
             'theme' => 'dark',
             'language' => 'fil',
-            'notifications' => [
-                'email' => true,
-                'push' => false,
-                'sms' => true,
-            ],
         ];
 
         $response = $this->actingAs($user)->patch('/customer/profile/appearance', $updateData);
@@ -79,11 +74,6 @@ class AppearanceSettingsTest extends TestCase
         $appearanceSettings->refresh();
         $this->assertEquals('dark', $appearanceSettings->theme);
         $this->assertEquals('fil', $appearanceSettings->language);
-        $this->assertEquals([
-            'email' => true,
-            'push' => false,
-            'sms' => true,
-        ], $appearanceSettings->notifications);
     }
 
     public function test_appearance_settings_validation_works_correctly()
@@ -96,7 +86,6 @@ class AppearanceSettingsTest extends TestCase
         $response = $this->actingAs($user)->patch('/customer/profile/appearance', [
             'theme' => 'invalid',
             'language' => 'en',
-            'notifications' => ['email' => true, 'push' => true, 'sms' => false],
         ]);
 
         $response->assertSessionHasErrors(['theme']);
@@ -105,18 +94,9 @@ class AppearanceSettingsTest extends TestCase
         $response = $this->actingAs($user)->patch('/customer/profile/appearance', [
             'theme' => 'light',
             'language' => 'invalid',
-            'notifications' => ['email' => true, 'push' => true, 'sms' => false],
         ]);
 
         $response->assertSessionHasErrors(['language']);
-
-        // Test missing notifications
-        $response = $this->actingAs($user)->patch('/customer/profile/appearance', [
-            'theme' => 'light',
-            'language' => 'en',
-        ]);
-
-        $response->assertSessionHasErrors(['notifications']);
     }
 
     public function test_appearance_settings_model_methods_work_correctly()

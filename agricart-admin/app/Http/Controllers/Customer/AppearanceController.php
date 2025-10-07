@@ -25,7 +25,6 @@ class AppearanceController extends Controller
                 'email' => $user->email,
                 'theme' => $appearanceSettings->theme,
                 'language' => $appearanceSettings->language,
-                'notifications' => $appearanceSettings->notifications ?? AppearanceSettings::getDefaultNotifications(),
             ],
         ]);
     }
@@ -38,10 +37,6 @@ class AppearanceController extends Controller
         $request->validate([
             'theme' => 'required|in:light,dark,system',
             'language' => 'required|in:en,fil',
-            'notifications' => 'required|array',
-            'notifications.email' => 'boolean',
-            'notifications.push' => 'boolean',
-            'notifications.sms' => 'boolean',
         ]);
 
         $user = Auth::user();
@@ -50,7 +45,6 @@ class AppearanceController extends Controller
         $appearanceSettings->update([
             'theme' => $request->theme,
             'language' => $request->language,
-            'notifications' => $request->notifications,
         ]);
 
         return redirect()->back()->with('success', 'Appearance settings updated successfully!');
@@ -67,7 +61,6 @@ class AppearanceController extends Controller
         return response()->json([
             'theme' => $appearanceSettings->theme,
             'language' => $appearanceSettings->language,
-            'notifications' => $appearanceSettings->notifications ?? AppearanceSettings::getDefaultNotifications(),
         ]);
     }
 }
