@@ -213,6 +213,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if the user can change their active address
+     * More restrictive than hasActiveOrders - prevents changing active address when orders are active
+     */
+    public function canChangeActiveAddress()
+    {
+        return !$this->hasActiveOrders();
+    }
+
+    /**
      * Get active orders for the user
      */
     public function getActiveOrders()

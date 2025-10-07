@@ -54,11 +54,6 @@ class AddressController extends Controller
         /** @var User $user */
         $user = Auth::user();
         
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot add new addresses while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-        
         $validated = $request->validate([
             'street' => 'required|string|max:500',
             'is_active' => 'boolean',
@@ -88,6 +83,11 @@ class AddressController extends Controller
 
         // Create the new address
         if ($addressData['is_active']) {
+            // Check if user can change active address
+            if (!$user->canChangeActiveAddress()) {
+                return redirect()->back()->with('error', 'Cannot set a new address as active while you have pending or out-for-delivery orders. You can add the address as inactive and activate it later.');
+            }
+            
             // If this is being set as active, handle the activation properly
             $address = DB::transaction(function () use ($user, $addressData) {
                 // First, create the new address as active
@@ -147,15 +147,15 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot modify addresses while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-
         $validated = $request->validate([
             'street' => 'required|string|max:500',
             'is_active' => 'boolean',
         ]);
+
+        // Check if user can change active address (only if trying to set as active)
+        if ($validated['is_active'] && !$user->canChangeActiveAddress()) {
+            return redirect()->back()->with('error', 'Cannot set this address as active while you have pending or out-for-delivery orders. You can update the address details but not activate it.');
+        }
 
         // Check if an identical address already exists (excluding current address)
         $existingAddress = $user->addresses()
@@ -212,8 +212,8 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
+        // Check if user can change active address
+        if (!$user->canChangeActiveAddress()) {
             $errorMessage = 'Cannot change delivery address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.';
             if ($request->expectsJson()) {
                 return response()->json(['error' => $errorMessage], 422);
@@ -307,8 +307,8 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
+        // Check if user can change active address
+        if (!$user->canChangeActiveAddress()) {
             return redirect()->back()->with('error', 'Cannot change active address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
         }
 
@@ -340,8 +340,8 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
+        // Check if user can change active address
+        if (!$user->canChangeActiveAddress()) {
             return redirect()->back()->with('error', 'Cannot change default address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
         }
 
@@ -406,8 +406,8 @@ class AddressController extends Controller
         /** @var User $user */
         $user = Auth::user();
         
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
+        // Check if user can change active address
+        if (!$user->canChangeActiveAddress()) {
             return redirect()->back()->with('error', 'Cannot modify main address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
         }
         
