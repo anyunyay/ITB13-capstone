@@ -342,6 +342,21 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
             <p className="text-sm">
               <span className="font-medium">Email:</span> {order.customer.email}
             </p>
+            {(order.customer.address || order.customer.barangay || order.customer.city || order.customer.province) && (
+              <p className="text-sm">
+                <span className="font-medium">Address:</span> {[
+                  order.customer.address,
+                  order.customer.barangay,
+                  order.customer.city,
+                  order.customer.province
+                ].filter(Boolean).join(', ')}
+              </p>
+            )}
+            {order.customer.contact_number && (
+              <p className="text-sm">
+                <span className="font-medium">Contact:</span> {order.customer.contact_number}
+              </p>
+            )}
           </div>
           <div>
             <h4 className="font-semibold mb-2">Order Summary</h4>

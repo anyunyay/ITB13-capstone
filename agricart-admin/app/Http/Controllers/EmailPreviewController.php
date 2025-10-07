@@ -42,7 +42,7 @@ class EmailPreviewController extends Controller
         
         if ($orderId) {
             // Try to get real order data
-            $order = \App\Models\Sales::with(['customer', 'admin', 'auditTrail.product'])
+            $order = \App\Models\Sales::with(['customer.defaultAddress', 'admin', 'auditTrail.product'])
                 ->find($orderId);
             
             if ($order) {
@@ -67,7 +67,7 @@ class EmailPreviewController extends Controller
         
         if ($orderId) {
             // Try to get real order data
-            $order = \App\Models\Sales::with(['customer', 'admin', 'auditTrail.product'])
+            $order = \App\Models\Sales::with(['customer.defaultAddress', 'admin', 'auditTrail.product'])
                 ->find($orderId);
             
             if ($order) {

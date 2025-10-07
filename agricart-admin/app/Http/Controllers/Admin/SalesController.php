@@ -13,7 +13,7 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sales::with(['customer', 'admin', 'logistic'])
+        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic'])
             ->where('status', 'approved');
 
         // Filter by date range if provided
@@ -57,7 +57,7 @@ class SalesController extends Controller
 
     public function generateReport(Request $request)
     {
-        $query = Sales::with(['customer', 'admin', 'logistic'])
+        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic'])
             ->where('status', 'approved');
 
         // Filter by date range if provided

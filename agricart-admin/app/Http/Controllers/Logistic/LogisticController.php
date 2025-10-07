@@ -132,7 +132,7 @@ class LogisticController extends Controller
             abort(403, 'You are not authorized to view this order.');
         }
 
-        $order->load(['customer', 'auditTrail.product', 'auditTrail.stock']);
+        $order->load(['customer.defaultAddress', 'auditTrail.product', 'auditTrail.stock']);
 
         // Transform the order data to include product price information
         $transformedOrder = [
@@ -141,10 +141,10 @@ class LogisticController extends Controller
                 'name' => $order->customer->name,
                 'email' => $order->customer->email,
                 'contact_number' => $order->customer->contact_number,
-                'address' => $order->customer->address,
-                'barangay' => $order->customer->barangay,
-                'city' => $order->customer->city,
-                'province' => $order->customer->province,
+                'address' => $order->customer->defaultAddress?->street,
+                'barangay' => $order->customer->defaultAddress?->barangay,
+                'city' => $order->customer->defaultAddress?->city,
+                'province' => $order->customer->defaultAddress?->province,
             ],
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,

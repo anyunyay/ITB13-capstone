@@ -232,28 +232,17 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                       <p className="text-sm">{order.customer.contact_number}</p>
                     </div>
                   )}
-                  {order.customer.address && (
-                    <div>
+                  {(order.customer.address || order.customer.barangay || order.customer.city || order.customer.province) && (
+                    <div className="md:col-span-2">
                       <p className="text-sm font-medium text-gray-500">Address</p>
-                      <p className="text-sm">{order.customer.address}</p>
-                    </div>
-                  )}
-                  {order.customer.barangay && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Barangay</p>
-                      <p className="text-sm">{order.customer.barangay}</p>
-                    </div>
-                  )}
-                  {order.customer.city && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">City</p>
-                      <p className="text-sm">{order.customer.city}</p>
-                    </div>
-                  )}
-                  {order.customer.province && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Province</p>
-                      <p className="text-sm">{order.customer.province}</p>
+                      <p className="text-sm">
+                        {[
+                          order.customer.address,
+                          order.customer.barangay,
+                          order.customer.city,
+                          order.customer.province
+                        ].filter(Boolean).join(', ')}
+                      </p>
                     </div>
                   )}
                 </div>

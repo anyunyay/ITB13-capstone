@@ -27,7 +27,7 @@ class OrderController extends Controller
         $showUrgentApproval = $request->get('urgent_approval', false);
         
         // Get all orders for tab counts
-        $allOrders = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product'])
+        $allOrders = Sales::with(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->values(); // Convert to array
@@ -47,7 +47,44 @@ class OrderController extends Controller
                 }
             }
             
-            return $order;
+            // Transform the order data to include customer address information
+            return [
+                'id' => $order->id,
+                'customer' => [
+                    'name' => $order->customer->name,
+                    'email' => $order->customer->email,
+                    'contact_number' => $order->customer->contact_number,
+                    'address' => $order->customer->defaultAddress?->street,
+                    'barangay' => $order->customer->defaultAddress?->barangay,
+                    'city' => $order->customer->defaultAddress?->city,
+                    'province' => $order->customer->defaultAddress?->province,
+                ],
+                'total_amount' => $order->total_amount,
+                'status' => $order->status,
+                'delivery_status' => $order->delivery_status,
+                'created_at' => $order->created_at->toISOString(),
+                'admin' => $order->admin ? [
+                    'name' => $order->admin->name,
+                ] : null,
+                'admin_notes' => $order->admin_notes,
+                'logistic' => $order->logistic ? [
+                    'id' => $order->logistic->id,
+                    'name' => $order->logistic->name,
+                    'contact_number' => $order->logistic->contact_number,
+                ] : null,
+                'audit_trail' => $order->auditTrail->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product' => [
+                            'id' => $item->product->id,
+                            'name' => $item->product->name,
+                        ],
+                        'category' => $item->category,
+                        'quantity' => $item->quantity,
+                    ];
+                }),
+                'is_urgent' => $order->is_urgent,
+            ];
         });
         
         // Filter orders by status if needed
@@ -62,17 +99,17 @@ class OrderController extends Controller
 
         // Calculate orders that need urgent approval (within 8 hours of 24-hour limit OR manually marked as urgent)
         $urgentOrders = $processedOrders->filter(function ($order) {
-            if ($order->status !== 'pending') return false;
+            if ($order['status'] !== 'pending') return false;
             // Check if manually marked as urgent
-            if ($order->is_urgent) return true;
+            if ($order['is_urgent']) return true;
             // Check if within 8 hours of 24-hour limit
-            $orderAge = $order->created_at->diffInHours(now());
+            $orderAge = \Carbon\Carbon::parse($order['created_at'])->diffInHours(now());
             return $orderAge >= 16; // 16+ hours old (8 hours left)
         })->values(); // Convert to array
         
         return Inertia::render('Admin/Orders/index', [
             'orders' => $orders,
-            'allOrders' => $allOrders,
+            'allOrders' => $processedOrders,
             'currentStatus' => $status,
             'logistics' => $logistics,
             'highlightOrderId' => $highlightOrderId,
@@ -83,7 +120,7 @@ class OrderController extends Controller
 
     public function show(Request $request, Sales $order)
     {
-        $order->load(['customer', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
+        $order->load(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
         
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
@@ -108,8 +145,54 @@ class OrderController extends Controller
         $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)
         $canApprove = in_array($order->status, ['pending', 'delayed']);
         
+        // Transform the order data to include customer address information
+        $transformedOrder = [
+            'id' => $order->id,
+            'customer' => [
+                'name' => $order->customer->name,
+                'email' => $order->customer->email,
+                'contact_number' => $order->customer->contact_number,
+                'address' => $order->customer->defaultAddress?->street,
+                'barangay' => $order->customer->defaultAddress?->barangay,
+                'city' => $order->customer->defaultAddress?->city,
+                'province' => $order->customer->defaultAddress?->province,
+            ],
+            'total_amount' => $order->total_amount,
+            'status' => $order->status,
+            'delivery_status' => $order->delivery_status,
+            'created_at' => $order->created_at->toISOString(),
+            'admin' => $order->admin ? [
+                'name' => $order->admin->name,
+            ] : null,
+            'admin_notes' => $order->admin_notes,
+            'logistic' => $order->logistic ? [
+                'id' => $order->logistic->id,
+                'name' => $order->logistic->name,
+                'contact_number' => $order->logistic->contact_number,
+            ] : null,
+            'audit_trail' => $order->auditTrail->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'price_kilo' => $item->product->price_kilo,
+                        'price_pc' => $item->product->price_pc,
+                        'price_tali' => $item->product->price_tali,
+                    ],
+                    'category' => $item->category,
+                    'quantity' => $item->quantity,
+                    'stock' => $item->stock ? [
+                        'id' => $item->stock->id,
+                        'quantity' => $item->stock->quantity,
+                    ] : null,
+                ];
+            }),
+            'is_urgent' => $order->is_urgent,
+        ];
+
         return Inertia::render('Admin/Orders/show', [
-            'order' => $order,
+            'order' => $transformedOrder,
             'logistics' => $logistics,
             'highlight' => $highlight,
             'isUrgent' => $isUrgent,
@@ -120,7 +203,7 @@ class OrderController extends Controller
 
     public function receiptPreview(Sales $order)
     {
-        $order->load(['customer', 'admin', 'auditTrail.product']);
+        $order->load(['customer.defaultAddress', 'admin', 'auditTrail.product']);
         
         return Inertia::render('Admin/Orders/receipt-preview', [
             'order' => $order,
@@ -318,7 +401,7 @@ class OrderController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product']);
+        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product']);
 
         // Filter by date range
         if ($startDate) {

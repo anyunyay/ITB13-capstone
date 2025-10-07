@@ -264,7 +264,7 @@ class DashboardController extends Controller
     private function getRecentActivity()
     {
         // Recent orders
-        $recentOrders = Sales::with(['customer', 'admin'])
+        $recentOrders = Sales::with(['customer.defaultAddress', 'admin'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -336,7 +336,7 @@ class DashboardController extends Controller
 
     private function getPendingOrders()
     {
-        return Sales::with(['customer', 'auditTrail.product'])
+        return Sales::with(['customer.defaultAddress', 'auditTrail.product'])
             ->where('status', 'pending')
             ->orderBy('created_at', 'asc')
             ->limit(5)
