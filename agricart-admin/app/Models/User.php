@@ -253,6 +253,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the appearance settings for this user.
+     */
+    public function appearanceSettings()
+    {
+        return $this->hasOne(AppearanceSettings::class);
+    }
+
+    /**
      * Check if the current session is still valid (exists in sessions table)
      */
     public function isSessionValid()

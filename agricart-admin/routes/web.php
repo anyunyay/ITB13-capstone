@@ -21,6 +21,7 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\AddressController;
+use App\Http\Controllers\Customer\AppearanceController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\SingleSessionController;
 use App\Http\Controllers\EmailPreviewController;
@@ -231,7 +232,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
-        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
+        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('customer.profile.appearance');
+        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('customer.profile.appearance.update');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('customer.profile.logout.page');
         

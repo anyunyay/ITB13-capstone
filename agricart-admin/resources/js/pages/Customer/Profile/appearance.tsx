@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { useForm, usePage } from '@inertiajs/react';
 import { Palette, Sun, Moon, Monitor, Globe, Settings } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import { t, Language } from '@/lib/translations';
 
 interface PageProps {
     user: {
@@ -27,6 +28,7 @@ interface PageProps {
 export default function AppearancePage() {
     const { user } = usePage<PageProps>().props;
     const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
+    const currentLanguage = (user?.language || 'en') as Language;
 
     const { data, setData, patch, processing, errors } = useForm({
         theme: user?.theme || 'system',
@@ -75,46 +77,42 @@ export default function AppearancePage() {
     const handleSave = () => {
         patch('/customer/profile/appearance', {
             onSuccess: () => {
-                alert('Appearance settings saved successfully!');
+                alert(t(currentLanguage, 'appearance.messages.success'));
             },
             onError: () => {
-                alert('Failed to save appearance settings. Please try again.');
+                alert(t(currentLanguage, 'appearance.messages.error'));
             },
         });
     };
 
     const languages = [
-        { code: 'en', name: 'English', flag: '🇺🇸' },
-        { code: 'fil', name: 'Filipino', flag: '🇵🇭' },
-        { code: 'es', name: 'Spanish', flag: '🇪🇸' },
-        { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-        { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-        { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+        { code: 'en', name: t(currentLanguage, 'appearance.language.english'), flag: '🇺🇸' },
+        { code: 'fil', name: t(currentLanguage, 'appearance.language.tagalog'), flag: '🇵🇭' },
     ];
 
     return (
         <AppHeaderLayout breadcrumbs={[
-            { label: 'Appearance Settings', href: '/customer/profile/appearance' }
+            { label: t(currentLanguage, 'appearance.title'), href: '/customer/profile/appearance' }
         ]}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Appearance Settings</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">{t(currentLanguage, 'appearance.title')}</h2>
                 </div>
 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Palette className="h-5 w-5" />
-                        Theme & Display
+                        {t(currentLanguage, 'appearance.theme.title')}
                     </CardTitle>
                     <CardDescription>
-                        Customize the appearance of your interface
+                        {t(currentLanguage, 'appearance.theme.description')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Theme Preference</Label>
+                            <Label>{t(currentLanguage, 'appearance.theme.preference')}</Label>
                             <div className="grid grid-cols-3 gap-3">
                                 <Button
                                     variant={data.theme === 'light' ? 'default' : 'outline'}
@@ -122,7 +120,7 @@ export default function AppearancePage() {
                                     className="flex flex-col items-center gap-2 h-auto py-4"
                                 >
                                     <Sun className="h-5 w-5" />
-                                    <span className="text-sm">Light</span>
+                                    <span className="text-sm">{t(currentLanguage, 'appearance.theme.light')}</span>
                                 </Button>
                                 <Button
                                     variant={data.theme === 'dark' ? 'default' : 'outline'}
@@ -130,7 +128,7 @@ export default function AppearancePage() {
                                     className="flex flex-col items-center gap-2 h-auto py-4"
                                 >
                                     <Moon className="h-5 w-5" />
-                                    <span className="text-sm">Dark</span>
+                                    <span className="text-sm">{t(currentLanguage, 'appearance.theme.dark')}</span>
                                 </Button>
                                 <Button
                                     variant={data.theme === 'system' ? 'default' : 'outline'}
@@ -138,12 +136,12 @@ export default function AppearancePage() {
                                     className="flex flex-col items-center gap-2 h-auto py-4"
                                 >
                                     <Monitor className="h-5 w-5" />
-                                    <span className="text-sm">System</span>
+                                    <span className="text-sm">{t(currentLanguage, 'appearance.theme.system')}</span>
                                 </Button>
                             </div>
                             {data.theme === 'system' && (
                                 <p className="text-sm text-gray-500">
-                                    Currently using {systemTheme} theme based on your system preference
+                                    {t(currentLanguage, 'appearance.theme.systemDescription', { theme: systemTheme })}
                                 </p>
                             )}
                         </div>
@@ -151,7 +149,7 @@ export default function AppearancePage() {
                         <Separator />
 
                         <div className="space-y-2">
-                            <Label htmlFor="language">Language</Label>
+                            <Label htmlFor="language">{t(currentLanguage, 'appearance.language.title')}</Label>
                             <Select value={data.language} onValueChange={(value) => setData('language', value)}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -176,19 +174,19 @@ export default function AppearancePage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Settings className="h-5 w-5" />
-                        Notification Preferences
+                        {t(currentLanguage, 'appearance.notifications.title')}
                     </CardTitle>
                     <CardDescription>
-                        Choose how you want to receive notifications
+                        {t(currentLanguage, 'appearance.notifications.description')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <Label htmlFor="email-notifications">Email Notifications</Label>
+                                <Label htmlFor="email-notifications">{t(currentLanguage, 'appearance.notifications.email.title')}</Label>
                                 <p className="text-sm text-gray-500">
-                                    Receive order updates and promotions via email
+                                    {t(currentLanguage, 'appearance.notifications.email.description')}
                                 </p>
                             </div>
                             <Switch
@@ -202,9 +200,9 @@ export default function AppearancePage() {
 
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <Label htmlFor="push-notifications">Push Notifications</Label>
+                                <Label htmlFor="push-notifications">{t(currentLanguage, 'appearance.notifications.push.title')}</Label>
                                 <p className="text-sm text-gray-500">
-                                    Get instant notifications in your browser
+                                    {t(currentLanguage, 'appearance.notifications.push.description')}
                                 </p>
                             </div>
                             <Switch
@@ -218,9 +216,9 @@ export default function AppearancePage() {
 
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <Label htmlFor="sms-notifications">SMS Notifications</Label>
+                                <Label htmlFor="sms-notifications">{t(currentLanguage, 'appearance.notifications.sms.title')}</Label>
                                 <p className="text-sm text-gray-500">
-                                    Receive important updates via text message
+                                    {t(currentLanguage, 'appearance.notifications.sms.description')}
                                 </p>
                             </div>
                             <Switch
@@ -235,7 +233,7 @@ export default function AppearancePage() {
 
             <div className="flex justify-end">
                 <Button onClick={handleSave} disabled={processing}>
-                    {processing ? 'Saving...' : 'Save Preferences'}
+                    {processing ? t(currentLanguage, 'appearance.actions.saving') : t(currentLanguage, 'appearance.actions.save')}
                 </Button>
             </div>
         </div>
