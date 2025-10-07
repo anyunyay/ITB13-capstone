@@ -95,7 +95,11 @@ class CartController extends Controller
             'error' => session('error'),
         ];
         
-        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal', 'addresses', 'activeAddress', 'flash'));
+        // Check if user has active orders
+        $hasActiveOrders = $user->hasActiveOrders();
+        $activeOrders = $hasActiveOrders ? $user->getActiveOrders() : collect();
+        
+        return Inertia::render('Customer/Cart/index', compact('cart', 'checkoutMessage', 'cartTotal', 'addresses', 'activeAddress', 'flash', 'hasActiveOrders', 'activeOrders'));
     }
 
     public function store(Request $request)

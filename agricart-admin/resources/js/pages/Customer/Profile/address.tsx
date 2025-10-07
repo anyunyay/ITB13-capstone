@@ -34,11 +34,18 @@ interface PageProps {
         error?: string;
     };
     autoOpenAddForm?: boolean;
+    hasActiveOrders?: boolean;
+    activeOrders?: Array<{
+        id: number;
+        status: string;
+        delivery_status: string;
+        created_at: string;
+    }>;
     [key: string]: any;
 }
 
 export default function AddressPage() {
-    const { user, addresses = [], flash, autoOpenAddForm = false } = usePage<PageProps>().props;
+    const { user, addresses = [], flash, autoOpenAddForm = false, hasActiveOrders = false, activeOrders = [] } = usePage<PageProps>().props;
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -257,7 +264,11 @@ export default function AddressPage() {
                             Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
                         </p>
                     </div>
-                    <Button onClick={handleAddNew} className="flex items-center gap-2">
+                    <Button 
+                        onClick={handleAddNew} 
+                        disabled={hasActiveOrders}
+                        className={`flex items-center gap-2 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
                         <PlusCircle className="h-4 w-4" />
                         Add New Address
                     </Button>
@@ -294,6 +305,35 @@ export default function AddressPage() {
                     </div>
                 )}
 
+                {/* Active Orders Warning */}
+                {hasActiveOrders && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <AlertCircle className="h-5 w-5 text-amber-400" />
+                            </div>
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-amber-800">
+                                    Address Changes Temporarily Restricted
+                                </h3>
+                                <div className="mt-2 text-sm text-amber-700">
+                                    <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent address modifications:</p>
+                                    <ul className="mt-2 list-disc list-inside space-y-1">
+                                        {activeOrders.map((order) => (
+                                            <li key={order.id}>
+                                                Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 'Out for Delivery'}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <p className="mt-2 font-medium">
+                                        Please wait until all orders are delivered before making address changes.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             <div className="space-y-6">
                 {/* Main Address from Registration */}
                 {(user.address || user.barangay || user.city || user.province) && (
@@ -321,7 +361,8 @@ export default function AddressPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
-                                            className="flex items-center gap-1"
+                                            disabled={hasActiveOrders}
+                                            className={`flex items-center gap-1 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <Edit className="h-3 w-3" />
                                             Edit
@@ -381,7 +422,8 @@ export default function AddressPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => handleEdit(addresses.find(addr => addr.is_active)!)}
-                                            className="flex items-center gap-1"
+                                            disabled={hasActiveOrders}
+                                            className={`flex items-center gap-1 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <Edit className="h-3 w-3" />
                                             Edit
@@ -399,7 +441,8 @@ export default function AddressPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
-                                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                                            disabled={hasActiveOrders}
+                                            className={`flex items-center gap-1 text-red-600 hover:text-red-700 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <Trash2 className="h-3 w-3" />
                                             Delete
@@ -442,7 +485,8 @@ export default function AddressPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() => handleEdit(address)}
-                                                            className="flex items-center gap-1"
+                                                            disabled={hasActiveOrders}
+                                                            className={`flex items-center gap-1 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                         >
                                                             <Edit className="h-3 w-3" />
                                                             Edit
@@ -451,7 +495,8 @@ export default function AddressPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() => handleSetActive(address.id)}
-                                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                                                            disabled={hasActiveOrders}
+                                                            className={`flex items-center gap-1 text-blue-600 hover:text-blue-700 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                         >
                                                             <CheckCircle className="h-3 w-3" />
                                                             Set as Active
@@ -460,7 +505,8 @@ export default function AddressPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() => handleDelete(address.id)}
-                                                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                                                            disabled={hasActiveOrders}
+                                                            className={`flex items-center gap-1 text-red-600 hover:text-red-700 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                         >
                                                             <Trash2 className="h-3 w-3" />
                                                             Delete

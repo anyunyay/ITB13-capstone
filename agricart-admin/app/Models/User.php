@@ -192,6 +192,33 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if the user has any active orders (Pending or Out for Delivery)
+     * Active orders prevent address changes
+     */
+    public function hasActiveOrders()
+    {
+        return $this->sales()
+            ->where(function ($query) {
+                $query->where('status', 'pending')
+                      ->orWhere('delivery_status', 'out_for_delivery');
+            })
+            ->exists();
+    }
+
+    /**
+     * Get active orders for the user
+     */
+    public function getActiveOrders()
+    {
+        return $this->sales()
+            ->where(function ($query) {
+                $query->where('status', 'pending')
+                      ->orWhere('delivery_status', 'out_for_delivery');
+            })
+            ->get();
+    }
+
+    /**
      * Ensure the user has the proper permissions for their type
      */
     public function ensurePermissions()
