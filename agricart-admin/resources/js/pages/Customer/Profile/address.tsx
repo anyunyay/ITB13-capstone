@@ -321,7 +321,9 @@ export default function AddressPage() {
                                     <ul className="mt-2 list-disc list-inside space-y-1">
                                         {activeOrders.map((order) => (
                                             <li key={order.id}>
-                                                Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 'Out for Delivery'}
+                                                Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 
+                                                    order.delivery_status === 'out_for_delivery' ? 'Out for Delivery' : 
+                                                    order.delivery_status === 'pending' ? 'Approved (Pending Delivery)' : 'Approved'}
                                             </li>
                                         ))}
                                     </ul>

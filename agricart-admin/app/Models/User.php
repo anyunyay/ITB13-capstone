@@ -200,7 +200,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->sales()
             ->where(function ($query) {
                 $query->where('status', 'pending')
-                      ->orWhere('delivery_status', 'out_for_delivery');
+                      ->orWhere(function ($subQuery) {
+                          $subQuery->where('status', 'approved')
+                                   ->where(function ($deliveryQuery) {
+                                       $deliveryQuery->whereNull('delivery_status')
+                                                     ->orWhere('delivery_status', 'pending')
+                                                     ->orWhere('delivery_status', 'out_for_delivery');
+                                   });
+                      });
             })
             ->exists();
     }
@@ -213,7 +220,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->sales()
             ->where(function ($query) {
                 $query->where('status', 'pending')
-                      ->orWhere('delivery_status', 'out_for_delivery');
+                      ->orWhere(function ($subQuery) {
+                          $subQuery->where('status', 'approved')
+                                   ->where(function ($deliveryQuery) {
+                                       $deliveryQuery->whereNull('delivery_status')
+                                                     ->orWhere('delivery_status', 'pending')
+                                                     ->orWhere('delivery_status', 'out_for_delivery');
+                                   });
+                      });
             })
             ->get();
     }
