@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useForm, usePage } from '@inertiajs/react';
-import { HelpCircle, Mail, Phone, MessageCircle, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 
 interface FAQ {
@@ -84,13 +81,6 @@ export default function HelpPage() {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: user?.name || '',
-        email: user?.email || '',
-        subject: '',
-        message: '',
-        priority: 'medium',
-    });
 
     const filteredFaqs = faqs.filter(faq => {
         const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,18 +89,6 @@ export default function HelpPage() {
         return matchesSearch && matchesCategory;
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/customer/profile/help/contact', {
-            onSuccess: () => {
-                alert('Your message has been sent! We\'ll get back to you within 24 hours.');
-                reset();
-            },
-            onError: () => {
-                alert('Failed to send message. Please try again.');
-            },
-        });
-    };
 
     const toggleExpanded = (itemId: number) => {
         setExpandedItems(prev => 
@@ -203,95 +181,6 @@ export default function HelpPage() {
                 </CardContent>
             </Card>
 
-            {/* Contact Support Section */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <MessageCircle className="h-5 w-5" />
-                        Contact Support
-                    </CardTitle>
-                    <CardDescription>
-                        Can't find what you're looking for? Send us a message and we'll help you out.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="Your full name"
-                                    required
-                                />
-                                {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="your.email@example.com"
-                                    required
-                                />
-                                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="subject">Subject</Label>
-                                <Input
-                                    id="subject"
-                                    value={data.subject}
-                                    onChange={(e) => setData('subject', e.target.value)}
-                                    placeholder="Brief description of your issue"
-                                    required
-                                />
-                                {errors.subject && <p className="text-sm text-red-500">{errors.subject}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="priority">Priority</Label>
-                                <Select value={data.priority} onValueChange={(value) => setData('priority', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="low">Low</SelectItem>
-                                        <SelectItem value="medium">Medium</SelectItem>
-                                        <SelectItem value="high">High</SelectItem>
-                                        <SelectItem value="urgent">Urgent</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {errors.priority && <p className="text-sm text-red-500">{errors.priority}</p>}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="message">Message</Label>
-                            <Textarea
-                                id="message"
-                                value={data.message}
-                                onChange={(e) => setData('message', e.target.value)}
-                                placeholder="Please describe your issue in detail..."
-                                rows={4}
-                                required
-                            />
-                            {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
-                        </div>
-
-                        <div className="flex justify-end">
-                            <Button type="submit" disabled={processing}>
-                                {processing ? 'Sending...' : 'Send Message'}
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
 
             {/* Contact Information */}
             <Card>
@@ -302,7 +191,7 @@ export default function HelpPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-center gap-3 p-4 border rounded-lg">
                             <Mail className="h-5 w-5 text-blue-600" />
                             <div>
@@ -315,13 +204,6 @@ export default function HelpPage() {
                             <div>
                                 <p className="font-medium">Phone Support</p>
                                 <p className="text-sm text-gray-600">(02) 1234-5678</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 border rounded-lg">
-                            <MessageCircle className="h-5 w-5 text-purple-600" />
-                            <div>
-                                <p className="font-medium">Live Chat</p>
-                                <p className="text-sm text-gray-600">Available 9AM-6PM</p>
                             </div>
                         </div>
                     </div>

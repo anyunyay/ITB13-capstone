@@ -189,12 +189,4 @@ class ProfileController extends Controller
     }
 
 
-    /**
-     * Send a help/support message.
-     */
-    public function sendHelpMessage(Request $request)
-    {
-        // TODO: Implement help message functionality
-        return redirect()->back()->with('info', 'Help message functionality coming soon.');
-    }
 }

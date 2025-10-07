@@ -218,8 +218,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::put('/profile/main-address', [AddressController::class, 'updateMainAddressFields'])->name('customer.profile.main-address.update');
         Route::get('/profile/current-address', [AddressController::class, 'getCurrentAddress'])->name('customer.profile.currentAddress');
         
-        // Help/Support routes
-        Route::post('/profile/help/contact', [ProfileController::class, 'sendHelpMessage'])->name('customer.profile.help.contact');
         
         // Email Change routes
         Route::get('/profile/email-change', [\App\Http\Controllers\Customer\EmailChangeController::class, 'show'])->name('customer.profile.email-change.show');
