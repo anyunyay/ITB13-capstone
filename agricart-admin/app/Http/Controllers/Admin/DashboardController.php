@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Stock;
@@ -74,35 +75,35 @@ class DashboardController extends Controller
     private function getOrdersStatistics($today, $thisWeek, $thisMonth, $lastMonth, $lastMonthEnd)
     {
         // Today's orders
-        $todayOrders = Sales::whereDate('created_at', $today)->count();
-        $todayRevenue = Sales::whereDate('created_at', $today)->sum('total_amount');
+        $todayOrders = SalesAudit::whereDate('created_at', $today)->count();
+        $todayRevenue = SalesAudit::whereDate('created_at', $today)->sum('total_amount');
         
         // This week's orders
-        $weekOrders = Sales::where('created_at', '>=', $thisWeek)->count();
-        $weekRevenue = Sales::where('created_at', '>=', $thisWeek)->sum('total_amount');
+        $weekOrders = SalesAudit::where('created_at', '>=', $thisWeek)->count();
+        $weekRevenue = SalesAudit::where('created_at', '>=', $thisWeek)->sum('total_amount');
         
         // This month's orders
-        $monthOrders = Sales::where('created_at', '>=', $thisMonth)->count();
-        $monthRevenue = Sales::where('created_at', '>=', $thisMonth)->sum('total_amount');
+        $monthOrders = SalesAudit::where('created_at', '>=', $thisMonth)->count();
+        $monthRevenue = SalesAudit::where('created_at', '>=', $thisMonth)->sum('total_amount');
         
         // Last month's orders for comparison
-        $lastMonthOrders = Sales::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->count();
-        $lastMonthRevenue = Sales::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->sum('total_amount');
+        $lastMonthOrders = SalesAudit::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->count();
+        $lastMonthRevenue = SalesAudit::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->sum('total_amount');
         
         // Order status breakdown
-        $orderStatusBreakdown = Sales::select('status', DB::raw('count(*) as count'))
+        $orderStatusBreakdown = SalesAudit::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->get()
             ->pluck('count', 'status');
         
         // Delivery status breakdown
-        $deliveryStatusBreakdown = Sales::select('delivery_status', DB::raw('count(*) as count'))
+        $deliveryStatusBreakdown = SalesAudit::select('delivery_status', DB::raw('count(*) as count'))
             ->groupBy('delivery_status')
             ->get()
             ->pluck('count', 'delivery_status');
         
         // Urgent orders
-        $urgentOrders = Sales::where('status', 'pending')
+        $urgentOrders = SalesAudit::where('status', 'pending')
             ->where(function($query) {
                 $query->where('is_urgent', true)
                       ->orWhere('created_at', '<=', now()->subHours(16));
@@ -110,7 +111,7 @@ class DashboardController extends Controller
             ->count();
         
         // Delayed orders
-        $delayedOrders = Sales::where('status', 'delayed')->count();
+        $delayedOrders = SalesAudit::where('status', 'delayed')->count();
 
         return [
             'today' => [
@@ -140,15 +141,19 @@ class DashboardController extends Controller
 
     private function getSalesStatistics($today, $thisWeek, $thisMonth, $lastMonth, $lastMonthEnd)
     {
-        // Total sales
-        $totalSales = Sales::sum('total_amount');
-        $totalOrders = Sales::count();
+        // Total sales (all orders)
+        $totalSales = SalesAudit::sum('total_amount');
+        $totalOrders = SalesAudit::count();
+        
+        // Delivered sales (completed orders)
+        $deliveredSales = Sales::sum('total_amount');
+        $deliveredOrders = Sales::count();
         
         // Average order value
         $avgOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;
         
         // Sales by day (last 30 days)
-        $salesByDay = Sales::select(
+        $salesByDay = SalesAudit::select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as orders'),
                 DB::raw('SUM(total_amount) as revenue')
@@ -160,14 +165,14 @@ class DashboardController extends Controller
         
         // Sales by product category
         $salesByCategory = DB::table('audit_trails')
-            ->join('sales', 'audit_trails.sale_id', '=', 'sales.id')
+            ->join('sales_audit', 'audit_trails.sale_id', '=', 'sales_audit.id')
             ->select(
                 'audit_trails.category',
                 DB::raw('COUNT(*) as orders'),
                 DB::raw('SUM(audit_trails.quantity) as quantity'),
-                DB::raw('SUM(sales.total_amount) as revenue')
+                DB::raw('SUM(sales_audit.total_amount) as revenue')
             )
-            ->where('sales.created_at', '>=', $thisMonth)
+            ->where('sales_audit.created_at', '>=', $thisMonth)
             ->groupBy('audit_trails.category')
             ->get();
 
@@ -264,7 +269,7 @@ class DashboardController extends Controller
     private function getRecentActivity()
     {
         // Recent orders
-        $recentOrders = Sales::with(['customer.defaultAddress', 'admin'])
+        $recentOrders = SalesAudit::with(['customer.defaultAddress', 'admin'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -336,7 +341,7 @@ class DashboardController extends Controller
 
     private function getPendingOrders()
     {
-        return Sales::with(['customer.defaultAddress', 'auditTrail.product'])
+        return SalesAudit::with(['customer.defaultAddress', 'auditTrail.product'])
             ->where('status', 'pending')
             ->orderBy('created_at', 'asc')
             ->limit(5)

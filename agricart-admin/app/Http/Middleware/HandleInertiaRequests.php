@@ -120,7 +120,7 @@ class HandleInertiaRequests extends Middleware
 
             // Share urgent orders for admin/staff users
             if (in_array($user->type, ['admin', 'staff'])) {
-                $urgentOrders = \App\Models\Sales::with(['customer', 'admin', 'logistic', 'auditTrail.product'])
+                $urgentOrders = \App\Models\SalesAudit::with(['customer', 'admin', 'logistic', 'auditTrail.product'])
                     ->where('status', 'pending')
                     ->get()
                     ->filter(function ($order) {

@@ -32,10 +32,6 @@ interface Order {
     name: string;
     email: string;
     contact_number?: string;
-    address?: string;
-    barangay?: string;
-    city?: string;
-    province?: string;
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
@@ -237,19 +233,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                     <div>
                       <p className="text-sm font-medium text-gray-500">Contact Number</p>
                       <p className="text-sm">{order.customer.contact_number}</p>
-                    </div>
-                  )}
-                  {(order.customer.address || order.customer.barangay || order.customer.city || order.customer.province) && (
-                    <div className="md:col-span-2">
-                      <p className="text-sm font-medium text-gray-500">Address</p>
-                      <p className="text-sm">
-                        {[
-                          order.customer.address,
-                          order.customer.barangay,
-                          order.customer.city,
-                          order.customer.province
-                        ].filter(Boolean).join(', ')}
-                      </p>
                     </div>
                   )}
                   {order.delivery_address && (

@@ -13,11 +13,8 @@ interface Order {
     name: string;
     email: string;
     contact_number?: string;
-    address?: string;
-    barangay?: string;
-    city?: string;
-    province?: string;
   };
+  delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
@@ -211,28 +208,10 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   <p className="text-sm text-white">{currentOrder.customer.contact_number}</p>
                 </div>
               )}
-              {currentOrder.customer.address && (
+              {currentOrder.delivery_address && (
                 <div>
-                  <p className="text-sm font-medium text-gray-400">Address</p>
-                  <p className="text-sm text-white">{currentOrder.customer.address}</p>
-                </div>
-              )}
-              {currentOrder.customer.barangay && (
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Barangay</p>
-                  <p className="text-sm text-white">{currentOrder.customer.barangay}</p>
-                </div>
-              )}
-              {currentOrder.customer.city && (
-                <div>
-                  <p className="text-sm font-medium text-gray-400">City</p>
-                  <p className="text-sm text-white">{currentOrder.customer.city}</p>
-                </div>
-              )}
-              {currentOrder.customer.province && (
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Province</p>
-                  <p className="text-sm text-white">{currentOrder.customer.province}</p>
+                  <p className="text-sm font-medium text-gray-400">Delivery Address</p>
+                  <p className="text-sm text-white">{currentOrder.delivery_address}</p>
                 </div>
               )}
             </CardContent>

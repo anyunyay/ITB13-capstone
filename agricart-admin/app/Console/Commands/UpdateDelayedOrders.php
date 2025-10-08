@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Notifications\OrderDelayedNotification;
 
 class UpdateDelayedOrders extends Command
@@ -30,7 +30,7 @@ class UpdateDelayedOrders extends Command
         $this->info('Checking for delayed orders...');
 
         // Find orders that are over 24 hours old and still pending
-        $delayedOrders = Sales::where('status', 'pending')
+        $delayedOrders = SalesAudit::where('status', 'pending')
             ->where('created_at', '<', now()->subHours(24))
             ->with('customer')
             ->get();

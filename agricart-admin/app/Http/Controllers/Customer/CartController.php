@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Stock;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Models\AuditTrail;
 use App\Models\UserAddress;
 use App\Notifications\OrderConfirmationNotification;
@@ -208,8 +209,8 @@ class CartController extends Controller
         }
 
         try {
-            // Create a new sale record with address reference
-            $sale = Sales::create([
+            // Create a new sales audit record with address reference
+            $sale = SalesAudit::create([
                 'customer_id' => $user->id,
                 'status' => 'pending',
                 'address_id' => $deliveryAddress->id,

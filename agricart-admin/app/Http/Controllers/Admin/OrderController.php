@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
@@ -27,7 +28,7 @@ class OrderController extends Controller
         $showUrgentApproval = $request->get('urgent_approval', false);
         
         // Get all orders for tab counts
-        $allOrders = Sales::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product'])
+        $allOrders = SalesAudit::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->values(); // Convert to array
@@ -125,7 +126,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Request $request, Sales $order)
+    public function show(Request $request, SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
         
@@ -159,12 +160,12 @@ class OrderController extends Controller
                 'name' => $order->customer->name,
                 'email' => $order->customer->email,
                 'contact_number' => $order->customer->contact_number,
-                'address' => $order->customer->defaultAddress?->street,
-                'barangay' => $order->customer->defaultAddress?->barangay,
-                'city' => $order->customer->defaultAddress?->city,
-                'province' => $order->customer->defaultAddress?->province,
             ],
-            'delivery_address' => $order->address ? $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : null,
+            'delivery_address' => $order->address ? 
+                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                ($order->customer->defaultAddress ? 
+                    $order->customer->defaultAddress->street . ', ' . $order->customer->defaultAddress->barangay . ', ' . $order->customer->defaultAddress->city . ', ' . $order->customer->defaultAddress->province : 
+                    null),
             'order_address' => $order->address ? [
                 'street' => $order->address->street,
                 'barangay' => $order->address->barangay,
@@ -224,7 +225,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function assignLogistic(Request $request, Sales $order)
+    public function assignLogistic(Request $request, SalesAudit $order)
     {
         $request->validate([
             'logistic_id' => 'required|exists:users,id',
@@ -260,7 +261,7 @@ class OrderController extends Controller
             ->with('message', "Order assigned to {$logistic->name} successfully");
     }
 
-    public function approve(Request $request, Sales $order)
+    public function approve(Request $request, SalesAudit $order)
     {
         $request->validate([
             'admin_notes' => 'nullable|string|max:500',
@@ -321,7 +322,7 @@ class OrderController extends Controller
             ->with('message', 'Order approved successfully. Receipt email sent to customer. Please assign a logistic provider.');
     }
 
-    public function reject(Request $request, Sales $order)
+    public function reject(Request $request, SalesAudit $order)
     {
         $request->validate([
             'admin_notes' => 'required|string|max:500',
@@ -415,7 +416,7 @@ class OrderController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Sales::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product']);
+        $query = SalesAudit::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product']);
 
         // Filter by date range
         if ($startDate) {

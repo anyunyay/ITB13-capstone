@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Models\Sales;
+use App\Models\SalesAudit;
 
 class OrderReceipt extends Notification implements ShouldQueue
 {
@@ -14,7 +14,7 @@ class OrderReceipt extends Notification implements ShouldQueue
 
     public $order;
 
-    public function __construct(Sales $order)
+    public function __construct(SalesAudit $order)
     {
         $this->order = $order;
     }

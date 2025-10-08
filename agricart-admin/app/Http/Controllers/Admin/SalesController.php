@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +14,7 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic'])
+        $query = SalesAudit::with(['customer.defaultAddress', 'admin', 'logistic'])
             ->where('status', 'approved');
 
         // Filter by date range if provided
@@ -57,7 +58,7 @@ class SalesController extends Controller
 
     public function generateReport(Request $request)
     {
-        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic'])
+        $query = SalesAudit::with(['customer.defaultAddress', 'admin', 'logistic'])
             ->where('status', 'approved');
 
         // Filter by date range if provided
@@ -182,19 +183,19 @@ class SalesController extends Controller
 
     private function getMemberSales(Request $request)
     {
-        // Base query to get member sales data from sales and audit trails
-        $query = DB::table('sales')
-            ->join('audit_trails', 'sales.id', '=', 'audit_trails.sale_id')
+        // Base query to get member sales data from sales_audit and audit trails
+        $query = DB::table('sales_audit')
+            ->join('audit_trails', 'sales_audit.id', '=', 'audit_trails.sale_id')
             ->join('stocks', 'audit_trails.stock_id', '=', 'stocks.id')
             ->join('users as members', 'stocks.member_id', '=', 'members.id')
             ->join('products', 'audit_trails.product_id', '=', 'products.id')
-            ->where('sales.status', 'approved')
+            ->where('sales_audit.status', 'approved')
             ->where('members.type', 'member')
             ->select(
                 'members.id as member_id',
                 'members.name as member_name',
                 'members.email as member_email',
-                DB::raw('COUNT(DISTINCT sales.id) as total_orders'),
+                DB::raw('COUNT(DISTINCT sales_audit.id) as total_orders'),
                 DB::raw('SUM(
                     CASE 
                         WHEN audit_trails.category = "Kilo" AND products.price_kilo IS NOT NULL 
@@ -212,7 +213,7 @@ class SalesController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('sales.created_at', [
+            $query->whereBetween('sales_audit.created_at', [
                 $request->start_date . ' 00:00:00',
                 $request->end_date . ' 23:59:59'
             ]);

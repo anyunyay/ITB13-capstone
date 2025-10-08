@@ -12,11 +12,8 @@ interface Order {
     name: string;
     email: string;
     contact_number?: string;
-    address?: string;
-    barangay?: string;
-    city?: string;
-    province?: string;
   };
+  delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;

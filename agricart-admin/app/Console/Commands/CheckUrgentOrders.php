@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Sales;
+use App\Models\SalesAudit;
 
 class CheckUrgentOrders extends Command
 {
@@ -29,7 +29,7 @@ class CheckUrgentOrders extends Command
         $this->info('Checking urgent orders...');
         
         // Get all pending orders
-        $pendingOrders = Sales::where('status', 'pending')->get();
+        $pendingOrders = SalesAudit::where('status', 'pending')->get();
         $this->info("Total pending orders: {$pendingOrders->count()}");
         
         // Check urgent orders using the same logic as middleware

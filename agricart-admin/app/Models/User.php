@@ -99,6 +99,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Sales::class, 'customer_id');
     }
 
+    public function salesAudit()
+    {
+        return $this->hasMany(SalesAudit::class, 'customer_id');
+    }
+
     // Legacy method - kept for backward compatibility but now points to user_addresses
     public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -134,7 +139,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // Logistic relationships
     public function assignedOrders()
     {
-        return $this->hasMany(Sales::class, 'logistic_id');
+        return $this->hasMany(SalesAudit::class, 'logistic_id');
     }
 
     // Member earnings relationship

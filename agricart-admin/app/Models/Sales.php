@@ -12,18 +12,17 @@ class Sales extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
-        'status',
-        'delivery_status',
-        'address_id',
+        'delivery_address',
         'admin_id',
         'admin_notes',
         'logistic_id',
-        'is_urgent',
+        'sales_audit_id',
+        'delivered_at',
     ];
 
     protected $casts = [
         'total_amount' => 'float',
-        'is_urgent' => 'boolean',
+        'delivered_at' => 'datetime',
     ];
 
     public function customer()
@@ -46,40 +45,25 @@ class Sales extends Model
         return $this->hasMany(AuditTrail::class, 'sale_id'); 
     }
 
-    public function address()
+    public function salesAudit()
     {
-        return $this->belongsTo(UserAddress::class, 'address_id');
+        return $this->belongsTo(SalesAudit::class, 'sales_audit_id');
     }
 
-    // Scopes for filtering by status
-    public function scopePending($query)
+    // Scopes for filtering by delivery date
+    public function scopeDeliveredToday($query)
     {
-        return $query->where('status', 'pending');
+        return $query->whereDate('delivered_at', today());
     }
 
-    public function scopeApproved($query)
+    public function scopeDeliveredThisWeek($query)
     {
-        return $query->where('status', 'approved');
+        return $query->whereBetween('delivered_at', [now()->startOfWeek(), now()->endOfWeek()]);
     }
 
-    public function scopeRejected($query)
+    public function scopeDeliveredThisMonth($query)
     {
-        return $query->where('status', 'rejected');
-    }
-
-    // Scopes for filtering by delivery status
-    public function scopePendingDelivery($query)
-    {
-        return $query->where('delivery_status', 'pending');
-    }
-
-    public function scopeOutForDelivery($query)
-    {
-        return $query->where('delivery_status', 'out_for_delivery');
-    }
-
-    public function scopeDelivered($query)
-    {
-        return $query->where('delivery_status', 'delivered');
+        return $query->whereMonth('delivered_at', now()->month)
+                    ->whereYear('delivered_at', now()->year);
     }
 }

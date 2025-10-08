@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Logistic;
 use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Notifications\DeliveryStatusUpdate;
@@ -19,9 +20,9 @@ class LogisticController extends Controller
         $logistic = Auth::user();
         
         // Get assigned orders for this logistic
-        $assignedOrders = Sales::where('logistic_id', $logistic->id)
+        $assignedOrders = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->with(['customer', 'auditTrail.product'])
+            ->with(['customer', 'address', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($order) {
@@ -31,11 +32,10 @@ class LogisticController extends Controller
                         'name' => $order->customer->name,
                         'email' => $order->customer->email,
                         'contact_number' => $order->customer->contact_number,
-                        'address' => $order->customer->address,
-                        'barangay' => $order->customer->barangay,
-                        'city' => $order->customer->city,
-                        'province' => $order->customer->province,
                     ],
+                    'delivery_address' => $order->address ? 
+                        $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                        null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
                     'created_at' => $order->created_at->toISOString(),
@@ -77,9 +77,9 @@ class LogisticController extends Controller
         $logistic = Auth::user();
         $status = $request->get('status', 'all');
         
-        $query = Sales::where('logistic_id', $logistic->id)
+        $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->with(['customer', 'auditTrail.product']);
+            ->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by delivery status
         if ($status !== 'all') {
@@ -94,11 +94,10 @@ class LogisticController extends Controller
                         'name' => $order->customer->name,
                         'email' => $order->customer->email,
                         'contact_number' => $order->customer->contact_number,
-                        'address' => $order->customer->address,
-                        'barangay' => $order->customer->barangay,
-                        'city' => $order->customer->city,
-                        'province' => $order->customer->province,
                     ],
+                    'delivery_address' => $order->address ? 
+                        $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                        null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
                     'created_at' => $order->created_at->toISOString(),
@@ -125,14 +124,14 @@ class LogisticController extends Controller
         ]);
     }
 
-    public function showOrder(Sales $order)
+    public function showOrder(SalesAudit $order)
     {
         // Ensure the order is assigned to the current logistic
         if ($order->logistic_id !== Auth::id()) {
             abort(403, 'You are not authorized to view this order.');
         }
 
-        $order->load(['customer.defaultAddress', 'auditTrail.product', 'auditTrail.stock']);
+        $order->load(['customer', 'address', 'auditTrail.product', 'auditTrail.stock']);
 
         // Transform the order data to include product price information
         $transformedOrder = [
@@ -141,11 +140,10 @@ class LogisticController extends Controller
                 'name' => $order->customer->name,
                 'email' => $order->customer->email,
                 'contact_number' => $order->customer->contact_number,
-                'address' => $order->customer->defaultAddress?->street,
-                'barangay' => $order->customer->defaultAddress?->barangay,
-                'city' => $order->customer->defaultAddress?->city,
-                'province' => $order->customer->defaultAddress?->province,
             ],
+            'delivery_address' => $order->address ? 
+                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                null,
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,
             'created_at' => $order->created_at->toISOString(),
@@ -170,7 +168,7 @@ class LogisticController extends Controller
         ]);
     }
 
-    public function updateDeliveryStatus(Request $request, Sales $order)
+    public function updateDeliveryStatus(Request $request, SalesAudit $order)
     {
         // Ensure the order is assigned to the current logistic
         if ($order->logistic_id !== Auth::id()) {
@@ -192,6 +190,30 @@ class LogisticController extends Controller
         $order->update([
             'delivery_status' => $newStatus,
         ]);
+
+        // If status is set to 'delivered', create a Sales record
+        if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
+            // Get the delivery address as plain text
+            $deliveryAddress = null;
+            if ($order->address) {
+                $deliveryAddress = $order->address->street . ', ' . 
+                                 $order->address->barangay . ', ' . 
+                                 $order->address->city . ', ' . 
+                                 $order->address->province;
+            }
+
+            // Create a Sales record for the delivered order
+            Sales::create([
+                'customer_id' => $order->customer_id,
+                'total_amount' => $order->total_amount,
+                'delivery_address' => $deliveryAddress,
+                'admin_id' => $order->admin_id,
+                'admin_notes' => $order->admin_notes,
+                'logistic_id' => $order->logistic_id,
+                'sales_audit_id' => $order->id,
+                'delivered_at' => now(),
+            ]);
+        }
 
         // Log delivery status change
         if ($oldStatus !== $newStatus) {
@@ -242,9 +264,9 @@ class LogisticController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Sales::where('logistic_id', $logistic->id)
+        $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->with(['customer', 'auditTrail.product']);
+            ->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by date range
         if ($startDate) {

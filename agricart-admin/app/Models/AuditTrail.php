@@ -19,7 +19,7 @@ class AuditTrail extends Model
 
     public function sale()
     {
-        return $this->belongsTo(Sales::class, 'sale_id');
+        return $this->belongsTo(SalesAudit::class, 'sale_id');
     }
 
     public function stock()

@@ -5,13 +5,12 @@ namespace Database\Factories;
 use App\Models\Sales;
 use App\Models\SalesAudit;
 use App\Models\User;
-use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Sales>
  */
-class SalesFactory extends Factory
+class DeliveredSalesFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -34,4 +33,4 @@ class SalesFactory extends Factory
             'delivered_at' => $this->faker->dateTimeBetween('-30 days', 'now'),
         ];
     }
-} 
+}

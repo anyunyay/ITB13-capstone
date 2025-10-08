@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Stock;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -167,7 +168,7 @@ class MemberController extends Controller
     private function calculateSalesData($memberId)
     {
         // Get all approved sales that involve stocks from this member
-        $approvedSales = Sales::approved()
+        $approvedSales = SalesAudit::approved()
             ->with(['auditTrail.product', 'customer'])
             ->get();
 
@@ -264,7 +265,7 @@ class MemberController extends Controller
         );
 
         // Get all approved sales that involve stocks from this member
-        $query = Sales::approved()
+        $query = SalesAudit::approved()
             ->with(['auditTrail.product', 'customer'])
             ->whereHas('auditTrail', function($q) use ($user) {
                 $q->whereHas('stock', function($stockQuery) use ($user) {

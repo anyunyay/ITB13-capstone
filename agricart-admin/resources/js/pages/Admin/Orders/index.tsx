@@ -17,10 +17,6 @@ interface Order {
     name: string;
     email: string;
     contact_number?: string;
-    address?: string;
-    barangay?: string;
-    city?: string;
-    province?: string;
   };
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';
@@ -349,24 +345,14 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
             <p className="text-sm">
               <span className="font-medium">Email:</span> {order.customer.email}
             </p>
-            {(order.customer.address || order.customer.barangay || order.customer.city || order.customer.province) && (
+            {order.delivery_address && (
               <p className="text-sm">
-                <span className="font-medium">Address:</span> {[
-                  order.customer.address,
-                  order.customer.barangay,
-                  order.customer.city,
-                  order.customer.province
-                ].filter(Boolean).join(', ')}
+                <span className="font-medium">Delivery Address:</span> {order.delivery_address}
               </p>
             )}
             {order.customer.contact_number && (
               <p className="text-sm">
                 <span className="font-medium">Contact:</span> {order.customer.contact_number}
-              </p>
-            )}
-            {order.delivery_address && (
-              <p className="text-sm">
-                <span className="font-medium">Delivery Address:</span> {order.delivery_address}
               </p>
             )}
           </div>

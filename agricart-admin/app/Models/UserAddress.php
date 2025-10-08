@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserAddress extends Model
 {
+    use HasFactory;
     /**
      * The attributes that are mass assignable.
      *
@@ -56,11 +58,11 @@ class UserAddress extends Model
     }
 
     /**
-     * Get the sales that use this address.
+     * Get the sales audit records that use this address.
      */
-    public function sales(): HasMany
+    public function salesAudit(): HasMany
     {
-        return $this->hasMany(Sales::class, 'address_id');
+        return $this->hasMany(SalesAudit::class, 'address_id');
     }
 
     /**

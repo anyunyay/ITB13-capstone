@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Sales;
+use App\Models\SalesAudit;
 use Carbon\Carbon;
 
 class DebugTimeCalculations extends Command
@@ -29,7 +29,7 @@ class DebugTimeCalculations extends Command
     {
         $this->info('Debugging time calculations for pending orders...');
         
-        $pendingOrders = Sales::where('status', 'pending')->get();
+        $pendingOrders = SalesAudit::where('status', 'pending')->get();
         
         foreach ($pendingOrders as $order) {
             $createdAt = $order->created_at;

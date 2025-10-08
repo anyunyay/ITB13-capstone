@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Notifications\OrderStatusUpdate;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
@@ -28,7 +28,7 @@ class ExpireOldOrders extends Command
      */
     public function handle()
     {
-        $expiredOrders = Sales::where('status', 'pending')
+        $expiredOrders = SalesAudit::where('status', 'pending')
             ->where('created_at', '<', Carbon::now()->subHours(24))
             ->get();
 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Notifications\OrderStatusUpdate;
 
 class OrderController extends Controller
@@ -17,7 +18,7 @@ class OrderController extends Controller
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
 
-        $query = $user->sales()
+        $query = $user->salesAudit()
             ->with(['auditTrail.product', 'admin', 'logistic']);
 
         // Filter by delivery status (primary filter for tabs)
@@ -69,10 +70,10 @@ class OrderController extends Controller
             });
 
         // Get counts for delivery status tabs
-        $allOrders = $user->sales()->count();
-        $pendingDeliveryOrders = $user->sales()->where('delivery_status', 'pending')->count();
-        $outForDeliveryOrders = $user->sales()->where('delivery_status', 'out_for_delivery')->count();
-        $deliveredOrders = $user->sales()->where('delivery_status', 'delivered')->count();
+        $allOrders = $user->salesAudit()->count();
+        $pendingDeliveryOrders = $user->salesAudit()->where('delivery_status', 'pending')->count();
+        $outForDeliveryOrders = $user->salesAudit()->where('delivery_status', 'out_for_delivery')->count();
+        $deliveredOrders = $user->salesAudit()->where('delivery_status', 'delivered')->count();
 
         return Inertia::render('Customer/Order History/index', [
             'orders' => $orders,
@@ -97,7 +98,7 @@ class OrderController extends Controller
         $deliveryStatus = $request->get('delivery_status', 'all');
         $format = $request->get('format', 'view'); // view, csv, pdf
 
-        $query = $user->sales()->with(['auditTrail.product', 'admin', 'logistic']);
+        $query = $user->salesAudit()->with(['auditTrail.product', 'admin', 'logistic']);
 
         // Filter by date range
         if ($startDate) {

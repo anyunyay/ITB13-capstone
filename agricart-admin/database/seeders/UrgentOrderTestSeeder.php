@@ -5,7 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Models\Product;
 use App\Models\Stock;
 use App\Models\AuditTrail;
@@ -26,6 +28,14 @@ class UrgentOrderTestSeeder extends Seeder
             return;
         }
 
+        // Find the customer's default address
+        $defaultAddress = UserAddress::where('user_id', $customer->id)->where('is_active', true)->first();
+        
+        if (!$defaultAddress) {
+            $this->command->error('Customer does not have a default address. Please create an address first.');
+            return;
+        }
+
         // Find some products to use for orders
         $products = Product::with('stocks')->take(5)->get();
         
@@ -40,31 +50,31 @@ class UrgentOrderTestSeeder extends Seeder
         // Create orders with different ages to test the logic
         
         // 1. DELAYED ORDER (25 hours old - should be delayed)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(25), 'Delayed Order (25hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(25), 'Delayed Order (25hrs old)');
         
         // 2. DELAYED ORDER (30 hours old - should be delayed)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(30), 'Very Delayed Order (30hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(30), 'Very Delayed Order (30hrs old)');
         
         // 3. URGENT ORDER (22 hours old - 2 hours left - should be urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(22), 'Critical Urgent Order (2hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(22), 'Critical Urgent Order (2hrs left)');
         
         // 4. URGENT ORDER (20 hours old - 4 hours left - should be urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(20), 'High Urgent Order (4hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(20), 'High Urgent Order (4hrs left)');
         
         // 5. URGENT ORDER (18 hours old - 6 hours left - should be urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(18), 'Medium Urgent Order (6hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(18), 'Medium Urgent Order (6hrs left)');
         
         // 6. URGENT ORDER (16 hours old - 8 hours left - should be urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(16), 'Just Urgent Order (8hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(16), 'Just Urgent Order (8hrs left)');
         
         // 7. RECENT ORDER (10 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(10), 'Recent Order (10hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(10), 'Recent Order (10hrs old)');
         
         // 8. RECENT ORDER (5 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(5), 'Fresh Order (5hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(5), 'Fresh Order (5hrs old)');
         
         // 9. RECENT ORDER (2 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $products, Carbon::now()->subHours(2), 'Very Fresh Order (2hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(2), 'Very Fresh Order (2hrs old)');
         
 
         $this->command->info('✅ Created 9 test orders with proper status logic:');
@@ -79,7 +89,7 @@ class UrgentOrderTestSeeder extends Seeder
         $this->command->info('You can now test the urgent order popup functionality!');
     }
 
-    private function createTestOrder($customer, $products, $createdAt, $description)
+    private function createTestOrder($customer, $defaultAddress, $products, $createdAt, $description)
     {
         // Select 1-3 random products for this order
         $selectedProducts = $products->random(rand(1, 3));
@@ -128,11 +138,12 @@ class UrgentOrderTestSeeder extends Seeder
             }
         }
 
-        // Create the sales record
-        $order = Sales::create([
+        // Create the sales audit record
+        $order = SalesAudit::create([
             'customer_id' => $customer->id,
             'total_amount' => $totalAmount,
             'status' => $status,
+            'address_id' => $defaultAddress->id,
             'created_at' => $createdAt,
             'updated_at' => $createdAt,
         ]);
