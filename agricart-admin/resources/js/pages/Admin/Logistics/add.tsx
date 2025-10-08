@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import PasswordInput from '@/components/ui/password-input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -104,8 +105,7 @@ export default function Index() {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic password">Password</Label>
-                        <Input 
-                            type="password" 
+                        <PasswordInput 
                             placeholder="Password (minimum 8 characters)" 
                             value={data.password} 
                             onChange={(e) => setData('password', e.target.value)} 

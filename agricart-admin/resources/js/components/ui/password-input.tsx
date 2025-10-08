@@ -38,6 +38,26 @@ export default function PasswordInput({
     setShowPassword(!showPassword);
   };
 
+  // Prevent spaces from being typed
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === ' ') {
+      e.preventDefault();
+    }
+  };
+
+  // Filter out spaces from pasted content
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const filteredValue = e.target.value.replace(/\s/g, '');
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: filteredValue,
+      },
+    };
+    onChange(syntheticEvent as React.ChangeEvent<HTMLInputElement>);
+  };
+
   return (
     <div className="relative">
       <Input
@@ -45,7 +65,8 @@ export default function PasswordInput({
         name={name}
         type={showPassword ? 'text' : 'password'}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn("pr-10", className)}
         required={required}

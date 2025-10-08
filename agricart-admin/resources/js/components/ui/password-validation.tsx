@@ -49,6 +49,12 @@ export default function PasswordValidation({ password, className }: PasswordVali
         met: /[!@#$%^&*(),.?":{}|<>]/.test(password),
         required: true,
       },
+      {
+        id: 'no-spaces',
+        text: 'No spaces allowed',
+        met: !/\s/.test(password),
+        required: true,
+      },
     ];
 
     setValidationRules(rules);
