@@ -29,16 +29,10 @@ class AddressController extends Controller
         // Check if we should auto-open the add address form
         $autoOpenAddForm = $request->query('add_address') === 'true';
         
-        // Check if user has active orders
-        $hasActiveOrders = $user->hasActiveOrders();
-        $activeOrders = $hasActiveOrders ? $user->getActiveOrders() : collect();
-        
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $addresses,
             'user' => $user,
             'autoOpenAddForm' => $autoOpenAddForm,
-            'hasActiveOrders' => $hasActiveOrders,
-            'activeOrders' => $activeOrders,
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error')
@@ -53,11 +47,6 @@ class AddressController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot add new addresses while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
         
         $validated = $request->validate([
             'street' => 'required|string|max:500',
@@ -147,11 +136,6 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot modify addresses while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-
         $validated = $request->validate([
             'street' => 'required|string|max:500',
             'is_active' => 'boolean',
@@ -212,15 +196,6 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            $errorMessage = 'Cannot change delivery address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.';
-            if ($request->expectsJson()) {
-                return response()->json(['error' => $errorMessage], 422);
-            }
-            return redirect()->back()->with('error', $errorMessage);
-        }
-
         DB::transaction(function () use ($user, $address) {
             // First, set this address as active
             $address->update([
@@ -272,11 +247,6 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot delete addresses while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-
         // If this is the active address, we need to handle it carefully
         if ($address->is_active) {
             $remainingAddresses = $user->addresses()->where('id', '!=', $address->id)->get();
@@ -307,11 +277,6 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot change active address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-
         DB::transaction(function () use ($user, $address) {
             // First, set this address as active
             $address->update([
@@ -338,11 +303,6 @@ class AddressController extends Controller
         // Ensure the address belongs to the authenticated user
         if ($address->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Unauthorized');
-        }
-
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot change default address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
         }
 
         DB::transaction(function () use ($user, $address) {
@@ -405,11 +365,6 @@ class AddressController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
-        // Check if user has active orders that prevent address changes
-        if ($user->hasActiveOrders()) {
-            return redirect()->back()->with('error', 'Cannot modify main address while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
         
         $validated = $request->validate([
             'address' => 'required|string|max:500',

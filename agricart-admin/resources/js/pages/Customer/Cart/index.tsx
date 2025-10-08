@@ -43,13 +43,6 @@ export default function CartPage() {
     cartTotal?: number;
     addresses?: Address[];
     activeAddress?: Address;
-    hasActiveOrders?: boolean;
-    activeOrders?: Array<{
-      id: number;
-      status: string;
-      delivery_status: string;
-      created_at: string;
-    }>;
     flash?: {
       success?: string;
       error?: string;
@@ -59,8 +52,6 @@ export default function CartPage() {
   const initialCart = page?.props?.cart || {};
   const addresses = page?.props?.addresses || [];
   const activeAddress = page?.props?.activeAddress;
-  const hasActiveOrders = page?.props?.hasActiveOrders || false;
-  const activeOrders = page?.props?.activeOrders || [];
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
@@ -696,35 +687,6 @@ export default function CartPage() {
               <h3 className="text-lg font-semibold text-blue-800">Delivery Address</h3>
             </div>
             
-            {/* Active Orders Warning */}
-            {hasActiveOrders && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <AlertTriangle className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="text-sm font-medium text-amber-800">
-                      Address Changes Restricted
-                    </h4>
-                    <div className="mt-1 text-sm text-amber-700">
-                      <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent address changes:</p>
-                      <ul className="mt-1 list-disc list-inside space-y-1">
-                        {activeOrders.map((order) => (
-                          <li key={order.id}>
-                            Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 'Out for Delivery'}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-1 font-medium">
-                        Please wait until all orders are delivered before changing addresses.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
             {activeAddress ? (
               <div className="space-y-3">
                 {/* Currently Selected Address */}
@@ -798,11 +760,6 @@ export default function CartPage() {
                   <Select 
                     value={selectedAddressId?.toString() || ''} 
                     onValueChange={(value) => {
-                      if (hasActiveOrders) {
-                        setCheckoutMessage('Cannot change delivery address while you have active orders. Please wait until all orders are delivered.');
-                        return;
-                      }
-                      
                       if (value === 'active') {
                         // Switching back to active address
                         if (selectedAddressId) {
@@ -821,7 +778,6 @@ export default function CartPage() {
                         handleAddressChange(parseInt(value));
                       }
                     }}
-                    disabled={hasActiveOrders}
                   >
                     <SelectTrigger className="w-full h-12 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-500 transition-colors">
                       <div className="flex items-center gap-2">
@@ -856,7 +812,7 @@ export default function CartPage() {
                       {addresses
                         .filter(address => address.id !== selectedAddressId)
                         .map((address) => (
-                        <SelectItem key={address.id} value={address.id?.toString() || ''} className="p-3 hover:bg-blue-50 focus:bg-blue-50">
+                        <SelectItem key={address.id} value={address.id.toString()} className="p-3 hover:bg-blue-50 focus:bg-blue-50">
                           <div className="flex items-start gap-3 w-full">
                             <div className="flex-shrink-0 mt-0.5">
                               <Home className="h-5 w-5 text-blue-600" />
@@ -894,8 +850,7 @@ export default function CartPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  disabled={hasActiveOrders}
-                  className={`flex items-center gap-2 w-full border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 transition-colors ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className="flex items-center gap-2 w-full border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Add New Address
@@ -906,8 +861,7 @@ export default function CartPage() {
                 <p className="text-gray-600">No delivery addresses found. Please add an address to continue.</p>
                 <Button
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  disabled={hasActiveOrders}
-                  className={`flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className="flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="h-4 w-4" />
                   Add Address
