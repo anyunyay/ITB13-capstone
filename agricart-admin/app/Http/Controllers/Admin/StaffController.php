@@ -56,7 +56,7 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'regex:/^\S*$/', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
@@ -131,7 +131,7 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $staff->id,
-            'password' => ['nullable', 'confirmed', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['nullable', 'confirmed', 'regex:/^\S*$/', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
