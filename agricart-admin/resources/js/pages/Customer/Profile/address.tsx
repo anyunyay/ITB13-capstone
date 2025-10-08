@@ -261,13 +261,12 @@ export default function AddressPage() {
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight">Address Management</h2>
                         <p className="text-sm text-gray-600 mt-1">
-                            Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
+                            Manage your delivery addresses. You can add new addresses anytime, but changing the active address is restricted when you have pending orders.
                         </p>
                     </div>
                     <Button 
                         onClick={handleAddNew} 
-                        disabled={hasActiveOrders}
-                        className={`flex items-center gap-2 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className="flex items-center gap-2"
                     >
                         <PlusCircle className="h-4 w-4" />
                         Add New Address
@@ -314,19 +313,21 @@ export default function AddressPage() {
                             </div>
                             <div className="ml-3">
                                 <h3 className="text-sm font-medium text-amber-800">
-                                    Address Changes Temporarily Restricted
+                                    Active Address Changes Restricted
                                 </h3>
                                 <div className="mt-2 text-sm text-amber-700">
-                                    <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent address modifications:</p>
+                                    <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent changing your active address:</p>
                                     <ul className="mt-2 list-disc list-inside space-y-1">
                                         {activeOrders.map((order) => (
                                             <li key={order.id}>
-                                                Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 'Out for Delivery'}
+                                                Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 
+                                                    order.delivery_status === 'out_for_delivery' ? 'Out for Delivery' : 
+                                                    order.delivery_status === 'pending' ? 'Approved (Pending Delivery)' : 'Approved'}
                                             </li>
                                         ))}
                                     </ul>
                                     <p className="mt-2 font-medium">
-                                        Please wait until all orders are delivered before making address changes.
+                                        You can still add new addresses, but cannot change which address is active until all orders are delivered.
                                     </p>
                                 </div>
                             </div>
@@ -497,6 +498,7 @@ export default function AddressPage() {
                                                             onClick={() => handleSetActive(address.id)}
                                                             disabled={hasActiveOrders}
                                                             className={`flex items-center gap-1 text-blue-600 hover:text-blue-700 ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            title={hasActiveOrders ? 'Cannot change active address while you have pending orders' : 'Set this address as active'}
                                                         >
                                                             <CheckCircle className="h-3 w-3" />
                                                             Set as Active
@@ -642,18 +644,25 @@ export default function AddressPage() {
 
                         {/* Set as Active Address Checkbox */}
                         {!editingAddress && (
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="is_active"
-                                    checked={data.is_active || false}
-                                    onChange={(e) => setData('is_active', e.target.checked)}
-                                    disabled={processing}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <Label htmlFor="is_active" className="text-sm font-medium">
-                                    Set as active address (used for checkout)
-                                </Label>
+                            <div className="space-y-2">
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="is_active"
+                                        checked={data.is_active || false}
+                                        onChange={(e) => setData('is_active', e.target.checked)}
+                                        disabled={processing || hasActiveOrders}
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <Label htmlFor="is_active" className="text-sm font-medium">
+                                        Set as active address (used for checkout)
+                                    </Label>
+                                </div>
+                                {hasActiveOrders && (
+                                    <p className="text-xs text-amber-600">
+                                        ⚠️ Cannot set as active while you have pending orders. You can add the address and activate it later.
+                                    </p>
+                                )}
                             </div>
                         )}
 

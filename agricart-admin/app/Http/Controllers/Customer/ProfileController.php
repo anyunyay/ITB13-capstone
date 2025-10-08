@@ -81,6 +81,11 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
+        // Check if user can change active address (profile address changes affect the main address)
+        if (!$user->canChangeActiveAddress()) {
+            return redirect()->back()->with('error', 'Cannot modify address information while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
