@@ -16,6 +16,7 @@ interface Address {
     city: string;
     province: string;
     is_active: boolean;
+    has_ongoing_orders?: boolean;
 }
 
 interface PageProps {
@@ -29,7 +30,7 @@ interface PageProps {
         province?: string;
     };
     addresses: Address[];
-    hasUndeliveredOrders?: boolean;
+    mainAddressHasOngoingOrders?: boolean;
     flash?: {
         success?: string;
         error?: string;
@@ -39,7 +40,7 @@ interface PageProps {
 }
 
 export default function AddressPage() {
-    const { user, addresses = [], flash, autoOpenAddForm = false, hasUndeliveredOrders = false } = usePage<PageProps>().props;
+    const { user, addresses = [], flash, autoOpenAddForm = false, mainAddressHasOngoingOrders = false } = usePage<PageProps>().props;
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -258,7 +259,7 @@ export default function AddressPage() {
                             Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
                         </p>
                     </div>
-                    <Button onClick={handleAddNew} className="flex items-center gap-2" disabled={hasUndeliveredOrders}>
+                    <Button onClick={handleAddNew} className="flex items-center gap-2">
                         <PlusCircle className="h-4 w-4" />
                         Add New Address
                     </Button>
@@ -295,25 +296,6 @@ export default function AddressPage() {
                     </div>
                 )}
 
-                {/* Address Modification Restriction Notice */}
-                {hasUndeliveredOrders && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <AlertCircle className="h-5 w-5 text-amber-400" />
-                            </div>
-                            <div className="ml-3">
-                                <h3 className="text-sm font-medium text-amber-800">
-                                    Address Modification Restricted
-                                </h3>
-                                <p className="text-sm text-amber-700 mt-1">
-                                    You cannot edit or delete addresses while you have pending orders. Please wait until all your orders are delivered before making address changes.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
             <div className="space-y-6">
                 {/* Main Address from Registration */}
                 {(user.address || user.barangay || user.city || user.province) && (
@@ -342,7 +324,7 @@ export default function AddressPage() {
                                             size="sm"
                                             onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
                                             className="flex items-center gap-1"
-                                            disabled={hasUndeliveredOrders}
+                                            disabled={mainAddressHasOngoingOrders}
                                         >
                                             <Edit className="h-3 w-3" />
                                             Edit
@@ -375,6 +357,12 @@ export default function AddressPage() {
                                         This is your main address from registration. You can edit it or add additional addresses below.
                                     </div>
                                 )}
+                                {mainAddressHasOngoingOrders && (
+                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        This address has ongoing orders - editing is restricted
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -403,7 +391,7 @@ export default function AddressPage() {
                                             size="sm"
                                             onClick={() => handleEdit(addresses.find(addr => addr.is_active)!)}
                                             className="flex items-center gap-1"
-                                            disabled={hasUndeliveredOrders}
+                                            disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Edit className="h-3 w-3" />
                                             Edit
@@ -422,7 +410,7 @@ export default function AddressPage() {
                                             size="sm"
                                             onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
                                             className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                                            disabled={hasUndeliveredOrders}
+                                            disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Trash2 className="h-3 w-3" />
                                             Delete
@@ -438,6 +426,12 @@ export default function AddressPage() {
                                 <div className="mt-2 text-xs text-blue-600">
                                     This address is used for checkout and other operations
                                 </div>
+                                {addresses.find(addr => addr.is_active)?.has_ongoing_orders && (
+                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                        <AlertCircle className="h-3 w-3" />
+                                        This address has ongoing orders - editing/deleting is restricted
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -466,7 +460,7 @@ export default function AddressPage() {
                                                             size="sm"
                                                             onClick={() => handleEdit(address)}
                                                             className="flex items-center gap-1"
-                                                            disabled={hasUndeliveredOrders}
+                                                            disabled={address.has_ongoing_orders}
                                                         >
                                                             <Edit className="h-3 w-3" />
                                                             Edit
@@ -476,7 +470,7 @@ export default function AddressPage() {
                                                             size="sm"
                                                             onClick={() => handleSetActive(address.id)}
                                                             className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
-                                                            disabled={hasUndeliveredOrders}
+                                                            disabled={address.has_ongoing_orders}
                                                         >
                                                             <CheckCircle className="h-3 w-3" />
                                                             Set as Active
@@ -486,7 +480,7 @@ export default function AddressPage() {
                                                             size="sm"
                                                             onClick={() => handleDelete(address.id)}
                                                             className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                                                            disabled={hasUndeliveredOrders}
+                                                            disabled={address.has_ongoing_orders}
                                                         >
                                                             <Trash2 className="h-3 w-3" />
                                                             Delete
@@ -499,6 +493,12 @@ export default function AddressPage() {
                                                     <p className="text-gray-600">{address.barangay}, {address.city}</p>
                                                     <p className="text-gray-600">{address.province}</p>
                                                 </div>
+                                                {address.has_ongoing_orders && (
+                                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                                        <AlertCircle className="h-3 w-3" />
+                                                        This address has ongoing orders - editing/deleting is restricted
+                                                    </div>
+                                                )}
                                             </CardContent>
                                         </Card>
                                     ))}

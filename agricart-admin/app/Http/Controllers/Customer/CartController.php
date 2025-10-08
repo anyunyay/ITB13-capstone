@@ -220,10 +220,24 @@ class CartController extends Controller
         }
 
         try {
+            // Determine the address_id based on the delivery address selection
+            $addressId = null;
+            if (!$validated['use_main_address'] && $validated['delivery_address_id']) {
+                // Using a specific address from user_addresses table
+                $addressId = $validated['delivery_address_id'];
+            } elseif ($validated['use_main_address']) {
+                // Using main address - find the corresponding UserAddress record
+                $activeAddress = $user->defaultAddress;
+                if ($activeAddress) {
+                    $addressId = $activeAddress->id;
+                }
+            }
+
             // Create a new sales audit record with address reference
             $sale = SalesAudit::create([
                 'customer_id' => $user->id,
                 'status' => 'pending',
+                'address_id' => $addressId,
                 'delivery_address' => $deliveryAddress->street . ', ' . $deliveryAddress->barangay . ', ' . $deliveryAddress->city . ', ' . $deliveryAddress->province,
             ]);
 

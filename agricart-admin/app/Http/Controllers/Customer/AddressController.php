@@ -25,6 +25,16 @@ class AddressController extends Controller
     }
 
     /**
+     * Check if a specific address has ongoing orders
+     */
+    private function addressHasOngoingOrders(UserAddress $address): bool
+    {
+        return SalesAudit::where('address_id', $address->id)
+            ->where('delivery_status', '!=', 'delivered')
+            ->exists();
+    }
+
+    /**
      * Display a listing of the customer's addresses.
      */
     public function index(Request $request)
@@ -35,19 +45,38 @@ class AddressController extends Controller
         // Always reload addresses from database to ensure fresh data (all addresses)
         $addresses = $user->addresses()
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($address) {
+                return [
+                    'id' => $address->id,
+                    'street' => $address->street,
+                    'barangay' => $address->barangay,
+                    'city' => $address->city,
+                    'province' => $address->province,
+                    'is_active' => $address->is_active,
+                    'created_at' => $address->created_at,
+                    'has_ongoing_orders' => $this->addressHasOngoingOrders($address),
+                ];
+            });
         
         // Check if we should auto-open the add address form
         $autoOpenAddForm = $request->query('add_address') === 'true';
         
-        // Check if customer has undelivered orders
-        $hasUndeliveredOrders = $this->hasUndeliveredOrders($user);
+        // Check if main address has ongoing orders (for frontend display)
+        $mainAddressHasOngoingOrders = false;
+        if ($user->address || $user->barangay || $user->city || $user->province) {
+            // Check if there are orders using the main address
+            $activeAddress = $user->defaultAddress;
+            if ($activeAddress) {
+                $mainAddressHasOngoingOrders = $this->addressHasOngoingOrders($activeAddress);
+            }
+        }
         
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $addresses,
             'user' => $user,
             'autoOpenAddForm' => $autoOpenAddForm,
-            'hasUndeliveredOrders' => $hasUndeliveredOrders,
+            'mainAddressHasOngoingOrders' => $mainAddressHasOngoingOrders,
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error')
@@ -151,9 +180,9 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if customer has undelivered orders
-        if ($this->hasUndeliveredOrders($user)) {
-            return redirect()->back()->with('error', 'You cannot modify addresses while you have pending orders. Please wait until all your orders are delivered.');
+        // Check if this specific address has ongoing orders
+        if ($this->addressHasOngoingOrders($address)) {
+            return redirect()->back()->with('error', 'You cannot modify this address because it is linked to ongoing orders. Please wait until all orders for this address are delivered.');
         }
 
         $validated = $request->validate([
@@ -267,9 +296,9 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if customer has undelivered orders
-        if ($this->hasUndeliveredOrders($user)) {
-            return redirect()->back()->with('error', 'You cannot delete addresses while you have pending orders. Please wait until all your orders are delivered.');
+        // Check if this specific address has ongoing orders
+        if ($this->addressHasOngoingOrders($address)) {
+            return redirect()->back()->with('error', 'You cannot delete this address because it is linked to ongoing orders. Please wait until all orders for this address are delivered.');
         }
 
         // If this is the active address, we need to handle it carefully
@@ -302,9 +331,9 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        // Check if customer has undelivered orders
-        if ($this->hasUndeliveredOrders($user)) {
-            return redirect()->back()->with('error', 'You cannot change your active address while you have pending orders. Please wait until all your orders are delivered.');
+        // Check if this specific address has ongoing orders
+        if ($this->addressHasOngoingOrders($address)) {
+            return redirect()->back()->with('error', 'You cannot change the active address to this address because it is linked to ongoing orders. Please wait until all orders for this address are delivered.');
         }
 
         DB::transaction(function () use ($user, $address) {
