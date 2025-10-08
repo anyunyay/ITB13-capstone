@@ -35,6 +35,8 @@ export default function PasswordError({ error, className, showError = true }: Pa
         errors.push('Password must contain letters');
       } else if (trimmedLine.includes('confirmed')) {
         errors.push('Password confirmation does not match');
+      } else if (trimmedLine.includes('regex') || trimmedLine.includes('format')) {
+        errors.push('Password cannot contain spaces');
       } else if (trimmedLine.trim()) {
         // If no specific pattern matches, use the original error
         errors.push(trimmedLine);
