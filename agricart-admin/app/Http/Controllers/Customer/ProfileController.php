@@ -81,14 +81,11 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-<<<<<<< HEAD
-=======
         // Check if user has active orders that prevent address changes
         if ($user->hasActiveOrders()) {
             return redirect()->back()->with('error', 'Cannot modify address information while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
         }
         
->>>>>>> parent of 9afe53d (updated address to have a feature of adding new addresses but not being able to set it as current main address if there are still pending)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
