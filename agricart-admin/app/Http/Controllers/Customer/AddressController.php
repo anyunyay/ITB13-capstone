@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\UserAddress;
 use App\Models\User;
+use App\Models\SalesAudit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,16 @@ use Inertia\Inertia;
 
 class AddressController extends Controller
 {
+    /**
+     * Check if the customer has any undelivered orders
+     */
+    private function hasUndeliveredOrders(User $user): bool
+    {
+        return SalesAudit::where('customer_id', $user->id)
+            ->where('delivery_status', '!=', 'delivered')
+            ->exists();
+    }
+
     /**
      * Display a listing of the customer's addresses.
      */
@@ -29,10 +40,14 @@ class AddressController extends Controller
         // Check if we should auto-open the add address form
         $autoOpenAddForm = $request->query('add_address') === 'true';
         
+        // Check if customer has undelivered orders
+        $hasUndeliveredOrders = $this->hasUndeliveredOrders($user);
+        
         return Inertia::render('Customer/Profile/address', [
             'addresses' => $addresses,
             'user' => $user,
             'autoOpenAddForm' => $autoOpenAddForm,
+            'hasUndeliveredOrders' => $hasUndeliveredOrders,
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error')
@@ -134,6 +149,11 @@ class AddressController extends Controller
         // Ensure the address belongs to the authenticated user
         if ($address->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        // Check if customer has undelivered orders
+        if ($this->hasUndeliveredOrders($user)) {
+            return redirect()->back()->with('error', 'You cannot modify addresses while you have pending orders. Please wait until all your orders are delivered.');
         }
 
         $validated = $request->validate([
@@ -247,6 +267,11 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
+        // Check if customer has undelivered orders
+        if ($this->hasUndeliveredOrders($user)) {
+            return redirect()->back()->with('error', 'You cannot delete addresses while you have pending orders. Please wait until all your orders are delivered.');
+        }
+
         // If this is the active address, we need to handle it carefully
         if ($address->is_active) {
             $remainingAddresses = $user->addresses()->where('id', '!=', $address->id)->get();
@@ -275,6 +300,11 @@ class AddressController extends Controller
         // Ensure the address belongs to the authenticated user
         if ($address->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        // Check if customer has undelivered orders
+        if ($this->hasUndeliveredOrders($user)) {
+            return redirect()->back()->with('error', 'You cannot change your active address while you have pending orders. Please wait until all your orders are delivered.');
         }
 
         DB::transaction(function () use ($user, $address) {
@@ -365,6 +395,11 @@ class AddressController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
+        
+        // Check if customer has undelivered orders
+        if ($this->hasUndeliveredOrders($user)) {
+            return redirect()->back()->with('error', 'You cannot modify your main address while you have pending orders. Please wait until all your orders are delivered.');
+        }
         
         $validated = $request->validate([
             'address' => 'required|string|max:500',
