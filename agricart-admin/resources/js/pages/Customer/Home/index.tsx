@@ -2,6 +2,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router, useForm, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
+import { debounce } from '@/lib/debounce';
 import {
   Carousel,
   CarouselContent,
@@ -94,7 +95,8 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
     setMessage(null);
   };
 
-  const handleAddToCart = (e: React.FormEvent) => {
+  // Create debounced version of add to cart function
+  const debouncedAddToCart = debounce((e: React.FormEvent) => {
     e.preventDefault();
 
     // Prevent multiple clicks
@@ -151,6 +153,16 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
       },
       preserveScroll: true,
     });
+  }, 300); // 300ms debounce delay
+
+  const handleAddToCart = (e: React.FormEvent) => {
+    // Immediate check for multiple clicks
+    if (isAddingToCart) {
+      return;
+    }
+    
+    // Call debounced function
+    debouncedAddToCart(e);
   };
 
   return (

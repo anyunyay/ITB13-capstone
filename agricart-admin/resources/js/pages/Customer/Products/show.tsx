@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ShoppingBasket, Package, Minus, Plus } from 'lucide-react';
 import { router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { debounce } from '@/lib/debounce';
 import {
   Dialog,
   DialogContent,
@@ -53,7 +54,8 @@ export default function ProductShow({ product, auth }: Props) {
     const isKilo = selectedCategory === 'Kilo';
     const maxQty = product.stock_by_category?.[selectedCategory] ?? 1;
 
-    const handleAddToCart = (e: React.FormEvent) => {
+    // Create debounced version of add to cart function
+    const debouncedAddToCart = debounce((e: React.FormEvent) => {
         e.preventDefault();
 
         // Prevent multiple clicks
@@ -94,6 +96,16 @@ export default function ProductShow({ product, auth }: Props) {
             },
             preserveScroll: true,
         });
+    }, 300); // 300ms debounce delay
+
+    const handleAddToCart = (e: React.FormEvent) => {
+        // Immediate check for multiple clicks
+        if (isAddingToCart) {
+            return;
+        }
+        
+        // Call debounced function
+        debouncedAddToCart(e);
     };
 
     const handleBack = () => {

@@ -116,53 +116,63 @@ class CartController extends Controller
             $category = $validated['category'];
             $quantity = $validated['quantity'];
 
-            // Get or create the user's cart
-            $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+            // Use database transaction to prevent race conditions
+            return \DB::transaction(function () use ($user, $productId, $category, $quantity) {
+                // Get or create the user's cart with lock
+                $cart = Cart::lockForUpdate()->firstOrCreate(['user_id' => $user->id]);
 
-            // Check if the item already exists in the cart
-            $cartItem = $cart->items()
-                ->where('product_id', $productId)
-                ->where('category', $category)
-                ->first();
+                // Check if the item already exists in the cart
+                $cartItem = $cart->items()
+                    ->where('product_id', $productId)
+                    ->where('category', $category)
+                    ->first();
 
-            if ($cartItem) { // If it exists, update the quantity
-                $oldQuantity = $cartItem->quantity;
-                $cartItem->quantity += $quantity;
-                $cartItem->save();
-                
-                // Log cart item update
-                SystemLogger::logCustomerActivity(
-                    'cart_item_updated',
-                    $user->id,
-                    [
+                if ($cartItem) { // If it exists, update the quantity
+                    $oldQuantity = $cartItem->quantity;
+                    $cartItem->quantity += $quantity;
+                    $cartItem->save();
+                    
+                    // Log cart item update
+                    SystemLogger::logCustomerActivity(
+                        'cart_item_updated',
+                        $user->id,
+                        [
+                            'product_id' => $productId,
+                            'category' => $category,
+                            'old_quantity' => $oldQuantity,
+                            'new_quantity' => $cartItem->quantity,
+                            'added_quantity' => $quantity
+                        ]
+                    );
+                } else { // If it doesn't exist, create a new cart item
+                    $cart->items()->create([
                         'product_id' => $productId,
                         'category' => $category,
-                        'old_quantity' => $oldQuantity,
-                        'new_quantity' => $cartItem->quantity,
-                        'added_quantity' => $quantity
-                    ]
-                );
-            } else { // If it doesn't exist, create a new cart item
-                $cart->items()->create([
-                    'product_id' => $productId,
-                    'category' => $category,
-                    'quantity' => $quantity,
-                ]);
-                
-                // Log cart item addition
-                SystemLogger::logCustomerActivity(
-                    'cart_item_added',
-                    $user->id,
-                    [
-                        'product_id' => $productId,
-                        'category' => $category,
-                        'quantity' => $quantity
-                    ]
-                );
-            }
+                        'quantity' => $quantity,
+                    ]);
+                    
+                    // Log cart item addition
+                    SystemLogger::logCustomerActivity(
+                        'cart_item_added',
+                        $user->id,
+                        [
+                            'product_id' => $productId,
+                            'category' => $category,
+                            'quantity' => $quantity
+                        ]
+                    );
+                }
 
-            return back()->with('message', 'Added to cart!');
+                return back()->with('message', 'Added to cart!');
+            });
         } catch (\Throwable $e) {
+            Log::error('Cart store error: ' . $e->getMessage(), [
+                'user_id' => $user->id ?? null,
+                'product_id' => $productId ?? null,
+                'category' => $category ?? null,
+                'quantity' => $quantity ?? null,
+            ]);
+            
             return back()->withErrors([
                 'quantity' => 'An unexpected error occurred. Please try again.',
             ]);
