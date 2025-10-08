@@ -200,25 +200,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->sales()
             ->where(function ($query) {
                 $query->where('status', 'pending')
-                      ->orWhere(function ($subQuery) {
-                          $subQuery->where('status', 'approved')
-                                   ->where(function ($deliveryQuery) {
-                                       $deliveryQuery->whereNull('delivery_status')
-                                                     ->orWhere('delivery_status', 'pending')
-                                                     ->orWhere('delivery_status', 'out_for_delivery');
-                                   });
-                      });
+                      ->orWhere('delivery_status', 'out_for_delivery');
             })
             ->exists();
-    }
-
-    /**
-     * Check if the user can change their active address
-     * More restrictive than hasActiveOrders - prevents changing active address when orders are active
-     */
-    public function canChangeActiveAddress()
-    {
-        return !$this->hasActiveOrders();
     }
 
     /**
@@ -229,14 +213,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->sales()
             ->where(function ($query) {
                 $query->where('status', 'pending')
-                      ->orWhere(function ($subQuery) {
-                          $subQuery->where('status', 'approved')
-                                   ->where(function ($deliveryQuery) {
-                                       $deliveryQuery->whereNull('delivery_status')
-                                                     ->orWhere('delivery_status', 'pending')
-                                                     ->orWhere('delivery_status', 'out_for_delivery');
-                                   });
-                      });
+                      ->orWhere('delivery_status', 'out_for_delivery');
             })
             ->get();
     }

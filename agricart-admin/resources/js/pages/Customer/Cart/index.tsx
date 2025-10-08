@@ -705,21 +705,19 @@ export default function CartPage() {
                   </div>
                   <div className="ml-3">
                     <h4 className="text-sm font-medium text-amber-800">
-                      Active Address Changes Restricted
+                      Address Changes Restricted
                     </h4>
                     <div className="mt-1 text-sm text-amber-700">
-                      <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent changing your active address:</p>
+                      <p>You have {activeOrders.length} active order{activeOrders.length > 1 ? 's' : ''} that prevent address changes:</p>
                       <ul className="mt-1 list-disc list-inside space-y-1">
                         {activeOrders.map((order) => (
                           <li key={order.id}>
-                            Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 
-                              order.delivery_status === 'out_for_delivery' ? 'Out for Delivery' : 
-                              order.delivery_status === 'pending' ? 'Approved (Pending Delivery)' : 'Approved'}
+                            Order #{order.id} - Status: {order.status === 'pending' ? 'Pending' : 'Out for Delivery'}
                           </li>
                         ))}
                       </ul>
                       <p className="mt-1 font-medium">
-                        You can still add new addresses, but cannot change which address is active until all orders are delivered.
+                        Please wait until all orders are delivered before changing addresses.
                       </p>
                     </div>
                   </div>
@@ -896,7 +894,8 @@ export default function CartPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  className="flex items-center gap-2 w-full border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 transition-colors"
+                  disabled={hasActiveOrders}
+                  className={`flex items-center gap-2 w-full border-2 border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 transition-colors ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Plus className="h-4 w-4" />
                   Add New Address
@@ -907,7 +906,8 @@ export default function CartPage() {
                 <p className="text-gray-600">No delivery addresses found. Please add an address to continue.</p>
                 <Button
                   onClick={() => router.visit('/customer/profile/addresses?add_address=true')}
-                  className="flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={hasActiveOrders}
+                  className={`flex items-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white ${hasActiveOrders ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Plus className="h-4 w-4" />
                   Add Address

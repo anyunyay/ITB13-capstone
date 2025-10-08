@@ -30,4 +30,3 @@ class MemberEarningsSeeder extends Seeder
     }
 }
 
-
