@@ -208,11 +208,11 @@ class CartController extends Controller
         }
 
         try {
-            // Create a new sale record with delivery address
+            // Create a new sale record with address reference
             $sale = Sales::create([
                 'customer_id' => $user->id,
                 'status' => 'pending',
-                'delivery_address' => $deliveryAddress->street . ', ' . $deliveryAddress->barangay . ', ' . $deliveryAddress->city . ', ' . $deliveryAddress->province,
+                'address_id' => $deliveryAddress->id,
             ]);
 
             $totalPrice = 0;

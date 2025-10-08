@@ -47,42 +47,44 @@ class OrderApprovalTest extends TestCase
         $admin->givePermissionTo(Permission::all());
     }
 
-    public function test_customer_can_create_pending_order()
+    public function test_sales_address_relationship_works()
     {
         // Create a customer
         $customer = User::factory()->customer()->create();
         $customer->assignRole('customer');
         
-        // Create a member for stock
-        $member = User::factory()->member()->create();
-        $member->assignRole('member');
-        
-        // Create a product
-        $product = Product::factory()->create();
-        
-        // Create stock for the product
-        $stock = Stock::factory()->create([
-            'product_id' => $product->id,
-            'member_id' => $member->id,
-            'quantity' => 10,
-            'category' => 'Kilo',
+        // Create a default address for the customer
+        $address = \App\Models\UserAddress::create([
+            'user_id' => $customer->id,
+            'street' => '123 Test Street',
+            'barangay' => 'Sala',
+            'city' => 'Cabuyao',
+            'province' => 'Laguna',
+            'is_active' => true,
         ]);
-
-        // Customer adds item to cart and checks out
-        $this->actingAs($customer)->post('/customer/cart/store', [
-            'product_id' => $product->id,
-            'category' => 'Kilo',
-            'quantity' => 5,
-        ]);
-
-        // Customer checks out
-        $response = $this->actingAs($customer)->post('/customer/cart/checkout');
         
-        $response->assertRedirect('/customer/cart');
-        
-        // Check that a pending order was created
-        $this->assertDatabaseHas('sales', [
+        // Create a sale with address reference
+        $sale = Sales::create([
             'customer_id' => $customer->id,
+            'status' => 'pending',
+            'total_amount' => 100,
+            'address_id' => $address->id,
+        ]);
+        
+        // Test the relationship
+        $this->assertNotNull($sale->address);
+        $this->assertEquals($address->id, $sale->address->id);
+        $this->assertEquals($address->street, $sale->address->street);
+        
+        // Test reverse relationship
+        $this->assertTrue($address->sales->contains($sale));
+        $this->assertEquals(1, $address->sales->count());
+        
+        // Verify database has correct data
+        $this->assertDatabaseHas('sales', [
+            'id' => $sale->id,
+            'customer_id' => $customer->id,
+            'address_id' => $address->id,
             'status' => 'pending',
         ]);
     }

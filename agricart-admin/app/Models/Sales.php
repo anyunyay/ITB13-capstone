@@ -14,7 +14,7 @@ class Sales extends Model
         'total_amount',
         'status',
         'delivery_status',
-        'delivery_address',
+        'address_id',
         'admin_id',
         'admin_notes',
         'logistic_id',
@@ -44,6 +44,11 @@ class Sales extends Model
     public function auditTrail()
     {
         return $this->hasMany(AuditTrail::class, 'sale_id'); 
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(UserAddress::class, 'address_id');
     }
 
     // Scopes for filtering by status

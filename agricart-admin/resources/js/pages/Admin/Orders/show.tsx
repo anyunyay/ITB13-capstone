@@ -52,6 +52,13 @@ interface Order {
   };
   audit_trail: OrderItem[];
   is_urgent?: boolean;
+  delivery_address?: string;
+  order_address?: {
+    street: string;
+    barangay: string;
+    city: string;
+    province: string;
+  };
 }
 
 interface OrderShowProps {
@@ -243,6 +250,12 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                           order.customer.province
                         ].filter(Boolean).join(', ')}
                       </p>
+                    </div>
+                  )}
+                  {order.delivery_address && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-gray-500">Delivery Address</p>
+                      <p className="text-sm">{order.delivery_address}</p>
                     </div>
                   )}
                 </div>

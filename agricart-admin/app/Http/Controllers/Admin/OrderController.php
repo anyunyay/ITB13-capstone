@@ -27,7 +27,7 @@ class OrderController extends Controller
         $showUrgentApproval = $request->get('urgent_approval', false);
         
         // Get all orders for tab counts
-        $allOrders = Sales::with(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product'])
+        $allOrders = Sales::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->values(); // Convert to array
@@ -59,6 +59,13 @@ class OrderController extends Controller
                     'city' => $order->customer->defaultAddress?->city,
                     'province' => $order->customer->defaultAddress?->province,
                 ],
+                'delivery_address' => $order->address ? $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : null,
+                'order_address' => $order->address ? [
+                    'street' => $order->address->street,
+                    'barangay' => $order->address->barangay,
+                    'city' => $order->address->city,
+                    'province' => $order->address->province,
+                ] : null,
                 'total_amount' => $order->total_amount,
                 'status' => $order->status,
                 'delivery_status' => $order->delivery_status,
@@ -120,7 +127,7 @@ class OrderController extends Controller
 
     public function show(Request $request, Sales $order)
     {
-        $order->load(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
+        $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
         
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
@@ -157,6 +164,13 @@ class OrderController extends Controller
                 'city' => $order->customer->defaultAddress?->city,
                 'province' => $order->customer->defaultAddress?->province,
             ],
+            'delivery_address' => $order->address ? $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : null,
+            'order_address' => $order->address ? [
+                'street' => $order->address->street,
+                'barangay' => $order->address->barangay,
+                'city' => $order->address->city,
+                'province' => $order->address->province,
+            ] : null,
             'total_amount' => $order->total_amount,
             'status' => $order->status,
             'delivery_status' => $order->delivery_status,
@@ -401,7 +415,7 @@ class OrderController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Sales::with(['customer.defaultAddress', 'admin', 'logistic', 'auditTrail.product']);
+        $query = Sales::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product']);
 
         // Filter by date range
         if ($startDate) {

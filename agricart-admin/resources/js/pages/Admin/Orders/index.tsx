@@ -45,6 +45,13 @@ interface Order {
     quantity: number;
   }>;
   is_urgent?: boolean;
+  delivery_address?: string;
+  order_address?: {
+    street: string;
+    barangay: string;
+    city: string;
+    province: string;
+  };
 }
 
 interface OrdersPageProps {
@@ -355,6 +362,11 @@ function OrderCard({ order, highlight = false, isUrgent = false }: { order: Orde
             {order.customer.contact_number && (
               <p className="text-sm">
                 <span className="font-medium">Contact:</span> {order.customer.contact_number}
+              </p>
+            )}
+            {order.delivery_address && (
+              <p className="text-sm">
+                <span className="font-medium">Delivery Address:</span> {order.delivery_address}
               </p>
             )}
           </div>
