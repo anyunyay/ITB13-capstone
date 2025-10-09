@@ -42,6 +42,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
     const [isResending, setIsResending] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [currentEmailChangeRequest, setCurrentEmailChangeRequest] = useState<EmailChangeRequest | null>(null);
+    const [showBackConfirmation, setShowBackConfirmation] = useState(false);
     
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const resendTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,6 +60,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             setIsResending(false);
             setTimeLeft(0);
             setCurrentEmailChangeRequest(null);
+            setShowBackConfirmation(false);
         }
     }, [isOpen]);
 
@@ -244,28 +246,33 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
     };
 
     const handleCancel = async () => {
-        const request = currentEmailChangeRequest || emailChangeRequest;
-        if (request && step === 'verify') {
-            if (confirm('Are you sure you want to cancel the email change? This will discard the verification code.')) {
-                try {
-                    const response = await fetch(`/customer/profile/email-change/cancel/${request.id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                        },
-                    });
+        if (step === 'verify') {
+            if (confirm('Are you sure you want to cancel the email change? This will discard the verification code and you\'ll need to start over.')) {
+                const request = currentEmailChangeRequest || emailChangeRequest;
+                if (request) {
+                    try {
+                        const response = await fetch(`/customer/profile/email-change/cancel/${request.id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            },
+                        });
 
-                    const data = await response.json();
+                        const data = await response.json();
 
-                    if (data.success) {
-                        onClose();
-                        window.location.reload();
-                    } else {
-                        setErrors({ general: 'Failed to cancel email change request.' });
+                        if (data.success) {
+                            onClose();
+                            window.location.reload();
+                        } else {
+                            setErrors({ general: 'Failed to cancel email change request.' });
+                        }
+                    } catch (error) {
+                        setErrors({ general: 'Network error. Please check your connection and try again.' });
                     }
-                } catch (error) {
-                    setErrors({ general: 'Network error. Please check your connection and try again.' });
+                } else {
+                    // If no request exists, just go back to email step
+                    handleBackToEmail();
                 }
             }
         } else {
@@ -274,19 +281,29 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
     };
 
     const handleBackToEmail = () => {
+        setShowBackConfirmation(true);
+    };
+
+    const confirmBackToEmail = () => {
         setStep('email');
         setOtp('');
         setErrors({});
         setSuccess('');
         setTimeLeft(0);
+        setShowBackConfirmation(false);
         if (timerRef.current) {
             clearInterval(timerRef.current);
         }
     };
 
+    const cancelBackToEmail = () => {
+        setShowBackConfirmation(false);
+    };
+
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md">
+        <>
+        <Dialog open={isOpen} onOpenChange={step === 'email' ? onClose : undefined}>
+            <DialogContent className="sm:max-w-md" {...(step === 'verify' ? { hideCloseButton: true } : {})}>
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Mail className="h-5 w-5" />
@@ -295,7 +312,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                     <DialogDescription>
                         {step === 'email' 
                             ? 'Enter your new email address. We\'ll send you a verification code to confirm the change.'
-                            : `We've sent a 6-digit verification code to ${(currentEmailChangeRequest || emailChangeRequest)?.new_email}`
+                            : `We've sent a 6-digit verification code to ${user.email}`
                         }
                     </DialogDescription>
                 </DialogHeader>
@@ -469,5 +486,49 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 </div>
             </DialogContent>
         </Dialog>
+
+        {/* Back Confirmation Modal */}
+        <Dialog open={showBackConfirmation} onOpenChange={setShowBackConfirmation}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <X className="h-5 w-5 text-orange-500" />
+                        Confirm Going Back
+                    </DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to go back to the email entry step?
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                    <Alert variant="destructive">
+                        <AlertDescription>
+                            <strong>Warning:</strong> Going back will invalidate your current verification code. 
+                            You'll need to request a new verification code to continue with the email change process.
+                        </AlertDescription>
+                    </Alert>
+
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={cancelBackToEmail}
+                            className="flex-1"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={confirmBackToEmail}
+                            className="flex-1"
+                        >
+                            Go Back
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+        </>
     );
 }
