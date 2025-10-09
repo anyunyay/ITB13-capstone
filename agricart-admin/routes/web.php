@@ -219,8 +219,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/current-address', [AddressController::class, 'getCurrentAddress'])->name('customer.profile.currentAddress');
         
         
-        // Email Change routes
-        Route::get('/profile/email-change', [\App\Http\Controllers\Customer\EmailChangeController::class, 'show'])->name('customer.profile.email-change.show');
+        // Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Customer\EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
         Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
         Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');

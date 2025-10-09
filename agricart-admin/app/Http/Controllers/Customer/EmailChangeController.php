@@ -7,22 +7,12 @@ use App\Models\EmailChangeRequest;
 use App\Notifications\EmailChangeOtpNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class EmailChangeController extends Controller
 {
-    /**
-     * Show the email change form.
-     */
-    public function show()
-    {
-        $user = Auth::user();
-        
-        return Inertia::render('Customer/Profile/change-email', [
-            'user' => $user
-        ]);
-    }
 
     /**
      * Send OTP for email change.
@@ -72,7 +62,7 @@ class EmailChangeController extends Controller
             try {
                 $user->notify(new EmailChangeOtpNotification($emailChangeRequest->otp, $newEmail));
             } catch (\Exception $e) {
-                \Log::error('Failed to send OTP email', [
+                Log::error('Failed to send OTP email', [
                     'error' => $e->getMessage(),
                     'user_id' => $user->id,
                     'new_email' => $newEmail
@@ -83,11 +73,20 @@ class EmailChangeController extends Controller
                 ]);
             }
 
+            // Check if this is an AJAX request (modal flow)
+            if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Verification code sent to your new email address.',
+                    'emailChangeRequest' => $emailChangeRequest
+                ]);
+            }
+
             return redirect()->route('customer.profile.email-change.verify', [
                 'requestId' => $emailChangeRequest->id
             ])->with('success', 'Verification code sent to your new email address.');
         } catch (\Exception $e) {
-            \Log::error('Email change OTP error', [
+            Log::error('Email change OTP error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -100,6 +99,7 @@ class EmailChangeController extends Controller
 
     /**
      * Show the OTP verification page.
+     * This method is kept for backward compatibility but redirects to profile page.
      */
     public function showVerify(Request $request, $requestId)
     {
@@ -110,23 +110,18 @@ class EmailChangeController extends Controller
             ->first();
 
         if (!$emailChangeRequest) {
-            return redirect()->route('customer.profile.email-change.show')
+            return redirect()->route('customer.profile.info')
                 ->with('error', 'Invalid or expired verification request.');
         }
 
         if ($emailChangeRequest->isExpired()) {
-            return redirect()->route('customer.profile.email-change.show')
+            return redirect()->route('customer.profile.info')
                 ->with('error', 'Verification code has expired. Please request a new one.');
         }
 
-        return Inertia::render('Customer/Profile/verify-email-change', [
-            'user' => $user,
-            'emailChangeRequest' => [
-                'id' => $emailChangeRequest->id,
-                'new_email' => $emailChangeRequest->new_email,
-                'expires_at' => $emailChangeRequest->expires_at->toISOString(),
-            ]
-        ]);
+        // Redirect to profile page with a message to use the modal
+        return redirect()->route('customer.profile.info')
+            ->with('message', 'Please use the email change modal to verify your new email address.');
     }
 
     /**

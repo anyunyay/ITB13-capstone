@@ -7,6 +7,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import { User, Edit, Save, X, Camera, Trash2, Upload, Mail } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import EmailChangeModal from '@/components/change-email-modal';
 
 interface User {
     id: number;
@@ -20,12 +21,14 @@ interface User {
 
 interface PageProps {
     user: User;
+    [key: string]: any;
 }
 
 export default function ProfilePage() {
     const { user } = usePage<PageProps>().props;
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+    const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const { data, setData, patch, processing, errors } = useForm({
@@ -111,7 +114,7 @@ export default function ProfilePage() {
     return (
         <AppHeaderLayout breadcrumbs={[
             { label: 'Profile Information', href: '/customer/profile/info' }
-        ]}>
+        ] as any}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between">
                     <h2 className="text-3xl font-bold tracking-tight">Profile Information</h2>
@@ -261,7 +264,7 @@ export default function ProfilePage() {
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        onClick={() => router.visit('/customer/profile/email-change')}
+                                        onClick={() => setIsEmailChangeModalOpen(true)}
                                         className="flex items-center gap-1"
                                     >
                                         <Mail className="h-3 w-3" />
@@ -299,6 +302,12 @@ export default function ProfilePage() {
                     </Card>
                 </div>
             </div>
+
+            <EmailChangeModal
+                isOpen={isEmailChangeModalOpen}
+                onClose={() => setIsEmailChangeModalOpen(false)}
+                user={user}
+            />
         </AppHeaderLayout>
     );
 }
