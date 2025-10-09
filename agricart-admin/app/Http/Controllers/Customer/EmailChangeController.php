@@ -68,9 +68,9 @@ class EmailChangeController extends Controller
             // Create email change request
             $emailChangeRequest = EmailChangeRequest::createForUser($user->id, $newEmail);
 
-            // Send OTP notification to current email
+            // Send OTP notification
             try {
-                $user->notify(new EmailChangeOtpNotification($emailChangeRequest->otp, $newEmail, $user->email));
+                $user->notify(new EmailChangeOtpNotification($emailChangeRequest->otp, $newEmail));
             } catch (\Exception $e) {
                 \Log::error('Failed to send OTP email', [
                     'error' => $e->getMessage(),
@@ -83,13 +83,9 @@ class EmailChangeController extends Controller
                 ]);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Verification code sent to your current email address.',
-                'requestId' => $emailChangeRequest->id,
-                'newEmail' => $newEmail,
-                'currentEmail' => $user->email
-            ]);
+            return redirect()->route('customer.profile.email-change.verify', [
+                'requestId' => $emailChangeRequest->id
+            ])->with('success', 'Verification code sent to your new email address.');
         } catch (\Exception $e) {
             \Log::error('Email change OTP error', [
                 'error' => $e->getMessage(),
@@ -203,8 +199,8 @@ class EmailChangeController extends Controller
             'expires_at' => now()->addMinutes(15),
         ]);
 
-        // Send new OTP notification to current email
-        $user->notify(new EmailChangeOtpNotification($newOtp, $emailChangeRequest->new_email, $user->email));
+        // Send new OTP notification
+        $user->notify(new EmailChangeOtpNotification($newOtp, $emailChangeRequest->new_email));
 
         return response()->json([
             'success' => true,

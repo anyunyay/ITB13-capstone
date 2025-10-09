@@ -7,15 +7,6 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import { User, Edit, Save, X, Camera, Trash2, Upload, Mail } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import EmailChangeOtpModal from '@/components/EmailChangeOtpModal';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface User {
     id: number;
@@ -36,17 +27,6 @@ export default function ProfilePage() {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
-    const [showEmailChangeModal, setShowEmailChangeModal] = useState(false);
-    const [newEmail, setNewEmail] = useState('');
-    const [isLoadingEmailChange, setIsLoadingEmailChange] = useState(false);
-    const [emailChangeErrors, setEmailChangeErrors] = useState<Record<string, string>>({});
-    const [emailChangeSuccess, setEmailChangeSuccess] = useState('');
-    const [showOtpModal, setShowOtpModal] = useState(false);
-    const [otpData, setOtpData] = useState<{
-        requestId: number;
-        newEmail: string;
-        currentEmail: string;
-    } | null>(null);
 
     const { data, setData, patch, processing, errors } = useForm({
         name: user?.name || '',
@@ -66,63 +46,6 @@ export default function ProfilePage() {
                 alert('Failed to update name. Please try again.');
             },
         });
-    };
-
-    const handleEmailChangeSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoadingEmailChange(true);
-        setEmailChangeErrors({});
-        setEmailChangeSuccess('');
-
-        try {
-            const response = await fetch('/customer/profile/email-change/send-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    new_email: newEmail,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setOtpData({
-                    requestId: data.requestId,
-                    newEmail: data.newEmail,
-                    currentEmail: data.currentEmail,
-                });
-                setShowEmailChangeModal(false);
-                setShowOtpModal(true);
-                setEmailChangeSuccess(data.message);
-            } else {
-                if (data.errors) {
-                    setEmailChangeErrors(data.errors);
-                } else {
-                    setEmailChangeErrors({ general: data.message || 'Failed to send verification code.' });
-                }
-            }
-        } catch (error) {
-            setEmailChangeErrors({ general: 'Network error. Please check your connection and try again.' });
-        } finally {
-            setIsLoadingEmailChange(false);
-        }
-    };
-
-    const handleOtpSuccess = () => {
-        // Update the user's email in the form data and user object
-        setData('email', otpData?.newEmail || '');
-        
-        // Refresh the page to show updated email
-        router.reload();
-    };
-
-    const handleOtpModalClose = () => {
-        setShowOtpModal(false);
-        setOtpData(null);
-        setEmailChangeSuccess('');
     };
 
     const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,12 +261,7 @@ export default function ProfilePage() {
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        onClick={() => {
-                                            setShowEmailChangeModal(true);
-                                            setNewEmail('');
-                                            setEmailChangeErrors({});
-                                            setEmailChangeSuccess('');
-                                        }}
+                                        onClick={() => router.visit('/customer/profile/email-change')}
                                         className="flex items-center gap-1"
                                     >
                                         <Mail className="h-3 w-3" />
@@ -381,94 +299,6 @@ export default function ProfilePage() {
                     </Card>
                 </div>
             </div>
-
-            {/* Email Change Modal */}
-            <Dialog open={showEmailChangeModal} onOpenChange={setShowEmailChangeModal}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Mail className="h-5 w-5" />
-                            Change Email Address
-                        </DialogTitle>
-                        <DialogDescription>
-                            Enter your new email address. We'll send you a verification code to your current email address to confirm the change.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <form onSubmit={handleEmailChangeSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="current-email-modal">Current Email</Label>
-                            <Input
-                                id="current-email-modal"
-                                type="email"
-                                value={user.email}
-                                disabled
-                                className="bg-muted"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="new-email-modal">New Email Address</Label>
-                            <Input
-                                id="new-email-modal"
-                                type="email"
-                                value={newEmail}
-                                onChange={(e) => setNewEmail(e.target.value)}
-                                placeholder="Enter your new email address"
-                                required
-                                disabled={isLoadingEmailChange}
-                            />
-                            {emailChangeErrors.new_email && (
-                                <p className="text-sm text-red-500">{emailChangeErrors.new_email}</p>
-                            )}
-                        </div>
-
-                        {emailChangeErrors.general && (
-                            <Alert variant="destructive">
-                                <AlertDescription>{emailChangeErrors.general}</AlertDescription>
-                            </Alert>
-                        )}
-
-                        {emailChangeSuccess && (
-                            <Alert>
-                                <AlertDescription>{emailChangeSuccess}</AlertDescription>
-                            </Alert>
-                        )}
-
-                        <div className="flex gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setShowEmailChangeModal(false)}
-                                className="flex-1"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={isLoadingEmailChange || !newEmail.trim()}
-                                className="flex-1 flex items-center gap-2"
-                            >
-                                <Mail className="h-4 w-4" />
-                                {isLoadingEmailChange ? 'Sending...' : 'Send Verification Code'}
-                            </Button>
-                        </div>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {/* OTP Modal */}
-            {otpData && (
-                <EmailChangeOtpModal
-                    isOpen={showOtpModal}
-                    onClose={handleOtpModalClose}
-                    onSuccess={handleOtpSuccess}
-                    requestId={otpData.requestId}
-                    newEmail={otpData.newEmail}
-                    currentEmail={otpData.currentEmail}
-                    allowClose={false}
-                />
-            )}
         </AppHeaderLayout>
     );
 }

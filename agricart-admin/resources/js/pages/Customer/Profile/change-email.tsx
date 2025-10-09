@@ -7,7 +7,6 @@ import { usePage, router } from '@inertiajs/react';
 import { Mail, ArrowLeft, Send } from 'lucide-react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import EmailChangeOtpModal from '@/components/EmailChangeOtpModal';
 
 interface User {
     id: number;
@@ -21,7 +20,6 @@ interface User {
 
 interface PageProps {
     user: User;
-    [key: string]: unknown;
 }
 
 export default function ChangeEmailPage() {
@@ -30,70 +28,34 @@ export default function ChangeEmailPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [success, setSuccess] = useState('');
-    const [showOtpModal, setShowOtpModal] = useState(false);
-    const [otpData, setOtpData] = useState<{
-        requestId: number;
-        newEmail: string;
-        currentEmail: string;
-    } | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setErrors({});
         setSuccess('');
 
-        try {
-            const response = await fetch('/customer/profile/email-change/send-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    new_email: newEmail,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                setOtpData({
-                    requestId: data.requestId,
-                    newEmail: data.newEmail,
-                    currentEmail: data.currentEmail,
-                });
-                setShowOtpModal(true);
-                setSuccess(data.message);
-            } else {
-                if (data.errors) {
-                    setErrors(data.errors);
-                } else {
-                    setErrors({ general: data.message || 'Failed to send verification code.' });
-                }
+        router.post('/customer/profile/email-change/send-otp', {
+            new_email: newEmail,
+        }, {
+            onSuccess: () => {
+                setIsLoading(false);
+                // The controller will redirect automatically
+            },
+            onError: (errors) => {
+                setIsLoading(false);
+                setErrors(errors);
+            },
+            onFinish: () => {
+                setIsLoading(false);
             }
-        } catch (error) {
-            setErrors({ general: 'Network error. Please check your connection and try again.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleOtpSuccess = () => {
-        // Redirect to profile page after successful email change
-        router.visit('/customer/profile/info');
-    };
-
-    const handleOtpModalClose = () => {
-        setShowOtpModal(false);
-        setOtpData(null);
-        setSuccess('');
+        });
     };
 
     return (
         <AppHeaderLayout breadcrumbs={[
-            { title: 'Profile Information', href: '/customer/profile/info' },
-            { title: 'Change Email Address', href: '/customer/profile/email-change' }
+            { label: 'Profile Information', href: '/customer/profile/info' },
+            { label: 'Change Email Address', href: '/customer/profile/email-change' }
         ]}>
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center gap-4">
@@ -116,7 +78,7 @@ export default function ChangeEmailPage() {
                             Update Email Address
                         </CardTitle>
                         <CardDescription>
-                            Enter your new email address. We'll send you a verification code to your current email address to confirm the change.
+                            Enter your new email address. We'll send you a verification code to confirm the change.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -173,28 +135,14 @@ export default function ChangeEmailPage() {
                         <div className="mt-6 p-4 bg-muted rounded-lg">
                             <h4 className="font-medium text-sm mb-2">Important Notes:</h4>
                             <ul className="text-sm text-muted-foreground space-y-1">
-                                <li>• The verification code will be sent to your current email address</li>
                                 <li>• The verification code will expire in 15 minutes</li>
-                                <li>• Make sure you have access to your current email address</li>
-                                <li>• Your email will be updated immediately after verification</li>
+                                <li>• You'll need to verify your new email address after the change</li>
+                                <li>• Make sure you have access to the new email address</li>
                             </ul>
                         </div>
                     </CardContent>
                 </Card>
             </div>
-
-            {/* OTP Modal */}
-            {otpData && (
-                <EmailChangeOtpModal
-                    isOpen={showOtpModal}
-                    onClose={handleOtpModalClose}
-                    onSuccess={handleOtpSuccess}
-                    requestId={otpData.requestId}
-                    newEmail={otpData.newEmail}
-                    currentEmail={otpData.currentEmail}
-                    allowClose={false}
-                />
-            )}
         </AppHeaderLayout>
     );
 }
