@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
+import { CheckCircle, Eye } from 'lucide-react';
 
 interface Order {
   id: number;
@@ -142,9 +143,20 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                       </div>
                       <div className="flex items-center space-x-2">
                         {getDeliveryStatusBadge(order.delivery_status)}
+                        {order.delivery_status === 'delivered' && (
+                          <div className="flex items-center gap-1 text-green-400 text-xs">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>Completed</span>
+                          </div>
+                        )}
                         <Link href={route('logistic.orders.show', order.id)}>
-                          <Button variant="outline" size="sm">
-                            View Details
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className={order.delivery_status === 'delivered' ? 'opacity-75' : ''}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            {order.delivery_status === 'delivered' ? 'View (Read-only)' : 'View Details'}
                           </Button>
                         </Link>
                       </div>

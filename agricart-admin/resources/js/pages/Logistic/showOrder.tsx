@@ -1,11 +1,13 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
+import { AlertTriangle, CheckCircle, Truck, Clock } from 'lucide-react';
 
 interface Order {
   id: number;
@@ -39,6 +41,10 @@ interface ShowOrderProps {
 export default function ShowOrder({ order }: ShowOrderProps) {
   // Use useState to manage the order state for real-time updates
   const [currentOrder, setCurrentOrder] = useState<Order>(order);
+  
+  // State for confirmation dialog
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<'pending' | 'out_for_delivery' | 'delivered' | null>(null);
 
   // Form for delivery status updates
   const updateDeliveryStatusForm = useForm({
@@ -113,33 +119,59 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     }
   };
 
-  // Handle delivery status changes
+  // Handle delivery status changes with confirmation
   const handleDeliveryStatusChange = (value: 'pending' | 'out_for_delivery' | 'delivered') => {
+    // Prevent changes to delivered orders
+    if (currentOrder.delivery_status === 'delivered') {
+      return;
+    }
+
     // Prevent multiple simultaneous requests
     if (updateDeliveryStatusForm.processing) {
       return;
     }
 
+    // Show confirmation dialog for status changes
+    setPendingStatus(value);
+    setShowConfirmationDialog(true);
+  };
+
+  // Confirm status change
+  const confirmStatusChange = () => {
+    if (!pendingStatus) return;
+
     // Update form data for UI consistency
-    updateDeliveryStatusForm.setData('delivery_status', value);
+    updateDeliveryStatusForm.setData('delivery_status', pendingStatus);
     
     // Send update request directly with the selected value
     router.put(route('logistic.orders.updateDeliveryStatus', currentOrder.id), {
-      delivery_status: value
+      delivery_status: pendingStatus
     }, {
       onSuccess: () => {
         // Update local state immediately for instant UI feedback
         setCurrentOrder(prevOrder => ({
           ...prevOrder,
-          delivery_status: value
+          delivery_status: pendingStatus
         }));
+        setShowConfirmationDialog(false);
+        setPendingStatus(null);
       },
       onError: (errors) => {
         // Handle validation or server errors silently
         // Errors will be displayed in the form if any
+        setShowConfirmationDialog(false);
+        setPendingStatus(null);
       },
       preserveScroll: true,
     });
+  };
+
+  // Cancel status change
+  const cancelStatusChange = () => {
+    setShowConfirmationDialog(false);
+    setPendingStatus(null);
+    // Reset form to current order status
+    updateDeliveryStatusForm.setData('delivery_status', currentOrder.delivery_status);
   };
 
   return (
@@ -153,9 +185,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             <h1 className="text-3xl font-bold text-white">Order #{currentOrder.id}</h1>
             <p className="text-gray-400">Order details and delivery management</p>
           </div>
-          <Link href={route('logistic.orders.index')}>
-            <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white">Back to Orders</Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+            onClick={() => window.history.back()}
+          >
+            Back to Orders
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -221,7 +257,19 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         {/* Delivery Status Update */}
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
-            <CardTitle className="text-white">Update Delivery Status</CardTitle>
+            <CardTitle className="text-white flex items-center gap-2">
+              {currentOrder.delivery_status === 'delivered' ? (
+                <>
+                  <CheckCircle className="h-5 w-5 text-green-400" />
+                  Delivery Status (Completed)
+                </>
+              ) : (
+                <>
+                  <Truck className="h-5 w-5 text-blue-400" />
+                  Update Delivery Status
+                </>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -230,9 +278,9 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 <Select
                   value={updateDeliveryStatusForm.data.delivery_status}
                   onValueChange={(value) => handleDeliveryStatusChange(value as 'pending' | 'out_for_delivery' | 'delivered')}
-                  disabled={updateDeliveryStatusForm.processing}
+                  disabled={updateDeliveryStatusForm.processing || currentOrder.delivery_status === 'delivered'}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={currentOrder.delivery_status === 'delivered' ? 'bg-gray-700 cursor-not-allowed' : ''}>
                     <SelectValue placeholder="Select delivery status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -241,6 +289,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                     <SelectItem value="delivered">Delivered</SelectItem>
                   </SelectContent>
                 </Select>
+                {currentOrder.delivery_status === 'delivered' && (
+                  <p className="text-sm text-green-400 mt-2 flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" />
+                    This order has been delivered and cannot be modified.
+                  </p>
+                )}
                 {updateDeliveryStatusForm.processing && (
                   <p className="text-sm text-blue-400 mt-2">Updating status...</p>
                 )}
@@ -320,6 +374,74 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog}>
+          <DialogContent className="bg-gray-800 border-gray-700">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-white">
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                Confirm Status Change
+              </DialogTitle>
+              <DialogDescription className="text-gray-300">
+                Are you sure you want to change the delivery status?
+              </DialogDescription>
+            </DialogHeader>
+            
+            {pendingStatus && (
+              <div className="space-y-3">
+                <div className="p-3 bg-gray-700 border border-gray-600 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-300">Current Status:</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getDeliveryStatusBadge(currentOrder.delivery_status)}
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-blue-900/30 border border-blue-600 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Truck className="h-4 w-4 text-blue-400" />
+                    <span className="text-sm font-medium text-blue-300">New Status:</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getDeliveryStatusBadge(pendingStatus)}
+                  </div>
+                </div>
+
+                {pendingStatus === 'delivered' && (
+                  <div className="p-3 bg-green-900/30 border border-green-600 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                      <span className="text-sm font-medium text-green-300">Important:</span>
+                    </div>
+                    <p className="text-sm text-green-200">
+                      Marking this order as delivered will make it read-only
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <DialogFooter className="gap-2">
+              <Button 
+                variant="outline" 
+                onClick={cancelStatusChange}
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={confirmStatusChange}
+                disabled={updateDeliveryStatusForm.processing}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {updateDeliveryStatusForm.processing ? 'Updating...' : 'Confirm Change'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -175,6 +175,11 @@ class LogisticController extends Controller
             abort(403, 'You are not authorized to update this order.');
         }
 
+        // Prevent any changes to delivered orders
+        if ($order->delivery_status === 'delivered') {
+            abort(403, 'This order has already been delivered and cannot be modified.');
+        }
+
         // Validate the delivery status value
         $request->validate([
             'delivery_status' => 'required|in:pending,out_for_delivery,delivered',

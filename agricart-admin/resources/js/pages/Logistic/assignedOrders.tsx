@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
+import { CheckCircle, Eye } from 'lucide-react';
 
 interface Order {
   id: number;
@@ -119,11 +120,13 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
               <h1 className="text-3xl font-bold text-white">Assigned Orders</h1>
               <p className="text-gray-400">Manage your assigned orders and update delivery status</p>
             </div>
-            <Link href={route('logistic.dashboard')}>
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white">
-                Back to Dashboard
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+              onClick={() => window.history.back()}
+            >
+              Back to Dashboard
+            </Button>
           </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
@@ -258,10 +261,23 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, combineOrder
             <div className="flex items-center space-x-2">
               <h3 className="font-semibold text-white">Order #{order.id}</h3>
               {getDeliveryStatusBadge(order.delivery_status)}
+              {order.delivery_status === 'delivered' && (
+                <div className="flex items-center gap-1 text-green-400 text-xs">
+                  <CheckCircle className="h-3 w-3" />
+                  <span>Completed</span>
+                </div>
+              )}
             </div>
             <Link href={route('logistic.orders.show', order.id)}>
-              <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white">
-                View Details
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white ${
+                  order.delivery_status === 'delivered' ? 'opacity-75' : ''
+                }`}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                {order.delivery_status === 'delivered' ? 'View Details (Read-only)' : 'View Details'}
               </Button>
             </Link>
           </div>
