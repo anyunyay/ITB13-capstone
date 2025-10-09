@@ -102,19 +102,26 @@ function ProductCard({ product }: { product: Product }) {
     }, {
       onSuccess: () => {
         setMessage('Added to cart!');
+        // Reset form fields
+        setSelectedCategory('');
+        setSelectedQuantity(1);
         // Refresh available stock display
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         router.reload({ only: ['cart'] });
-        setTimeout(() => setMessage(null), 3000);
-        setIsAddingToCart(false);
+        setTimeout(() => {
+          setMessage(null);
+          setIsAddingToCart(false);
+        }, 3000);
       },
       onError: () => {
         // Remove from shared stock manager on error
         stockManager.removeFromCart(product.id, selectedCategory, sendQty);
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         setMessage('Failed to add to cart.');
-        setTimeout(() => setMessage(null), 3000);
-        setIsAddingToCart(false);
+        setTimeout(() => {
+          setMessage(null);
+          setIsAddingToCart(false);
+        }, 3000);
       },
       preserveScroll: true,
     });

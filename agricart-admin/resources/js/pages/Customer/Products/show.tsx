@@ -87,8 +87,10 @@ export default function ProductShow({ product, auth }: Props) {
             onSuccess: () => {
                 setMessage('Added to cart!');
                 router.reload({ only: ['cart'] });
-                setTimeout(() => setOpen(false), 800);
-                setIsAddingToCart(false);
+                setTimeout(() => {
+                    setOpen(false);
+                    setIsAddingToCart(false);
+                }, 800);
             },
             onError: () => {
                 setMessage('Failed to add to cart.');

@@ -141,8 +141,10 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
         // Refresh available stock display
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
         router.reload({ only: ['cart'] });
-        setTimeout(() => setOpen(false), 800);
-        setIsAddingToCart(false);
+        setTimeout(() => {
+          setOpen(false);
+          setIsAddingToCart(false);
+        }, 800);
       },
       onError: () => {
         // Remove from shared stock manager on error
