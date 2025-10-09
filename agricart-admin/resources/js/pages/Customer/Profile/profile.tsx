@@ -9,6 +9,21 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EmailChangeModal from '@/components/change-email-modal';
 
+// Utility function to mask email addresses for security
+const maskEmail = (email: string): string => {
+    if (!email || !email.includes('@')) return email;
+    
+    const [localPart, domain] = email.split('@');
+    
+    if (localPart.length <= 2) {
+        return `${localPart[0]}***@${domain}`;
+    } else if (localPart.length <= 5) {
+        return `${localPart[0]}***@${domain}`;
+    } else {
+        return `${localPart[0]}${localPart[1]}***@${domain}`;
+    }
+};
+
 interface User {
     id: number;
     name: string;
@@ -254,7 +269,7 @@ export default function ProfilePage() {
                                     <Input
                                         id="email"
                                         type="email"
-                                        value={data.email}
+                                        value={maskEmail(data.email)}
                                         disabled
                                         placeholder="Enter your email"
                                     />

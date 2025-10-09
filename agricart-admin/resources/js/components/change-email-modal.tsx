@@ -30,6 +30,21 @@ interface EmailChangeModalProps {
     emailChangeRequest?: EmailChangeRequest;
 }
 
+// Utility function to mask email addresses for security
+const maskEmail = (email: string): string => {
+    if (!email || !email.includes('@')) return email;
+    
+    const [localPart, domain] = email.split('@');
+    
+    if (localPart.length <= 2) {
+        return `${localPart[0]}***@${domain}`;
+    } else if (localPart.length <= 5) {
+        return `${localPart[0]}***@${domain}`;
+    } else {
+        return `${localPart[0]}${localPart[1]}***@${domain}`;
+    }
+};
+
 export default function EmailChangeModal({ isOpen, onClose, user, emailChangeRequest }: EmailChangeModalProps) {
     const [step, setStep] = useState<'email' | 'verify'>('email');
     const [newEmail, setNewEmail] = useState('');
@@ -312,7 +327,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                     <DialogDescription>
                         {step === 'email' 
                             ? 'Enter your new email address. We\'ll send you a verification code to confirm the change.'
-                            : `We've sent a 6-digit verification code to ${user.email}`
+                            : `We've sent a 6-digit verification code to ${maskEmail(user.email)}`
                         }
                     </DialogDescription>
                 </DialogHeader>
@@ -325,7 +340,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                                 <Input
                                     id="current-email"
                                     type="email"
-                                    value={user.email}
+                                    value={maskEmail(user.email)}
                                     disabled
                                     className="bg-muted"
                                 />
