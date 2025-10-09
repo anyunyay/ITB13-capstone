@@ -13,14 +13,16 @@ class EmailChangeOtpNotification extends Notification
 
     public $otp;
     public $newEmail;
+    public $currentEmail;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $otp, string $newEmail)
+    public function __construct(string $otp, string $newEmail, string $currentEmail)
     {
         $this->otp = $otp;
         $this->newEmail = $newEmail;
+        $this->currentEmail = $currentEmail;
     }
 
     /**
@@ -41,7 +43,8 @@ class EmailChangeOtpNotification extends Notification
         return (new MailMessage)
             ->subject('Email Change Verification Code - AgriCart')
             ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('You have requested to change your email address to: **' . $this->newEmail . '**')
+            ->line('You have requested to change your email address from **' . $this->currentEmail . '** to **' . $this->newEmail . '**')
+            ->line('For security purposes, we have sent this verification code to your current email address.')
             ->line('Please use the following verification code to complete your email change:')
             ->line('## **' . $this->otp . '**')
             ->line('This code will expire in 15 minutes.')
@@ -59,6 +62,7 @@ class EmailChangeOtpNotification extends Notification
         return [
             'otp' => $this->otp,
             'new_email' => $this->newEmail,
+            'current_email' => $this->currentEmail,
         ];
     }
 }
