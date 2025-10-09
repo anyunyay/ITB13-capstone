@@ -81,20 +81,21 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        // Check if user can change active address (profile address changes affect the main address)
-        if (!$user->canChangeActiveAddress()) {
-            return redirect()->back()->with('error', 'Cannot modify address information while you have pending or out-for-delivery orders. Please wait until all orders are delivered.');
-        }
-        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'contact_number' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'barangay' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'province' => 'nullable|string|max:255',
         ]);
+
+        // Map phone to contact_number for database
+        if (isset($validated['phone'])) {
+            $validated['contact_number'] = $validated['phone'];
+            unset($validated['phone']);
+        }
 
         $user->update($validated);
 

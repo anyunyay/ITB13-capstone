@@ -24,33 +24,28 @@ interface PageProps {
 
 export default function ProfilePage() {
     const { user } = usePage<PageProps>().props;
-    const [isEditing, setIsEditing] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, patch, processing, errors, reset } = useForm({
+    const { data, setData, patch, processing, errors } = useForm({
         name: user?.name || '',
         email: user?.email || '',
         phone: user?.contact_number || '',
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    // Track if name has been modified
+    const isNameModified = data.name !== (user?.name || '');
+
+    const handleNameSubmit = () => {
         patch('/customer/profile', {
             onSuccess: () => {
-                setIsEditing(false);
-                alert('Profile updated successfully!');
+                alert('Name updated successfully!');
             },
             onError: () => {
-                alert('Failed to update profile. Please try again.');
+                alert('Failed to update name. Please try again.');
             },
         });
-    };
-
-    const handleCancel = () => {
-        reset();
-        setIsEditing(false);
     };
 
     const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,106 +201,103 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <User className="h-5 w-5" />
-                            Personal Details
-                        </CardTitle>
-                        <CardDescription>
-                            Manage your personal information and account details
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Details Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Full Name Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <User className="h-5 w-5" />
+                                Full Name
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Full Name</Label>
                                     <Input
                                         id="name"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
-                                        disabled={!isEditing}
                                         placeholder="Enter your full name"
                                     />
                                     {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                                 </div>
+                                <div className="flex justify-end">
+                                    <Button
+                                        type="button"
+                                        disabled={processing || !isNameModified}
+                                        onClick={handleNameSubmit}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Save className="h-4 w-4" />
+                                        {processing ? 'Saving...' : 'Save'}
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
+                    {/* Email Address Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Mail className="h-5 w-5" />
+                                Email Address
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <Label htmlFor="email">Email Address</Label>
-                                        {!isEditing && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => router.visit('/customer/profile/email-change')}
-                                                className="flex items-center gap-1"
-                                            >
-                                                <Mail className="h-3 w-3" />
-                                                Change Email
-                                            </Button>
-                                        )}
-                                    </div>
                                     <Input
                                         id="email"
                                         type="email"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
-                                        disabled={!isEditing}
+                                        disabled
                                         placeholder="Enter your email"
                                     />
                                     {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                                 </div>
+                                <div className="flex justify-end">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => router.visit('/customer/profile/email-change')}
+                                        className="flex items-center gap-1"
+                                    >
+                                        <Mail className="h-3 w-3" />
+                                        Change Email
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
+                    {/* Contact Number Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <User className="h-5 w-5" />
+                                Contact Number
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone">Contact Number</Label>
                                     <Input
                                         id="phone"
                                         value={data.phone}
-                                        onChange={(e) => setData('phone', e.target.value)}
-                                        disabled={!isEditing}
+                                        disabled
                                         placeholder="Enter your contact number"
                                     />
                                     {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                                 </div>
+                                <div className="flex justify-end">
+                                    <p className="text-sm text-muted-foreground">Contact support to update</p>
+                                </div>
                             </div>
-
-                            <div className="flex justify-end gap-2">
-                                {!isEditing ? (
-                                    <Button
-                                        type="button"
-                                        onClick={() => setIsEditing(true)}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                        Edit Profile
-                                    </Button>
-                                ) : (
-                                    <>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={handleCancel}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <X className="h-4 w-4" />
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <Save className="h-4 w-4" />
-                                            {processing ? 'Saving...' : 'Save Changes'}
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AppHeaderLayout>
     );
