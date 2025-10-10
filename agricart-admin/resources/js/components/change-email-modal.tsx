@@ -184,13 +184,9 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
         setSuccess('');
 
         const url = getApiEndpoint('send-otp');
-        console.log('Submitting email change request to:', url);
-        console.log('Email data:', emailData.new_email);
 
         try {
             const csrfToken = getCsrfTokenFromMeta();
-            console.log('CSRF Token from meta tag:', csrfToken);
-            console.log('CSRF Token length:', csrfToken?.length);
             
             if (!csrfToken) {
                 throw new Error('CSRF token not found in meta tag');
@@ -209,8 +205,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 }),
             });
 
-            console.log('Email submit response status:', response.status);
-            console.log('Email submit response headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -244,7 +238,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                         
                         if (retryResponse.ok) {
                             const retryData = await retryResponse.json();
-                            console.log('Email submit retry response:', retryData);
                             
                             if (retryData.success) {
                                 setSuccess(retryData.message || 'Verification code sent successfully!');
@@ -268,13 +261,10 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             }
 
             const data = await response.json();
-            console.log('Email submit response:', data);
 
             if (data.success) {
                 setSuccess(data.message || 'Verification code sent successfully!');
                 if (data.emailChangeRequest) {
-                    console.log('Setting email change request:', data.emailChangeRequest);
-                    console.log('OTP in response:', data.emailChangeRequest.otp);
                     setCurrentEmailChangeRequest(data.emailChangeRequest);
                 }
                 setStep('verify');
@@ -308,19 +298,12 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
 
         try {
             const csrfToken = getCsrfTokenFromMeta();
-            console.log('CSRF Token for verify:', csrfToken);
-            console.log('OTP being verified:', otp);
-            console.log('OTP length:', otp.length);
-            console.log('Request ID:', request.id);
-            console.log('Current email change request:', request);
-            console.log('Current time:', new Date().toISOString());
             
             if (!csrfToken) {
                 throw new Error('CSRF token not found in meta tag');
             }
             
             const verifyUrl = getApiEndpoint('verify', request.id.toString());
-            console.log('Verify URL:', verifyUrl);
             
             const response = await fetch(verifyUrl, {
                 method: 'POST',
@@ -335,8 +318,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 }),
             });
 
-            console.log('OTP verify response status:', response.status);
-            console.log('OTP verify response headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -345,7 +326,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             }
 
             const data = await response.json();
-            console.log('OTP verify response:', data);
 
             if (data.success) {
                 setSuccess(data.message || 'Email changed successfully!');
@@ -357,10 +337,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             } else {
                 if (data.errors) {
                     setErrors(data.errors);
-                    // Add helpful message for OTP mismatch
-                    if (data.errors.otp && currentEmailChangeRequest) {
-                        console.log('OTP mismatch detected. Expected:', currentEmailChangeRequest.otp, 'Received:', otp);
-                    }
                 } else {
                     setErrors({ general: data.message || 'Invalid verification code.' });
                 }
@@ -384,7 +360,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
 
         try {
             const csrfToken = getCsrfTokenFromMeta();
-            console.log('CSRF Token for resend:', csrfToken);
             
             if (!csrfToken) {
                 throw new Error('CSRF token not found in meta tag');
@@ -402,7 +377,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             });
 
             const data = await response.json();
-            console.log('Resend OTP response:', data);
 
             if (data.success) {
                 setSuccess(data.message || 'New verification code sent!');
@@ -428,7 +402,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 if (request) {
                     try {
                         const csrfToken = getCsrfTokenFromMeta();
-                        console.log('CSRF Token for cancel:', csrfToken);
                         
                         if (!csrfToken) {
                             throw new Error('CSRF token not found in meta tag');
@@ -446,7 +419,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                         });
 
                         const data = await response.json();
-                        console.log('Cancel response:', data);
 
                         if (data.success) {
                             onClose();
@@ -584,15 +556,6 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                                 />
                                 {errors.otp && (
                                     <p className="text-sm text-red-500">{errors.otp}</p>
-                                )}
-                                {/* Debug info - remove in production */}
-                                {currentEmailChangeRequest && (
-                                    <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
-                                        <p>Debug Info:</p>
-                                        <p>Request ID: {currentEmailChangeRequest.id}</p>
-                                        <p>Expected OTP: {currentEmailChangeRequest.otp}</p>
-                                        <p>Expires: {new Date(currentEmailChangeRequest.expires_at).toLocaleString()}</p>
-                                    </div>
                                 )}
                             </div>
 

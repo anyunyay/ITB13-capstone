@@ -217,39 +217,6 @@ class EmailChangeController extends Controller
         }
 
         $emailChangeRequest = EmailChangeRequest::findValidOtp($user->id, $request->otp);
-        
-        // Debug logging
-        Log::info('OTP Verification Debug', [
-            'user_id' => $user->id,
-            'otp' => $request->otp,
-            'otp_length' => strlen($request->otp),
-            'request_id' => $requestId,
-            'current_time' => now()->toISOString(),
-            'found_request' => $emailChangeRequest ? [
-                'id' => $emailChangeRequest->id,
-                'otp' => $emailChangeRequest->otp,
-                'otp_length' => strlen($emailChangeRequest->otp),
-                'is_used' => $emailChangeRequest->is_used,
-                'expires_at' => $emailChangeRequest->expires_at,
-                'is_expired' => $emailChangeRequest->isExpired(),
-                'time_until_expiry' => $emailChangeRequest->expires_at->diffInMinutes(now()),
-            ] : null,
-            'all_user_requests' => EmailChangeRequest::where('user_id', $user->id)
-                ->where('is_used', false)
-                ->get(['id', 'otp', 'is_used', 'expires_at'])
-                ->map(function($req) {
-                    return [
-                        'id' => $req->id,
-                        'otp' => $req->otp,
-                        'otp_length' => strlen($req->otp),
-                        'is_used' => $req->is_used,
-                        'expires_at' => $req->expires_at,
-                        'is_expired' => $req->isExpired(),
-                        'time_until_expiry' => $req->expires_at->diffInMinutes(now()),
-                    ];
-                })
-                ->toArray()
-        ]);
 
         if (!$emailChangeRequest || $emailChangeRequest->id != $requestId) {
             // Return JSON response for modal requests
