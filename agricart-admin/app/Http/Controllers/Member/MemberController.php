@@ -167,9 +167,8 @@ class MemberController extends Controller
      */
     private function calculateSalesData($memberId)
     {
-        // Get all approved sales that involve stocks from this member
-        $approvedSales = SalesAudit::approved()
-            ->with(['auditTrail.product', 'customer'])
+        // Get all delivered sales that involve stocks from this member
+        $deliveredSales = Sales::with(['salesAudit.auditTrail.product', 'customer'])
             ->get();
 
         $totalSales = 0;
@@ -177,8 +176,8 @@ class MemberController extends Controller
         $totalQuantitySold = 0;
         $productSales = []; // Group by product_id
 
-        foreach ($approvedSales as $sale) {
-            foreach ($sale->auditTrail as $audit) {
+        foreach ($deliveredSales as $sale) {
+            foreach ($sale->salesAudit->auditTrail as $audit) {
                 // Check if this audit trail involves a stock from this member
                 $stock = Stock::where('id', $audit->stock_id)
                     ->where('member_id', $memberId)
@@ -196,6 +195,8 @@ class MemberController extends Controller
                         $price = $audit->product->price_pc;
                     } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
                         $price = $audit->product->price_tali;
+                    } elseif ($audit->category === 'order' && $audit->product->price_kilo) {
+                        $price = $audit->product->price_kilo;
                     }
                     
                     $itemRevenue = $audit->quantity * $price;
@@ -264,10 +265,9 @@ class MemberController extends Controller
             ]
         );
 
-        // Get all approved sales that involve stocks from this member
-        $query = SalesAudit::approved()
-            ->with(['auditTrail.product', 'customer'])
-            ->whereHas('auditTrail', function($q) use ($user) {
+        // Get all delivered sales that involve stocks from this member
+        $query = Sales::with(['salesAudit.auditTrail.product', 'customer'])
+            ->whereHas('salesAudit.auditTrail', function($q) use ($user) {
                 $q->whereHas('stock', function($stockQuery) use ($user) {
                     $stockQuery->where('member_id', $user->id);
                 });
@@ -275,13 +275,13 @@ class MemberController extends Controller
 
         // Filter by date range
         if ($startDate) {
-            $query->whereDate('created_at', '>=', $startDate);
+            $query->whereDate('delivered_at', '>=', $startDate);
         }
         if ($endDate) {
-            $query->whereDate('created_at', '<=', $endDate);
+            $query->whereDate('delivered_at', '<=', $endDate);
         }
 
-        $sales = $query->orderBy('created_at', 'desc')->get();
+        $sales = $query->orderBy('delivered_at', 'desc')->get();
 
         // Calculate detailed sales data
         $salesData = $this->calculateDetailedSalesData($user->id, $sales);
@@ -330,7 +330,7 @@ class MemberController extends Controller
             $orderQuantity = 0;
             $orderProducts = [];
 
-            foreach ($sale->auditTrail as $audit) {
+            foreach ($sale->salesAudit->auditTrail as $audit) {
                 // Check if this audit trail involves a stock from this member
                 $stock = Stock::where('id', $audit->stock_id)
                     ->where('member_id', $memberId)
@@ -347,6 +347,8 @@ class MemberController extends Controller
                         $price = $audit->product->price_pc;
                     } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
                         $price = $audit->product->price_tali;
+                    } elseif ($audit->category === 'order' && $audit->product->price_kilo) {
+                        $price = $audit->product->price_kilo;
                     }
                     
                     $itemRevenue = $audit->quantity * $price;

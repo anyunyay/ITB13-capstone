@@ -14,18 +14,17 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SalesAudit::with(['customer.defaultAddress', 'admin', 'logistic'])
-            ->where('status', 'approved');
+        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit']);
 
         // Filter by date range if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [
+            $query->whereBetween('delivered_at', [
                 $request->start_date . ' 00:00:00',
                 $request->end_date . ' 23:59:59'
             ]);
         }
 
-        $sales = $query->orderBy('created_at', 'desc')->get();
+        $sales = $query->orderBy('delivered_at', 'desc')->get();
 
         // Calculate summary statistics
         $summary = [
@@ -58,18 +57,17 @@ class SalesController extends Controller
 
     public function generateReport(Request $request)
     {
-        $query = SalesAudit::with(['customer.defaultAddress', 'admin', 'logistic'])
-            ->where('status', 'approved');
+        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit']);
 
         // Filter by date range if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [
+            $query->whereBetween('delivered_at', [
                 $request->start_date . ' 00:00:00',
                 $request->end_date . ' 23:59:59'
             ]);
         }
 
-        $sales = $query->orderBy('created_at', 'desc')->get();
+        $sales = $query->orderBy('delivered_at', 'desc')->get();
 
         // Calculate summary statistics
         $summary = [
@@ -127,13 +125,14 @@ class SalesController extends Controller
             
             if ($exportType === 'sales') {
                 // Sales data only
-                fputcsv($file, ['Sale ID', 'Total Amount', 'Created Date', 'Processed By', 'Logistic']);
+                fputcsv($file, ['Sale ID', 'Total Amount', 'Delivered Date', 'Customer', 'Processed By', 'Logistic']);
                 
                 foreach ($sales as $sale) {
                     fputcsv($file, [
                         $sale->id,
                         number_format($sale->total_amount, 2),
-                        $sale->created_at->format('Y-m-d H:i:s'),
+                        $sale->delivered_at->format('Y-m-d H:i:s'),
+                        $sale->customer->name ?? 'N/A',
                         $sale->admin->name ?? 'N/A',
                         $sale->logistic->name ?? 'N/A'
                     ]);
@@ -183,19 +182,19 @@ class SalesController extends Controller
 
     private function getMemberSales(Request $request)
     {
-        // Base query to get member sales data from sales_audit and audit trails
-        $query = DB::table('sales_audit')
+        // Base query to get member sales data from delivered sales and audit trails
+        $query = DB::table('sales')
+            ->join('sales_audit', 'sales.sales_audit_id', '=', 'sales_audit.id')
             ->join('audit_trails', 'sales_audit.id', '=', 'audit_trails.sale_id')
             ->join('stocks', 'audit_trails.stock_id', '=', 'stocks.id')
             ->join('users as members', 'stocks.member_id', '=', 'members.id')
             ->join('products', 'audit_trails.product_id', '=', 'products.id')
-            ->where('sales_audit.status', 'approved')
             ->where('members.type', 'member')
             ->select(
                 'members.id as member_id',
                 'members.name as member_name',
                 'members.email as member_email',
-                DB::raw('COUNT(DISTINCT sales_audit.id) as total_orders'),
+                DB::raw('COUNT(DISTINCT sales.id) as total_orders'),
                 DB::raw('SUM(
                     CASE 
                         WHEN audit_trails.category = "Kilo" AND products.price_kilo IS NOT NULL 
@@ -204,6 +203,8 @@ class SalesController extends Controller
                         THEN audit_trails.quantity * products.price_pc
                         WHEN audit_trails.category = "Tali" AND products.price_tali IS NOT NULL 
                         THEN audit_trails.quantity * products.price_tali
+                        WHEN audit_trails.category = "order" AND products.price_kilo IS NOT NULL 
+                        THEN audit_trails.quantity * products.price_kilo
                         ELSE 0
                     END
                 ) as total_revenue'),
@@ -213,7 +214,7 @@ class SalesController extends Controller
 
         // Filter by date range if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('sales_audit.created_at', [
+            $query->whereBetween('sales.delivered_at', [
                 $request->start_date . ' 00:00:00',
                 $request->end_date . ' 23:59:59'
             ]);

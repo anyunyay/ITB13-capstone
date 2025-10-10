@@ -74,21 +74,21 @@ class DashboardController extends Controller
 
     private function getOrdersStatistics($today, $thisWeek, $thisMonth, $lastMonth, $lastMonthEnd)
     {
-        // Today's orders
-        $todayOrders = SalesAudit::whereDate('created_at', $today)->count();
-        $todayRevenue = SalesAudit::whereDate('created_at', $today)->sum('total_amount');
+        // Today's delivered orders
+        $todayOrders = Sales::whereDate('delivered_at', $today)->count();
+        $todayRevenue = Sales::whereDate('delivered_at', $today)->sum('total_amount');
         
-        // This week's orders
-        $weekOrders = SalesAudit::where('created_at', '>=', $thisWeek)->count();
-        $weekRevenue = SalesAudit::where('created_at', '>=', $thisWeek)->sum('total_amount');
+        // This week's delivered orders
+        $weekOrders = Sales::where('delivered_at', '>=', $thisWeek)->count();
+        $weekRevenue = Sales::where('delivered_at', '>=', $thisWeek)->sum('total_amount');
         
-        // This month's orders
-        $monthOrders = SalesAudit::where('created_at', '>=', $thisMonth)->count();
-        $monthRevenue = SalesAudit::where('created_at', '>=', $thisMonth)->sum('total_amount');
+        // This month's delivered orders
+        $monthOrders = Sales::where('delivered_at', '>=', $thisMonth)->count();
+        $monthRevenue = Sales::where('delivered_at', '>=', $thisMonth)->sum('total_amount');
         
-        // Last month's orders for comparison
-        $lastMonthOrders = SalesAudit::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->count();
-        $lastMonthRevenue = SalesAudit::whereBetween('created_at', [$lastMonth, $lastMonthEnd])->sum('total_amount');
+        // Last month's delivered orders for comparison
+        $lastMonthOrders = Sales::whereBetween('delivered_at', [$lastMonth, $lastMonthEnd])->count();
+        $lastMonthRevenue = Sales::whereBetween('delivered_at', [$lastMonth, $lastMonthEnd])->sum('total_amount');
         
         // Order status breakdown
         $orderStatusBreakdown = SalesAudit::select('status', DB::raw('count(*) as count'))
@@ -141,38 +141,39 @@ class DashboardController extends Controller
 
     private function getSalesStatistics($today, $thisWeek, $thisMonth, $lastMonth, $lastMonthEnd)
     {
-        // Total sales (all orders)
-        $totalSales = SalesAudit::sum('total_amount');
-        $totalOrders = SalesAudit::count();
+        // Total sales (delivered orders only)
+        $totalSales = Sales::sum('total_amount');
+        $totalOrders = Sales::count();
         
-        // Delivered sales (completed orders)
+        // Delivered sales (completed orders) - same as total sales now
         $deliveredSales = Sales::sum('total_amount');
         $deliveredOrders = Sales::count();
         
         // Average order value
         $avgOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;
         
-        // Sales by day (last 30 days)
-        $salesByDay = SalesAudit::select(
-                DB::raw('DATE(created_at) as date'),
+        // Sales by day (last 30 days) - delivered orders only
+        $salesByDay = Sales::select(
+                DB::raw('DATE(delivered_at) as date'),
                 DB::raw('COUNT(*) as orders'),
                 DB::raw('SUM(total_amount) as revenue')
             )
-            ->where('created_at', '>=', now()->subDays(30))
+            ->where('delivered_at', '>=', now()->subDays(30))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
         
-        // Sales by product category
-        $salesByCategory = DB::table('audit_trails')
-            ->join('sales_audit', 'audit_trails.sale_id', '=', 'sales_audit.id')
+        // Sales by product category - delivered orders only
+        $salesByCategory = DB::table('sales')
+            ->join('sales_audit', 'sales.sales_audit_id', '=', 'sales_audit.id')
+            ->join('audit_trails', 'sales_audit.id', '=', 'audit_trails.sale_id')
             ->select(
                 'audit_trails.category',
-                DB::raw('COUNT(*) as orders'),
+                DB::raw('COUNT(DISTINCT sales.id) as orders'),
                 DB::raw('SUM(audit_trails.quantity) as quantity'),
-                DB::raw('SUM(sales_audit.total_amount) as revenue')
+                DB::raw('SUM(sales.total_amount) as revenue')
             )
-            ->where('sales_audit.created_at', '>=', $thisMonth)
+            ->where('sales.delivered_at', '>=', $thisMonth)
             ->groupBy('audit_trails.category')
             ->get();
 
@@ -350,16 +351,18 @@ class DashboardController extends Controller
 
     private function getTopSellingProducts()
     {
-        return DB::table('audit_trails')
+        return DB::table('sales')
+            ->join('sales_audit', 'sales.sales_audit_id', '=', 'sales_audit.id')
+            ->join('audit_trails', 'sales_audit.id', '=', 'audit_trails.sale_id')
             ->join('products', 'audit_trails.product_id', '=', 'products.id')
             ->select(
                 'products.id',
                 'products.name',
                 'products.produce_type',
                 DB::raw('SUM(audit_trails.quantity) as total_quantity'),
-                DB::raw('COUNT(DISTINCT audit_trails.sale_id) as order_count')
+                DB::raw('COUNT(DISTINCT sales.id) as order_count')
             )
-            ->where('audit_trails.created_at', '>=', now()->subMonth())
+            ->where('sales.delivered_at', '>=', now()->subMonth())
             ->groupBy('products.id', 'products.name', 'products.produce_type')
             ->orderBy('total_quantity', 'desc')
             ->limit(10)
@@ -368,12 +371,33 @@ class DashboardController extends Controller
 
     private function getMemberPerformance()
     {
-        return User::where('type', 'member')
-            ->withCount(['stocks as total_stocks', 'stocks as sold_stocks' => function($query) {
-                $query->where('quantity', 0);
-            }])
-            ->with(['memberEarnings'])
-            ->orderBy('total_stocks', 'desc')
+        return DB::table('users')
+            ->join('stocks', 'users.id', '=', 'stocks.member_id')
+            ->join('audit_trails', 'stocks.id', '=', 'audit_trails.stock_id')
+            ->join('sales_audit', 'audit_trails.sale_id', '=', 'sales_audit.id')
+            ->join('sales', 'sales_audit.id', '=', 'sales.sales_audit_id')
+            ->where('users.type', 'member')
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COUNT(DISTINCT stocks.id) as total_stocks'),
+                DB::raw('COUNT(DISTINCT sales.id) as delivered_orders'),
+                DB::raw('SUM(
+                    CASE 
+                        WHEN audit_trails.category = "Kilo" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_kilo IS NOT NULL)
+                        THEN audit_trails.quantity * (SELECT price_kilo FROM products WHERE id = audit_trails.product_id)
+                        WHEN audit_trails.category = "Pc" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_pc IS NOT NULL)
+                        THEN audit_trails.quantity * (SELECT price_pc FROM products WHERE id = audit_trails.product_id)
+                        WHEN audit_trails.category = "Tali" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_tali IS NOT NULL)
+                        THEN audit_trails.quantity * (SELECT price_tali FROM products WHERE id = audit_trails.product_id)
+                        WHEN audit_trails.category = "order" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_kilo IS NOT NULL)
+                        THEN audit_trails.quantity * (SELECT price_kilo FROM products WHERE id = audit_trails.product_id)
+                        ELSE 0
+                    END
+                ) as total_revenue')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('delivered_orders', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($member) {
@@ -381,33 +405,33 @@ class DashboardController extends Controller
                     'id' => $member->id,
                     'name' => $member->name,
                     'total_stocks' => $member->total_stocks,
-                    'sold_stocks' => $member->sold_stocks,
-                    'total_earnings' => $member->memberEarnings?->total_earnings ?? 0,
-                    'available_earnings' => $member->memberEarnings?->available_earnings ?? 0,
+                    'delivered_orders' => $member->delivered_orders,
+                    'total_revenue' => $member->total_revenue ?? 0,
                 ];
             });
     }
 
     private function getLogisticsPerformance()
     {
-        return User::where('type', 'logistic')
-            ->withCount(['assignedOrders as total_orders', 'assignedOrders as delivered_orders' => function($query) {
-                $query->where('delivery_status', 'delivered');
-            }])
-            ->orderBy('total_orders', 'desc')
+        return DB::table('users')
+            ->leftJoin('sales', 'users.id', '=', 'sales.logistic_id')
+            ->where('users.type', 'logistic')
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COUNT(sales.id) as delivered_orders'),
+                DB::raw('SUM(sales.total_amount) as total_revenue')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('delivered_orders', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($logistic) {
-                $deliveryRate = $logistic->total_orders > 0 
-                    ? round(($logistic->delivered_orders / $logistic->total_orders) * 100, 2)
-                    : 0;
-                
                 return [
                     'id' => $logistic->id,
                     'name' => $logistic->name,
-                    'total_orders' => $logistic->total_orders,
                     'delivered_orders' => $logistic->delivered_orders,
-                    'delivery_rate' => $deliveryRate,
+                    'total_revenue' => $logistic->total_revenue ?? 0,
                 ];
             });
     }
