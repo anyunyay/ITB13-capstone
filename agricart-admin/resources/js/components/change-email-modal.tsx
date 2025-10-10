@@ -3,14 +3,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { router } from '@inertiajs/react';
+import { router, usePage, useForm } from '@inertiajs/react';
 import { Mail, Send, Check, X, RotateCcw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { getCsrfTokenFromMeta, refreshCsrfToken } from '@/lib/csrf-cleanup';
 
 interface User {
     id: number;
     name: string;
     email: string;
+    type: string;
     phone?: string;
     contact_number?: string;
     avatar?: string;
@@ -47,10 +49,7 @@ const maskEmail = (email: string): string => {
 
 export default function EmailChangeModal({ isOpen, onClose, user, emailChangeRequest }: EmailChangeModalProps) {
     const [step, setStep] = useState<'email' | 'verify'>('email');
-    const [newEmail, setNewEmail] = useState('');
     const [otp, setOtp] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
     const [success, setSuccess] = useState('');
     const [resendTimer, setResendTimer] = useState(30);
     const [canResend, setCanResend] = useState(false);
@@ -62,13 +61,53 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const resendTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Use Inertia forms for CSRF handling
+    const { data: emailData, setData: setEmailData, processing: emailProcessing, errors: emailErrors, reset: resetEmail } = useForm({
+        new_email: '',
+    });
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Get the appropriate API endpoint based on user type
+    const getApiEndpoint = (action: string, requestId?: string) => {
+        // Determine the user type prefix based on user type
+        const userType = user.type;
+        let userTypePrefix = '';
+        
+        if (userType === 'admin' || userType === 'staff') {
+            userTypePrefix = '/admin';
+        } else if (userType === 'customer') {
+            userTypePrefix = '/customer';
+        } else if (userType === 'logistic') {
+            userTypePrefix = '/logistic';
+        } else if (userType === 'member') {
+            userTypePrefix = '/member';
+        } else {
+            userTypePrefix = '/customer'; // fallback
+        }
+        
+        const baseUrl = `${userTypePrefix}/profile/email-change`;
+        switch (action) {
+            case 'send-otp':
+                return `${baseUrl}/send-otp`;
+            case 'verify':
+                return `${baseUrl}/verify/${requestId}`;
+            case 'resend':
+                return `${baseUrl}/resend/${requestId}`;
+            case 'cancel':
+                return `${baseUrl}/cancel/${requestId}`;
+            default:
+                return baseUrl;
+        }
+    };
+
     // Reset state when modal opens/closes
     useEffect(() => {
         if (isOpen) {
             setStep('email');
-            setNewEmail('');
+            setEmailData('new_email', '');
             setOtp('');
-            setErrors({});
             setSuccess('');
             setResendTimer(30);
             setCanResend(false);
@@ -76,6 +115,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             setTimeLeft(0);
             setCurrentEmailChangeRequest(null);
             setShowBackConfirmation(false);
+            resetEmail();
         }
     }, [isOpen]);
 
@@ -143,28 +183,100 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
         setErrors({});
         setSuccess('');
 
+        const url = getApiEndpoint('send-otp');
+        console.log('Submitting email change request to:', url);
+        console.log('Email data:', emailData.new_email);
+
         try {
-            const response = await fetch('/customer/profile/email-change/send-otp', {
+            const csrfToken = getCsrfTokenFromMeta();
+            console.log('CSRF Token from meta tag:', csrfToken);
+            console.log('CSRF Token length:', csrfToken?.length);
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token not found in meta tag');
+            }
+            
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    new_email: newEmail,
+                    new_email: emailData.new_email,
                 }),
             });
 
+            console.log('Email submit response status:', response.status);
+            console.log('Email submit response headers:', Object.fromEntries(response.headers.entries()));
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Email submit error response:', errorText);
+                
+                // If CSRF token mismatch, try to refresh token and retry once
+                if (response.status === 419) {
+                    console.log('CSRF token mismatch detected, attempting to refresh token...');
+                    const newToken = await refreshCsrfToken();
+                    if (newToken) {
+                        console.log('New CSRF token obtained, retrying request...');
+                        // Update the meta tag with the new token
+                        const metaTag = document.querySelector('meta[name="csrf-token"]');
+                        if (metaTag) {
+                            metaTag.setAttribute('content', newToken);
+                        }
+                        
+                        // Retry the request with the new token
+                        const retryResponse = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': newToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                new_email: emailData.new_email,
+                            }),
+                        });
+                        
+                        if (retryResponse.ok) {
+                            const retryData = await retryResponse.json();
+                            console.log('Email submit retry response:', retryData);
+                            
+                            if (retryData.success) {
+                                setSuccess(retryData.message || 'Verification code sent successfully!');
+                                if (retryData.emailChangeRequest) {
+                                    setCurrentEmailChangeRequest(retryData.emailChangeRequest);
+                                }
+                                setStep('verify');
+                            } else {
+                                if (retryData.errors) {
+                                    setErrors(retryData.errors);
+                                } else {
+                                    setErrors({ general: retryData.message || 'Failed to send verification code.' });
+                                }
+                            }
+                            return; // Exit early on successful retry
+                        }
+                    }
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            }
+
             const data = await response.json();
+            console.log('Email submit response:', data);
 
             if (data.success) {
-                setSuccess(data.message);
-                // Set the email change request from the response
+                setSuccess(data.message || 'Verification code sent successfully!');
                 if (data.emailChangeRequest) {
+                    console.log('Setting email change request:', data.emailChangeRequest);
+                    console.log('OTP in response:', data.emailChangeRequest.otp);
                     setCurrentEmailChangeRequest(data.emailChangeRequest);
                 }
-                // Transition to verification step
                 setStep('verify');
             } else {
                 if (data.errors) {
@@ -174,6 +286,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 }
             }
         } catch (error) {
+            console.error('Email submit error:', error);
             setErrors({ general: 'Network error. Please check your connection and try again.' });
         } finally {
             setIsLoading(false);
@@ -194,21 +307,48 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
         }
 
         try {
-            const response = await fetch(`/customer/profile/email-change/verify/${request.id}`, {
+            const csrfToken = getCsrfTokenFromMeta();
+            console.log('CSRF Token for verify:', csrfToken);
+            console.log('OTP being verified:', otp);
+            console.log('OTP length:', otp.length);
+            console.log('Request ID:', request.id);
+            console.log('Current email change request:', request);
+            console.log('Current time:', new Date().toISOString());
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token not found in meta tag');
+            }
+            
+            const verifyUrl = getApiEndpoint('verify', request.id.toString());
+            console.log('Verify URL:', verifyUrl);
+            
+            const response = await fetch(verifyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    otp: otp,
+                    otp: otp.trim(),
                 }),
             });
 
+            console.log('OTP verify response status:', response.status);
+            console.log('OTP verify response headers:', Object.fromEntries(response.headers.entries()));
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('OTP verify error response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            }
+
             const data = await response.json();
+            console.log('OTP verify response:', data);
 
             if (data.success) {
-                setSuccess(data.message);
+                setSuccess(data.message || 'Email changed successfully!');
                 // Close modal and refresh the page after success
                 setTimeout(() => {
                     onClose();
@@ -217,11 +357,16 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             } else {
                 if (data.errors) {
                     setErrors(data.errors);
+                    // Add helpful message for OTP mismatch
+                    if (data.errors.otp && currentEmailChangeRequest) {
+                        console.log('OTP mismatch detected. Expected:', currentEmailChangeRequest.otp, 'Received:', otp);
+                    }
                 } else {
                     setErrors({ general: data.message || 'Invalid verification code.' });
                 }
             }
         } catch (error) {
+            console.error('OTP verify error:', error);
             setErrors({ general: 'Network error. Please check your connection and try again.' });
         } finally {
             setIsLoading(false);
@@ -238,22 +383,38 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
         setErrors({});
 
         try {
-            const response = await fetch(`/customer/profile/email-change/resend/${request.id}`, {
+            const csrfToken = getCsrfTokenFromMeta();
+            console.log('CSRF Token for resend:', csrfToken);
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token not found in meta tag');
+            }
+            
+            const response = await fetch(getApiEndpoint('resend', request.id.toString()), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                 },
+                body: JSON.stringify({}),
             });
 
             const data = await response.json();
+            console.log('Resend OTP response:', data);
 
             if (data.success) {
-                setSuccess(data.message);
+                setSuccess(data.message || 'New verification code sent!');
             } else {
-                setErrors({ general: data.message || 'Failed to resend verification code.' });
+                if (data.errors) {
+                    setErrors(data.errors);
+                } else {
+                    setErrors({ general: data.message || 'Failed to resend verification code.' });
+                }
             }
         } catch (error) {
+            console.error('Resend OTP error:', error);
             setErrors({ general: 'Network error. Please check your connection and try again.' });
         } finally {
             setIsResending(false);
@@ -266,15 +427,26 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                 const request = currentEmailChangeRequest || emailChangeRequest;
                 if (request) {
                     try {
-                        const response = await fetch(`/customer/profile/email-change/cancel/${request.id}`, {
+                        const csrfToken = getCsrfTokenFromMeta();
+                        console.log('CSRF Token for cancel:', csrfToken);
+                        
+                        if (!csrfToken) {
+                            throw new Error('CSRF token not found in meta tag');
+                        }
+                        
+                        const response = await fetch(getApiEndpoint('cancel', request.id.toString()), {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
                             },
+                            body: JSON.stringify({}),
                         });
 
                         const data = await response.json();
+                        console.log('Cancel response:', data);
 
                         if (data.success) {
                             onClose();
@@ -283,6 +455,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                             setErrors({ general: 'Failed to cancel email change request.' });
                         }
                     } catch (error) {
+                        console.error('Cancel error:', error);
                         setErrors({ general: 'Network error. Please check your connection and try again.' });
                     }
                 } else {
@@ -351,8 +524,8 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                                 <Input
                                     id="new-email"
                                     type="email"
-                                    value={newEmail}
-                                    onChange={(e) => setNewEmail(e.target.value)}
+                                    value={emailData.new_email}
+                                    onChange={(e) => setEmailData('new_email', e.target.value)}
                                     placeholder="Enter your new email address"
                                     required
                                     disabled={isLoading}
@@ -386,7 +559,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={isLoading || !newEmail.trim()}
+                                    disabled={isLoading || !emailData.new_email.trim()}
                                     className="flex-1 flex items-center gap-2"
                                 >
                                     <Send className="h-4 w-4" />
@@ -411,6 +584,15 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
                                 />
                                 {errors.otp && (
                                     <p className="text-sm text-red-500">{errors.otp}</p>
+                                )}
+                                {/* Debug info - remove in production */}
+                                {currentEmailChangeRequest && (
+                                    <div className="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                                        <p>Debug Info:</p>
+                                        <p>Request ID: {currentEmailChangeRequest.id}</p>
+                                        <p>Expected OTP: {currentEmailChangeRequest.otp}</p>
+                                        <p>Expires: {new Date(currentEmailChangeRequest.expires_at).toLocaleString()}</p>
+                                    </div>
                                 )}
                             </div>
 

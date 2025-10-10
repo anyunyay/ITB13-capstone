@@ -61,6 +61,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('admin.profile.help');
         Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
+        
+        // Admin Email Change routes (modal-based)
+        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\EmailChangeController::class, 'sendOtp'])->name('admin.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'showVerify'])->name('admin.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('admin.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('admin.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('admin.profile.email-change.cancel');
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {
@@ -228,11 +235,11 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         
         
         // Email Change routes (modal-based)
-        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Customer\EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
-        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
-        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
-        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
-        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\Customer\EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
+        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
         
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
@@ -264,6 +271,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('logistic.profile.help');
         Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
         
+        // Logistic Email Change routes (modal-based)
+        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'showVerify'])->name('logistic.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('logistic.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('logistic.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('logistic.profile.email-change.cancel');
+        
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Logistic\NotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
@@ -287,6 +301,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('member.profile.appearance.update');
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('member.profile.help');
         Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
+        
+        // Member Email Change routes (modal-based)
+        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\EmailChangeController::class, 'sendOtp'])->name('member.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'showVerify'])->name('member.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('member.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('member.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('member.profile.email-change.cancel');
         
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');
@@ -323,6 +344,11 @@ Route::prefix('direct-email-templates')->name('direct.')->group(function () {
 Route::get('/auth', function () {
     return redirect()->route('login');
 })->name('auth');
+
+// CSRF token route for AJAX requests
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -4,6 +4,7 @@ import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
+import { clearSessionData } from '@/lib/csrf-cleanup';
 
 interface UserMenuContentProps {
     user: User;
@@ -14,13 +15,8 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
 
     const handleLogout = () => {
         cleanup();
-        // Clear login session storage when logging out
-        const loginSessionId = sessionStorage.getItem('loginSessionId');
-        if (loginSessionId) {
-            sessionStorage.removeItem('loginSessionId');
-            sessionStorage.removeItem(`urgentPopupShown_${loginSessionId}`);
-            console.log('Cleared login session data on logout');
-        }
+        // Clear all session data including CSRF tokens
+        clearSessionData();
         router.flushAll();
     };
 

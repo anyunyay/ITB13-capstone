@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useForm, usePage } from '@inertiajs/react';
 import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
+import { clearSessionData } from '@/lib/csrf-cleanup';
 
 interface PageProps {
     user: {
@@ -40,6 +41,9 @@ export default function LogoutPage() {
 
     const handleLogout = () => {
         if (confirm('Are you sure you want to log out?')) {
+            // Clear all session data including CSRF tokens before logout
+            clearSessionData();
+            
             logout(routes.logout, {
                 onSuccess: () => {
                     alert('You have been logged out successfully.');
@@ -53,6 +57,9 @@ export default function LogoutPage() {
 
     const handleLogoutAllDevices = () => {
         if (confirm('This will log you out from all devices. Are you sure you want to continue?')) {
+            // Clear all session data including CSRF tokens before logout
+            clearSessionData();
+            
             logoutAll(routes.logoutAll, {
                 onSuccess: () => {
                     alert('You have been logged out from all devices.');
