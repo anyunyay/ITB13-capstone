@@ -3,25 +3,44 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useForm, usePage } from '@inertiajs/react';
 import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 
 interface PageProps {
     user: {
         id: number;
         name: string;
         email: string;
+        type: string;
     };
+    [key: string]: any;
 }
 
 export default function LogoutPage() {
     const { user } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            logout: `${baseRoute}/profile/logout`,
+            logoutAll: `${baseRoute}/profile/logout-all`,
+            logoutPage: `${baseRoute}/profile/logout`,
+        };
+    };
+
+    const routes = getProfileRoutes();
 
     const { post: logout, processing: logoutProcessing } = useForm();
     const { post: logoutAll, processing: logoutAllProcessing } = useForm();
 
     const handleLogout = () => {
         if (confirm('Are you sure you want to log out?')) {
-            logout('/customer/profile/logout', {
+            logout(routes.logout, {
                 onSuccess: () => {
                     alert('You have been logged out successfully.');
                 },
@@ -34,7 +53,7 @@ export default function LogoutPage() {
 
     const handleLogoutAllDevices = () => {
         if (confirm('This will log you out from all devices. Are you sure you want to continue?')) {
-            logoutAll('/customer/profile/logout-all', {
+            logoutAll(routes.logoutAll, {
                 onSuccess: () => {
                     alert('You have been logged out from all devices.');
                 },
@@ -46,13 +65,12 @@ export default function LogoutPage() {
     };
 
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { label: 'Logout', href: '/customer/profile/logout' }
-        ]}>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Logout</h2>
-                </div>
+        <ProfileWrapper 
+            breadcrumbs={[
+                { title: 'Logout', href: routes.logoutPage }
+            ]}
+            title="Logout"
+        >
 
             <Card>
                 <CardHeader>
@@ -119,7 +137,6 @@ export default function LogoutPage() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

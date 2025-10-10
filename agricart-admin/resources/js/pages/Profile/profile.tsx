@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage, router } from '@inertiajs/react';
 import { User, Edit, Save, X, Camera, Trash2, Upload, Mail } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EmailChangeModal from '@/components/change-email-modal';
 
@@ -41,6 +41,24 @@ interface PageProps {
 
 export default function ProfilePage() {
     const { user } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            profile: `${baseRoute}/profile`,
+            profileInfo: `${baseRoute}/profile/info`,
+            avatarUpload: `${baseRoute}/profile/avatar/upload`,
+            avatarDelete: `${baseRoute}/profile/avatar/delete`,
+        };
+    };
+
+    const routes = getProfileRoutes();
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
@@ -56,7 +74,7 @@ export default function ProfilePage() {
     const isNameModified = data.name !== (user?.name || '');
 
     const handleNameSubmit = () => {
-        patch('/customer/profile', {
+        patch(routes.profile, {
             onSuccess: () => {
                 alert('Name updated successfully!');
             },
@@ -84,7 +102,7 @@ export default function ProfilePage() {
         const formData = new FormData();
         formData.append('avatar', selectedAvatar);
 
-        router.post('/customer/profile/avatar/upload', formData, {
+        router.post(routes.avatarUpload, formData, {
             onSuccess: () => {
                 setSelectedAvatar(null);
                 setAvatarPreview(null);
@@ -106,7 +124,7 @@ export default function ProfilePage() {
 
     const handleAvatarDelete = () => {
         if (confirm('Are you sure you want to remove your profile picture?')) {
-            router.delete('/customer/profile/avatar/delete', {
+            router.delete(routes.avatarDelete, {
                 onSuccess: () => {
                     alert('Profile picture removed successfully!');
                 },
@@ -127,13 +145,12 @@ export default function ProfilePage() {
     };
 
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { label: 'Profile Information', href: '/customer/profile/info' }
-        ] as any}>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Profile Information</h2>
-                </div>
+        <ProfileWrapper 
+            breadcrumbs={[
+                { title: 'Profile Information', href: routes.profileInfo }
+            ]}
+            title="Profile Information"
+        >
 
                 {/* Profile Picture Card */}
                 <Card>
@@ -316,13 +333,11 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
-
             <EmailChangeModal
                 isOpen={isEmailChangeModalOpen}
                 onClose={() => setIsEmailChangeModalOpen(false)}
                 user={user}
             />
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

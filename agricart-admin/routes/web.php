@@ -53,6 +53,14 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     Route::prefix('/admin')->middleware(['role:admin|staff'])->group(function () {
         // Dashboard routes
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard'); // Admin Dashboard
+        
+        // Admin Profile routes
+        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('admin.profile.info');
+        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('admin.profile.password');
+        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('admin.profile.appearance');
+        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
+        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('admin.profile.help');
+        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {
@@ -248,6 +256,14 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::put('/orders/{order}/delivery-status', [\App\Http\Controllers\Logistic\LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
         Route::get('/report', [\App\Http\Controllers\Logistic\LogisticController::class, 'generateReport'])->name('logistic.report');
         
+        // Logistic Profile routes
+        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('logistic.profile.info');
+        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('logistic.profile.password');
+        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('logistic.profile.appearance');
+        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('logistic.profile.appearance.update');
+        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('logistic.profile.help');
+        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
+        
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Logistic\NotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
@@ -263,6 +279,14 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
         Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
         Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
+        
+        // Member Profile routes
+        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('member.profile.info');
+        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('member.profile.password');
+        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('member.profile.appearance');
+        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('member.profile.appearance.update');
+        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('member.profile.help');
+        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
         
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');

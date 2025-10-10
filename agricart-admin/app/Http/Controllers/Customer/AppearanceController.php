@@ -18,7 +18,7 @@ class AppearanceController extends Controller
         $user = Auth::user();
         $appearanceSettings = AppearanceSettings::getForUser($user->id);
 
-        return Inertia::render('Customer/Profile/appearance', [
+        return Inertia::render('Profile/appearance', [
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

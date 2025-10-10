@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useForm, usePage } from '@inertiajs/react';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 
 interface PageProps {
     user: {
@@ -18,6 +18,22 @@ interface PageProps {
 
 export default function PasswordPage() {
     const { user } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            changePassword: `${baseRoute}/profile/change-password`,
+            passwordPage: `${baseRoute}/profile/password`,
+        };
+    };
+
+    const routes = getProfileRoutes();
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,7 +79,7 @@ export default function PasswordPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/customer/profile/change-password', {
+        post(routes.changePassword, {
             onSuccess: () => {
                 reset();
                 alert('Password changed successfully!');
@@ -75,13 +91,12 @@ export default function PasswordPage() {
     };
 
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { label: 'Change Password', href: '/customer/profile/password' }
-        ]}>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Change Password</h2>
-                </div>
+        <ProfileWrapper 
+            breadcrumbs={[
+                { title: 'Change Password', href: routes.passwordPage }
+            ]}
+            title="Change Password"
+        >
 
             <Card>
                 <CardHeader>
@@ -219,7 +234,6 @@ export default function PasswordPage() {
                     </form>
                 </CardContent>
             </Card>
-        </div>
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

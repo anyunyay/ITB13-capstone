@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { usePage } from '@inertiajs/react';
 import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 
 interface FAQ {
     id: number;
@@ -19,7 +19,9 @@ interface PageProps {
         id: number;
         name: string;
         email: string;
+        type: string;
     };
+    [key: string]: any;
 }
 
 const faqs: FAQ[] = [
@@ -77,6 +79,21 @@ const categories = ["All", "Ordering", "Payment", "Delivery", "Tracking", "Retur
 
 export default function HelpPage() {
     const { user } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            helpPage: `${baseRoute}/profile/help`,
+        };
+    };
+
+    const routes = getProfileRoutes();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
@@ -99,13 +116,12 @@ export default function HelpPage() {
     };
 
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { label: 'Help & Support', href: '/customer/profile/help' }
-        ]}>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Help & Support</h2>
-                </div>
+        <ProfileWrapper 
+            breadcrumbs={[
+                { title: 'Help & Support', href: routes.helpPage }
+            ]}
+            title="Help & Support"
+        >
 
             {/* FAQ Section */}
             <Card>
@@ -209,7 +225,6 @@ export default function HelpPage() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

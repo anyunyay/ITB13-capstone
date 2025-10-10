@@ -1,20 +1,17 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { type SharedData } from '@/types';
-import { User, Package, History, TrendingUp, LogOut } from 'lucide-react';
-import { router } from '@inertiajs/react';
+import { Package } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
+import { AvatarDropdown } from '@/components/avatar-dropdown';
 
 export function MemberHeader() {
     const page = usePage<SharedData & { notifications?: Array<any> }>();
     const { auth, notifications = [] } = page.props;
     const user = auth?.user;
 
-    const handleLogout = () => {
-        router.post('/logout');
-    };
 
     return (
         <header className="bg-black border-b border-gray-800 px-6 py-4">
@@ -44,27 +41,8 @@ export function MemberHeader() {
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 bg-gray-900 border-gray-700" align="end" forceMount>
-                            <DropdownMenuLabel className="font-normal text-white">
-                                <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none text-white">{user?.name}</p>
-                                    <p className="text-xs leading-none text-gray-400">
-                                        {user?.email}
-                                    </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator className="bg-gray-700" />
-                            <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-gray-800">
-                                <Link href="/settings/profile" className="cursor-pointer">
-                                    <User className="mr-2 h-4 w-4" />
-                                    <span>Profile</span>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-gray-700" />
-                            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-gray-300 hover:text-white hover:bg-gray-800">
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>Log out</span>
-                            </DropdownMenuItem>
+                        <DropdownMenuContent className="w-56" align="end">
+                            <AvatarDropdown user={user} />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

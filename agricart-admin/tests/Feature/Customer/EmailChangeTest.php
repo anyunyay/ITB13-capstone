@@ -28,11 +28,12 @@ class EmailChangeTest extends TestCase
         ]);
         $user->assignRole('customer');
         
-        $response = $this->actingAs($user)->get('/customer/profile/email-change');
+        // Email change is handled via modal on profile page, not a separate page
+        $response = $this->actingAs($user)->get('/customer/profile/info');
         
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => $page
-            ->component('Customer/Profile/change-email')
+            ->component('Profile/profile')
             ->has('user')
         );
     }
