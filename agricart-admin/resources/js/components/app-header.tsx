@@ -6,8 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { UserMenuContent } from '@/components/user-menu-content';
-import { CustomerProfileDropdown } from '@/components/customer-profile-dropdown';
+import { AvatarDropdown } from '@/components/avatar-dropdown';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
@@ -247,11 +246,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56" align="end">
-                                    {auth.user.type === 'customer' ? (
-                                        <CustomerProfileDropdown user={auth.user} />
-                                    ) : (
-                                        <UserMenuContent user={auth.user} />
-                                    )}
+                                    <AvatarDropdown user={auth.user} />
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (

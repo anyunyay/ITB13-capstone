@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { useForm, usePage } from '@inertiajs/react';
 import { Palette, Sun, Moon, Monitor, Globe } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 import { t, Language } from '@/lib/translations';
 import { FlashMessage } from '@/components/flash-message';
 
@@ -24,6 +24,22 @@ interface PageProps {
 export default function AppearancePage() {
     // Appearance settings page - notifications removed
     const { user } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            appearanceUpdate: `${baseRoute}/profile/appearance`,
+            appearancePage: `${baseRoute}/profile/appearance`,
+        };
+    };
+
+    const routes = getProfileRoutes();
     const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
     const [initialValues, setInitialValues] = useState({
@@ -72,7 +88,7 @@ export default function AppearancePage() {
     };
 
     const handleSave = () => {
-        patch('/customer/profile/appearance', {
+        patch(routes.appearanceUpdate, {
             onSuccess: () => {
                 // Apply theme after successful save
                 const root = document.documentElement;
@@ -113,13 +129,12 @@ export default function AppearancePage() {
     ];
 
     return (
-        <AppHeaderLayout breadcrumbs={[
-            { label: t(currentLanguage, 'appearance.title'), href: '/customer/profile/appearance' }
-        ]}>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">{t(currentLanguage, 'appearance.title')}</h2>
-                </div>
+        <ProfileWrapper 
+            breadcrumbs={[
+                { title: t(currentLanguage, 'appearance.title'), href: routes.appearancePage }
+            ]}
+            title={t(currentLanguage, 'appearance.title')}
+        >
 
                 {flashMessage && (
                     <div 
@@ -208,7 +223,6 @@ export default function AppearancePage() {
                     {processing ? t(currentLanguage, 'appearance.actions.saving') : t(currentLanguage, 'appearance.actions.save')}
                 </Button>
             </div>
-        </div>
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useForm, usePage, router } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
-import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import ProfileWrapper from './profile-wrapper';
 
 interface Address {
     id: number;
@@ -41,6 +41,26 @@ interface PageProps {
 
 export default function AddressPage() {
     const { user, addresses = [], flash, autoOpenAddForm = false, mainAddressHasOngoingOrders = false } = usePage<PageProps>().props;
+    
+    // Generate dynamic routes based on user type
+    const getProfileRoutes = () => {
+        const userType = user.type;
+        const baseRoute = userType === 'customer' ? '/customer' : 
+                         userType === 'admin' || userType === 'staff' ? '/admin' :
+                         userType === 'logistic' ? '/logistic' :
+                         userType === 'member' ? '/member' : '/customer';
+        
+        return {
+            mainAddress: `${baseRoute}/profile/main-address`,
+            addresses: `${baseRoute}/profile/addresses`,
+            addressesStore: `${baseRoute}/profile/addresses`,
+            addressesUpdate: `${baseRoute}/profile/addresses`,
+            addressesDestroy: `${baseRoute}/profile/addresses`,
+            addressesSetActive: `${baseRoute}/profile/addresses`,
+        };
+    };
+
+    const routes = getProfileRoutes();
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -88,7 +108,7 @@ export default function AddressPage() {
                 address: editingAddress,
                 newAddress: data,
                 onConfirm: () => {
-                    router.put('/customer/profile/main-address', {
+                    router.put(routes.mainAddress, {
                         address: data.street,
                         barangay: data.barangay,
                         city: data.city,
@@ -118,7 +138,7 @@ export default function AddressPage() {
                 address: null,
                 newAddress: data,
                 onConfirm: () => {
-                    const url = '/customer/profile/addresses';
+                    const url = routes.addresses;
                     post(url, {
                         onSuccess: () => {
                             reset();
@@ -144,7 +164,7 @@ export default function AddressPage() {
                 address: editingAddress,
                 newAddress: data,
                 onConfirm: () => {
-                    const url = `/customer/profile/addresses/${editingAddress.id}`;
+                    const url = `${routes.addressesUpdate}/${editingAddress.id}`;
                     put(url, {
                         onSuccess: () => {
                             reset();
@@ -164,7 +184,7 @@ export default function AddressPage() {
         }
         
         // Regular address operations (no confirmation needed)
-        const url = editingAddress ? `/customer/profile/addresses/${editingAddress.id}` : '/customer/profile/addresses';
+        const url = editingAddress ? `${routes.addressesUpdate}/${editingAddress.id}` : routes.addresses;
         const method = editingAddress ? put : post;
 
         method(url, {
@@ -194,7 +214,7 @@ export default function AddressPage() {
 
     const handleDelete = (id: number) => {
         if (confirm('Are you sure you want to delete this address?')) {
-            destroy(`/customer/profile/addresses/${id}`, {
+            destroy(`${routes.addressesDestroy}/${id}`, {
                 onSuccess: () => {
                     // Success message will be handled by flash messages
                 },
@@ -220,7 +240,7 @@ export default function AddressPage() {
             type: 'set_active',
             address: address,
             onConfirm: () => {
-                router.post(`/customer/profile/addresses/${addressId}/set-active`, {}, {
+                router.post(`${routes.addressesSetActive}/${addressId}/set-active`, {}, {
                     onSuccess: () => {
                         setShowConfirmationModal(false);
                         setConfirmationData(null);
@@ -250,20 +270,18 @@ export default function AddressPage() {
     };
 
     return (
-        <AppHeaderLayout>
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-3xl font-bold tracking-tight">Address Management</h2>
-                        <p className="text-sm text-gray-600 mt-1">
-                            Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
-                        </p>
-                    </div>
-                    <Button onClick={handleAddNew} className="flex items-center gap-2">
-                        <PlusCircle className="h-4 w-4" />
-                        Add New Address
-                    </Button>
-                </div>
+        <ProfileWrapper 
+            title="Address Management"
+        >
+            <div className="text-sm text-gray-600 mb-6">
+                Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
+            </div>
+            <div className="flex justify-end mb-6">
+                <Button onClick={handleAddNew} className="flex items-center gap-2">
+                    <PlusCircle className="h-4 w-4" />
+                    Add New Address
+                </Button>
+            </div>
 
                 {/* Flash Messages */}
                 {flash?.success && (
@@ -725,7 +743,6 @@ export default function AddressPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
-        </AppHeaderLayout>
+        </ProfileWrapper>
     );
 }

@@ -20,7 +20,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        return Inertia::render('Customer/Profile/profile', [
+        return Inertia::render('Profile/profile', [
             'user' => $user
         ]);
     }
@@ -33,7 +33,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        return Inertia::render('Customer/Profile/password', [
+        return Inertia::render('Profile/password', [
             'user' => $user
         ]);
     }
@@ -45,7 +45,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        return Inertia::render('Customer/Profile/appearance', [
+        return Inertia::render('Profile/appearance', [
             'user' => $user
         ]);
     }
@@ -57,7 +57,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        return Inertia::render('Customer/Profile/help', [
+        return Inertia::render('Profile/help', [
             'user' => $user
         ]);
     }
@@ -69,7 +69,7 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         
-        return Inertia::render('Customer/Profile/logout', [
+        return Inertia::render('Profile/logout', [
             'user' => $user
         ]);
     }

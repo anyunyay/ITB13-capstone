@@ -72,7 +72,7 @@ class AddressController extends Controller
             }
         }
         
-        return Inertia::render('Customer/Profile/address', [
+        return Inertia::render('Profile/address', [
             'addresses' => $addresses,
             'user' => $user,
             'autoOpenAddForm' => $autoOpenAddForm,
@@ -156,7 +156,7 @@ class AddressController extends Controller
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
-        return Inertia::render('Customer/Profile/address', [
+        return Inertia::render('Profile/address', [
             'addresses' => $user->activeAddresses()->orderBy('created_at', 'desc')->get(),
             'user' => $user,
             'selectedAddress' => $address,
@@ -396,7 +396,7 @@ class AddressController extends Controller
             'province' => $defaultAddress->province,
         ] : null;
 
-        return Inertia::render('Customer/Profile/address', [
+        return Inertia::render('Profile/address', [
             'addresses' => $user->addresses()->orderBy('created_at', 'desc')->get(),
             'user' => $user,
             'currentAddress' => $currentAddress,

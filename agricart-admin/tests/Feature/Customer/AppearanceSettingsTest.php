@@ -28,7 +28,7 @@ class AppearanceSettingsTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => $page
-            ->component('Customer/Profile/appearance')
+            ->component('Profile/appearance')
             ->has('user')
         );
     }
