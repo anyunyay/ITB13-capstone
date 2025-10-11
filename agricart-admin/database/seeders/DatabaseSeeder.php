@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'member',
             'name' => 'John Doe',
             'email' => 'member@member.com',
+            'contact_number' => '09123456789',
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
             'password' => Hash::make('12345678'),
@@ -52,6 +53,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'logistic',
             'name' => 'Logistic User',
             'email' => 'logistic@logistic.com',
+            'contact_number' => '09987654321',
             'registration_date' => now(),
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(), // Automatically verify email
