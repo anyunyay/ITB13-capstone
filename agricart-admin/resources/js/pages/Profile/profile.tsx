@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage, router } from '@inertiajs/react';
-import { User, Edit, Save, X, Camera, Trash2, Upload, Mail } from 'lucide-react';
+import { User, Edit, Save, X, Camera, Trash2, Upload, Mail, Phone } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EmailChangeModal from '@/components/change-email-modal';
+import PhoneChangeModal from '@/components/change-phone-modal';
 
 // Utility function to mask email addresses for security
 const maskEmail = (email: string): string => {
@@ -32,6 +33,7 @@ interface User {
     contact_number?: string;
     avatar?: string;
     avatar_url?: string;
+    type?: string;
 }
 
 interface PageProps {
@@ -62,6 +64,7 @@ export default function ProfilePage() {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
+    const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const { data, setData, patch, processing, errors } = useForm({
@@ -327,7 +330,15 @@ export default function ProfilePage() {
                                     {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                                 </div>
                                 <div className="flex justify-end">
-                                    <p className="text-sm text-muted-foreground">Contact support to update</p>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsPhoneChangeModalOpen(true)}
+                                        className="flex items-center gap-1"
+                                    >
+                                        <Phone className="h-3 w-3" />
+                                        Change Contact
+                                    </Button>
                                 </div>
                             </div>
                         </CardContent>
@@ -336,6 +347,11 @@ export default function ProfilePage() {
             <EmailChangeModal
                 isOpen={isEmailChangeModalOpen}
                 onClose={() => setIsEmailChangeModalOpen(false)}
+                user={user}
+            />
+            <PhoneChangeModal
+                isOpen={isPhoneChangeModalOpen}
+                onClose={() => setIsPhoneChangeModalOpen(false)}
                 user={user}
             />
         </ProfileWrapper>

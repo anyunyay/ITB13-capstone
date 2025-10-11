@@ -12,20 +12,20 @@ interface User {
     avatar_url?: string;
 }
 
-interface EmailChangeRequest {
+interface PhoneChangeRequest {
     id: number;
-    new_email: string;
+    new_phone: string;
     expires_at: string;
 }
 
-interface EmailChangeModalProps {
+interface PhoneChangeModalProps {
     isOpen: boolean;
     onClose: () => void;
     user: User;
-    emailChangeRequest?: EmailChangeRequest;
+    phoneChangeRequest?: PhoneChangeRequest;
 }
 
-export default function EmailChangeModal({ isOpen, onClose, user, emailChangeRequest }: EmailChangeModalProps) {
+export default function PhoneChangeModal({ isOpen, onClose, user, phoneChangeRequest }: PhoneChangeModalProps) {
     // Get the appropriate API endpoint based on user type
     const getApiEndpoint = () => {
         const userType = user.type;
@@ -43,7 +43,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             userTypePrefix = '/customer'; // fallback
         }
         
-        return `${userTypePrefix}/profile/email-change`;
+        return `${userTypePrefix}/profile/phone-change`;
     };
 
     return (
@@ -51,11 +51,12 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
             isOpen={isOpen}
             onClose={onClose}
             user={user}
-            otpRequest={emailChangeRequest}
-            verificationType="email"
-            currentValue={user.email}
-            newValueFieldName="new_email"
+            otpRequest={phoneChangeRequest}
+            verificationType="phone"
+            currentValue={user.contact_number || user.phone || ''}
+            newValueFieldName="new_phone"
             apiEndpoint={getApiEndpoint()}
         />
     );
 }
+

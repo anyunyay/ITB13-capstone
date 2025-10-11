@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class PhoneChangeOtpNotification extends Notification
+{
+    use Queueable;
+
+    public $otp;
+    public $newPhone;
+
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct(string $otp, string $newPhone)
+    {
+        $this->otp = $otp;
+        $this->newPhone = $newPhone;
+    }
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via(object $notifiable): array
+    {
+        return ['mail'];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Phone Number Change Verification Code - AgriCart')
+            ->greeting('Hello ' . $notifiable->name . '!')
+            ->line('You have requested to change your phone number to: **' . $this->newPhone . '**')
+            ->line('Please use the following verification code to complete your phone number change:')
+            ->line('## **' . $this->otp . '**')
+            ->line('This code will expire in 15 minutes.')
+            ->line('If you did not request this phone number change, please ignore this message and your phone number will remain unchanged.')
+            ->line('Thank you for using AgriCart!');
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'otp' => $this->otp,
+            'new_phone' => $this->newPhone,
+        ];
+    }
+}
+

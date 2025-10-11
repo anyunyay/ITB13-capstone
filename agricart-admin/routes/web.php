@@ -27,6 +27,8 @@ use App\Http\Controllers\SingleSessionController;
 use App\Http\Controllers\EmailPreviewController;
 use App\Http\Controllers\ComprehensiveEmailPreviewController;
 use App\Http\Controllers\DirectEmailTemplateController;
+use App\Http\Controllers\EmailChangeController;
+use App\Http\Controllers\PhoneChangeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -68,6 +70,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('admin.profile.email-change.verify-otp');
         Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('admin.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('admin.profile.email-change.cancel');
+
+        // Admin Phone Change routes (modal-based)
+        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\PhoneChangeController::class, 'sendOtp'])->name('admin.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'showVerify'])->name('admin.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'verifyOtp'])->name('admin.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'resendOtp'])->name('admin.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'cancel'])->name('admin.profile.phone-change.cancel');
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {
@@ -241,6 +250,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
         
+        // Phone Change routes (modal-based)
+        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\PhoneChangeController::class, 'sendOtp'])->name('customer.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'showVerify'])->name('customer.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'verifyOtp'])->name('customer.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'resendOtp'])->name('customer.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'cancel'])->name('customer.profile.phone-change.cancel');
+        
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
@@ -278,6 +294,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('logistic.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('logistic.profile.email-change.cancel');
         
+        // Logistic Phone Change routes (modal-based)
+        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\PhoneChangeController::class, 'sendOtp'])->name('logistic.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'showVerify'])->name('logistic.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'verifyOtp'])->name('logistic.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'resendOtp'])->name('logistic.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'cancel'])->name('logistic.profile.phone-change.cancel');
+        
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Logistic\NotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
@@ -308,6 +331,13 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('member.profile.email-change.verify-otp');
         Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('member.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('member.profile.email-change.cancel');
+        
+        // Member Phone Change routes (modal-based)
+        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\PhoneChangeController::class, 'sendOtp'])->name('member.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'showVerify'])->name('member.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'verifyOtp'])->name('member.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'resendOtp'])->name('member.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\PhoneChangeController::class, 'cancel'])->name('member.profile.phone-change.cancel');
         
         // Notification routes
         Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');

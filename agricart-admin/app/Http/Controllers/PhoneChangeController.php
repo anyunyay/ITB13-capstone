@@ -2,22 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EmailChangeRequest;
-use App\Models\User;
-use App\Notifications\EmailChangeOtpNotification;
+use App\Models\PhoneChangeRequest;
+use App\Notifications\PhoneChangeOtpNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class EmailChangeController extends BaseOtpController
+class PhoneChangeController extends BaseOtpController
 {
     /**
      * Get the OTP request model class name
      */
     protected function getOtpRequestModel(): string
     {
-        return EmailChangeRequest::class;
+        return PhoneChangeRequest::class;
     }
 
     /**
@@ -25,7 +23,7 @@ class EmailChangeController extends BaseOtpController
      */
     protected function getOtpNotificationClass(): string
     {
-        return EmailChangeOtpNotification::class;
+        return PhoneChangeOtpNotification::class;
     }
 
     /**
@@ -33,7 +31,7 @@ class EmailChangeController extends BaseOtpController
      */
     protected function getVerificationType(): string
     {
-        return 'email';
+        return 'phone number';
     }
 
     /**
@@ -41,7 +39,7 @@ class EmailChangeController extends BaseOtpController
      */
     protected function getNewValueFieldName(): string
     {
-        return 'new_email';
+        return 'new_phone';
     }
 
     /**
@@ -49,25 +47,26 @@ class EmailChangeController extends BaseOtpController
      */
     protected function getUserFieldName(): string
     {
-        return 'email';
+        return 'contact_number';
     }
 
     /**
-     * Validate the new email input
+     * Validate the new phone number input
      */
     protected function validateNewValue(Request $request): \Illuminate\Contracts\Validation\Validator
     {
         return Validator::make($request->all(), [
-            'new_email' => [
+            'new_phone' => [
                 'required',
-                'email',
-                'max:255',
-                'unique:users,email,' . Auth::id(),
+                'string',
+                'max:20',
+                'regex:/^[\+]?[0-9\s\-\(\)]+$/',
+                'unique:users,contact_number,' . Auth::id(),
             ]
         ], [
-            'new_email.required' => 'Please enter a new email address.',
-            'new_email.email' => 'Please enter a valid email address.',
-            'new_email.unique' => 'This email address is already in use.',
+            'new_phone.required' => 'Please enter a new phone number.',
+            'new_phone.regex' => 'Please enter a valid phone number.',
+            'new_phone.unique' => 'This phone number is already in use.',
         ]);
     }
 
@@ -77,25 +76,26 @@ class EmailChangeController extends BaseOtpController
      */
     public function showVerify(Request $request, $requestId)
     {
-        /** @var User $user */
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        $emailChangeRequest = EmailChangeRequest::where('id', $requestId)
+        $otpRequestModel = $this->getOtpRequestModel();
+        $otpRequest = $otpRequestModel::where('id', $requestId)
             ->where('user_id', $user->id)
             ->where('is_used', false)
             ->first();
 
-        if (!$emailChangeRequest) {
+        if (!$otpRequest) {
             return redirect()->route($this->getProfileRoute())
                 ->with('error', 'Invalid or expired verification request.');
         }
 
-        if ($emailChangeRequest->isExpired()) {
+        if ($otpRequest->isExpired()) {
             return redirect()->route($this->getProfileRoute())
                 ->with('error', 'Verification code has expired. Please request a new one.');
         }
 
         // Redirect to profile page with a message to use the modal
         return redirect()->route($this->getProfileRoute())
-            ->with('message', 'Please use the email change modal to verify your new email address.');
+            ->with('message', 'Please use the phone change modal to verify your new phone number.');
     }
 }
