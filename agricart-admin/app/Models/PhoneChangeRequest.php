@@ -22,9 +22,12 @@ class PhoneChangeRequest extends BaseOtpRequest
         // Invalidate any existing requests for this user
         static::invalidateExistingRequests($userId);
 
+        // Format phone number with +63 prefix for storage
+        $formattedPhone = '+63' . $newPhone;
+
         return static::create([
             'user_id' => $userId,
-            'new_phone' => $newPhone,
+            'new_phone' => $formattedPhone,
             'otp' => static::generateOtp(),
             'expires_at' => Carbon::now()->addMinutes(15), // 15 minutes expiry
         ]);

@@ -84,13 +84,31 @@ abstract class BaseOtpController extends Controller
 
             // Check if the new value is different from current value
             $currentValue = $user->{$this->getUserFieldName()};
-            if ($newValue === $currentValue) {
-                return $this->jsonResponse([
-                    'success' => false,
-                    'errors' => [
-                        $this->getNewValueFieldName() => "The new {$this->getVerificationType()} must be different from your current {$this->getVerificationType()}."
-                    ]
-                ], 422);
+            
+            // For phone numbers, normalize both values for comparison
+            if ($this->getVerificationType() === 'phone number') {
+                // Current value is stored as +639XXXXXXXXX, normalize to 9XXXXXXXXX
+                $normalizedCurrent = preg_replace('/^\+63/', '', $currentValue);
+                $normalizedNew = preg_replace('/^0/', '', $newValue);
+                
+                if ($normalizedNew === $normalizedCurrent) {
+                    return $this->jsonResponse([
+                        'success' => false,
+                        'errors' => [
+                            $this->getNewValueFieldName() => "The new {$this->getVerificationType()} must be different from your current {$this->getVerificationType()}."
+                        ]
+                    ], 422);
+                }
+            } else {
+                // For email, direct comparison
+                if ($newValue === $currentValue) {
+                    return $this->jsonResponse([
+                        'success' => false,
+                        'errors' => [
+                            $this->getNewValueFieldName() => "The new {$this->getVerificationType()} must be different from your current {$this->getVerificationType()}."
+                        ]
+                    ], 422);
+                }
             }
 
             // Create OTP request

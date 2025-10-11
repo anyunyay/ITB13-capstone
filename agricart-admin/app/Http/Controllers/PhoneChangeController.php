@@ -59,13 +59,12 @@ class PhoneChangeController extends BaseOtpController
             'new_phone' => [
                 'required',
                 'string',
-                'max:20',
-                'regex:/^[\+]?[0-9\s\-\(\)]+$/',
+                'regex:/^9\d{9}$/',
                 'unique:users,contact_number,' . Auth::id(),
             ]
         ], [
             'new_phone.required' => 'Please enter a new phone number.',
-            'new_phone.regex' => 'Please enter a valid phone number.',
+            'new_phone.regex' => 'Please enter a valid Philippine mobile number (9XXXXXXXXX).',
             'new_phone.unique' => 'This phone number is already in use.',
         ]);
     }

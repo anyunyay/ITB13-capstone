@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { router, usePage, useForm } from '@inertiajs/react';
 import { Mail, Send, Check, X, RotateCcw, Phone } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -174,6 +175,32 @@ export default function OtpVerificationModal({
         setIsLoading(true);
         setErrors({});
         setSuccess('');
+
+        // Frontend validation: Check if new value is the same as current value
+        const newValue = formData[newValueFieldName];
+        if (verificationType === 'phone') {
+            // For phone numbers, normalize both values for comparison
+            // Current value might be stored as +639XXXXXXXXX, normalize to 9XXXXXXXXX
+            const currentPhone = currentValue.replace(/^\+63/, '').replace(/^0/, '');
+            const normalizedNewValue = newValue.replace(/^0/, '');
+            
+            if (normalizedNewValue === currentPhone) {
+                setErrors({
+                    [newValueFieldName]: `The new phone number must be different from your current phone number.`
+                });
+                setIsLoading(false);
+                return;
+            }
+        } else {
+            // For email, direct comparison
+            if (newValue === currentValue) {
+                setErrors({
+                    [newValueFieldName]: `The new email address must be different from your current email address.`
+                });
+                setIsLoading(false);
+                return;
+            }
+        }
 
         const url = `${apiEndpoint}/send-otp`;
 
@@ -516,17 +543,61 @@ export default function OtpVerificationModal({
 
                             <div className="space-y-2">
                                 <Label htmlFor="new-value">{getNewValueLabel()}</Label>
-                                <Input
-                                    id="new-value"
-                                    type={getInputType()}
-                                    value={formData[newValueFieldName]}
-                                    onChange={(e) => setFormData(newValueFieldName, e.target.value)}
-                                    placeholder={getInputPlaceholder()}
-                                    required
-                                    disabled={isLoading}
-                                />
+                                {verificationType === 'phone' ? (
+                                    <div className="flex gap-2">
+                                        <div className="w-20">
+                                            <Select disabled value="+63">
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="+63">+63</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <Input
+                                            id="new-value"
+                                            type="tel"
+                                            value={formData[newValueFieldName]}
+                                            onChange={(e) => {
+                                                let value = e.target.value;
+                                                // Remove any non-digit characters
+                                                value = value.replace(/\D/g, '');
+                                                
+                                                // Remove leading 0 if present
+                                                if (value.startsWith('0')) {
+                                                    value = value.substring(1);
+                                                }
+                                                
+                                                // Limit to 10 digits
+                                                if (value.length > 10) {
+                                                    value = value.substring(0, 10);
+                                                }
+                                                
+                                                setFormData(newValueFieldName, value);
+                                            }}
+                                            placeholder="9XXXXXXXXX"
+                                            required
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                ) : (
+                                    <Input
+                                        id="new-value"
+                                        type={getInputType()}
+                                        value={formData[newValueFieldName]}
+                                        onChange={(e) => setFormData(newValueFieldName, e.target.value)}
+                                        placeholder={getInputPlaceholder()}
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                )}
                                 {errors[newValueFieldName] && (
                                     <p className="text-sm text-red-500">{errors[newValueFieldName]}</p>
+                                )}
+                                {verificationType === 'phone' && formData[newValueFieldName] && 
+                                 formData[newValueFieldName].replace(/^0/, '') === currentValue.replace(/^\+63/, '').replace(/^0/, '') && (
+                                    <p className="text-sm text-red-500">You entered the same phone number. Please provide a new number.</p>
                                 )}
                             </div>
 
@@ -554,7 +625,9 @@ export default function OtpVerificationModal({
                                 </Button>
                                 <Button
                                     type="submit"
-                                    disabled={isLoading || !formData[newValueFieldName].trim()}
+                                    disabled={isLoading || !formData[newValueFieldName].trim() || 
+                                        (verificationType === 'phone' && formData[newValueFieldName].replace(/^0/, '') === currentValue.replace(/^\+63/, '').replace(/^0/, '')) ||
+                                        (verificationType === 'email' && formData[newValueFieldName] === currentValue)}
                                     className="flex-1 flex items-center gap-2"
                                 >
                                     <Send className="h-4 w-4" />
