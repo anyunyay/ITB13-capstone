@@ -83,6 +83,9 @@ class RoleSeeder extends Seeder
             'delete members',
             'generate membership report',
 
+            // System Management
+            'manage system',
+
         // Customer permissions
             'access customer features',
 
