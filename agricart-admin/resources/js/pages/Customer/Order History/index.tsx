@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { CalendarIcon, Download, FileText, X } from 'lucide-react';
+import { CalendarIcon, Download, FileText, X, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface OrderItem {
@@ -80,6 +80,26 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     });
     
     return Array.from(combinedItems.values());
+  };
+
+  // Helper function to get the correct price for a product based on category
+  const getProductPrice = (product: OrderItem['product'], category: string): number => {
+    let price = 0;
+    switch (category) {
+      case 'Kilo':
+        price = product.price_kilo || 0;
+        break;
+      case 'Pc':
+        price = product.price_pc || 0;
+        break;
+      case 'Tali':
+        price = product.price_tali || 0;
+        break;
+      default:
+        price = 0;
+    }
+    // Ensure the price is a number
+    return Number(price) || 0;
   };
 
   useEffect(() => {
@@ -212,24 +232,26 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const getDeliveryStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'text-yellow-600';
+        return 'text-yellow-600 dark:text-yellow-400';
       case 'out_for_delivery':
-        return 'text-blue-600';
+        return 'text-blue-600 dark:text-blue-400';
       case 'delivered':
-        return 'text-green-600';
+        return 'text-green-600 dark:text-green-400';
       default:
-        return 'text-gray-600';
+        return 'text-gray-600 dark:text-gray-400';
     }
   };
 
+
   return (
     <AppHeaderLayout>
-      <div className="max-w-4xl mx-auto p-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Order History</h1>
+      <div className="max-w-6xl mx-auto p-4 sm:p-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Order History</h1>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
                 <FileText className="h-4 w-4" />
                 Export
               </Button>
@@ -306,6 +328,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
           </Popover>
         </div>
 
+
         {notifications.length > 0 && (
           <div className="mb-4 space-y-2">
             {notifications.map(n => (
@@ -325,175 +348,196 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         )}
 
         <Tabs value={currentDeliveryStatus} onValueChange={handleDeliveryStatusFilter} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({counts.pending})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery">Out for Delivery ({counts.approved})</TabsTrigger>
-            <TabsTrigger value="delivered">Delivered ({counts.delivered})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+            <TabsTrigger value="all" className="text-xs sm:text-sm py-2 px-2">All ({counts.all})</TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm py-2 px-2">Pending ({counts.pending})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" className="text-xs sm:text-sm py-2 px-2">Out for Delivery ({counts.approved})</TabsTrigger>
+            <TabsTrigger value="delivered" className="text-xs sm:text-sm py-2 px-2">Delivered ({counts.delivered})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={currentDeliveryStatus} className="mt-6">
             {orders.length === 0 ? (
-              <Card className="p-6 text-center text-muted-foreground">No orders found.</Card>
+              <Card className="p-6 text-center text-muted-foreground bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col items-center gap-2">
+                  <Package className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+                  <p className="text-lg font-medium">No orders found</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters or check back later</p>
+                </div>
+              </Card>
             ) : (
-              orders.map((order: Order) => (
-                <Card key={order.id} id={`order-${order.id}`} className="mb-6 p-4">
-                  <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                    <div>
-                      <span className="font-medium">Order ID:</span> #{order.id}<br />
-                      <span className="font-medium">Date:</span> {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {getStatusBadge(order.status)}
-                      <div className="text-lg font-semibold text-primary">
-                        Total: ₱{Number(order.total_amount).toFixed(2)}
+              <div className="space-y-4">
+                {orders.map((order: Order) => (
+                  <Card key={order.id} id={`order-${order.id}`} className="p-4 sm:p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-gray-900/20 transition-all duration-200">
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-900 dark:text-gray-100">Order ID:</span>
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">#{order.id}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <CalendarIcon className="h-4 w-4" />
+                          <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        {getStatusBadge(order.status)}
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-lg">
+                          ₱{Number(order.total_amount).toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Delivery Status Tracker */}
-                  {order.status === 'approved' && order.delivery_status && (
-                    <div className="mb-4">
-                      <h5 className="font-semibold text-sm mb-3 text-gray-700">Delivery Status</h5>
-                      <div className="flex items-center justify-between">
-                        <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-blue-600' : 'text-gray-400'}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
-                            {(order.delivery_status || 'pending') === 'pending' ? '1' : '✓'}
+                    {/* Delivery Status Tracker */}
+                    {order.status === 'approved' && order.delivery_status && (
+                      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <h5 className="font-semibold text-sm mb-3 text-blue-800 dark:text-blue-200">Delivery Status</h5>
+                        <div className="flex items-center justify-between">
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
+                              {(order.delivery_status || 'pending') === 'pending' ? '1' : '✓'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">Preparing</span>
                           </div>
-                          <span className="ml-2 text-sm font-medium">Preparing</span>
-                        </div>
-                        <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-blue-600' : (order.delivery_status || 'pending') === 'delivered' ? 'text-blue-600' : 'text-gray-400'}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
-                            {(order.delivery_status || 'pending') === 'out_for_delivery' ? '2' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '2'}
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-blue-600 dark:text-blue-400' : (order.delivery_status || 'pending') === 'delivered' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
+                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '2' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '2'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">Out for Delivery</span>
                           </div>
-                          <span className="ml-2 text-sm font-medium">Out for Delivery</span>
-                        </div>
-                        <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600' : 'text-gray-400'}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
-                            {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
+                              {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">Delivered</span>
                           </div>
-                          <span className="ml-2 text-sm font-medium">Delivered</span>
+                        </div>
+                        <div className="mt-3">
+                          {getDeliveryStatusBadge(order.delivery_status || 'pending')}
                         </div>
                       </div>
-                      <div className="mt-2">
-                        {getDeliveryStatusBadge(order.delivery_status || 'pending')}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {order.admin_notes && (
-                    <div className="mb-4 p-3 bg-amber-100 border-l-4 border-amber-400 rounded">
-                      <h5 className="font-semibold text-sm mb-1 text-amber-800">Admin Notes:</h5>
-                      <p className="text-sm text-amber-900">{order.admin_notes}</p>
-                    </div>
-                  )}
-
-                  {/* Delayed Order Notice and Cancellation Button */}
-                  {order.status === 'delayed' && (
-                    <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-400 rounded">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h5 className="font-semibold text-sm mb-2 text-red-800">Order Delayed</h5>
-                          <p className="text-sm text-red-900 mb-2">
-                            Your order has exceeded the standard 24-hour approval time. We apologize for the delay.
-                          </p>
-                          <p className="text-sm text-red-900">
-                            If you have any concerns, please contact us at: <strong>sample@email.com</strong>
-                          </p>
-                        </div>
-                        <Dialog 
-                          open={cancelDialogOpen[order.id] || false} 
-                          onOpenChange={(open) => setCancelDialogOpen(prev => ({ ...prev, [order.id]: open }))}
-                        >
-                          <DialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="ml-4">
-                              <X className="h-4 w-4 mr-1" />
-                              Cancel Order
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Cancel Order #{order.id}</DialogTitle>
-                              <DialogDescription>
-                                Are you sure you want to cancel this delayed order? This action cannot be undone.
-                                <br /><br />
-                                <strong>Order Total:</strong> ₱{Number(order.total_amount).toFixed(2)}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button 
-                                variant="outline" 
-                                onClick={() => setCancelDialogOpen(prev => ({ ...prev, [order.id]: false }))}
-                              >
-                                Keep Order
-                              </Button>
-                              <Button
-                                onClick={() => handleCancelOrder(order.id)}
-                                variant="destructive"
-                              >
-                                Yes, Cancel Order
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  )}
-
-                  {order.logistic && (
-                    <div className="mb-4 p-3 bg-teal-50 border-l-4 border-teal-400 rounded">
-                      <h5 className="font-semibold text-sm mb-1 text-teal-800">Delivery Information:</h5>
-                      <p className="text-sm text-teal-900">
-                        <span className="font-medium">Assigned to:</span> {order.logistic.name}
-                        {order.logistic.contact_number && (
-                          <span className="ml-2">({order.logistic.contact_number})</span>
-                        )}
-                      </p>
-                    </div>
-                  )}
-
-                  <Table className="mt-2 border">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Qty</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Subtotal</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                                      <TableBody>
-                    {order.audit_trail && combineOrderItems(order.audit_trail).length > 0 ? (
-                      combineOrderItems(order.audit_trail).map((item: OrderItem) => (
-                        <TableRow key={`${item.product.name}-${item.category}`}>
-                          <TableCell>{item.product.name}</TableCell>
-                          <TableCell>{item.category}</TableCell>
-                          <TableCell>{item.quantity} {item.category}</TableCell>
-                          <TableCell>
-                            {item.category === 'Kilo' && item.product.price_kilo && `₱${Number(item.product.price_kilo).toFixed(2)}`}
-                            {item.category === 'Pc' && item.product.price_pc && `₱${Number(item.product.price_pc).toFixed(2)}`}
-                            {item.category === 'Tali' && item.product.price_tali && `₱${Number(item.product.price_tali).toFixed(2)}`}
-                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'No price set'}
-                          </TableCell>
-                          <TableCell>
-                            {item.category === 'Kilo' && item.product.price_kilo && `₱${(Number(item.quantity) * Number(item.product.price_kilo)).toFixed(2)}`}
-                            {item.category === 'Pc' && item.product.price_pc && `₱${(Number(item.quantity) * Number(item.product.price_pc)).toFixed(2)}`}
-                            {item.category === 'Tali' && item.product.price_tali && `₱${(Number(item.quantity) * Number(item.product.price_tali)).toFixed(2)}`}
-                            {(!item.product.price_kilo && !item.product.price_pc && !item.product.price_tali) && 'N/A'}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center text-gray-500">
-                          No items found
-                        </TableCell>
-                      </TableRow>
                     )}
-                  </TableBody>
-                  </Table>
-                </Card>
-              ))
+                    
+                    {order.admin_notes && (
+                      <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-500 rounded">
+                        <h5 className="font-semibold text-sm mb-1 text-amber-800 dark:text-amber-200">Admin Notes:</h5>
+                        <p className="text-sm text-amber-900 dark:text-amber-100">{order.admin_notes}</p>
+                      </div>
+                    )}
+
+                    {/* Delayed Order Notice and Cancellation Button */}
+                    {order.status === 'delayed' && (
+                      <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 rounded">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                          <div className="flex-1">
+                            <h5 className="font-semibold text-sm mb-2 text-red-800 dark:text-red-200">Order Delayed</h5>
+                            <p className="text-sm text-red-900 dark:text-red-100 mb-2">
+                              Your order has exceeded the standard 24-hour approval time. We apologize for the delay.
+                            </p>
+                            <p className="text-sm text-red-900 dark:text-red-100">
+                              If you have any concerns, please contact us at: <strong>sample@email.com</strong>
+                            </p>
+                          </div>
+                          <Dialog 
+                            open={cancelDialogOpen[order.id] || false} 
+                            onOpenChange={(open) => setCancelDialogOpen(prev => ({ ...prev, [order.id]: open }))}
+                          >
+                            <DialogTrigger asChild>
+                              <Button variant="destructive" size="sm" className="w-full sm:w-auto">
+                                <X className="h-4 w-4 mr-1" />
+                                Cancel Order
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Cancel Order #{order.id}</DialogTitle>
+                                <DialogDescription>
+                                  Are you sure you want to cancel this delayed order? This action cannot be undone.
+                                  <br /><br />
+                                  <strong>Order Total:</strong> ₱{Number(order.total_amount).toFixed(2)}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => setCancelDialogOpen(prev => ({ ...prev, [order.id]: false }))}
+                                >
+                                  Keep Order
+                                </Button>
+                                <Button
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  variant="destructive"
+                                >
+                                  Yes, Cancel Order
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    )}
+
+                    {order.logistic && (
+                      <div className="mb-4 p-3 bg-teal-50 dark:bg-teal-900/20 border-l-4 border-teal-400 dark:border-teal-500 rounded">
+                        <h5 className="font-semibold text-sm mb-1 text-teal-800 dark:text-teal-200">Delivery Information:</h5>
+                        <p className="text-sm text-teal-900 dark:text-teal-100">
+                          <span className="font-medium">Assigned to:</span> {order.logistic.name}
+                          {order.logistic.contact_number && (
+                            <span className="ml-2">({order.logistic.contact_number})</span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="overflow-x-auto">
+                      <Table className="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <TableHeader className="bg-gray-50 dark:bg-gray-700">
+                          <TableRow className="border-gray-200 dark:border-gray-600">
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Product</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Category</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Qty</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Price</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Subtotal</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="bg-white dark:bg-gray-800">
+                          {order.audit_trail && combineOrderItems(order.audit_trail).length > 0 ? (
+                            combineOrderItems(order.audit_trail).map((item: OrderItem) => (
+                              <TableRow key={`${item.product.name}-${item.category}`} className="border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <TableCell className="text-gray-900 dark:text-gray-100 font-medium">{item.product.name}</TableCell>
+                                <TableCell className="text-gray-600 dark:text-gray-400">
+                                  <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                                </TableCell>
+                                <TableCell className="text-gray-900 dark:text-gray-100">{item.quantity} {item.category}</TableCell>
+                                <TableCell className="text-gray-900 dark:text-gray-100">
+                                  {(() => {
+                                    const price = getProductPrice(item.product, item.category);
+                                    return price > 0 ? `₱${price.toFixed(2)}` : 'No price set';
+                                  })()}
+                                </TableCell>
+                                <TableCell className="text-gray-900 dark:text-gray-100 font-semibold">
+                                  {(() => {
+                                    const price = getProductPrice(item.product, item.category);
+                                    return price > 0 ? `₱${(item.quantity * price).toFixed(2)}` : 'N/A';
+                                  })()}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow className="border-gray-200 dark:border-gray-600">
+                              <TableCell colSpan={5} className="text-center text-gray-500 dark:text-gray-400 py-8">
+                                <div className="flex flex-col items-center gap-2">
+                                  <Package className="h-8 w-8 text-gray-400" />
+                                  <span>No items found</span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             )}
           </TabsContent>
         </Tabs>
