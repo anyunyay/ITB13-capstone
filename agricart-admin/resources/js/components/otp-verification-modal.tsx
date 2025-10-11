@@ -716,14 +716,6 @@ export default function OtpVerificationModal({
                                 )}
                             </div>
 
-                            {verificationType === 'phone' && (
-                                <Alert variant="default" className="border-amber-200 bg-amber-50 text-amber-800">
-                                    <AlertDescription>
-                                        <strong>Important:</strong> Make sure this is your own number before proceeding, as using another person's number will block them from using it on their account.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-
                             {validationAlert && (
                                 <Alert variant={validationAlert.type === 'error' ? 'destructive' : 'default'}>
                                     <AlertDescription>{validationAlert.message}</AlertDescription>
@@ -856,6 +848,9 @@ export default function OtpVerificationModal({
                         <div className="p-4 bg-muted rounded-lg">
                             <h4 className="font-medium text-sm mb-2">Important Notes:</h4>
                             <ul className="text-sm text-muted-foreground space-y-1">
+                                {verificationType === 'phone' && (
+                                    <li>• Make sure this is your own number before proceeding, as using another person's number will block them from using it on their account</li>
+                                )}
                                 <li>• The verification code will expire in 15 minutes</li>
                                 <li>• You'll need to verify your new {verificationType} after the change</li>
                                 <li>• Make sure you have access to the new {verificationType}</li>
