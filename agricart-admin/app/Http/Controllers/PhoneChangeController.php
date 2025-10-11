@@ -58,15 +58,72 @@ class PhoneChangeController extends BaseOtpController
         return Validator::make($request->all(), [
             'new_phone' => [
                 'required',
-                'string',
+                'numeric',
                 'regex:/^9\d{9}$/',
                 'unique:users,contact_number,' . Auth::id(),
             ]
         ], [
             'new_phone.required' => 'Please enter a new phone number.',
+            'new_phone.numeric' => 'Phone number must be numeric.',
             'new_phone.regex' => 'Please enter a valid Philippine mobile number (9XXXXXXXXX).',
             'new_phone.unique' => 'This phone number is already in use.',
         ]);
+    }
+
+    /**
+     * Override sendOtp to add additional phone number validation
+     */
+    public function sendOtp(Request $request)
+    {
+        try {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            
+            if (!$user) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Authentication required.'
+                ], 401);
+            }
+            
+            // First, validate the phone number format and uniqueness
+            $validator = $this->validateNewValue($request);
+
+            if ($validator->fails()) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $newPhone = $request->input('new_phone');
+            
+            // Additional check: Ensure the phone number doesn't exist in any format
+            $existingUser = \App\Models\User::where('contact_number', $newPhone)
+                ->orWhere('contact_number', '+63' . $newPhone)
+                ->orWhere('contact_number', '0' . $newPhone)
+                ->where('id', '!=', $user->id)
+                ->first();
+
+            if ($existingUser) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'errors' => [
+                        'new_phone' => 'This phone number is already in use by another user.'
+                    ]
+                ], 422);
+            }
+
+            // Call parent sendOtp method to continue with the OTP process
+            return parent::sendOtp($request);
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Phone change OTP error: ' . $e->getMessage());
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Failed to send verification code. Please try again.'
+            ], 500);
+        }
     }
 
     /**

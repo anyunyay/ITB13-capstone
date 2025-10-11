@@ -31,7 +31,8 @@ class LogisticController extends Controller
             'password' => 'required|string|min:8',
             'contact_number' => [
                 'required',
-                'string',
+                'numeric',
+                'unique:users,contact_number',
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'address' => 'nullable|string|max:255',
@@ -67,7 +68,8 @@ class LogisticController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'contact_number' => [
                 'required',
-                'string',
+                'numeric',
+                'unique:users,contact_number,' . $id,
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'address' => 'nullable|string|max:255',
