@@ -31,7 +31,7 @@ class PhoneChangeController extends BaseOtpController
      */
     protected function getVerificationType(): string
     {
-        return 'phone number';
+        return 'email';
     }
 
     /**
@@ -115,7 +115,16 @@ class PhoneChangeController extends BaseOtpController
             }
 
             // Call parent sendOtp method to continue with the OTP process
-            return parent::sendOtp($request);
+            $response = parent::sendOtp($request);
+            
+            // Override the success message to indicate OTP is sent to email
+            if ($response->getData()->success) {
+                $responseData = $response->getData();
+                $responseData->message = "Verification code sent to your registered email address.";
+                $response->setData($responseData);
+            }
+            
+            return $response;
             
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Phone change OTP error: ' . $e->getMessage());

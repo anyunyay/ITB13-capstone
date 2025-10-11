@@ -94,6 +94,7 @@ export default function OtpVerificationModal({
 
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [validationAlert, setValidationAlert] = useState<{type: 'error' | 'warning' | 'info', message: string} | null>(null);
 
     // Reset state when modal opens/closes
     useEffect(() => {
@@ -108,6 +109,7 @@ export default function OtpVerificationModal({
             setTimeLeft(0);
             setCurrentOtpRequest(null);
             setShowBackConfirmation(false);
+            setValidationAlert(null);
             resetForm();
         }
     }, [isOpen]);
@@ -170,11 +172,73 @@ export default function OtpVerificationModal({
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // Helper function to categorize errors
+    const categorizeErrors = (errorData: any) => {
+        const validationErrors: Record<string, string> = {};
+        let alertMessage: string | null = null;
+        let alertType: 'error' | 'warning' | 'info' = 'error';
+
+        if (errorData.errors) {
+            // Check for validation/restriction errors that should show as alerts
+            const validationKeywords = [
+                'already in use',
+                'already exists',
+                'duplicate',
+                'invalid format',
+                'not allowed',
+                'restricted',
+                'forbidden',
+                'not available'
+            ];
+
+            Object.entries(errorData.errors).forEach(([field, message]) => {
+                const messageStr = String(message);
+                const isValidationError = validationKeywords.some(keyword => 
+                    messageStr.toLowerCase().includes(keyword.toLowerCase())
+                );
+
+                if (isValidationError) {
+                    alertMessage = messageStr;
+                    alertType = 'error';
+                } else {
+                    validationErrors[field] = messageStr;
+                }
+            });
+        } else if (errorData.message) {
+            // Check if it's a validation/restriction message
+            const messageStr = String(errorData.message);
+            const validationKeywords = [
+                'already in use',
+                'already exists',
+                'duplicate',
+                'invalid format',
+                'not allowed',
+                'restricted',
+                'forbidden',
+                'not available'
+            ];
+
+            const isValidationError = validationKeywords.some(keyword => 
+                messageStr.toLowerCase().includes(keyword.toLowerCase())
+            );
+
+            if (isValidationError) {
+                alertMessage = messageStr;
+                alertType = 'error';
+            } else {
+                validationErrors.general = messageStr;
+            }
+        }
+
+        return { validationErrors, alertMessage, alertType };
+    };
+
     const handleInputSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setErrors({});
         setSuccess('');
+        setValidationAlert(null);
 
         // Frontend validation: Check if new value is the same as current value
         const newValue = formData[newValueFieldName];
@@ -185,8 +249,9 @@ export default function OtpVerificationModal({
             const normalizedNewValue = newValue.replace(/^0/, '');
             
             if (normalizedNewValue === currentPhone) {
-                setErrors({
-                    [newValueFieldName]: `The new phone number must be different from your current phone number.`
+                setValidationAlert({
+                    type: 'error',
+                    message: 'The new phone number must be different from your current phone number.'
                 });
                 setIsLoading(false);
                 return;
@@ -194,8 +259,9 @@ export default function OtpVerificationModal({
         } else {
             // For email, direct comparison
             if (newValue === currentValue) {
-                setErrors({
-                    [newValueFieldName]: `The new email address must be different from your current email address.`
+                setValidationAlert({
+                    type: 'error',
+                    message: 'The new email address must be different from your current email address.'
                 });
                 setIsLoading(false);
                 return;
@@ -227,6 +293,23 @@ export default function OtpVerificationModal({
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Input submit error response:', errorText);
+                
+                // Handle validation errors (422) by parsing JSON response
+                if (response.status === 422) {
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        const { validationErrors, alertMessage, alertType } = categorizeErrors(errorData);
+                        setErrors(validationErrors);
+                        if (alertMessage) {
+                            setValidationAlert({ type: alertType, message: alertMessage });
+                        }
+                        return; // Exit early after handling validation error
+                    } catch (parseError) {
+                        console.error('Failed to parse validation error response:', parseError);
+                        setErrors({ general: 'Validation error occurred. Please check your input.' });
+                        return;
+                    }
+                }
                 
                 // If CSRF token mismatch, try to refresh token and retry once
                 if (response.status === 419) {
@@ -264,10 +347,10 @@ export default function OtpVerificationModal({
                                 }
                                 setStep('verify');
                             } else {
-                                if (retryData.errors) {
-                                    setErrors(retryData.errors);
-                                } else {
-                                    setErrors({ general: retryData.message || 'Failed to send verification code.' });
+                                const { validationErrors, alertMessage, alertType } = categorizeErrors(retryData);
+                                setErrors(validationErrors);
+                                if (alertMessage) {
+                                    setValidationAlert({ type: alertType, message: alertMessage });
                                 }
                             }
                             return; // Exit early on successful retry
@@ -287,10 +370,10 @@ export default function OtpVerificationModal({
                 }
                 setStep('verify');
             } else {
-                if (data.errors) {
-                    setErrors(data.errors);
-                } else {
-                    setErrors({ general: data.message || 'Failed to send verification code.' });
+                const { validationErrors, alertMessage, alertType } = categorizeErrors(data);
+                setErrors(validationErrors);
+                if (alertMessage) {
+                    setValidationAlert({ type: alertType, message: alertMessage });
                 }
             }
         } catch (error) {
@@ -306,6 +389,7 @@ export default function OtpVerificationModal({
         setIsLoading(true);
         setErrors({});
         setSuccess('');
+        setValidationAlert(null);
 
         const request = currentOtpRequest || otpRequest;
         if (!request) {
@@ -339,6 +423,24 @@ export default function OtpVerificationModal({
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('OTP verify error response:', errorText);
+                
+                // Handle validation errors (422) by parsing JSON response
+                if (response.status === 422) {
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        const { validationErrors, alertMessage, alertType } = categorizeErrors(errorData);
+                        setErrors(validationErrors);
+                        if (alertMessage) {
+                            setValidationAlert({ type: alertType, message: alertMessage });
+                        }
+                        return; // Exit early after handling validation error
+                    } catch (parseError) {
+                        console.error('Failed to parse validation error response:', parseError);
+                        setErrors({ general: 'Validation error occurred. Please check your input.' });
+                        return;
+                    }
+                }
+                
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
@@ -352,10 +454,10 @@ export default function OtpVerificationModal({
                     window.location.reload();
                 }, 2000);
             } else {
-                if (data.errors) {
-                    setErrors(data.errors);
-                } else {
-                    setErrors({ general: data.message || 'Invalid verification code.' });
+                const { validationErrors, alertMessage, alertType } = categorizeErrors(data);
+                setErrors(validationErrors);
+                if (alertMessage) {
+                    setValidationAlert({ type: alertType, message: alertMessage });
                 }
             }
         } catch (error) {
@@ -374,6 +476,7 @@ export default function OtpVerificationModal({
         setCanResend(false);
         setResendTimer(30);
         setErrors({});
+        setValidationAlert(null);
 
         try {
             const csrfToken = getCsrfTokenFromMeta();
@@ -398,10 +501,10 @@ export default function OtpVerificationModal({
             if (data.success) {
                 setSuccess(data.message || 'New verification code sent!');
             } else {
-                if (data.errors) {
-                    setErrors(data.errors);
-                } else {
-                    setErrors({ general: data.message || 'Failed to resend verification code.' });
+                const { validationErrors, alertMessage, alertType } = categorizeErrors(data);
+                setErrors(validationErrors);
+                if (alertMessage) {
+                    setValidationAlert({ type: alertType, message: alertMessage });
                 }
             }
         } catch (error) {
@@ -441,7 +544,11 @@ export default function OtpVerificationModal({
                             onClose();
                             window.location.reload();
                         } else {
-                            setErrors({ general: `Failed to cancel ${verificationType} change request.` });
+                            const { validationErrors, alertMessage, alertType } = categorizeErrors(data);
+                            setErrors(validationErrors);
+                            if (alertMessage) {
+                                setValidationAlert({ type: alertType, message: alertMessage });
+                            }
                         }
                     } catch (error) {
                         console.error('Cancel error:', error);
@@ -468,6 +575,7 @@ export default function OtpVerificationModal({
         setSuccess('');
         setTimeLeft(0);
         setShowBackConfirmation(false);
+        setValidationAlert(null);
         if (timerRef.current) {
             clearInterval(timerRef.current);
         }
@@ -478,6 +586,9 @@ export default function OtpVerificationModal({
     };
 
     const getIcon = () => {
+        if (step === 'verify' && verificationType === 'phone') {
+            return <Mail className="h-5 w-5" />;
+        }
         return verificationType === 'email' ? <Mail className="h-5 w-5" /> : <Phone className="h-5 w-5" />;
     };
 
@@ -489,9 +600,13 @@ export default function OtpVerificationModal({
         if (step === 'input') {
             return verificationType === 'email' 
                 ? 'Enter your new email address. We\'ll send you a verification code to confirm the change.'
-                : 'Enter your new phone number. We\'ll send you a verification code to confirm the change.';
+                : 'Enter your new phone number. We\'ll send you a verification code to your registered email address.';
         } else {
-            return `We've sent a 6-digit verification code to ${maskValue(currentValue, verificationType)}`;
+            if (verificationType === 'phone') {
+                return `We've sent a 6-digit verification code to your registered email address (${maskValue(user.email, 'email')})`;
+            } else {
+                return `We've sent a 6-digit verification code to ${maskValue(currentValue, verificationType)}`;
+            }
         }
     };
 
@@ -520,7 +635,7 @@ export default function OtpVerificationModal({
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         {getIcon()}
-                        {step === 'input' ? getTitle() : `Verify ${verificationType === 'email' ? 'Email' : 'Phone'} Change`}
+                        {step === 'input' ? getTitle() : `Verify ${verificationType === 'email' ? 'Email' : 'Phone'} Change via Email`}
                     </DialogTitle>
                     <DialogDescription>
                         {getDescription()}
@@ -601,6 +716,20 @@ export default function OtpVerificationModal({
                                 )}
                             </div>
 
+                            {verificationType === 'phone' && (
+                                <Alert variant="default" className="border-amber-200 bg-amber-50 text-amber-800">
+                                    <AlertDescription>
+                                        <strong>Important:</strong> Make sure this is your own number before proceeding, as using another person's number will block them from using it on their account.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {validationAlert && (
+                                <Alert variant={validationAlert.type === 'error' ? 'destructive' : 'default'}>
+                                    <AlertDescription>{validationAlert.message}</AlertDescription>
+                                </Alert>
+                            )}
+
                             {errors.general && (
                                 <Alert variant="destructive">
                                     <AlertDescription>{errors.general}</AlertDescription>
@@ -666,6 +795,12 @@ export default function OtpVerificationModal({
                                     <AlertDescription>
                                         Verification code has expired. Please request a new one.
                                     </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {validationAlert && (
+                                <Alert variant={validationAlert.type === 'error' ? 'destructive' : 'default'}>
+                                    <AlertDescription>{validationAlert.message}</AlertDescription>
                                 </Alert>
                             )}
 
