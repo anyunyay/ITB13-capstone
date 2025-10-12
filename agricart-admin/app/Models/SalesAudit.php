@@ -89,4 +89,34 @@ class SalesAudit extends Model
     {
         return $query->where('delivery_status', 'delivered');
     }
+
+    /**
+     * Get aggregated audit trail data grouped by product and category
+     * This combines quantities from different stock sources (members) for the same items
+     */
+    public function getAggregatedAuditTrail()
+    {
+        $auditTrail = $this->auditTrail()->with('product')->get();
+        
+        // Group by product_id and category, then sum quantities
+        $aggregated = $auditTrail->groupBy(function ($item) {
+            return $item->product_id . '-' . $item->category;
+        })->map(function ($items) {
+            $firstItem = $items->first();
+            return [
+                'id' => $firstItem->id, // Use the first item's ID as representative
+                'product' => [
+                    'id' => $firstItem->product->id,
+                    'name' => $firstItem->product->name,
+                    'price_kilo' => $firstItem->product->price_kilo,
+                    'price_pc' => $firstItem->product->price_pc,
+                    'price_tali' => $firstItem->product->price_tali,
+                ],
+                'category' => $firstItem->category,
+                'quantity' => $items->sum('quantity'),
+            ];
+        })->values();
+
+        return $aggregated;
+    }
 }

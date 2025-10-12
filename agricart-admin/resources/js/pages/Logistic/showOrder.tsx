@@ -72,40 +72,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     }
   };
 
-  // Helper function to combine quantities for the same items
-  const combineOrderItems = (auditTrail: Array<{
-    id: number;
-    product: {
-      id: number;
-      name: string;
-      price_kilo?: number;
-      price_pc?: number;
-      price_tali?: number;
-    };
-    category: string;
-    quantity: number;
-  }>) => {
-    const combinedItems = new Map<string, {
-      product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
-      category: string;
-      quantity: number;
-    }>();
-    
-    auditTrail.forEach((item) => {
-      const key = `${item.product.name}-${item.category}`;
-      
-      if (combinedItems.has(key)) {
-        // Combine quantities for the same product and category
-        const existingItem = combinedItems.get(key)!;
-        existingItem.quantity += item.quantity;
-      } else {
-        // Add new item
-        combinedItems.set(key, { ...item });
-      }
-    });
-    
-    return Array.from(combinedItems.values());
-  };
+  // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
   // Keep form data synchronized with current order state
   useEffect(() => {
@@ -320,7 +287,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {combineOrderItems(currentOrder.audit_trail).map((item, index) => {
+              {currentOrder.audit_trail.map((item, index) => {
                 // Get the appropriate price based on category
                 const getPrice = () => {
                   let rawPrice;

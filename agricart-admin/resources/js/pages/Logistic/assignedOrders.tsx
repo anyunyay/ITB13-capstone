@@ -64,39 +64,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
     }
   };
 
-  const combineOrderItems = (auditTrail: Array<{
-    id: number;
-    product: {
-      id: number;
-      name: string;
-      price_kilo?: number;
-      price_pc?: number;
-      price_tali?: number;
-    };
-    category: string;
-    quantity: number;
-  }>) => {
-    const combinedItems = new Map<string, {
-      product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
-      category: string;
-      quantity: number;
-    }>();
-    
-    auditTrail.forEach((item) => {
-      const key = `${item.product.name}-${item.category}`;
-      
-      if (combinedItems.has(key)) {
-        // Combine quantities for the same product and category
-        const existingItem = combinedItems.get(key)!;
-        existingItem.quantity += item.quantity;
-      } else {
-        // Add new item
-        combinedItems.set(key, { ...item });
-      }
-    });
-    
-    return Array.from(combinedItems.values());
-  };
+  // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
   const handleStatusFilter = (status: string) => {
     router.get(route('logistic.orders.index'), { status }, {
@@ -168,15 +136,14 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                </Card>
             ) : (
               <div className="grid gap-4">
-                {pendingOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    combineOrderItems={combineOrderItems}
-                  />
-                ))}
+        {pendingOrders.map((order) => (
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            getDeliveryStatusBadge={getDeliveryStatusBadge}
+            formatQuantity={formatQuantity}
+          />
+        ))}
               </div>
             )}
           </TabsContent>
@@ -190,15 +157,14 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                </Card>
             ) : (
               <div className="grid gap-4">
-                {outForDeliveryOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    combineOrderItems={combineOrderItems}
-                  />
-                ))}
+        {outForDeliveryOrders.map((order) => (
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            getDeliveryStatusBadge={getDeliveryStatusBadge}
+            formatQuantity={formatQuantity}
+          />
+        ))}
               </div>
             )}
           </TabsContent>
@@ -212,15 +178,14 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                </Card>
             ) : (
               <div className="grid gap-4">
-                {deliveredOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    combineOrderItems={combineOrderItems}
-                  />
-                ))}
+        {deliveredOrders.map((order) => (
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            getDeliveryStatusBadge={getDeliveryStatusBadge}
+            formatQuantity={formatQuantity}
+          />
+        ))}
               </div>
             )}
           </TabsContent>
@@ -230,28 +195,12 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   );
 }
 
-function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, combineOrderItems }: { 
+function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: { 
   order: Order; 
   getDeliveryStatusBadge: (status: string) => React.ReactElement;
   formatQuantity: (quantity: number, category: string) => string;
-  combineOrderItems: (auditTrail: Array<{
-    id: number;
-    product: {
-      id: number;
-      name: string;
-      price_kilo?: number;
-      price_pc?: number;
-      price_tali?: number;
-    };
-    category: string;
-    quantity: number;
-  }>) => Array<{
-    product: { id: number; name: string; price_kilo?: number; price_pc?: number; price_tali?: number };
-    category: string;
-    quantity: number;
-  }>;
 }) {
-  const combinedItems = combineOrderItems(order.audit_trail);
+  // Backend now provides aggregated quantities
   
   return (
     <Card className="bg-gray-800 border-gray-700">
@@ -301,14 +250,14 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, combineOrder
             <div className="space-y-2">
               <p className="text-sm font-medium text-gray-300">Products in Order:</p>
               <div className="space-y-1">
-                {combinedItems.slice(0, 3).map((item, index) => (
+                {order.audit_trail.slice(0, 3).map((item, index) => (
                   <div key={`${item.product.name}-${item.category}-${index}`} className="text-sm text-gray-400">
                     • {item.product.name} - {formatQuantity(item.quantity, item.category)}
                   </div>
                 ))}
-                {combinedItems.length > 3 && (
+                {order.audit_trail.length > 3 && (
                   <div className="text-sm text-gray-500">
-                    +{combinedItems.length - 3} more item(s)
+                    +{order.audit_trail.length - 3} more item(s)
                   </div>
                 )}
               </div>

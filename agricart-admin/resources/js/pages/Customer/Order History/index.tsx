@@ -62,25 +62,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [reportOpen, setReportOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
 
-  // Helper function to combine quantities for the same items
-  const combineOrderItems = (auditTrail: OrderItem[]) => {
-    const combinedItems = new Map<string, OrderItem>();
-    
-    auditTrail.forEach((item) => {
-      const key = `${item.product.name}-${item.category}`;
-      
-      if (combinedItems.has(key)) {
-        // Combine quantities for the same product and category
-        const existingItem = combinedItems.get(key)!;
-        existingItem.quantity += item.quantity;
-      } else {
-        // Add new item
-        combinedItems.set(key, { ...item });
-      }
-    });
-    
-    return Array.from(combinedItems.values());
-  };
+  // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
   // Helper function to get the correct price for a product based on category
   const getProductPrice = (product: OrderItem['product'], category: string): number => {
@@ -500,8 +482,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                           </TableRow>
                         </TableHeader>
                         <TableBody className="bg-white dark:bg-gray-800">
-                          {order.audit_trail && combineOrderItems(order.audit_trail).length > 0 ? (
-                            combineOrderItems(order.audit_trail).map((item: OrderItem) => (
+                          {order.audit_trail && order.audit_trail.length > 0 ? (
+                            order.audit_trail.map((item: OrderItem) => (
                               <TableRow key={`${item.product.name}-${item.category}`} className="border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <TableCell className="text-gray-900 dark:text-gray-100 font-medium">{item.product.name}</TableCell>
                                 <TableCell className="text-gray-600 dark:text-gray-400">

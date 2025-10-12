@@ -80,17 +80,7 @@ class OrderController extends Controller
                     'name' => $order->logistic->name,
                     'contact_number' => $order->logistic->contact_number,
                 ] : null,
-                'audit_trail' => $order->auditTrail->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'product' => [
-                            'id' => $item->product->id,
-                            'name' => $item->product->name,
-                        ],
-                        'category' => $item->category,
-                        'quantity' => $item->quantity,
-                    ];
-                }),
+                'audit_trail' => $order->getAggregatedAuditTrail(),
                 'is_urgent' => $order->is_urgent,
             ];
         });
@@ -185,24 +175,7 @@ class OrderController extends Controller
                 'name' => $order->logistic->name,
                 'contact_number' => $order->logistic->contact_number,
             ] : null,
-            'audit_trail' => $order->auditTrail->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'price_kilo' => $item->product->price_kilo,
-                        'price_pc' => $item->product->price_pc,
-                        'price_tali' => $item->product->price_tali,
-                    ],
-                    'category' => $item->category,
-                    'quantity' => $item->quantity,
-                    'stock' => $item->stock ? [
-                        'id' => $item->stock->id,
-                        'quantity' => $item->stock->quantity,
-                    ] : null,
-                ];
-            }),
+            'audit_trail' => $order->getAggregatedAuditTrail(),
             'is_urgent' => $order->is_urgent,
         ];
 

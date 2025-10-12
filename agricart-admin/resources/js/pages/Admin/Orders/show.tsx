@@ -252,52 +252,30 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {(() => {
-                    // Group items by product ID and combine quantities
-                    const groupedItems = order.audit_trail?.reduce((acc, item) => {
-                      const key = `${item.product.id}-${item.category}`;
-                      if (!acc[key]) {
-                        acc[key] = {
-                          id: item.id,
-                          product: item.product,
-                          category: item.category,
-                          quantity: 0,
-                          totalPrice: 0
-                        };
-                      }
-                      acc[key].quantity += Number(item.quantity);
-                      acc[key].totalPrice += Number(item.quantity) * Number(
-                        item.category === 'Kilo' ? (item.product.price_kilo || 0) :
-                        item.category === 'Pc' ? (item.product.price_pc || 0) :
-                        item.category === 'Tali' ? (item.product.price_tali || 0) : 0
-                      );
-                      return acc;
-                    }, {} as Record<string, any>) || {};
-
-                    const combinedItems = Object.values(groupedItems);
-
-                    return combinedItems.length > 0 ? (
-                      combinedItems.map((item) => (
+                  {order.audit_trail && order.audit_trail.length > 0 ? (
+                    order.audit_trail.map((item) => {
+                      const price = item.category === 'Kilo' ? (item.product.price_kilo || 0) :
+                                   item.category === 'Pc' ? (item.product.price_pc || 0) :
+                                   item.category === 'Tali' ? (item.product.price_tali || 0) : 0;
+                      const totalPrice = Number(item.quantity) * Number(price);
+                      
+                      return (
                         <div key={item.id} className="flex items-center justify-between p-4 border rounded">
                           <div>
                             <h4 className="font-medium">{item.product.name}</h4>
                             <p className="text-sm text-gray-500">
-                              {item.quantity} {item.category} × ₱{
-                                item.category === 'Kilo' ? (item.product.price_kilo || 0) :
-                                item.category === 'Pc' ? (item.product.price_pc || 0) :
-                                item.category === 'Tali' ? (item.product.price_tali || 0) : 0
-                              }
+                              {item.quantity} {item.category} × ₱{price}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">₱{item.totalPrice.toFixed(2)}</p>
+                            <p className="font-medium">₱{totalPrice.toFixed(2)}</p>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500 text-center py-4">No items found</p>
-                    );
-                  })()}
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-4">No items found</p>
+                  )}
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold">Total</span>

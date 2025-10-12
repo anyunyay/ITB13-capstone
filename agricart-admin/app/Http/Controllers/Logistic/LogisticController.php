@@ -39,20 +39,7 @@ class LogisticController extends Controller
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
                     'created_at' => $order->created_at->toISOString(),
-                    'audit_trail' => $order->auditTrail->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'product' => [
-                                'id' => $item->product->id,
-                                'name' => $item->product->name,
-                                'price_kilo' => $item->product->price_kilo,
-                                'price_pc' => $item->product->price_pc,
-                                'price_tali' => $item->product->price_tali,
-                            ],
-                            'category' => $item->category,
-                            'quantity' => $item->quantity,
-                        ];
-                    }),
+                    'audit_trail' => $order->getAggregatedAuditTrail(),
                 ];
             });
 
@@ -101,20 +88,7 @@ class LogisticController extends Controller
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
                     'created_at' => $order->created_at->toISOString(),
-                    'audit_trail' => $order->auditTrail->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'product' => [
-                                'id' => $item->product->id,
-                                'name' => $item->product->name,
-                                'price_kilo' => $item->product->price_kilo,
-                                'price_pc' => $item->product->price_pc,
-                                'price_tali' => $item->product->price_tali,
-                            ],
-                            'category' => $item->category,
-                            'quantity' => $item->quantity,
-                        ];
-                    }),
+                    'audit_trail' => $order->getAggregatedAuditTrail(),
                 ];
             });
 
@@ -147,20 +121,7 @@ class LogisticController extends Controller
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,
             'created_at' => $order->created_at->toISOString(),
-            'audit_trail' => $order->auditTrail->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'price_kilo' => $item->product->price_kilo,
-                        'price_pc' => $item->product->price_pc,
-                        'price_tali' => $item->product->price_tali,
-                    ],
-                    'category' => $item->category,
-                    'quantity' => $item->quantity,
-                ];
-            }),
+            'audit_trail' => $order->getAggregatedAuditTrail(),
         ];
 
         return Inertia::render('Logistic/showOrder', [
@@ -352,8 +313,9 @@ class LogisticController extends Controller
             // Write order data
             foreach ($orders as $order) {
                 $items = [];
-                foreach ($order->auditTrail as $trail) {
-                    $items[] = $trail->product->name . ' (' . $trail->category . ') - ' . $trail->quantity;
+                $aggregatedTrail = $order->getAggregatedAuditTrail();
+                foreach ($aggregatedTrail as $item) {
+                    $items[] = $item['product']['name'] . ' (' . $item['category'] . ') - ' . $item['quantity'];
                 }
                 
                 fputcsv($file, [

@@ -53,19 +53,7 @@ class OrderController extends Controller
                         'name' => $sale->logistic->name,
                         'contact_number' => $sale->logistic->contact_number,
                     ] : null,
-                    'audit_trail' => $sale->auditTrail->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'product' => [
-                                'name' => $item->product->name ?? 'Unknown',
-                                'price_kilo' => $item->product->price_kilo ?? null,
-                                'price_pc' => $item->product->price_pc ?? null,
-                                'price_tali' => $item->product->price_tali ?? null,
-                            ],
-                            'category' => $item->category,
-                            'quantity' => $item->quantity,
-                        ];
-                    }),
+                    'audit_trail' => $sale->getAggregatedAuditTrail(),
                 ];
             });
 
@@ -176,8 +164,9 @@ class OrderController extends Controller
 
             // Write order data
             foreach ($orders as $order) {
-                $items = $order->auditTrail->map(function($item) {
-                    return $item->product->name . ' (' . $item->category . ' x' . $item->quantity . ')';
+                $aggregatedTrail = $order->getAggregatedAuditTrail();
+                $items = collect($aggregatedTrail)->map(function($item) {
+                    return $item['product']['name'] . ' (' . $item['category'] . ' x' . $item['quantity'] . ')';
                 })->join('; ');
 
                 fputcsv($file, [
