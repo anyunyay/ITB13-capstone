@@ -42,10 +42,10 @@ export function SystemLockOverlay({ className }: SystemLockOverlayProps) {
                 if (data.status_value === 'pending_lock') {
                     setCountdown(data.remaining_seconds);
                     
-                    // Show warning modals
-                    if (data.remaining_seconds <= 600 && data.remaining_seconds > 300) { // 10 minutes
+                    // Show warning modals for 1-minute countdown
+                    if (data.remaining_seconds <= 30 && data.remaining_seconds > 10) { // 30 seconds warning
                         setShowWarning10(true);
-                    } else if (data.remaining_seconds <= 300 && data.remaining_seconds > 0) { // 5 minutes
+                    } else if (data.remaining_seconds <= 10 && data.remaining_seconds > 0) { // 10 seconds final warning
                         setShowWarning5(true);
                     }
                 } else if (data.status_value === 'locked') {
@@ -73,9 +73,9 @@ export function SystemLockOverlay({ className }: SystemLockOverlayProps) {
                     const newCountdown = prev - 1;
                     
                     // Show warning modals
-                    if (newCountdown === 10) { // 10 seconds exactly
+                    if (newCountdown === 30) { // 30 seconds exactly
                         setShowWarning10(true);
-                    } else if (newCountdown === 5) { // 5 seconds exactly
+                    } else if (newCountdown === 10) { // 10 seconds exactly
                         setShowWarning5(true);
                     }
                     
@@ -139,7 +139,7 @@ export function SystemLockOverlay({ className }: SystemLockOverlayProps) {
                             <span>Final Warning</span>
                         </DialogTitle>
                         <DialogDescription>
-                            ⚠️ The system will be locked in 5 seconds. Complete your purchase now.
+                            ⚠️ The system will be locked in 10 seconds. Complete your purchase now.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end">

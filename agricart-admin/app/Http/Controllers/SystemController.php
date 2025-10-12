@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class SystemController extends Controller
 {
     /**
-     * Schedule a system lock with 30-minute countdown.
+     * Schedule a system lock with 1-minute countdown.
      */
     public function scheduleLock(Request $request): JsonResponse
     {
