@@ -14,8 +14,6 @@ use App\Http\Controllers\Admin\LogisticController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StaffController;
-use App\Http\Controllers\Admin\SystemLockoutController;
-use App\Http\Controllers\Admin\MandatoryActionController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
@@ -209,26 +207,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
         Route::post('/notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markRead'])->name('admin.notifications.markRead');
         Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
-
-        // System Lockout Management routes
-        Route::middleware(['can:manage system'])->group(function () {
-            Route::get('/system-lockout', [SystemLockoutController::class, 'index'])->name('admin.system-lockout.index');
-            Route::get('/system-lockout/status', [SystemLockoutController::class, 'status'])->name('admin.system-lockout.status');
-            Route::post('/system-lockout/keep-prices', [SystemLockoutController::class, 'keepPrices'])->name('admin.system-lockout.keep-prices');
-            Route::post('/system-lockout/apply-price-changes', [SystemLockoutController::class, 'applyPriceChanges'])->name('admin.system-lockout.apply-price-changes');
-            Route::post('/system-lockout/cancel-price-changes', [SystemLockoutController::class, 'cancelPriceChanges'])->name('admin.system-lockout.cancel-price-changes');
-            Route::post('/system-lockout/approve-price-changes', [SystemLockoutController::class, 'approvePriceChanges'])->name('admin.system-lockout.approve-price-changes');
-        });
-
-        // Mandatory Admin Action routes
-        Route::middleware(['can:manage system'])->group(function () {
-            Route::get('/mandatory-action', [MandatoryActionController::class, 'index'])->name('admin.mandatory-action.index');
-            Route::get('/mandatory-action/status', [MandatoryActionController::class, 'status'])->name('admin.mandatory-action.status');
-            Route::post('/mandatory-action/stay-as-is', [MandatoryActionController::class, 'stayAsIs'])->name('admin.mandatory-action.stay-as-is');
-            Route::post('/mandatory-action/price-change', [MandatoryActionController::class, 'priceChange'])->name('admin.mandatory-action.price-change');
-            Route::post('/mandatory-action/cancel-price-change', [MandatoryActionController::class, 'cancelPriceChange'])->name('admin.mandatory-action.cancel-price-change');
-            Route::post('/mandatory-action/approve-price-change', [MandatoryActionController::class, 'approvePriceChange'])->name('admin.mandatory-action.approve-price-change');
-        });
     });
 
         
