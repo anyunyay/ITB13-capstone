@@ -13,7 +13,7 @@ import AuthLayout from '@/layouts/auth-layout';
 import LoginRestrictionPopup from '@/components/LoginRestrictionPopup';
 
 type MemberLoginForm = {
-    email: string;
+    member_id: string;
     password: string;
     remember: boolean;
 };
@@ -29,7 +29,7 @@ interface MemberLoginProps {
 
 export default function MemberLogin({ status, canResetPassword, restrictionPopup }: MemberLoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<MemberLoginForm>>({
-        email: '',
+        member_id: '',
         password: '',
         remember: false,
     });
@@ -62,7 +62,7 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('member.login'), {
+        post(route('member.login.store'), {
             replace: true,
             onFinish: () => reset('password'),
         });
@@ -87,20 +87,20 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="member_id">Member ID</Label>
                         <Input
-                            id="email"
-                            type="email"
+                            id="member_id"
+                            type="text"
                             required
                             autoFocus
                             tabIndex={1}
-                            autoComplete="email"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
-                            placeholder="member@example.com"
+                            autoComplete="username"
+                            value={data.member_id}
+                            onChange={(e) => setData('member_id', e.target.value)}
+                            placeholder="2411001"
                             className="border-gray-300 focus:border-green-500 focus:ring-green-500"
                         />
-                        <InputError message={errors.email} />
+                        <InputError message={errors.member_id} />
                     </div>
 
                     <div className="grid gap-2">

@@ -64,7 +64,7 @@ test('customers are blocked from member login', function () {
     $customer = User::factory()->customer()->create();
 
     $response = $this->post('/member/login', [
-        'email' => $customer->email,
+        'member_id' => '1234567', // Invalid member_id
         'password' => '12345678',
     ]);
 
@@ -168,7 +168,7 @@ test('admin users are blocked from member login', function () {
     $admin = User::factory()->admin()->create();
 
     $response = $this->post('/member/login', [
-        'email' => $admin->email,
+        'member_id' => '1234567', // Invalid member_id
         'password' => '12345678',
     ]);
 
@@ -181,7 +181,7 @@ test('logistic users are blocked from member login', function () {
     $logistic = User::factory()->logistic()->create();
 
     $response = $this->post('/member/login', [
-        'email' => $logistic->email,
+        'member_id' => '1234567', // Invalid member_id
         'password' => 'password',
     ]);
 
@@ -238,4 +238,28 @@ test('admin users can login through admin login', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('admin.dashboard'));
+});
+
+test('member users can login through member login using member_id', function () {
+    $member = User::factory()->member()->create();
+
+    $response = $this->post('/member/login', [
+        'member_id' => $member->member_id,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('member.dashboard'));
+});
+
+test('member users cannot login with invalid member_id', function () {
+    $member = User::factory()->member()->create();
+
+    $response = $this->post('/member/login', [
+        'member_id' => '9999999', // Invalid member_id
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+    $response->assertSessionHasErrors(['member_id']);
 });

@@ -28,12 +28,14 @@ class DatabaseSeeder extends Seeder
             SystemStatusSeeder::class,
         ]);
 
-        // Create another user manually
+        // Create another user manually with specific member_id
         $memberUser = User::create([
             'type' => 'member',
             'name' => 'John Doe',
-            'email' => 'member@member.com',
+            'email' => null, // No email for members - they use member_id for login
+            'member_id' => '2411997', // Specific member ID for testing (avoiding conflicts)
             'contact_number' => '09123456789',
+            'address' => '123 Main St, Sala, Cabuyao, Laguna', // Add address field
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
             'password' => Hash::make('12345678'),

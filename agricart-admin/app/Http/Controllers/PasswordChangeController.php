@@ -20,7 +20,7 @@ class PasswordChangeController extends Controller
         $user = Auth::user();
         
         // Only allow staff and logistics users
-        if (!in_array($user->type, ['staff', 'logistic']) || !$user->password_change_required) {
+        if (!in_array($user->type, ['staff', 'logistic'])) {
             abort(403, 'Access denied.');
         }
 
@@ -35,7 +35,7 @@ class PasswordChangeController extends Controller
         $user = $request->user();
         
         // Only allow staff and logistics users
-        if (!in_array($user->type, ['staff', 'logistic']) || !$user->password_change_required) {
+        if (!in_array($user->type, ['staff', 'logistic'])) {
             abort(403, 'Access denied.');
         }
 
@@ -46,7 +46,6 @@ class PasswordChangeController extends Controller
 
         $user->update([
             'password' => Hash::make($validated['password']),
-            'password_change_required' => false,
         ]);
 
         // Redirect based on user type

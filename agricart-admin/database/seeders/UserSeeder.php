@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         // Seed 1 customers
         User::factory()->count(1)->customer()->create();
 
-        // Seed 3 members
+        // Seed 3 members (member_id will be auto-generated starting from 2411001)
         User::factory()->count(3)->member()->create();
 
         // Seed 3 logistics

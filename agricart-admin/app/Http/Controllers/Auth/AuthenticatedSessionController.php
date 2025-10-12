@@ -270,7 +270,7 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming member authentication request (member portal entry point).
      * Only allows member users to login through this endpoint.
      */
-    public function storeMember(LoginRequest $request): RedirectResponse
+    public function storeMember(\App\Http\Requests\Auth\MemberLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();

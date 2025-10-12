@@ -18,8 +18,8 @@ class CheckPasswordChangeRequired
     {
         $user = $request->user();
 
-        // Only check for staff and logistics users
-        if ($user && in_array($user->type, ['staff', 'logistic']) && $user->password_change_required) {
+        // Only check for staff and logistics users (password change requirement removed)
+        if ($user && in_array($user->type, ['staff', 'logistic']) && false) {
             // Allow access to password change routes and logout
             $allowedRoutes = [
                 'password.change',

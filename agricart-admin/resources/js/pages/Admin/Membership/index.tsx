@@ -21,7 +21,7 @@ import {
 interface Member {
     id: number;
     name: string;
-    email: string;
+    member_id?: string;
     contact_number?: string;
     address?: string;
     registration_date?: string;
@@ -96,8 +96,8 @@ export default function Index() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="text-center">ID</TableHead>
+                                <TableHead className="text-center">Member ID</TableHead>
                                 <TableHead className="text-center">Name</TableHead>
-                                <TableHead className="text-center">Email</TableHead>
                                 <TableHead className="text-center">Contact Number</TableHead>
                                 <TableHead className="text-center">Address</TableHead>
                                 <TableHead className="text-center">Registration Date</TableHead>
@@ -109,10 +109,10 @@ export default function Index() {
                             {members.map((member, idx) => (
                                 <TableRow className="text-center" key={member.id}>
                                     <TableCell>{idx + 1}</TableCell>
+                                    <TableCell>{member.member_id || 'N/A'}</TableCell>
                                     <TableCell>{member.name}</TableCell>
-                                    <TableCell>{member.email}</TableCell>
                                     <TableCell>{member.contact_number}</TableCell>
-                                    <TableCell>{member.address}</TableCell>
+                                    <TableCell>{member.address || 'N/A'}</TableCell>
                                     <TableCell>{member.registration_date}</TableCell>
                                     <TableCell className="flex justify-center">
                                         <SafeImage 

@@ -35,7 +35,8 @@ function isValidDate(date: Date | undefined) {
 interface Member {
     id: number;
     name: string;
-    email: string;
+    email?: string;
+    member_id?: string;
     contact_number?: string;
     address?: string;
     registration_date?: string;
@@ -57,12 +58,12 @@ export default function Edit({member}: Props) {
         }
     }, [auth]);
     const {data, setData, post, processing, errors} = useForm({
-        name: member.name,
-        email: member.email,
-        contact_number: member.contact_number,
-        address: member.address,
-        registration_date: member.registration_date,
+        name: member.name || '',
+        contact_number: member.contact_number || '',
+        address: member.address || '',
+        registration_date: member.registration_date || '',
         document: null as File | null,
+        member_id: member.member_id || '',
         _method: 'put',
     });
 
@@ -107,14 +108,21 @@ export default function Edit({member}: Props) {
                     )}
 
                     <div className='gap-1.5'>
+                        <Label htmlFor="member_id">Member ID</Label>
+                        <Input 
+                            placeholder="2411001" 
+                            value={data.member_id || 'Not assigned'} 
+                            disabled
+                            className="bg-gray-50 text-gray-500"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Unique identifier for the member (auto-generated)
+                        </p>
+                    </div>
+                    <div className='gap-1.5'>
                         <Label htmlFor="member name">Name</Label>
                         <Input placeholder="Member Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="member email">Email</Label>
-                        <Input type="email" placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)}/>
-                        {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member contact_number">Contact Number</Label>

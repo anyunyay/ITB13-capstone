@@ -26,13 +26,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'password_change_required',
         'avatar',
         // Customer fields
         'contact_number',
+        'address',
         // Logistic fields
         'registration_date',
         // Member fields
+        'member_id',
         'document',
         // Type/role discriminator (optional, for user type distinction)
         'type',
@@ -68,13 +69,19 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'registration_date' => 'datetime',
-            'password_change_required' => 'boolean',
         ];
     }
 
-    // Boot method to assign roles based on user type
+    // Boot method to assign roles based on user type and generate member IDs
     public static function booted()
     {
+        static::creating(function ($user) {
+            // Auto-generate member_id for new members
+            if ($user->type === 'member' && empty($user->member_id)) {
+                $user->member_id = static::generateMemberId();
+            }
+        });
+
         static::created(function ($user) {
             if ($user->type && !$user->hasRole($user->type)) {
                 // Only assign if a role with this name exists
@@ -91,6 +98,23 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
             }
         });
+    }
+
+    /**
+     * Generate a unique member ID starting from 2411001
+     */
+    public static function generateMemberId(): string
+    {
+        $lastMember = static::where('type', 'member')
+            ->whereNotNull('member_id')
+            ->orderBy('member_id', 'desc')
+            ->first();
+
+        if ($lastMember && is_numeric($lastMember->member_id)) {
+            return (string)((int)$lastMember->member_id + 1);
+        }
+
+        return '2411001';
     }
 
     // Customer relationships

@@ -34,7 +34,8 @@ class MembershipUpdateNotification extends Notification implements ShouldQueue
             ->line('A membership update has been made that requires your attention.')
             ->line('Update Details:')
             ->line('Member: ' . $this->member->name)
-            ->line('Email: ' . $this->member->email)
+            ->line('Member ID: ' . ($this->member->member_id ?? 'N/A'))
+            ->line('Contact: ' . ($this->member->contact_number ?? 'N/A'))
             ->line('Action: ' . ucfirst($this->action))
             ->line('Update Date: ' . now()->format('F j, Y g:i A'))
             ->action('View Members', url('/admin/members'))
@@ -45,11 +46,12 @@ class MembershipUpdateNotification extends Notification implements ShouldQueue
     {
         return [
             'member_id' => $this->member->id,
+            'member_identifier' => $this->member->member_id ?? 'N/A',
             'type' => 'membership_update',
             'action' => $this->action,
             'member_name' => $this->member->name,
-            'member_email' => $this->member->email,
-            'message' => 'Membership ' . $this->action . ' for ' . $this->member->name,
+            'member_contact' => $this->member->contact_number ?? 'N/A',
+            'message' => 'Membership ' . $this->action . ' for ' . $this->member->name . ' (ID: ' . ($this->member->member_id ?? 'N/A') . ')',
             'action_url' => '/admin/members',
         ];
     }
