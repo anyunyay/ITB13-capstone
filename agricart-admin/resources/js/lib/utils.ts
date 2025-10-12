@@ -184,3 +184,37 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
     }
     return crumbs;
 }
+
+/**
+ * Utility function to mask email addresses for security
+ * Shows first few characters and domain only for non-admin/staff users
+ * 
+ * @param email - The email address to mask
+ * @returns Masked email address (e.g., "ta***@gmail.com")
+ */
+export const maskEmail = (email: string): string => {
+    if (!email || !email.includes('@')) return email;
+    
+    const [localPart, domain] = email.split('@');
+    
+    if (localPart.length <= 2) {
+        return `${localPart[0]}***@${domain}`;
+    } else if (localPart.length <= 5) {
+        return `${localPart[0]}***@${domain}`;
+    } else {
+        return `${localPart[0]}${localPart[1]}***@${domain}`;
+    }
+};
+
+/**
+ * Utility function to get display email based on user role
+ * Shows full email for admin/staff users, masked email for others
+ * 
+ * @param email - The email address to display
+ * @param userType - The type of user viewing the email
+ * @returns Display email (full or masked based on user role)
+ */
+export const getDisplayEmail = (email: string, userType?: string): string => {
+    const isAdminOrStaff = userType === 'admin' || userType === 'staff';
+    return isAdminOrStaff ? (email || '') : maskEmail(email || '');
+};

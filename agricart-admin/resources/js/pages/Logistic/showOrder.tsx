@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, Truck, Clock } from 'lucide-react';
+import { getDisplayEmail } from '@/lib/utils';
 
 interface Order {
   id: number;
@@ -45,6 +46,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   // State for confirmation dialog
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<'pending' | 'out_for_delivery' | 'delivered' | null>(null);
+  
+  // Get current user from page props
+  const { auth } = usePage().props as any;
+  
+  // Get display email (masked for non-admin/staff users)
+  const displayEmail = getDisplayEmail(currentOrder.customer.email || '', auth?.user?.type);
 
   // Form for delivery status updates
   const updateDeliveryStatusForm = useForm({
@@ -236,7 +243,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-400">Email</p>
-                <p className="text-sm text-white">{currentOrder.customer.email}</p>
+                <p className="text-sm text-white">{displayEmail}</p>
               </div>
               {currentOrder.customer.contact_number && (
                 <div>

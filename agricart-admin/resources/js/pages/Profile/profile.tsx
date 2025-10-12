@@ -9,21 +9,7 @@ import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EmailChangeModal from '@/components/change-email-modal';
 import PhoneChangeModal from '@/components/change-phone-modal';
-
-// Utility function to mask email addresses for security
-const maskEmail = (email: string): string => {
-    if (!email || !email.includes('@')) return email;
-    
-    const [localPart, domain] = email.split('@');
-    
-    if (localPart.length <= 2) {
-        return `${localPart[0]}***@${domain}`;
-    } else if (localPart.length <= 5) {
-        return `${localPart[0]}***@${domain}`;
-    } else {
-        return `${localPart[0]}${localPart[1]}***@${domain}`;
-    }
-};
+import { getDisplayEmail } from '@/lib/utils';
 
 // Utility function to mask phone numbers for security (show only last 3 digits)
 const maskPhone = (phone: string): string => {
@@ -92,6 +78,9 @@ export default function ProfilePage() {
 
     // Get display phone number (masked for non-admin/staff users)
     const displayPhone = isAdminOrStaff ? (user?.contact_number || '') : maskPhone(user?.contact_number || '');
+    
+    // Get display email (masked for non-admin/staff users)
+    const displayEmail = getDisplayEmail(user?.email || '', user?.type);
 
     // Track if name has been modified
     const isNameModified = data.name !== (user?.name || '');
@@ -309,7 +298,7 @@ export default function ProfilePage() {
                                     <Input
                                         id="email"
                                         type="email"
-                                        value={maskEmail(data.email)}
+                                        value={displayEmail}
                                         disabled
                                         placeholder="Enter your email"
                                     />
