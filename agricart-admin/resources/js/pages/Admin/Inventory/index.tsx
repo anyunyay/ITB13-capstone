@@ -9,6 +9,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
+import { SystemLockManager } from '@/components/system-lock-manager';
 import {
     Table,
     TableBody,
@@ -174,6 +175,11 @@ export default function Index() {
                 <PermissionGate permission="generate inventory report">
                     <Link href={route('inventory.report')}><Button variant="outline">Inventory Report</Button></Link>
                 </PermissionGate>
+
+                {/* System Lock Manager */}
+                <div className="mt-4">
+                    <SystemLockManager />
+                </div>
 
                 <div className='m-4'>
                     <div>

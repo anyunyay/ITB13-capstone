@@ -9,6 +9,7 @@ import { MapPin, Plus, AlertTriangle, Home, Building2, CheckCircle, Circle } fro
 
 import type { SharedData } from '@/types';
 import StockManager from '@/lib/stock-manager';
+import { SystemLockOverlay } from '@/components/system-lock-overlay';
 
 interface CartItem {
   item_id: number;
@@ -436,6 +437,7 @@ export default function CartPage() {
   return (
     <AppHeaderLayout>
       <Head title="Cart" />
+      <SystemLockOverlay />
       <div className="max-w-2xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
         {cartItems.length === 0 ? (
