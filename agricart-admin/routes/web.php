@@ -211,7 +211,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
 
         
     // Customer routes
-    Route::prefix('/customer')->middleware(['role:customer'])->group(function () {
+    Route::prefix('/customer')->middleware(['role:customer', 'system.lock'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart/store', [CartController::class, 'store'])->name('cart.store');
         Route::put('/cart/update/{cartItem}', [CartController::class, 'update'])->name('cart.update');
@@ -378,6 +378,18 @@ Route::get('/auth', function () {
 // CSRF token route for AJAX requests
 Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
+});
+
+// System lock/unlock routes (web routes for CSRF compatibility)
+Route::prefix('api/system')->group(function () {
+    // Status endpoint is public (no auth required)
+    Route::get('/status', [\App\Http\Controllers\SystemController::class, 'getSystemStatus'])->name('api.system.status');
+    
+    // Lock/unlock endpoints require authentication
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::post('/lock', [\App\Http\Controllers\SystemController::class, 'scheduleLock'])->name('api.system.lock');
+        Route::post('/unlock', [\App\Http\Controllers\SystemController::class, 'unlockSystem'])->name('api.system.unlock');
+    });
 });
 
 require __DIR__ . '/settings.php';

@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             CheckSingleSession::class,
         ]);
 
+
         $middleware->alias([
             'guest' => RedirectIfAuthenticated::class,
             'verified' => EnsureEmailIsVerified::class,
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'system.lock' => \App\Http\Middleware\CheckSystemLock::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
