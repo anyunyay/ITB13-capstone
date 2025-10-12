@@ -37,8 +37,11 @@ interface OtpVerificationModalProps {
 }
 
 // Utility function to mask sensitive information for security
-const maskValue = (value: string, type: 'email' | 'phone'): string => {
+const maskValue = (value: string, type: 'email' | 'phone', userType?: string): string => {
     if (!value) return value;
+    
+    // Check if user is admin or staff (should see full value)
+    const isAdminOrStaff = userType === 'admin' || userType === 'staff';
     
     if (type === 'email') {
         if (!value.includes('@')) return value;
@@ -53,13 +56,18 @@ const maskValue = (value: string, type: 'email' | 'phone'): string => {
             return `${localPart[0]}${localPart[1]}***@${domain}`;
         }
     } else {
-        // Phone number masking
-        if (value.length <= 4) {
-            return '***' + value.slice(-1);
-        } else if (value.length <= 8) {
-            return '***' + value.slice(-2);
+        // Phone number masking - show only last 3 digits for non-admin/staff users
+        if (isAdminOrStaff) {
+            return value; // Show full phone number for admin/staff
+        }
+        
+        // Remove any non-digit characters for consistent masking
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        if (digitsOnly.length <= 3) {
+            return '*'.repeat(digitsOnly.length);
         } else {
-            return '***' + value.slice(-4);
+            return '*'.repeat(digitsOnly.length - 3) + digitsOnly.slice(-3);
         }
     }
 };
@@ -603,9 +611,9 @@ export default function OtpVerificationModal({
                 : 'Enter your new phone number. We\'ll send you a verification code to your registered email address.';
         } else {
             if (verificationType === 'phone') {
-                return `We've sent a 6-digit verification code to your registered email address (${maskValue(user.email, 'email')})`;
+                return `We've sent a 6-digit verification code to your registered email address (${maskValue(user.email, 'email', user.type)})`;
             } else {
-                return `We've sent a 6-digit verification code to ${maskValue(currentValue, verificationType)}`;
+                return `We've sent a 6-digit verification code to ${maskValue(currentValue, verificationType, user.type)}`;
             }
         }
     };
@@ -650,7 +658,7 @@ export default function OtpVerificationModal({
                                 <Input
                                     id="current-value"
                                     type={getInputType()}
-                                    value={maskValue(currentValue, verificationType)}
+                                    value={maskValue(currentValue, verificationType, user.type)}
                                     disabled
                                     className="bg-muted"
                                 />

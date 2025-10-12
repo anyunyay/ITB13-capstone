@@ -417,7 +417,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       <span className="text-sm font-medium text-green-300">Important:</span>
                     </div>
                     <p className="text-sm text-green-200">
-                      Marking this order as delivered will make it read-only
+Reset the product page’s “Add to Cart” input fields to empty after the customer successfully adds an item to the cart.                      Marking this order as delivered will make it read-only
                     </p>
                   </div>
                 )}

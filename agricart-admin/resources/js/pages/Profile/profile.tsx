@@ -25,6 +25,20 @@ const maskEmail = (email: string): string => {
     }
 };
 
+// Utility function to mask phone numbers for security (show only last 3 digits)
+const maskPhone = (phone: string): string => {
+    if (!phone) return phone;
+    
+    // Remove any non-digit characters for consistent masking
+    const digitsOnly = phone.replace(/\D/g, '');
+    
+    if (digitsOnly.length <= 3) {
+        return '*'.repeat(digitsOnly.length);
+    } else {
+        return '*'.repeat(digitsOnly.length - 3) + digitsOnly.slice(-3);
+    }
+};
+
 interface User {
     id: number;
     name: string;
@@ -67,11 +81,17 @@ export default function ProfilePage() {
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
+    // Check if user is admin or staff (should see full phone number)
+    const isAdminOrStaff = user?.type === 'admin' || user?.type === 'staff';
+
     const { data, setData, patch, processing, errors } = useForm({
         name: user?.name || '',
         email: user?.email || '',
         phone: user?.contact_number || '',
     });
+
+    // Get display phone number (masked for non-admin/staff users)
+    const displayPhone = isAdminOrStaff ? (user?.contact_number || '') : maskPhone(user?.contact_number || '');
 
     // Track if name has been modified
     const isNameModified = data.name !== (user?.name || '');
@@ -323,7 +343,7 @@ export default function ProfilePage() {
                                 <div className="space-y-2">
                                     <Input
                                         id="phone"
-                                        value={data.phone}
+                                        value={displayPhone}
                                         disabled
                                         placeholder="Enter your contact number"
                                     />
