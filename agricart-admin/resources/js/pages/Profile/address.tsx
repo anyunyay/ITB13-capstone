@@ -24,6 +24,7 @@ interface PageProps {
         id: number;
         name: string;
         email: string;
+        type: string;
         address?: string;
         barangay?: string;
         city?: string;
@@ -273,7 +274,7 @@ export default function AddressPage() {
         <ProfileWrapper 
             title="Address Management"
         >
-            <div className="text-sm text-gray-600 mb-6">
+            <div className="text-sm text-muted-foreground mb-6">
                 Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
             </div>
             <div className="flex justify-end mb-6">
@@ -285,13 +286,13 @@ export default function AddressPage() {
 
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-md p-4">
                         <div className="flex">
                             <div className="flex-shrink-0">
-                                <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
                             </div>
                             <div className="ml-3">
-                                <p className="text-sm font-medium text-green-800">
+                                <p className="text-sm font-medium text-green-800 dark:text-green-200">
                                     {flash.success}
                                 </p>
                             </div>
@@ -300,13 +301,13 @@ export default function AddressPage() {
                 )}
 
                 {flash?.error && (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-md p-4">
                         <div className="flex">
                             <div className="flex-shrink-0">
-                                <AlertCircle className="h-5 w-5 text-red-400" />
+                                <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
                             </div>
                             <div className="ml-3">
-                                <p className="text-sm font-medium text-red-800">
+                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
                                     {flash.error}
                                 </p>
                             </div>
@@ -318,17 +319,17 @@ export default function AddressPage() {
                 {/* Main Address from Registration */}
                 {(user.address || user.barangay || user.city || user.province) && (
                     <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-foreground">
                             {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
                         </h3>
-                        <Card className={`border-2 ${isActiveAddressSameAsMain() ? 'border-blue-200 bg-blue-50' : 'border-green-200 bg-green-50'}`}>
+                        <Card className={`border-2 ${isActiveAddressSameAsMain() ? 'border-blue-200 dark:border-blue-800/30 bg-blue-50 dark:bg-blue-950/20' : 'border-green-200 dark:border-green-800/30 bg-green-50 dark:bg-green-950/20'}`}>
                             <CardContent className="p-6">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-start gap-3">
-                                        <div className={`flex items-center gap-2 ${isActiveAddressSameAsMain() ? 'text-blue-700' : 'text-green-700'}`}>
+                                        <div className={`flex items-center gap-2 ${isActiveAddressSameAsMain() ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'}`}>
                                             <MapPin className="h-4 w-4" />
                                             <span className="text-sm font-medium">Registration Address</span>
-                                            <div className={`flex items-center gap-1 ${isActiveAddressSameAsMain() ? 'text-blue-600' : 'text-green-600'}`}>
+                                            <div className={`flex items-center gap-1 ${isActiveAddressSameAsMain() ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
                                                 <CheckCircle className="h-4 w-4" />
                                                 <span className="text-xs font-medium">
                                                     {isActiveAddressSameAsMain() ? 'Active' : 'Main'}
@@ -362,21 +363,21 @@ export default function AddressPage() {
                                 </div>
                                 
                                 <div className="mt-3 space-y-1">
-                                    {user.address && <p className="font-medium text-gray-900">{user.address}</p>}
+                                    {user.address && <p className="font-medium text-foreground">{user.address}</p>}
                                     {(user.barangay || user.city) && (
-                                        <p className="text-gray-600">
+                                        <p className="text-muted-foreground">
                                             {user.barangay && user.city ? `${user.barangay}, ${user.city}` : user.barangay || user.city}
                                         </p>
                                     )}
-                                    {user.province && <p className="text-gray-600">{user.province}</p>}
+                                    {user.province && <p className="text-muted-foreground">{user.province}</p>}
                                 </div>
                                 {!isActiveAddressSameAsMain() && (
-                                    <div className="mt-2 text-xs text-green-600">
+                                    <div className="mt-2 text-xs text-green-600 dark:text-green-400">
                                         This is your main address from registration. You can edit it or add additional addresses below.
                                     </div>
                                 )}
                                 {mainAddressHasOngoingOrders && (
-                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                                         <AlertCircle className="h-3 w-3" />
                                         This address has ongoing orders - editing is restricted
                                     </div>
@@ -389,15 +390,15 @@ export default function AddressPage() {
                 {/* Currently Active Address - Only show if different from main address */}
                 {addresses.find(addr => addr.is_active) && !isActiveAddressSameAsMain() && (
                     <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-gray-900">Currently Active Address</h3>
-                        <Card className="border-2 border-blue-200 bg-blue-50">
+                        <h3 className="text-lg font-semibold text-foreground">Currently Active Address</h3>
+                        <Card className="border-2 border-blue-200 dark:border-blue-800/30 bg-blue-50 dark:bg-blue-950/20">
                             <CardContent className="p-6">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-start gap-3">
-                                        <div className="flex items-center gap-2 text-blue-700">
+                                        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
                                             {getAddressIcon()}
                                             <span className="text-sm font-medium">Active Address</span>
-                                            <div className="flex items-center gap-1 text-blue-600">
+                                            <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
                                                 <CheckCircle className="h-4 w-4" />
                                                 <span className="text-xs font-medium">Active</span>
                                             </div>
@@ -437,15 +438,15 @@ export default function AddressPage() {
                                 </div>
                                 
                                 <div className="mt-3 space-y-1">
-                                    <p className="font-medium text-gray-900">{addresses.find(addr => addr.is_active)!.street}</p>
-                                    <p className="text-gray-600">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
-                                    <p className="text-gray-600">{addresses.find(addr => addr.is_active)!.province}</p>
+                                    <p className="font-medium text-foreground">{addresses.find(addr => addr.is_active)!.street}</p>
+                                    <p className="text-muted-foreground">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
+                                    <p className="text-muted-foreground">{addresses.find(addr => addr.is_active)!.province}</p>
                                 </div>
-                                <div className="mt-2 text-xs text-blue-600">
+                                <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
                                     This address is used for checkout and other operations
                                 </div>
                                 {addresses.find(addr => addr.is_active)?.has_ongoing_orders && (
-                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                                         <AlertCircle className="h-3 w-3" />
                                         This address has ongoing orders - editing/deleting is restricted
                                     </div>
@@ -460,14 +461,14 @@ export default function AddressPage() {
                         {/* Other Saved Addresses */}
                         {addresses.filter(addr => !addr.is_active).length > 0 && (
                             <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-gray-900">Other Addresses</h3>
+                                <h3 className="text-lg font-semibold text-foreground">Other Addresses</h3>
                                 <div className="grid gap-4">
                                     {addresses.filter(addr => !addr.is_active).map((address) => (
-                                        <Card key={address.id} className="border border-gray-200">
+                                        <Card key={address.id} className="border border-border">
                                             <CardContent className="p-6">
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-start gap-3">
-                                                        <div className="flex items-center gap-2 text-gray-600">
+                                                        <div className="flex items-center gap-2 text-muted-foreground">
                                                             {getAddressIcon()}
                                                             <span className="text-sm font-medium">Saved Address</span>
                                                         </div>
@@ -507,12 +508,12 @@ export default function AddressPage() {
                                                 </div>
                                                 
                                                 <div className="mt-3 space-y-1">
-                                                    <p className="font-medium text-gray-900">{address.street}</p>
-                                                    <p className="text-gray-600">{address.barangay}, {address.city}</p>
-                                                    <p className="text-gray-600">{address.province}</p>
+                                                    <p className="font-medium text-foreground">{address.street}</p>
+                                                    <p className="text-muted-foreground">{address.barangay}, {address.city}</p>
+                                                    <p className="text-muted-foreground">{address.province}</p>
                                                 </div>
                                                 {address.has_ongoing_orders && (
-                                                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                                                         <AlertCircle className="h-3 w-3" />
                                                         This address has ongoing orders - editing/deleting is restricted
                                                     </div>
@@ -647,7 +648,7 @@ export default function AddressPage() {
                                     checked={data.is_active || false}
                                     onChange={(e) => setData('is_active', e.target.checked)}
                                     disabled={processing}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="rounded border-input bg-background text-primary focus:ring-ring focus:ring-2"
                                 />
                                 <Label htmlFor="is_active" className="text-sm font-medium">
                                     Set as active address (used for checkout)
@@ -690,30 +691,30 @@ export default function AddressPage() {
                     </DialogHeader>
                     
                     {confirmationData && (
-                        <Card className="border border-amber-200 bg-amber-50">
+                        <Card className="border border-amber-200 dark:border-amber-800/30 bg-amber-50 dark:bg-amber-950/20">
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-medium text-amber-700">Impact of This Change</CardTitle>
+                                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">Impact of This Change</CardTitle>
                             </CardHeader>
                             <CardContent className="pt-0 space-y-3">
                                 <div className="flex items-start gap-3">
-                                    <ShoppingCart className="h-4 w-4 text-amber-600 mt-1" />
+                                    <ShoppingCart className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-gray-900">Checkout & Orders</p>
-                                        <p className="text-xs text-gray-600">This address will be used for all future orders and checkout processes</p>
+                                        <p className="text-sm font-medium text-foreground">Checkout & Orders</p>
+                                        <p className="text-xs text-muted-foreground">This address will be used for all future orders and checkout processes</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <Package className="h-4 w-4 text-amber-600 mt-1" />
+                                    <Package className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-gray-900">Delivery Address</p>
-                                        <p className="text-xs text-gray-600">All deliveries will be sent to this new address</p>
+                                        <p className="text-sm font-medium text-foreground">Delivery Address</p>
+                                        <p className="text-xs text-muted-foreground">All deliveries will be sent to this new address</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <Clock className="h-4 w-4 text-amber-600 mt-1" />
+                                    <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-gray-900">Address History</p>
-                                        <p className="text-xs text-gray-600">Your current address will be saved in your address list for future use</p>
+                                        <p className="text-sm font-medium text-foreground">Address History</p>
+                                        <p className="text-xs text-muted-foreground">Your current address will be saved in your address list for future use</p>
                                     </div>
                                 </div>
                             </CardContent>
