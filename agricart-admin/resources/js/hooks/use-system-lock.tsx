@@ -13,6 +13,7 @@ export function useSystemLock() {
     const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
     const [countdown, setCountdown] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [serverTimeOffset, setServerTimeOffset] = useState(0);
 
     // Fetch system status with optimized caching and error handling
     const fetchSystemStatus = async () => {
@@ -31,10 +32,23 @@ export function useSystemLock() {
                 const data = await response.json();
                 const previousStatus = systemStatus?.status_value;
                 
+                // Calculate server time offset for accurate timing
+                const serverTime = new Date(data.updated_at).getTime();
+                const clientTime = new Date().getTime();
+                const offset = serverTime - clientTime;
+                setServerTimeOffset(offset);
+                
                 setSystemStatus(data);
                 
-                if (data.status_value === 'pending_lock') {
-                    setCountdown(data.remaining_seconds);
+                // Calculate countdown from server timestamp with offset correction
+                if (data.status_value === 'pending_lock' && data.lock_time) {
+                    const lockTime = new Date(data.lock_time).getTime();
+                    const currentTime = new Date().getTime() + offset;
+                    const remainingMs = lockTime - currentTime;
+                    const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+                    setCountdown(remainingSeconds);
+                } else {
+                    setCountdown(0);
                 }
                 
                 // Log state changes for debugging
@@ -42,7 +56,9 @@ export function useSystemLock() {
                     console.log('System lock state changed:', {
                         from: previousStatus,
                         to: data.status_value,
-                        countdown: data.remaining_seconds,
+                        lockTime: data.lock_time,
+                        serverTimeOffset: offset,
+                        remainingSeconds: data.status_value === 'pending_lock' ? Math.max(0, Math.ceil((new Date(data.lock_time).getTime() - (new Date().getTime() + offset)) / 1000)) : 0,
                         timestamp: new Date().toISOString()
                     });
                 }
@@ -52,23 +68,27 @@ export function useSystemLock() {
         }
     };
 
-    // Countdown effect with real-time updates
+    // Countdown effect with server-synchronized timing
     useEffect(() => {
-        if (systemStatus?.status_value === 'pending_lock' && countdown > 0) {
+        if (systemStatus?.status_value === 'pending_lock' && systemStatus.lock_time) {
             const timer = setInterval(() => {
-                setCountdown((prev) => {
-                    if (prev <= 1) {
-                        // Countdown finished, refresh status immediately
-                        fetchSystemStatus();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+                const lockTime = new Date(systemStatus.lock_time!).getTime();
+                const currentTime = new Date().getTime() + serverTimeOffset;
+                const remainingMs = lockTime - currentTime;
+                const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+                
+                if (remainingSeconds <= 0) {
+                    // Countdown finished, refresh status immediately
+                    fetchSystemStatus();
+                    setCountdown(0);
+                } else {
+                    setCountdown(remainingSeconds);
+                }
+            }, 100); // Update every 100ms for smooth countdown
 
             return () => clearInterval(timer);
         }
-    }, [systemStatus?.status_value, countdown]);
+    }, [systemStatus?.status_value, systemStatus?.lock_time, serverTimeOffset]);
 
     // Initial fetch and periodic updates for real-time state synchronization
     useEffect(() => {
