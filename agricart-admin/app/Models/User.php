@@ -29,7 +29,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         // Customer fields
         'contact_number',
-        'address',
         // Logistic fields
         'registration_date',
         // Member fields
@@ -37,6 +36,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'document',
         // Type/role discriminator (optional, for user type distinction)
         'type',
+        // Default account flag
+        'is_default',
         // Session management
         'current_session_id',
     ];
@@ -69,6 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'registration_date' => 'datetime',
+            'is_default' => 'boolean',
         ];
     }
 
@@ -187,15 +189,29 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Send the email verification notification for credential updates.
+     * Send for all non-member users when they update their credentials.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotificationForCredentialUpdate()
+    {
+        // Send verification email for all non-member users
+        if ($this->type !== 'member') {
+            $this->notify(new VerifyEmailNotification);
+        }
+    }
+
+    /**
      * Determine if the user has verified their email address.
-     * Staff, member, and logistics are considered verified by default.
+     * Members are considered verified by default, but other users need verification.
      *
      * @return bool
      */
     public function hasVerifiedEmail()
     {
-        // Staff, member, and logistics don't need email verification
-        if (in_array($this->type, ['staff', 'member', 'logistic'])) {
+        // Members don't need email verification
+        if ($this->type === 'member') {
             return true;
         }
         
@@ -204,14 +220,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Mark the given user's email as verified.
-     * For staff, member, and logistics, this is a no-op.
+     * For members, this is a no-op.
      *
      * @return bool
      */
     public function markEmailAsVerified()
     {
-        // Staff, member, and logistics don't need email verification
-        if (in_array($this->type, ['staff', 'member', 'logistic'])) {
+        // Members don't need email verification
+        if ($this->type === 'member') {
             return true;
         }
         

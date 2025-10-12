@@ -11,14 +11,14 @@ class VerifyEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
-     * Staff, member, and logistics users are automatically redirected to their dashboard.
+     * Members don't need email verification, but other users do after credential updates.
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         $user = $request->user();
         
-        // Staff, member, and logistics don't need email verification
-        if (in_array($user->type, ['staff', 'member', 'logistic'])) {
+        // Members don't need email verification
+        if ($user->type === 'member') {
             return redirect($this->getRedirectUrl($user).'?verified=1');
         }
         

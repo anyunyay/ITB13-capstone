@@ -35,7 +35,6 @@ class MembershipController extends Controller
                 'unique:users,contact_number',
                 'regex:/^(\+639|09)\d{9}$/',
             ],
-            'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
             'document' => 'required|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
         ]);
@@ -50,7 +49,6 @@ class MembershipController extends Controller
                 'email' => null, // Email not required for members - they use member_id for login
                 'password' => bcrypt($request->input('password')),
                 'contact_number' => $request->input('contact_number'),
-                'address' => $request->input('address'),
                 'registration_date' => $request->input('registration_date', now()),
                 'document' => 'images/documents/' . $imageName,
                 'type' => 'member',
@@ -85,7 +83,6 @@ class MembershipController extends Controller
                 'unique:users,contact_number,' . $id,
                 'regex:/^(\+639|09)\d{9}$/',
             ],
-            'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
             'document' => 'nullable|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
             'member_id' => 'nullable|string|unique:users,member_id,' . $id,
@@ -225,7 +222,7 @@ class MembershipController extends Controller
                     $member->name,
                     $member->email,
                     $member->contact_number ?? 'N/A',
-                    $member->address ?? 'N/A',
+                    'N/A', // Address moved to user_addresses table
                     $member->registration_date ? $member->registration_date->format('Y-m-d') : 'N/A',
                     $member->email_verified_at ? 'Yes' : 'No',
                     $member->created_at->format('Y-m-d H:i:s')

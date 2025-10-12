@@ -225,6 +225,11 @@ class AuthenticatedSessionController extends Controller
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
         return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
@@ -262,6 +267,11 @@ class AuthenticatedSessionController extends Controller
 
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
 
         return redirect()->route($this->dashboardRouteForType($user->type));
     }
@@ -301,6 +311,11 @@ class AuthenticatedSessionController extends Controller
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
 
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
+
         return redirect()->route($this->dashboardRouteForType($user->type));
     }
 
@@ -338,6 +353,11 @@ class AuthenticatedSessionController extends Controller
 
         // Set current session as active
         $user->invalidateOtherSessions($request->session()->getId());
+
+        // Check if user is a default account and needs to update credentials
+        if ($user->is_default) {
+            return redirect()->route('credentials.update.show');
+        }
 
         return redirect()->route($this->dashboardRouteForType($user->type));
     }

@@ -35,11 +35,11 @@ class DatabaseSeeder extends Seeder
             'email' => null, // No email for members - they use member_id for login
             'member_id' => '2411997', // Specific member ID for testing (avoiding conflicts)
             'contact_number' => '09123456789',
-            'address' => '123 Main St, Sala, Cabuyao, Laguna', // Add address field
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(), // Automatically verify email
+            'is_default' => true, // Default account created by seeder
         ]);
 
         // Create default address for the member
@@ -59,7 +59,8 @@ class DatabaseSeeder extends Seeder
             'contact_number' => '09987654321',
             'registration_date' => now(),
             'password' => Hash::make('12345678'),
-            'email_verified_at' => now(), // Automatically verify email
+            'email_verified_at' => null, // Not automatically verified - must update credentials
+            'is_default' => true, // Default account created by seeder
         ]);
 
         // Create default address for the logistic

@@ -35,7 +35,6 @@ class LogisticController extends Controller
                 'unique:users,contact_number',
                 'regex:/^(\+639|09)\d{9}$/',
             ],
-            'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
             
@@ -44,7 +43,6 @@ class LogisticController extends Controller
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
             'contact_number' => $request->input('contact_number'),
-            'address' => $request->input('address'),
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
             'email_verified_at' => now(), // Automatically verify email
@@ -71,7 +69,6 @@ class LogisticController extends Controller
                 'unique:users,contact_number,' . $id,
                 'regex:/^(\+639|09)\d{9}$/',
             ],
-            'address' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
         ]);
 
@@ -81,7 +78,6 @@ class LogisticController extends Controller
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'contact_number' => $request->input('contact_number'),
-                'address' => $request->input('address'),
                 'registration_date' => $request->input('registration_date') ?? now(),
             ]);
         }
@@ -182,7 +178,7 @@ class LogisticController extends Controller
                     $logistic->name,
                     $logistic->email,
                     $logistic->contact_number ?? 'N/A',
-                    $logistic->address ?? 'N/A',
+                    'N/A', // Address moved to user_addresses table
                     $logistic->registration_date ? $logistic->registration_date->format('Y-m-d') : 'N/A',
                     $logistic->email_verified_at ? 'Yes' : 'No',
                     $logistic->created_at->format('Y-m-d H:i:s')

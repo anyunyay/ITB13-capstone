@@ -12,14 +12,14 @@ class EmailVerificationPromptController extends Controller
 {
     /**
      * Show the email verification prompt page.
-     * Staff, member, and logistics users are automatically redirected to their dashboard.
+     * Members don't need email verification, but other users do after credential updates.
      */
     public function __invoke(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
         
-        // Staff, member, and logistics don't need email verification
-        if (in_array($user->type, ['staff', 'member', 'logistic'])) {
+        // Members don't need email verification
+        if ($user->type === 'member') {
             return redirect()->intended($this->getRedirectUrl($user));
         }
         

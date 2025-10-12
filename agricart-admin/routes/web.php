@@ -43,6 +43,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/password/change', [\App\Http\Controllers\PasswordChangeController::class, 'store'])->name('password.change.store');
 });
 
+// Credentials update routes for default users (must be before other authenticated routes)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/credentials/update', [\App\Http\Controllers\CredentialsController::class, 'show'])->name('credentials.update.show');
+    Route::post('/credentials/update', [\App\Http\Controllers\CredentialsController::class, 'update'])->name('credentials.update');
+});
+
 // Single session routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/single-session/restricted', [SingleSessionController::class, 'showRestricted'])->name('single-session.restricted');
