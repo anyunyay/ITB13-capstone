@@ -10,6 +10,7 @@ import { PermissionGate } from '@/components/permission-gate';
 import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
 import { SystemLockManager } from '@/components/system-lock-manager';
+import { useSystemLock } from '@/hooks/use-system-lock';
 import {
     Table,
     TableBody,
@@ -99,6 +100,9 @@ export default function Index() {
         reason: '',
         other_reason: '',
     });
+
+    // Use system lock hook to get lock state
+    const { shouldDisableButtons } = useSystemLock();
 
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
@@ -222,7 +226,7 @@ export default function Index() {
                                 <PermissionGate permission="archive products">
                                     <CardAction>
                                         <Button 
-                                            disabled={processing} 
+                                            disabled={processing || shouldDisableButtons} 
                                             onClick={() => handleArchive(product.id, product.name)}
                                             className="bg-blue-600 hover:bg-blue-700"
                                         >
@@ -242,12 +246,18 @@ export default function Index() {
                                 </PermissionGate>
                                 <div className="flex justify-betweeen w-full gap-2">
                                     <PermissionGate permission="edit products">
-                                        <Button asChild disabled={processing} className='w-1/2'>
-                                            <Link href={route('inventory.edit', product.id)}>Edit</Link>
-                                        </Button>
+                                        {shouldDisableButtons ? (
+                                            <Button disabled={processing || shouldDisableButtons} className='w-1/2'>
+                                                Edit
+                                            </Button>
+                                        ) : (
+                                            <Button asChild disabled={processing} className='w-1/2'>
+                                                <Link href={route('inventory.edit', product.id)}>Edit</Link>
+                                            </Button>
+                                        )}
                                     </PermissionGate>
                                     <PermissionGate permission="delete products">
-                                        <Button disabled={processing} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
+                                        <Button disabled={processing || shouldDisableButtons} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
                                     </PermissionGate>
                                 </div>
                             </CardFooter>
@@ -304,11 +314,15 @@ export default function Index() {
                                                 <TableCell>{stock.member?.name}</TableCell>
                                                 <TableCell>
                                                     <PermissionGate permission="edit stocks">
-                                                        <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                        {shouldDisableButtons ? (
+                                                            <Button disabled={processing || shouldDisableButtons} className=''>Edit</Button>
+                                                        ) : (
+                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                        )}
                                                     </PermissionGate>
                                                     <PermissionGate permission="delete stocks">
                                                         <Button 
-                                                            disabled={processing} 
+                                                            disabled={processing || shouldDisableButtons} 
                                                             onClick={() => handleRemovePerishedStock(stock)} 
                                                             className='bg-orange-600 hover:bg-orange-700'
                                                         >
@@ -347,11 +361,11 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
                                                             <Button 
-                                                                disabled={processing} 
+                                                                disabled={processing || shouldDisableButtons} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
                                                                 className='bg-orange-600 hover:bg-orange-700'
                                                             >
@@ -390,11 +404,11 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
                                                             <Button 
-                                                                disabled={processing} 
+                                                                disabled={processing || shouldDisableButtons} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
                                                                 className='bg-orange-600 hover:bg-orange-700'
                                                             >
@@ -433,11 +447,11 @@ export default function Index() {
                                                     <TableCell>{stock.member?.name}</TableCell>
                                                     <TableCell>
                                                         <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
+                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
                                                         </PermissionGate>
                                                         <PermissionGate permission="delete stocks">
                                                             <Button 
-                                                                disabled={processing} 
+                                                                disabled={processing || shouldDisableButtons} 
                                                                 onClick={() => handleRemovePerishedStock(stock)} 
                                                                 className='bg-orange-600 hover:bg-orange-700'
                                                             >
