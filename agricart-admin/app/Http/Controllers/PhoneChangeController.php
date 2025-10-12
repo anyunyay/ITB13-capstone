@@ -31,7 +31,7 @@ class PhoneChangeController extends BaseOtpController
      */
     protected function getVerificationType(): string
     {
-        return 'email';
+        return 'phone number';
     }
 
     /**
