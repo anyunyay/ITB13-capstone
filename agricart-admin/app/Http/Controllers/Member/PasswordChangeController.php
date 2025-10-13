@@ -172,24 +172,19 @@ class PasswordChangeController extends Controller
             return redirect()->route('member.login')->with('error', 'This request has already been processed and cannot be cancelled.');
         }
 
-        // Store member info before deletion for notification
+        // Store member relation and set status for notification, then notify before deletion
         $member = $passwordChangeRequest->member;
-        
-        // Delete the request
-        $passwordChangeRequest->delete();
+        $passwordChangeRequest->setRelation('member', $member);
+        $passwordChangeRequest->status = 'cancelled';
 
         // Notify admin and staff users about the cancellation
         $adminUsers = User::whereIn('type', ['admin', 'staff'])->get();
         foreach ($adminUsers as $admin) {
-            $admin->notify(new \App\Notifications\PasswordChangeRequestNotification(
-                (object) [
-                    'id' => $requestId,
-                    'member' => $member,
-                    'status' => 'cancelled',
-                    'requested_at' => now(),
-                ]
-            ));
+            $admin->notify(new \App\Notifications\PasswordChangeRequestNotification($passwordChangeRequest));
         }
+
+        // Delete the request after notifications are sent
+        $passwordChangeRequest->delete();
 
         return redirect()->route('member.login')->with('status', 'Password change request has been cancelled successfully.');
     }
