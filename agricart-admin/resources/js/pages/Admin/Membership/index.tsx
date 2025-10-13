@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BellDot, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
@@ -56,6 +56,10 @@ interface PageProps {
 export default function Index() {
 
     const { members, flash, auth, pendingPasswordRequests } = usePage<PageProps & SharedData>().props;
+    const [newRequest, setNewRequest] = useState<PasswordChangeRequest | null>(null);
+    const [highlightMemberId, setHighlightMemberId] = useState<number | null>(null);
+    const prevRequestIdsRef = useRef<Set<number>>(new Set());
+    const requestIds = useMemo(() => new Set((pendingPasswordRequests || []).map(r => r.id)), [pendingPasswordRequests]);
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -81,6 +85,50 @@ export default function Index() {
     const handleRejectPasswordChange = (requestId: number) => {
         if (confirm('Are you sure you want to reject this password change request?')) {
             post(route('membership.reject-password-change', requestId));
+        }
+    };
+
+    // Auto-refresh pending password requests via polling
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({
+                only: ['pendingPasswordRequests'],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        }, 10000); // every 10s
+        return () => clearInterval(interval);
+    }, []);
+
+    // Detect new incoming password change requests
+    useEffect(() => {
+        // Initialize previous ids if empty
+        if (prevRequestIdsRef.current.size === 0 && requestIds.size > 0) {
+            prevRequestIdsRef.current = new Set(requestIds);
+            return;
+        }
+
+        // Find newly added request ids
+        const newlyAdded: number[] = [];
+        requestIds.forEach(id => {
+            if (!prevRequestIdsRef.current.has(id)) newlyAdded.push(id);
+        });
+
+        if (newlyAdded.length > 0 && pendingPasswordRequests && pendingPasswordRequests.length > 0) {
+            const newest = pendingPasswordRequests.find(r => r.id === newlyAdded[0]) || null;
+            if (newest) setNewRequest(newest);
+        }
+
+        // Update ref for next comparison
+        prevRequestIdsRef.current = new Set(requestIds);
+    }, [requestIds, pendingPasswordRequests]);
+
+    const handleNavigateToMember = (memberId: number) => {
+        const rowEl = document.getElementById(`member-row-${memberId}`);
+        if (rowEl) {
+            rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setHighlightMemberId(memberId);
+            setTimeout(() => setHighlightMemberId(null), 5000);
         }
     };
 
@@ -112,6 +160,24 @@ export default function Index() {
                                 <AlertTitle>Notification!</AlertTitle>
                                 <AlertDescription>{flash.message}</AlertDescription>
                             </Alert>
+                        )}
+                        {newRequest && (
+                            <button
+                                type="button"
+                                className="w-full text-left"
+                                onClick={() => {
+                                    handleNavigateToMember(newRequest.member.id);
+                                    setNewRequest(null);
+                                }}
+                            >
+                                <Alert className="cursor-pointer border-green-300">
+                                    <BellDot className='h-4 w-4 text-green-600' />
+                                    <AlertTitle>New Password Change Request</AlertTitle>
+                                    <AlertDescription>
+                                        {newRequest.member.name} just submitted a password change request. Click to view member.
+                                    </AlertDescription>
+                                </Alert>
+                            </button>
                         )}
                     </div>
                 </div>
@@ -188,7 +254,11 @@ export default function Index() {
                         </TableHeader>
                         <TableBody>
                             {members.map((member, idx) => (
-                                <TableRow className="text-center" key={member.id}>
+                                <TableRow
+                                    id={`member-row-${member.id}`}
+                                    className={`text-center ${highlightMemberId === member.id ? 'bg-yellow-100 transition-colors' : ''}`}
+                                    key={member.id}
+                                >
                                     <TableCell>{idx + 1}</TableCell>
                                     <TableCell>{member.member_id || 'N/A'}</TableCell>
                                     <TableCell>{member.name}</TableCell>
