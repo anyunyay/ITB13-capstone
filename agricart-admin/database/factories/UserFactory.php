@@ -44,8 +44,8 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => 'customer@customer.com',
             'password' => Hash::make('12345678'),
-            'email_verified_at' => now(), // Not automatically verified - must update credentials
-            'is_default' => false, // Default account created by seeder
+            'email_verified_at' => null, // Not automatically verified - must update credentials
+            'is_default' => true, // Default account created by seeder
         ])->afterCreating(function ($user) {
             // Create a default address for the customer
                 UserAddress::create([
