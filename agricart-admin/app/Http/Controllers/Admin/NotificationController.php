@@ -18,7 +18,8 @@ class NotificationController extends Controller
             ->whereIn('type', [
                 'App\\Notifications\\NewOrderNotification',
                 'App\\Notifications\\InventoryUpdateNotification',
-                'App\\Notifications\\MembershipUpdateNotification'
+                'App\\Notifications\\MembershipUpdateNotification',
+                'App\\Notifications\\PasswordChangeRequestNotification'
             ])
             ->orderBy('created_at', 'desc')
             ->get()

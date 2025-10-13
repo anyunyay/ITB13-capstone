@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { BellDot, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
 import { SafeImage } from '@/lib/image-utils';
@@ -30,17 +30,32 @@ interface Member {
     [key: string]: unknown;
 }
 
+interface PasswordChangeRequest {
+    id: number;
+    member_id: number;
+    status: string;
+    requested_at: string;
+    processed_at?: string;
+    admin_notes?: string;
+    member: Member;
+    processed_by?: {
+        id: number;
+        name: string;
+    };
+}
+
 interface PageProps {
     flash: {
         message?: string
     }
     members: Member[];
+    pendingPasswordRequests: PasswordChangeRequest[];
     [key: string]: unknown;
 }
 
 export default function Index() {
 
-    const { members, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { members, flash, auth, pendingPasswordRequests } = usePage<PageProps & SharedData>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -48,12 +63,24 @@ export default function Index() {
         }
     }, [auth]);
 
-    const { processing, delete: destroy } = useForm();
+    const { processing, delete: destroy, post } = useForm();
 
     const handleDelete = (id: number, name: string) => {
         if (confirm(`Are you sure you want to delete - ${name}?`)) {
             // Call the delete route
             destroy(route('membership.destroy', id));
+        }
+    };
+
+    const handleApprovePasswordChange = (requestId: number) => {
+        if (confirm('Are you sure you want to approve this password change request?')) {
+            post(route('membership.approve-password-change', requestId));
+        }
+    };
+
+    const handleRejectPasswordChange = (requestId: number) => {
+        if (confirm('Are you sure you want to reject this password change request?')) {
+            post(route('membership.reject-password-change', requestId));
         }
     };
 
@@ -88,6 +115,60 @@ export default function Index() {
                         )}
                     </div>
                 </div>
+
+                {/* Password Change Requests Section */}
+                {pendingPasswordRequests && pendingPasswordRequests.length > 0 && (
+                    <div className="mb-8">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex items-center mb-4">
+                                <Clock className="h-5 w-5 text-yellow-600 mr-2" />
+                                <h2 className="text-lg font-semibold text-yellow-800">Pending Password Change Requests</h2>
+                            </div>
+                            <div className="space-y-3">
+                                {pendingPasswordRequests.map((request) => (
+                                    <div key={request.id} className="bg-white border border-yellow-200 rounded-lg p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-center space-x-4">
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{request.member.name}</p>
+                                                        <p className="text-sm text-gray-600">Member ID: {request.member.member_id}</p>
+                                                        <p className="text-sm text-gray-500">
+                                                            Requested: {new Date(request.requested_at).toLocaleString()}
+                                                        </p>
+                                                        {request.admin_notes && (
+                                                            <p className="text-sm text-gray-500">
+                                                                Notes: {request.admin_notes}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <Button
+                                                    onClick={() => handleApprovePasswordChange(request.id)}
+                                                    disabled={processing}
+                                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                                >
+                                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    onClick={() => handleRejectPasswordChange(request.id)}
+                                                    disabled={processing}
+                                                    variant="destructive"
+                                                >
+                                                    <XCircle className="h-4 w-4 mr-1" />
+                                                    Reject
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             {members.length > 0 && (
                 <div className='w-full pt-8'>

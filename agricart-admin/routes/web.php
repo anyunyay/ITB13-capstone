@@ -179,6 +179,12 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/membership/report', [MembershipController::class, 'generateReport'])->name('membership.report');  // Export Member List (GET)
         });
         Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Delete Member
+        
+        // Password change request routes
+        Route::middleware(['can:edit members'])->group(function () {
+            Route::post('/membership/password-change/{requestId}/approve', [MembershipController::class, 'approvePasswordChange'])->name('membership.approve-password-change');
+            Route::post('/membership/password-change/{requestId}/reject', [MembershipController::class, 'rejectPasswordChange'])->name('membership.reject-password-change');
+        });
 
         // Logistic routes
         Route::middleware(['can:view logistics'])->get('/logistics', [LogisticController::class, 'index'])->name('logistics.index'); // View Logistics

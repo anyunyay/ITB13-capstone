@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\PasswordChangeRequest;
 use App\Notifications\MembershipUpdateNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,17 @@ class MembershipController extends Controller
     public function index()
     {
         $members = User::where('type', 'member')->get();
-        return Inertia::render('Membership/index', compact('members'));
+        
+        // Get pending password change requests
+        $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'processedBy'])
+            ->where('status', 'pending')
+            ->orderBy('requested_at', 'desc')
+            ->get();
+        
+        return Inertia::render('Membership/index', [
+            'members' => $members,
+            'pendingPasswordRequests' => $pendingPasswordRequests
+        ]);
     }
 
     public function add()
@@ -248,5 +259,47 @@ class MembershipController extends Controller
         $filename = 'membership_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Approve a password change request
+     */
+    public function approvePasswordChange(Request $request, $requestId)
+    {
+        $passwordChangeRequest = PasswordChangeRequest::findOrFail($requestId);
+        
+        if ($passwordChangeRequest->status !== 'pending') {
+            return back()->with('error', 'This request has already been processed.');
+        }
+
+        $passwordChangeRequest->update([
+            'status' => 'approved',
+            'processed_at' => now(),
+            'processed_by' => $request->user()->id,
+            'admin_notes' => 'Password change request approved by admin'
+        ]);
+
+        return back()->with('message', 'Password change request approved successfully. The member can now change their password.');
+    }
+
+    /**
+     * Reject a password change request
+     */
+    public function rejectPasswordChange(Request $request, $requestId)
+    {
+        $passwordChangeRequest = PasswordChangeRequest::findOrFail($requestId);
+        
+        if ($passwordChangeRequest->status !== 'pending') {
+            return back()->with('error', 'This request has already been processed.');
+        }
+
+        $passwordChangeRequest->update([
+            'status' => 'rejected',
+            'processed_at' => now(),
+            'processed_by' => $request->user()->id,
+            'admin_notes' => 'Password change request rejected by admin'
+        ]);
+
+        return back()->with('message', 'Password change request rejected.');
     }
 }

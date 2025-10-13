@@ -55,6 +55,28 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Member password change routes
+    Route::get('member/forgot-password', [\App\Http\Controllers\Member\PasswordChangeController::class, 'showForgotPassword'])
+        ->name('member.password.request');
+
+    Route::post('member/forgot-password', [\App\Http\Controllers\Member\PasswordChangeController::class, 'requestPasswordChange'])
+        ->name('member.password.request.store');
+
+    Route::get('member/password-request/{requestId}/pending', [\App\Http\Controllers\Member\PasswordChangeController::class, 'showRequestPending'])
+        ->name('member.password.pending');
+
+    Route::post('member/password-request/{requestId}/cancel', [\App\Http\Controllers\Member\PasswordChangeController::class, 'cancelRequest'])
+        ->name('member.password.cancel');
+
+    Route::get('member/password-request/{requestId}/status', [\App\Http\Controllers\Member\PasswordChangeController::class, 'checkRequestStatus'])
+        ->name('member.password.status');
+
+    Route::get('member/reset-password/{requestId}', [\App\Http\Controllers\Member\PasswordChangeController::class, 'showChangeForm'])
+        ->name('member.password.change');
+
+    Route::post('member/reset-password/{requestId}', [\App\Http\Controllers\Member\PasswordChangeController::class, 'changePassword'])
+        ->name('member.password.change.store');
 });
 
 Route::middleware('auth')->group(function () {
