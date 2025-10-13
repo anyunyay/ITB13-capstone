@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'name' => 'Admin',
             'email' => 'admin@admin.com',
             'password' => Hash::make('12345678'),
-            'email_verified_at' => now(), // Automatically verify email for admin
+            'email_verified_at' => null, // Not automatically verified - must update credentials
             'is_default' => true, // Default account created by seeder
         ]);
     }
@@ -94,7 +94,7 @@ class UserFactory extends Factory
             'contact_number' => $this->faker->unique()->phoneNumber(),
             'registration_date' => $this->faker->dateTimeThisYear(),
             'password' => Hash::make('password'),
-            'email_verified_at' => now(), // Automatically verify email for logistics
+            'email_verified_at' => null, // Not automatically verified - must update credentials
             'is_default' => true, // Default account created by seeder
         ])->afterCreating(function ($user) {
             // Create a default address for the logistic
@@ -116,7 +116,7 @@ class UserFactory extends Factory
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password'),
-            'email_verified_at' => now(), // Automatically verify email for staff
+            'email_verified_at' => null, // Not automatically verified - must update credentials
             'is_default' => true, // Default account created by seeder
         ]);
     }
