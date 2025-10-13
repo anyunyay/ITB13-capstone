@@ -18,7 +18,7 @@ class MembershipController extends Controller
         $members = User::where('type', 'member')->get();
         
         // Get pending password change requests
-        $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'processedBy'])
+        $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'approvedBy'])
             ->where('status', 'pending')
             ->orderBy('requested_at', 'desc')
             ->get();
@@ -274,9 +274,8 @@ class MembershipController extends Controller
 
         $passwordChangeRequest->update([
             'status' => 'approved',
-            'processed_at' => now(),
-            'processed_by' => $request->user()->id,
-            'admin_notes' => 'Password change request approved by admin'
+            'approved_at' => now(),
+            'approved_by' => $request->user()->id,
         ]);
 
         return back()->with('message', 'Password change request approved successfully. The member can now change their password.');
@@ -295,9 +294,8 @@ class MembershipController extends Controller
 
         $passwordChangeRequest->update([
             'status' => 'rejected',
-            'processed_at' => now(),
-            'processed_by' => $request->user()->id,
-            'admin_notes' => 'Password change request rejected by admin'
+            'approved_at' => now(),
+            'approved_by' => $request->user()->id,
         ]);
 
         return back()->with('message', 'Password change request rejected.');

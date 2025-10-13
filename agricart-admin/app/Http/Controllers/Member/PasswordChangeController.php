@@ -212,8 +212,7 @@ class PasswordChangeController extends Controller
                 'member_id' => $passwordChangeRequest->member->member_id,
             ],
             'requested_at' => $passwordChangeRequest->requested_at->toISOString(),
-            'processed_at' => $passwordChangeRequest->processed_at ? $passwordChangeRequest->processed_at->toISOString() : null,
-            'admin_notes' => $passwordChangeRequest->admin_notes,
+            'approved_at' => $passwordChangeRequest->approved_at ? $passwordChangeRequest->approved_at->toISOString() : null,
         ]);
     }
 }

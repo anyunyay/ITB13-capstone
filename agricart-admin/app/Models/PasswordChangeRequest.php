@@ -14,16 +14,15 @@ class PasswordChangeRequest extends Model
         'member_identifier',
         'status',
         'requested_at',
-        'processed_at',
-        'processed_by',
-        'admin_notes',
+        'approved_at',
+        'approved_by',
         'token',
         'expires_at',
     ];
 
     protected $casts = [
         'requested_at' => 'datetime',
-        'processed_at' => 'datetime',
+        'approved_at' => 'datetime',
         'expires_at' => 'datetime',
     ];
 
@@ -38,9 +37,9 @@ class PasswordChangeRequest extends Model
     /**
      * Get the admin who processed the request
      */
-    public function processedBy(): BelongsTo
+    public function approvedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'processed_by');
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     /**
