@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             'contact_number' => '09987654321',
             'registration_date' => now(),
             'password' => Hash::make('12345678'),
-            'email_verified_at' => null, // Not automatically verified - must update credentials
+            'email_verified_at' => now(), // Automatically verify email for logistics
             'is_default' => true, // Default account created by seeder
         ]);
 
