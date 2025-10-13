@@ -13,7 +13,6 @@ import AuthLayout from '@/layouts/auth-layout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type UpdateCredentialsForm = {
-    email?: string;
     password: string;
     password_confirmation: string;
 };
@@ -28,10 +27,7 @@ interface UpdateCredentialsProps {
 }
 
 export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
-    const isMember = user.type === 'member';
-    
     const { data, setData, post, processing, errors, reset } = useForm<UpdateCredentialsForm>({
-        email: isMember ? undefined : '',
         password: '',
         password_confirmation: '',
     });
@@ -52,24 +48,15 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
     };
 
     const getAlertMessage = () => {
-        if (isMember) {
-            return "This is a default member account. For security reasons, you must update your password before accessing the system.";
-        }
-        return "This is a default account. For security reasons, you must update your email and password before accessing the system.";
+        return "This is a default account. For security reasons, you must update your password before accessing the system.";
     };
 
     const getTitle = () => {
-        if (isMember) {
-            return "Update Your Password";
-        }
-        return "Update Your Credentials";
+        return "Update Your Password";
     };
 
     const getDescription = () => {
-        if (isMember) {
-            return "Please update your password to continue";
-        }
-        return "Please update your email and password to continue";
+        return "Please update your password to continue";
     };
 
     const getUserTypeDisplayName = (type: string) => {
@@ -115,23 +102,6 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                         </div>
 
                         <form onSubmit={submit} className="space-y-4">
-                            {!isMember && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">New Email</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        name="email"
-                                        value={data.email || ''}
-                                        className="mt-1 block w-full"
-                                        autoComplete="email"
-                                        onChange={(e) => setData('email', e.target.value)}
-                                        placeholder="Enter your new email address"
-                                        required
-                                    />
-                                    <InputError message={errors.email} className="mt-2" />
-                                </div>
-                            )}
 
                             <div className="space-y-2">
                                 <Label htmlFor="password">New Password</Label>
@@ -180,7 +150,7 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                                 disabled={processing}
                             >
                                 {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                {isMember ? 'Update Password' : 'Update Credentials'}
+                                Update Password
                             </Button>
                         </form>
                     </div>
