@@ -66,7 +66,7 @@ class StaffController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'type' => 'staff',
-            'email_verified_at' => now(), // Automatically verify email for staff
+            'is_default' => true, // Default account created by admin
         ]);
 
         // Assign staff role

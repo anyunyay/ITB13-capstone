@@ -45,7 +45,7 @@ class LogisticController extends Controller
             'contact_number' => $request->input('contact_number'),
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
-            'email_verified_at' => now(), // Automatically verify email
+            'is_default' => true, // Default account created by admin
         ]);
 
         return redirect()->route('logistics.index')->with('message', 'Logistic added successfully');
