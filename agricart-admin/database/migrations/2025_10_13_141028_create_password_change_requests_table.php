@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('member_id')->constrained('users')->onDelete('cascade');
             $table->string('member_identifier'); // Store member_id for easy reference
             $table->enum('status', ['pending', 'approved', 'rejected', 'completed'])->default('pending');
-            $table->timestamp('requested_at');
+            $table->timestamp('requested_at')->useCurrent();
             $table->timestamp('approved_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
             $table->string('token')->unique(); // For secure password change link
-            $table->timestamp('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
             
             $table->index(['status', 'requested_at']);

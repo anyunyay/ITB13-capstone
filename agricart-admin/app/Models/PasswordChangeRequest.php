@@ -11,16 +11,20 @@ class PasswordChangeRequest extends Model
 {
     protected $fillable = [
         'member_id',
+        'member_identifier',
         'status',
         'requested_at',
         'processed_at',
         'processed_by',
         'admin_notes',
+        'token',
+        'expires_at',
     ];
 
     protected $casts = [
         'requested_at' => 'datetime',
         'processed_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
     /**
@@ -54,8 +58,11 @@ class PasswordChangeRequest extends Model
     {
         return self::create([
             'member_id' => $member->id,
+            'member_identifier' => $member->member_id,
             'status' => 'pending',
             'requested_at' => now(),
+            'token' => Str::random(64),
+            'expires_at' => Carbon::now()->addMinutes(30),
         ]);
     }
 }
