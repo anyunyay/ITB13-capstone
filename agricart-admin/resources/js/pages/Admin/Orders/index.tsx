@@ -1,4 +1,4 @@
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -128,7 +128,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
       permissions={['view orders', 'create orders', 'edit orders', 'generate order report']}
       pageTitle="Order Management Access Denied"
     >
-      <AppSidebarLayout>
+      <AppLayout>
         <Head title="Order Management" />
         <div className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -265,7 +265,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
 
       {/* Urgent order popup */}
       <UrgentOrderPopup urgentOrders={safeUrgentOrders} />
-    </AppSidebarLayout>
+      </AppLayout>
     </PermissionGuard>
   );
 }

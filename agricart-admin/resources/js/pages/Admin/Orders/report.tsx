@@ -1,4 +1,4 @@
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -152,7 +152,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   };
 
   return (
-    <AppSidebarLayout>
+    <AppLayout>
       <Head title="Order Report" />
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -288,7 +288,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
           </CardContent>
         </Card>
       </div>
-    </AppSidebarLayout>
+    </AppLayout>
   );
 }
 

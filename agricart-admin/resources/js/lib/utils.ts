@@ -145,6 +145,35 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
         return crumbs;
     }
 
+    // Orders
+    if (url.startsWith('/admin/orders')) {
+        crumbs.push({ title: 'Order Management', href: '/admin/orders' });
+
+        // Order Report
+        if (url === '/admin/orders/report') {
+            crumbs.push({ title: 'Report', href: '' });
+            return crumbs;
+        }
+
+        // Order detail/edit
+        if (params.order) {
+            crumbs.push({
+                title: `Order #${params.order.id}`,
+                href: '',
+            });
+
+            // Receipt Preview
+            if (url.endsWith('/receipt-preview')) {
+                crumbs.push({
+                    title: 'Receipt Preview',
+                    href: '',
+                });
+            }
+        }
+
+        return crumbs;
+    }
+
     // Settings
     if (url.startsWith('/settings')) {
         crumbs.push({ title: 'Settings', href: '/settings/profile' });
@@ -175,9 +204,11 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
     // Fallback: If no crumbs, use segments
     if (crumbs.length === 0) {
         const segments = url.split('/').filter(Boolean);
-        if (segments.length) {
+        // Filter out 'admin' segment to remove "Admin /" prefix from breadcrumbs
+        const filteredSegments = segments.filter((segment: string) => segment !== 'admin');
+        if (filteredSegments.length) {
             crumbs.push({
-                title: segments.map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' / '),
+                title: filteredSegments.map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' / '),
                 href: url,
             });
         }

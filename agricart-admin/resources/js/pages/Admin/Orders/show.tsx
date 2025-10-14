@@ -1,4 +1,4 @@
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -183,7 +183,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   };
 
   return (
-    <AppSidebarLayout>
+    <AppLayout>
       <Head title={`Order #${order.id}`} />
       <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-blue-500 rounded-lg shadow-lg' : ''}`}>
         <div className="flex items-center justify-between mb-6">
@@ -571,6 +571,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           </div>
         </div>
       </div>
-    </AppSidebarLayout>
+    </AppLayout>
   );
 } 
