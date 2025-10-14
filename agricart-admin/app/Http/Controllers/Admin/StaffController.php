@@ -57,6 +57,12 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
+            'contact_number' => [
+                'required',
+                'numeric',
+                'unique:users,contact_number',
+                'regex:/^(\+639|09)\d{9}$/',
+            ],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
             'street' => 'required|string|max:255',
@@ -69,6 +75,7 @@ class StaffController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'contact_number' => $request->contact_number,
             'type' => 'staff',
             'email_verified_at' => now(), // Automatically verify email for staff
         ]);
@@ -145,6 +152,12 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $staff->id,
             'password' => ['nullable', 'confirmed', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
+            'contact_number' => [
+                'required',
+                'numeric',
+                'unique:users,contact_number,' . $staff->id,
+                'regex:/^(\+639|09)\d{9}$/',
+            ],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
             'street' => 'required|string|max:255',
@@ -156,6 +169,7 @@ class StaffController extends Controller
         $staff->update([
             'name' => $request->name,
             'email' => $request->email,
+            'contact_number' => $request->contact_number,
         ]);
 
         if ($request->filled('password')) {

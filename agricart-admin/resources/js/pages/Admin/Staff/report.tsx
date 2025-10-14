@@ -10,6 +10,7 @@ interface Staff {
   id: number;
   name: string;
   email: string;
+  contact_number?: string;
   created_at: string;
   email_verified_at: string | null;
   permissions: Array<{ name: string }>;
@@ -150,6 +151,7 @@ export default function StaffReport({ staff, summary }: ReportPageProps) {
                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">ID</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Name</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Email</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Contact</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Permissions</th>
                     <th className="px-3 py-2 text-center font-medium text-gray-700 text-xs uppercase tracking-wider">Status</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700 text-xs uppercase tracking-wider">Created</th>
@@ -167,6 +169,11 @@ export default function StaffReport({ staff, summary }: ReportPageProps) {
                       <td className="px-3 py-2 max-w-xs">
                         <div className="text-sm text-gray-900 truncate" title={member.email}>
                           {member.email}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 max-w-xs">
+                        <div className="text-sm text-gray-900 truncate" title={member.contact_number || 'N/A'}>
+                          {member.contact_number || 'N/A'}
                         </div>
                       </td>
                       <td className="px-3 py-2 max-w-xs">

@@ -23,6 +23,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
     name: '',
     email: '',
     password: '',
+    contact_number: '',
     permissions: [] as string[],
     street: '',
     barangay: '',
@@ -195,6 +196,24 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   />
                   {errors.password && (
                     <p className="text-sm text-destructive">{errors.password}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact_number">Contact Number</Label>
+                  <Input
+                    id="contact_number"
+                    type="tel"
+                    value={data.contact_number}
+                    onChange={(e) => setData('contact_number', e.target.value)}
+                    className={errors.contact_number ? 'border-destructive' : ''}
+                    placeholder="+63 9XX XXX XXXX (Philippine format only)"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: +639XXXXXXXXX or 09XXXXXXXXX
+                  </p>
+                  {errors.contact_number && (
+                    <p className="text-sm text-destructive">{errors.contact_number}</p>
                   )}
                 </div>
               </div>

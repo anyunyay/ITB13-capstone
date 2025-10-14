@@ -18,6 +18,7 @@ interface Staff {
   id: number;
   name: string;
   email: string;
+  contact_number?: string;
   permissions: Array<{ name: string }>;
   default_address?: {
     id: number;
@@ -38,6 +39,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
   const { data, setData, put, processing, errors } = useForm({
     name: staff.name,
     email: staff.email,
+    contact_number: staff.contact_number || '',
     password: '',
     password_confirmation: '',
     permissions: staff.permissions.map(p => p.name),
@@ -199,6 +201,24 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                   />
                   {errors.email && (
                     <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact_number">Contact Number</Label>
+                  <Input
+                    id="contact_number"
+                    type="tel"
+                    value={data.contact_number}
+                    onChange={(e) => setData('contact_number', e.target.value)}
+                    className={errors.contact_number ? 'border-destructive' : ''}
+                    placeholder="+63 9XX XXX XXXX (Philippine format only)"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: +639XXXXXXXXX or 09XXXXXXXXX
+                  </p>
+                  {errors.contact_number && (
+                    <p className="text-sm text-destructive">{errors.contact_number}</p>
                   )}
                 </div>
 

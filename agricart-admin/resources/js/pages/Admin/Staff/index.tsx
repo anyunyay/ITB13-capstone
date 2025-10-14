@@ -13,6 +13,7 @@ interface Staff {
   id: number;
   name: string;
   email: string;
+  contact_number?: string;
   created_at: string;
   permissions: Array<{ name: string }>;
   default_address?: {
@@ -81,6 +82,7 @@ export default function StaffIndex({ staff }: Props) {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Contact Number</TableHead>
                   <TableHead>Address</TableHead>
                   <TableHead>Permissions</TableHead>
                   <TableHead>Created</TableHead>
@@ -92,6 +94,7 @@ export default function StaffIndex({ staff }: Props) {
                   <TableRow key={member.id}>
                     <TableCell className="font-medium">{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.contact_number || 'N/A'}</TableCell>
                     <TableCell>
                       {member.default_address ? 
                         `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
@@ -147,7 +150,7 @@ export default function StaffIndex({ staff }: Props) {
                 ))}
                 {staff.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                       No staff members found
                     </TableCell>
                   </TableRow>
