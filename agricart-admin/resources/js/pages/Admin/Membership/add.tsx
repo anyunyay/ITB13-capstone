@@ -223,7 +223,7 @@ export default function Index() {
                     <FileUpload
                         label="Document Upload"
                         onFileChange={handleDocumentUpload}
-                        accept="image/*,.pdf"
+                        accept=".jpg,.jpeg,.png,.pdf"
                     />
                     <Button disabled={processing} type="submit">Add Member</Button>
                 </form>

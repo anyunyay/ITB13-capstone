@@ -325,7 +325,7 @@ export default function Edit({member}: Props) {
                         onFileChange={handleFileUpload}
                         onFileRemove={handleFileRemove}
                         onFileDelete={handleFileDelete}
-                        accept="image/*,.pdf"
+                        accept=".jpg,.jpeg,.png,.pdf"
                         memberId={member.id}
                         documentMarkedForDeletion={member.document_marked_for_deletion}
                     />

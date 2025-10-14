@@ -24,7 +24,7 @@ export function FileUpload({
   onFileChange,
   onFileRemove,
   onFileDelete,
-  accept = "image/*,.pdf",
+  accept = ".jpg,.jpeg,.png,.pdf",
   className = "",
   disabled = false,
   memberId,
@@ -37,6 +37,19 @@ export function FileUpload({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['.jpg', '.jpeg', '.png', '.pdf'];
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+      
+      if (!allowedTypes.includes(fileExtension)) {
+        alert('Please select a valid file type. Only JPG, PNG, and PDF files are allowed.');
+        // Clear the input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+      
       setPreviewFile(file);
       onFileChange(file);
       
@@ -121,11 +134,24 @@ export function FileUpload({
                 className="w-32 h-32 object-cover rounded-lg mx-auto"
               />
             ) : isPdf ? (
-              <div className="flex flex-col items-center justify-center w-32 h-32 mx-auto">
-                <FileText className="w-12 h-12 text-red-500 mb-2" />
-                <span className="text-sm text-gray-600 text-center">
-                  {previewFile.name}
-                </span>
+              <div className="w-full max-w-md mx-auto">
+                <div className="bg-white rounded-lg shadow-sm border">
+                  <div className="flex items-center justify-between p-2 bg-red-50 border-b">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-red-500" />
+                      <span className="text-sm font-medium text-red-700">PDF Preview</span>
+                    </div>
+                    <span className="text-xs text-gray-500">{previewFile.name}</span>
+                  </div>
+                  <div className="h-64 overflow-hidden">
+                    <iframe
+                      src={previewUrl}
+                      className="w-full h-full border-0"
+                      title="PDF Preview"
+                      style={{ minHeight: '256px' }}
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center w-32 h-32 mx-auto">
@@ -166,11 +192,24 @@ export function FileUpload({
                 className={`w-32 h-32 object-cover rounded-lg mx-auto ${documentMarkedForDeletion ? 'opacity-50' : ''}`}
               />
             ) : isPdf ? (
-              <div className="flex flex-col items-center justify-center w-32 h-32 mx-auto">
-                <FileText className={`w-12 h-12 mb-2 ${documentMarkedForDeletion ? 'text-red-400' : 'text-red-500'}`} />
-                <span className={`text-sm text-center ${documentMarkedForDeletion ? 'text-red-600' : 'text-gray-600'}`}>
-                  PDF Document
-                </span>
+              <div className="w-full max-w-md mx-auto">
+                <div className={`bg-white rounded-lg shadow-sm border ${documentMarkedForDeletion ? 'opacity-50' : ''}`}>
+                  <div className="flex items-center justify-between p-2 bg-red-50 border-b">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-red-500" />
+                      <span className="text-sm font-medium text-red-700">PDF Preview</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Current PDF</span>
+                  </div>
+                  <div className="h-64 overflow-hidden">
+                    <iframe
+                      src={currentFile}
+                      className="w-full h-full border-0"
+                      title="Current PDF Preview"
+                      style={{ minHeight: '256px' }}
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center w-32 h-32 mx-auto">
@@ -262,6 +301,11 @@ export function FileUpload({
           </div>
         </div>
       )}
+      
+      {/* File Type Help Text */}
+      <p className="text-xs text-gray-500">
+        Accepted file types: JPG, PNG, PDF (Max size: 2MB)
+      </p>
     </div>
   );
 }
