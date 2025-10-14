@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Admin Profile routes
         Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('admin.profile.info');
         Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('admin.profile.password');
+        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('admin.profile.updateName');
         Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('admin.profile.appearance');
         Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('admin.profile.help');
@@ -237,6 +238,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Customer Profile routes - Individual pages only
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('customer.profile.update.patch');
+        Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('customer.profile.updateName');
         Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('customer.profile.changePassword');
         Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('customer.profile.avatar.upload');
         Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
@@ -294,6 +296,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Logistic Profile routes
         Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('logistic.profile.info');
         Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('logistic.profile.password');
+        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
         Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('logistic.profile.appearance');
         Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('logistic.profile.appearance.update');
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('logistic.profile.help');
@@ -332,6 +335,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Member Profile routes
         Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('member.profile.info');
         Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('member.profile.password');
+        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('member.profile.updateName');
         Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('member.profile.appearance');
         Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('member.profile.appearance.update');
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('member.profile.help');

@@ -33,7 +33,7 @@ interface User {
     contact_number?: string;
     avatar?: string;
     avatar_url?: string;
-    type?: string;
+    type: string;
 }
 
 interface PageProps {
@@ -55,6 +55,7 @@ export default function ProfilePage() {
         return {
             profile: `${baseRoute}/profile`,
             profileInfo: `${baseRoute}/profile/info`,
+            profileName: `${baseRoute}/profile/name`,
             avatarUpload: `${baseRoute}/profile/avatar/upload`,
             avatarDelete: `${baseRoute}/profile/avatar/delete`,
         };
@@ -76,6 +77,11 @@ export default function ProfilePage() {
         phone: user?.contact_number || '',
     });
 
+    // Separate form for name-only updates
+    const { data: nameData, setData: setNameData, patch: patchName, processing: nameProcessing } = useForm({
+        name: user?.name || '',
+    });
+
     // Get display phone number (masked for non-admin/staff users)
     const displayPhone = isAdminOrStaff ? (user?.contact_number || '') : maskPhone(user?.contact_number || '');
     
@@ -83,10 +89,10 @@ export default function ProfilePage() {
     const displayEmail = getDisplayEmail(user?.email || '', user?.type);
 
     // Track if name has been modified
-    const isNameModified = data.name !== (user?.name || '');
+    const isNameModified = nameData.name !== (user?.name || '');
 
     const handleNameSubmit = () => {
-        patch(routes.profile, {
+        patchName(routes.profileName, {
             onSuccess: () => {
                 alert('Name updated successfully!');
             },
@@ -263,8 +269,8 @@ export default function ProfilePage() {
                                 <div className="space-y-2">
                                     <Input
                                         id="name"
-                                        value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
+                                        value={nameData.name}
+                                        onChange={(e) => setNameData('name', e.target.value)}
                                         placeholder="Enter your full name"
                                     />
                                     {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
@@ -272,12 +278,12 @@ export default function ProfilePage() {
                                 <div className="flex justify-end">
                                     <Button
                                         type="button"
-                                        disabled={processing || !isNameModified}
+                                        disabled={nameProcessing || !isNameModified}
                                         onClick={handleNameSubmit}
                                         className="flex items-center gap-2"
                                     >
                                         <Save className="h-4 w-4" />
-                                        {processing ? 'Saving...' : 'Save'}
+                                        {nameProcessing ? 'Saving...' : 'Save'}
                                     </Button>
                                 </div>
                             </div>

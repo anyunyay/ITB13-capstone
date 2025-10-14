@@ -79,6 +79,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         
         $validated = $request->validate([
@@ -103,6 +104,23 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update only the customer's name.
+     */
+    public function updateName(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $user->update(['name' => $validated['name']]);
+
+        return redirect()->back()->with('success', 'Name updated successfully.');
+    }
+
+    /**
      * Change the customer's password.
      */
     public function changePassword(Request $request)
@@ -112,6 +130,7 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', 'regex:/^\S*$/', Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
@@ -149,6 +168,7 @@ class ProfileController extends Controller
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Delete old avatar if exists
@@ -178,6 +198,7 @@ class ProfileController extends Controller
      */
     public function deleteAvatar(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->avatar) {
