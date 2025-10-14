@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import PasswordInput from '@/components/ui/password-input';
+import { FileUpload } from '@/components/ui/file-upload';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
@@ -62,10 +63,8 @@ export default function Index() {
     const [month, setMonth] = React.useState<Date>(today)
     const [value, setValue] = React.useState(formatDate(today))
 
-    const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setData('document', e.target.files[0]);
-        }
+    const handleDocumentUpload = (file: File | null) => {
+        setData('document', file);
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -221,10 +220,11 @@ export default function Index() {
                             </div>
                         </div>
                     </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="member document">Document Upload</Label>
-                        <Input onChange={handleDocumentUpload} id='document' name='document' type='file' autoFocus tabIndex={4} />
-                    </div>
+                    <FileUpload
+                        label="Document Upload"
+                        onFileChange={handleDocumentUpload}
+                        accept="image/*,.pdf"
+                    />
                     <Button disabled={processing} type="submit">Add Member</Button>
                 </form>
             </div>

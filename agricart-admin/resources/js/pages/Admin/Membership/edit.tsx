@@ -1,9 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { FileUpload } from '@/components/ui/file-upload';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
@@ -13,7 +15,6 @@ import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { SafeImage } from '@/lib/image-utils';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -77,14 +78,54 @@ export default function Edit({member}: Props) {
         _method: 'put',
     });
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setData('document', e.target.files[0]);
+    // Track if a new file has been uploaded
+    const [hasNewFile, setHasNewFile] = React.useState(false);
+
+    const handleFileUpload = (file: File | null) => {
+        setData('document', file);
+        setHasNewFile(!!file);
+    }
+
+    const handleFileRemove = () => {
+        setData('document', null);
+        setHasNewFile(false);
+    }
+
+    const handleFileDelete = async (filePath: string) => {
+        try {
+            const response = await fetch(route('membership.delete-document', member.id), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                // Update the member data to reflect the deletion
+                const updatedMember = { ...member, document: null };
+                // You might want to update the page data here
+                router.reload();
+            } else {
+                throw new Error('Failed to delete file');
+            }
+        } catch (error) {
+            console.error('Error deleting file:', error);
+            throw error;
         }
     }
 
+    // Check if update should be disabled
+    const isUpdateDisabled = member.document_marked_for_deletion && !hasNewFile;
+
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Prevent submission if document is marked for deletion but no new file is uploaded
+        if (isUpdateDisabled) {
+            return;
+        }
+        
         post(route('membership.update', String(member.id)), {
             forceFormData: true,
             preserveState: true,
@@ -278,20 +319,36 @@ export default function Edit({member}: Props) {
                             </div>
                         </div>
                     </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="member document">Current Image</Label>
-                        <div className="mb-4">
-                            <SafeImage 
-                                src={member.document} 
-                                alt={`Document for ${member.name}`} 
-                                className="w-32 h-32 object-cover rounded-lg"
-                            />
-                        </div>
-                        <Label htmlFor="member document">Update Image</Label>
-                        <Input onChange={handleFileUpload} id='document' name='document' type='file' accept="document/*"/>
-                        {errors.document && <p className="text-sm text-red-500 mt-1">{errors.document}</p>}
-                    </div>
-                    <Button disabled={processing} type="submit">Update Member Details</Button>
+                    <FileUpload
+                        label="Document Upload"
+                        currentFile={member.document}
+                        onFileChange={handleFileUpload}
+                        onFileRemove={handleFileRemove}
+                        onFileDelete={handleFileDelete}
+                        accept="image/*,.pdf"
+                        memberId={member.id}
+                        documentMarkedForDeletion={member.document_marked_for_deletion}
+                    />
+                    {errors.document && <p className="text-sm text-red-500 mt-1">{errors.document}</p>}
+                    
+                    {/* File Upload Warning */}
+                    {isUpdateDisabled && (
+                        <Alert variant="destructive" className="mt-4">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>File Upload Required</AlertTitle>
+                            <AlertDescription>
+                                Please upload a new document before updating. The current document is marked for deletion and must be replaced.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                    
+                    <Button 
+                        disabled={processing || isUpdateDisabled} 
+                        type="submit"
+                        className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                    >
+                        Update Member Details
+                    </Button>
                 </form>
             </div>
         </AppLayout>

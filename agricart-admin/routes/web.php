@@ -180,6 +180,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/membership/report', [MembershipController::class, 'generateReport'])->name('membership.report');  // Export Member List (GET)
         });
         Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Delete Member
+        Route::middleware(['can:edit members'])->delete('/membership/{member}/document', [MembershipController::class, 'deleteDocument'])->name('membership.delete-document'); // Delete Member Document
         
         // Password change request routes
         Route::middleware(['can:edit members'])->group(function () {

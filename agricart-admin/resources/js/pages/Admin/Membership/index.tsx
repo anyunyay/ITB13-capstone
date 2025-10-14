@@ -100,8 +100,6 @@ export default function Index() {
         const interval = setInterval(() => {
             router.reload({
                 only: ['pendingPasswordRequests'],
-                preserveScroll: true,
-                preserveState: true,
             });
         }, 10000); // every 10s
         return () => clearInterval(interval);

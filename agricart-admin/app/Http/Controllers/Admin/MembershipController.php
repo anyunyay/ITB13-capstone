@@ -25,7 +25,7 @@ class MembershipController extends Controller
             ->orderBy('requested_at', 'desc')
             ->get();
         
-        return Inertia::render('Membership/index', [
+        return Inertia::render('Admin/Membership/index', [
             'members' => $members,
             'pendingPasswordRequests' => $pendingPasswordRequests
         ]);
@@ -33,7 +33,7 @@ class MembershipController extends Controller
 
     public function add()
     {
-        return Inertia::render('Membership/add', []);
+        return Inertia::render('Admin/Membership/add', []);
     }
 
     public function store(Request $request)
@@ -97,11 +97,13 @@ class MembershipController extends Controller
         $member = User::where('type', 'member')
             ->with('defaultAddress')
             ->findOrFail($id);
-        return Inertia::render('Membership/edit', compact('member'));
+        return Inertia::render('Admin/Membership/edit', compact('member'));
     }
 
     public function update(Request $request, $id)
     {
+        $member = User::where('type', 'member')->findOrFail($id);
+        
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
@@ -120,7 +122,12 @@ class MembershipController extends Controller
             'province' => 'required|string|max:255',
         ]);
 
-        $member = User::where('type', 'member')->findOrFail($id);
+        // Check if document is marked for deletion but no new file is uploaded
+        if ($member->document_marked_for_deletion && !$request->file('document')) {
+            return back()->withErrors([
+                'document' => 'A new document must be uploaded to replace the one marked for deletion.'
+            ]);
+        }
         $member->update([
             'name' => $request->input('name'),
             'contact_number' => $request->input('contact_number'),
@@ -148,14 +155,17 @@ class MembershipController extends Controller
         }
         
         if ($request->file('document')) {
-            // Optionally delete old file
-            if ($member->document && file_exists(public_path($member->document))) {
+            // Delete old file if it was marked for deletion
+            if ($member->document_marked_for_deletion && $member->document && file_exists(public_path($member->document))) {
                 unlink(public_path($member->document));
             }
+            
             $image = $request->file('document');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images/documents'), $imageName);
+            
             $member->document = 'images/documents/' . $imageName;
+            $member->document_marked_for_deletion = false; // Reset the flag
         }
 
         $member->save();
@@ -185,6 +195,25 @@ class MembershipController extends Controller
         
         $member->delete();
         return redirect()->route('membership.index')->with('message', 'Member removed successfully');
+    }
+
+    public function deleteDocument($id)
+    {
+        $member = User::where('type', 'member')->findOrFail($id);
+        
+        // Mark document for deletion instead of deleting immediately
+        $member->update(['document_marked_for_deletion' => true]);
+        
+        // Notify admin and staff about document marked for deletion
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new MembershipUpdateNotification($member, 'document_marked_for_deletion'));
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Document marked for deletion. Upload a new file to complete the process.'
+        ]);
     }
 
     public function generateReport(Request $request)
