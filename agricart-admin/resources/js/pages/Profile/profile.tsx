@@ -270,7 +270,10 @@ export default function ProfilePage() {
                                     <Input
                                         id="name"
                                         value={nameData.name}
-                                        onChange={(e) => setNameData('name', e.target.value)}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                            setNameData('name', value);
+                                        }}
                                         placeholder="Enter your full name"
                                     />
                                     {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}

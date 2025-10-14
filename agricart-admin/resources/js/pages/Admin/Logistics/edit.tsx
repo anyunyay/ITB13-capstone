@@ -120,9 +120,6 @@ export default function Edit({ logistic }: Props) {
                                 setData('name', value);
                             }} 
                         />
-                        <p className="text-xs text-muted-foreground">
-                            Only letters and spaces are allowed
-                        </p>
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div className='gap-1.5'>

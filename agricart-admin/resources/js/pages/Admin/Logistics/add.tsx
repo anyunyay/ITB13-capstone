@@ -109,9 +109,6 @@ export default function Index() {
                                 setData('name', value);
                             }} 
                         />
-                        <p className="text-xs text-muted-foreground">
-                            Only letters and spaces are allowed
-                        </p>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic email">Email</Label>
