@@ -398,7 +398,7 @@ Route::prefix('api/system')->group(function () {
     Route::get('/status', [\App\Http\Controllers\SystemController::class, 'getSystemStatus'])->name('api.system.status');
     
     // Lock/unlock endpoints require authentication
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
         Route::post('/lock', [\App\Http\Controllers\SystemController::class, 'scheduleLock'])->name('api.system.lock');
         Route::post('/unlock', [\App\Http\Controllers\SystemController::class, 'unlockSystem'])->name('api.system.unlock');
     });
