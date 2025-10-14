@@ -14,9 +14,28 @@ class LogisticController extends Controller
     public function index()
     {
         $logistics = User::where('type', 'logistic')
+            ->where('active', true)
             ->with('defaultAddress')
             ->get();
-        return Inertia::render('Logistics/index', compact('logistics'));
+        
+        $deactivatedLogistics = User::where('type', 'logistic')
+            ->where('active', false)
+            ->with('defaultAddress')
+            ->get();
+        
+        return Inertia::render('Logistics/index', [
+            'logistics' => $logistics,
+            'deactivatedLogistics' => $deactivatedLogistics
+        ]);
+    }
+
+    public function deactivated()
+    {
+        $logistics = User::where('type', 'logistic')
+            ->where('active', false)
+            ->with('defaultAddress')
+            ->get();
+        return Inertia::render('Admin/Logistics/deactivated', compact('logistics'));
     }
 
     public function add()
@@ -131,6 +150,37 @@ class LogisticController extends Controller
         $logistic = User::where('type', 'logistic')->findOrFail($id);
         $logistic->delete();
         return redirect()->route('logistics.index')->with('message', 'Logistic removed successfully');
+    }
+
+    public function deactivate($id)
+    {
+        $logistic = User::where('type', 'logistic')->findOrFail($id);
+        
+        // Check if logistic has pending assigned orders
+        $pendingOrders = \App\Models\SalesAudit::where('logistic_id', $logistic->id)
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'out_for_delivery'])
+            ->count();
+            
+        if ($pendingOrders > 0) {
+            return redirect()->route('logistics.index')
+                ->with('error', "Cannot deactivate logistic {$logistic->name}. They have {$pendingOrders} pending assigned order(s) that must be completed or reassigned first.");
+        }
+        
+        // Deactivate the logistic
+        $logistic->update(['active' => false]);
+        
+        return redirect()->route('logistics.index')->with('message', 'Logistic deactivated successfully');
+    }
+
+    public function reactivate($id)
+    {
+        $logistic = User::where('type', 'logistic')->findOrFail($id);
+        
+        // Reactivate the logistic
+        $logistic->update(['active' => true]);
+        
+        return redirect()->route('logistics.deactivated')->with('message', 'Logistic reactivated successfully');
     }
 
     public function generateReport(Request $request)

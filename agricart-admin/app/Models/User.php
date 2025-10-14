@@ -37,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'document_marked_for_deletion',
         // Type/role discriminator (optional, for user type distinction)
         'type',
+        // Active status flag
+        'active',
         // Default account flag
         'is_default',
         // Session management
@@ -71,6 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'registration_date' => 'datetime',
+            'active' => 'boolean',
             'is_default' => 'boolean',
             'document_marked_for_deletion' => 'boolean',
         ];
