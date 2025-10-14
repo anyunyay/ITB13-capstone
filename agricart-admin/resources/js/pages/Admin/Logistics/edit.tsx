@@ -111,7 +111,18 @@ export default function Edit({ logistic }: Props) {
 
                     <div className='gap-1.5'>
                         <Label htmlFor="logistic name">Name</Label>
-                        <Input placeholder="Logistic Name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                        <Input 
+                            placeholder="Logistic Name" 
+                            value={data.name} 
+                            onChange={(e) => {
+                                // Only allow alphabetic characters and spaces
+                                const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                setData('name', value);
+                            }} 
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Only letters and spaces are allowed
+                        </p>
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div className='gap-1.5'>
