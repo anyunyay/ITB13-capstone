@@ -341,12 +341,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('member.profile.help');
         Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
         
-        // Member Email Change routes (modal-based)
-        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\EmailChangeController::class, 'sendOtp'])->name('member.profile.email-change.send-otp');
-        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'showVerify'])->name('member.profile.email-change.verify');
-        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'verifyOtp'])->name('member.profile.email-change.verify-otp');
-        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'resendOtp'])->name('member.profile.email-change.resend');
-        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\EmailChangeController::class, 'cancel'])->name('member.profile.email-change.cancel');
+        // Member Email Change routes removed - members don't need email functionality
         
         // Member Phone Change routes (modal-based)
         Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\PhoneChangeController::class, 'sendOtp'])->name('member.profile.phone-change.send-otp');

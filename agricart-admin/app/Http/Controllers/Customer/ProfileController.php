@@ -82,15 +82,22 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        $validated = $request->validate([
+        // Base validation rules
+        $validationRules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => ['nullable', 'numeric', 'unique:users,contact_number,' . $user->id],
             'address' => 'nullable|string|max:500',
             'barangay' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'province' => 'nullable|string|max:255',
-        ]);
+        ];
+
+        // Only require email validation for non-member users
+        if ($user->type !== 'member') {
+            $validationRules['email'] = 'required|string|email|max:255|unique:users,email,' . $user->id;
+        }
+        
+        $validated = $request->validate($validationRules);
 
         // Map phone to contact_number for database
         if (isset($validated['phone'])) {

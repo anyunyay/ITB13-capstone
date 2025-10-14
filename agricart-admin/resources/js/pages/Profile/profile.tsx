@@ -290,40 +290,42 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Email Address Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Mail className="h-5 w-5" />
-                                Email Address
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={displayEmail}
-                                        disabled
-                                        placeholder="Enter your email"
-                                    />
-                                    {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                    {/* Email Address Card - Hidden for members */}
+                    {user?.type !== 'member' && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Mail className="h-5 w-5" />
+                                    Email Address
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={displayEmail}
+                                            disabled
+                                            placeholder="Enter your email"
+                                        />
+                                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsEmailChangeModalOpen(true)}
+                                            className="flex items-center gap-1"
+                                        >
+                                            <Mail className="h-3 w-3" />
+                                            Change Email
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="flex justify-end">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsEmailChangeModalOpen(true)}
-                                        className="flex items-center gap-1"
-                                    >
-                                        <Mail className="h-3 w-3" />
-                                        Change Email
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Contact Number Card */}
                     <Card>
@@ -359,11 +361,13 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                 </div>
-            <EmailChangeModal
-                isOpen={isEmailChangeModalOpen}
-                onClose={() => setIsEmailChangeModalOpen(false)}
-                user={user}
-            />
+            {user?.type !== 'member' && (
+                <EmailChangeModal
+                    isOpen={isEmailChangeModalOpen}
+                    onClose={() => setIsEmailChangeModalOpen(false)}
+                    user={user}
+                />
+            )}
             <PhoneChangeModal
                 isOpen={isPhoneChangeModalOpen}
                 onClose={() => setIsPhoneChangeModalOpen(false)}
