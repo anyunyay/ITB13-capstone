@@ -43,7 +43,7 @@ The Agricart Admin system now includes a comprehensive notification system that 
 - **Triggered**: When member accounts are created, updated, or removed
 - **Recipients**: Admin and Staff users
 - **Channels**: Database, Email
-- **Action URL**: `/admin/members`
+- **Action URL**: `/admin/membership`
 
 ### 4. ProductSaleNotification
 - **Triggered**: When a member's product is sold (order approved)

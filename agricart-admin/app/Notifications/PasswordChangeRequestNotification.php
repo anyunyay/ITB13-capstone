@@ -50,7 +50,7 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
                 ->line('Member ID: ' . $member->member_id)
                 ->line('Contact Number: ' . ($member->contact_number ?? 'N/A'))
                 ->line('Cancelled At: ' . now()->format('F j, Y g:i A'))
-                ->action('View Members', url('/admin/members'))
+                ->action('View Members', url('/admin/membership'))
                 ->line('No action is required from you.');
         }
         
@@ -63,7 +63,7 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
             ->line('Member ID: ' . $member->member_id)
             ->line('Contact Number: ' . ($member->contact_number ?? 'N/A'))
             ->line('Requested At: ' . $this->passwordChangeRequest->requested_at->format('F j, Y g:i A'))
-            ->action('Review Request', url('/admin/members'))
+            ->action('Review Request', url('/admin/membership'))
             ->line('Please review and approve this password change request.');
     }
 
@@ -86,7 +86,7 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
                 'member_contact' => $member->contact_number ?? 'N/A',
                 'requested_at' => $this->passwordChangeRequest->requested_at->toISOString(),
                 'message' => 'Password change request cancelled by ' . $member->name . ' (ID: ' . $member->member_id . ')',
-                'action_url' => '/admin/members',
+                'action_url' => '/admin/membership',
             ];
         }
         
@@ -98,7 +98,7 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
             'member_contact' => $member->contact_number ?? 'N/A',
             'requested_at' => $this->passwordChangeRequest->requested_at->toISOString(),
             'message' => 'Password change request from ' . $member->name . ' (ID: ' . $member->member_id . ')',
-            'action_url' => '/admin/members',
+            'action_url' => '/admin/membership',
         ];
     }
 }

@@ -82,7 +82,8 @@ class HandleInertiaRequests extends Middleware
                     $notificationTypes = [
                         'App\\Notifications\\NewOrderNotification',
                         'App\\Notifications\\InventoryUpdateNotification',
-                        'App\\Notifications\\MembershipUpdateNotification'
+                        'App\\Notifications\\MembershipUpdateNotification',
+                        'App\\Notifications\\PasswordChangeRequestNotification'
                     ];
                     break;
                 case 'member':

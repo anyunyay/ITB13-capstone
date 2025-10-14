@@ -96,6 +96,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return <Package className="h-5 w-5 text-orange-600" />;
       case 'membership_update':
         return <Users className="h-5 w-5 text-purple-600" />;
+      case 'password_change_request':
+        return <CheckCircle className="h-5 w-5 text-orange-600" />;
       case 'product_sale':
         return <DollarSign className="h-5 w-5 text-green-600" />;
       case 'earnings_update':
@@ -123,6 +125,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return 'Inventory Update';
       case 'membership_update':
         return 'Membership Update';
+      case 'password_change_request':
+        return 'Password Change Request';
       case 'product_sale':
         return 'Product Sale';
       case 'earnings_update':
@@ -155,6 +159,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return 'border-l-green-500 bg-green-50';
       case 'inventory_update':
       case 'membership_update':
+      case 'password_change_request':
         return 'border-l-orange-500 bg-orange-50';
       default:
         return 'border-l-gray-500 bg-gray-50';

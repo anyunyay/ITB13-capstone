@@ -71,6 +71,13 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
         } else if (notification.action_url) {
           router.visit(notification.action_url);
         }
+      } else if (userType === 'admin' || userType === 'staff') {
+        // For admin/staff notifications, navigate to appropriate admin pages
+        if (notification.type === 'password_change_request') {
+          router.visit('/admin/membership');
+        } else if (notification.action_url) {
+          router.visit(notification.action_url);
+        }
       } else if (notification.action_url) {
         // Fallback for other user types
         router.visit(notification.action_url);
@@ -130,6 +137,8 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
         return '📦';
       case 'membership_update':
         return '👥';
+      case 'password_change_request':
+        return '🔐';
       case 'product_sale':
         return '💰';
       case 'earnings_update':
@@ -161,6 +170,7 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
         return 'text-green-600';
       case 'inventory_update':
       case 'membership_update':
+      case 'password_change_request':
         return 'text-orange-600';
       default:
         return 'text-gray-600';
