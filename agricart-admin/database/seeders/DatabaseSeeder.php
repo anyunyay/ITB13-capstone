@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'member',
             'name' => 'John Doe',
             'email' => null, // No email for members - they use member_id for login
-            'member_id' => '2411997', // Specific member ID for testing (avoiding conflicts)
+            'member_id' => '2411000', // Specific member ID for testing (avoiding conflicts)
             'contact_number' => '09123456789',
             'registration_date' => now(),
             'document' => 'https://via.placeholder.com/640x480.png?text=member',
