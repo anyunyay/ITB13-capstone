@@ -164,7 +164,11 @@ export default function StaffCreate({ availablePermissions }: Props) {
                     id="name"
                     type="text"
                     value={data.name}
-                    onChange={(e) => setData('name', e.target.value)}
+                    onChange={(e) => {
+                      // Only allow alphabetic characters and spaces
+                      const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                      setData('name', value);
+                    }}
                     className={errors.name ? 'border-destructive' : ''}
                   />
                   {errors.name && (

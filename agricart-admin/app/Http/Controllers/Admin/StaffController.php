@@ -54,7 +54,7 @@ class StaffController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[A-Za-z\s]+$/',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'contact_number' => [
