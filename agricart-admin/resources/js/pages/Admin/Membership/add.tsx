@@ -49,7 +49,10 @@ export default function Index() {
         name: '',
         password: '',
         contact_number: '',
-        address: '',
+        street: '',
+        barangay: '',
+        city: '',
+        province: '',
         registration_date: formattedToday,
         document: null as File | null,
     });
@@ -123,9 +126,43 @@ export default function Index() {
                             Format: +639XXXXXXXXX or 09XXXXXXXXX
                         </p>
                     </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="member address">Address</Label>
-                        <Textarea placeholder="Location Address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
+                    {/* Address Fields */}
+                    <div className="space-y-4">
+                        <Label className="text-base font-medium">Address Information</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className='gap-1.5'>
+                                <Label htmlFor="street">Street Address</Label>
+                                <Input 
+                                    placeholder="Enter street address" 
+                                    value={data.street} 
+                                    onChange={(e) => setData('street', e.target.value)} 
+                                />
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="barangay">Barangay</Label>
+                                <Input 
+                                    placeholder="Enter barangay" 
+                                    value={data.barangay} 
+                                    onChange={(e) => setData('barangay', e.target.value)} 
+                                />
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="city">City</Label>
+                                <Input 
+                                    placeholder="Enter city" 
+                                    value={data.city} 
+                                    onChange={(e) => setData('city', e.target.value)} 
+                                />
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="province">Province</Label>
+                                <Input 
+                                    placeholder="Enter province" 
+                                    value={data.province} 
+                                    onChange={(e) => setData('province', e.target.value)} 
+                                />
+                            </div>
+                        </div>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="registration date">Registration Date</Label>

@@ -23,10 +23,17 @@ interface Member {
     name: string;
     member_id?: string;
     contact_number?: string;
-    address?: string;
     registration_date?: string;
     document?: string;
     type: string;
+    default_address?: {
+        id: number;
+        street: string;
+        barangay: string;
+        city: string;
+        province: string;
+        full_address: string;
+    };
     [key: string]: unknown;
 }
 
@@ -263,7 +270,12 @@ export default function Index() {
                                     <TableCell>{member.member_id || 'N/A'}</TableCell>
                                     <TableCell>{member.name}</TableCell>
                                     <TableCell>{member.contact_number}</TableCell>
-                                    <TableCell>{member.address || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        {member.default_address ? 
+                                            `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
+                                            : 'N/A'
+                                        }
+                                    </TableCell>
                                     <TableCell>{member.registration_date}</TableCell>
                                     <TableCell className="flex justify-center">
                                         <SafeImage 

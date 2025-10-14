@@ -38,10 +38,17 @@ interface Member {
     email?: string;
     member_id?: string;
     contact_number?: string;
-    address?: string;
     registration_date?: string;
     document?: string;
     type: string;
+    default_address?: {
+        id: number;
+        street: string;
+        barangay: string;
+        city: string;
+        province: string;
+        full_address: string;
+    };
     [key: string]: unknown;
 }
 
@@ -60,7 +67,10 @@ export default function Edit({member}: Props) {
     const {data, setData, post, processing, errors} = useForm({
         name: member.name || '',
         contact_number: member.contact_number || '',
-        address: member.address || '',
+        street: member.default_address?.street || '',
+        barangay: member.default_address?.barangay || '',
+        city: member.default_address?.city || '',
+        province: member.default_address?.province || '',
         registration_date: member.registration_date || '',
         document: null as File | null,
         member_id: member.member_id || '',
@@ -137,10 +147,47 @@ export default function Edit({member}: Props) {
                         </p>
                         {errors.contact_number && <p className="text-sm text-red-500 mt-1">{errors.contact_number}</p>}
                     </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="member address">Address</Label>
-                        <Textarea placeholder="Location Address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
-                        {errors.address && <p className="text-sm text-red-500 mt-1">{errors.address}</p>}
+                    {/* Address Fields */}
+                    <div className="space-y-4">
+                        <Label className="text-base font-medium">Address Information</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className='gap-1.5'>
+                                <Label htmlFor="street">Street Address</Label>
+                                <Input 
+                                    placeholder="Enter street address" 
+                                    value={data.street} 
+                                    onChange={(e) => setData('street', e.target.value)} 
+                                />
+                                {errors.street && <p className="text-sm text-red-500 mt-1">{errors.street}</p>}
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="barangay">Barangay</Label>
+                                <Input 
+                                    placeholder="Enter barangay" 
+                                    value={data.barangay} 
+                                    onChange={(e) => setData('barangay', e.target.value)} 
+                                />
+                                {errors.barangay && <p className="text-sm text-red-500 mt-1">{errors.barangay}</p>}
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="city">City</Label>
+                                <Input 
+                                    placeholder="Enter city" 
+                                    value={data.city} 
+                                    onChange={(e) => setData('city', e.target.value)} 
+                                />
+                                {errors.city && <p className="text-sm text-red-500 mt-1">{errors.city}</p>}
+                            </div>
+                            <div className='gap-1.5'>
+                                <Label htmlFor="province">Province</Label>
+                                <Input 
+                                    placeholder="Enter province" 
+                                    value={data.province} 
+                                    onChange={(e) => setData('province', e.target.value)} 
+                                />
+                                {errors.province && <p className="text-sm text-red-500 mt-1">{errors.province}</p>}
+                            </div>
+                        </div>
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member registration_date">Registration Date</Label>

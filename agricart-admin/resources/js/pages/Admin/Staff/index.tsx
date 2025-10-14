@@ -15,6 +15,14 @@ interface Staff {
   email: string;
   created_at: string;
   permissions: Array<{ name: string }>;
+  default_address?: {
+    id: number;
+    street: string;
+    barangay: string;
+    city: string;
+    province: string;
+    full_address: string;
+  };
 }
 
 interface Props {
@@ -73,6 +81,7 @@ export default function StaffIndex({ staff }: Props) {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Address</TableHead>
                   <TableHead>Permissions</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -83,6 +92,12 @@ export default function StaffIndex({ staff }: Props) {
                   <TableRow key={member.id}>
                     <TableCell className="font-medium">{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
+                    <TableCell>
+                      {member.default_address ? 
+                        `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
+                        : 'N/A'
+                      }
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {member.permissions.map((permission) => (
@@ -132,7 +147,7 @@ export default function StaffIndex({ staff }: Props) {
                 ))}
                 {staff.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                       No staff members found
                     </TableCell>
                   </TableRow>

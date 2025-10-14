@@ -24,6 +24,10 @@ export default function StaffCreate({ availablePermissions }: Props) {
     email: '',
     password: '',
     permissions: [] as string[],
+    street: '',
+    barangay: '',
+    city: '',
+    province: '',
   });
 
   // Define permission groups with their detailed permissions
@@ -193,7 +197,78 @@ export default function StaffCreate({ availablePermissions }: Props) {
                     <p className="text-sm text-destructive">{errors.password}</p>
                   )}
                 </div>
+              </div>
 
+              {/* Address Section */}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-medium">Address Information</Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Enter the staff member's address.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="street">Street Address</Label>
+                    <Input
+                      id="street"
+                      type="text"
+                      value={data.street}
+                      onChange={(e) => setData('street', e.target.value)}
+                      className={errors.street ? 'border-destructive' : ''}
+                      placeholder="Enter street address"
+                    />
+                    {errors.street && (
+                      <p className="text-sm text-destructive">{errors.street}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="barangay">Barangay</Label>
+                    <Input
+                      id="barangay"
+                      type="text"
+                      value={data.barangay}
+                      onChange={(e) => setData('barangay', e.target.value)}
+                      className={errors.barangay ? 'border-destructive' : ''}
+                      placeholder="Enter barangay"
+                    />
+                    {errors.barangay && (
+                      <p className="text-sm text-destructive">{errors.barangay}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      type="text"
+                      value={data.city}
+                      onChange={(e) => setData('city', e.target.value)}
+                      className={errors.city ? 'border-destructive' : ''}
+                      placeholder="Enter city"
+                    />
+                    {errors.city && (
+                      <p className="text-sm text-destructive">{errors.city}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="province">Province</Label>
+                    <Input
+                      id="province"
+                      type="text"
+                      value={data.province}
+                      onChange={(e) => setData('province', e.target.value)}
+                      className={errors.province ? 'border-destructive' : ''}
+                      placeholder="Enter province"
+                    />
+                    {errors.province && (
+                      <p className="text-sm text-destructive">{errors.province}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-6">

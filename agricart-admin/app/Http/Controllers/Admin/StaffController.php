@@ -22,7 +22,7 @@ class StaffController extends Controller
     public function index()
     {
         $staff = User::where('type', 'staff')
-            ->with('roles', 'permissions')
+            ->with('roles', 'permissions', 'defaultAddress')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -56,9 +56,13 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', 'regex:/^\S*$/', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
 
         $user = User::create([
@@ -67,6 +71,15 @@ class StaffController extends Controller
             'password' => Hash::make($request->password),
             'type' => 'staff',
             'email_verified_at' => now(), // Automatically verify email for staff
+        ]);
+
+        // Create address
+        $user->userAddresses()->create([
+            'street' => $request->input('street'),
+            'barangay' => $request->input('barangay'),
+            'city' => $request->input('city'),
+            'province' => $request->input('province'),
+            'is_active' => true,
         ]);
 
         // Assign staff role
@@ -114,7 +127,7 @@ class StaffController extends Controller
         ])->get();
 
         return Inertia::render('Admin/Staff/edit', [
-            'staff' => $staff->load('roles', 'permissions'),
+            'staff' => $staff->load('roles', 'permissions', 'defaultAddress'),
             'availablePermissions' => $availablePermissions,
         ]);
     }
@@ -131,9 +144,13 @@ class StaffController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $staff->id,
-            'password' => ['nullable', 'confirmed', 'regex:/^\S*$/', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
+            'password' => ['nullable', 'confirmed', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
 
         $staff->update([
@@ -144,6 +161,25 @@ class StaffController extends Controller
         if ($request->filled('password')) {
             $staff->update([
                 'password' => Hash::make($request->password),
+            ]);
+        }
+
+        // Update or create address
+        $defaultAddress = $staff->defaultAddress;
+        if ($defaultAddress) {
+            $defaultAddress->update([
+                'street' => $request->input('street'),
+                'barangay' => $request->input('barangay'),
+                'city' => $request->input('city'),
+                'province' => $request->input('province'),
+            ]);
+        } else {
+            $staff->userAddresses()->create([
+                'street' => $request->input('street'),
+                'barangay' => $request->input('barangay'),
+                'city' => $request->input('city'),
+                'province' => $request->input('province'),
+                'is_active' => true,
             ]);
         }
 

@@ -22,9 +22,16 @@ interface Logistic {
     name: string;
     email: string;
     contact_number?: string;
-    address?: string;
     registration_date?: string;
     type: string;
+    default_address?: {
+        id: number;
+        street: string;
+        barangay: string;
+        city: string;
+        province: string;
+        full_address: string;
+    };
     [key: string]: unknown;
 }
 
@@ -109,7 +116,12 @@ export default function Index() {
                                     <TableCell>{logistic.name}</TableCell>
                                     <TableCell>{logistic.email}</TableCell>
                                     <TableCell>{logistic.contact_number}</TableCell>
-                                    <TableCell>{logistic.address}</TableCell>
+                                    <TableCell>
+                                        {logistic.default_address ? 
+                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
+                                            : 'N/A'
+                                        }
+                                    </TableCell>
                                     <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
                                         <PermissionGate permission="edit logistics">

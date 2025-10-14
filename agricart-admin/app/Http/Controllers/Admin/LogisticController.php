@@ -13,7 +13,9 @@ class LogisticController extends Controller
 {
     public function index()
     {
-        $logistics = User::where('type', 'logistic')->get();
+        $logistics = User::where('type', 'logistic')
+            ->with('defaultAddress')
+            ->get();
         return Inertia::render('Logistics/index', compact('logistics'));
     }
 
@@ -28,7 +30,7 @@ class LogisticController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'contact_number' => [
                 'required',
                 'numeric',
@@ -36,9 +38,13 @@ class LogisticController extends Controller
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'registration_date' => 'nullable|date',
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
             
-        User::create([
+        $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
@@ -48,12 +54,23 @@ class LogisticController extends Controller
             'email_verified_at' => now(), // Automatically verify email
         ]);
 
+        // Create address
+        $user->userAddresses()->create([
+            'street' => $request->input('street'),
+            'barangay' => $request->input('barangay'),
+            'city' => $request->input('city'),
+            'province' => $request->input('province'),
+            'is_active' => true,
+        ]);
+
         return redirect()->route('logistics.index')->with('message', 'Logistic added successfully');
     }
 
     public function edit($id)
     {
-        $logistic = User::where('type', 'logistic')->findOrFail($id);
+        $logistic = User::where('type', 'logistic')
+            ->with('defaultAddress')
+            ->findOrFail($id);
         return Inertia::render('Logistics/edit', compact('logistic'));
     }
 
@@ -70,6 +87,10 @@ class LogisticController extends Controller
                 'regex:/^(\+639|09)\d{9}$/',
             ],
             'registration_date' => 'nullable|date',
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
 
         $logistic = User::where('type', 'logistic')->findOrFail($id);
@@ -80,6 +101,25 @@ class LogisticController extends Controller
                 'contact_number' => $request->input('contact_number'),
                 'registration_date' => $request->input('registration_date') ?? now(),
             ]);
+
+            // Update or create address
+            $defaultAddress = $logistic->defaultAddress;
+            if ($defaultAddress) {
+                $defaultAddress->update([
+                    'street' => $request->input('street'),
+                    'barangay' => $request->input('barangay'),
+                    'city' => $request->input('city'),
+                    'province' => $request->input('province'),
+                ]);
+            } else {
+                $logistic->userAddresses()->create([
+                    'street' => $request->input('street'),
+                    'barangay' => $request->input('barangay'),
+                    'city' => $request->input('city'),
+                    'province' => $request->input('province'),
+                    'is_active' => true,
+                ]);
+            }
         }
         
         $logistic->save();

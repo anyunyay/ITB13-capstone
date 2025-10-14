@@ -15,7 +15,9 @@ class MembershipController extends Controller
 {
     public function index()
     {
-        $members = User::where('type', 'member')->get();
+        $members = User::where('type', 'member')
+            ->with('defaultAddress')
+            ->get();
         
         // Get pending password change requests
         $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'approvedBy'])
@@ -39,7 +41,7 @@ class MembershipController extends Controller
         // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'contact_number' => [
                 'required',
                 'numeric',
@@ -48,6 +50,10 @@ class MembershipController extends Controller
             ],
             'registration_date' => 'nullable|date',
             'document' => 'required|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
 
         if ($request->file('document')) {
@@ -67,6 +73,15 @@ class MembershipController extends Controller
                 'email_verified_at' => now(), // Automatically verify email
             ]);
 
+            // Create address
+            $member->userAddresses()->create([
+                'street' => $request->input('street'),
+                'barangay' => $request->input('barangay'),
+                'city' => $request->input('city'),
+                'province' => $request->input('province'),
+                'is_active' => true,
+            ]);
+
             // Notify admin and staff about membership update
             $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
             foreach ($adminUsers as $admin) {
@@ -79,7 +94,9 @@ class MembershipController extends Controller
 
     public function edit($id)
     {
-        $member = User::where('type', 'member')->findOrFail($id);
+        $member = User::where('type', 'member')
+            ->with('defaultAddress')
+            ->findOrFail($id);
         return Inertia::render('Membership/edit', compact('member'));
     }
 
@@ -97,16 +114,38 @@ class MembershipController extends Controller
             'registration_date' => 'nullable|date',
             'document' => 'nullable|file|mimes:pdf,doc,docx,jpeg,png,jpg,svg|max:2048',
             'member_id' => 'nullable|string|unique:users,member_id,' . $id,
+            'street' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
         ]);
 
         $member = User::where('type', 'member')->findOrFail($id);
         $member->update([
             'name' => $request->input('name'),
             'contact_number' => $request->input('contact_number'),
-            'address' => $request->input('address'),
             'registration_date' => $request->input('registration_date') ?? now(),
             'member_id' => $request->input('member_id'),
         ]);
+
+        // Update or create address
+        $defaultAddress = $member->defaultAddress;
+        if ($defaultAddress) {
+            $defaultAddress->update([
+                'street' => $request->input('street'),
+                'barangay' => $request->input('barangay'),
+                'city' => $request->input('city'),
+                'province' => $request->input('province'),
+            ]);
+        } else {
+            $member->userAddresses()->create([
+                'street' => $request->input('street'),
+                'barangay' => $request->input('barangay'),
+                'city' => $request->input('city'),
+                'province' => $request->input('province'),
+                'is_active' => true,
+            ]);
+        }
         
         if ($request->file('document')) {
             // Optionally delete old file
