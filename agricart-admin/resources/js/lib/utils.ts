@@ -174,6 +174,39 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
         return crumbs;
     }
 
+    // Staff
+    if (url.startsWith('/admin/staff')) {
+        crumbs.push({ title: 'Staff', href: '/admin/staff' });
+
+        // Add Staff
+        if (url === '/admin/staff/add') {
+            crumbs.push({ title: 'Add Staff', href: '' });
+            return crumbs;
+        }
+
+        // Staff Report
+        if (url === '/admin/staff/report') {
+            crumbs.push({ title: 'Report', href: '' });
+            return crumbs;
+        }
+
+        // Staff detail/edit
+        if (params.staff) {
+            crumbs.push({
+                title: params.staff.name || `Staff #${params.staff.id}`,
+                href: '',
+            });
+            if (url.endsWith('/edit')) {
+                crumbs.push({
+                    title: 'Edit',
+                    href: '',
+                });
+            }
+        }
+
+        return crumbs;
+    }
+
     // Settings
     if (url.startsWith('/settings')) {
         crumbs.push({ title: 'Settings', href: '/settings/profile' });
