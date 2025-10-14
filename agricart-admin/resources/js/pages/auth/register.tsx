@@ -85,7 +85,10 @@ export default function Register() {
                             tabIndex={1}
                             autoComplete="name"
                             value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                setData('name', value);
+                            }}
                             disabled={processing}
                             placeholder="Full name"
                         />

@@ -54,7 +54,10 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 id="name"
                                 className="mt-1 block w-full"
                                 value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                                    setData('name', value);
+                                }}
                                 required
                                 autoComplete="name"
                                 placeholder="Full name"
