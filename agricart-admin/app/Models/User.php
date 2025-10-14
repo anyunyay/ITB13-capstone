@@ -34,6 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
         // Member fields
         'member_id',
         'document',
+        'document_marked_for_deletion',
         // Type/role discriminator (optional, for user type distinction)
         'type',
         // Default account flag
@@ -71,6 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'registration_date' => 'datetime',
             'is_default' => 'boolean',
+            'document_marked_for_deletion' => 'boolean',
         ];
     }
 
