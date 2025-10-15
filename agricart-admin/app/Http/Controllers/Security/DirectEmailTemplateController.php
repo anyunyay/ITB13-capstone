@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use Illuminate\Http\Request;
 use App\Models\Sales;
@@ -10,7 +10,7 @@ use App\Models\Stock;
 use App\Models\MemberEarnings;
 use App\Models\AuditTrail;
 
-class DirectEmailTemplateController extends Controller
+class DirectEmailTemplateController extends \App\Http\Controllers\Controller
 {
     /**
      * Show all email templates in a direct view

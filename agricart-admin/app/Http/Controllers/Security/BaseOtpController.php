@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-abstract class BaseOtpController extends Controller
+abstract class BaseOtpController extends \App\Http\Controllers\Controller
 {
     /**
      * Get the appropriate profile route for the authenticated user type
@@ -287,4 +287,3 @@ abstract class BaseOtpController extends Controller
         return response()->json($data, $status);
     }
 }
-

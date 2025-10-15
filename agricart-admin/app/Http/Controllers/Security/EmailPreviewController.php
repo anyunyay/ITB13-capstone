@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use Illuminate\Http\Request;
 use App\Mail\OrderNotificationPreview;
 
-class EmailPreviewController extends Controller
+class EmailPreviewController extends \App\Http\Controllers\Controller
 {
     /**
      * Show the email preview index page

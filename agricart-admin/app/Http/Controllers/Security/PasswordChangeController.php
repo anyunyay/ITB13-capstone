@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -10,7 +10,7 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class PasswordChangeController extends Controller
+class PasswordChangeController extends \App\Http\Controllers\Controller
 {
     /**
      * Show the password change form.

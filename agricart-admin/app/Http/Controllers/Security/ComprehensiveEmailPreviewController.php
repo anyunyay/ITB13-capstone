@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use Illuminate\Http\Request;
-use App\Models\Sales;
+use App\Models\SalesAudit;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Stock;
@@ -21,7 +21,7 @@ use App\Notifications\MembershipUpdateNotification;
 use App\Notifications\OrderDelayedNotification;
 use App\Notifications\VerifyEmailNotification;
 
-class ComprehensiveEmailPreviewController extends Controller
+class ComprehensiveEmailPreviewController extends \App\Http\Controllers\Controller
 {
     /**
      * Show the comprehensive email preview index page
@@ -53,7 +53,7 @@ class ComprehensiveEmailPreviewController extends Controller
                     return $notification->toMail($testData['customer'])->render();
                     
                 case 'delivery_status_update':
-                    $notification = new DeliveryStatusUpdate($testData['order'], 'out_for_delivery');
+                    $notification = new DeliveryStatusUpdate($testData['order']->id, 'out_for_delivery', 'Your order is now out for delivery.');
                     return $notification->toMail($testData['customer'])->render();
                     
                 case 'delivery_task':
@@ -73,7 +73,7 @@ class ComprehensiveEmailPreviewController extends Controller
                     return $notification->toMail($testData['member'])->render();
                     
                 case 'inventory_update':
-                    $notification = new InventoryUpdateNotification($testData['product'], 'added');
+                    $notification = new InventoryUpdateNotification($testData['stock'], 'added');
                     return $notification->toMail($testData['admin'])->render();
                     
                 case 'membership_update':
@@ -186,7 +186,7 @@ class ComprehensiveEmailPreviewController extends Controller
         ]);
 
         // Create test order
-        $order = new Sales([
+        $order = new SalesAudit([
             'id' => 123,
             'customer_id' => 1,
             'admin_id' => 2,

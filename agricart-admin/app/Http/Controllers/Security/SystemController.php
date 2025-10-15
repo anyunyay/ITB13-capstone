@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use App\Models\SystemStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class SystemController extends Controller
+class SystemController extends \App\Http\Controllers\Controller
 {
     /**
      * Schedule a system lock with 1-minute countdown.

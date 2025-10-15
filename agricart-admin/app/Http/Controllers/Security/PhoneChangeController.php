@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Security;
 
 use App\Models\PhoneChangeRequest;
 use App\Notifications\PhoneChangeOtpNotification;
