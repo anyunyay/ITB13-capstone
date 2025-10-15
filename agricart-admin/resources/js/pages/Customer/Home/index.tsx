@@ -67,17 +67,17 @@ export default function CustomerHome({ products }: PageProps) {
     {
       icon: '🌿',
       title: '100% Natural',
-      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides. Every fruit and vegetable is carefully cultivated to maintain its natural flavor and nutritional value.'
+      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides.'
     },
     {
       icon: '🛍️',
       title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and delivered fresh to your doorstep. Our farmers pick produce daily to ensure maximum freshness and optimal taste for your family.'
+      description: 'Harvested at peak ripeness and delivered fresh to your doorstep.'
     },
     {
       icon: '🌱',
       title: 'Cabuyao Grown',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate. Supporting our community while bringing you the finest locally-sourced produce.'
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.'
     }
   ];
 
@@ -180,9 +180,9 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Product Carousel Section */}
-      <section id="produce" className="py-16 bg-gray-50 overflow-hidden">
+      <section id="produce" className="py-18 bg-gray-50 overflow-hidden">
         <div className="container mx-auto my-10">
-          <h3 className="text-6xl font-bold text-center text-green-700">Featured Products</h3>
+          <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
           <div className={`relative ${styles.carouselContainer}`}>
             <Carousel
               opts={{
@@ -248,6 +248,14 @@ export default function CustomerHome({ products }: PageProps) {
             <CarouselNext className="bg-transparent text-green-700 hover:bg-green-700 hover:text-white border-transparent hover:border-green-700 transition-all duration-300 ease-in-out" />
           </Carousel>
           </div>
+        </div>
+        <div className="text-center mb-8 mt-4">
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            onClick={() => router.visit('/products')}
+          >
+            Show All Produce
+          </button>
         </div>
         <FeatureCards cards={featureCardsData} />
       </section>

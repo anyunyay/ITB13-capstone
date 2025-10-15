@@ -729,7 +729,6 @@
 /* Carousel Container Fixes */
 .carouselContainer {
   overflow: visible;
-  padding: 3rem 0;
 }
 
 .carouselContent {
