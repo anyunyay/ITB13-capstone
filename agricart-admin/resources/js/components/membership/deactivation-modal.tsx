@@ -7,7 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { Member } from '../../types/membership';
 
 interface DeactivationModalProps {
@@ -16,6 +16,7 @@ interface DeactivationModalProps {
     selectedMember: Member | null;
     onConfirm: () => void;
     processing: boolean;
+    isReactivation?: boolean;
 }
 
 export const DeactivationModal = ({
@@ -23,35 +24,67 @@ export const DeactivationModal = ({
     onClose,
     selectedMember,
     onConfirm,
-    processing
+    processing,
+    isReactivation = false
 }: DeactivationModalProps) => {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-orange-500" />
-                        Confirm Deactivation
+                        {isReactivation ? (
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5 text-orange-500" />
+                        )}
+                        {isReactivation ? 'Confirm Reactivation' : 'Confirm Deactivation'}
                     </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to deactivate this member?
+                        {isReactivation 
+                            ? 'Are you sure you want to reactivate this member?'
+                            : 'Are you sure you want to deactivate this member?'
+                        }
                     </DialogDescription>
                 </DialogHeader>
                 
                 {selectedMember && (
                     <div className="space-y-3">
-                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h4 className="font-medium text-orange-800 mb-1">Member Details:</h4>
-                            <p className="text-orange-700">{selectedMember.name}</p>
-                            <p className="text-sm text-orange-600">Member ID: {selectedMember.member_id}</p>
+                        <div className={`p-3 border rounded-lg ${
+                            isReactivation 
+                                ? 'bg-green-50 border-green-200' 
+                                : 'bg-orange-50 border-orange-200'
+                        }`}>
+                            <h4 className={`font-medium mb-1 ${
+                                isReactivation ? 'text-green-800' : 'text-orange-800'
+                            }`}>
+                                Member Details:
+                            </h4>
+                            <p className={isReactivation ? 'text-green-700' : 'text-orange-700'}>
+                                {selectedMember.name}
+                            </p>
+                            <p className={`text-sm ${
+                                isReactivation ? 'text-green-600' : 'text-orange-600'
+                            }`}>
+                                Member ID: {selectedMember.member_id}
+                            </p>
                         </div>
                         
                         <div className="text-sm text-gray-600">
                             <p><strong>This action will:</strong></p>
                             <ul className="list-disc list-inside mt-1 space-y-1">
-                                <li>Deactivate the member account</li>
-                                <li>Prevent them from accessing the system</li>
-                                <li>Move them to the deactivated members list</li>
+                                {isReactivation ? (
+                                    <>
+                                        <li>Reactivate the member account</li>
+                                        <li>Allow them to access the system again</li>
+                                        <li>Move them back to the active members list</li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li>Deactivate the member account</li>
+                                        <li>Prevent them from accessing the system</li>
+                                        <li>Move them to the deactivated members list</li>
+                                    </>
+                                )}
                             </ul>
                         </div>
                     </div>
@@ -62,11 +95,15 @@ export const DeactivationModal = ({
                         Cancel
                     </Button>
                     <Button 
-                        variant="destructive" 
+                        variant={isReactivation ? "default" : "destructive"}
                         onClick={onConfirm}
                         disabled={processing}
+                        className={isReactivation ? "bg-green-600 hover:bg-green-700 text-white" : ""}
                     >
-                        {processing ? 'Deactivating...' : 'Deactivate'}
+                        {processing 
+                            ? (isReactivation ? 'Reactivating...' : 'Deactivating...')
+                            : (isReactivation ? 'Reactivate' : 'Deactivate')
+                        }
                     </Button>
                 </DialogFooter>
             </DialogContent>

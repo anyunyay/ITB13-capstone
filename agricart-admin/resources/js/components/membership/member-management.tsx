@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { UsersRound, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { UsersRound, Search, Edit, UserMinus, RotateCcw, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Member } from '../../types/membership';
@@ -24,6 +24,7 @@ interface MemberManagementProps {
     itemsPerPage: number;
     processing: boolean;
     onDeactivate: (member: Member) => void;
+    onReactivate: (member: Member) => void;
     highlightMemberId: number | null;
     showDeactivated: boolean;
     setShowDeactivated: (show: boolean) => void;
@@ -46,6 +47,7 @@ export const MemberManagement = ({
     itemsPerPage,
     processing,
     onDeactivate,
+    onReactivate,
     highlightMemberId,
     showDeactivated,
     setShowDeactivated,
@@ -213,7 +215,7 @@ export const MemberManagement = ({
                                                 <Badge variant="secondary">
                                                     {member.type || 'Regular'}
                                                 </Badge>
-                                                {!member.can_be_deactivated && (
+                                                {!member.active && (
                                                     <Badge variant="destructive" className="text-xs">
                                                         Deactivated
                                                     </Badge>
@@ -227,7 +229,7 @@ export const MemberManagement = ({
                                                 className="max-w-24 object-cover rounded"
                                             />
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className={styles.memberActionCell}>
                                             <div className={styles.memberActionCell}>
                                                 <PermissionGate permission="edit members">
                                                     <Button asChild size="sm" className={styles.memberActionButton}>
@@ -237,17 +239,31 @@ export const MemberManagement = ({
                                                         </Link>
                                                     </Button>
                                                 </PermissionGate>
-                                                {member.can_be_deactivated && (
-                                                    <PermissionGate permission="deactivate members">
+                                                {member.active ? (
+                                                    member.can_be_deactivated && (
+                                                        <PermissionGate permission="deactivate members">
+                                                            <Button 
+                                                                disabled={processing} 
+                                                                onClick={() => onDeactivate(member)} 
+                                                                size="sm"
+                                                                variant="destructive"
+                                                                className={styles.memberActionButton}
+                                                            >
+                                                                <UserMinus className="h-3 w-3 mr-1" />
+                                                                Deactivate
+                                                            </Button>
+                                                        </PermissionGate>
+                                                    )
+                                                ) : (
+                                                    <PermissionGate permission="edit members">
                                                         <Button 
                                                             disabled={processing} 
-                                                            onClick={() => onDeactivate(member)} 
+                                                            onClick={() => onReactivate(member)} 
                                                             size="sm"
-                                                            variant="destructive"
-                                                            className={styles.memberActionButton}
+                                                            className={`${styles.memberActionButton} bg-green-600 hover:bg-green-700 text-white`}
                                                         >
-                                                            <UserMinus className="h-3 w-3 mr-1" />
-                                                            Deactivate
+                                                            <RotateCcw className="h-3 w-3 mr-1" />
+                                                            Reactivate
                                                         </Button>
                                                     </PermissionGate>
                                                 )}

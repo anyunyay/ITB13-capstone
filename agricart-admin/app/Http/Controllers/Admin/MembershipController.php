@@ -16,7 +16,6 @@ class MembershipController extends Controller
     public function index()
     {
         $members = User::where('type', 'member')
-            ->active()
             ->with('defaultAddress')
             ->get()
             ->map(function ($member) {
@@ -28,6 +27,7 @@ class MembershipController extends Controller
                     'registration_date' => $member->registration_date,
                     'document' => $member->document,
                     'type' => $member->type,
+                    'active' => $member->active,
                     'default_address' => $member->defaultAddress ? [
                         'id' => $member->defaultAddress->id,
                         'street' => $member->defaultAddress->street,
@@ -36,7 +36,7 @@ class MembershipController extends Controller
                         'province' => $member->defaultAddress->province,
                         'full_address' => $member->defaultAddress->full_address,
                     ] : null,
-                    'can_be_deactivated' => !$member->hasActiveStocks(),
+                    'can_be_deactivated' => $member->active && !$member->hasActiveStocks(),
                     'deactivation_reason' => $member->hasActiveStocks() ? 'Has active stocks' : null,
                 ];
             });

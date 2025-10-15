@@ -6,6 +6,7 @@ export interface Member {
     registration_date?: string;
     document?: string;
     type: string;
+    active: boolean;
     default_address?: {
         id: number;
         street: string;

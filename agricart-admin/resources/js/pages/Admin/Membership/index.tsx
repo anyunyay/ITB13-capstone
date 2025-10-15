@@ -82,8 +82,8 @@ export default function Index() {
     // Calculate member statistics
     const memberStats: MemberStats = {
         totalMembers: members?.length || 0,
-        activeMembers: members?.filter(m => m.can_be_deactivated !== false).length || 0,
-        deactivatedMembers: members?.filter(m => m.can_be_deactivated === false).length || 0,
+        activeMembers: members?.filter(m => m.active).length || 0,
+        deactivatedMembers: members?.filter(m => !m.active).length || 0,
         pendingRequests: pendingPasswordRequests?.length || 0,
     };
 
@@ -95,8 +95,7 @@ export default function Index() {
                                 member.contact_number?.toLowerCase().includes(searchTerm.toLowerCase());
             
             // Filter by activation status
-            const isDeactivated = !member.can_be_deactivated;
-            const matchesView = showDeactivated ? isDeactivated : !isDeactivated;
+            const matchesView = showDeactivated ? !member.active : member.active;
             
             return matchesSearch && matchesView;
         })
@@ -143,9 +142,22 @@ export default function Index() {
         }
     };
 
+    const handleReactivateClick = (member: Member) => {
+        setSelectedMember(member);
+        setShowConfirmationModal(true);
+    };
+
     const handleConfirmDeactivation = () => {
         if (selectedMember) {
             destroy(route('membership.destroy', selectedMember.id));
+            setShowConfirmationModal(false);
+            setSelectedMember(null);
+        }
+    };
+
+    const handleConfirmReactivation = () => {
+        if (selectedMember) {
+            post(route('membership.reactivate', selectedMember.id));
             setShowConfirmationModal(false);
             setSelectedMember(null);
         }
@@ -268,6 +280,7 @@ export default function Index() {
                             itemsPerPage={itemsPerPage}
                             processing={processing}
                             onDeactivate={handleDeactivateClick}
+                            onReactivate={handleReactivateClick}
                             highlightMemberId={highlightMemberId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={toggleDeactivatedView}
@@ -282,8 +295,9 @@ export default function Index() {
                             isOpen={showConfirmationModal}
                             onClose={() => setShowConfirmationModal(false)}
                             selectedMember={selectedMember}
-                            onConfirm={handleConfirmDeactivation}
+                            onConfirm={selectedMember?.active ? handleConfirmDeactivation : handleConfirmReactivation}
                             processing={processing}
+                            isReactivation={!selectedMember?.active}
                         />
 
                         <PasswordApprovalModal
