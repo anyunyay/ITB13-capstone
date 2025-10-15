@@ -142,4 +142,27 @@ class HomeController extends Controller
             ]
         ]);
     }
+
+    public function produce()
+    {
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return $verificationRedirect;
+        }
+
+        $products = Product::active()->with(['stocks' => function($query) {
+            $query->customerVisible();
+        }])->get();
+
+        $products->each(function ($product) {
+            $stockSums = $product->stocks
+                ->groupBy('category')
+                ->map(fn($group) => $group->sum('quantity'));
+
+            $product->stock_by_category = $stockSums;
+        });
+
+        return Inertia::render('Customer/Home/produce', compact('products'));
+    }
 }

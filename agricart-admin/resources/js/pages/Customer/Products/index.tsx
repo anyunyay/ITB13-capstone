@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { SystemLockOverlay } from '@/components/system-lock-overlay';
-import ProductCarousel from '../Home/ProductCarousel';
+import ProductCarousel from '../Home/produce';
 
 interface Product {
   id: number;
@@ -65,7 +65,7 @@ export default function CustomerProducts() {
     <AppHeaderLayout>
       <Head title="Products - Fresh Produce" />
       <SystemLockOverlay />
-      <div className="min-h-[90vh] py-8">
+      <div className="min-h-[90vh] py-8 mt-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">

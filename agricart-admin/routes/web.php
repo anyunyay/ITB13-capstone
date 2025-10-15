@@ -41,6 +41,7 @@ use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home'); // View Home
 Route::get('/search', [HomeController::class, 'search'])->name('search'); // Search Products
+Route::get('/customer/produce', [HomeController::class, 'produce'])->name('produce'); // View All Products
 Route::get('/customer/products/{product}', [HomeController::class, 'show'])->name('products.show'); // Product Detail
 Route::get('/customer/product/{product}', [HomeController::class, 'product'])->name('products.product'); // Product Page
 

@@ -400,7 +400,7 @@ export default function ProductPage() {
   return (
     <AppHeaderLayout>
       <Head title={product.name} />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 mt-20">
         <div className="mb-6">
           <Button
             variant="ghost"

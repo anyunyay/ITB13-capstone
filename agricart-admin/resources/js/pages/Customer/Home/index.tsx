@@ -129,7 +129,7 @@ export default function CustomerHome({ products }: PageProps) {
             </p>
             <button
               className={styles.heroCta}
-              onClick={() => router.visit('/products')}
+              onClick={() => router.visit('/customer/produce')}
             >
               Explore Our Products
             </button>
@@ -262,7 +262,7 @@ export default function CustomerHome({ products }: PageProps) {
         <div className="text-center mb-8 mt-4">
           <button
             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-            onClick={() => router.visit('/products')}
+            onClick={() => router.visit('/customer/produce')}
           >
             Show All Produce
           </button>
