@@ -244,7 +244,7 @@ export const ProductManagement = ({
                                                 )}
                                                 {product.price_tali && (
                                                     <div className={styles.priceItem}>
-                                                        <span className={styles.priceLabel}>Bundle:</span> 
+                                                        <span className={styles.priceLabel}>Tali:</span> 
                                                         <span className={styles.priceValue}>₱{product.price_tali}</span>
                                                     </div>
                                                 )}
