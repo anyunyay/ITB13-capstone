@@ -1,72 +1,42 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import { BellDot, AlertTriangle } from 'lucide-react';
+import { type SharedData } from '@/types';
+import { Head, usePage, useForm, router } from '@inertiajs/react';
+import { useEffect, useState, useMemo } from 'react';
+import { BellDot } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
-import { PermissionGate } from '@/components/permission-gate';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { FlashMessage } from '@/components/flash-message';
+import { DashboardHeader } from '@/components/logistics/dashboard-header';
+import { LogisticManagement } from '@/components/logistics/logistic-management';
+import { DeactivationModal } from '@/components/logistics/deactivation-modal';
+import { Logistic, LogisticStats } from '@/types/logistics';
+import styles from './logistics.module.css';
 
-interface Logistic {
-    id: number;
-    name: string;
-    email: string;
-    contact_number?: string;
-    registration_date?: string;
-    type: string;
-    default_address?: {
-        id: number;
-        street: string;
-        barangay: string;
-        city: string;
-        province: string;
-        full_address: string;
-    };
-    can_be_deactivated: boolean;
-    deactivation_reason?: string;
-    [key: string]: unknown;
-}
-
-interface PageProps {
-    flash: {
-        message?: string
-        error?: string
-    }
+interface PageProps extends SharedData {
     logistics: Logistic[];
-    [key: string]: unknown;
+    flash: {
+        message?: string;
+        error?: string;
+    };
 }
 
 export default function Index() {
-
-    const { logistics, flash, auth } = usePage<PageProps & SharedData>().props;
-    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
+    const { logistics = [], flash, auth } = usePage<PageProps>().props;
     
-    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
+    // State management
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortBy, setSortBy] = useState('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [showDeactivated, setShowDeactivated] = useState(false);
+    const [showDeactivationModal, setShowDeactivationModal] = useState(false);
+    const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
+    const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
+    
+    const itemsPerPage = 10;
+    
+    // Check if the user is authenticated
     useEffect(() => {
         if (!auth?.user) {
             router.visit('/login');
@@ -75,23 +45,85 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
-    const handleDeactivateClick = (logistic: Logistic) => {
+    // Calculate statistics
+    const logisticStats: LogisticStats = useMemo(() => {
+        const activeLogistics = logistics.filter(l => l.can_be_deactivated);
+        const deactivatedLogistics = logistics.filter(l => !l.can_be_deactivated);
+        
+        return {
+            totalLogistics: logistics.length,
+            activeLogistics: activeLogistics.length,
+            deactivatedLogistics: deactivatedLogistics.length,
+            pendingRequests: 0 // This would come from your backend
+        };
+    }, [logistics]);
+
+    // Filter and sort logistics
+    const filteredAndSortedLogistics = useMemo(() => {
+        let filtered = logistics.filter(logistic => {
+            const matchesSearch = !searchTerm || 
+                logistic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                logistic.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                logistic.id.toString().includes(searchTerm) ||
+                (logistic.contact_number && logistic.contact_number.includes(searchTerm));
+            
+            const matchesStatus = showDeactivated ? !logistic.can_be_deactivated : logistic.can_be_deactivated;
+            
+            return matchesSearch && matchesStatus;
+        });
+
+        // Sort logistics
+        filtered.sort((a, b) => {
+            let aValue: any = a[sortBy as keyof Logistic];
+            let bValue: any = b[sortBy as keyof Logistic];
+            
+            if (sortBy === 'registration_date') {
+                aValue = new Date(aValue || 0).getTime();
+                bValue = new Date(bValue || 0).getTime();
+            } else if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+            
+            if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return filtered;
+    }, [logistics, searchTerm, showDeactivated, sortBy, sortOrder]);
+
+    // Paginate logistics
+    const paginatedLogistics = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredAndSortedLogistics.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredAndSortedLogistics, currentPage, itemsPerPage]);
+
+    const totalPages = Math.ceil(filteredAndSortedLogistics.length / itemsPerPage);
+
+    // Handle deactivation
+    const handleDeactivate = (logistic: Logistic) => {
         if (logistic.can_be_deactivated) {
             setSelectedLogistic(logistic);
-            setShowConfirmationModal(true);
+            setShowDeactivationModal(true);
         }
     };
 
     const handleConfirmDeactivation = () => {
         if (selectedLogistic) {
-            destroy(route('logistics.destroy', selectedLogistic.id));
-            setShowConfirmationModal(false);
-            setSelectedLogistic(null);
+            destroy(route('logistics.destroy', selectedLogistic.id), {
+                onSuccess: () => {
+                    setShowDeactivationModal(false);
+                    setSelectedLogistic(null);
+                    setHighlightLogisticId(selectedLogistic.id);
+                    setTimeout(() => setHighlightLogisticId(null), 3000);
+                }
+            });
         }
     };
 
     const handleCancelDeactivation = () => {
-        setShowConfirmationModal(false);
+        setShowDeactivationModal(false);
         setSelectedLogistic(null);
     };
 
@@ -101,155 +133,49 @@ export default function Index() {
             pageTitle="Logistics Management Access Denied"
         >
             <AppLayout>
-                <Head title="Logistics " />
-                <div className="m-4">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Logistics Management</h1>
-                    <div className="flex gap-2">
-                        <PermissionGate permission="create logistics">
-                            <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="view logistics">
-                            <Link href={route('logistics.deactivated')}><Button variant="outline">View Deactivated</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="generate logistics report">
-                            <Link href={route('logistics.report')}><Button variant="outline">Generate Report</Button></Link>
-                        </PermissionGate>
+                <Head title="Logistics Management" />
+                <div className={styles.logisticsContainer}>
+                    <div className={styles.mainContent}>
+                        {/* Flash Messages */}
+                        <FlashMessage flash={flash} />
+                        
+                        {/* Dashboard Header */}
+                        <DashboardHeader logisticStats={logisticStats} />
+                        
+                        {/* Logistics Management */}
+                        <LogisticManagement
+                            logistics={logistics}
+                            searchTerm={searchTerm}
+                            setSearchTerm={setSearchTerm}
+                            filteredAndSortedLogistics={filteredAndSortedLogistics}
+                            paginatedLogistics={paginatedLogistics}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            totalPages={totalPages}
+                            totalLogistics={filteredAndSortedLogistics.length}
+                            itemsPerPage={itemsPerPage}
+                            processing={processing}
+                            onDeactivate={handleDeactivate}
+                            highlightLogisticId={highlightLogisticId}
+                            showDeactivated={showDeactivated}
+                            setShowDeactivated={setShowDeactivated}
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            sortOrder={sortOrder}
+                            setSortOrder={setSortOrder}
+                        />
+                        
+                        {/* Deactivation Modal */}
+                        <DeactivationModal
+                            isOpen={showDeactivationModal}
+                            onClose={handleCancelDeactivation}
+                            onConfirm={handleConfirmDeactivation}
+                            logistic={selectedLogistic}
+                            processing={processing}
+                        />
                     </div>
                 </div>
-
-                <div className='m-4'>
-                    <div>
-                        {flash.message && (
-                            <Alert>
-                                <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>Notification!</AlertTitle>
-                                <AlertDescription>{flash.message}</AlertDescription>
-                            </Alert>
-                        )}
-                        {flash.error && (
-                            <Alert className="border-red-300">
-                                <BellDot className='h-4 w-4 text-red-500' />
-                                <AlertTitle>Error!</AlertTitle>
-                                <AlertDescription>{flash.error}</AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
-                </div>
-
-            {logistics.length > 0 && (
-                <div className='w-full pt-8'>
-                    <Table>
-                        <TableCaption>Total list of logistics</TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="text-center">ID</TableHead>
-                                <TableHead className="text-center">Name</TableHead>
-                                <TableHead className="text-center">Email</TableHead>
-                                <TableHead className="text-center">Contact Number</TableHead>
-                                <TableHead className="text-center">Address</TableHead>
-                                <TableHead className="text-center">Registration Date</TableHead>
-                                <TableHead className="text-center">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {logistics.map((logistic, idx) => (
-                                <TableRow className="text-center" key={logistic.id}>
-                                    <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{logistic.name}</TableCell>
-                                    <TableCell>{logistic.email}</TableCell>
-                                    <TableCell>{logistic.contact_number}</TableCell>
-                                    <TableCell>
-                                        {logistic.default_address ? 
-                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                            : 'N/A'
-                                        }
-                                    </TableCell>
-                                    <TableCell>{logistic.registration_date}</TableCell>
-                                    <TableCell>
-                                        <div className="flex gap-2 justify-center">
-                                            <PermissionGate permission="edit logistics">
-                                                <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            </PermissionGate>
-                                            <PermissionGate permission="delete logistics">
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <div>
-                                                                <Button 
-                                                                    disabled={processing || !logistic.can_be_deactivated} 
-                                                                    onClick={() => handleDeactivateClick(logistic)} 
-                                                                    className={logistic.can_be_deactivated ? '' : 'opacity-50 cursor-not-allowed'}
-                                                                >
-                                                                    Deactivate
-                                                                </Button>
-                                                            </div>
-                                                        </TooltipTrigger>
-                                                        {!logistic.can_be_deactivated && logistic.deactivation_reason && (
-                                                            <TooltipContent>
-                                                                <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
-                                                            </TooltipContent>
-                                                        )}
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            </PermissionGate>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            )}
-
-            {/* Confirmation Modal */}
-            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Confirm Deactivation
-                        </DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to deactivate this logistic?
-                        </DialogDescription>
-                    </DialogHeader>
-                    
-                    {selectedLogistic && (
-                        <div className="space-y-3">
-                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                <h4 className="font-medium text-orange-800 mb-1">Logistic Details:</h4>
-                                <p className="text-orange-700">{selectedLogistic.name}</p>
-                                <p className="text-sm text-orange-600">{selectedLogistic.email}</p>
-                            </div>
-                            
-                            <div className="text-sm text-gray-600">
-                                <p><strong>This action will:</strong></p>
-                                <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>Deactivate the logistic account</li>
-                                    <li>Prevent them from accessing the system</li>
-                                    <li>Move them to the deactivated logistics list</li>
-                                </ul>
-                            </div>
-                        </div>
-                    )}
-                    
-                    <DialogFooter>
-                        <Button variant="outline" onClick={handleCancelDeactivation}>
-                            Cancel
-                        </Button>
-                        <Button 
-                            variant="destructive" 
-                            onClick={handleConfirmDeactivation}
-                            disabled={processing}
-                        >
-                            {processing ? 'Deactivating...' : 'Deactivate'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-            </div>
-        </AppLayout>
+            </AppLayout>
         </PermissionGuard>
     );
 }
