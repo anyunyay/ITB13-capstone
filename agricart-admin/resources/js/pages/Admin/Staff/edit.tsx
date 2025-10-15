@@ -74,14 +74,23 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       permissions: [
         'view orders',
         'create orders',
-        'edit orders'
+        'edit orders',
+        'approve orders',
+        'reject orders',
+        'process orders',
+        'assign logistics',
+        'mark orders urgent',
+        'unmark orders urgent',
+        'view order receipts'
       ]
     },
     {
       name: 'Sales Management',
       description: 'Access to sales data and reporting',
       permissions: [
-        'view sales'
+        'view sales',
+        'view member sales',
+        'export sales data'
       ]
     },
     {
@@ -90,7 +99,9 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       permissions: [
         'view logistics',
         'create logistics',
-        'edit logistics'
+        'edit logistics',
+        'deactivate logistics',
+        'reactivate logistics'
       ]
     },
     {
@@ -111,8 +122,17 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
         'view membership',
         'create members',
         'edit members',
-        'delete members',
+        'deactivate members',
+        'reactivate members',
         'generate membership report'
+      ]
+    },
+    {
+      name: 'Trend Analysis',
+      description: 'Access to trend analysis and reporting',
+      permissions: [
+        'view trend analysis',
+        'generate trend report'
       ]
     }
   ];
@@ -122,7 +142,10 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
     'generate inventory report',
     'generate order report',
     'generate sales report',
-    'generate logistics report'
+    'generate logistics report',
+    'generate staff report',
+    'generate membership report',
+    'generate trend report'
   ];
 
   const deletePermissions = [
@@ -130,7 +153,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
     'delete archived products',
     'delete stocks',
     'delete orders',
-    'delete logistics'
+    'delete staffs'
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -448,10 +471,10 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                     <Label className="text-base font-medium">Delete Permissions (Advanced)</Label>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
                       <p className="text-sm text-amber-800 mb-2">
-                        <strong>⚠️ Warning:</strong> These permissions allow staff members to permanently delete records.
+                        <strong>⚠️ Warning:</strong> These permissions allow staff members to permanently delete records from the database.
                       </p>
                       <p className="text-sm text-amber-700">
-                        Only grant these permissions to trusted staff members who understand the consequences of deleting data.
+                        Only grant these permissions to trusted staff members who understand the consequences of permanently deleting data. Note: Staff and Member management use "deactivate" permissions instead of delete.
                       </p>
                     </div>
                   </div>

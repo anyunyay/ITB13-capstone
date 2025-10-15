@@ -52,17 +52,27 @@ class RoleSeeder extends Seeder
             'create orders',
             'edit orders',
             'delete orders', // Available for Staff (with admin approval)
+            'approve orders',
+            'reject orders',
+            'process orders',
+            'assign logistics',
+            'mark orders urgent',
+            'unmark orders urgent',
+            'view order receipts',
             'generate order report',
 
             // Sales Management
             'view sales',
+            'view member sales',
             'generate sales report',
+            'export sales data',
 
             // Logistics
             'view logistics',
             'create logistics',
             'edit logistics',
-            'delete logistics', // Available for Staff (with admin approval)
+            'deactivate logistics', // Available for Staff (with admin approval)
+            'reactivate logistics', // Available for Staff (with admin approval)
             'generate logistics report',
             
             // Inventory Stock Trailing
@@ -80,17 +90,29 @@ class RoleSeeder extends Seeder
             'view membership',
             'create members',
             'edit members',
-            'delete members',
+            'deactivate members',
+            'reactivate members',
             'generate membership report',
+
+            // Trend Analysis
+            'view trend analysis',
+            'generate trend report',
 
         // Customer permissions
             'access customer features',
+            'view order history',
+            'generate customer order report',
 
         // Logistic permissions
             'access logistic features',
+            'view assigned orders',
+            'update delivery status',
+            'generate logistic report',
 
         // Member permissions
             'access member features',
+            'view member earnings',
+            'generate revenue report',
         ];
 
         foreach ($permissions as $permission) {

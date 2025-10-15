@@ -39,7 +39,7 @@ class StaffController extends Controller
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members',
+            'view membership', 'create members', 'edit members', 'deactivate members', 'reactivate members',
             'generate staff report', 'generate membership report'
         ])->get();
 
@@ -129,7 +129,7 @@ class StaffController extends Controller
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'delete members',
+            'view membership', 'create members', 'edit members', 'deactivate members', 'reactivate members',
             'generate staff report', 'generate membership report'
         ])->get();
 
@@ -380,7 +380,8 @@ class StaffController extends Controller
             'delete orders' => 'view orders',
             'create logistics' => 'view logistics',
             'edit logistics' => 'view logistics',
-            'delete logistics' => 'view logistics',
+            'deactivate logistics' => 'view logistics',
+            'reactivate logistics' => 'view logistics',
         ];
 
         $finalPermissions = $permissions;
