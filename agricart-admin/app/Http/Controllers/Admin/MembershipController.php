@@ -16,6 +16,7 @@ class MembershipController extends Controller
     public function index()
     {
         $members = User::where('type', 'member')
+            ->active()
             ->with('defaultAddress')
             ->get();
         
@@ -181,20 +182,46 @@ class MembershipController extends Controller
 
     public function destroy($id)
     {
-        // Delete the image file if it exists
         $member = User::where('type', 'member')->findOrFail($id);
-        if ($member->document && file_exists(public_path($member->document))) {
-            unlink(public_path($member->document));
+        
+        // Check if member has active stocks
+        if ($member->hasActiveStocks()) {
+            return redirect()->route('membership.index')->with('error', 'Cannot deactivate: member has active stocks.');
         }
-
+        
+        // Deactivate instead of deleting
+        $member->update(['active' => false]);
+        
         // Notify admin and staff about membership update
         $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
         foreach ($adminUsers as $admin) {
-            $admin->notify(new MembershipUpdateNotification($member, 'removed'));
+            $admin->notify(new MembershipUpdateNotification($member, 'deactivated'));
         }
         
-        $member->delete();
-        return redirect()->route('membership.index')->with('message', 'Member removed successfully');
+        return redirect()->route('membership.index')->with('message', 'Member deactivated successfully');
+    }
+
+    public function deactivated()
+    {
+        $deactivatedMembers = User::where('type', 'member')
+            ->inactive()
+            ->with('defaultAddress')
+            ->get();
+        return Inertia::render('Admin/Membership/deactivated', compact('deactivatedMembers'));
+    }
+
+    public function reactivate($id)
+    {
+        $member = User::where('type', 'member')->findOrFail($id);
+        $member->update(['active' => true]);
+        
+        // Notify admin and staff about membership update
+        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new MembershipUpdateNotification($member, 'reactivated'));
+        }
+        
+        return redirect()->route('membership.index')->with('message', 'Member reactivated successfully');
     }
 
     public function deleteDocument($id)

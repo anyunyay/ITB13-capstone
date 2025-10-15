@@ -98,18 +98,35 @@ class RoleSeeder extends Seeder
         }
 
         // Assign permissions to roles
-        // Admin gets all permissions except role-specific features
-        $adminPermissions = Permission::whereNotIn('name', [
+        // Ensure admin has all current and future permissions (except role-specific ones)
+        $this->ensureAdminHasAllPermissions($admin);
+        
+        // Assign role-specific permissions (sync to avoid duplicates)
+        $customer->syncPermissions(['access customer features']);
+        $logistic->syncPermissions(['access logistic features']);
+        $member->syncPermissions(['access member features']);
+    }
+
+    /**
+     * Ensure admin role has all permissions except role-specific ones
+     * This method will automatically assign any new permissions to admin
+     */
+    private function ensureAdminHasAllPermissions(Role $admin): void
+    {
+        // Get all permissions except role-specific ones
+        $allAdminPermissions = Permission::whereNotIn('name', [
             'access customer features',
             'access logistic features', 
             'access member features'
         ])->pluck('name')->toArray();
         
-        $admin->givePermissionTo($adminPermissions);
+        // Sync all permissions to admin role
+        // This will add any new permissions and remove any that are no longer needed
+        $admin->syncPermissions($allAdminPermissions);
         
-        // Assign role-specific permissions
-        $customer->givePermissionTo(['access customer features']);
-        $logistic->givePermissionTo(['access logistic features']);
-        $member->givePermissionTo(['access member features']);
+        // Output info if running in console
+        if (app()->runningInConsole()) {
+            echo "Admin role permissions synchronized. Total permissions: " . count($allAdminPermissions) . "\n";
+        }
     }
 }

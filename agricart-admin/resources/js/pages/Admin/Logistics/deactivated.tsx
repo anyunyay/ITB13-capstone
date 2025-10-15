@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { BellDot, RotateCcw } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
 import {
@@ -40,13 +40,13 @@ interface PageProps {
         message?: string
         error?: string
     }
-    logistics: Logistic[];
+    deactivatedLogistics: Logistic[];
     [key: string]: unknown;
 }
 
-export default function Index() {
+export default function Deactivated() {
 
-    const { logistics, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { deactivatedLogistics, flash, auth } = usePage<PageProps & SharedData>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -54,35 +54,27 @@ export default function Index() {
         }
     }, [auth]);
 
-    const { processing, delete: destroy } = useForm();
+    const { processing, post } = useForm();
 
-    const handleDeactivate = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to deactivate - ${name}?`)) {
-            // Call the delete route (now handles deactivation)
-            destroy(route('logistics.destroy', id));
+    const handleReactivate = (id: number, name: string) => {
+        if (confirm(`Are you sure you want to reactivate - ${name}?`)) {
+            // Call the reactivate route
+            post(route('logistics.reactivate', id));
         }
     };
 
     return (
         <PermissionGuard 
-            permissions={['view logistics', 'create logistics', 'edit logistics', 'delete logistics', 'generate logistics report']}
+            permissions={['view logistics', 'edit logistics']}
             pageTitle="Logistics Management Access Denied"
         >
             <AppLayout>
-                <Head title="Logistics " />
+                <Head title="Deactivated Logistics" />
                 <div className="m-4">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Logistics Management</h1>
+                    <h1 className="text-3xl font-bold">Deactivated Logistics</h1>
                     <div className="flex gap-2">
-                        <PermissionGate permission="create logistics">
-                            <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="view logistics">
-                            <Link href={route('logistics.deactivated')}><Button variant="outline">View Deactivated</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="generate logistics report">
-                            <Link href={route('logistics.report')}><Button variant="outline">Generate Report</Button></Link>
-                        </PermissionGate>
+                        <Link href={route('logistics.index')}><Button variant="outline">Back to Active Logistics</Button></Link>
                     </div>
                 </div>
 
@@ -105,10 +97,10 @@ export default function Index() {
                     </div>
                 </div>
 
-            {logistics.length > 0 && (
+            {deactivatedLogistics.length > 0 && (
                 <div className='w-full pt-8'>
                     <Table>
-                        <TableCaption>Total list of logistics</TableCaption>
+                        <TableCaption>Total list of deactivated logistics</TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="text-center">ID</TableHead>
@@ -121,7 +113,7 @@ export default function Index() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {logistics.map((logistic, idx) => (
+                            {deactivatedLogistics.map((logistic, idx) => (
                                 <TableRow className="text-center" key={logistic.id}>
                                     <TableCell>{idx + 1}</TableCell>
                                     <TableCell>{logistic.name}</TableCell>
@@ -135,19 +127,27 @@ export default function Index() {
                                     </TableCell>
                                     <TableCell>{logistic.registration_date}</TableCell>
                                     <TableCell>
-                                        <div className="flex gap-2 justify-center">
-                                            <PermissionGate permission="edit logistics">
-                                                <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            </PermissionGate>
-                                            <PermissionGate permission="delete logistics">
-                                                <Button disabled={processing} onClick={() => handleDeactivate(logistic.id, logistic.name)} className=''>Deactivate</Button>
-                                            </PermissionGate>
-                                        </div>
+                                        <PermissionGate permission="edit logistics">
+                                            <Button 
+                                                disabled={processing} 
+                                                onClick={() => handleReactivate(logistic.id, logistic.name)} 
+                                                className='bg-green-600 hover:bg-green-700 text-white'
+                                            >
+                                                <RotateCcw className="h-4 w-4 mr-1" />
+                                                Reactivate
+                                            </Button>
+                                        </PermissionGate>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                </div>
+            )}
+
+            {deactivatedLogistics.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg">No deactivated logistics found.</p>
                 </div>
             )}
             </div>

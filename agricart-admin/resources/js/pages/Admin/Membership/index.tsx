@@ -54,6 +54,7 @@ interface PasswordChangeRequest {
 interface PageProps {
     flash: {
         message?: string
+        error?: string
     }
     members: Member[];
     pendingPasswordRequests: PasswordChangeRequest[];
@@ -76,9 +77,9 @@ export default function Index() {
 
     const { processing, delete: destroy, post } = useForm();
 
-    const handleDelete = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to delete - ${name}?`)) {
-            // Call the delete route
+    const handleDeactivate = (id: number, name: string) => {
+        if (confirm(`Are you sure you want to deactivate - ${name}?`)) {
+            // Call the delete route (now handles deactivation)
             destroy(route('membership.destroy', id));
         }
     };
@@ -139,7 +140,7 @@ export default function Index() {
 
     return (
         <PermissionGuard 
-            permissions={['view members', 'create members', 'edit members', 'delete members', 'generate membership report']}
+            permissions={['view membership']}
             pageTitle="Membership Management Access Denied"
         >
             <AppLayout>
@@ -150,6 +151,9 @@ export default function Index() {
                     <div className="flex gap-2">
                         <PermissionGate permission="create members">
                             <Link href={route('membership.add')}><Button>Add Member</Button></Link>
+                        </PermissionGate>
+                        <PermissionGate permission="view membership">
+                            <Link href={route('membership.deactivated')}><Button variant="outline">View Deactivated</Button></Link>
                         </PermissionGate>
                         <PermissionGate permission="generate membership report">
                             <Link href={route('membership.report')}><Button variant="outline">Generate Report</Button></Link>
@@ -164,6 +168,13 @@ export default function Index() {
                                 <BellDot className='h-4 w-4 text-blue-500' />
                                 <AlertTitle>Notification!</AlertTitle>
                                 <AlertDescription>{flash.message}</AlertDescription>
+                            </Alert>
+                        )}
+                        {flash.error && (
+                            <Alert className="border-red-300">
+                                <BellDot className='h-4 w-4 text-red-500' />
+                                <AlertTitle>Error!</AlertTitle>
+                                <AlertDescription>{flash.error}</AlertDescription>
                             </Alert>
                         )}
                         {newRequest && (
@@ -283,8 +294,14 @@ export default function Index() {
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        <Link href={route('membership.edit', member.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                        <Button disabled={processing} onClick={() => handleDelete(member.id, member.name)} className=''>Remove</Button>
+                                        <div className="flex gap-2 justify-center">
+                                            <PermissionGate permission="edit members">
+                                                <Link href={route('membership.edit', member.id)}><Button disabled={processing} className=''>Edit</Button></Link>
+                                            </PermissionGate>
+                                            <PermissionGate permission="delete members">
+                                                <Button disabled={processing} onClick={() => handleDeactivate(member.id, member.name)} className=''>Deactivate</Button>
+                                            </PermissionGate>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}

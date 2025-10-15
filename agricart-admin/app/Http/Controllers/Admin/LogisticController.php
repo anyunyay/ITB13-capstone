@@ -14,6 +14,7 @@ class LogisticController extends Controller
     public function index()
     {
         $logistics = User::where('type', 'logistic')
+            ->active()
             ->with('defaultAddress')
             ->get();
         return Inertia::render('Logistics/index', compact('logistics'));
@@ -129,8 +130,31 @@ class LogisticController extends Controller
     public function destroy($id)
     {
         $logistic = User::where('type', 'logistic')->findOrFail($id);
-        $logistic->delete();
-        return redirect()->route('logistics.index')->with('message', 'Logistic removed successfully');
+        
+        // Check if logistic has pending assigned orders
+        if ($logistic->hasPendingOrders()) {
+            return redirect()->route('logistics.index')->with('error', 'Cannot deactivate: logistic has pending assigned orders.');
+        }
+        
+        // Deactivate instead of deleting
+        $logistic->update(['active' => false]);
+        return redirect()->route('logistics.index')->with('message', 'Logistic deactivated successfully');
+    }
+
+    public function deactivated()
+    {
+        $deactivatedLogistics = User::where('type', 'logistic')
+            ->inactive()
+            ->with('defaultAddress')
+            ->get();
+        return Inertia::render('Logistics/deactivated', compact('deactivatedLogistics'));
+    }
+
+    public function reactivate($id)
+    {
+        $logistic = User::where('type', 'logistic')->findOrFail($id);
+        $logistic->update(['active' => true]);
+        return redirect()->route('logistics.index')->with('message', 'Logistic reactivated successfully');
     }
 
     public function generateReport(Request $request)

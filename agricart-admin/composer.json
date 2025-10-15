@@ -1,11 +1,18 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "agricart/admin-panel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "AgriCart Admin Panel - Agricultural marketplace management system.",
+    "version": "1.0.0",
     "keywords": [
         "laravel",
-        "framework"
+        "framework",
+        "agricart",
+        "admin-panel",
+        "agricultural",
+        "marketplace",
+        "inertia",
+        "react"
     ],
     "license": "MIT",
     "require": {
@@ -73,6 +80,12 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "project-info": {
+            "name": "AgriCart Admin Panel",
+            "version": "1.0.0",
+            "description": "Agricultural marketplace management system",
+            "last-updated": "2025-01-15"
         }
     },
     "config": {

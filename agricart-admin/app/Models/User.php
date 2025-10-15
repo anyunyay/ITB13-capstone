@@ -37,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'document_marked_for_deletion',
         // Type/role discriminator (optional, for user type distinction)
         'type',
+        // Account status
+        'active',
         // Default account flag
         'is_default',
         // Session management
@@ -73,6 +75,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'registration_date' => 'datetime',
             'is_default' => 'boolean',
             'document_marked_for_deletion' => 'boolean',
+            'active' => 'boolean',
         ];
     }
 
@@ -387,5 +390,47 @@ class User extends Authenticatable implements MustVerifyEmail
             'city' => $defaultAddress->city,
             'province' => $defaultAddress->province,
         ];
+    }
+
+    /**
+     * Scope for active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    /**
+     * Scope for inactive users
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('active', false);
+    }
+
+    /**
+     * Check if user has active stocks (for members)
+     */
+    public function hasActiveStocks(): bool
+    {
+        if ($this->type !== 'member') {
+            return false;
+        }
+
+        return $this->stocks()->active()->exists();
+    }
+
+    /**
+     * Check if logistic has pending assigned orders
+     */
+    public function hasPendingOrders(): bool
+    {
+        if ($this->type !== 'logistic') {
+            return false;
+        }
+
+        return $this->assignedOrders()
+            ->whereIn('delivery_status', ['pending', 'out_for_delivery'])
+            ->exists();
     }
 } 

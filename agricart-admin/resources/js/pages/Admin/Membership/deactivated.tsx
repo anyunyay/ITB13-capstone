@@ -4,9 +4,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { BellDot, RotateCcw } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
+import { SafeImage } from '@/lib/image-utils';
 import {
     Table,
     TableBody,
@@ -17,12 +18,13 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-interface Logistic {
+interface Member {
     id: number;
     name: string;
-    email: string;
+    member_id?: string;
     contact_number?: string;
     registration_date?: string;
+    document?: string;
     type: string;
     default_address?: {
         id: number;
@@ -40,13 +42,13 @@ interface PageProps {
         message?: string
         error?: string
     }
-    logistics: Logistic[];
+    deactivatedMembers: Member[];
     [key: string]: unknown;
 }
 
-export default function Index() {
+export default function Deactivated() {
 
-    const { logistics, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { deactivatedMembers, flash, auth } = usePage<PageProps & SharedData>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -54,35 +56,27 @@ export default function Index() {
         }
     }, [auth]);
 
-    const { processing, delete: destroy } = useForm();
+    const { processing, post } = useForm();
 
-    const handleDeactivate = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to deactivate - ${name}?`)) {
-            // Call the delete route (now handles deactivation)
-            destroy(route('logistics.destroy', id));
+    const handleReactivate = (id: number, name: string) => {
+        if (confirm(`Are you sure you want to reactivate - ${name}?`)) {
+            // Call the reactivate route
+            post(route('membership.reactivate', id));
         }
     };
 
     return (
         <PermissionGuard 
-            permissions={['view logistics', 'create logistics', 'edit logistics', 'delete logistics', 'generate logistics report']}
-            pageTitle="Logistics Management Access Denied"
+            permissions={['view membership', 'edit members']}
+            pageTitle="Membership Management Access Denied"
         >
             <AppLayout>
-                <Head title="Logistics " />
+                <Head title="Deactivated Members" />
                 <div className="m-4">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Logistics Management</h1>
+                    <h1 className="text-3xl font-bold">Deactivated Members</h1>
                     <div className="flex gap-2">
-                        <PermissionGate permission="create logistics">
-                            <Link href={route('logistics.add')}><Button>Add Logistic</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="view logistics">
-                            <Link href={route('logistics.deactivated')}><Button variant="outline">View Deactivated</Button></Link>
-                        </PermissionGate>
-                        <PermissionGate permission="generate logistics report">
-                            <Link href={route('logistics.report')}><Button variant="outline">Generate Report</Button></Link>
-                        </PermissionGate>
+                        <Link href={route('membership.index')}><Button variant="outline">Back to Active Members</Button></Link>
                     </div>
                 </div>
 
@@ -105,49 +99,65 @@ export default function Index() {
                     </div>
                 </div>
 
-            {logistics.length > 0 && (
+            {deactivatedMembers.length > 0 && (
                 <div className='w-full pt-8'>
                     <Table>
-                        <TableCaption>Total list of logistics</TableCaption>
+                        <TableCaption>Total list of deactivated members</TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="text-center">ID</TableHead>
+                                <TableHead className="text-center">Member ID</TableHead>
                                 <TableHead className="text-center">Name</TableHead>
-                                <TableHead className="text-center">Email</TableHead>
                                 <TableHead className="text-center">Contact Number</TableHead>
                                 <TableHead className="text-center">Address</TableHead>
                                 <TableHead className="text-center">Registration Date</TableHead>
+                                <TableHead className="text-center">Document</TableHead>
                                 <TableHead className="text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {logistics.map((logistic, idx) => (
-                                <TableRow className="text-center" key={logistic.id}>
+                            {deactivatedMembers.map((member, idx) => (
+                                <TableRow className="text-center" key={member.id}>
                                     <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{logistic.name}</TableCell>
-                                    <TableCell>{logistic.email}</TableCell>
-                                    <TableCell>{logistic.contact_number}</TableCell>
+                                    <TableCell>{member.member_id || 'N/A'}</TableCell>
+                                    <TableCell>{member.name}</TableCell>
+                                    <TableCell>{member.contact_number}</TableCell>
                                     <TableCell>
-                                        {logistic.default_address ? 
-                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
+                                        {member.default_address ? 
+                                            `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
                                             : 'N/A'
                                         }
                                     </TableCell>
-                                    <TableCell>{logistic.registration_date}</TableCell>
+                                    <TableCell>{member.registration_date}</TableCell>
+                                    <TableCell className="flex justify-center">
+                                        <SafeImage 
+                                            src={member.document} 
+                                            alt={`Document for ${member.name}`} 
+                                            className="max-w-24 object-cover rounded"
+                                        />
+                                    </TableCell>
                                     <TableCell>
-                                        <div className="flex gap-2 justify-center">
-                                            <PermissionGate permission="edit logistics">
-                                                <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
-                                            </PermissionGate>
-                                            <PermissionGate permission="delete logistics">
-                                                <Button disabled={processing} onClick={() => handleDeactivate(logistic.id, logistic.name)} className=''>Deactivate</Button>
-                                            </PermissionGate>
-                                        </div>
+                                        <PermissionGate permission="edit members">
+                                            <Button 
+                                                disabled={processing} 
+                                                onClick={() => handleReactivate(member.id, member.name)} 
+                                                className='bg-green-600 hover:bg-green-700 text-white'
+                                            >
+                                                <RotateCcw className="h-4 w-4 mr-1" />
+                                                Reactivate
+                                            </Button>
+                                        </PermissionGate>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                </div>
+            )}
+
+            {deactivatedMembers.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg">No deactivated members found.</p>
                 </div>
             )}
             </div>
