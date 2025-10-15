@@ -18,12 +18,8 @@ return new class extends Migration
             $table->string('barangay');
             $table->string('city');
             $table->string('province');
-            $table->boolean('is_default')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
-            // Ensure only one default address per user
-            $table->unique(['user_id', 'is_default'], 'unique_default_address');
         });
     }
 
