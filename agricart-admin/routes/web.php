@@ -10,10 +10,11 @@ use App\Http\Controllers\Admin\SoldStockController;
 use App\Http\Controllers\Admin\TrendAnalysisController;
 
 use App\Http\Controllers\Admin\MembershipController;
-use App\Http\Controllers\Admin\LogisticController;
+use App\Http\Controllers\Admin\LogisticController as AdminLogisticController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
 use App\Http\Controllers\Customer\HomeController;
@@ -23,12 +24,18 @@ use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\AppearanceController;
 use App\Http\Controllers\Member\MemberController;
+use App\Http\Controllers\Member\NotificationController as MemberNotificationController;
+use App\Http\Controllers\Logistic\LogisticController;
+use App\Http\Controllers\Logistic\NotificationController as LogisticNotificationController;
 use App\Http\Controllers\Security\SingleSessionController;
 use App\Http\Controllers\Security\EmailPreviewController;
 use App\Http\Controllers\Security\ComprehensiveEmailPreviewController;
 use App\Http\Controllers\Security\DirectEmailTemplateController;
 use App\Http\Controllers\Security\EmailChangeController;
 use App\Http\Controllers\Security\PhoneChangeController;
+use App\Http\Controllers\Security\PasswordChangeController;
+use App\Http\Controllers\Security\CredentialsController;
+use App\Http\Controllers\Security\SystemController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -39,14 +46,14 @@ Route::get('/customer/product/{product}', [HomeController::class, 'product'])->n
 
 // Password change routes (must be before other authenticated routes)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/password/change', [\App\Http\Controllers\Security\PasswordChangeController::class, 'show'])->name('password.change');
-    Route::post('/password/change', [\App\Http\Controllers\Security\PasswordChangeController::class, 'store'])->name('password.change.store');
+    Route::get('/password/change', [PasswordChangeController::class, 'show'])->name('password.change');
+    Route::post('/password/change', [PasswordChangeController::class, 'store'])->name('password.change.store');
 });
 
 // Credentials update routes for default users (must be before other authenticated routes)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/credentials/update', [\App\Http\Controllers\Security\CredentialsController::class, 'show'])->name('credentials.update.show');
-    Route::post('/credentials/update', [\App\Http\Controllers\Security\CredentialsController::class, 'update'])->name('credentials.update');
+    Route::get('/credentials/update', [CredentialsController::class, 'show'])->name('credentials.update.show');
+    Route::post('/credentials/update', [CredentialsController::class, 'update'])->name('credentials.update');
 });
 
 // Single session routes
@@ -63,27 +70,27 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard'); // Admin Dashboard
         
         // Admin Profile routes
-        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('admin.profile.info');
-        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('admin.profile.password');
-        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('admin.profile.updateName');
-        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('admin.profile.appearance');
-        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
-        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('admin.profile.help');
-        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
+        Route::get('/profile/info', [ProfileController::class, 'profile'])->name('admin.profile.info');
+        Route::get('/profile/password', [ProfileController::class, 'password'])->name('admin.profile.password');
+        Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
+        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('admin.profile.appearance');
+        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
+        Route::get('/profile/help', [ProfileController::class, 'help'])->name('admin.profile.help');
+        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
         
         // Admin Email Change routes (modal-based)
-        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Security\EmailChangeController::class, 'sendOtp'])->name('admin.profile.email-change.send-otp');
-        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'showVerify'])->name('admin.profile.email-change.verify');
-        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'verifyOtp'])->name('admin.profile.email-change.verify-otp');
-        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'resendOtp'])->name('admin.profile.email-change.resend');
-        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'cancel'])->name('admin.profile.email-change.cancel');
+        Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('admin.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('admin.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'verifyOtp'])->name('admin.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [EmailChangeController::class, 'resendOtp'])->name('admin.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [EmailChangeController::class, 'cancel'])->name('admin.profile.email-change.cancel');
 
         // Admin Phone Change routes (modal-based)
-        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\Security\PhoneChangeController::class, 'sendOtp'])->name('admin.profile.phone-change.send-otp');
-        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'showVerify'])->name('admin.profile.phone-change.verify');
-        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'verifyOtp'])->name('admin.profile.phone-change.verify-otp');
-        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'resendOtp'])->name('admin.profile.phone-change.resend');
-        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'cancel'])->name('admin.profile.phone-change.cancel');
+        Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('admin.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('admin.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('admin.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('admin.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('admin.profile.phone-change.cancel');
 
         // Inventory routes
         Route::middleware(['can:view inventory'])->group(function () {
@@ -191,21 +198,21 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         });
 
         // Logistic routes
-        Route::middleware(['can:view logistics'])->get('/logistics', [LogisticController::class, 'index'])->name('logistics.index'); // View Logistics
+        Route::middleware(['can:view logistics'])->get('/logistics', [AdminLogisticController::class, 'index'])->name('logistics.index'); // View Logistics
         Route::middleware(['can:create logistics'])->group(function () {
-            Route::get('/logistics/add', [LogisticController::class, 'add'])->name('logistics.add'); // Add Logistic (GET)
-            Route::post('/logistics', [LogisticController::class, 'store'])->name('logistics.store'); // Add Logistic (POST)
+            Route::get('/logistics/add', [AdminLogisticController::class, 'add'])->name('logistics.add'); // Add Logistic (GET)
+            Route::post('/logistics', [AdminLogisticController::class, 'store'])->name('logistics.store'); // Add Logistic (POST)
         });
         Route::middleware(['can:edit logistics'])->group(function () {
-            Route::get('/logistics/{logistic}/edit', [LogisticController::class, 'edit'])->name('logistics.edit'); // Edit Logistic (GET)
-            Route::put('/logistics/{logistic}', [LogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
+            Route::get('/logistics/{logistic}/edit', [AdminLogisticController::class, 'edit'])->name('logistics.edit'); // Edit Logistic (GET)
+            Route::put('/logistics/{logistic}', [AdminLogisticController::class, 'update'])->name('logistics.update'); // Edit Logistic (PUT)
         });
         Route::middleware(['can:generate logistics report'])->group(function () {
-            Route::get('/logistics/report', [LogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)
+            Route::get('/logistics/report', [AdminLogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)
         });
-        Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
-        Route::middleware(['can:view logistics'])->get('/logistics/deactivated', [LogisticController::class, 'deactivated'])->name('logistics.deactivated'); // View Deactivated Logistics
-        Route::middleware(['can:edit logistics'])->post('/logistics/{logistic}/reactivate', [LogisticController::class, 'reactivate'])->name('logistics.reactivate'); // Reactivate Logistic
+        Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [AdminLogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
+        Route::middleware(['can:view logistics'])->get('/logistics/deactivated', [AdminLogisticController::class, 'deactivated'])->name('logistics.deactivated'); // View Deactivated Logistics
+        Route::middleware(['can:edit logistics'])->post('/logistics/{logistic}/reactivate', [AdminLogisticController::class, 'reactivate'])->name('logistics.reactivate'); // Reactivate Logistic
 
         // Staff routes
         Route::middleware(['can:view staffs'])->get('/staff', [StaffController::class, 'index'])->name('staff.index'); // View Staff
@@ -222,9 +229,9 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
         
         // Notification routes
-        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifications.index');
-        Route::post('/notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markRead'])->name('admin.notifications.markRead');
-        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+        Route::post('/notifications/mark-read', [AdminNotificationController::class, 'markRead'])->name('admin.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
     });
 
         
@@ -263,18 +270,18 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         
         
         // Email Change routes (modal-based)
-        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Security\EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
-        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
-        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
-        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
-        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
+        Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
         
         // Phone Change routes (modal-based)
-        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\Security\PhoneChangeController::class, 'sendOtp'])->name('customer.profile.phone-change.send-otp');
-        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'showVerify'])->name('customer.profile.phone-change.verify');
-        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'verifyOtp'])->name('customer.profile.phone-change.verify-otp');
-        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'resendOtp'])->name('customer.profile.phone-change.resend');
-        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'cancel'])->name('customer.profile.phone-change.cancel');
+        Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('customer.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('customer.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('customer.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('customer.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('customer.profile.phone-change.cancel');
         
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
@@ -292,39 +299,39 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
 
     // Logistic routes
     Route::prefix('/logistic')->middleware(['role:logistic'])->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Logistic\LogisticController::class, 'dashboard'])->name('logistic.dashboard');
-        Route::get('/orders', [\App\Http\Controllers\Logistic\LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
-        Route::get('/orders/{order}', [\App\Http\Controllers\Logistic\LogisticController::class, 'showOrder'])->name('logistic.orders.show');
-        Route::put('/orders/{order}/delivery-status', [\App\Http\Controllers\Logistic\LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
-        Route::get('/report', [\App\Http\Controllers\Logistic\LogisticController::class, 'generateReport'])->name('logistic.report');
+        Route::get('/dashboard', [LogisticController::class, 'dashboard'])->name('logistic.dashboard');
+        Route::get('/orders', [LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
+        Route::get('/orders/{order}', [LogisticController::class, 'showOrder'])->name('logistic.orders.show');
+        Route::put('/orders/{order}/delivery-status', [LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
+        Route::get('/report', [LogisticController::class, 'generateReport'])->name('logistic.report');
         
         // Logistic Profile routes
-        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('logistic.profile.info');
-        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('logistic.profile.password');
-        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
-        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('logistic.profile.appearance');
-        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('logistic.profile.appearance.update');
-        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('logistic.profile.help');
-        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
+        Route::get('/profile/info', [ProfileController::class, 'profile'])->name('logistic.profile.info');
+        Route::get('/profile/password', [ProfileController::class, 'password'])->name('logistic.profile.password');
+        Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
+        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('logistic.profile.appearance');
+        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('logistic.profile.appearance.update');
+        Route::get('/profile/help', [ProfileController::class, 'help'])->name('logistic.profile.help');
+        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
         
         // Logistic Email Change routes (modal-based)
-        Route::post('/profile/email-change/send-otp', [\App\Http\Controllers\Security\EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
-        Route::get('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'showVerify'])->name('logistic.profile.email-change.verify');
-        Route::post('/profile/email-change/verify/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'verifyOtp'])->name('logistic.profile.email-change.verify-otp');
-        Route::post('/profile/email-change/resend/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'resendOtp'])->name('logistic.profile.email-change.resend');
-        Route::post('/profile/email-change/cancel/{requestId}', [\App\Http\Controllers\Security\EmailChangeController::class, 'cancel'])->name('logistic.profile.email-change.cancel');
+        Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
+        Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('logistic.profile.email-change.verify');
+        Route::post('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'verifyOtp'])->name('logistic.profile.email-change.verify-otp');
+        Route::post('/profile/email-change/resend/{requestId}', [EmailChangeController::class, 'resendOtp'])->name('logistic.profile.email-change.resend');
+        Route::post('/profile/email-change/cancel/{requestId}', [EmailChangeController::class, 'cancel'])->name('logistic.profile.email-change.cancel');
         
         // Logistic Phone Change routes (modal-based)
-        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\Security\PhoneChangeController::class, 'sendOtp'])->name('logistic.profile.phone-change.send-otp');
-        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'showVerify'])->name('logistic.profile.phone-change.verify');
-        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'verifyOtp'])->name('logistic.profile.phone-change.verify-otp');
-        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'resendOtp'])->name('logistic.profile.phone-change.resend');
-        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'cancel'])->name('logistic.profile.phone-change.cancel');
+        Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('logistic.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('logistic.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('logistic.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('logistic.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('logistic.profile.phone-change.cancel');
         
         // Notification routes
-        Route::get('/notifications', [\App\Http\Controllers\Logistic\NotificationController::class, 'index'])->name('logistic.notifications.index');
-        Route::post('/notifications/mark-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
-        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Logistic\NotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
+        Route::get('/notifications', [LogisticNotificationController::class, 'index'])->name('logistic.notifications.index');
+        Route::post('/notifications/mark-read', [LogisticNotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [LogisticNotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
     });
 
     // Member routes
@@ -338,52 +345,52 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
         
         // Member Profile routes
-        Route::get('/profile/info', [\App\Http\Controllers\Customer\ProfileController::class, 'profile'])->name('member.profile.info');
-        Route::get('/profile/password', [\App\Http\Controllers\Customer\ProfileController::class, 'password'])->name('member.profile.password');
-        Route::patch('/profile/name', [\App\Http\Controllers\Customer\ProfileController::class, 'updateName'])->name('member.profile.updateName');
-        Route::get('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'index'])->name('member.profile.appearance');
-        Route::patch('/profile/appearance', [\App\Http\Controllers\Customer\AppearanceController::class, 'update'])->name('member.profile.appearance.update');
-        Route::get('/profile/help', [\App\Http\Controllers\Customer\ProfileController::class, 'help'])->name('member.profile.help');
-        Route::get('/profile/logout', [\App\Http\Controllers\Customer\ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
+        Route::get('/profile/info', [ProfileController::class, 'profile'])->name('member.profile.info');
+        Route::get('/profile/password', [ProfileController::class, 'password'])->name('member.profile.password');
+        Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
+        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('member.profile.appearance');
+        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('member.profile.appearance.update');
+        Route::get('/profile/help', [ProfileController::class, 'help'])->name('member.profile.help');
+        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
         
         // Member Email Change routes removed - members don't need email functionality
         
         // Member Phone Change routes (modal-based)
-        Route::post('/profile/phone-change/send-otp', [\App\Http\Controllers\Security\PhoneChangeController::class, 'sendOtp'])->name('member.profile.phone-change.send-otp');
-        Route::get('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'showVerify'])->name('member.profile.phone-change.verify');
-        Route::post('/profile/phone-change/verify/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'verifyOtp'])->name('member.profile.phone-change.verify-otp');
-        Route::post('/profile/phone-change/resend/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'resendOtp'])->name('member.profile.phone-change.resend');
-        Route::post('/profile/phone-change/cancel/{requestId}', [\App\Http\Controllers\Security\PhoneChangeController::class, 'cancel'])->name('member.profile.phone-change.cancel');
+        Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('member.profile.phone-change.send-otp');
+        Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('member.profile.phone-change.verify');
+        Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('member.profile.phone-change.verify-otp');
+        Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('member.profile.phone-change.resend');
+        Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('member.profile.phone-change.cancel');
         
         // Notification routes
-        Route::get('/notifications', [\App\Http\Controllers\Member\NotificationController::class, 'index'])->name('member.notifications.index');
-        Route::post('/notifications/mark-read', [\App\Http\Controllers\Member\NotificationController::class, 'markRead'])->name('member.notifications.markRead');
-        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Member\NotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
+        Route::get('/notifications', [MemberNotificationController::class, 'index'])->name('member.notifications.index');
+        Route::post('/notifications/mark-read', [MemberNotificationController::class, 'markRead'])->name('member.notifications.markRead');
+        Route::post('/notifications/mark-all-read', [MemberNotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
     });
 });
 
 // Email Preview routes (for development/testing)
 Route::prefix('email-preview')->name('email.preview.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Security\EmailPreviewController::class, 'index'])->name('index');
-    Route::get('/approval', [App\Http\Controllers\Security\EmailPreviewController::class, 'approval'])->name('approval');
-    Route::get('/rejection', [App\Http\Controllers\Security\EmailPreviewController::class, 'rejection'])->name('rejection');
-    Route::get('/approval/custom', [App\Http\Controllers\Security\EmailPreviewController::class, 'approvalCustom'])->name('approval.custom');
-    Route::get('/rejection/custom', [App\Http\Controllers\Security\EmailPreviewController::class, 'rejectionCustom'])->name('rejection.custom');
-    Route::get('/types', [App\Http\Controllers\Security\EmailPreviewController::class, 'types'])->name('types');
-    Route::get('/{type}', [App\Http\Controllers\Security\EmailPreviewController::class, 'preview'])->name('type');
+    Route::get('/', [EmailPreviewController::class, 'index'])->name('index');
+    Route::get('/approval', [EmailPreviewController::class, 'approval'])->name('approval');
+    Route::get('/rejection', [EmailPreviewController::class, 'rejection'])->name('rejection');
+    Route::get('/approval/custom', [EmailPreviewController::class, 'approvalCustom'])->name('approval.custom');
+    Route::get('/rejection/custom', [EmailPreviewController::class, 'rejectionCustom'])->name('rejection.custom');
+    Route::get('/types', [EmailPreviewController::class, 'types'])->name('types');
+    Route::get('/{type}', [EmailPreviewController::class, 'preview'])->name('type');
 });
 
 // Comprehensive Email Preview routes
 Route::prefix('comprehensive-email-preview')->name('comprehensive.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Security\ComprehensiveEmailPreviewController::class, 'index'])->name('index');
-    Route::get('/types', [App\Http\Controllers\Security\ComprehensiveEmailPreviewController::class, 'types'])->name('types');
-    Route::get('/{type}', [App\Http\Controllers\Security\ComprehensiveEmailPreviewController::class, 'preview'])->name('preview');
+    Route::get('/', [ComprehensiveEmailPreviewController::class, 'index'])->name('index');
+    Route::get('/types', [ComprehensiveEmailPreviewController::class, 'types'])->name('types');
+    Route::get('/{type}', [ComprehensiveEmailPreviewController::class, 'preview'])->name('preview');
 });
 
 // Direct Email Template routes (shows actual templates directly)
 Route::prefix('direct-email-templates')->name('direct.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Security\DirectEmailTemplateController::class, 'index'])->name('templates');
-    Route::get('/{type}', [App\Http\Controllers\Security\DirectEmailTemplateController::class, 'show'])->name('template');
+    Route::get('/', [DirectEmailTemplateController::class, 'index'])->name('templates');
+    Route::get('/{type}', [DirectEmailTemplateController::class, 'show'])->name('template');
 });
 
 // Auth routes
@@ -399,12 +406,12 @@ Route::get('/csrf-token', function () {
 // System lock/unlock routes (web routes for CSRF compatibility)
 Route::prefix('api/system')->group(function () {
     // Status endpoint is public (no auth required)
-    Route::get('/status', [\App\Http\Controllers\Security\SystemController::class, 'getSystemStatus'])->name('api.system.status');
+    Route::get('/status', [SystemController::class, 'getSystemStatus'])->name('api.system.status');
     
     // Lock/unlock endpoints require authentication
     Route::middleware(['auth', 'verified', 'password.change.required'])->group(function () {
-        Route::post('/lock', [\App\Http\Controllers\Security\SystemController::class, 'scheduleLock'])->name('api.system.lock');
-        Route::post('/unlock', [\App\Http\Controllers\Security\SystemController::class, 'unlockSystem'])->name('api.system.unlock');
+        Route::post('/lock', [SystemController::class, 'scheduleLock'])->name('api.system.lock');
+        Route::post('/unlock', [SystemController::class, 'unlockSystem'])->name('api.system.unlock');
     });
 });
 
