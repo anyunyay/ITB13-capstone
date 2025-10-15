@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,9 +26,10 @@ interface Notification {
 interface NotificationBellProps {
   notifications: Notification[];
   userType: string;
+  isScrolled?: boolean;
 }
 
-export function NotificationBell({ notifications, userType }: NotificationBellProps) {
+export function NotificationBell({ notifications, userType, isScrolled = false }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -180,11 +182,25 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "relative transition-all duration-300 ease-in-out hover:bg-white/10",
+            isScrolled 
+              ? "h-9 w-9 text-white hover:text-white" 
+              : "h-11 w-11 text-accent-foreground"
+          )}
+        >
           {unreadCount > 0 ? (
-            <BellRing className="h-5 w-5" />
+            <BellRing className={cn(
+              "transition-all duration-300 ease-in-out",
+              isScrolled ? "h-5 w-5" : "h-6 w-6"
+            )} />
           ) : (
-            <Bell className="h-5 w-5" />
+            <Bell className={cn(
+              "transition-all duration-300 ease-in-out",
+              isScrolled ? "h-5 w-5" : "h-6 w-6"
+            )} />
           )}
           {unreadCount > 0 && (
             <Badge 

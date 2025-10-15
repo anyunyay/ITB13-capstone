@@ -14,6 +14,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { SystemLockOverlay } from '@/components/system-lock-overlay';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { FeatureCards } from '@/components/FeatureCards';
+import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
 import styles from './index.module.css';
 
@@ -66,17 +67,17 @@ export default function CustomerHome({ products }: PageProps) {
     {
       icon: '🌿',
       title: '100% Natural',
-      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides. Every fruit and vegetable is carefully cultivated to maintain its natural flavor and nutritional value.'
+      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides.'
     },
     {
       icon: '🛍️',
       title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and delivered fresh to your doorstep. Our farmers pick produce daily to ensure maximum freshness and optimal taste for your family.'
+      description: 'Harvested at peak ripeness and delivered fresh to your doorstep.'
     },
     {
       icon: '🌱',
       title: 'Cabuyao Grown',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate. Supporting our community while bringing you the finest locally-sourced produce.'
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.'
     }
   ];
 
@@ -85,17 +86,27 @@ export default function CustomerHome({ products }: PageProps) {
       <Head title="Home - Cooperatives of Farmers" />
       <SystemLockOverlay />
 
-      {/* Hero Section with Farm Image Placeholder */}
+      {/* Hero Section with Farm Image */}
       <section className={styles.heroSection}>
         <AspectRatio ratio={19/9}>
           <div className={styles.heroImage}>
-            {/* Placeholder for cooperative/farm image */}
-            <div className="w-full h-full bg-gradient-to-b from-green-400 via-oklch-500 to-oklch-600 flex align-items-left relative">
-              <div className="text-white text-left text-end place-self-end pl-30 pb-50 relative z-20">
-                <h2 className="text-6xl font-light">Grown Here,</h2>
-                <h1 className="text-9xl font-bold">For You.</h1>
+            {/* Background image with gradient overlay */}
+            <div className="w-full h-full relative">
+              <div className="w-full h-full bg-gradient-to-b from-neutral-100 via-oklch-300 to-oklch-400">
+                <img 
+                  src="/images/frontpage/pexels-pixabay-265216.jpg" 
+                  alt="Farm landscape" 
+                  className="w-full h-full object-cover mix-blend-multiply"
+                />
               </div>
-              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-20">
+              {/* Text overlay - no gradient applied */}
+              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-50">
+                <div className="text-left">
+                  <h2 className="text-6xl font-light">Grown Here,</h2>
+                  <h1 className="text-9xl font-bold text-green-600">For You.</h1>
+                </div>
+              </div>
+              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-40">
                 <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('produce')?.scrollIntoView({ behavior: 'smooth' })}>
                   VIEW PRODUCE
                   <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
@@ -179,9 +190,9 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Product Carousel Section */}
-      <section id="produce" className="py-16 bg-gray-50 overflow-hidden">
+      <section id="produce" className="py-18 bg-gray-50 overflow-hidden">
         <div className="container mx-auto my-10">
-          <h3 className="text-6xl font-bold text-center text-green-700">Featured Products</h3>
+          <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
           <div className={`relative ${styles.carouselContainer}`}>
             <Carousel
               opts={{
@@ -248,34 +259,16 @@ export default function CustomerHome({ products }: PageProps) {
           </Carousel>
           </div>
         </div>
+        <div className="text-center mb-8 mt-4">
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+            onClick={() => router.visit('/products')}
+          >
+            Show All Produce
+          </button>
+        </div>
         <FeatureCards cards={featureCardsData} />
       </section>
-
-      {/* Main Content */}
-      <main className={styles.mainContent}>
-        {/* Call to Action Section */}
-        <section className={styles.ctaSection}>
-          <h2 className={styles.ctaTitle}>Ready to Support Local Farmers?</h2>
-          <p className={styles.ctaDescription}>
-            Join thousands of customers who choose fresh, local produce while making a positive impact
-            on farming communities.
-          </p>
-          <div className={styles.ctaButtons}>
-            <button
-              className={styles.primaryButton}
-              onClick={() => router.visit('/products')}
-            >
-              Shop Fresh Produce
-            </button>
-            <button
-              className={styles.secondaryButton}
-              onClick={() => router.visit('/about')}
-            >
-              Learn More About Us
-            </button>
-          </div>
-        </section>
-      </main>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
@@ -292,6 +285,18 @@ export default function CustomerHome({ products }: PageProps) {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+      {/* Footer */}
+      <Footer 
+        companyName="SMMC Cooperative"
+        facebookUrl="https://facebook.com/smmccooperative"
+        emailAddress="contact@smmccooperative.com"
+        physicalAddress="Cabuyao, Laguna, Philippines"
+        navigationLinks={[
+          { title: "Privacy Policy", href: "/privacy" },
+          { title: "Terms of Service", href: "/terms" }
+        ]}
+      />
     </AppHeaderLayout>
   );
 }

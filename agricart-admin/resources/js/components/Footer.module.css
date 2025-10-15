@@ -1,0 +1,364 @@
+/* Footer Component Styles - Mobile-First Responsive Design */
+
+/* Import Raleway font to match project styling */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Main Footer Container */
+.footer {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: #f9fafb;
+  font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+  margin-top: auto; /* Push footer to bottom */
+}
+
+/* Footer Container - Max width and centering */
+.footerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Top Section - Contact Information */
+.footerTop {
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contactSection {
+  text-align: center;
+}
+
+.contactTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+}
+
+.contactDescription {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  width: 100%;
+}
+
+/* Contact Links Grid */
+.contactLinks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Individual Contact Link */
+.contactLink {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.contactLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Contact Icon Container */
+.contactIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #22c55e;
+}
+
+/* Contact Information */
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1;
+}
+
+.contactLabel {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.contactValue {
+  font-size: 1rem;
+  color: #ffffff;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* Bottom Section - Copyright and Navigation */
+.footerBottom {
+  padding: 1.5rem 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.footerBottomContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+/* Copyright */
+.copyright {
+  order: 2;
+}
+
+.copyrightText {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Navigation */
+.footerNavigation {
+  order: 1;
+}
+
+.navList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  margin: 0;
+}
+
+.navLink {
+  font-size: 0.875rem;
+  color: #d1d5db;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+}
+
+.navLink:hover {
+  color: #22c55e;
+  border-bottom-color: #22c55e;
+}
+
+/* Tablet Styles (768px and up) */
+@media (min-width: 768px) {
+  .footerContainer {
+    padding: 0;
+  }
+
+  .footerTop {
+    padding: 4rem 0 3rem;
+  }
+
+  .contactTitle {
+    font-size: 2.25rem;
+  }
+
+  .contactDescription {
+    font-size: 1.125rem;
+  }
+
+  .contactLinks {
+    gap: 1.5rem;
+  }
+
+  .contactLink {
+    padding: 1.5rem;
+  }
+
+  .contactIcon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .footerBottom {
+    padding: 2rem 0;
+  }
+
+  .footerBottomContent {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .copyright {
+    order: 1;
+  }
+
+  .footerNavigation {
+    order: 2;
+  }
+
+  .navList {
+    gap: 2rem;
+  }
+
+  .navLink {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop Styles (1024px and up) */
+@media (min-width: 1024px) {
+  .footerTop {
+    padding: 5rem 0 4rem;
+  }
+
+  .contactTitle {
+    font-size: 2.5rem;
+  }
+
+  .contactDescription {
+    font-size: 1.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .contactLinks {
+    gap: 2rem;
+  }
+
+  .contactLink {
+    padding: 2rem;
+  }
+
+  .contactLink:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .contactIcon {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .contactLabel {
+    font-size: 1rem;
+  }
+
+  .contactValue {
+    font-size: 1.125rem;
+  }
+
+  .footerBottom {
+    padding: 2.5rem 0;
+  }
+
+  .navList {
+    gap: 2.5rem;
+  }
+}
+
+/* Large Desktop Styles (1280px and up) */
+@media (min-width: 1280px) {
+  .footerContainer {
+    padding: 0;
+  }
+
+  .contactLinks {
+    width: 100%;
+  }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .contactLink {
+    transition: none;
+  }
+
+  .contactLink:hover {
+    transform: none;
+  }
+
+  .navLink {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .footer {
+    background: #000000;
+    border-top: 2px solid #ffffff;
+  }
+
+  .contactLink {
+    border: 2px solid #ffffff;
+  }
+
+  .contactLink:hover {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .navLink {
+    border-bottom: 2px solid transparent;
+  }
+
+  .navLink:hover {
+    border-bottom-color: #ffffff;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .footer {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-top: 1px solid #000000;
+  }
+
+  .contactLink {
+    background: #f5f5f5 !important;
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+  }
+
+  .contactIcon {
+    background: #e5e5e5 !important;
+  }
+
+  .icon {
+    color: #000000 !important;
+  }
+}
