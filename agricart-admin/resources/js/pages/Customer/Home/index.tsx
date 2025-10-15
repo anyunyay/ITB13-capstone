@@ -42,12 +42,12 @@ export default function CustomerHome() {
                 <h1 className="text-9xl font-bold">For You.</h1>
               </div>
               <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-20">
-                <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => router.visit('/products')}>
-                  SHOW PRODUCTS
+                <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('produce')?.scrollIntoView({ behavior: 'smooth' })}>
+                  VIEW PRODUCE
                   <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
                 </Button>
-                <Button variant="outline" size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => router.visit('/about')}>
-                  LEARN MORE
+                <Button variant="outline" size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth' })}>
+                  EXPLORE
                   <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
                 </Button>
               </div>
@@ -73,7 +73,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Split Layout Section - Cooperatives of Farmers */}
-      <section className={styles.splitSection}>
+      <section id="explore" className={styles.splitSection}>
         <div className={styles.splitContainer}>
           <div className={styles.splitContent}>
             {/* Left Side - Content */}
@@ -122,7 +122,7 @@ export default function CustomerHome() {
                     <div className={styles.splitImageIcon}>🚜</div>
                     <div className={styles.splitImageTitle}>Cooperative Farm Image</div>
                     <div className={styles.splitImageSubtitle}>Replace with actual stock image of farmers/cooperative</div>
-                  </div>
+                </div>
                 </div>
                 <div className={styles.splitImageOverlay}></div>
               </AspectRatio>
@@ -132,7 +132,7 @@ export default function CustomerHome() {
       </section>
 
       {/* Feature Cards Section - Inspired by the provided design */}
-      <section className={styles.featureSection}>
+      <section id="produce" className={styles.featureSection}>
         <div className={styles.featureContainer}>
           <div className={styles.featureGrid}>
             {/* 100% Natural Card */}
