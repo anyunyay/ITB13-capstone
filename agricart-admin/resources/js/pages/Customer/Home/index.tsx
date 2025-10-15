@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
 import {
   Dialog,
@@ -12,19 +12,73 @@ import {
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { SystemLockOverlay } from '@/components/system-lock-overlay';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { FeatureCards } from '@/components/FeatureCards';
+import Autoplay from 'embla-carousel-autoplay';
 import styles from './index.module.css';
 
 interface PageProps {
   flash: {
     message?: string;
   };
+  products: Array<{
+    id: number;
+    name: string;
+    price_kilo: number | null;
+    price_pc: number | null;
+    price_tali: number | null;
+    description: string | null;
+    image: string;
+    image_url: string;
+    produce_type: string | null;
+  }>;
   [key: string]: unknown;
 }
 
-export default function CustomerHome() {
+export default function CustomerHome({ products }: PageProps) {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  // Get featured products (first 6 products for the carousel)
+  const featuredProducts = products.slice(0, 6);
+
+  // Helper function to get the best price for display
+  const getDisplayPrice = (product: any) => {
+    if (product.price_kilo) return `₱${product.price_kilo}/kg`;
+    if (product.price_pc) return `₱${product.price_pc}/pc`;
+    if (product.price_tali) return `₱${product.price_tali}/tali`;
+    return 'Price not available';
+  };
+
+  // Handle carousel API to track current slide
+  const handleCarouselApi = (api: any) => {
+    if (api) {
+      api.on('select', () => {
+        setCurrentSlide(api.selectedScrollSnap());
+      });
+    }
+  };
+
+  // Feature cards data
+  const featureCardsData = [
+    {
+      icon: '🌿',
+      title: '100% Natural',
+      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides. Every fruit and vegetable is carefully cultivated to maintain its natural flavor and nutritional value.'
+    },
+    {
+      icon: '🛍️',
+      title: 'Freshly Picked',
+      description: 'Harvested at peak ripeness and delivered fresh to your doorstep. Our farmers pick produce daily to ensure maximum freshness and optimal taste for your family.'
+    },
+    {
+      icon: '🌱',
+      title: 'Cabuyao Grown',
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate. Supporting our community while bringing you the finest locally-sourced produce.'
+    }
+  ];
 
   return (
     <AppHeaderLayout>
@@ -78,36 +132,31 @@ export default function CustomerHome() {
           <div className={styles.splitContent}>
             {/* Left Side - Content */}
             <div className={styles.splitText}>
-              <h2 className={styles.splitTitle}>
-                Cooperatives of Farmers
+              <h2 className="text-6xl text-green-700 font-extrabold mb-4">
+                SMMC Cooperative
               </h2>
-              <p className={styles.splitSubtitle}>
+              <p className="text-4xl text-gray-800 font-semibold mb-6">
                 Empowering Local Communities Through Sustainable Agriculture
               </p>
-              <p className={styles.splitDescription}>
+              <p className="text-2xl text-gray-600 mb-4 space-y-4 leading-relaxed">
                 Our network of farmer cooperatives represents the heart of sustainable agriculture in our region.
                 We bring together dedicated farmers who share a commitment to quality, environmental stewardship,
                 and community development. Through collective effort, we ensure that fresh, nutritious produce
                 reaches your table while supporting the livelihoods of local farming families.
               </p>
-              <p className={styles.splitDescription}>
-                Each cooperative operates with transparency, fair trade practices, and a deep respect for the land.
-                Our farmers use traditional methods combined with modern sustainable techniques to grow produce
-                that's not only delicious but also environmentally responsible.
-              </p>
 
               {/* Stats */}
               <div className={styles.splitStats}>
                 <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>25+</div>
+                  <div className={styles.splitStatNumber}>00</div>
                   <div className={styles.splitStatLabel}>Years Experience</div>
                 </div>
                 <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>500+</div>
+                  <div className={styles.splitStatNumber}>00</div>
                   <div className={styles.splitStatLabel}>Active Farmers</div>
                 </div>
                 <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>50+</div>
+                  <div className={styles.splitStatNumber}>00</div>
                   <div className={styles.splitStatLabel}>Cooperatives</div>
                 </div>
               </div>
@@ -119,9 +168,7 @@ export default function CustomerHome() {
                 {/* Stock image placeholder - replace with actual cooperative/farm image */}
                 <div className={styles.splitImagePlaceholder}>
                   <div className={styles.splitImageContent}>
-                    <div className={styles.splitImageIcon}>🚜</div>
-                    <div className={styles.splitImageTitle}>Cooperative Farm Image</div>
-                    <div className={styles.splitImageSubtitle}>Replace with actual stock image of farmers/cooperative</div>
+                    <div className={styles.splitImageTitle}>SMMC Letters Pic</div>
                 </div>
                 </div>
                 <div className={styles.splitImageOverlay}></div>
@@ -131,145 +178,81 @@ export default function CustomerHome() {
         </div>
       </section>
 
-      {/* Feature Cards Section - Inspired by the provided design */}
-      <section id="produce" className={styles.featureSection}>
-        <div className={styles.featureContainer}>
-          <div className={styles.featureGrid}>
-            {/* 100% Natural Card */}
-            <div className={styles.featureCard}>
-              <div className={styles.featureCardContent}>
-                <div className={styles.featureIconContainer}>
-                  <div className={styles.featureIcon}>
-                    <span className={styles.featureIconText}>🌿</span>
+      {/* Product Carousel Section */}
+      <section id="produce" className="py-16 bg-gray-50 overflow-hidden">
+        <div className="container mx-auto my-10">
+          <h3 className="text-6xl font-bold text-center text-green-700">Featured Products</h3>
+          <div className={`relative ${styles.carouselContainer}`}>
+            <Carousel
+              opts={{
+                align: "center",
+                loop: true,
+                skipSnaps: false,
+                dragFree: false,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 3000,
+                }),
+              ]}
+              setApi={handleCarouselApi}
+              className="w-full max-w-6xl mx-auto"
+            >
+            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 ${styles.perspective1000} ${styles.carouselContent}`}>
+              {featuredProducts.map((product, index) => {
+                const isActive = index === currentSlide;
+                const isLeft = index < currentSlide;
+                const isRight = index > currentSlide;
+                
+                return (
+                  <CarouselItem key={product.id} className="basis-1/3 pl-4">
+                    <div className={`relative ${styles.transformGpu}`}>
+                      <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative ${styles.transformGpu} ${
+                        isActive 
+                          ? `scale-150 shadow-2xl z-30 transform translate-y-0 ${styles.translateZ0} ${styles.rotateY0} blur-none opacity-100` 
+                          : isLeft
+                          ? `scale-80 opacity-20 z-10 transform translate-x-12 -translate-y-6 ${styles.translateZNeg100} ${styles.rotateY25} blur-sm`
+                          : isRight
+                          ? `scale-80 opacity-20 z-10 transform -translate-x-12 -translate-y-6 ${styles.translateZNeg100} ${styles.rotateYNeg25} blur-sm`
+                          : 'scale-80 opacity-20 z-10 blur-md'
+                      }`}>
+                      <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {product.image_url ? (
+                          <img 
+                            src={product.image_url} 
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src="/storage/products/default-product.jpg"
+                            alt="Default product"
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="p-4 flex items-center justify-between">
+                        <h3 className="font-semibold text-lg text-green-700">{product.name}</h3>
+                        <p className="text-green-600 font-bold ml-4 whitespace-nowrap">
+                          {getDisplayPrice(product)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.featureText}>
-                  <h3 className={styles.featureTitle}>
-                    <span className={styles.featureTitleItalic}>100%</span><br />
-                    <span className={styles.featureTitleItalic}>Natural</span>
-                  </h3>
-                  <p className={styles.featureDescription}>
-                    Our produce is grown using only natural methods, free from harmful chemicals and pesticides.
-                    Every fruit and vegetable is carefully cultivated to maintain its natural flavor and nutritional value.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Freshly Picked Card */}
-            <div className={styles.featureCard}>
-              <div className={styles.featureCardContent}>
-                <div className={styles.featureIconContainer}>
-                  <div className={styles.featureIcon}>
-                    <span className={styles.featureIconText}>🛍️</span>
-                  </div>
-                </div>
-                <div className={styles.featureText}>
-                  <h3 className={styles.featureTitle}>
-                    <span className={styles.featureTitleItalic}>Freshly</span><br />
-                    <span className={styles.featureTitleItalic}>Picked</span>
-                  </h3>
-                  <p className={styles.featureDescription}>
-                    Harvested at peak ripeness and delivered fresh to your doorstep. Our farmers pick produce
-                    daily to ensure maximum freshness and optimal taste for your family.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Cabuyao Grown Card */}
-            <div className={styles.featureCard}>
-              <div className={styles.featureCardContent}>
-                <div className={styles.featureIconContainer}>
-                  <div className={styles.featureIcon}>
-                    <span className={styles.featureIconText}>🌱</span>
-                  </div>
-                </div>
-                <div className={styles.featureText}>
-                  <h3 className={styles.featureTitle}>
-                    <span className={styles.featureTitleItalic}>Cabuyao</span><br />
-                    <span className={styles.featureTitleItalic}>Grown</span>
-                  </h3>
-                  <p className={styles.featureDescription}>
-                    Proudly grown in Cabuyao by local farmers who understand the land and climate.
-                    Supporting our community while bringing you the finest locally-sourced produce.
-                  </p>
-                </div>
-              </div>
-            </div>
+                </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="bg-transparent text-green-700 hover:bg-green-700 hover:text-white border-transparent hover:border-green-700 transition-all duration-300 ease-in-out" />
+            <CarouselNext className="bg-transparent text-green-700 hover:bg-green-700 hover:text-white border-transparent hover:border-green-700 transition-all duration-300 ease-in-out" />
+          </Carousel>
           </div>
         </div>
+        <FeatureCards cards={featureCardsData} />
       </section>
 
       {/* Main Content */}
       <main className={styles.mainContent}>
-        {/* About Section */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>About Our Cooperatives</h2>
-          <p className={styles.sectionSubtitle}>
-            We are a network of dedicated farmer cooperatives working together to bring you the freshest,
-            highest-quality produce while supporting sustainable farming practices and local communities.
-          </p>
-
-          <div className={styles.aboutGrid}>
-            <div className={styles.aboutCard}>
-              <div className={styles.aboutIcon}>
-                <span className={styles.aboutIconText}>🌱</span>
-              </div>
-              <h3 className={styles.aboutTitle}>Sustainable Farming</h3>
-              <p className={styles.aboutDescription}>
-                Our cooperatives follow eco-friendly practices that protect the environment
-                while ensuring the highest quality produce.
-              </p>
-            </div>
-
-            <div className={styles.aboutCard}>
-              <div className={styles.aboutIcon}>
-                <span className={styles.aboutIconText}>🤝</span>
-              </div>
-              <h3 className={styles.aboutTitle}>Community Support</h3>
-              <p className={styles.aboutDescription}>
-                By purchasing from our cooperatives, you directly support local farmers
-                and strengthen rural communities.
-              </p>
-            </div>
-
-            <div className={styles.aboutCard}>
-              <div className={styles.aboutIcon}>
-                <span className={styles.aboutIconText}>🚚</span>
-              </div>
-              <h3 className={styles.aboutTitle}>Fresh Delivery</h3>
-              <p className={styles.aboutDescription}>
-                From farm to your table in the shortest time possible, ensuring maximum
-                freshness and nutritional value.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className={styles.statsSection}>
-          <h2 className={styles.statsTitle}>Our Impact</h2>
-          <div className={styles.statsGrid}>
-            <div className={styles.statItem}>
-              <div className={styles.statNumber}>500+</div>
-              <div className={styles.statLabel}>Active Farmers</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statNumber}>50+</div>
-              <div className={styles.statLabel}>Cooperatives</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statNumber}>1000+</div>
-              <div className={styles.statLabel}>Happy Customers</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statNumber}>25+</div>
-              <div className={styles.statLabel}>Product Varieties</div>
-            </div>
-          </div>
-        </section>
-
         {/* Call to Action Section */}
         <section className={styles.ctaSection}>
           <h2 className={styles.ctaTitle}>Ready to Support Local Farmers?</h2>
