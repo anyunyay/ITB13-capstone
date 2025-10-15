@@ -278,12 +278,12 @@ export default function InventoryIndex() {
                         <DashboardHeader stockStats={stockStats} />
 
                 {/* System Lock Manager */}
-                        <div className="mb-6">
+                        <div className="mb-3">
                     <SystemLockManager />
                 </div>
 
                         {/* Flash Messages and Alerts */}
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                         <FlashMessage flash={flash} />
                         {errors.archive && (
                                 <Alert className="border-destructive/50 bg-destructive/10">
