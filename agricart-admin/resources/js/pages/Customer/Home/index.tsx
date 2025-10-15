@@ -14,6 +14,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { SystemLockOverlay } from '@/components/system-lock-overlay';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { FeatureCards } from '@/components/FeatureCards';
+import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
 import styles from './index.module.css';
 
@@ -251,32 +252,6 @@ export default function CustomerHome({ products }: PageProps) {
         <FeatureCards cards={featureCardsData} />
       </section>
 
-      {/* Main Content */}
-      <main className={styles.mainContent}>
-        {/* Call to Action Section */}
-        <section className={styles.ctaSection}>
-          <h2 className={styles.ctaTitle}>Ready to Support Local Farmers?</h2>
-          <p className={styles.ctaDescription}>
-            Join thousands of customers who choose fresh, local produce while making a positive impact
-            on farming communities.
-          </p>
-          <div className={styles.ctaButtons}>
-            <button
-              className={styles.primaryButton}
-              onClick={() => router.visit('/products')}
-            >
-              Shop Fresh Produce
-            </button>
-            <button
-              className={styles.secondaryButton}
-              onClick={() => router.visit('/about')}
-            >
-              Learn More About Us
-            </button>
-          </div>
-        </section>
-      </main>
-
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
         <DialogContent>
@@ -292,6 +267,18 @@ export default function CustomerHome({ products }: PageProps) {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+      {/* Footer */}
+      <Footer 
+        companyName="SMMC Cooperative"
+        facebookUrl="https://facebook.com/smmccooperative"
+        emailAddress="contact@smmccooperative.com"
+        physicalAddress="Cabuyao, Laguna, Philippines"
+        navigationLinks={[
+          { title: "Privacy Policy", href: "/privacy" },
+          { title: "Terms of Service", href: "/terms" }
+        ]}
+      />
     </AppHeaderLayout>
   );
 }
