@@ -86,17 +86,27 @@ export default function CustomerHome({ products }: PageProps) {
       <Head title="Home - Cooperatives of Farmers" />
       <SystemLockOverlay />
 
-      {/* Hero Section with Farm Image Placeholder */}
+      {/* Hero Section with Farm Image */}
       <section className={styles.heroSection}>
         <AspectRatio ratio={19/9}>
           <div className={styles.heroImage}>
-            {/* Placeholder for cooperative/farm image */}
-            <div className="w-full h-full bg-gradient-to-b from-green-400 via-oklch-500 to-oklch-600 flex align-items-left relative">
-              <div className="text-white text-left text-end place-self-end pl-30 pb-50 relative z-20">
-                <h2 className="text-6xl font-light">Grown Here,</h2>
-                <h1 className="text-9xl font-bold">For You.</h1>
+            {/* Background image with gradient overlay */}
+            <div className="w-full h-full relative">
+              <div className="w-full h-full bg-gradient-to-b from-neutral-100 via-oklch-300 to-oklch-400">
+                <img 
+                  src="/images/frontpage/pexels-pixabay-265216.jpg" 
+                  alt="Farm landscape" 
+                  className="w-full h-full object-cover mix-blend-multiply"
+                />
               </div>
-              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-20">
+              {/* Text overlay - no gradient applied */}
+              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-50">
+                <div className="text-left">
+                  <h2 className="text-6xl font-light">Grown Here,</h2>
+                  <h1 className="text-9xl font-bold text-green-600">For You.</h1>
+                </div>
+              </div>
+              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-40">
                 <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('produce')?.scrollIntoView({ behavior: 'smooth' })}>
                   VIEW PRODUCE
                   <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
