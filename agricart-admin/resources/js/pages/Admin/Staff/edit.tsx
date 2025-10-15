@@ -52,7 +52,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
   // Define permission groups with their detailed permissions
   const permissionGroups = [
     {
-      name: 'Inventory Access',
+      name: 'Inventory Management',
       description: 'Full access to inventory management including products, archive, stocks, and tracking',
       permissions: [
         'view inventory',
@@ -69,7 +69,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Order Access',
+      name: 'Order Management',
       description: 'Access to order management and processing',
       permissions: [
         'view orders',
@@ -78,22 +78,51 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Logistics Access',
+      name: 'Sales Management',
+      description: 'Access to sales data and reporting',
+      permissions: [
+        'view sales'
+      ]
+    },
+    {
+      name: 'Logistics Management',
       description: 'Access to logistics management and operations',
       permissions: [
         'view logistics',
         'create logistics',
         'edit logistics'
       ]
+    },
+    {
+      name: 'Staff Management',
+      description: 'Access to staff management (Admin only permissions)',
+      permissions: [
+        'view staffs',
+        'create staffs',
+        'edit staffs',
+        'delete staffs',
+        'generate staff report'
+      ]
+    },
+    {
+      name: 'Membership Management',
+      description: 'Access to membership management (Admin only permissions)',
+      permissions: [
+        'view membership',
+        'create members',
+        'edit members',
+        'delete members',
+        'generate membership report'
+      ]
     }
   ];
 
   // Separate permissions for reports and deletions
   const reportPermissions = [
-    'generate order report',
-    'generate logistics report',
     'generate inventory report',
-    'generate sales report'
+    'generate order report',
+    'generate sales report',
+    'generate logistics report'
   ];
 
   const deletePermissions = [
