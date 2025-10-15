@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
+import { OrderItemsTable } from '@/components/orders/order-items-table';
 
 interface OrderItem {
   id: number;
@@ -251,38 +252,11 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 <CardTitle>Order Items</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {order.audit_trail && order.audit_trail.length > 0 ? (
-                    order.audit_trail.map((item) => {
-                      const price = item.category === 'Kilo' ? (item.product.price_kilo || 0) :
-                                   item.category === 'Pc' ? (item.product.price_pc || 0) :
-                                   item.category === 'Tali' ? (item.product.price_tali || 0) : 0;
-                      const totalPrice = Number(item.quantity) * Number(price);
-                      
-                      return (
-                        <div key={item.id} className="flex items-center justify-between p-4 border rounded">
-                          <div>
-                            <h4 className="font-medium">{item.product.name}</h4>
-                            <p className="text-sm text-gray-500">
-                              {item.quantity} {item.category} × ₱{price}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium">₱{totalPrice.toFixed(2)}</p>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-sm text-gray-500 text-center py-4">No items found</p>
-                  )}
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">Total</span>
-                      <span className="text-lg font-semibold">₱{Number(order.total_amount).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
+                <OrderItemsTable 
+                  items={order.audit_trail || []} 
+                  showStock={true}
+                  compact={false}
+                />
               </CardContent>
             </Card>
 
