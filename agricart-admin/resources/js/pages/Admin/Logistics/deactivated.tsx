@@ -1,12 +1,13 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
+import { FlashMessage } from '@/components/flash-message';
 import {
     Table,
     TableBody,
@@ -24,37 +25,19 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { Logistic } from '@/types/logistics';
+import styles from './logistics.module.css';
 
-interface Logistic {
-    id: number;
-    name: string;
-    email: string;
-    contact_number?: string;
-    registration_date?: string;
-    type: string;
-    default_address?: {
-        id: number;
-        street: string;
-        barangay: string;
-        city: string;
-        province: string;
-        full_address: string;
-    };
-    [key: string]: unknown;
-}
-
-interface PageProps {
+interface PageProps extends SharedData {
     flash: {
-        message?: string
-        error?: string
-    }
+        message?: string;
+        error?: string;
+    };
     deactivatedLogistics: Logistic[];
-    [key: string]: unknown;
 }
 
 export default function Deactivated() {
-
-    const { deactivatedLogistics, flash, auth } = usePage<PageProps & SharedData>().props;
+    const { deactivatedLogistics, flash, auth } = usePage<PageProps>().props;
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     
@@ -92,135 +75,168 @@ export default function Deactivated() {
         >
             <AppLayout>
                 <Head title="Deactivated Logistics" />
-                <div className="m-4">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Deactivated Logistics</h1>
-                    <div className="flex gap-2">
-                        <Link href={route('logistics.index')}><Button variant="outline">Back to Active Logistics</Button></Link>
-                    </div>
-                </div>
-
-                <div className='m-4'>
-                    <div>
-                        {flash.message && (
-                            <Alert>
-                                <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>Notification!</AlertTitle>
-                                <AlertDescription>{flash.message}</AlertDescription>
-                            </Alert>
-                        )}
-                        {flash.error && (
-                            <Alert className="border-red-300">
-                                <BellDot className='h-4 w-4 text-red-500' />
-                                <AlertTitle>Error!</AlertTitle>
-                                <AlertDescription>{flash.error}</AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
-                </div>
-
-            {deactivatedLogistics.length > 0 && (
-                <div className='w-full pt-8'>
-                    <Table>
-                        <TableCaption>Total list of deactivated logistics</TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="text-center">ID</TableHead>
-                                <TableHead className="text-center">Name</TableHead>
-                                <TableHead className="text-center">Email</TableHead>
-                                <TableHead className="text-center">Contact Number</TableHead>
-                                <TableHead className="text-center">Address</TableHead>
-                                <TableHead className="text-center">Registration Date</TableHead>
-                                <TableHead className="text-center">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {deactivatedLogistics.map((logistic, idx) => (
-                                <TableRow className="text-center" key={logistic.id}>
-                                    <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{logistic.name}</TableCell>
-                                    <TableCell>{logistic.email}</TableCell>
-                                    <TableCell>{logistic.contact_number}</TableCell>
-                                    <TableCell>
-                                        {logistic.default_address ? 
-                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                            : 'N/A'
-                                        }
-                                    </TableCell>
-                                    <TableCell>{logistic.registration_date}</TableCell>
-                                    <TableCell>
-                                        <PermissionGate permission="edit logistics">
-                                            <Button 
-                                                disabled={processing} 
-                                                onClick={() => handleReactivateClick(logistic)} 
-                                                className='bg-green-600 hover:bg-green-700 text-white'
-                                            >
-                                                <RotateCcw className="h-4 w-4 mr-1" />
-                                                Reactivate
-                                            </Button>
-                                        </PermissionGate>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            )}
-
-            {deactivatedLogistics.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg">No deactivated logistics found.</p>
-                </div>
-            )}
-
-            {/* Reactivation Confirmation Modal */}
-            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            Confirm Reactivation
-                        </DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to reactivate this logistic?
-                        </DialogDescription>
-                    </DialogHeader>
-                    
-                    {selectedLogistic && (
-                        <div className="space-y-3">
-                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <h4 className="font-medium text-green-800 mb-1">Logistic Details:</h4>
-                                <p className="text-green-700">{selectedLogistic.name}</p>
-                                <p className="text-sm text-green-600">{selectedLogistic.email}</p>
-                            </div>
-                            
-                            <div className="text-sm text-gray-600">
-                                <p><strong>This action will:</strong></p>
-                                <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>Reactivate the logistic account</li>
-                                    <li>Allow them to access the system again</li>
-                                    <li>Move them back to the active logistics list</li>
-                                </ul>
+                <div className={styles.logisticsContainer}>
+                    <div className={styles.mainContent}>
+                        {/* Flash Messages */}
+                        <FlashMessage flash={flash} />
+                        
+                        {/* Header Section */}
+                        <div className={styles.dashboardHeader}>
+                            <div className={styles.headerMain}>
+                                <div className={styles.headerTitleSection}>
+                                    <div className={styles.titleContainer}>
+                                        <RotateCcw className={styles.headerIcon} />
+                                        <div>
+                                            <h1 className={styles.headerTitle}>Deactivated Logistics</h1>
+                                            <p className={styles.headerSubtitle}>
+                                                View and manage deactivated logistics partners
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.headerActions}>
+                                    <Button asChild variant="outline" className={styles.secondaryAction}>
+                                        <Link href={route('logistics.index')}>
+                                            <RotateCcw className="h-4 w-4 mr-2" />
+                                            Back to Active Logistics
+                                        </Link>
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    )}
-                    
-                    <DialogFooter>
-                        <Button variant="outline" onClick={handleCancelReactivation}>
-                            Cancel
-                        </Button>
-                        <Button 
-                            className="bg-green-600 hover:bg-green-700 text-white" 
-                            onClick={handleConfirmReactivation}
-                            disabled={processing}
-                        >
-                            {processing ? 'Reactivating...' : 'Reactivate'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-            </div>
-        </AppLayout>
+
+                        {/* Deactivated Logistics Table */}
+                        <div className={styles.logisticManagementSection}>
+                            <div className={styles.sectionHeader}>
+                                <div className={styles.sectionTitleContainer}>
+                                    <div className={styles.sectionIcon}>
+                                        <RotateCcw className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className={styles.sectionTitle}>Deactivated Logistics Partners</h2>
+                                        <p className={styles.sectionSubtitle}>
+                                            {deactivatedLogistics.length} deactivated logistics partner{deactivatedLogistics.length !== 1 ? 's' : ''} found
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {deactivatedLogistics.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className={styles.logisticTable}>
+                                        <thead className={styles.logisticTableHeader}>
+                                            <tr>
+                                                <th className={styles.logisticTableHeaderCell}>ID</th>
+                                                <th className={styles.logisticTableHeaderCell}>Name</th>
+                                                <th className={styles.logisticTableHeaderCell}>Email</th>
+                                                <th className={styles.logisticTableHeaderCell}>Contact Number</th>
+                                                <th className={styles.logisticTableHeaderCell}>Address</th>
+                                                <th className={styles.logisticTableHeaderCell}>Registration Date</th>
+                                                <th className={styles.logisticTableHeaderCell}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {deactivatedLogistics.map((logistic, idx) => (
+                                                <tr key={logistic.id} className={styles.logisticTableRow}>
+                                                    <td className={styles.logisticTableCell}>{idx + 1}</td>
+                                                    <td className={styles.logisticTableCell}>
+                                                        <div className="font-medium">{logistic.name}</div>
+                                                    </td>
+                                                    <td className={styles.logisticTableCell}>{logistic.email}</td>
+                                                    <td className={styles.logisticTableCell}>
+                                                        {logistic.contact_number || 'N/A'}
+                                                    </td>
+                                                    <td className={styles.logisticTableCell}>
+                                                        {logistic.default_address ? 
+                                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
+                                                            : 'N/A'
+                                                        }
+                                                    </td>
+                                                    <td className={styles.logisticTableCell}>
+                                                        {logistic.registration_date ? 
+                                                            new Date(logistic.registration_date).toLocaleDateString() 
+                                                            : 'N/A'
+                                                        }
+                                                    </td>
+                                                    <td className={styles.logisticTableCell}>
+                                                        <div className={styles.logisticActionCell}>
+                                                            <PermissionGate permission="edit logistics">
+                                                                <Button 
+                                                                    disabled={processing} 
+                                                                    onClick={() => handleReactivateClick(logistic)} 
+                                                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                                                >
+                                                                    <RotateCcw className="h-4 w-4 mr-1" />
+                                                                    Reactivate
+                                                                </Button>
+                                                            </PermissionGate>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className={styles.emptyState}>
+                                    <RotateCcw className={styles.emptyStateIcon} />
+                                    <h3 className={styles.emptyStateTitle}>No deactivated logistics found</h3>
+                                    <p className={styles.emptyStateDescription}>
+                                        There are currently no deactivated logistics partners in the system.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Reactivation Confirmation Modal */}
+                        <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-2">
+                                        <CheckCircle className="h-5 w-5 text-green-500" />
+                                        Confirm Reactivation
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Are you sure you want to reactivate this logistics partner?
+                                    </DialogDescription>
+                                </DialogHeader>
+                                
+                                {selectedLogistic && (
+                                    <div className="space-y-3">
+                                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                            <h4 className="font-medium text-green-800 mb-1">Logistics Partner Details:</h4>
+                                            <p className="text-green-700">{selectedLogistic.name}</p>
+                                            <p className="text-sm text-green-600">{selectedLogistic.email}</p>
+                                        </div>
+                                        
+                                        <div className="text-sm text-gray-600">
+                                            <p><strong>This action will:</strong></p>
+                                            <ul className="list-disc list-inside mt-1 space-y-1">
+                                                <li>Reactivate the logistics partner account</li>
+                                                <li>Allow them to access the system again</li>
+                                                <li>Move them back to the active logistics list</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={handleCancelReactivation}>
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        className="bg-green-600 hover:bg-green-700 text-white" 
+                                        onClick={handleConfirmReactivation}
+                                        disabled={processing}
+                                    >
+                                        {processing ? 'Reactivating...' : 'Reactivate'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                </div>
+            </AppLayout>
         </PermissionGuard>
     );
 }

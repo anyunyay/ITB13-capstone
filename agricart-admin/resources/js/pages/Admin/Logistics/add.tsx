@@ -6,17 +6,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Textarea } from '@/components/ui/textarea';
 import PasswordInput from '@/components/ui/password-input';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type SharedData } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { OctagonAlert } from 'lucide-react';
+import { OctagonAlert, IdCard } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
-import { SharedData } from '@/types';
 import { router } from '@inertiajs/react';
+import styles from './logistics.module.css';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -79,9 +79,51 @@ export default function Index() {
             pageTitle="Create Logistics Access Denied"
         >
             <AppLayout>
-                <Head title="Add Logistic" />
-                <div className='w-8/12 p-4'>
-                <form onSubmit={handleSubmit} className='space-y-4'>
+                <Head title="Add Logistics Partner" />
+                <div className={styles.logisticsContainer}>
+                    <div className={styles.mainContent}>
+                        {/* Header Section */}
+                        <div className={styles.dashboardHeader}>
+                            <div className={styles.headerMain}>
+                                <div className={styles.headerTitleSection}>
+                                    <div className={styles.titleContainer}>
+                                        <IdCard className={styles.headerIcon} />
+                                        <div>
+                                            <h1 className={styles.headerTitle}>Add Logistics Partner</h1>
+                                            <p className={styles.headerSubtitle}>
+                                                Register a new logistics partner to handle deliveries
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={styles.headerActions}>
+                                    <Button asChild variant="outline" className={styles.secondaryAction}>
+                                        <Link href={route('logistics.index')}>
+                                            <IdCard className="h-4 w-4 mr-2" />
+                                            Back to Logistics
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Form Section */}
+                        <div className={styles.logisticManagementSection}>
+                            <div className={styles.sectionHeader}>
+                                <div className={styles.sectionTitleContainer}>
+                                    <div className={styles.sectionIcon}>
+                                        <IdCard className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <h2 className={styles.sectionTitle}>Logistics Partner Information</h2>
+                                        <p className={styles.sectionSubtitle}>
+                                            Enter the details for the new logistics partner
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className='space-y-6'>
 
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (
@@ -229,10 +271,21 @@ export default function Index() {
                             </div>
                         </div>
                     </div>
-                    <Button disabled={processing} type="submit">Add Logistic</Button>
-                </form>
-            </div>
-        </AppLayout>
+                                <div className="flex justify-end">
+                                    <Button 
+                                        disabled={processing} 
+                                        type="submit" 
+                                        className={styles.primaryAction}
+                                    >
+                                        <IdCard className="h-4 w-4 mr-2" />
+                                        {processing ? 'Adding...' : 'Add Logistics Partner'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </AppLayout>
         </PermissionGuard>
     );
 }

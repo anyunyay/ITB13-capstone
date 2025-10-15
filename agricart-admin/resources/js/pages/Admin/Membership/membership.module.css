@@ -1,0 +1,908 @@
+/* Membership Management Styles */
+
+/* Container and Layout */
+.membershipContainer {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Main Dashboard Header */
+.dashboardHeader {
+  background: linear-gradient(135deg, var(--card) 0%, color-mix(in srgb, var(--card) 95%, var(--primary) 5%) 100%);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  padding: 1.2rem;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+@media (min-width: 768px) {
+  .headerMain {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.headerTitleSection {
+  flex: 1;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.headerIcon {
+  height: 2.4rem;
+  width: 2.4rem;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+}
+
+.headerTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.headerSubtitle {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  margin: 0.2rem 0 0 0;
+  line-height: 1.4;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.primaryAction {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.4rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primaryAction:hover {
+  background: color-mix(in srgb, var(--primary) 90%, black 10%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.secondaryAction {
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.secondaryAction:hover {
+  background: var(--muted);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Statistics Dashboard */
+.statsDashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.statCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.675rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
+}
+
+.statIcon {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  padding: 0.675rem;
+  border-radius: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statValue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.7875rem;
+  color: var(--muted-foreground);
+  margin-top: 0.225rem;
+}
+
+/* Section Management */
+.memberManagementSection,
+.passwordRequestsSection {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .sectionHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sectionTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sectionIcon {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0 0 0.25rem 0;
+}
+
+.sectionSubtitle {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.sectionActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sectionActionButton {
+  transition: all 0.2s ease;
+}
+
+.sectionActionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Search and Filter Section */
+.searchFilterSection {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.searchControls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .searchControls {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.searchInputContainer {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1rem;
+  width: 1rem;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.filterControls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  min-width: 150px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.resultsInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.resultsCount {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.clearSearch {
+  font-size: 0.875rem;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.clearSearch:hover {
+  color: color-mix(in srgb, var(--primary) 80%, black 20%);
+}
+
+/* Table Styles */
+.memberTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.memberTableHeader {
+  background-color: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+.memberTableHeaderCell {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+.memberTableRow {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s ease;
+}
+
+.memberTableRow:hover {
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+}
+
+.memberTableRow.highlighted {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  animation: highlightPulse 2s ease-in-out;
+}
+
+@keyframes highlightPulse {
+  0%, 100% { background-color: color-mix(in srgb, var(--primary) 10%, transparent); }
+  50% { background-color: color-mix(in srgb, var(--primary) 20%, transparent); }
+}
+
+.memberTableCell {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.memberActionCell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.memberActionButton {
+  transition: all 0.2s ease;
+}
+
+.memberActionButton:hover {
+  transform: scale(1.05);
+}
+
+/* Password Request Styles */
+.passwordRequestCard {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.passwordRequestCard:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.passwordRequestHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.passwordRequestInfo {
+  flex: 1;
+}
+
+.passwordRequestName {
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.25rem;
+}
+
+.passwordRequestDetails {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.25rem;
+}
+
+.passwordRequestTime {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.passwordRequestActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.approveButton {
+  background: rgb(34 197 94);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.approveButton:hover {
+  background: rgb(22 163 74);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+}
+
+.rejectButton {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rejectButton:hover {
+  background: color-mix(in srgb, var(--destructive) 90%, black 10%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Pagination Styles */
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.paginationText {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  white-space: nowrap;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 2.5rem;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.paginationNumbers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.paginationNumber {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paginationNumber:hover {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.paginationNumber[data-state="active"] {
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Empty States */
+.emptyState {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.emptyStateIcon {
+  margin: 0 auto;
+  height: 2.5rem;
+  width: 2.5rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+}
+
+.emptyStateTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateDescription {
+  color: var(--muted-foreground);
+}
+
+/* Action Buttons */
+.actionButton {
+  transition: all 0.2s ease-in-out;
+}
+
+.actionButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .mainContent {
+    padding: 1rem 0.5rem;
+  }
+  
+  .headerMain {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .headerActions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .statsDashboard {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .statCard {
+    padding: 1rem;
+  }
+  
+  .searchControls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .filterControls {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .filterSelect {
+    min-width: 100%;
+  }
+  
+  .memberActionCell {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .dashboardHeader {
+    padding: 1rem;
+  }
+  
+  .headerTitle {
+    font-size: 1.5rem;
+  }
+  
+  .titleContainer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .memberManagementSection,
+  .passwordRequestsSection {
+    padding: 0.75rem;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .sectionTitleContainer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .sectionActions {
+    justify-content: center;
+  }
+  
+  .searchFilterSection {
+    padding: 0.75rem;
+  }
+  
+  .passwordRequestHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .passwordRequestActions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .statsDashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .statsDashboard {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Responsive Pagination */
+@media (max-width: 640px) {
+  .paginationContainer {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .paginationText {
+    position: static;
+    transform: none;
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+  
+  .paginationControls {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .paginationButton {
+    padding: 0.5rem;
+    min-width: auto;
+  }
+  
+  .paginationNumber {
+    min-width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Dark Mode Support */
+.dark .dashboardHeader {
+  background: linear-gradient(135deg, var(--card) 0%, color-mix(in srgb, var(--card) 98%, var(--primary) 2%) 100%);
+  border-color: color-mix(in srgb, var(--border) 80%, var(--primary) 20%);
+}
+
+.dark .statCard {
+  background: color-mix(in srgb, var(--card) 95%, var(--background) 5%);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+}
+
+.dark .statCard:hover {
+  background: color-mix(in srgb, var(--card) 90%, var(--primary) 10%);
+  border-color: var(--primary);
+}
+
+.dark .memberManagementSection,
+.dark .passwordRequestsSection {
+  background: color-mix(in srgb, var(--card) 95%, var(--background) 5%);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+}
+
+.dark .searchFilterSection {
+  background: color-mix(in srgb, var(--card) 95%, var(--background) 5%);
+  border-color: color-mix(in srgb, var(--border) 80%, var(--primary) 20%);
+}
+
+.dark .searchInput {
+  background: color-mix(in srgb, var(--background) 90%, var(--card) 10%);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+}
+
+.dark .searchInput:focus {
+  background: var(--background);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.dark .filterSelect {
+  background: color-mix(in srgb, var(--background) 90%, var(--card) 10%);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+}
+
+.dark .filterSelect:focus {
+  background: var(--background);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.dark .memberTableRow:hover {
+  background-color: color-mix(in srgb, var(--muted) 20%, transparent);
+}
+
+.dark .passwordRequestCard {
+  background: color-mix(in srgb, var(--background) 90%, var(--card) 10%);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--primary) 30%);
+}
+
+.dark .passwordRequestCard:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .statCard,
+  .actionButton,
+  .memberActionButton {
+    transition: none;
+  }
+  
+  .statCard:hover {
+    transform: none;
+  }
+  
+  .memberTableRow.highlighted {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .statCard,
+  .searchFilterSection,
+  .memberManagementSection,
+  .passwordRequestsSection {
+    border-width: 2px;
+  }
+  
+  .headerIcon,
+  .statIcon {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  
+  .searchInput:focus,
+  .filterSelect:focus {
+    box-shadow: 0 0 0 3px var(--primary);
+  }
+}
+
+/* Focus Management */
+.statCard:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Print Optimizations */
+@media print {
+  .dashboardHeader {
+    background: white !important;
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .statsDashboard {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  .searchFilterSection {
+    display: none;
+  }
+  
+  .memberActionCell {
+    display: none;
+  }
+  
+  .headerActions {
+    display: none;
+  }
+  
+  .passwordRequestActions {
+    display: none;
+  }
+}
