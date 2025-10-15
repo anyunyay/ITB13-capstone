@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Stock;
 use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
+use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -17,8 +18,13 @@ class InventoryController extends Controller
     public function index()
     { 
         $products = Product::active()->get();
-        $stocks = Stock::active()->get();
-        return Inertia::render('Inventory/index', compact('products', 'stocks'));
+        $archivedProducts = Product::archived()->get();
+        $stocks = Stock::active()->with(['product', 'member', 'lastCustomer'])->get();
+        $removedStocks = Stock::removed()->with(['product', 'member', 'lastCustomer'])->orderBy('removed_at', 'desc')->limit(50)->get();
+        $soldStocks = Stock::sold()->with(['product', 'member', 'lastCustomer'])->orderBy('updated_at', 'desc')->limit(50)->get();
+        $auditTrails = AuditTrail::with(['product', 'stock', 'sale'])->orderBy('created_at', 'desc')->limit(100)->get();
+        $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
+        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'categories'));
     }
 
     public function create()
