@@ -1,165 +1,269 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
-import { BellDot, AlertTriangle, CheckCircle } from 'lucide-react';
-import { usePermissions } from '@/hooks/use-permissions';
+import { route } from 'ziggy-js';
+import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
 import { SystemLockManager } from '@/components/system-lock-manager';
 import { useSystemLock } from '@/hooks/use-system-lock';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { DashboardHeader } from '@/components/inventory/dashboard-header';
+import { ProductManagement } from '@/components/inventory/product-management';
+import { StockManagement } from '@/components/inventory/stock-management';
+import { RemoveStockModal } from '@/components/inventory/remove-stock-modal';
+import { ArchiveProductModal } from '@/components/inventory/archive-product-modal';
+import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
+import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
+import { Product, Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
+import styles from './inventory.module.css';
 
-interface Product {
-    id: number;
-    name: string;
-    price_kilo?: number;
-    price_pc?: number;
-    price_tali?: number;
-    description: string;
-    image: string;
-    image_url?: string; // Added for Inertia.js imageUrl accessor
-    produce_type: string;
-    archived_at?: string;
-}
-
-interface Member {
-    id: number;
-    name: string;
-    email: string;
-        contact_number?: string;
-    address?: string;
-    registration_date?: string;
-    document?: string;
-    type: string;
-    [key: string]: unknown;
-}
-
-interface Stock {
-    id: number;
-    product_id: number;
-    quantity: number;
-    member_id: number;
-    product: Product;
-    member: Member;
-    category: 'Kilo' | 'Pc' | 'Tali';
-}
-
-interface PageProps {
-    flash: {
-        message?: string
-    }
-    errors: {
-        archive?: string
-    }
+interface PageProps extends SharedData {
     products: Product[];
+    archivedProducts: Product[];
     stocks: Stock[];
-    [key: string]: unknown;
+    removedStocks: RemovedStock[];
+    soldStocks: SoldStock[];
+    auditTrails: AuditTrail[];
+    categories: string[];
+    errors: {
+        archive?: string;
+        delete?: string;
+    };
 }
 
-export default function Index() {
-
-    const { products, stocks, flash, errors, auth } = usePage<PageProps & SharedData>().props;
-    const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [removeFormData, setRemoveFormData] = useState({
-        stock_id: '',
-        reason: '',
-        other_reason: '',
-    });
+export default function InventoryIndex() {
+    const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
+    const { flash } = usePage<PageProps>().props;
+    
+    // Search and filter states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [sortBy, setSortBy] = useState('name');
+    const [showArchived, setShowArchived] = useState(false);
+    
+    // Reset pagination when switching views
+    const toggleArchivedView = (show: boolean) => {
+        setShowArchived(show);
+        setCurrentPage(1); // Reset to first page when switching views
+    };
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(12); // 12 products per page for better focus
+    const [stockCurrentPage, setStockCurrentPage] = useState(1);
+    const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
 
     // Use system lock hook to get lock state
     const { shouldDisableButtons } = useSystemLock();
 
-    // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
-    useEffect(() => {
-        if (!auth?.user) {
-            router.visit('/login');
-        }
-    }, [auth]);
+    // Form for archive and delete operations
+    const { data, setData, post, processing, reset } = useForm({
+        reason: '',
+        stock_id: 0,
+        other_reason: '',
+    });
+    
+    // Loading states for specific operations
+    const [archivingProduct, setArchivingProduct] = useState<number | null>(null);
+    const [restoringProduct, setRestoringProduct] = useState<number | null>(null);
+    
+    // Remove stock modal state
+    const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+    const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
+    
+    // Product modals state
+    const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+    const [restoreModalOpen, setRestoreModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
 
-    const { processing, delete: destroy, post } = useForm();
+    // Get the current product list based on view state
+    const currentProducts = showArchived ? archivedProducts : products;
+    
+    // Filter and sort products
+    const filteredAndSortedProducts = (currentProducts || [])
+        .filter(product => {
+            const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                product.produce_type?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCategory = selectedCategory === 'all' || product.produce_type === selectedCategory;
+            return matchesSearch && matchesCategory;
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'name':
+                    return a.name?.localeCompare(b.name || '') || 0;
+                case 'type':
+                    return a.produce_type?.localeCompare(b.produce_type || '') || 0;
+                case 'price':
+                    const priceA = a.price_kilo || a.price_pc || a.price_tali || 0;
+                    const priceB = b.price_kilo || b.price_pc || b.price_tali || 0;
+                    return priceA - priceB;
+                default:
+                    return 0;
+            }
+        });
 
-    const handleDelete = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to delete - ${name}?`)) {
-            // Call the delete route
-            destroy(route('inventory.destroy', id));
-        }
+    // Pagination for products
+    const totalProducts = filteredAndSortedProducts.length;
+    const totalPages = Math.ceil(totalProducts / itemsPerPage);
+    const paginatedProducts = filteredAndSortedProducts.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Stock filtering and pagination functions
+    const getFilteredStocks = (status: string) => {
+        if (!stocks || !Array.isArray(stocks)) return [];
+        return stocks.filter(stock => {
+            if (status === 'all') return true;
+            if (status === 'available') return stock.quantity > 10;
+            if (status === 'low') return stock.quantity > 0 && stock.quantity <= 10;
+            if (status === 'out') return stock.quantity === 0;
+            // Legacy category filtering (for backward compatibility)
+            if (status === 'Kilo') return stock.category === 'Kilo';
+            if (status === 'Pc') return stock.category === 'Pc';
+            if (status === 'Tali') return stock.category === 'Tali';
+            return true;
+        });
     };
 
+    const getPaginatedStocks = (stocks: Stock[], page: number, itemsPerPage: number) => {
+        const startIndex = (page - 1) * itemsPerPage;
+        return stocks.slice(startIndex, startIndex + itemsPerPage);
+    };
+
+    // Archive product handler
+    const handleArchive = (id: number, name: string) => {
+        setSelectedProduct({ id, name });
+        setArchiveModalOpen(true);
+    };
+
+    // Handle archive product submission
+    const handleArchiveSubmit = () => {
+        if (!selectedProduct) return;
+        
+        setArchivingProduct(selectedProduct.id);
+        post(route('inventory.archive', selectedProduct.id), {
+            onSuccess: () => {
+                setArchivingProduct(null);
+                setArchiveModalOpen(false);
+                setSelectedProduct(null);
+                // Switch to archived view to show the newly archived product
+                setShowArchived(true);
+                setCurrentPage(1);
+                // The backend redirect will handle the data refresh and show success message
+            },
+            onError: () => {
+                setArchivingProduct(null);
+            }
+        });
+    };
+
+    // Delete product handler
+    const handleDelete = (id: number, name: string) => {
+        setSelectedProduct({ id, name });
+        setDeleteModalOpen(true);
+    };
+
+    // Handle delete product submission
+    const handleDeleteSubmit = () => {
+        if (!selectedProduct) return;
+        
+        router.delete(route('inventory.destroy', selectedProduct.id), {
+            data: { reason: data.reason || 'Deleted by admin' },
+            onSuccess: () => {
+                reset();
+                setDeleteModalOpen(false);
+                setSelectedProduct(null);
+            }
+        });
+    };
+
+    // Restore archived product handler
+    const handleRestore = (id: number, name: string) => {
+        setSelectedProduct({ id, name });
+        setRestoreModalOpen(true);
+    };
+
+    // Handle restore product submission
+    const handleRestoreSubmit = () => {
+        if (!selectedProduct) return;
+        
+        setRestoringProduct(selectedProduct.id);
+        post(route('inventory.archived.restore', selectedProduct.id), {
+            onSuccess: () => {
+                setRestoringProduct(null);
+                setRestoreModalOpen(false);
+                setSelectedProduct(null);
+                // Switch to active view to show the newly restored product
+                setShowArchived(false);
+                setCurrentPage(1);
+                // The backend redirect will handle the data refresh and show success message
+            },
+            onError: () => {
+                setRestoringProduct(null);
+            }
+        });
+    };
+
+    // Toggle stock visibility - removed as route does not exist
+    // const handleToggleVisibility = (id: number) => {
+    //     post(`/inventory/stocks/${id}/toggle-visibility`);
+    // };
+
+    // Remove perished stock handler
     const handleRemovePerishedStock = (stock: Stock) => {
-        setSelectedProduct(stock.product);
-        setRemoveFormData({ stock_id: stock.id.toString(), reason: '', other_reason: '' });
+        setSelectedStock(stock);
+        setData({
+            stock_id: stock.id,
+            reason: '',
+            other_reason: ''
+        });
         setRemoveDialogOpen(true);
     };
 
+    // Handle remove stock form submission
     const handleRemoveStockSubmit = () => {
-        if (!selectedProduct || !removeFormData.stock_id || !removeFormData.reason) {
+        if (!selectedStock || !data.reason) {
             return;
         }
 
         // If "Other" is selected, require other_reason
-        if (removeFormData.reason === 'Other' && !removeFormData.other_reason) {
+        if (data.reason === 'Other' && !data.other_reason) {
             return;
         }
 
-        // Prepare the data to send
-        const submitData = {
-            stock_id: removeFormData.stock_id,
-            reason: removeFormData.reason === 'Other' ? removeFormData.other_reason : removeFormData.reason,
-        };
-
-        router.post(route('inventory.storeRemovePerishedStock', { product: selectedProduct.id }), submitData, {
+        const finalReason = data.reason === 'Other' ? data.other_reason : data.reason;
+        
+        setData({
+            stock_id: selectedStock.id,
+            reason: finalReason,
+            other_reason: data.other_reason
+        });
+        
+        post(route('inventory.storeRemovePerishedStock', selectedStock.product_id), {
             onSuccess: () => {
+                reset();
                 setRemoveDialogOpen(false);
-                setSelectedProduct(null);
-                setRemoveFormData({ stock_id: '', reason: '', other_reason: '' });
-            },
+                setSelectedStock(null);
+                // Refresh the page to get updated data including audit trail
+                router.reload({ only: ['stocks', 'removedStocks', 'auditTrails'] });
+            }
         });
     };
 
-    const handleArchive = (id: number, name: string) => {
-        if (confirm(`Archive product - ${name}?`)) {
-            post(route('inventory.archive', id));
-        }
-    };
-
-    // Check if a product has available stocks
-    const hasAvailableStocks = (productId: number) => {
-        return stocks.some(stock => stock.product_id === productId && stock.quantity > 0);
+    // Calculate stock statistics
+    const stockStats = {
+        totalProducts: products?.length || 0,
+        totalStocks: stocks?.length || 0,
+        availableStocks: stocks?.filter(stock => stock.quantity > 0).length || 0,
+        lowStockItems: stocks?.filter(stock => stock.quantity > 0 && stock.quantity <= 10).length || 0,
+        outOfStockItems: stocks?.filter(stock => stock.quantity === 0).length || 0,
     };
 
     return (
@@ -168,427 +272,111 @@ export default function Index() {
             pageTitle="Inventory Access Denied"
         >
             <AppLayout>
-                <Head title="Inventory" />
-                <div className="m-4">
-                <PermissionGate permission="create products">
-                    <Link href={route('inventory.create')}><Button>Create Product</Button></Link>
-                </PermissionGate>
-                <PermissionGate permission="view archive">
-                    <Link href={route('inventory.archived.index')}><Button>Archived Products</Button></Link>
-                </PermissionGate>
-                <PermissionGate permission="generate inventory report">
-                    <Link href={route('inventory.report')}><Button variant="outline">Inventory Report</Button></Link>
-                </PermissionGate>
+                <Head title="Inventory Management" />
+                <div className={styles.inventoryContainer}>
+                    <div className={styles.mainContent}>
+                        <DashboardHeader stockStats={stockStats} />
 
                 {/* System Lock Manager */}
-                <div className="mt-4">
+                        <div className="mb-6">
                     <SystemLockManager />
                 </div>
 
-                <div className='m-4'>
-                    <div>
+                        {/* Flash Messages and Alerts */}
+                        <div className="space-y-4">
                         <FlashMessage flash={flash} />
                         {errors.archive && (
-                            <Alert className="border-red-200 bg-red-50">
-                                <AlertTriangle className='h-4 w-4 text-red-500' />
+                                <Alert className="border-destructive/50 bg-destructive/10">
+                                    <AlertTriangle className='h-4 w-4 text-destructive' />
                                 <AlertTitle>Error!</AlertTitle>
                                 <AlertDescription>{errors.archive}</AlertDescription>
                             </Alert>
                         )}
                     </div>
-                </div>
 
-                <div className='grid grid-cols-5 gap-2'>
-                    {products.map((product) => (
-                        <Card key={product.id} className='w-70 p-0'>
-                            <div>
-                                <img 
-                                    src={product.image_url || product.image} 
-                                    alt={product.name}
-                                    className="w-full h-48 object-cover rounded-t-lg"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = '/images/products/default-product.jpg';
-                                    }}
-                                />
-                            </div>
-                            <CardHeader className="px-6">
-                                <CardTitle>{product.name}</CardTitle>
-                                <CardDescription>
-                                    <div className="text-sm">
-                                        {product.price_kilo && <div>Kilo: P{product.price_kilo}</div>}
-                                        {product.price_pc && <div>Pc: P{product.price_pc}</div>}
-                                        {product.price_tali && <div>Tali: P{product.price_tali}</div>}
-                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
-                                    </div>
-                                </CardDescription>
-                                <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
-                                <PermissionGate permission="archive products">
-                                    <CardAction>
-                                        <Button 
-                                            disabled={processing || shouldDisableButtons} 
-                                            onClick={() => handleArchive(product.id, product.name)}
-                                            className="bg-blue-600 hover:bg-blue-700"
-                                        >
-                                            Archive
-                                        </Button>
-                                    </CardAction>
-                                </PermissionGate>
-                            </CardHeader>
-                            <CardContent className="px-6">
-                                <p className="text-md break-words">{product.description}</p>
-                            </CardContent>
-                            <CardFooter className="flex-col gap-2">
-                                <PermissionGate permission="create stocks">
-                                    <Button asChild disabled={processing} className="w-full">
-                                        <Link href={route('inventory.addStock', product.id)}>Add Stock</Link>
-                                    </Button>
-                                </PermissionGate>
-                                <div className="flex justify-betweeen w-full gap-2">
-                                    <PermissionGate permission="edit products">
-                                        {shouldDisableButtons ? (
-                                            <Button disabled={processing || shouldDisableButtons} className='w-1/2'>
-                                                Edit
-                                            </Button>
-                                        ) : (
-                                            <Button asChild disabled={processing} className='w-1/2'>
-                                                <Link href={route('inventory.edit', product.id)}>Edit</Link>
-                                            </Button>
-                                        )}
-                                    </PermissionGate>
-                                    <PermissionGate permission="delete products">
-                                        <Button disabled={processing || shouldDisableButtons} onClick={() => handleDelete(product.id, product.name)} className='w-1/2'>Delete</Button>
-                                    </PermissionGate>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+                        <ProductManagement
+                            products={currentProducts}
+                            categories={categories}
+                            searchTerm={searchTerm}
+                            setSearchTerm={setSearchTerm}
+                            selectedCategory={selectedCategory}
+                            setSelectedCategory={setSelectedCategory}
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            filteredAndSortedProducts={filteredAndSortedProducts}
+                            paginatedProducts={paginatedProducts}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            totalPages={totalPages}
+                            totalProducts={totalProducts}
+                            itemsPerPage={itemsPerPage}
+                            processing={processing}
+                            handleArchive={handleArchive}
+                            handleDelete={handleDelete}
+                            handleRestore={handleRestore}
+                            showArchived={showArchived}
+                            setShowArchived={toggleArchivedView}
+                            archivingProduct={archivingProduct || null}
+                            restoringProduct={restoringProduct || null}
+                        />
 
-                <div className="flex gap-2 mb-4">
-                    <PermissionGate permission="view stock trail">
-                        <Button asChild disabled={processing} variant="outline">
-                            <Link href={route('inventory.removedStock.index')}>Removed Stocks</Link>
-                        </Button>
-                    </PermissionGate>
-                    <PermissionGate permission="view sold stock">
-                        <Button asChild disabled={processing} variant="outline">
-                            <Link href={route('inventory.soldStock.index')}>Sold Stocks</Link>
-                        </Button>
-                    </PermissionGate>
-                </div>
+                        <StockManagement
+                            stocks={stocks}
+                            removedStocks={removedStocks}
+                            soldStocks={soldStocks}
+                            auditTrails={auditTrails}
+                            stockCurrentPage={stockCurrentPage}
+                            setStockCurrentPage={setStockCurrentPage}
+                            stockItemsPerPage={stockItemsPerPage}
+                            processing={processing}
+                            handleRemovePerishedStock={handleRemovePerishedStock}
+                            getFilteredStocks={getFilteredStocks}
+                            getPaginatedStocks={getPaginatedStocks}
+                        />
 
-                <Tabs defaultValue="all">
-                    <TabsList>
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="kilo">By Kilo</TabsTrigger>
-                        <TabsTrigger value="pc">By Pc</TabsTrigger>
-                        <TabsTrigger value="tali">By Tali</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="all">
-                        {stocks.length > 0 && (
-                            <div className='w-full pt-8'>
-                                <Table>
-                                    <TableCaption>List of product stocks</TableCaption>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">Stock ID</TableHead>
-                                            <TableHead className="text-center">Product Name</TableHead>
-                                            <TableHead className="text-center">Quantity</TableHead>
-                                            <TableHead className="text-center">Category</TableHead>
-                                            <TableHead className="text-center">Assigned To</TableHead>
-                                            <TableHead className="text-center">Stock Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {stocks.map((stock) => (
-                                            <TableRow className="text-center" key={stock.id}>
-                                                <TableCell>{stock.id}</TableCell>
-                                                <TableCell>{stock.product?.name}</TableCell>
-                                                <TableCell>{
-                                                    stock.category === 'Kilo'
-                                                        ? stock.quantity
-                                                        : Math.floor(stock.quantity)
-                                                }</TableCell>
-                                                <TableCell>{stock.category}</TableCell>
-                                                <TableCell>{stock.member?.name}</TableCell>
-                                                <TableCell>
-                                                    <PermissionGate permission="edit stocks">
-                                                        {shouldDisableButtons ? (
-                                                            <Button disabled={processing || shouldDisableButtons} className=''>Edit</Button>
-                                                        ) : (
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing} className=''>Edit</Button></Link>
-                                                        )}
-                                                    </PermissionGate>
-                                                    <PermissionGate permission="delete stocks">
-                                                        <Button 
-                                                            disabled={processing || shouldDisableButtons} 
-                                                            onClick={() => handleRemovePerishedStock(stock)} 
-                                                            className='bg-orange-600 hover:bg-orange-700'
-                                                        >
-                                                            Remove Stock
-                                                        </Button>
-                                                    </PermissionGate>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}</TabsContent>
-                    <TabsContent value="kilo">
-                        {stocks.length > 0 && (
-                            <div className='w-full pt-8'>
-                                <Table>
-                                    <TableCaption>List of product stocks</TableCaption>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">Stock ID</TableHead>
-                                            <TableHead className="text-center">Product Name</TableHead>
-                                            <TableHead className="text-center">Quantity By Kilo</TableHead>
-                                            <TableHead className="text-center">Assigned To</TableHead>
-                                            <TableHead className="text-center">Stock Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {stocks
-                                            .filter((stock) => stock.category === 'Kilo')
-                                            .map((stock) => (
-                                                <TableRow className="text-center" key={stock.id}>
-                                                    <TableCell>{stock.id}</TableCell>
-                                                    <TableCell>{stock.product?.name}</TableCell>
-                                                    <TableCell>{stock.quantity}</TableCell>
-                                                    <TableCell>{stock.member?.name}</TableCell>
-                                                    <TableCell>
-                                                        <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
-                                                            <Button 
-                                                                disabled={processing || shouldDisableButtons} 
-                                                                onClick={() => handleRemovePerishedStock(stock)} 
-                                                                className='bg-orange-600 hover:bg-orange-700'
-                                                            >
-                                                                Remove
-                                                            </Button>
-                                                        </PermissionGate>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}</TabsContent>
-                    <TabsContent value="pc">
-                        {stocks.length > 0 && (
-                            <div className='w-full pt-8'>
-                                <Table>
-                                    <TableCaption>List of product stocks</TableCaption>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">Stock ID</TableHead>
-                                            <TableHead className="text-center">Product Name</TableHead>
-                                            <TableHead className="text-center">Quantity By Pc</TableHead>
-                                            <TableHead className="text-center">Assigned To</TableHead>
-                                            <TableHead className="text-center">Stock Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {stocks
-                                            .filter((stock) => stock.category === 'Pc')
-                                            .map((stock) => (
-                                                <TableRow className="text-center" key={stock.id}>
-                                                    <TableCell>{stock.id}</TableCell>
-                                                    <TableCell>{stock.product?.name}</TableCell>
-                                                    <TableCell>{Math.floor(stock.quantity)}</TableCell>
-                                                    <TableCell>{stock.member?.name}</TableCell>
-                                                    <TableCell>
-                                                        <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
-                                                            <Button 
-                                                                disabled={processing || shouldDisableButtons} 
-                                                                onClick={() => handleRemovePerishedStock(stock)} 
-                                                                className='bg-orange-600 hover:bg-orange-700'
-                                                            >
-                                                                Remove Stock
-                                                            </Button>
-                                                        </PermissionGate>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}</TabsContent>
-                    <TabsContent value="tali">
-                        {stocks.length > 0 && (
-                            <div className='w-full pt-8'>
-                                <Table>
-                                    <TableCaption>List of product stocks</TableCaption>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">Stock ID</TableHead>
-                                            <TableHead className="text-center">Product Name</TableHead>
-                                            <TableHead className="text-center">Quantity By Tali</TableHead>
-                                            <TableHead className="text-center">Assigned To</TableHead>
-                                            <TableHead className="text-center">Stock Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {stocks
-                                            .filter((stock) => stock.category === 'Tali')
-                                            .map((stock) => (
-                                                <TableRow className="text-center" key={stock.id}>
-                                                    <TableCell>{stock.id}</TableCell>
-                                                    <TableCell>{stock.product?.name}</TableCell>
-                                                    <TableCell>{Math.floor(stock.quantity)}</TableCell>
-                                                    <TableCell>{stock.member?.name}</TableCell>
-                                                    <TableCell>
-                                                        <PermissionGate permission="edit stocks">
-                                                            <Link href={route('inventory.editStock', { product: stock.product_id, stock: stock.id })}><Button disabled={processing || shouldDisableButtons} className=''>Edit</Button></Link>
-                                                        </PermissionGate>
-                                                        <PermissionGate permission="delete stocks">
-                                                            <Button 
-                                                                disabled={processing || shouldDisableButtons} 
-                                                                onClick={() => handleRemovePerishedStock(stock)} 
-                                                                className='bg-orange-600 hover:bg-orange-700'
-                                                            >
-                                                                Remove
-                                                            </Button>
-                                                        </PermissionGate>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}</TabsContent>
-                </Tabs>
-            </div>
+                        {/* Modals */}
+                        <RemoveStockModal
+                            isOpen={removeDialogOpen}
+                            onClose={() => setRemoveDialogOpen(false)}
+                            selectedStock={selectedStock}
+                            reason={data.reason}
+                            otherReason={data.other_reason}
+                            onReasonChange={(reason) => setData('reason', reason)}
+                            onOtherReasonChange={(otherReason) => setData('other_reason', otherReason)}
+                            onSubmit={handleRemoveStockSubmit}
+                            processing={processing}
+                        />
 
-            {/* Remove Perished Stock Dialog */}
-            <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-500" />
-                            Remove Stock
-                        </DialogTitle>
-                        <DialogDescription>
-                            Remove stock that is no longer available for sale. 
-                            This action will record the removal in the stock trail with your reason.
-                        </DialogDescription>
-                    </DialogHeader>
-                    
-                    {selectedProduct && (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4">
-                                {selectedProduct.image_url && (
-                                    <img 
-                                        src={selectedProduct.image_url} 
-                                        alt={selectedProduct.name}
-                                        className="w-12 h-12 object-cover rounded-lg"
-                                    />
-                                )}
-                                <div>
-                                    <h3 className="font-semibold">{selectedProduct.name}</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Available stocks: {stocks.filter(s => s.product_id === selectedProduct.id && s.quantity > 0).length}
-                                    </p>
-                                </div>
-                            </div>
+                        <ArchiveProductModal
+                            isOpen={archiveModalOpen}
+                            onClose={() => setArchiveModalOpen(false)}
+                            productName={selectedProduct?.name || ''}
+                            reason={data.reason}
+                            onReasonChange={(reason) => setData('reason', reason)}
+                            onSubmit={handleArchiveSubmit}
+                            processing={processing}
+                        />
 
-                            <div className="space-y-2">
-                                <Label htmlFor="stock_info">Stock Information</Label>
-                                <div className="p-3 bg-gray-50 rounded-lg">
-                                    <p className="text-sm">
-                                        <strong>Quantity:</strong> {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.quantity} {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.category}
-                                    </p>
-                                    <p className="text-sm">
-                                        <strong>Member:</strong> {stocks.find(s => s.id.toString() === removeFormData.stock_id)?.member?.name}
-                                    </p>
-                                </div>
-                            </div>
+                        <RestoreProductModal
+                            isOpen={restoreModalOpen}
+                            onClose={() => setRestoreModalOpen(false)}
+                            productName={selectedProduct?.name || ''}
+                            onSubmit={handleRestoreSubmit}
+                            processing={processing}
+                        />
 
-                            <div className="space-y-2">
-                                <Label htmlFor="reason">Reason for Removal *</Label>
-                                <Select 
-                                    value={removeFormData.reason} 
-                                    onValueChange={(value) => setRemoveFormData(prev => ({ ...prev, reason: value }))}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a reason for removal" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Sold Out">Sold Out</SelectItem>
-                                        <SelectItem value="Discontinued">Discontinued</SelectItem>
-                                        <SelectItem value="Damaged/Defective">Damaged/Defective</SelectItem>
-                                        <SelectItem value="Expired">Expired</SelectItem>
-                                        <SelectItem value="Season Ended">Season Ended</SelectItem>
-                                        <SelectItem value="Listing Error">Listing Error</SelectItem>
-                                        <SelectItem value="Vendor Inactive">Vendor Inactive</SelectItem>
-                                        <SelectItem value="Under Update">Under Update</SelectItem>
-                                        <SelectItem value="Regulatory Issue">Regulatory Issue</SelectItem>
-                                        <SelectItem value="Other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                
-                                {removeFormData.reason === 'Other' && (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="other_reason">Specify Other Reason *</Label>
-                                        <Textarea
-                                            id="other_reason"
-                                            value={removeFormData.other_reason || ''}
-                                            onChange={(e) => setRemoveFormData(prev => ({ ...prev, other_reason: e.target.value }))}
-                                            placeholder="Please specify the reason for removal"
-                                            rows={3}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                <div className="flex items-start gap-2">
-                                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
-                                    <div>
-                                        <h4 className="font-medium text-orange-800 text-sm">Important Notice</h4>
-                                        <p className="text-xs text-orange-700 mt-1">
-                                            This action will permanently remove the selected stock from inventory. 
-                                            The removal will be recorded in the stock trail with your provided reason.
-                                        </p>
-                                    </div>
-                                </div>
+                        <DeleteProductModal
+                            isOpen={deleteModalOpen}
+                            onClose={() => setDeleteModalOpen(false)}
+                            productName={selectedProduct?.name || ''}
+                            reason={data.reason}
+                            onReasonChange={(reason) => setData('reason', reason)}
+                            onSubmit={handleDeleteSubmit}
+                            processing={processing}
+                        />
                             </div>
                         </div>
-                    )}
-
-                    <DialogFooter>
-                        <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setRemoveDialogOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button 
-                            type="button"
-                            disabled={
-                                !removeFormData.stock_id || 
-                                !removeFormData.reason || 
-                                (removeFormData.reason === 'Other' && !removeFormData.other_reason) ||
-                                processing
-                            }
-                            onClick={handleRemoveStockSubmit}
-                            className="bg-orange-600 hover:bg-orange-700"
-                        >
-                            {processing ? 'Removing...' : 'Remove Stock'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </AppLayout>
         </PermissionGuard>
-    )
+    );
 }
