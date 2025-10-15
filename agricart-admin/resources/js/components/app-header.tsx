@@ -18,17 +18,13 @@ import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
 import { SearchBar } from './search-bar';
 import { NotificationBell } from './NotificationBell';
+import { useEffect, useState } from 'react';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Fruits',
-        href: '/customer/fruits',
+        title: 'Produce',
+        href: '/customer/produce',
         icon: Apple,
-    },
-    {
-        title: 'Vegetables',
-        href: '/customer/vegetables',
-        icon: Carrot,
     },
     {
         title: 'About Us',
@@ -67,10 +63,20 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     const cartCount = Object.keys(cart).length;
     const unreadCount = notifications.filter((n: any) => !n.read_at).length;
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollTop = window.scrollY;
+            setIsScrolled(scrollTop > 20);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
     const showSearchBar =
         page.url === '/' ||
-        page.url.startsWith('/customer/fruits') ||
-        page.url.startsWith('/customer/vegetables') ||
+        page.url.startsWith('/customer/produce') ||
         page.url.startsWith('/customer/product');
 
     const handleNotificationClick = (n: any) => {
@@ -93,14 +99,28 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
     return (
         <>
-            <div className="fixed top-0 left-0 right-0 z-50 border-b border-sidebar-border/80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
+            <div className={cn(
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out mx-auto",
+                isScrolled 
+                    ? "bg-green-700 shadow-lg rounded-2xl mt-4 w-7/10 mx-auto" 
+                    : "bg-transparent w-full mx-auto"
+            )}>
+                <div className={cn(
+                    "mx-auto flex items-center px-4 md:max-w-7xl transition-all duration-300 ease-in-out mx-auto",
+                    isScrolled ? "h-16" : "h-20"
+                )}>
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="mr-2 h-[34px] w-[34px]">
-                                    <Menu className="h-5 w-5" />
+                                <Button variant="ghost" size="icon" className={cn(
+                                    "mr-2 transition-all duration-300 ease-in-out",
+                                    isScrolled ? "h-[34px] w-[34px]" : "h-[42px] w-[42px]"
+                                )}>
+                                    <Menu className={cn(
+                                        "transition-all duration-300 ease-in-out",
+                                        isScrolled ? "h-5 w-5" : "h-6 w-6"
+                                    )} />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar">
@@ -152,7 +172,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <Link href='/' className="flex items-center space-x-2">
+                        <Link href='/' className={cn(
+                            "flex items-center space-x-2 transition-all duration-300 ease-in-out",
+                            isScrolled ? "scale-100" : "scale-110"
+                        )}>
                             <AppLogo />{/* change Logo as needed */}
                         </Link>
                         {/* Breadcrumbs on top left */}
@@ -174,14 +197,23 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             className={cn(
                                                 navigationMenuTriggerStyle(),
                                                 page.url === item.href && activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
+                                                'cursor-pointer px-3 transition-all duration-300 ease-in-out',
+                                                isScrolled 
+                                                    ? 'h-9 text-sm text-white hover:text-white hover:bg-white/10 bg-green-700' 
+                                                    : 'h-11 text-base bg-transparent'
                                             )}
                                         >
-                                            {item.icon && <Icon iconNode={item.icon} className="mr-2 h-4 w-4" />}
+                                            {item.icon && <Icon iconNode={item.icon} className={cn(
+                                                "mr-2 transition-all duration-300 ease-in-out",
+                                                isScrolled ? "h-4 w-4 text-white" : "h-5 w-5"
+                                            )} />}
                                             {item.title}
                                         </Link>
                                         {page.url === item.href && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            <div className={cn(
+                                                "absolute bottom-0 left-0 h-0.5 w-full translate-y-px",
+                                                isScrolled ? "bg-white" : "bg-black dark:bg-white"
+                                            )}></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
@@ -199,6 +231,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             key={item.title}
                                             notifications={notifications || []}
                                             userType={(auth.user as any)?.type || 'customer'}
+                                            isScrolled={isScrolled}
                                         />
                                     ) : (
                                         <TooltipProvider key={item.title} delayDuration={0}>
@@ -206,12 +239,22 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 <TooltipTrigger>
                                                     <Link
                                                         href={item.href}
-                                                        className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative"
+                                                        className={cn(
+                                                            "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                            isScrolled 
+                                                                ? "h-9 w-9 text-sm text-white hover:text-white hover:bg-white/10" 
+                                                                : "h-11 w-11 text-base text-accent-foreground hover:bg-accent hover:text-accent-foreground"
+                                                        )}
                                                     >
                                                         <span className="sr-only">{item.title}</span>
                                                         {item.icon && (
                                                             <>
-                                                                <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />
+                                                                <Icon iconNode={item.icon} className={cn(
+                                                                    "transition-all duration-300 ease-in-out",
+                                                                    isScrolled 
+                                                                        ? "size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                                        : "size-6 opacity-80 group-hover:opacity-100"
+                                                                )} />
                                                                 {item.title === 'Cart' && cartCount > 0 && (
                                                                     <Badge 
                                                                         variant="destructive" 
@@ -236,8 +279,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         {auth.user ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="size-10 rounded-full p-1">
-                                        <Avatar className="size-8 overflow-hidden rounded-full">
+                                    <Button variant="ghost" className={cn(
+                                        "rounded-full p-1 transition-all duration-300 ease-in-out",
+                                        isScrolled 
+                                            ? "size-10 text-white hover:text-white hover:bg-white/10" 
+                                            : "size-12"
+                                    )}>
+                                        <Avatar className={cn(
+                                            "overflow-hidden rounded-full transition-all duration-300 ease-in-out",
+                                            isScrolled ? "size-8" : "size-10"
+                                        )}>
                                             <AvatarImage src={(auth.user as any).avatar_url || ''} alt={auth.user.name || 'User'} />
                                             <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                                 {getInitials(auth.user && auth.user.name ? auth.user.name : '')}
@@ -253,14 +304,24 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <>
                                 <Button
                                     variant="outline"
-                                    className="ml-2"
+                                    className={cn(
+                                        "ml-2 transition-all duration-300 ease-in-out",
+                                        isScrolled 
+                                            ? "h-9 px-3 text-sm border-white text-white hover:bg-white hover:text-green-700" 
+                                            : "h-11 px-4 text-base"
+                                    )}
                                     onClick={() => window.location.href = '/login'}
                                 >
                                     Login
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className="ml-2"
+                                    className={cn(
+                                        "ml-2 transition-all duration-300 ease-in-out",
+                                        isScrolled 
+                                            ? "h-9 px-3 text-sm border-white text-white hover:bg-white hover:text-green-700" 
+                                            : "h-11 px-4 text-base"
+                                    )}
                                     onClick={() => window.location.href = '/register'}
                                 >
                                     Register
