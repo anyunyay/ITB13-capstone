@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import { Head, usePage, router, useForm, Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import type { SharedData } from '@/types';
+import { debounce } from '@/lib/debounce';
 import {
   Carousel,
   CarouselContent,
@@ -24,11 +28,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Link, usePage, router, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
-import { debounce } from '@/lib/debounce';
-import type { SharedData } from '@/types';
+import { SystemLockOverlay } from '@/components/system-lock-overlay';
 
 interface Product {
   id: number;
@@ -38,8 +40,8 @@ interface Product {
   price_tali?: number;
   description: string;
   image: string;
-  image_url?: string;
-  produce_type: string;
+  image_url?: string; // Added for Inertia.js imageUrl accessor
+  produce_type: string; // 'fruit' or 'vegetable'
   stock_by_category?: Record<string, number>;
 }
 
@@ -405,13 +407,33 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   );
 }
 
-interface ProductCarouselProps {
-  products: Product[];
-  onRequireLogin: () => void;
-  onStockUpdate: (productId: number, category: string, quantity: number) => void;
-}
+export default function CustomerHome() {
+  const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+  const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
+  const [products, setProducts] = useState(initialProducts);
 
-export default function ProductCarousel({ products, onRequireLogin, onStockUpdate }: ProductCarouselProps) {
+  const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  const handleStockUpdate = (productId: number, category: string, quantity: number) => {
+    setProducts(prevProducts => 
+      prevProducts.map(product => {
+        if (product.id === productId && product.stock_by_category) {
+          const currentStock = product.stock_by_category[category] || 0;
+          const newStock = Math.max(0, currentStock - quantity);
+          
+          return {
+            ...product,
+            stock_by_category: {
+              ...product.stock_by_category,
+              [category]: newStock
+            }
+          };
+        }
+        return product;
+      })
+    );
+  };
+
   const renderCarousel = (type: string, title: string) => (
     <>
       <h1 className="text-2xl font-bold">Available {title}</h1>
@@ -426,8 +448,8 @@ export default function ProductCarousel({ products, onRequireLogin, onStockUpdat
               >
                 <ProductCard 
                   product={product} 
-                  onRequireLogin={onRequireLogin}
-                  onStockUpdate={onStockUpdate}
+                  onRequireLogin={handleRequireLogin}
+                  onStockUpdate={handleStockUpdate}
                 />
               </CarouselItem>
             ))}
@@ -439,9 +461,29 @@ export default function ProductCarousel({ products, onRequireLogin, onStockUpdat
   );
 
   return (
-    <div className="flex flex-col items-center justify-center gap-12 px-4">
-      {renderCarousel('fruit', 'Fruits')}
-      {renderCarousel('vegetable', 'Vegetables')}
-    </div>
+    <AppHeaderLayout>
+      <Head title="Produce" />
+      <SystemLockOverlay />
+      <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-20">
+        {renderCarousel('fruit', 'Fruits')}
+        {renderCarousel('vegetable', 'Vegetables')}
+
+        {/* Login Confirmation Dialog */}
+        <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Login Required</DialogTitle>
+              <DialogDescription>
+                You must be logged in to add products to your cart.
+              </DialogDescription>
+              <div className="flex gap-4 mt-4">
+                <Button className="w-full" onClick={() => router.visit('/login')}>Go to Login</Button>
+                <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>Cancel</Button>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </AppHeaderLayout>
   );
 }
