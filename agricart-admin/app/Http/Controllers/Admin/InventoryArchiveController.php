@@ -37,41 +37,26 @@ class InventoryArchiveController extends Controller
         ]);
     }
 
-    public function restore(Product $product)
+    public function restore($productId)
     {
-        // Ensure the product is archived
-        if (!$product->archived_at) {
-            return redirect()->route('inventory.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => 'Product is not archived and cannot be restored.'
-                ]);
-        }
-        
+        $product = Product::archived()->findOrFail($productId);
         $product->archived_at = null;
         $product->save();
 
-        return redirect()->route('inventory.index')->with('flash', [
+        return redirect()->route('inventory.archived.index')->with('flash', [
             'type' => 'success',
             'message' => 'Product restored successfully'
         ]);
     }
 
-    public function forceDelete(Product $product)
+    public function forceDelete($productId)
     {
-        // Ensure the product is archived
-        if (!$product->archived_at) {
-            return redirect()->route('inventory.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => 'Product is not archived and cannot be permanently deleted.'
-                ]);
-        }
+        $product = Product::archived()->findOrFail($productId);
         
         // Check if the product can be deleted (even if archived)
         if (!$product->canBeDeleted()) {
             $reason = $product->getDeletionRestrictionReason();
-            return redirect()->route('inventory.index')
+            return redirect()->route('inventory.archived.index')
                 ->with('flash', [
                     'type' => 'error',
                     'message' => "Cannot permanently delete product '{$product->name}'. {$reason}"
@@ -83,7 +68,7 @@ class InventoryArchiveController extends Controller
             unlink(public_path($product->image));
         }
         $product->delete();
-        return redirect()->route('inventory.index')->with('flash', [
+        return redirect()->route('inventory.archived.index')->with('flash', [
             'type' => 'success',
             'message' => 'Product permanently deleted'
         ]);
