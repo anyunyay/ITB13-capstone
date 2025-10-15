@@ -14,7 +14,6 @@ class LogisticController extends Controller
     public function index()
     {
         $logistics = User::where('type', 'logistic')
-            ->active()
             ->with('defaultAddress')
             ->get()
             ->map(function ($logistic) {
@@ -25,6 +24,7 @@ class LogisticController extends Controller
                     'contact_number' => $logistic->contact_number,
                     'registration_date' => $logistic->registration_date,
                     'type' => $logistic->type,
+                    'active' => $logistic->active,
                     'default_address' => $logistic->defaultAddress ? [
                         'id' => $logistic->defaultAddress->id,
                         'street' => $logistic->defaultAddress->street,
@@ -33,7 +33,7 @@ class LogisticController extends Controller
                         'province' => $logistic->defaultAddress->province,
                         'full_address' => $logistic->defaultAddress->full_address,
                     ] : null,
-                    'can_be_deactivated' => !$logistic->hasPendingOrders(),
+                    'can_be_deactivated' => $logistic->active && !$logistic->hasPendingOrders(),
                     'deactivation_reason' => $logistic->hasPendingOrders() ? 'Has pending or out-for-delivery orders' : null,
                 ];
             });

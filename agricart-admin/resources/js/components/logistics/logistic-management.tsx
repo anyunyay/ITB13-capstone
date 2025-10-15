@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { IdCard, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { IdCard, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Logistic } from '../../types/logistics';
@@ -24,6 +24,7 @@ interface LogisticManagementProps {
     itemsPerPage: number;
     processing: boolean;
     onDeactivate: (logistic: Logistic) => void;
+    onReactivate: (logistic: Logistic) => void;
     highlightLogisticId: number | null;
     showDeactivated: boolean;
     setShowDeactivated: (show: boolean) => void;
@@ -46,6 +47,7 @@ export const LogisticManagement = ({
     itemsPerPage,
     processing,
     onDeactivate,
+    onReactivate,
     highlightLogisticId,
     showDeactivated,
     setShowDeactivated,
@@ -219,33 +221,48 @@ export const LogisticManagement = ({
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>
-                                            <PermissionGate permission="delete logistics">
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <div>
-                                                                <Button
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    onClick={() => onDeactivate(logistic)}
-                                                                    disabled={processing || !logistic.can_be_deactivated}
-                                                                    className={`${styles.logisticActionButton} ${
-                                                                        !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
-                                                                    }`}
-                                                                >
-                                                                    <UserMinus className="h-4 w-4" />
-                                                                    Deactivate
-                                                                </Button>
-                                                            </div>
-                                                        </TooltipTrigger>
-                                                        {!logistic.can_be_deactivated && logistic.deactivation_reason && (
-                                                            <TooltipContent>
-                                                                <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
-                                                            </TooltipContent>
-                                                        )}
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            </PermissionGate>
+                                            {logistic.active ? (
+                                                <PermissionGate permission="deactivate logistics">
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <div>
+                                                                    <Button
+                                                                        variant="destructive"
+                                                                        size="sm"
+                                                                        onClick={() => onDeactivate(logistic)}
+                                                                        disabled={processing || !logistic.can_be_deactivated}
+                                                                        className={`${styles.logisticActionButton} ${
+                                                                            !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                                                                        }`}
+                                                                    >
+                                                                        <UserMinus className="h-4 w-4" />
+                                                                        Deactivate
+                                                                    </Button>
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            {!logistic.can_be_deactivated && logistic.deactivation_reason && (
+                                                                <TooltipContent>
+                                                                    <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
+                                                                </TooltipContent>
+                                                            )}
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </PermissionGate>
+                                            ) : (
+                                                <PermissionGate permission="reactivate logistics">
+                                                    <Button
+                                                        variant="default"
+                                                        size="sm"
+                                                        onClick={() => onReactivate(logistic)}
+                                                        disabled={processing}
+                                                        className={`${styles.logisticActionButton} bg-green-600 hover:bg-green-700 text-white`}
+                                                    >
+                                                        <RotateCcw className="h-4 w-4" />
+                                                        Reactivate
+                                                    </Button>
+                                                </PermissionGate>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

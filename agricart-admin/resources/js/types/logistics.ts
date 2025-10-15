@@ -5,6 +5,7 @@ export interface Logistic {
     contact_number?: string;
     registration_date?: string;
     type: string;
+    active: boolean;
     default_address?: {
         id: number;
         street: string;

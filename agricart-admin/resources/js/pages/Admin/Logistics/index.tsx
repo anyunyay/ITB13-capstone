@@ -10,6 +10,7 @@ import { FlashMessage } from '@/components/flash-message';
 import { DashboardHeader } from '@/components/logistics/dashboard-header';
 import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
+import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
 import styles from './logistics.module.css';
 
@@ -31,6 +32,7 @@ export default function Index() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [showDeactivated, setShowDeactivated] = useState(false);
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
+    const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
     
@@ -43,12 +45,12 @@ export default function Index() {
         }
     }, [auth]);
 
-    const { processing, delete: destroy } = useForm();
+    const { processing, delete: destroy, post } = useForm();
 
     // Calculate statistics
     const logisticStats: LogisticStats = useMemo(() => {
-        const activeLogistics = logistics.filter(l => l.can_be_deactivated);
-        const deactivatedLogistics = logistics.filter(l => !l.can_be_deactivated);
+        const activeLogistics = logistics.filter(l => l.active);
+        const deactivatedLogistics = logistics.filter(l => !l.active);
         
         return {
             totalLogistics: logistics.length,
@@ -67,7 +69,7 @@ export default function Index() {
                 logistic.id.toString().includes(searchTerm) ||
                 (logistic.contact_number && logistic.contact_number.includes(searchTerm));
             
-            const matchesStatus = showDeactivated ? !logistic.can_be_deactivated : logistic.can_be_deactivated;
+            const matchesStatus = showDeactivated ? !logistic.active : logistic.active;
             
             return matchesSearch && matchesStatus;
         });
@@ -127,9 +129,33 @@ export default function Index() {
         setSelectedLogistic(null);
     };
 
+    // Handle reactivation
+    const handleReactivate = (logistic: Logistic) => {
+        setSelectedLogistic(logistic);
+        setShowReactivationModal(true);
+    };
+
+    const handleConfirmReactivation = () => {
+        if (selectedLogistic) {
+            post(route('logistics.reactivate', selectedLogistic.id), {
+                onSuccess: () => {
+                    setShowReactivationModal(false);
+                    setSelectedLogistic(null);
+                    setHighlightLogisticId(selectedLogistic.id);
+                    setTimeout(() => setHighlightLogisticId(null), 3000);
+                }
+            });
+        }
+    };
+
+    const handleCancelReactivation = () => {
+        setShowReactivationModal(false);
+        setSelectedLogistic(null);
+    };
+
     return (
         <PermissionGuard 
-            permissions={['view logistics', 'create logistics', 'edit logistics', 'delete logistics', 'generate logistics report']}
+            permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
             pageTitle="Logistics Management Access Denied"
         >
             <AppLayout>
@@ -156,6 +182,7 @@ export default function Index() {
                             itemsPerPage={itemsPerPage}
                             processing={processing}
                             onDeactivate={handleDeactivate}
+                            onReactivate={handleReactivate}
                             highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}
@@ -170,6 +197,15 @@ export default function Index() {
                             isOpen={showDeactivationModal}
                             onClose={handleCancelDeactivation}
                             onConfirm={handleConfirmDeactivation}
+                            logistic={selectedLogistic}
+                            processing={processing}
+                        />
+
+                        {/* Reactivation Modal */}
+                        <ReactivationModal
+                            isOpen={showReactivationModal}
+                            onClose={handleCancelReactivation}
+                            onConfirm={handleConfirmReactivation}
                             logistic={selectedLogistic}
                             processing={processing}
                         />
