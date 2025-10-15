@@ -182,15 +182,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:delete members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Delete Member
         Route::middleware(['can:edit members'])->delete('/membership/{member}/document', [MembershipController::class, 'deleteDocument'])->name('membership.delete-document'); // Delete Member Document
         
-        // Deactivation routes
-        Route::middleware(['can:edit members'])->group(function () {
-            Route::post('/membership/{member}/deactivate', [MembershipController::class, 'deactivate'])->name('membership.deactivate'); // Deactivate Member
-            Route::post('/membership/{member}/reactivate', [MembershipController::class, 'reactivate'])->name('membership.reactivate'); // Reactivate Member
-        });
-        
-        // Deactivated members page
-        Route::middleware(['can:view members'])->get('/membership/deactivated', [MembershipController::class, 'deactivated'])->name('membership.deactivated'); // View Deactivated Members
-        
         // Password change request routes
         Route::middleware(['can:edit members'])->group(function () {
             Route::post('/membership/password-change/{requestId}/approve', [MembershipController::class, 'approvePasswordChange'])->name('membership.approve-password-change');
@@ -211,15 +202,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/logistics/report', [LogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)
         });
         Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}', [LogisticController::class, 'destroy'])->name('logistics.destroy'); // Delete Logistic
-        
-        // Deactivation routes
-        Route::middleware(['can:edit logistics'])->group(function () {
-            Route::post('/logistics/{logistic}/deactivate', [LogisticController::class, 'deactivate'])->name('logistics.deactivate'); // Deactivate Logistic
-            Route::post('/logistics/{logistic}/reactivate', [LogisticController::class, 'reactivate'])->name('logistics.reactivate'); // Reactivate Logistic
-        });
-        
-        // Deactivated logistics page
-        Route::middleware(['can:view logistics'])->get('/logistics/deactivated', [LogisticController::class, 'deactivated'])->name('logistics.deactivated'); // View Deactivated Logistics
 
         // Staff routes
         Route::middleware(['can:view staffs'])->get('/staff', [StaffController::class, 'index'])->name('staff.index'); // View Staff

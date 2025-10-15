@@ -16,12 +16,6 @@ class MembershipController extends Controller
     public function index()
     {
         $members = User::where('type', 'member')
-            ->where('active', true)
-            ->with('defaultAddress')
-            ->get();
-        
-        $deactivatedMembers = User::where('type', 'member')
-            ->where('active', false)
             ->with('defaultAddress')
             ->get();
         
@@ -33,20 +27,7 @@ class MembershipController extends Controller
         
         return Inertia::render('Admin/Membership/index', [
             'members' => $members,
-            'deactivatedMembers' => $deactivatedMembers,
             'pendingPasswordRequests' => $pendingPasswordRequests
-        ]);
-    }
-
-    public function deactivated()
-    {
-        $members = User::where('type', 'member')
-            ->where('active', false)
-            ->with('defaultAddress')
-            ->get();
-        
-        return Inertia::render('Admin/Membership/deactivated', [
-            'members' => $members
         ]);
     }
 
@@ -214,49 +195,6 @@ class MembershipController extends Controller
         
         $member->delete();
         return redirect()->route('membership.index')->with('message', 'Member removed successfully');
-    }
-
-    public function deactivate($id)
-    {
-        $member = User::where('type', 'member')->findOrFail($id);
-        
-        // Check if member has active stocks
-        $activeStocks = \App\Models\Stock::where('member_id', $member->id)
-            ->whereNull('removed_at')
-            ->where('quantity', '>', 0)
-            ->count();
-            
-        if ($activeStocks > 0) {
-            return redirect()->route('membership.index')
-                ->with('error', "Cannot deactivate member {$member->name}. They have {$activeStocks} active stock(s) that must be removed first.");
-        }
-        
-        // Deactivate the member
-        $member->update(['active' => false]);
-        
-        // Notify admin and staff about membership update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
-        foreach ($adminUsers as $admin) {
-            $admin->notify(new MembershipUpdateNotification($member, 'deactivated'));
-        }
-        
-        return redirect()->route('membership.index')->with('message', 'Member deactivated successfully');
-    }
-
-    public function reactivate($id)
-    {
-        $member = User::where('type', 'member')->findOrFail($id);
-        
-        // Reactivate the member
-        $member->update(['active' => true]);
-        
-        // Notify admin and staff about membership update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
-        foreach ($adminUsers as $admin) {
-            $admin->notify(new MembershipUpdateNotification($member, 'reactivated'));
-        }
-        
-        return redirect()->route('membership.deactivated')->with('message', 'Member reactivated successfully');
     }
 
     public function deleteDocument($id)
