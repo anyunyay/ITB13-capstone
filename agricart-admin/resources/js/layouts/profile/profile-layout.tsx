@@ -8,7 +8,7 @@ interface ProfileLayoutProps {
 
 export default function ProfileLayout({ children, breadcrumbs = [], title }: PropsWithChildren<ProfileLayoutProps>) {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 m-20">
             {/* Breadcrumbs */}
             {breadcrumbs.length > 0 && (
                 <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
