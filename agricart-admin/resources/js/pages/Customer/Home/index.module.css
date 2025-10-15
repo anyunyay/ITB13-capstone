@@ -97,12 +97,12 @@
 }
 
 .splitSection {
-  padding: 4rem 1rem;
+  padding: 10rem 1rem;
   background-color: #f9fafb;
 }
 
 .splitContainer {
-  max-width: 80rem;
+  max-width: 90vw;
   margin: 0 auto;
 }
 
@@ -126,7 +126,6 @@
 }
 
 .splitTitle {
-  font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
   font-size: 1.875rem;
   font-weight: 700;
   color: #1f2937;
@@ -254,7 +253,7 @@
 }
 
 .featureContainer {
-  max-width: 72rem;
+  max-width: 90rem;
   margin: 0 auto;
 }
 
@@ -682,4 +681,58 @@
   .featureCard:hover {
     transform: translateY(-0.25rem);
   }
+}
+
+/* 3D Carousel Effects */
+.perspective1000 {
+  perspective: 1000px;
+  overflow: visible;
+  padding: 4rem 0;
+}
+
+.transformGpu {
+  transform-style: preserve-3d;
+}
+
+.translateZ0 {
+  transform: translateZ(0px);
+}
+
+.translateZNeg50 {
+  transform: translateZ(-50px);
+}
+
+.translateZNeg100 {
+  transform: translateZ(-100px);
+}
+
+.rotateY0 {
+  transform: rotateY(0deg);
+}
+
+.rotateY15 {
+  transform: rotateY(15deg);
+}
+
+.rotateYNeg15 {
+  transform: rotateY(-15deg);
+}
+
+.rotateY25 {
+  transform: rotateY(25deg);
+}
+
+.rotateYNeg25 {
+  transform: rotateY(-25deg);
+}
+
+/* Carousel Container Fixes */
+.carouselContainer {
+  overflow: visible;
+  padding: 3rem 0;
+}
+
+.carouselContent {
+  overflow: visible;
+  margin: 0 -2rem;
 }
