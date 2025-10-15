@@ -18,7 +18,28 @@ class MembershipController extends Controller
         $members = User::where('type', 'member')
             ->active()
             ->with('defaultAddress')
-            ->get();
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'member_id' => $member->member_id,
+                    'contact_number' => $member->contact_number,
+                    'registration_date' => $member->registration_date,
+                    'document' => $member->document,
+                    'type' => $member->type,
+                    'default_address' => $member->defaultAddress ? [
+                        'id' => $member->defaultAddress->id,
+                        'street' => $member->defaultAddress->street,
+                        'barangay' => $member->defaultAddress->barangay,
+                        'city' => $member->defaultAddress->city,
+                        'province' => $member->defaultAddress->province,
+                        'full_address' => $member->defaultAddress->full_address,
+                    ] : null,
+                    'can_be_deactivated' => !$member->hasActiveStocks(),
+                    'deactivation_reason' => $member->hasActiveStocks() ? 'Has active stocks' : null,
+                ];
+            });
         
         // Get pending password change requests
         $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'approvedBy'])

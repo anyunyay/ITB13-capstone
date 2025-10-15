@@ -16,7 +16,27 @@ class LogisticController extends Controller
         $logistics = User::where('type', 'logistic')
             ->active()
             ->with('defaultAddress')
-            ->get();
+            ->get()
+            ->map(function ($logistic) {
+                return [
+                    'id' => $logistic->id,
+                    'name' => $logistic->name,
+                    'email' => $logistic->email,
+                    'contact_number' => $logistic->contact_number,
+                    'registration_date' => $logistic->registration_date,
+                    'type' => $logistic->type,
+                    'default_address' => $logistic->defaultAddress ? [
+                        'id' => $logistic->defaultAddress->id,
+                        'street' => $logistic->defaultAddress->street,
+                        'barangay' => $logistic->defaultAddress->barangay,
+                        'city' => $logistic->defaultAddress->city,
+                        'province' => $logistic->defaultAddress->province,
+                        'full_address' => $logistic->defaultAddress->full_address,
+                    ] : null,
+                    'can_be_deactivated' => !$logistic->hasPendingOrders(),
+                    'deactivation_reason' => $logistic->hasPendingOrders() ? 'Has pending or out-for-delivery orders' : null,
+                ];
+            });
         return Inertia::render('Logistics/index', compact('logistics'));
     }
 

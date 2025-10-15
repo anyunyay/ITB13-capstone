@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { BellDot, RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
 import { SafeImage } from '@/lib/image-utils';
@@ -17,6 +17,14 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 
 interface Member {
     id: number;
@@ -49,6 +57,9 @@ interface PageProps {
 export default function Deactivated() {
 
     const { deactivatedMembers, flash, auth } = usePage<PageProps & SharedData>().props;
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+    
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -58,11 +69,22 @@ export default function Deactivated() {
 
     const { processing, post } = useForm();
 
-    const handleReactivate = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to reactivate - ${name}?`)) {
-            // Call the reactivate route
-            post(route('membership.reactivate', id));
+    const handleReactivateClick = (member: Member) => {
+        setSelectedMember(member);
+        setShowConfirmationModal(true);
+    };
+
+    const handleConfirmReactivation = () => {
+        if (selectedMember) {
+            post(route('membership.reactivate', selectedMember.id));
+            setShowConfirmationModal(false);
+            setSelectedMember(null);
         }
+    };
+
+    const handleCancelReactivation = () => {
+        setShowConfirmationModal(false);
+        setSelectedMember(null);
     };
 
     return (
@@ -140,7 +162,7 @@ export default function Deactivated() {
                                         <PermissionGate permission="edit members">
                                             <Button 
                                                 disabled={processing} 
-                                                onClick={() => handleReactivate(member.id, member.name)} 
+                                                onClick={() => handleReactivateClick(member)} 
                                                 className='bg-green-600 hover:bg-green-700 text-white'
                                             >
                                                 <RotateCcw className="h-4 w-4 mr-1" />
@@ -160,6 +182,53 @@ export default function Deactivated() {
                     <p className="text-gray-500 text-lg">No deactivated members found.</p>
                 </div>
             )}
+
+            {/* Reactivation Confirmation Modal */}
+            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            Confirm Reactivation
+                        </DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to reactivate this member?
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedMember && (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <h4 className="font-medium text-green-800 mb-1">Member Details:</h4>
+                                <p className="text-green-700">{selectedMember.name}</p>
+                                <p className="text-sm text-green-600">Member ID: {selectedMember.member_id}</p>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                <p><strong>This action will:</strong></p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Reactivate the member account</li>
+                                    <li>Allow them to access the system again</li>
+                                    <li>Move them back to the active members list</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancelReactivation}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white" 
+                            onClick={handleConfirmReactivation}
+                            disabled={processing}
+                        >
+                            {processing ? 'Reactivating...' : 'Reactivate'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             </div>
         </AppLayout>
         </PermissionGuard>

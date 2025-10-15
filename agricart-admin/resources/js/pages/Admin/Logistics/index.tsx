@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { BellDot } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BellDot, AlertTriangle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
 import {
@@ -16,6 +16,20 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface Logistic {
     id: number;
@@ -32,6 +46,8 @@ interface Logistic {
         province: string;
         full_address: string;
     };
+    can_be_deactivated: boolean;
+    deactivation_reason?: string;
     [key: string]: unknown;
 }
 
@@ -47,6 +63,9 @@ interface PageProps {
 export default function Index() {
 
     const { logistics, flash, auth } = usePage<PageProps & SharedData>().props;
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
+    
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -56,11 +75,24 @@ export default function Index() {
 
     const { processing, delete: destroy } = useForm();
 
-    const handleDeactivate = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to deactivate - ${name}?`)) {
-            // Call the delete route (now handles deactivation)
-            destroy(route('logistics.destroy', id));
+    const handleDeactivateClick = (logistic: Logistic) => {
+        if (logistic.can_be_deactivated) {
+            setSelectedLogistic(logistic);
+            setShowConfirmationModal(true);
         }
+    };
+
+    const handleConfirmDeactivation = () => {
+        if (selectedLogistic) {
+            destroy(route('logistics.destroy', selectedLogistic.id));
+            setShowConfirmationModal(false);
+            setSelectedLogistic(null);
+        }
+    };
+
+    const handleCancelDeactivation = () => {
+        setShowConfirmationModal(false);
+        setSelectedLogistic(null);
     };
 
     return (
@@ -140,7 +172,26 @@ export default function Index() {
                                                 <Link href={route('logistics.edit', logistic.id)}><Button disabled={processing} className=''>Edit</Button></Link>
                                             </PermissionGate>
                                             <PermissionGate permission="delete logistics">
-                                                <Button disabled={processing} onClick={() => handleDeactivate(logistic.id, logistic.name)} className=''>Deactivate</Button>
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <div>
+                                                                <Button 
+                                                                    disabled={processing || !logistic.can_be_deactivated} 
+                                                                    onClick={() => handleDeactivateClick(logistic)} 
+                                                                    className={logistic.can_be_deactivated ? '' : 'opacity-50 cursor-not-allowed'}
+                                                                >
+                                                                    Deactivate
+                                                                </Button>
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        {!logistic.can_be_deactivated && logistic.deactivation_reason && (
+                                                            <TooltipContent>
+                                                                <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
+                                                            </TooltipContent>
+                                                        )}
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                             </PermissionGate>
                                         </div>
                                     </TableCell>
@@ -150,6 +201,53 @@ export default function Index() {
                     </Table>
                 </div>
             )}
+
+            {/* Confirmation Modal */}
+            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-500" />
+                            Confirm Deactivation
+                        </DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to deactivate this logistic?
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedLogistic && (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <h4 className="font-medium text-orange-800 mb-1">Logistic Details:</h4>
+                                <p className="text-orange-700">{selectedLogistic.name}</p>
+                                <p className="text-sm text-orange-600">{selectedLogistic.email}</p>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                <p><strong>This action will:</strong></p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Deactivate the logistic account</li>
+                                    <li>Prevent them from accessing the system</li>
+                                    <li>Move them to the deactivated logistics list</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancelDeactivation}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={handleConfirmDeactivation}
+                            disabled={processing}
+                        >
+                            {processing ? 'Deactivating...' : 'Deactivate'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             </div>
         </AppLayout>
         </PermissionGuard>

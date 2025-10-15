@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BellDot, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { BellDot, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
 import { SafeImage } from '@/lib/image-utils';
@@ -17,6 +17,20 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface Member {
     id: number;
@@ -34,6 +48,8 @@ interface Member {
         province: string;
         full_address: string;
     };
+    can_be_deactivated: boolean;
+    deactivation_reason?: string;
     [key: string]: unknown;
 }
 
@@ -66,6 +82,11 @@ export default function Index() {
     const { members, flash, auth, pendingPasswordRequests } = usePage<PageProps & SharedData>().props;
     const [newRequest, setNewRequest] = useState<PasswordChangeRequest | null>(null);
     const [highlightMemberId, setHighlightMemberId] = useState<number | null>(null);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+    const [showPasswordApprovalModal, setShowPasswordApprovalModal] = useState(false);
+    const [showPasswordRejectionModal, setShowPasswordRejectionModal] = useState(false);
+    const [selectedPasswordRequest, setSelectedPasswordRequest] = useState<PasswordChangeRequest | null>(null);
     const prevRequestIdsRef = useRef<Set<number>>(new Set());
     const requestIds = useMemo(() => new Set((pendingPasswordRequests || []).map(r => r.id)), [pendingPasswordRequests]);
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
@@ -77,23 +98,56 @@ export default function Index() {
 
     const { processing, delete: destroy, post } = useForm();
 
-    const handleDeactivate = (id: number, name: string) => {
-        if (confirm(`Are you sure you want to deactivate - ${name}?`)) {
-            // Call the delete route (now handles deactivation)
-            destroy(route('membership.destroy', id));
+    const handleDeactivateClick = (member: Member) => {
+        if (member.can_be_deactivated) {
+            setSelectedMember(member);
+            setShowConfirmationModal(true);
         }
     };
 
-    const handleApprovePasswordChange = (requestId: number) => {
-        if (confirm('Are you sure you want to approve this password change request?')) {
-            post(route('membership.approve-password-change', requestId));
+    const handleConfirmDeactivation = () => {
+        if (selectedMember) {
+            destroy(route('membership.destroy', selectedMember.id));
+            setShowConfirmationModal(false);
+            setSelectedMember(null);
         }
     };
 
-    const handleRejectPasswordChange = (requestId: number) => {
-        if (confirm('Are you sure you want to reject this password change request?')) {
-            post(route('membership.reject-password-change', requestId));
+    const handleCancelDeactivation = () => {
+        setShowConfirmationModal(false);
+        setSelectedMember(null);
+    };
+
+    const handleApprovePasswordChangeClick = (request: PasswordChangeRequest) => {
+        setSelectedPasswordRequest(request);
+        setShowPasswordApprovalModal(true);
+    };
+
+    const handleRejectPasswordChangeClick = (request: PasswordChangeRequest) => {
+        setSelectedPasswordRequest(request);
+        setShowPasswordRejectionModal(true);
+    };
+
+    const handleConfirmPasswordApproval = () => {
+        if (selectedPasswordRequest) {
+            post(route('membership.approve-password-change', selectedPasswordRequest.id));
+            setShowPasswordApprovalModal(false);
+            setSelectedPasswordRequest(null);
         }
+    };
+
+    const handleConfirmPasswordRejection = () => {
+        if (selectedPasswordRequest) {
+            post(route('membership.reject-password-change', selectedPasswordRequest.id));
+            setShowPasswordRejectionModal(false);
+            setSelectedPasswordRequest(null);
+        }
+    };
+
+    const handleCancelPasswordAction = () => {
+        setShowPasswordApprovalModal(false);
+        setShowPasswordRejectionModal(false);
+        setSelectedPasswordRequest(null);
     };
 
     // Auto-refresh pending password requests via polling
@@ -228,7 +282,7 @@ export default function Index() {
                                             </div>
                                             <div className="flex space-x-2">
                                                 <Button
-                                                    onClick={() => handleApprovePasswordChange(request.id)}
+                                                    onClick={() => handleApprovePasswordChangeClick(request)}
                                                     disabled={processing}
                                                     className="bg-green-600 hover:bg-green-700 text-white"
                                                 >
@@ -236,7 +290,7 @@ export default function Index() {
                                                     Approve
                                                 </Button>
                                                 <Button
-                                                    onClick={() => handleRejectPasswordChange(request.id)}
+                                                    onClick={() => handleRejectPasswordChangeClick(request)}
                                                     disabled={processing}
                                                     variant="destructive"
                                                 >
@@ -299,7 +353,26 @@ export default function Index() {
                                                 <Link href={route('membership.edit', member.id)}><Button disabled={processing} className=''>Edit</Button></Link>
                                             </PermissionGate>
                                             <PermissionGate permission="delete members">
-                                                <Button disabled={processing} onClick={() => handleDeactivate(member.id, member.name)} className=''>Deactivate</Button>
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <div>
+                                                                <Button 
+                                                                    disabled={processing || !member.can_be_deactivated} 
+                                                                    onClick={() => handleDeactivateClick(member)} 
+                                                                    className={member.can_be_deactivated ? '' : 'opacity-50 cursor-not-allowed'}
+                                                                >
+                                                                    Deactivate
+                                                                </Button>
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        {!member.can_be_deactivated && member.deactivation_reason && (
+                                                            <TooltipContent>
+                                                                <p className="max-w-xs text-center">{member.deactivation_reason}</p>
+                                                            </TooltipContent>
+                                                        )}
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                             </PermissionGate>
                                         </div>
                                     </TableCell>
@@ -309,6 +382,153 @@ export default function Index() {
                     </Table>
                 </div>
             )}
+
+            {/* Member Deactivation Confirmation Modal */}
+            <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-500" />
+                            Confirm Deactivation
+                        </DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to deactivate this member?
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedMember && (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <h4 className="font-medium text-orange-800 mb-1">Member Details:</h4>
+                                <p className="text-orange-700">{selectedMember.name}</p>
+                                <p className="text-sm text-orange-600">Member ID: {selectedMember.member_id}</p>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                <p><strong>This action will:</strong></p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Deactivate the member account</li>
+                                    <li>Prevent them from accessing the system</li>
+                                    <li>Move them to the deactivated members list</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancelDeactivation}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={handleConfirmDeactivation}
+                            disabled={processing}
+                        >
+                            {processing ? 'Deactivating...' : 'Deactivate'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Password Change Approval Modal */}
+            <Dialog open={showPasswordApprovalModal} onOpenChange={setShowPasswordApprovalModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            Approve Password Change
+                        </DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to approve this password change request?
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedPasswordRequest && (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <h4 className="font-medium text-green-800 mb-1">Member Details:</h4>
+                                <p className="text-green-700">{selectedPasswordRequest.member.name}</p>
+                                <p className="text-sm text-green-600">Member ID: {selectedPasswordRequest.member.member_id}</p>
+                                <p className="text-sm text-green-600">
+                                    Requested: {new Date(selectedPasswordRequest.requested_at).toLocaleString()}
+                                </p>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                <p><strong>This action will:</strong></p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Approve the password change request</li>
+                                    <li>Allow the member to change their password</li>
+                                    <li>Mark the request as processed</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancelPasswordAction}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            className="bg-green-600 hover:bg-green-700 text-white" 
+                            onClick={handleConfirmPasswordApproval}
+                            disabled={processing}
+                        >
+                            {processing ? 'Approving...' : 'Approve'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Password Change Rejection Modal */}
+            <Dialog open={showPasswordRejectionModal} onOpenChange={setShowPasswordRejectionModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            Reject Password Change
+                        </DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to reject this password change request?
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {selectedPasswordRequest && (
+                        <div className="space-y-3">
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <h4 className="font-medium text-red-800 mb-1">Member Details:</h4>
+                                <p className="text-red-700">{selectedPasswordRequest.member.name}</p>
+                                <p className="text-sm text-red-600">Member ID: {selectedPasswordRequest.member.member_id}</p>
+                                <p className="text-sm text-red-600">
+                                    Requested: {new Date(selectedPasswordRequest.requested_at).toLocaleString()}
+                                </p>
+                            </div>
+                            
+                            <div className="text-sm text-gray-600">
+                                <p><strong>This action will:</strong></p>
+                                <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>Reject the password change request</li>
+                                    <li>Prevent the member from changing their password</li>
+                                    <li>Mark the request as rejected</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                    
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCancelPasswordAction}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={handleConfirmPasswordRejection}
+                            disabled={processing}
+                        >
+                            {processing ? 'Rejecting...' : 'Reject'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             </div>
         </AppLayout>
         </PermissionGuard>
