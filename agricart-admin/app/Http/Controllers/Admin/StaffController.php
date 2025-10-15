@@ -19,15 +19,62 @@ class StaffController extends Controller
     /**
      * Display a listing of staff members.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $staff = User::where('type', 'staff')
-            ->with('roles', 'permissions', 'defaultAddress')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = User::where('type', 'staff')
+            ->with('roles', 'permissions', 'defaultAddress');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        $allowedSortFields = ['id', 'name', 'email', 'created_at'];
+        if (in_array($sortBy, $allowedSortFields)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 10);
+        $staff = $query->paginate($perPage);
+
+        // Calculate stats
+        $totalStaff = User::where('type', 'staff')->count();
+        $activeStaff = User::where('type', 'staff')->whereNotNull('email_verified_at')->count();
+        $inactiveStaff = $totalStaff - $activeStaff;
+        $totalPermissions = Permission::count();
+        $recentStaff = User::where('type', 'staff')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+
+        $staffStats = [
+            'totalStaff' => $totalStaff,
+            'activeStaff' => $activeStaff,
+            'inactiveStaff' => $inactiveStaff,
+            'totalPermissions' => $totalPermissions,
+            'recentStaff' => $recentStaff,
+        ];
 
         return Inertia::render('Admin/Staff/index', [
             'staff' => $staff,
+            'staffStats' => $staffStats,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'sort_by' => $sortBy,
+                'sort_order' => $sortOrder,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 

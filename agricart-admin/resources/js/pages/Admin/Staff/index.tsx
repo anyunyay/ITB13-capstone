@@ -1,38 +1,155 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { UsersRound, BarChart3 } from 'lucide-react';
 import { type SharedData } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { PermissionGuard } from '@/components/permission-guard';
 import { PermissionGate } from '@/components/permission-gate';
-
-interface Staff {
-  id: number;
-  name: string;
-  email: string;
-  contact_number?: string;
-  created_at: string;
-  permissions: Array<{ name: string }>;
-  default_address?: {
-    id: number;
-    street: string;
-    barangay: string;
-    city: string;
-    province: string;
-    full_address: string;
-  };
-}
+import { StatsOverview } from '@/components/staff/stats-overview';
+import { StaffManagement } from '@/components/staff/staff-management';
+import { Staff, StaffStats, StaffFilters, StaffPagination } from '@/types/staff';
+import { useState, useMemo } from 'react';
+import { route } from 'ziggy-js';
+import styles from './staff.module.css';
 
 interface Props {
-  staff: Staff[];
+  staff: StaffPagination;
+  staffStats: StaffStats;
+  filters: StaffFilters;
 }
 
-export default function StaffIndex({ staff }: Props) {
+export default function StaffIndex({ staff, staffStats, filters }: Props) {
   const { props } = usePage<SharedData>();
   const { createStaffs, editStaffs, deleteStaffs } = props.permissions || {};
+
+  // State for search and pagination
+  const [searchTerm, setSearchTerm] = useState(filters.search);
+  const [currentPage, setCurrentPage] = useState(staff.current_page);
+  const [sortBy, setSortBy] = useState(filters.sort_by);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(filters.sort_order);
+  const [processing, setProcessing] = useState(false);
+  const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
+
+  const itemsPerPage = staff.per_page;
+  const totalPages = staff.last_page;
+  const totalStaff = staff.total;
+
+  // Filter and sort staff data
+  const filteredAndSortedStaff = useMemo(() => {
+    let filtered = staff.data;
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(member =>
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (member.contact_number && member.contact_number.includes(searchTerm))
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'email':
+          aValue = a.email.toLowerCase();
+          bValue = b.email.toLowerCase();
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at);
+          bValue = new Date(b.created_at);
+          break;
+        default:
+          aValue = a.id;
+          bValue = b.id;
+      }
+
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [staff.data, searchTerm, sortBy, sortOrder]);
+
+  // Paginate the filtered results
+  const paginatedStaff = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredAndSortedStaff.slice(startIndex, endIndex);
+  }, [filteredAndSortedStaff, currentPage, itemsPerPage]);
+
+  // Handle search with debouncing
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    
+    // Update URL with search parameter
+    router.get(route('staff.index'), {
+      search: term,
+      sort_by: sortBy,
+      sort_order: sortOrder,
+      per_page: itemsPerPage,
+    }, {
+      preserveState: true,
+      replace: true,
+    });
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    
+    router.get(route('staff.index'), {
+      search: searchTerm,
+      sort_by: sortBy,
+      sort_order: sortOrder,
+      per_page: itemsPerPage,
+      page: page,
+    }, {
+      preserveState: true,
+      replace: true,
+    });
+  };
+
+  // Handle sorting
+  const handleSortChange = (field: string) => {
+    const newSortOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(field);
+    setSortOrder(newSortOrder);
+    setCurrentPage(1);
+    
+    router.get(route('staff.index'), {
+      search: searchTerm,
+      sort_by: field,
+      sort_order: newSortOrder,
+      per_page: itemsPerPage,
+    }, {
+      preserveState: true,
+      replace: true,
+    });
+  };
+
+  // Handle staff deletion
+  const handleDeleteStaff = (staffMember: Staff) => {
+    if (confirm('Are you sure you want to delete this staff member?')) {
+      setProcessing(true);
+      router.delete(route('staff.destroy', staffMember.id), {
+        onSuccess: () => {
+          setProcessing(false);
+          setHighlightStaffId(null);
+        },
+        onError: () => {
+          setProcessing(false);
+        },
+      });
+    }
+  };
 
   return (
     <PermissionGuard 
@@ -42,125 +159,71 @@ export default function StaffIndex({ staff }: Props) {
       <AppLayout>
         <Head title="Staff Management" />
         
-        <div className="m-4">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Staff Management</h1>
-            <p className="text-muted-foreground">
-              Manage staff members and their permissions
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {createStaffs && (
-              <Button asChild>
-                <Link href="/admin/staff/add">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Staff
-                </Link>
-              </Button>
-            )}
-            <PermissionGate permission="generate staff report">
-              <Button variant="outline" asChild>
-                <Link href={route('admin.staff.report')}>
-                  Generate Report
-                </Link>
-              </Button>
-            </PermissionGate>
+        <div className={styles.staffContainer}>
+          <div className={styles.mainContent}>
+            {/* Dashboard Header */}
+            <div className={styles.dashboardHeader}>
+              <div className={styles.headerMain}>
+                <div className={styles.headerTitleSection}>
+                  <div className={styles.titleContainer}>
+                    <div className={styles.headerIcon}>
+                      <UsersRound className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h1 className={styles.headerTitle}>Staff Management</h1>
+                      <p className={styles.headerSubtitle}>
+                        Manage staff members and their permissions with comprehensive oversight
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.headerActions}>
+                  {createStaffs && (
+                    <Button asChild className={styles.primaryAction}>
+                      <Link href="/admin/staff/add">
+                        <UsersRound className="mr-2 h-4 w-4" />
+                        Add Staff
+                      </Link>
+                    </Button>
+                  )}
+                  <PermissionGate permission="generate staff report">
+                    <Button variant="outline" asChild className={styles.secondaryAction}>
+                      <Link href={route('admin.staff.report')}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Generate Report
+                      </Link>
+                    </Button>
+                  </PermissionGate>
+                </div>
+              </div>
+            </div>
+
+            {/* Statistics Overview */}
+            <StatsOverview staffStats={staffStats} />
+
+            {/* Staff Management Section */}
+            <StaffManagement
+              staff={staff.data}
+              searchTerm={searchTerm}
+              setSearchTerm={handleSearchChange}
+              filteredAndSortedStaff={filteredAndSortedStaff}
+              paginatedStaff={paginatedStaff}
+              currentPage={currentPage}
+              setCurrentPage={handlePageChange}
+              totalPages={totalPages}
+              totalStaff={totalStaff}
+              itemsPerPage={itemsPerPage}
+              processing={processing}
+              onDelete={handleDeleteStaff}
+              highlightStaffId={highlightStaffId}
+              sortBy={sortBy}
+              setSortBy={handleSortChange}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
+            />
           </div>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Staff Members</CardTitle>
-            <CardDescription>
-              A list of all staff members and their assigned permissions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Contact Number</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Permissions</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {staff.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell className="font-medium">{member.name}</TableCell>
-                    <TableCell>{member.email}</TableCell>
-                    <TableCell>{member.contact_number || 'N/A'}</TableCell>
-                    <TableCell>
-                      {member.default_address ? 
-                        `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
-                        : 'N/A'
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {member.permissions.map((permission) => (
-                          <Badge key={permission.name} variant="secondary" className="text-xs">
-                            {permission.name}
-                          </Badge>
-                        ))}
-                        {member.permissions.length === 0 && (
-                          <span className="text-muted-foreground text-sm">No permissions</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(member.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/staff/${member.id}/edit`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        {editStaffs && (
-                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/admin/staff/${member.id}/edit`}>
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        )}
-                        {deleteStaffs && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              if (confirm('Are you sure you want to delete this staff member?')) {
-                                router.delete(`/admin/staff/${member.id}`);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {staff.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
-                      No staff members found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-    </AppLayout>
+      </AppLayout>
     </PermissionGuard>
   );
 } 
