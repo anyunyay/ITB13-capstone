@@ -20,6 +20,15 @@ interface Order {
   delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
   created_at: string;
   audit_trail: Array<{
     id: number;
@@ -301,6 +310,16 @@ function OrderCard({ order }: { order: Order }) {
           </div>
           <div className="flex items-center gap-2">
             {getDeliveryStatusBadge(order.delivery_status)}
+            {order.ready_for_pickup ? (
+              <Badge className="bg-green-600 text-white text-xs">✓ Ready</Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">Not Ready</Badge>
+            )}
+            {order.picked_up ? (
+              <Badge className="bg-blue-600 text-white text-xs">✓ Picked Up</Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-gray-600 text-white text-xs">Not Picked Up</Badge>
+            )}
           </div>
         </div>
       </CardHeader>

@@ -19,9 +19,10 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         
-        // Get assigned orders for this logistic
+        // Get assigned orders for this logistic - only show pending or out for delivery orders
         $assignedOrders = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'out_for_delivery'])
             ->with(['customer', 'address', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -38,6 +39,9 @@ class LogisticController extends Controller
                         null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
+                    'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                    'delivered_time' => $order->delivered_time?->toISOString(),
+                    'delivery_timeline' => $order->getDeliveryTimeline(),
                     'created_at' => $order->created_at->toISOString(),
                     'audit_trail' => $order->getAggregatedAuditTrail(),
                 ];
@@ -46,14 +50,12 @@ class LogisticController extends Controller
         // Count orders by delivery status
         $pendingCount = $assignedOrders->where('delivery_status', 'pending')->count();
         $outForDeliveryCount = $assignedOrders->where('delivery_status', 'out_for_delivery')->count();
-        $deliveredCount = $assignedOrders->where('delivery_status', 'delivered')->count();
 
         return Inertia::render('Logistic/dashboard', [
             'assignedOrders' => $assignedOrders,
             'stats' => [
                 'pending' => $pendingCount,
                 'out_for_delivery' => $outForDeliveryCount,
-                'delivered' => $deliveredCount,
                 'total' => $assignedOrders->count(),
             ],
         ]);
@@ -66,6 +68,7 @@ class LogisticController extends Controller
         
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'out_for_delivery']) // Only show pending or out for delivery
             ->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by delivery status
@@ -87,6 +90,9 @@ class LogisticController extends Controller
                         null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
+                    'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                    'delivered_time' => $order->delivered_time?->toISOString(),
+                    'delivery_timeline' => $order->getDeliveryTimeline(),
                     'created_at' => $order->created_at->toISOString(),
                     'audit_trail' => $order->getAggregatedAuditTrail(),
                 ];
@@ -120,6 +126,11 @@ class LogisticController extends Controller
                 null,
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,
+            'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+            'delivered_time' => $order->delivered_time?->toISOString(),
+            'delivery_timeline' => $order->getDeliveryTimeline(),
+            'delivery_proof_image' => $order->delivery_proof_image ? asset('storage/' . $order->delivery_proof_image) : null,
+            'delivery_confirmed' => $order->delivery_confirmed,
             'created_at' => $order->created_at->toISOString(),
             'audit_trail' => $order->getAggregatedAuditTrail(),
         ];
@@ -141,6 +152,11 @@ class LogisticController extends Controller
             abort(403, 'This order has already been delivered and cannot be modified.');
         }
 
+        // Ensure order is approved before allowing delivery status updates
+        if ($order->status !== 'approved') {
+            abort(403, 'Order must be approved before delivery status can be updated.');
+        }
+
         // Validate the delivery status value
         $request->validate([
             'delivery_status' => 'required|in:pending,out_for_delivery,delivered',
@@ -151,11 +167,10 @@ class LogisticController extends Controller
         
         // Get the old status for comparison
         $oldStatus = $order->delivery_status;
+
         
-        // Update the delivery status in the database
-        $order->update([
-            'delivery_status' => $newStatus,
-        ]);
+        // Update the delivery status using unified method
+        $order->updateDeliveryStatus($newStatus);
 
         // If status is set to 'delivered', create a Sales record
         if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
@@ -214,6 +229,100 @@ class LogisticController extends Controller
         // Return redirect response for Inertia
         return redirect()->route('logistic.orders.show', $order->id)
             ->with('message', 'Delivery status updated successfully');
+    }
+
+    public function markDelivered(Request $request, SalesAudit $order)
+    {
+        // Ensure the order is assigned to the current logistic
+        if ($order->logistic_id !== Auth::id()) {
+            abort(403, 'You are not authorized to update this order.');
+        }
+
+        // Prevent any changes to delivered orders
+        if ($order->delivery_status === 'delivered') {
+            abort(403, 'This order has already been delivered and cannot be modified.');
+        }
+
+        // Ensure order is approved and out for delivery
+        if ($order->status !== 'approved' || $order->delivery_status !== 'out_for_delivery') {
+            abort(403, 'Order must be approved and out for delivery before it can be marked as delivered.');
+        }
+
+        // Validate the request
+        $request->validate([
+            'delivery_proof_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'confirmation_text' => 'required|string|in:I Confirm',
+        ]);
+
+        // Handle image upload
+        $imagePath = null;
+        if ($request->hasFile('delivery_proof_image')) {
+            $image = $request->file('delivery_proof_image');
+            $imageName = 'delivery_proof_' . $order->id . '_' . time() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('delivery-proofs', $imageName, 'public');
+        }
+
+        // Get the delivery address as plain text
+        $deliveryAddress = null;
+        if ($order->address) {
+            $deliveryAddress = $order->address->street . ', ' . 
+                             $order->address->barangay . ', ' . 
+                             $order->address->city . ', ' . 
+                             $order->address->province;
+        }
+
+        // Use financial data from sales_audit (already calculated during checkout)
+        $subtotal = $order->subtotal ?? $order->total_amount;
+        $coopShare = $order->coop_share ?? ($subtotal * 0.10);
+        $memberShare = $order->member_share ?? $subtotal;
+        $totalAmount = $order->total_amount; // Already includes co-op share
+        
+        // Update the order with delivery proof and confirmation using unified method
+        $order->markAsDelivered();
+        $order->update([
+            'delivery_proof_image' => $imagePath,
+            'delivery_confirmed' => true,
+        ]);
+
+        // Create a Sales record for the delivered order
+        Sales::create([
+            'customer_id' => $order->customer_id,
+            'subtotal' => $subtotal, // Product prices from sales_audit
+            'coop_share' => $coopShare, // Co-op share from sales_audit
+            'member_share' => $memberShare, // Member share from sales_audit
+            'total_amount' => $totalAmount, // Total amount from sales_audit
+            'delivery_address' => $deliveryAddress,
+            'admin_id' => $order->admin_id,
+            'admin_notes' => $order->admin_notes,
+            'logistic_id' => $order->logistic_id,
+            'sales_audit_id' => $order->id,
+            'delivered_at' => now(),
+        ]);
+
+        // Log delivery completion
+        SystemLogger::logDeliveryStatusChange(
+            $order->id,
+            'out_for_delivery',
+            'delivered',
+            Auth::id(),
+            [
+                'customer_id' => $order->customer_id,
+                'order_status' => $order->status,
+                'total_amount' => $order->total_amount,
+                'delivery_proof_image' => $imagePath,
+                'delivery_confirmed' => true
+            ]
+        );
+
+        // Send notification to customer
+        if ($order->customer) {
+            $message = $this->getDeliveryStatusMessage('delivered');
+            $order->customer->notify(new DeliveryStatusUpdate($order->id, 'delivered', $message));
+        }
+
+        // Return redirect response for Inertia
+        return redirect()->route('logistic.orders.show', $order->id)
+            ->with('message', 'Order marked as delivered successfully with proof image.');
     }
 
     private function getDeliveryStatusMessage($status)

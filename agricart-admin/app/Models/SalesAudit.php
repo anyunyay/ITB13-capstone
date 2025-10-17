@@ -19,6 +19,10 @@ class SalesAudit extends Model
         'member_share',
         'status',
         'delivery_status',
+        'delivery_proof_image',
+        'delivery_confirmed',
+        'delivery_packed_time',
+        'delivered_time',
         'address_id',
         'admin_id',
         'admin_notes',
@@ -32,6 +36,9 @@ class SalesAudit extends Model
         'coop_share' => 'float',
         'member_share' => 'float',
         'is_urgent' => 'boolean',
+        'delivery_confirmed' => 'boolean',
+        'delivery_packed_time' => 'datetime',
+        'delivered_time' => 'datetime',
     ];
 
     public function customer()
@@ -94,6 +101,28 @@ class SalesAudit extends Model
     public function scopeDelivered($query)
     {
         return $query->where('delivery_status', 'delivered');
+    }
+
+    // Scopes for filtering by ready for pickup status
+    public function scopeReadyForPickup($query)
+    {
+        return $query->where('ready_for_pickup', true);
+    }
+
+    public function scopeNotReadyForPickup($query)
+    {
+        return $query->where('ready_for_pickup', false);
+    }
+
+    // Scopes for filtering by picked up status
+    public function scopePickedUp($query)
+    {
+        return $query->where('picked_up', true);
+    }
+
+    public function scopeNotPickedUp($query)
+    {
+        return $query->where('picked_up', false);
     }
 
     /**
@@ -166,6 +195,58 @@ class SalesAudit extends Model
         $this->member_share = $subtotal; // Members get 100% of product revenue
         $this->total_amount = $subtotal + $this->coop_share; // Customer pays subtotal + co-op share
         $this->save();
+    }
+
+    /**
+     * Update delivery status with automatic timestamp setting
+     */
+    public function updateDeliveryStatus(string $status): void
+    {
+        $oldStatus = $this->delivery_status;
+        
+        $this->delivery_status = $status;
+        
+        // Set timestamps based on status changes
+        if ($status === 'out_for_delivery' && $oldStatus === 'pending') {
+            $this->delivery_packed_time = now();
+        } elseif ($status === 'delivered' && $oldStatus !== 'delivered') {
+            $this->delivered_time = now();
+        }
+        
+        $this->save();
+    }
+
+    /**
+     * Mark order as packed (out for delivery)
+     */
+    public function markAsPacked(): void
+    {
+        $this->updateDeliveryStatus('out_for_delivery');
+    }
+
+    /**
+     * Mark order as delivered
+     */
+    public function markAsDelivered(): void
+    {
+        $this->updateDeliveryStatus('delivered');
+    }
+
+    /**
+     * Get delivery timeline information
+     */
+    public function getDeliveryTimeline(): array
+    {
+        return [
+            'packed_at' => $this->delivery_packed_time?->toISOString(),
+            'delivered_at' => $this->delivered_time?->toISOString(),
+            'packing_duration' => $this->delivery_packed_time ? 
+                $this->created_at->diffInMinutes($this->delivery_packed_time) : null,
+            'delivery_duration' => $this->delivery_packed_time && $this->delivered_time ? 
+                $this->delivery_packed_time->diffInMinutes($this->delivered_time) : null,
+            'total_duration' => $this->delivered_time ? 
+                $this->created_at->diffInMinutes($this->delivered_time) : null,
+        ];
     }
 
 }

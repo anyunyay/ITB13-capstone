@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
@@ -44,6 +45,15 @@ interface Order {
   member_share: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
   created_at: string;
   admin?: {
     name: string;
@@ -83,6 +93,9 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [assignLogisticDialogOpen, setAssignLogisticDialogOpen] = useState(false);
   const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
+  const [pickedUpDialogOpen, setPickedUpDialogOpen] = useState(false);
+  const [pickupConfirmationText, setPickupConfirmationText] = useState('');
+  const [currentOrder, setCurrentOrder] = useState(order);
 
   // Common rejection reasons
   const rejectionReasons = [
@@ -107,12 +120,16 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
     logistic_id: '',
   });
 
+  const pickedUpForm = useForm({
+    confirmation_text: '',
+  });
+
   // Auto-open logistic assignment dialog for newly approved orders without logistic
   useEffect(() => {
-    if (order.status === 'approved' && !order.logistic) {
+    if (currentOrder.status === 'approved' && !currentOrder.logistic) {
       setAssignLogisticDialogOpen(true);
     }
-  }, [order.status, order.logistic]);
+  }, [currentOrder.status, currentOrder.logistic]);
 
   // Handle highlighting effect when coming from notification
   useEffect(() => {
@@ -186,6 +203,41 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
         assignLogisticForm.reset();
         // Show success message
         alert('Logistic assigned successfully!');
+      },
+    });
+  };
+
+
+  const handleMarkPickedUp = () => {
+    if (pickupConfirmationText !== 'Confirm Pick Up') {
+      alert('Please type "Confirm Pick Up" exactly to confirm.');
+      return;
+    }
+
+    router.post(route('admin.orders.markPickedUp', order.id), {
+      confirmation_text: pickupConfirmationText
+    }, {
+      onSuccess: () => {
+        // Update the local order state to reflect the new delivery status
+        const updatedOrder = {
+          ...currentOrder,
+          delivery_status: 'out_for_delivery' as const,
+          delivery_packed_time: new Date().toISOString(),
+          delivery_timeline: {
+            ...currentOrder.delivery_timeline,
+            packed_at: new Date().toISOString(),
+            packing_duration: currentOrder.delivery_timeline?.packing_duration || 0,
+            delivery_duration: currentOrder.delivery_timeline?.delivery_duration || undefined,
+            total_duration: currentOrder.delivery_timeline?.total_duration || undefined,
+          }
+        };
+
+        setCurrentOrder(updatedOrder);
+        setPickedUpDialogOpen(false);
+        setPickupConfirmationText('');
+      },
+      onError: (errors) => {
+        console.error('Error marking order as picked up:', errors);
       },
     });
   };
@@ -301,8 +353,60 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                   {order.status === 'approved' && (
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-500">Delivery Status</span>
-                      {getDeliveryStatusBadge(order.delivery_status)}
+                      <div className="flex items-center gap-2">
+                        {getDeliveryStatusBadge(currentOrder.delivery_status)}
+                        {currentOrder.delivery_status === 'out_for_delivery' && (
+                          <span className="text-xs text-blue-600">(Picked Up)</span>
+                        )}
+                        {currentOrder.delivery_status === 'delivered' && (
+                          <span className="text-xs text-green-600">(Completed)</span>
+                        )}
+                      </div>
                     </div>
+                  )}
+                  {currentOrder.delivery_timeline && (
+                    <>
+                      {currentOrder.delivery_packed_time && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Packed At</span>
+                          <span className="text-sm text-blue-600">
+                            {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
+                          </span>
+                        </div>
+                      )}
+                      {currentOrder.delivered_time && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Delivered At</span>
+                          <span className="text-sm text-green-600">
+                            {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                          </span>
+                        </div>
+                      )}
+                      {currentOrder.delivery_timeline.packing_duration && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Packing Duration</span>
+                          <span className="text-sm text-gray-700">
+                            {Math.floor(currentOrder.delivery_timeline.packing_duration / 60)}h {currentOrder.delivery_timeline.packing_duration % 60}m
+                          </span>
+                        </div>
+                      )}
+                      {currentOrder.delivery_timeline.delivery_duration && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Delivery Duration</span>
+                          <span className="text-sm text-gray-700">
+                            {Math.floor(currentOrder.delivery_timeline.delivery_duration / 60)}h {currentOrder.delivery_timeline.delivery_duration % 60}m
+                          </span>
+                        </div>
+                      )}
+                      {currentOrder.delivery_timeline.total_duration && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Total Duration</span>
+                          <span className="text-sm text-gray-700">
+                            {Math.floor(currentOrder.delivery_timeline.total_duration / 60)}h {currentOrder.delivery_timeline.total_duration % 60}m
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Items</span>
@@ -557,6 +661,118 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+
+            {/* Order Picked Up Management for Approved Orders */}
+            {order.status === 'approved' && order.logistic && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Picked Up</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className={`p-3 rounded ${
+                    currentOrder.delivery_status === 'pending' ? 'bg-yellow-50' :
+                    currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-50' :
+                    currentOrder.delivery_status === 'delivered' ? 'bg-green-50' : 'bg-yellow-50'
+                  }`}>
+                    {currentOrder.delivery_status === 'pending' && (
+                      <>
+                        <p className="text-sm font-medium text-yellow-800">
+                          Order is ready but not yet picked up
+                        </p>
+                        <p className="text-sm text-yellow-600">
+                          Mark the order as picked up when the logistic provider collects it.
+                        </p>
+                      </>
+                    )}
+                    {currentOrder.delivery_status === 'out_for_delivery' && (
+                      <>
+                        <p className="text-sm font-medium text-blue-800">
+                          Order is out for delivery
+                        </p>
+                        <p className="text-sm text-blue-600">
+                          The order has been picked up and is currently being delivered to the customer.
+                        </p>
+                      </>
+                    )}
+                    {currentOrder.delivery_status === 'delivered' && (
+                      <>
+                        <p className="text-sm font-medium text-green-800">
+                          Order has been delivered
+                        </p>
+                        <p className="text-sm text-green-600">
+                          The order has been successfully delivered to the customer.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  
+                  {currentOrder.delivery_status === 'pending' ? (
+                    <Dialog open={pickedUpDialogOpen} onOpenChange={setPickedUpDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full" variant="default">
+                          Mark Order as Picked Up
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Mark Order as Picked Up</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to mark this order as picked up? This will automatically set the delivery status to "Out for Delivery" and notify the customer that their order is in transit.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium">
+                              Type "Confirm Pick Up" to finalize this action *
+                            </label>
+                            <Input
+                              type="text"
+                              value={pickupConfirmationText}
+                              onChange={(e) => setPickupConfirmationText(e.target.value)}
+                              placeholder="Confirm Pick Up"
+                              className="mt-2"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              This action cannot be undone. The order will be marked as picked up and delivery status will be set to "Out for Delivery".
+                            </p>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setPickedUpDialogOpen(false);
+                              setPickupConfirmationText('');
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={handleMarkPickedUp} 
+                            disabled={pickedUpForm.processing || pickupConfirmationText !== 'Confirm Pick Up'}
+                          >
+                            {pickedUpForm.processing ? 'Marking...' : 'Mark as Picked Up'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  ) : currentOrder.delivery_status === 'out_for_delivery' ? (
+                    <Button className="w-full" variant="outline" disabled>
+                      Picked Up
+                    </Button>
+                  ) : currentOrder.delivery_status === 'delivered' ? (
+                    <Button className="w-full" variant="outline" disabled>
+                      Delivered
+                    </Button>
+                  ) : (
+                    <Button className="w-full" variant="outline" disabled>
+                      Picked Up
+                    </Button>
                   )}
                 </CardContent>
               </Card>

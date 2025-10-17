@@ -16,6 +16,15 @@ interface Order {
   delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
   created_at: string;
   audit_trail: Array<{
     id: number;
@@ -33,7 +42,6 @@ interface LogisticDashboardProps {
   stats: {
     pending: number;
     out_for_delivery: number;
-    delivered: number;
     total: number;
   };
 }
@@ -92,14 +100,6 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Delivered</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-400">{stats.delivered}</div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Assigned Orders */}
@@ -143,20 +143,13 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                       </div>
                       <div className="flex items-center space-x-2">
                         {getDeliveryStatusBadge(order.delivery_status)}
-                        {order.delivery_status === 'delivered' && (
-                          <div className="flex items-center gap-1 text-green-400 text-xs">
-                            <CheckCircle className="h-3 w-3" />
-                            <span>Completed</span>
-                          </div>
-                        )}
                         <Link href={route('logistic.orders.show', order.id)}>
                           <Button 
                             variant="outline" 
                             size="sm"
-                            className={order.delivery_status === 'delivered' ? 'opacity-75' : ''}
                           >
                             <Eye className="h-4 w-4 mr-1" />
-                            {order.delivery_status === 'delivered' ? 'View (Read-only)' : 'View Details'}
+                            View Details
                           </Button>
                         </Link>
                       </div>

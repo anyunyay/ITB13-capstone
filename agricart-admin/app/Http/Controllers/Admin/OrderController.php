@@ -15,6 +15,7 @@ use App\Notifications\OrderRejectionNotification;
 use App\Notifications\DeliveryTaskNotification;
 use App\Notifications\ProductSaleNotification;
 use App\Notifications\OrderDelayedNotification;
+use App\Notifications\OrderPickedUpNotification;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -70,6 +71,9 @@ class OrderController extends Controller
                 'total_amount' => $order->total_amount,
                 'status' => $order->status,
                 'delivery_status' => $order->delivery_status,
+                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                'delivered_time' => $order->delivered_time?->toISOString(),
+                'delivery_timeline' => $order->getDeliveryTimeline(),
                 'created_at' => $order->created_at->toISOString(),
                 'admin' => $order->admin ? [
                     'name' => $order->admin->name,
@@ -168,6 +172,9 @@ class OrderController extends Controller
             'member_share' => $order->member_share,
             'status' => $order->status,
             'delivery_status' => $order->delivery_status,
+            'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+            'delivered_time' => $order->delivered_time?->toISOString(),
+            'delivery_timeline' => $order->getDeliveryTimeline(),
             'created_at' => $order->created_at->toISOString(),
             'admin' => $order->admin ? [
                 'name' => $order->admin->name,
@@ -368,6 +375,45 @@ class OrderController extends Controller
         Log::info('Order urgency removed successfully');
 
         return redirect()->back()->with('message', 'Order urgency removed successfully.');
+    }
+
+
+
+    public function markPickedUp(Request $request, SalesAudit $order)
+    {
+        // Validate confirmation text
+        $request->validate([
+            'confirmation_text' => 'required|string|in:Confirm Pick Up',
+        ]);
+
+        // Check if order is approved and pending
+        if ($order->status !== 'approved' || $order->delivery_status !== 'pending') {
+            return redirect()->back()->with('error', 'Order is not ready for pickup.');
+        }
+
+        // Update delivery status to out for delivery using unified method
+        $order->markAsPacked();
+
+        // Log the action
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            'pending',
+            'out_for_delivery',
+            $request->user()->id,
+            'admin',
+            [
+                'delivery_status' => 'out_for_delivery',
+                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+            ]
+        );
+
+        // Send notification to logistic
+        if ($order->logistic_id) {
+            $order->logistic->notify(new OrderPickedUpNotification($order));
+        }
+
+        return redirect()->route('admin.orders.show', $order->id)
+            ->with('message', 'Order marked as picked up and set to out for delivery successfully.');
     }
 
     public function process(Request $request, Sales $order)

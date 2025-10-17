@@ -150,6 +150,9 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::post('/orders/{order}/mark-urgent', [OrderController::class, 'markUrgent'])->whereNumber('order')->name('admin.orders.markUrgent');
             Route::post('/orders/{order}/unmark-urgent', [OrderController::class, 'unmarkUrgent'])->whereNumber('order')->name('admin.orders.unmarkUrgent');
         });
+        Route::middleware(['can:mark orders ready for pickup'])->group(function () {
+            Route::post('/orders/{order}/mark-picked-up', [OrderController::class, 'markPickedUp'])->whereNumber('order')->name('admin.orders.markPickedUp');
+        });
         Route::middleware(['can:generate order report'])->group(function () {
             Route::get('/orders/report', [OrderController::class, 'generateReport'])->name('admin.orders.report');
         });
@@ -303,6 +306,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/orders', [LogisticController::class, 'assignedOrders'])->name('logistic.orders.index');
         Route::get('/orders/{order}', [LogisticController::class, 'showOrder'])->name('logistic.orders.show');
         Route::put('/orders/{order}/delivery-status', [LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
+        Route::post('/orders/{order}/mark-delivered', [LogisticController::class, 'markDelivered'])->name('logistic.orders.markDelivered');
         Route::get('/report', [LogisticController::class, 'generateReport'])->name('logistic.report');
         
         // Logistic Profile routes

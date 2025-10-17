@@ -4,10 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, Truck, Clock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, CheckCircle, Truck, Clock, Upload, Camera, X } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
 
 interface Order {
@@ -20,6 +22,17 @@ interface Order {
   delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
+  delivery_proof_image?: string;
+  delivery_confirmed: boolean;
   created_at: string;
   audit_trail: Array<{
     id: number;
@@ -47,6 +60,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<'pending' | 'out_for_delivery' | 'delivered' | null>(null);
   
+  // State for delivery confirmation modal
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [deliveryImage, setDeliveryImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [confirmationText, setConfirmationText] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   // Get current user from page props
   const { auth } = usePage().props as any;
   
@@ -56,6 +76,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   // Form for delivery status updates
   const updateDeliveryStatusForm = useForm({
     delivery_status: currentOrder.delivery_status,
+  });
+
+  // Form for delivery confirmation
+  const deliveryForm = useForm({
+    delivery_proof_image: null as File | null,
+    confirmation_text: '',
   });
 
   // Helper function to format quantities with proper units
@@ -105,9 +131,89 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       return;
     }
 
-    // Show confirmation dialog for status changes
+    // Special handling for delivered status - show delivery modal instead
+    if (value === 'delivered') {
+      setShowDeliveryModal(true);
+      return;
+    }
+
+    // Show confirmation dialog for other status changes
     setPendingStatus(value);
     setShowConfirmationDialog(true);
+  };
+
+  // Handle image upload
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setDeliveryImage(file);
+      deliveryForm.setData('delivery_proof_image', file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove image
+  const removeImage = () => {
+    setDeliveryImage(null);
+    setImagePreview(null);
+    deliveryForm.setData('delivery_proof_image', null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Handle delivery confirmation
+  const handleDeliveryConfirmation = () => {
+    if (!deliveryImage) {
+      alert('Please upload a delivery proof image.');
+      return;
+    }
+
+    if (confirmationText !== 'I Confirm') {
+      alert('Please type "I Confirm" exactly to confirm delivery.');
+      return;
+    }
+
+    deliveryForm.setData('confirmation_text', confirmationText);
+    
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('delivery_proof_image', deliveryImage);
+    formData.append('confirmation_text', confirmationText);
+
+    router.post(route('logistic.orders.markDelivered', currentOrder.id), formData, {
+      onSuccess: () => {
+        // Update local state
+        setCurrentOrder(prevOrder => ({
+          ...prevOrder,
+          delivery_status: 'delivered',
+          delivery_confirmed: true,
+          delivery_proof_image: imagePreview || undefined,
+          delivered_time: new Date().toISOString(),
+          delivery_timeline: {
+            ...prevOrder.delivery_timeline,
+            delivered_at: new Date().toISOString(),
+            packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
+            delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
+            total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
+          }
+        }));
+        setShowDeliveryModal(false);
+        setDeliveryImage(null);
+        setImagePreview(null);
+        setConfirmationText('');
+      },
+      onError: (errors) => {
+        console.error('Delivery confirmation error:', errors);
+      },
+      preserveScroll: true,
+    });
   };
 
   // Confirm status change
@@ -125,7 +231,17 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         // Update local state immediately for instant UI feedback
         setCurrentOrder(prevOrder => ({
           ...prevOrder,
-          delivery_status: pendingStatus
+          delivery_status: pendingStatus,
+          delivery_packed_time: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_packed_time,
+          delivered_time: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivered_time,
+          delivery_timeline: {
+            ...prevOrder.delivery_timeline,
+            packed_at: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_timeline?.packed_at,
+            delivered_at: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivery_timeline?.delivered_at,
+            packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
+            delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
+            total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
+          }
         }));
         setShowConfirmationDialog(false);
         setPendingStatus(null);
@@ -194,6 +310,50 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                     {getDeliveryStatusBadge(currentOrder.delivery_status)}
                   </div>
                 </div>
+                {currentOrder.delivery_timeline && (
+                  <>
+                    {currentOrder.delivery_packed_time && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Packed At</p>
+                        <p className="text-sm text-blue-400">
+                          {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
+                        </p>
+                      </div>
+                    )}
+                    {currentOrder.delivered_time && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Delivered At</p>
+                        <p className="text-sm text-green-400">
+                          {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                        </p>
+                      </div>
+                    )}
+                    {currentOrder.delivery_timeline.packing_duration && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Packing Duration</p>
+                        <p className="text-sm text-gray-300">
+                          {Math.floor(currentOrder.delivery_timeline.packing_duration / 60)}h {currentOrder.delivery_timeline.packing_duration % 60}m
+                        </p>
+                      </div>
+                    )}
+                    {currentOrder.delivery_timeline.delivery_duration && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Delivery Duration</p>
+                        <p className="text-sm text-gray-300">
+                          {Math.floor(currentOrder.delivery_timeline.delivery_duration / 60)}h {currentOrder.delivery_timeline.delivery_duration % 60}m
+                        </p>
+                      </div>
+                    )}
+                    {currentOrder.delivery_timeline.total_duration && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Total Duration</p>
+                        <p className="text-sm text-gray-300">
+                          {Math.floor(currentOrder.delivery_timeline.total_duration / 60)}h {currentOrder.delivery_timeline.total_duration % 60}m
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -252,21 +412,45 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 <Select
                   value={updateDeliveryStatusForm.data.delivery_status}
                   onValueChange={(value) => handleDeliveryStatusChange(value as 'pending' | 'out_for_delivery' | 'delivered')}
-                  disabled={updateDeliveryStatusForm.processing || currentOrder.delivery_status === 'delivered'}
+                  disabled={updateDeliveryStatusForm.processing || currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending'}
                 >
-                  <SelectTrigger className={currentOrder.delivery_status === 'delivered' ? 'bg-gray-700 cursor-not-allowed' : ''}>
+                  <SelectTrigger className={currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending' ? 'bg-gray-700 cursor-not-allowed' : ''}>
                     <SelectValue placeholder="Select delivery status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="pending" disabled>Pending</SelectItem>
                     <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="delivered">Mark as Delivered</SelectItem>
                   </SelectContent>
                 </Select>
                 {currentOrder.delivery_status === 'delivered' && (
-                  <p className="text-sm text-green-400 mt-2 flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4" />
-                    This order has been delivered and cannot be modified.
+                  <div className="mt-2 space-y-2">
+                    <p className="text-sm text-green-400 flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" />
+                      This order has been delivered and cannot be modified.
+                    </p>
+                    {currentOrder.delivery_proof_image && (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium text-gray-300 mb-2">Delivery Proof:</p>
+                        <img 
+                          src={currentOrder.delivery_proof_image} 
+                          alt="Delivery proof" 
+                          className="w-32 h-32 object-cover rounded-lg border border-gray-600"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {currentOrder.delivery_status === 'pending' && (
+                  <p className="text-sm text-yellow-400 mt-2 flex items-center gap-1">
+                    <AlertTriangle className="h-4 w-4" />
+                    This order is pending pickup. You cannot change the delivery status until the admin marks it as picked up.
+                  </p>
+                )}
+                {currentOrder.delivery_status === 'out_for_delivery' && (
+                  <p className="text-sm text-blue-400 mt-2 flex items-center gap-1">
+                    <Truck className="h-4 w-4" />
+                    Order is out for delivery. You can mark it as delivered when you complete the delivery.
                   </p>
                 )}
                 {updateDeliveryStatusForm.processing && (
@@ -383,18 +567,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                     {getDeliveryStatusBadge(pendingStatus)}
                   </div>
                 </div>
-
-                {pendingStatus === 'delivered' && (
-                  <div className="p-3 bg-green-900/30 border border-green-600 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="h-4 w-4 text-green-400" />
-                      <span className="text-sm font-medium text-green-300">Important:</span>
-                    </div>
-                    <p className="text-sm text-green-200">
-                      Marking this order as delivered will make it read-only
-                    </p>
-                  </div>
-                )}
               </div>
             )}
             
@@ -412,6 +584,102 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {updateDeliveryStatusForm.processing ? 'Updating...' : 'Confirm Change'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delivery Confirmation Modal */}
+        <Dialog open={showDeliveryModal} onOpenChange={setShowDeliveryModal}>
+          <DialogContent className="bg-gray-800 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-white">
+                <Camera className="h-5 w-5 text-green-500" />
+                Confirm Delivery
+              </DialogTitle>
+              <DialogDescription className="text-gray-300">
+                Please upload a photo of the delivered package and confirm the delivery.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Image Upload Section */}
+              <div>
+                <Label className="text-sm font-medium text-white">Delivery Proof Image *</Label>
+                <div className="mt-2">
+                  {!imagePreview ? (
+                    <div 
+                      className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-gray-500 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">Click to upload delivery proof</p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <img 
+                        src={imagePreview} 
+                        alt="Delivery proof preview" 
+                        className="w-full h-48 object-cover rounded-lg border border-gray-600"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={removeImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Confirmation Text Input */}
+              <div>
+                <Label className="text-sm font-medium text-white">
+                  Type "I Confirm" to finalize delivery *
+                </Label>
+                <Input
+                  type="text"
+                  value={confirmationText}
+                  onChange={(e) => setConfirmationText(e.target.value)}
+                  placeholder="I Confirm"
+                  className="mt-2 bg-gray-700 border-gray-600 text-white"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  This action cannot be undone. The order will be marked as delivered and become read-only.
+                </p>
+              </div>
+            </div>
+            
+            <DialogFooter className="gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowDeliveryModal(false);
+                  setDeliveryImage(null);
+                  setImagePreview(null);
+                  setConfirmationText('');
+                }}
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleDeliveryConfirmation}
+                disabled={!deliveryImage || confirmationText !== 'I Confirm' || deliveryForm.processing}
+                className="bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-600"
+              >
+                {deliveryForm.processing ? 'Confirming...' : 'Confirm Delivery'}
               </Button>
             </DialogFooter>
           </DialogContent>

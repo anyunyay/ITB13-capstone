@@ -26,6 +26,15 @@ interface Order {
   member_share: number;
   status: 'pending' | 'approved' | 'rejected';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
   created_at: string;
   admin?: {
     name: string;
@@ -410,6 +419,20 @@ function OrderCard({ order }: { order: Order }) {
               <div className="space-y-1">
                 <p className="text-sm">
                   <span className="font-medium">Delivery Status:</span> {getDeliveryStatusBadge(order.delivery_status)}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Ready for Pickup:</span> {order.ready_for_pickup ? (
+                    <Badge className="bg-green-100 text-green-800">✓ Ready</Badge>
+                  ) : (
+                    <Badge variant="secondary">Not Ready</Badge>
+                  )}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Picked Up:</span> {order.picked_up ? (
+                    <Badge className="bg-blue-100 text-blue-800">✓ Picked Up</Badge>
+                  ) : (
+                    <Badge variant="secondary">Not Picked Up</Badge>
+                  )}
                 </p>
                 {!order.logistic && (
                   <p className="text-sm text-orange-600 dark:text-orange-400">

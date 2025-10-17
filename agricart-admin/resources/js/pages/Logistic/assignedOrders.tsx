@@ -17,6 +17,15 @@ interface Order {
   delivery_address?: string;
   total_amount: number;
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_packed_time?: string;
+  delivered_time?: string;
+  delivery_timeline?: {
+    packed_at?: string;
+    delivered_at?: string;
+    packing_duration?: number;
+    delivery_duration?: number;
+    total_duration?: number;
+  };
   created_at: string;
   audit_trail: Array<{
     id: number;
@@ -75,7 +84,6 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
 
   const pendingOrders = orders.filter(order => order.delivery_status === 'pending');
   const outForDeliveryOrders = orders.filter(order => order.delivery_status === 'out_for_delivery');
-  const deliveredOrders = orders.filter(order => order.delivery_status === 'delivered');
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -98,11 +106,10 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
           </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all">All Orders ({orders.length})</TabsTrigger>
             <TabsTrigger value="pending">Pending ({pendingOrders.length})</TabsTrigger>
             <TabsTrigger value="out_for_delivery">Out for Delivery ({outForDeliveryOrders.length})</TabsTrigger>
-            <TabsTrigger value="delivered">Delivered ({deliveredOrders.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -169,26 +176,6 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             )}
           </TabsContent>
 
-          <TabsContent value="delivered" className="space-y-4">
-                         {deliveredOrders.length === 0 ? (
-               <Card className="bg-gray-800 border-gray-700">
-                 <CardContent className="text-center py-8">
-                   <p className="text-gray-400">No delivered orders.</p>
-                 </CardContent>
-               </Card>
-            ) : (
-              <div className="grid gap-4">
-        {deliveredOrders.map((order) => (
-          <OrderCard 
-            key={order.id} 
-            order={order} 
-            getDeliveryStatusBadge={getDeliveryStatusBadge}
-            formatQuantity={formatQuantity}
-          />
-        ))}
-              </div>
-            )}
-          </TabsContent>
         </Tabs>
       </div>
     </div>
@@ -210,23 +197,15 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: {
             <div className="flex items-center space-x-2">
               <h3 className="font-semibold text-white">Order #{order.id}</h3>
               {getDeliveryStatusBadge(order.delivery_status)}
-              {order.delivery_status === 'delivered' && (
-                <div className="flex items-center gap-1 text-green-400 text-xs">
-                  <CheckCircle className="h-3 w-3" />
-                  <span>Completed</span>
-                </div>
-              )}
             </div>
             <Link href={route('logistic.orders.show', order.id)}>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={`border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white ${
-                  order.delivery_status === 'delivered' ? 'opacity-75' : ''
-                }`}
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
               >
                 <Eye className="h-4 w-4 mr-1" />
-                {order.delivery_status === 'delivered' ? 'View Details (Read-only)' : 'View Details'}
+                View Details
               </Button>
             </Link>
           </div>
