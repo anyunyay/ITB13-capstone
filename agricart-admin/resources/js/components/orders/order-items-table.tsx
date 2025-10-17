@@ -14,6 +14,10 @@ interface OrderItem {
     };
     category: string;
     quantity: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    unit_price?: number;
     stock?: {
         id: number;
         quantity: number;
@@ -48,7 +52,11 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                 product: item.product,
                 category: item.category,
                 quantity: 0,
-                stock: item.stock
+                stock: item.stock,
+                price_kilo: item.price_kilo,
+                price_pc: item.price_pc,
+                price_tali: item.price_tali,
+                unit_price: item.unit_price
             };
         }
         acc[key].quantity += Number(item.quantity);
@@ -57,9 +65,11 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
 
     const combinedItems = Object.values(groupedItems);
     const totalAmount = combinedItems.reduce((sum, item) => {
-        const price = item.category === 'Kilo' ? (item.product.price_kilo || 0) :
-                     item.category === 'Pc' ? (item.product.price_pc || 0) :
-                     item.category === 'Tali' ? (item.product.price_tali || 0) : 0;
+        // Use stored prices from audit trail, fallback to product prices
+        const price = item.category === 'Kilo' ? (item.price_kilo || item.product.price_kilo || 0) :
+                     item.category === 'Pc' ? (item.price_pc || item.product.price_pc || 0) :
+                     item.category === 'Tali' ? (item.price_tali || item.product.price_tali || 0) : 
+                     (item.unit_price || 0);
         return sum + (Number(item.quantity) * Number(price));
     }, 0);
 
@@ -101,9 +111,11 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                 </TableHeader>
                 <TableBody>
                     {combinedItems.map((item, index) => {
-                        const price = item.category === 'Kilo' ? (item.product.price_kilo || 0) :
-                                     item.category === 'Pc' ? (item.product.price_pc || 0) :
-                                     item.category === 'Tali' ? (item.product.price_tali || 0) : 0;
+                        // Use stored prices from audit trail, fallback to product prices
+                        const price = item.category === 'Kilo' ? (item.price_kilo || item.product.price_kilo || 0) :
+                                     item.category === 'Pc' ? (item.price_pc || item.product.price_pc || 0) :
+                                     item.category === 'Tali' ? (item.price_tali || item.product.price_tali || 0) : 
+                                     (item.unit_price || 0);
                         const totalPrice = Number(item.quantity) * Number(price);
                         
                         return (

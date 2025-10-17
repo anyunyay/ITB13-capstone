@@ -281,13 +281,17 @@ class CartController extends Controller
                     $itemTotalPrice += $price * $deduct;
                     $remainingQty -= $deduct;
 
-                    // Create an audit trail record (but don't deduct stock yet)
-                    AuditTrail::create([
+                    // Create an audit trail record with stored prices (but don't deduct stock yet)
+                    $auditTrail = AuditTrail::create([
                         'sale_id' => $sale->id,
                         'stock_id' => $stock->id,
                         'product_id' => $item->product_id,
                         'category' => $item->category,
                         'quantity' => $deduct,
+                        'price_kilo' => $stock->product->price_kilo,
+                        'price_pc' => $stock->product->price_pc,
+                        'price_tali' => $stock->product->price_tali,
+                        'unit_price' => $price,
                     ]);
                 }
 
@@ -309,8 +313,16 @@ class CartController extends Controller
                 return redirect()->route('cart.index')->with('checkoutMessage', 'Minimum order requirement is Php75. Your current total is Php' . number_format($totalPrice, 2) . '. Please add more items to your cart.');
             }
 
-            // Update the sale with total amount
-            $sale->update(['total_amount' => $totalPrice]);
+            // Calculate co-op share (10% of total amount) and member share (90%)
+            $coopShare = $totalPrice * 0.10;
+            $memberShare = $totalPrice * 0.90;
+            
+            // Update the sale with total amount, co-op share, and member share
+            $sale->update([
+                'total_amount' => $totalPrice,
+                'coop_share' => $coopShare,
+                'member_share' => $memberShare
+            ]);
 
             // Log successful checkout
             SystemLogger::logCheckout(

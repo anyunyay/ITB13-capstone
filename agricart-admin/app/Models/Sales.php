@@ -12,6 +12,8 @@ class Sales extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
+        'coop_share',
+        'member_share',
         'delivery_address',
         'admin_id',
         'admin_notes',
@@ -22,6 +24,8 @@ class Sales extends Model
 
     protected $casts = [
         'total_amount' => 'float',
+        'coop_share' => 'float',
+        'member_share' => 'float',
         'delivered_at' => 'datetime',
     ];
 
@@ -65,5 +69,31 @@ class Sales extends Model
     {
         return $query->whereMonth('delivered_at', now()->month)
                     ->whereYear('delivered_at', now()->year);
+    }
+
+    /**
+     * Calculate the co-op share (10% of total amount)
+     */
+    public function calculateCoopShare(): float
+    {
+        return $this->total_amount * 0.10;
+    }
+
+    /**
+     * Get the member share (stored value or calculated as 90% of total amount)
+     */
+    public function getMemberShare(): float
+    {
+        return $this->member_share ?? ($this->total_amount * 0.90);
+    }
+
+    /**
+     * Update both coop_share and member_share based on current total amount
+     */
+    public function updateShares(): void
+    {
+        $this->coop_share = $this->calculateCoopShare();
+        $this->member_share = $this->total_amount - $this->coop_share;
+        $this->save();
     }
 }

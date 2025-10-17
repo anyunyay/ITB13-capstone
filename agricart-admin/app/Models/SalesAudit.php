@@ -93,6 +93,7 @@ class SalesAudit extends Model
     /**
      * Get aggregated audit trail data grouped by product and category
      * This combines quantities from different stock sources (members) for the same items
+     * Uses stored prices from audit trails instead of current product prices
      */
     public function getAggregatedAuditTrail()
     {
@@ -108,15 +109,20 @@ class SalesAudit extends Model
                 'product' => [
                     'id' => $firstItem->product->id,
                     'name' => $firstItem->product->name,
-                    'price_kilo' => $firstItem->product->price_kilo,
-                    'price_pc' => $firstItem->product->price_pc,
-                    'price_tali' => $firstItem->product->price_tali,
+                    'price_kilo' => $firstItem->price_kilo ?? $firstItem->product->price_kilo,
+                    'price_pc' => $firstItem->price_pc ?? $firstItem->product->price_pc,
+                    'price_tali' => $firstItem->price_tali ?? $firstItem->product->price_tali,
                 ],
                 'category' => $firstItem->category,
                 'quantity' => $items->sum('quantity'),
+                'unit_price' => $firstItem->getSalePrice(),
+                'total_amount' => $items->sum(function($item) {
+                    return $item->getTotalAmount();
+                }),
             ];
         })->values();
 
         return $aggregated;
     }
+
 }

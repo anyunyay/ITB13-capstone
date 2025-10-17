@@ -168,10 +168,16 @@ class LogisticController extends Controller
                                  $order->address->province;
             }
 
+            // Calculate shares for the delivered order
+            $coopShare = $order->total_amount * 0.10;
+            $memberShare = $order->total_amount * 0.90;
+            
             // Create a Sales record for the delivered order
             Sales::create([
                 'customer_id' => $order->customer_id,
                 'total_amount' => $order->total_amount,
+                'coop_share' => $coopShare,
+                'member_share' => $memberShare,
                 'delivery_address' => $deliveryAddress,
                 'admin_id' => $order->admin_id,
                 'admin_notes' => $order->admin_notes,

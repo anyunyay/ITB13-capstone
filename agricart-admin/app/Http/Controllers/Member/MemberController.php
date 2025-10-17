@@ -187,19 +187,9 @@ class MemberController extends Controller
                     $totalSales++;
                     $totalQuantitySold += $audit->quantity;
                     
-                    // Calculate revenue for this item
-                    $price = 0;
-                    if ($audit->category === 'Kilo' && $audit->product->price_kilo) {
-                        $price = $audit->product->price_kilo;
-                    } elseif ($audit->category === 'Pc' && $audit->product->price_pc) {
-                        $price = $audit->product->price_pc;
-                    } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
-                        $price = $audit->product->price_tali;
-                    } elseif ($audit->category === 'order' && $audit->product->price_kilo) {
-                        $price = $audit->product->price_kilo;
-                    }
-                    
-                    $itemRevenue = $audit->quantity * $price;
+                    // Calculate revenue for this item using stored prices
+                    $price = $audit->getSalePrice();
+                    $itemRevenue = $audit->getTotalAmount();
                     $totalRevenue += $itemRevenue;
 
                     // Group by product_id
@@ -339,19 +329,9 @@ class MemberController extends Controller
                 if ($stock) {
                     $orderQuantity += $audit->quantity;
                     
-                    // Calculate revenue for this item
-                    $price = 0;
-                    if ($audit->category === 'Kilo' && $audit->product->price_kilo) {
-                        $price = $audit->product->price_kilo;
-                    } elseif ($audit->category === 'Pc' && $audit->product->price_pc) {
-                        $price = $audit->product->price_pc;
-                    } elseif ($audit->category === 'Tali' && $audit->product->price_tali) {
-                        $price = $audit->product->price_tali;
-                    } elseif ($audit->category === 'order' && $audit->product->price_kilo) {
-                        $price = $audit->product->price_kilo;
-                    }
-                    
-                    $itemRevenue = $audit->quantity * $price;
+                    // Calculate revenue for this item using stored prices
+                    $price = $audit->getSalePrice();
+                    $itemRevenue = $audit->getTotalAmount();
                     $orderTotal += $itemRevenue;
 
                     // Group by product_id

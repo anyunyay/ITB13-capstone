@@ -26,6 +26,7 @@ interface Sale {
     email: string;
   };
   total_amount: number;
+  coop_share: number;
   created_at: string;
   admin?: {
     name: string;
@@ -41,13 +42,17 @@ interface MemberSale {
   member_email: string;
   total_orders: number;
   total_revenue: number;
+  total_coop_share: number;
   total_quantity_sold: number;
 }
 
 interface ReportSummary {
   total_revenue: number;
+  total_coop_share: number;
+  total_member_share: number;
   total_orders: number;
   average_order_value: number;
+  average_coop_share: number;
   total_customers: number;
 }
 
@@ -191,37 +196,37 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_coop_share).toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">
+                Average: ₱{Number(summary.average_coop_share).toFixed(2)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Member Share (90%)</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">₱{Number(summary.total_member_share).toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">
+                Distributed to members
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{summary.total_orders}</div>
-              <p className="text-xs text-muted-foreground">
-                Approved orders
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₱{Number(summary.average_order_value).toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                Per order
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.total_customers}</div>
               <p className="text-xs text-muted-foreground">
                 Unique customers
               </p>
@@ -242,7 +247,9 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-center">ID</TableHead>
-                      <TableHead className="text-center">Amount</TableHead>
+                      <TableHead className="text-center">Total Amount</TableHead>
+                      <TableHead className="text-center">Co-op Share</TableHead>
+                      <TableHead className="text-center">Member Share</TableHead>
                       <TableHead className="text-center">Processed By</TableHead>
                       <TableHead className="text-center">Logistic</TableHead>
                       <TableHead className="text-center">Created</TableHead>
@@ -255,6 +262,16 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                         <TableCell>
                           <Badge variant="secondary" className="bg-green-100 text-green-800">
                             ₱{Number(sale.total_amount).toFixed(2)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            ₱{Number(sale.coop_share || 0).toFixed(2)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            ₱{Number(sale.member_share || 0).toFixed(2)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -334,6 +351,10 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
               ₱{Number(member.total_revenue).toFixed(2)}
             </div>
             <p className="text-sm text-gray-500">{member.total_orders} orders</p>
+            <div className="text-sm">
+              <span className="text-green-600">Co-op: ₱{Number(member.total_coop_share || 0).toFixed(2)}</span>
+              <span className="text-blue-600 ml-2">Member: ₱{Number(member.total_member_share || 0).toFixed(2)}</span>
+            </div>
           </div>
         </div>
       </CardHeader>

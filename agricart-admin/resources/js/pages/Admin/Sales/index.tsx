@@ -34,6 +34,7 @@ interface MemberSale {
   member_email: string;
   total_orders: number;
   total_revenue: number;
+  total_coop_share: number;
   total_quantity_sold: number;
 }
 
@@ -41,8 +42,11 @@ interface SalesPageProps {
   sales: Sale[];
   summary: {
     total_revenue: number;
+    total_coop_share: number;
+    total_member_share: number;
     total_orders: number;
     average_order_value: number;
+    average_coop_share: number;
     total_customers: number;
   };
   memberSales: MemberSale[];
@@ -96,6 +100,32 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                 <div className="text-2xl font-bold">PHP {Number(summary.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   From {summary.total_orders} orders
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">
+                  Average: PHP {Number(summary.average_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Member Share (90%)</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">
+                  Distributed to members
                 </p>
               </CardContent>
             </Card>
@@ -157,7 +187,9 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                       <TableRow>
                         <TableHead>Sale ID</TableHead>
                         <TableHead>Customer</TableHead>
-                        <TableHead>Amount</TableHead>
+                        <TableHead>Total Amount</TableHead>
+                        <TableHead>Co-op Share</TableHead>
+                        <TableHead>Member Share</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Processed By</TableHead>
                         <TableHead>Logistic</TableHead>
@@ -174,6 +206,8 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                             </div>
                           </TableCell>
                           <TableCell className="font-medium">PHP {Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium">PHP {Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>{sale.admin?.name || 'N/A'}</TableCell>
                           <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
@@ -181,7 +215,7 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                       ))}
                       {sales.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
                             No sales found.
                           </TableCell>
                         </TableRow>
@@ -204,6 +238,8 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                         <TableHead>Member</TableHead>
                         <TableHead>Total Orders</TableHead>
                         <TableHead>Total Revenue</TableHead>
+                        <TableHead>Co-op Share</TableHead>
+                        <TableHead>Member Share</TableHead>
                         <TableHead>Quantity Sold</TableHead>
                         <TableHead>Average Revenue</TableHead>
                       </TableRow>
@@ -219,13 +255,15 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                           </TableCell>
                           <TableCell>{member.total_orders}</TableCell>
                           <TableCell className="font-medium">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium">PHP {Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{member.total_quantity_sold}</TableCell>
                           <TableCell>PHP {member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
                         </TableRow>
                       ))}
                       {memberSales.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          <TableCell colSpan={7} className="text-center text-muted-foreground">
                             No member sales data found.
                           </TableCell>
                         </TableRow>

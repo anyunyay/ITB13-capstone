@@ -21,6 +21,10 @@ interface OrderItem {
   };
   category: string;
   quantity: number;
+  price_kilo?: number;
+  price_pc?: number;
+  price_tali?: number;
+  unit_price?: number;
   stock?: {
     id: number;
     quantity: number;
@@ -35,6 +39,8 @@ interface Order {
     contact_number?: string;
   };
   total_amount: number;
+  coop_share: number;
+  member_share: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
@@ -304,6 +310,14 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Total Amount</span>
                     <span className="text-sm font-medium">₱{order.total_amount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Co-op Share (10%)</span>
+                    <span className="text-sm font-medium text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Member Share (90%)</span>
+                    <span className="text-sm font-medium text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
                   </div>
                   {order.admin && (
                     <div className="flex justify-between">

@@ -90,6 +90,10 @@ export interface AuditTrail {
     product_id: number;
     category: string;
     quantity: number;
+    price_kilo?: number;
+    price_pc?: number;
+    price_tali?: number;
+    unit_price?: number;
     created_at: string;
     updated_at: string;
     product?: {
@@ -99,6 +103,9 @@ export interface AuditTrail {
         description: string;
         image: string;
         image_url: string;
+        price_kilo?: number;
+        price_pc?: number;
+        price_tali?: number;
     };
     stock?: {
         id: number;
