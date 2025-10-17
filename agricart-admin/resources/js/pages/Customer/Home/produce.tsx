@@ -30,7 +30,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
-import { SystemLockOverlay } from '@/components/system-lock-overlay';
 
 interface Product {
   id: number;
@@ -463,7 +462,6 @@ export default function CustomerHome() {
   return (
     <AppHeaderLayout>
       <Head title="Produce" />
-      <SystemLockOverlay />
       <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-20">
         {renderCarousel('fruit', 'Fruits')}
         {renderCarousel('vegetable', 'Vegetables')}

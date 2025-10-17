@@ -7,7 +7,6 @@ import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
-import { useSystemLock } from '@/hooks/use-system-lock';
 import { PaginationControls } from './pagination-controls';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
@@ -63,7 +62,6 @@ export const ProductManagement = ({
     archivingProduct,
     restoringProduct
 }: ProductManagementProps) => {
-    const { shouldDisableButtons } = useSystemLock();
     
     // Helper function to check if a product is being processed
     const isProductProcessing = (productId: number) => {
@@ -270,26 +268,19 @@ export const ProductManagement = ({
                                         <div className={styles.productActionRow}>
                                             {!product.archived_at && (
                                                 <PermissionGate permission="edit products">
-                                                    {shouldDisableButtons ? (
-                                                        <Button disabled={processing || shouldDisableButtons} className={styles.secondaryActionButton}>
+                                                    <Button asChild disabled={processing} className={styles.secondaryActionButton}>
+                                                        <Link href={route('inventory.edit', product.id)}>
                                                             <Edit className="h-4 w-4 mr-2" />
                                                             Edit
-                                                        </Button>
-                                                    ) : (
-                                                        <Button asChild disabled={processing} className={styles.secondaryActionButton}>
-                                                            <Link href={route('inventory.edit', product.id)}>
-                                                                <Edit className="h-4 w-4 mr-2" />
-                                                                Edit
-                                                            </Link>
-                                                        </Button>
-                                                    )}
+                                                        </Link>
+                                                    </Button>
                                                 </PermissionGate>
                                             )}
                                             
                                             {!product.archived_at ? (
                                                 <PermissionGate permission="archive products">
                                                     <Button 
-                                                        disabled={processing || shouldDisableButtons || archivingProduct === product.id} 
+                                                        disabled={processing || archivingProduct === product.id} 
                                                         onClick={() => handleArchive(product.id, product.name)}
                                                         variant="outline"
                                                         className={styles.secondaryActionButton}
@@ -301,7 +292,7 @@ export const ProductManagement = ({
                                             ) : (
                                                 <PermissionGate permission="unarchive products">
                                                     <Button 
-                                                        disabled={processing || shouldDisableButtons || restoringProduct === product.id} 
+                                                        disabled={processing || restoringProduct === product.id} 
                                                         onClick={() => handleRestore(product.id, product.name)}
                                                         variant="outline"
                                                         className={styles.secondaryActionButton}
@@ -314,7 +305,7 @@ export const ProductManagement = ({
                                             
                                             <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
                                                 <Button 
-                                                    disabled={processing || shouldDisableButtons} 
+                                                    disabled={processing} 
                                                     onClick={() => handleDelete(product.id, product.name)}
                                                     variant="destructive"
                                                     className={styles.secondaryActionButton}

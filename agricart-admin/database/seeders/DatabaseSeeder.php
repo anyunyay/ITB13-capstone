@@ -25,7 +25,6 @@ class DatabaseSeeder extends Seeder
             PriceTrendSeeder::class,
             UrgentOrderTestSeeder::class,
             MemberEarningsSeeder::class,
-            SystemStatusSeeder::class,
         ]);
 
         // Create another user manually with specific member_id

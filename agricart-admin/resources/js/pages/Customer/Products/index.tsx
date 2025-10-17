@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { SystemLockOverlay } from '@/components/system-lock-overlay';
 import ProductCarousel from '../Home/produce';
 
 interface Product {
@@ -64,7 +63,6 @@ export default function CustomerProducts() {
   return (
     <AppHeaderLayout>
       <Head title="Products - Fresh Produce" />
-      <SystemLockOverlay />
       <div className="min-h-[90vh] py-8 mt-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">

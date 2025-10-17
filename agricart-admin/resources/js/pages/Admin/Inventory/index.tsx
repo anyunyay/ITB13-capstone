@@ -9,8 +9,6 @@ import { AlertTriangle } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
-import { SystemLockManager } from '@/components/system-lock-manager';
-import { useSystemLock } from '@/hooks/use-system-lock';
 import { DashboardHeader } from '@/components/inventory/dashboard-header';
 import { ProductManagement } from '@/components/inventory/product-management';
 import { StockManagement } from '@/components/inventory/stock-management';
@@ -57,8 +55,6 @@ export default function InventoryIndex() {
     const [stockCurrentPage, setStockCurrentPage] = useState(1);
     const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
 
-    // Use system lock hook to get lock state
-    const { shouldDisableButtons } = useSystemLock();
 
     // Form for archive and delete operations
     const { data, setData, post, processing, reset } = useForm({
@@ -277,10 +273,6 @@ export default function InventoryIndex() {
                     <div className={styles.mainContent}>
                         <DashboardHeader stockStats={stockStats} />
 
-                {/* System Lock Manager */}
-                        <div className="mb-3">
-                    <SystemLockManager />
-                </div>
 
                         {/* Flash Messages and Alerts */}
                         <div className="space-y-2">

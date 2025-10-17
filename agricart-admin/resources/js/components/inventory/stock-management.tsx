@@ -6,7 +6,6 @@ import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
-import { useSystemLock } from '@/hooks/use-system-lock';
 import { PaginationControls } from './pagination-controls';
 import { Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
@@ -39,7 +38,6 @@ export const StockManagement = ({
     getFilteredStocks,
     getPaginatedStocks
 }: StockManagementProps) => {
-    const { shouldDisableButtons } = useSystemLock();
     const [currentView, setCurrentView] = useState<'stocks' | 'trail' | 'sold'>('stocks');
 
     const renderUnifiedTable = (data: any[], dataType: 'stocks' | 'trail' | 'sold', title: string) => {
@@ -167,23 +165,16 @@ export const StockManagement = ({
                         <TableCell className={styles.stockTableCell}>
                             <div className={styles.stockActionCell}>
                                 <PermissionGate permission="edit stocks">
-                                    {shouldDisableButtons ? (
-                                        <Button disabled={processing || shouldDisableButtons} size="sm" className={styles.stockActionButton}>
+                                    <Button asChild size="sm" className={styles.stockActionButton}>
+                                        <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
                                             <Edit className="h-3 w-3 mr-1" />
                                             Edit
-                                        </Button>
-                                    ) : (
-                                        <Button asChild size="sm" className={styles.stockActionButton}>
-                                            <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
-                                                <Edit className="h-3 w-3 mr-1" />
-                                                Edit
-                                            </Link>
-                                        </Button>
-                                    )}
+                                        </Link>
+                                    </Button>
                                 </PermissionGate>
                                 <PermissionGate permission="delete stocks">
                                     <Button 
-                                        disabled={processing || shouldDisableButtons} 
+                                        disabled={processing} 
                                         onClick={() => handleRemovePerishedStock(item)} 
                                         size="sm"
                                         variant="destructive"

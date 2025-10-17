@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { SystemLockOverlay } from '@/components/system-lock-overlay';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { FeatureCards } from '@/components/FeatureCards';
 import Footer from '@/components/Footer';
@@ -84,7 +83,6 @@ export default function CustomerHome({ products }: PageProps) {
   return (
     <AppHeaderLayout>
       <Head title="Home - Cooperatives of Farmers" />
-      <SystemLockOverlay />
 
       {/* Hero Section with Farm Image */}
       <section className={styles.heroSection}>
