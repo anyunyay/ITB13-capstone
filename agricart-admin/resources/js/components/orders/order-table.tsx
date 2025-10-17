@@ -110,7 +110,25 @@ export const OrderTable = ({
                         <TableHead className={styles.orderTableHeaderCell}>
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
-                                Amount
+                                Total Amount
+                            </div>
+                        </TableHead>
+                        <TableHead className={styles.orderTableHeaderCell}>
+                            <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                Subtotal
+                            </div>
+                        </TableHead>
+                        <TableHead className={styles.orderTableHeaderCell}>
+                            <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                Co-op Share
+                            </div>
+                        </TableHead>
+                        <TableHead className={styles.orderTableHeaderCell}>
+                            <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                Member Share
                             </div>
                         </TableHead>
                         <TableHead className={styles.orderTableHeaderCell}>
@@ -213,6 +231,24 @@ export const OrderTable = ({
                                 <TableCell className={styles.orderTableCell}>
                                     <div className="font-semibold text-sm">
                                         ₱{Number(order.total_amount).toFixed(2)}
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className={styles.orderTableCell}>
+                                    <div className="font-medium text-sm">
+                                        ₱{Number(order.subtotal || 0).toFixed(2)}
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className={styles.orderTableCell}>
+                                    <div className="font-medium text-sm text-green-600">
+                                        ₱{Number(order.coop_share || 0).toFixed(2)}
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className={styles.orderTableCell}>
+                                    <div className="font-medium text-sm text-blue-600">
+                                        ₱{Number(order.member_share || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 

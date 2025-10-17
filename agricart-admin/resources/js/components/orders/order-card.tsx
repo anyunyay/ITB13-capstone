@@ -120,6 +120,15 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                             <span className={styles.orderInfoValue}>Total Amount:</span> ₱{Number(order.total_amount).toFixed(2)}
                         </p>
                         <p className={styles.orderInfoItem}>
+                            <span className={styles.orderInfoValue}>Subtotal:</span> ₱{Number(order.subtotal || 0).toFixed(2)}
+                        </p>
+                        <p className={styles.orderInfoItem}>
+                            <span className={styles.orderInfoValue}>Co-op Share:</span> <span className="text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
+                        </p>
+                        <p className={styles.orderInfoItem}>
+                            <span className={styles.orderInfoValue}>Member Share:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
+                        </p>
+                        <p className={styles.orderInfoItem}>
                             <span className={styles.orderInfoValue}>Items:</span> {combinedItems.length}
                         </p>
                         {order.admin && (

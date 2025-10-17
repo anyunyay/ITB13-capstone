@@ -21,6 +21,9 @@ interface Order {
     province?: string;
   };
   total_amount: number;
+  subtotal: number;
+  coop_share: number;
+  member_share: number;
   status: 'pending' | 'approved' | 'rejected';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
   created_at: string;
@@ -47,6 +50,9 @@ interface Order {
 interface ReportSummary {
   total_orders: number;
   total_revenue: number;
+  total_subtotal: number;
+  total_coop_share: number;
+  total_member_share: number;
   pending_orders: number;
   approved_orders: number;
   rejected_orders: number;
@@ -216,7 +222,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
@@ -235,6 +241,30 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
               </div>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Co-op Share</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                ₱{Number(summary.total_coop_share).toFixed(2)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Member Share</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                ₱{Number(summary.total_member_share).toFixed(2)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Pending Orders</CardTitle>
@@ -350,6 +380,15 @@ function OrderCard({ order }: { order: Order }) {
             <h4 className="font-semibold mb-2">Order Summary</h4>
             <p className="text-sm">
               <span className="font-medium">Total Amount:</span> ₱{Number(order.total_amount).toFixed(2)}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Subtotal:</span> ₱{Number(order.subtotal || 0).toFixed(2)}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Co-op Share:</span> <span className="text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
+            </p>
+            <p className="text-sm">
+              <span className="font-medium">Member Share:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
             </p>
             <p className="text-sm">
               <span className="font-medium">Items:</span> {order.audit_trail?.length || 0}
