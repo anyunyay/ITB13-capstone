@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -40,8 +40,10 @@ interface MemberSale {
 
 interface SalesPageProps {
   sales: Sale[];
+  pendingOrders: Sale[];
   summary: {
     total_revenue: number;
+    total_subtotal: number;
     total_coop_share: number;
     total_member_share: number;
     total_orders: number;
@@ -56,7 +58,7 @@ interface SalesPageProps {
   };
 }
 
-export default function SalesIndex({ sales, summary, memberSales, filters }: SalesPageProps) {
+export default function SalesIndex({ sales, pendingOrders, summary, memberSales, filters }: SalesPageProps) {
   const { can } = usePermissions();
 
   return (
@@ -104,31 +106,31 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                <p className="text-xs text-muted-foreground">
-                  Average: PHP {Number(summary.average_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Added on top of product prices
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Member Share (90%)</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                <p className="text-xs text-muted-foreground">
-                  Distributed to members
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Member Share (100%)</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Full product revenue to members
+                  </p>
+                </CardContent>
+              </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -171,8 +173,9 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
           </div>
 
           <Tabs defaultValue="sales" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="sales">All Sales</TabsTrigger>
+              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
               <TabsTrigger value="members">Member Sales</TabsTrigger>
             </TabsList>
 
@@ -217,6 +220,63 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                         <TableRow>
                           <TableCell colSpan={8} className="text-center text-muted-foreground">
                             No sales found.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="pending" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pending Orders</CardTitle>
+                  <CardDescription>
+                    Orders awaiting approval or processing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Total Amount</TableHead>
+                        <TableHead>Subtotal</TableHead>
+                        <TableHead>Co-op Share</TableHead>
+                        <TableHead>Member Share</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingOrders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">#{order.id}</TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{order.customer.name}</div>
+                              <div className="text-sm text-muted-foreground">{order.customer.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">PHP {Number(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="font-medium">PHP {Number(order.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number(order.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium">PHP {Number(order.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
+                          <TableCell>
+                            <Badge variant={order.status === 'pending' ? 'secondary' : order.status === 'approved' ? 'default' : 'destructive'}>
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {pendingOrders.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
+                            No pending orders found.
                           </TableCell>
                         </TableRow>
                       )}

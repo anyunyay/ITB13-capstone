@@ -874,9 +874,21 @@ export default function CartPage() {
         {/* Cart Summary */}
         {cartItems.length > 0 && (
           <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-lg font-semibold text-green-600">Cart Total:</span>
-              <span className="text-lg font-bold text-green-600">Php{(Number(cartTotal) || 0).toFixed(2)}</span>
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Subtotal:</span>
+                <span className="text-sm font-medium">Php{(Number(cartTotal) || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Delivery Fee (10%):</span>
+                <span className="text-sm font-medium text-green-600">Php{((Number(cartTotal) || 0) * 0.10).toFixed(2)}</span>
+              </div>
+              <div className="border-t pt-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-green-600">Total:</span>
+                  <span className="text-lg font-bold text-green-600">Php{((Number(cartTotal) || 0) * 1.10).toFixed(2)}</span>
+                </div>
+              </div>
             </div>
             
             {/* Minimum Order Requirement */}

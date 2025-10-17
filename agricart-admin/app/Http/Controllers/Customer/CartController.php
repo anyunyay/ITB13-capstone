@@ -313,15 +313,18 @@ class CartController extends Controller
                 return redirect()->route('cart.index')->with('checkoutMessage', 'Minimum order requirement is Php75. Your current total is Php' . number_format($totalPrice, 2) . '. Please add more items to your cart.');
             }
 
-            // Calculate co-op share (10% of total amount) and member share (90%)
-            $coopShare = $totalPrice * 0.10;
-            $memberShare = $totalPrice * 0.90;
+            // Calculate co-op share (10% of subtotal, added on top)
+            $subtotal = $totalPrice; // This is the product prices
+            $coopShare = $subtotal * 0.10; // 10% of product prices
+            $totalWithCoopShare = $subtotal + $coopShare; // Customer pays product + co-op share
+            $memberShare = $subtotal; // Members get 100% of product revenue
             
-            // Update the sale with total amount, co-op share, and member share
+            // Update the sales_audit with financial breakdown
             $sale->update([
-                'total_amount' => $totalPrice,
-                'coop_share' => $coopShare,
-                'member_share' => $memberShare
+                'subtotal' => $subtotal, // Product prices
+                'coop_share' => $coopShare, // Co-op gets 10% of product revenue
+                'member_share' => $memberShare, // Members get 100% of product revenue
+                'total_amount' => $totalWithCoopShare // Customer pays product + co-op share
             ]);
 
             // Log successful checkout

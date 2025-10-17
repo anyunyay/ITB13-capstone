@@ -168,16 +168,19 @@ class LogisticController extends Controller
                                  $order->address->province;
             }
 
-            // Calculate shares for the delivered order
-            $coopShare = $order->total_amount * 0.10;
-            $memberShare = $order->total_amount * 0.90;
+            // Use financial data from sales_audit (already calculated during checkout)
+            $subtotal = $order->subtotal ?? $order->total_amount;
+            $coopShare = $order->coop_share ?? ($subtotal * 0.10);
+            $memberShare = $order->member_share ?? $subtotal;
+            $totalAmount = $order->total_amount; // Already includes co-op share
             
             // Create a Sales record for the delivered order
             Sales::create([
                 'customer_id' => $order->customer_id,
-                'total_amount' => $order->total_amount,
-                'coop_share' => $coopShare,
-                'member_share' => $memberShare,
+                'subtotal' => $subtotal, // Product prices from sales_audit
+                'coop_share' => $coopShare, // Co-op share from sales_audit
+                'member_share' => $memberShare, // Member share from sales_audit
+                'total_amount' => $totalAmount, // Total amount from sales_audit
                 'delivery_address' => $deliveryAddress,
                 'admin_id' => $order->admin_id,
                 'admin_notes' => $order->admin_notes,

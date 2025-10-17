@@ -12,6 +12,7 @@ class Sales extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
+        'subtotal',
         'coop_share',
         'member_share',
         'delivery_address',
@@ -24,6 +25,7 @@ class Sales extends Model
 
     protected $casts = [
         'total_amount' => 'float',
+        'subtotal' => 'float',
         'coop_share' => 'float',
         'member_share' => 'float',
         'delivered_at' => 'datetime',
@@ -72,28 +74,39 @@ class Sales extends Model
     }
 
     /**
-     * Calculate the co-op share (10% of total amount)
+     * Calculate the co-op share (10% of subtotal, added on top)
      */
     public function calculateCoopShare(): float
     {
-        return $this->total_amount * 0.10;
+        $subtotal = $this->subtotal ?? 0;
+        return $subtotal * 0.10;
     }
 
     /**
-     * Get the member share (stored value or calculated as 90% of total amount)
+     * Get the member share (100% of subtotal - full product revenue)
      */
     public function getMemberShare(): float
     {
-        return $this->member_share ?? ($this->total_amount * 0.90);
+        return $this->member_share ?? ($this->subtotal ?? 0);
     }
 
     /**
-     * Update both coop_share and member_share based on current total amount
+     * Get the subtotal (product prices before co-op share)
+     */
+    public function getSubtotal(): float
+    {
+        return $this->subtotal ?? 0;
+    }
+
+    /**
+     * Update all financial fields based on subtotal
      */
     public function updateShares(): void
     {
-        $this->coop_share = $this->calculateCoopShare();
-        $this->member_share = $this->total_amount - $this->coop_share;
+        $subtotal = $this->subtotal ?? 0;
+        $this->coop_share = $subtotal * 0.10;
+        $this->member_share = $subtotal; // Members get 100% of product revenue
+        $this->total_amount = $subtotal + $this->coop_share; // Customer pays subtotal + co-op share
         $this->save();
     }
 }

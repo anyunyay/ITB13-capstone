@@ -26,15 +26,31 @@ class SalesController extends Controller
 
         $sales = $query->orderBy('delivered_at', 'desc')->get();
 
-        // Calculate summary statistics
+        // Get pending orders from sales_audit
+        $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
+            ->where('status', '!=', 'cancelled');
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $salesAuditQuery->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        }
+
+        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics from both delivered and pending orders
         $summary = [
-            'total_revenue' => $sales->sum('total_amount'),
-            'total_coop_share' => $sales->sum('coop_share'),
-            'total_member_share' => $sales->sum('member_share'),
-            'total_orders' => $sales->count(),
-            'average_order_value' => $sales->count() > 0 ? $sales->avg('total_amount') : 0,
-            'average_coop_share' => $sales->count() > 0 ? $sales->avg('coop_share') : 0,
-            'total_customers' => $sales->unique('customer_id')->count(),
+            'total_revenue' => $sales->sum('total_amount') + $pendingOrders->sum('total_amount'),
+            'total_subtotal' => $sales->sum('subtotal') + $pendingOrders->sum('subtotal'),
+            'total_coop_share' => $sales->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_member_share' => $sales->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_orders' => $sales->count() + $pendingOrders->count(),
+            'average_order_value' => ($sales->count() + $pendingOrders->count()) > 0 ? 
+                ($sales->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($sales->count() + $pendingOrders->count()) : 0,
+            'average_coop_share' => ($sales->count() + $pendingOrders->count()) > 0 ? 
+                ($sales->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($sales->count() + $pendingOrders->count()) : 0,
+            'total_customers' => $sales->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
         ];
 
         // Get member sales data
@@ -42,6 +58,7 @@ class SalesController extends Controller
 
         return Inertia::render('Admin/Sales/index', [
             'sales' => $sales,
+            'pendingOrders' => $pendingOrders,
             'summary' => $summary,
             'memberSales' => $memberSales,
             'filters' => $request->only(['start_date', 'end_date']),
@@ -72,15 +89,31 @@ class SalesController extends Controller
 
         $sales = $query->orderBy('delivered_at', 'desc')->get();
 
-        // Calculate summary statistics
+        // Get pending orders from sales_audit for comprehensive reporting
+        $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
+            ->where('status', '!=', 'cancelled');
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $salesAuditQuery->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        }
+
+        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
+
+        // Calculate summary statistics from both delivered and pending orders
         $summary = [
-            'total_revenue' => $sales->sum('total_amount'),
-            'total_coop_share' => $sales->sum('coop_share'),
-            'total_member_share' => $sales->sum('member_share'),
-            'total_orders' => $sales->count(),
-            'average_order_value' => $sales->count() > 0 ? $sales->avg('total_amount') : 0,
-            'average_coop_share' => $sales->count() > 0 ? $sales->avg('coop_share') : 0,
-            'total_customers' => $sales->unique('customer_id')->count(),
+            'total_revenue' => $sales->sum('total_amount') + $pendingOrders->sum('total_amount'),
+            'total_subtotal' => $sales->sum('subtotal') + $pendingOrders->sum('subtotal'),
+            'total_coop_share' => $sales->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_member_share' => $sales->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_orders' => $sales->count() + $pendingOrders->count(),
+            'average_order_value' => ($sales->count() + $pendingOrders->count()) > 0 ? 
+                ($sales->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($sales->count() + $pendingOrders->count()) : 0,
+            'average_coop_share' => ($sales->count() + $pendingOrders->count()) > 0 ? 
+                ($sales->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($sales->count() + $pendingOrders->count()) : 0,
+            'total_customers' => $sales->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
         ];
 
         // Get member sales data
@@ -230,13 +263,13 @@ class SalesController extends Controller
                 DB::raw('SUM(
                     CASE 
                         WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
-                        THEN audit_trails.quantity * audit_trails.price_kilo * 0.90
+                        THEN audit_trails.quantity * audit_trails.price_kilo
                         WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
-                        THEN audit_trails.quantity * audit_trails.price_pc * 0.90
+                        THEN audit_trails.quantity * audit_trails.price_pc
                         WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
-                        THEN audit_trails.quantity * audit_trails.price_tali * 0.90
+                        THEN audit_trails.quantity * audit_trails.price_tali
                         WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
-                        THEN audit_trails.quantity * audit_trails.price_kilo * 0.90
+                        THEN audit_trails.quantity * audit_trails.price_kilo
                         ELSE 0
                     END
                 ) as total_member_share'),

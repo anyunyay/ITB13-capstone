@@ -14,6 +14,9 @@ class SalesAudit extends Model
     protected $fillable = [
         'customer_id',
         'total_amount',
+        'subtotal',
+        'coop_share',
+        'member_share',
         'status',
         'delivery_status',
         'address_id',
@@ -25,6 +28,9 @@ class SalesAudit extends Model
 
     protected $casts = [
         'total_amount' => 'float',
+        'subtotal' => 'float',
+        'coop_share' => 'float',
+        'member_share' => 'float',
         'is_urgent' => 'boolean',
     ];
 
@@ -123,6 +129,43 @@ class SalesAudit extends Model
         })->values();
 
         return $aggregated;
+    }
+
+    /**
+     * Calculate the co-op share (10% of subtotal, added on top)
+     */
+    public function calculateCoopShare(): float
+    {
+        $subtotal = $this->subtotal ?? 0;
+        return $subtotal * 0.10;
+    }
+
+    /**
+     * Get the member share (100% of subtotal - full product revenue)
+     */
+    public function getMemberShare(): float
+    {
+        return $this->member_share ?? ($this->subtotal ?? 0);
+    }
+
+    /**
+     * Get the subtotal (product prices before co-op share)
+     */
+    public function getSubtotal(): float
+    {
+        return $this->subtotal ?? 0;
+    }
+
+    /**
+     * Update all financial fields based on subtotal
+     */
+    public function updateShares(): void
+    {
+        $subtotal = $this->subtotal ?? 0;
+        $this->coop_share = $subtotal * 0.10;
+        $this->member_share = $subtotal; // Members get 100% of product revenue
+        $this->total_amount = $subtotal + $this->coop_share; // Customer pays subtotal + co-op share
+        $this->save();
     }
 
 }
