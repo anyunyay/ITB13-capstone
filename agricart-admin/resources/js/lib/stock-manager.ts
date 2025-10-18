@@ -8,6 +8,7 @@ class StockManager {
   private static instance: StockManager;
   private stockData: Map<string, number> = new Map();
   private cartItems: StockItem[] = [];
+  private listeners: Set<(productId: number, category: string) => void> = new Set();
 
   private constructor() {
     // Load cart items from localStorage on initialization
@@ -61,6 +62,45 @@ class StockManager {
     });
   }
 
+  // Force refresh stock data for all products (useful for page refreshes)
+  refreshAllStockData(products: Array<{id: number, stock_by_category?: Record<string, number>}>) {
+    products.forEach(product => {
+      if (product.stock_by_category) {
+        this.refreshStockData(product.id, product.stock_by_category);
+      }
+    });
+  }
+
+  // Force refresh stock data from backend API
+  async refreshStockFromBackend(productId?: number) {
+    try {
+      let url = '/api/products';
+      if (productId) {
+        url = `/api/products/${productId}`;
+      }
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (productId) {
+        // Single product refresh
+        if (data.stock_by_category) {
+          this.refreshStockData(productId, data.stock_by_category);
+        }
+      } else {
+        // Multiple products refresh
+        if (Array.isArray(data)) {
+          this.refreshAllStockData(data);
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to refresh stock from backend:', error);
+      return false;
+    }
+  }
+
   // Get original stock data (without cart deductions)
   getOriginalStockByCategory(productId: number): Record<string, number> {
     const result: Record<string, number> = {};
@@ -85,6 +125,9 @@ class StockManager {
       this.cartItems.push({ productId, category, quantity });
     }
     this.saveToStorage();
+    
+    // Trigger stock update event for components to re-render
+    this.notifyStockUpdate(productId, category);
   }
 
   // Remove item from cart (temporarily)
@@ -102,6 +145,9 @@ class StockManager {
       }
     }
     this.saveToStorage();
+    
+    // Trigger stock update event for components to re-render
+    this.notifyStockUpdate(productId, category);
   }
 
   // Remove item completely from cart (when removed from cart page)
@@ -110,6 +156,9 @@ class StockManager {
       item => !(item.productId === productId && item.category === category)
     );
     this.saveToStorage();
+    
+    // Trigger stock update event for components to re-render
+    this.notifyStockUpdate(productId, category);
   }
 
   // Get cart quantity for a specific product and category
@@ -176,6 +225,23 @@ class StockManager {
   clearCart() {
     this.cartItems = [];
     this.saveToStorage();
+  }
+
+  // Subscribe to stock update events
+  subscribe(listener: (productId: number, category: string) => void) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  // Notify all listeners of stock updates
+  private notifyStockUpdate(productId: number, category: string) {
+    this.listeners.forEach(listener => {
+      try {
+        listener(productId, category);
+      } catch (error) {
+        console.error('Error in stock update listener:', error);
+      }
+    });
   }
 }
 
