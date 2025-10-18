@@ -293,11 +293,9 @@ class OrderController extends Controller
                 $trail->stock->last_customer_id = $order->customer_id;
                 $trail->stock->save();
 
-                // Automatically set status based on quantity
+                // Set status to sold when quantity reaches 0
                 if ($trail->stock->quantity == 0) {
                     $trail->stock->setSoldStatus();
-                } else {
-                    $trail->stock->setPartialStatus();
                 }
 
                 // Notify member about product sale

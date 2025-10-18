@@ -55,11 +55,10 @@ interface SalesData {
 
 interface PageProps {
     availableStocks: Stock[];
-    partialStocks: Stock[];
     salesData: SalesData;
 }
 
-export default function AllStocks({ availableStocks, partialStocks, salesData }: PageProps) {
+export default function AllStocks({ availableStocks, salesData }: PageProps) {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
@@ -68,7 +67,7 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
         }
     }, [auth]);
 
-    const allStocks = [...availableStocks, ...partialStocks];
+    const allStocks = [...availableStocks];
     const totalQuantity = allStocks.reduce((sum, stock) => sum + Number(stock.quantity), 0);
     // Remove total value calculation since we no longer have a single price field
     
@@ -140,16 +139,6 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Partial</CardTitle>
-                            <Package className="h-4 w-4 text-yellow-400" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">{partialStocks.length}</div>
-                            <p className="text-xs text-gray-400">Partially sold</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-gray-800 border-gray-700">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-white">Sold</CardTitle>
                             <Package className="h-4 w-4 text-red-400" />
                         </CardHeader>
@@ -165,7 +154,7 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-white">
-                                {new Set([...partialStocks].filter(s => s.lastCustomer).map(s => s.lastCustomer?.id)).size + salesData.salesBreakdown.reduce((sum, sale) => sum + sale.customers.length, 0)}
+                                {salesData.salesBreakdown.reduce((sum, sale) => sum + sale.customers.length, 0)}
                             </div>
                             <p className="text-xs text-gray-400">Unique customers</p>
                         </CardContent>
@@ -230,14 +219,12 @@ export default function AllStocks({ availableStocks, partialStocks, salesData }:
                                                 <Badge 
                                                     variant="secondary" 
                                                     className={
-                                                        stock.status === 'sold'
+                                                        stock.status === 'sold' 
                                                             ? "bg-red-600 text-white" 
-                                                            : stock.lastCustomer 
-                                                                ? "bg-yellow-600 text-white" 
-                                                                : "bg-green-600 text-white"
+                                                            : "bg-green-600 text-white"
                                                     }
                                                 >
-                                                    {stock.status === 'sold' ? "Sold" : stock.lastCustomer ? "Partial" : "Available"}
+                                                    {stock.status === 'sold' ? "Sold" : "Available"}
                                                 </Badge>
                                             </TableCell>
                                         </TableRow>
