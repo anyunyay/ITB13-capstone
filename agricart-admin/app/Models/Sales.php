@@ -21,6 +21,10 @@ class Sales extends Model
         'logistic_id',
         'sales_audit_id',
         'delivered_at',
+        'customer_received',
+        'customer_rate',
+        'customer_feedback',
+        'customer_confirmed_at',
     ];
 
     protected $casts = [
@@ -29,6 +33,8 @@ class Sales extends Model
         'coop_share' => 'float',
         'member_share' => 'float',
         'delivered_at' => 'datetime',
+        'customer_received' => 'boolean',
+        'customer_confirmed_at' => 'datetime',
     ];
 
     public function customer()
@@ -108,5 +114,49 @@ class Sales extends Model
         $this->member_share = $subtotal; // Members get 100% of product revenue
         $this->total_amount = $subtotal + $this->coop_share; // Customer pays subtotal + co-op share
         $this->save();
+    }
+
+    /**
+     * Mark order as received by customer
+     */
+    public function markAsReceived(int $rating = null, string $feedback = null): void
+    {
+        $this->customer_received = true;
+        $this->customer_confirmed_at = now();
+        if ($rating !== null) {
+            $this->customer_rate = $rating;
+        }
+        if ($feedback !== null) {
+            $this->customer_feedback = $feedback;
+        }
+        $this->save();
+    }
+
+    /**
+     * Check if order is eligible for auto-confirmation (3 days after delivery)
+     */
+    public function isEligibleForAutoConfirmation(): bool
+    {
+        if ($this->customer_received) {
+            return false; // Already confirmed
+        }
+        
+        if (!$this->delivered_at) {
+            return false; // Not delivered yet
+        }
+        
+        return $this->delivered_at->addDays(3)->isPast();
+    }
+
+    /**
+     * Auto-confirm order if eligible
+     */
+    public function autoConfirmIfEligible(): bool
+    {
+        if ($this->isEligibleForAutoConfirmation()) {
+            $this->markAsReceived();
+            return true;
+        }
+        return false;
     }
 }

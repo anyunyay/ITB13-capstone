@@ -24,7 +24,7 @@ class SalesController extends Controller
             ]);
         }
 
-        $sales = $query->orderBy('delivered_at', 'desc')->get();
+        $salesRaw = $query->orderBy('delivered_at', 'desc')->get();
 
         // Get pending orders from sales_audit
         $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
@@ -41,17 +41,51 @@ class SalesController extends Controller
 
         // Calculate summary statistics from both delivered and pending orders
         $summary = [
-            'total_revenue' => $sales->sum('total_amount') + $pendingOrders->sum('total_amount'),
-            'total_subtotal' => $sales->sum('subtotal') + $pendingOrders->sum('subtotal'),
-            'total_coop_share' => $sales->sum('coop_share') + $pendingOrders->sum('coop_share'),
-            'total_member_share' => $sales->sum('member_share') + $pendingOrders->sum('member_share'),
-            'total_orders' => $sales->count() + $pendingOrders->count(),
-            'average_order_value' => ($sales->count() + $pendingOrders->count()) > 0 ? 
-                ($sales->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($sales->count() + $pendingOrders->count()) : 0,
-            'average_coop_share' => ($sales->count() + $pendingOrders->count()) > 0 ? 
-                ($sales->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($sales->count() + $pendingOrders->count()) : 0,
-            'total_customers' => $sales->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
+            'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
+            'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
+            'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_member_share' => $salesRaw->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_orders' => $salesRaw->count() + $pendingOrders->count(),
+            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+                ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
+            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+                ($salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
+            'total_customers' => $salesRaw->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
         ];
+
+        // Map sales with customer confirmation data
+        $sales = $salesRaw->map(function ($sale) {
+            return [
+                'id' => $sale->id,
+                'customer' => [
+                    'id' => $sale->customer->id,
+                    'name' => $sale->customer->name,
+                    'email' => $sale->customer->email,
+                    'contact_number' => $sale->customer->contact_number,
+                ],
+                'total_amount' => $sale->total_amount,
+                'subtotal' => $sale->subtotal,
+                'coop_share' => $sale->coop_share,
+                'member_share' => $sale->member_share,
+                'delivery_address' => $sale->delivery_address,
+                'admin' => $sale->admin ? [
+                    'id' => $sale->admin->id,
+                    'name' => $sale->admin->name,
+                ] : null,
+                'logistic' => $sale->logistic ? [
+                    'id' => $sale->logistic->id,
+                    'name' => $sale->logistic->name,
+                    'contact_number' => $sale->logistic->contact_number,
+                ] : null,
+                'delivered_at' => $sale->delivered_at?->toISOString(),
+                'created_at' => $sale->created_at->toISOString(),
+                'customer_received' => $sale->customer_received,
+                'customer_rate' => $sale->customer_rate,
+                'customer_feedback' => $sale->customer_feedback,
+                'customer_confirmed_at' => $sale->customer_confirmed_at?->toISOString(),
+                'sales_audit_id' => $sale->sales_audit_id,
+            ];
+        });
 
         // Get member sales data
         $memberSales = $this->getMemberSales($request);
@@ -87,7 +121,7 @@ class SalesController extends Controller
             ]);
         }
 
-        $sales = $query->orderBy('delivered_at', 'desc')->get();
+        $salesRaw = $query->orderBy('delivered_at', 'desc')->get();
 
         // Get pending orders from sales_audit for comprehensive reporting
         $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
@@ -104,16 +138,16 @@ class SalesController extends Controller
 
         // Calculate summary statistics from both delivered and pending orders
         $summary = [
-            'total_revenue' => $sales->sum('total_amount') + $pendingOrders->sum('total_amount'),
-            'total_subtotal' => $sales->sum('subtotal') + $pendingOrders->sum('subtotal'),
-            'total_coop_share' => $sales->sum('coop_share') + $pendingOrders->sum('coop_share'),
-            'total_member_share' => $sales->sum('member_share') + $pendingOrders->sum('member_share'),
-            'total_orders' => $sales->count() + $pendingOrders->count(),
-            'average_order_value' => ($sales->count() + $pendingOrders->count()) > 0 ? 
-                ($sales->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($sales->count() + $pendingOrders->count()) : 0,
-            'average_coop_share' => ($sales->count() + $pendingOrders->count()) > 0 ? 
-                ($sales->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($sales->count() + $pendingOrders->count()) : 0,
-            'total_customers' => $sales->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
+            'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
+            'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
+            'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_member_share' => $salesRaw->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_orders' => $salesRaw->count() + $pendingOrders->count(),
+            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+                ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
+            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+                ($salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
+            'total_customers' => $salesRaw->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
         ];
 
         // Get member sales data
@@ -125,22 +159,22 @@ class SalesController extends Controller
             $exportType = $request->get('export_type', 'sales'); // 'sales' or 'members'
             
             if ($request->format === 'pdf') {
-                return $this->exportToPdf($sales, $memberSales, $request, $display, $exportType);
+                return $this->exportToPdf($salesRaw, $memberSales, $request, $display, $exportType);
             } elseif ($request->format === 'csv') {
-                return $this->exportCsv($sales, $memberSales, $request, $display, $exportType);
+                return $this->exportCsv($salesRaw, $memberSales, $request, $display, $exportType);
             }
         }
 
         // Return Inertia page for report view
         return Inertia::render('Admin/Sales/report', [
-            'sales' => $sales,
+            'sales' => $salesRaw,
             'summary' => $summary,
             'memberSales' => $memberSales,
             'filters' => $request->only(['start_date', 'end_date']),
         ]);
     }
 
-    private function exportCsv($sales, $memberSales, $request, $display = false, $exportType = 'sales')
+    private function exportCsv($salesRaw, $memberSales, $request, $display = false, $exportType = 'sales')
     {
         $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
         $filename .= now()->format('Y-m-d_H-i-s') . '.csv';
@@ -159,14 +193,14 @@ class SalesController extends Controller
             ];
         }
 
-        $callback = function() use ($sales, $memberSales, $request, $exportType) {
+        $callback = function() use ($salesRaw, $memberSales, $request, $exportType) {
             $file = fopen('php://output', 'w');
             
             if ($exportType === 'sales') {
                 // Sales data only
                 fputcsv($file, ['Sale ID', 'Total Amount', 'Delivered Date', 'Customer', 'Processed By', 'Logistic']);
                 
-                foreach ($sales as $sale) {
+                foreach ($salesRaw as $sale) {
                     fputcsv($file, [
                         $sale->id,
                         number_format($sale->total_amount, 2),
@@ -200,13 +234,13 @@ class SalesController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($sales, $memberSales, $request, $display = false, $exportType = 'sales')
+    private function exportToPdf($salesRaw, $memberSales, $request, $display = false, $exportType = 'sales')
     {
         $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
         $filename .= date('Y-m-d_H-i-s') . '.pdf';
         
         $html = view('reports.sales-pdf', [
-            'sales' => $sales,
+            'sales' => $salesRaw,
             'memberSales' => $memberSales,
             'exportType' => $exportType,
             'generated_at' => now()->format('Y-m-d H:i:s'),

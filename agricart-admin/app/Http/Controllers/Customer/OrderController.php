@@ -18,20 +18,21 @@ class OrderController extends Controller
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
 
-        $query = $user->salesAudit()
+        // Get orders from sales_audit (pending, approved, rejected, etc.)
+        $salesAuditQuery = $user->salesAudit()
             ->with(['auditTrail.product', 'admin', 'logistic']);
 
         // Filter by delivery status (primary filter for tabs)
         if ($deliveryStatus !== 'all') {
-            $query->where('delivery_status', $deliveryStatus);
+            $salesAuditQuery->where('delivery_status', $deliveryStatus);
         }
 
         // Filter by status (secondary filter)
         if ($status !== 'all') {
-            $query->where('status', $status);
+            $salesAuditQuery->where('status', $status);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')
+        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sale) {
                 // Check if order should be marked as delayed (over 24 hours and still pending)
@@ -54,21 +55,73 @@ class OrderController extends Controller
                         'contact_number' => $sale->logistic->contact_number,
                     ] : null,
                     'audit_trail' => $sale->getAggregatedAuditTrail(),
+                    'source' => 'sales_audit', // To identify source
                 ];
             });
 
+        // Get delivered orders from sales table (for confirmation)
+        $salesQuery = $user->sales()
+            ->with(['auditTrail.product', 'admin', 'logistic', 'salesAudit']);
+
+        // Only show delivered orders from sales table
+        if ($deliveryStatus === 'all' || $deliveryStatus === 'delivered') {
+            $salesOrders = $salesQuery->orderBy('delivered_at', 'desc')
+                ->get()
+                ->map(function ($sale) {
+                    return [
+                        'id' => $sale->id,
+                        'total_amount' => $sale->total_amount,
+                        'status' => 'delivered', // All sales table orders are delivered
+                        'delivery_status' => 'delivered',
+                        'created_at' => $sale->created_at->toISOString(),
+                        'delivered_at' => $sale->delivered_at?->toISOString(),
+                        'admin_notes' => $sale->admin_notes,
+                        'logistic' => $sale->logistic ? [
+                            'id' => $sale->logistic->id,
+                            'name' => $sale->logistic->name,
+                            'contact_number' => $sale->logistic->contact_number,
+                        ] : null,
+                        'audit_trail' => $sale->auditTrail->map(function ($trail) {
+                            return [
+                                'id' => $trail->id,
+                                'product' => [
+                                    'name' => $trail->product->name,
+                                    'price_kilo' => $trail->price_kilo ?? $trail->product->price_kilo,
+                                    'price_pc' => $trail->price_pc ?? $trail->product->price_pc,
+                                    'price_tali' => $trail->price_tali ?? $trail->product->price_tali,
+                                ],
+                                'category' => $trail->category,
+                                'quantity' => $trail->quantity,
+                            ];
+                        }),
+                        'customer_received' => $sale->customer_received,
+                        'customer_rate' => $sale->customer_rate,
+                        'customer_feedback' => $sale->customer_feedback,
+                        'customer_confirmed_at' => $sale->customer_confirmed_at?->toISOString(),
+                        'source' => 'sales', // To identify source
+                    ];
+                });
+        } else {
+            $salesOrders = collect();
+        }
+
+        // Combine orders and sort by creation date
+        $allOrders = $salesAuditOrders->concat($salesOrders)
+            ->sortByDesc('created_at')
+            ->values();
+
         // Get counts for delivery status tabs
-        $allOrders = $user->salesAudit()->count();
+        $allOrdersCount = $user->salesAudit()->count() + $user->sales()->count();
         $pendingDeliveryOrders = $user->salesAudit()->where('delivery_status', 'pending')->count();
         $outForDeliveryOrders = $user->salesAudit()->where('delivery_status', 'out_for_delivery')->count();
-        $deliveredOrders = $user->salesAudit()->where('delivery_status', 'delivered')->count();
+        $deliveredOrders = $user->salesAudit()->where('delivery_status', 'delivered')->count() + $user->sales()->count();
 
         return Inertia::render('Customer/Order History/index', [
-            'orders' => $orders,
+            'orders' => $allOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
             'counts' => [
-                'all' => $allOrders,
+                'all' => $allOrdersCount,
                 'pending' => $pendingDeliveryOrders,
                 'approved' => $outForDeliveryOrders,
                 'rejected' => 0, // Not used for delivery status tabs
@@ -227,5 +280,35 @@ class OrderController extends Controller
         
         return redirect()->route('orders.history')
             ->with('message', 'Order #' . $order->id . ' has been cancelled successfully.');
+    }
+
+    public function confirmReceived(Request $request, Sales $order)
+    {
+        $user = $request->user();
+        
+        // Verify the order belongs to the authenticated customer
+        if ($order->customer_id !== $user->id) {
+            return redirect()->back()->with('error', 'You can only confirm your own orders.');
+        }
+        
+        // Only allow confirmation of delivered orders
+        if (!$order->delivered_at) {
+            return redirect()->back()->with('error', 'Order must be delivered before confirmation.');
+        }
+        
+        // Check if already confirmed
+        if ($order->customer_received) {
+            return redirect()->back()->with('error', 'Order has already been confirmed as received.');
+        }
+        
+        $request->validate([
+            'rating' => 'nullable|integer|min:1|max:5',
+            'feedback' => 'nullable|string|max:1000',
+        ]);
+        
+        // Mark order as received
+        $order->markAsReceived($request->input('rating'), $request->input('feedback'));
+        
+        return redirect()->back()->with('success', 'Order confirmed as received successfully!');
     }
 }

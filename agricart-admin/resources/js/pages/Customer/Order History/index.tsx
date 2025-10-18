@@ -11,8 +11,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { CalendarIcon, Download, FileText, X, Package } from 'lucide-react';
+import { CalendarIcon, Download, FileText, X, Package, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import OrderReceivedConfirmationModal from '@/components/OrderReceivedConfirmationModal';
+import StarRating from '@/components/StarRating';
 
 interface OrderItem {
   id: number;
@@ -29,9 +31,10 @@ interface OrderItem {
 interface Order {
   id: number;
   total_amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled' | 'delivered';
   delivery_status: 'pending' | 'out_for_delivery' | 'delivered' | null;
   created_at: string;
+  delivered_at?: string;
   admin_notes?: string;
   logistic?: {
     id: number;
@@ -39,6 +42,11 @@ interface Order {
     contact_number?: string;
   };
   audit_trail: OrderItem[];
+  source?: 'sales_audit' | 'sales';
+  customer_received?: boolean;
+  customer_rate?: number;
+  customer_feedback?: string;
+  customer_confirmed_at?: string;
 }
 
 interface HistoryProps {
@@ -61,6 +69,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [endDate, setEndDate] = useState<Date>();
   const [reportOpen, setReportOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
+  const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
 
   // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
@@ -162,6 +172,16 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         console.error('Cancellation failed:', errors);
       }
     });
+  };
+
+  const handleOpenConfirmationModal = (orderId: number, orderTotal: number) => {
+    setSelectedOrderForConfirmation({ id: orderId, total: orderTotal });
+    setConfirmationModalOpen(prev => ({ ...prev, [orderId]: true }));
+  };
+
+  const handleCloseConfirmationModal = (orderId: number) => {
+    setConfirmationModalOpen(prev => ({ ...prev, [orderId]: false }));
+    setSelectedOrderForConfirmation(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -527,12 +547,86 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         </TableBody>
                       </Table>
                     </div>
+
+                    {/* Order Received Confirmation Section */}
+                    {order.source === 'sales' && order.delivery_status === 'delivered' && (
+                      <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 rounded">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="flex-1">
+                            <h5 className="font-semibold text-sm mb-2 text-green-800 dark:text-green-200">
+                              {order.customer_received ? 'Order Confirmed Received' : 'Confirm Order Received'}
+                            </h5>
+                            {order.customer_received ? (
+                              <div className="space-y-3">
+                                <p className="text-sm text-green-900 dark:text-green-100">
+                                  ✓ You have confirmed receiving this order.
+                                </p>
+                                {order.customer_confirmed_at && (
+                                  <p className="text-xs text-green-700 dark:text-green-300">
+                                    Confirmed on: {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
+                                  </p>
+                                )}
+                                {order.customer_rate && (
+                                  <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded border">
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">Your Rating:</p>
+                                    <StarRating
+                                      rating={order.customer_rate}
+                                      onRatingChange={() => {}} // Read-only
+                                      maxRating={5}
+                                      size="sm"
+                                      interactive={false}
+                                      showLabel={true}
+                                    />
+                                  </div>
+                                )}
+                                {order.customer_feedback && (
+                                  <div className="mt-2 p-3 bg-white dark:bg-gray-800 rounded border">
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">Your Feedback:</p>
+                                    <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{order.customer_feedback}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                <p className="text-sm text-green-900 dark:text-green-100 mb-2">
+                                  Please confirm that you have received your order. You can optionally provide feedback about your experience.
+                                </p>
+                                {order.delivered_at && (
+                                  <p className="text-xs text-green-700 dark:text-green-300">
+                                    Delivered on: {format(new Date(order.delivered_at), 'MMM dd, yyyy HH:mm')}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {!order.customer_received && (
+                            <Button
+                              onClick={() => handleOpenConfirmationModal(order.id, order.total_amount)}
+                              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Confirm Received
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 ))}
               </div>
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Order Received Confirmation Modal */}
+        {selectedOrderForConfirmation && (
+          <OrderReceivedConfirmationModal
+            isOpen={confirmationModalOpen[selectedOrderForConfirmation.id] || false}
+            onClose={() => handleCloseConfirmationModal(selectedOrderForConfirmation.id)}
+            orderId={selectedOrderForConfirmation.id}
+            orderTotal={selectedOrderForConfirmation.total}
+          />
+        )}
       </div>
     </AppHeaderLayout>
   );

@@ -250,6 +250,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/orders/history', [CustomerOrderController::class, 'index'])->name('orders.history');
         Route::get('/orders/report', [CustomerOrderController::class, 'generateReport'])->name('orders.report');
         Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('customer.orders.cancel');
+        Route::post('/orders/{order}/confirm-received', [CustomerOrderController::class, 'confirmReceived'])->name('customer.orders.confirmReceived');
         
         // Customer Profile routes - Individual pages only
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
