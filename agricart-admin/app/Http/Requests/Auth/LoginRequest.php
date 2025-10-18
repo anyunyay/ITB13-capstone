@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Services\LoginLockoutService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -39,17 +40,29 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
+        $email = $this->string('email');
+        $userType = 'customer'; // Default for customer login
+        $ipAddress = $this->ip();
+
+        // Check if account is locked
+        LoginLockoutService::checkLoginAllowed($email, $userType, $ipAddress);
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+            // Record failed attempt
+            $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, $userType, $ipAddress);
+            
+            $messages = ['email' => __('auth.failed')];
+            
+            // Add lockout information if account is locked
+            if ($lockoutInfo['is_locked']) {
+                $messages['lockout'] = $lockoutInfo;
+            }
 
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+            throw ValidationException::withMessages($messages);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        // Clear failed attempts on successful login
+        LoginLockoutService::clearFailedAttempts($email, $userType, $ipAddress);
     }
 
     /**

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class MemberLoginRequest extends FormRequest
+class AdminLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,7 @@ class MemberLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -40,23 +40,17 @@ class MemberLoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
-        $memberId = $this->string('member_id');
-        $userType = 'member';
+        $email = $this->string('email');
         $ipAddress = $this->ip();
 
-        // Check if account is locked
-        LoginLockoutService::checkLoginAllowed($memberId, $userType, $ipAddress);
+        // Check if account is locked for admin/staff
+        LoginLockoutService::checkLoginAllowed($email, 'admin', $ipAddress);
 
-        // Find user by member_id and type
-        $user = \App\Models\User::where('member_id', $this->input('member_id'))
-            ->where('type', 'member')
-            ->first();
-
-        if (!$user || !\Hash::check($this->input('password'), $user->password)) {
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             // Record failed attempt
-            $lockoutInfo = LoginLockoutService::recordFailedAttempt($memberId, $userType, $ipAddress);
+            $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, 'admin', $ipAddress);
             
-            $messages = ['member_id' => __('auth.failed')];
+            $messages = ['email' => __('auth.failed')];
             
             // Add lockout information if account is locked
             if ($lockoutInfo['is_locked']) {
@@ -66,11 +60,8 @@ class MemberLoginRequest extends FormRequest
             throw ValidationException::withMessages($messages);
         }
 
-        // Log in the user
-        Auth::login($user, $this->boolean('remember'));
-        
         // Clear failed attempts on successful login
-        LoginLockoutService::clearFailedAttempts($memberId, $userType, $ipAddress);
+        LoginLockoutService::clearFailedAttempts($email, 'admin', $ipAddress);
     }
 
     /**
@@ -89,7 +80,7 @@ class MemberLoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'member_id' => __('auth.throttle', [
+            'email' => __('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -101,6 +92,6 @@ class MemberLoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('member_id')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }

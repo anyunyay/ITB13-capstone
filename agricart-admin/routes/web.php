@@ -408,6 +408,14 @@ Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
+// Lockout status API routes
+Route::prefix('api/lockout')->name('api.lockout.')->middleware(['login.rate.limit'])->group(function () {
+    Route::post('/customer/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkCustomerLockout'])->name('customer.check');
+    Route::post('/admin/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkAdminLockout'])->name('admin.check');
+    Route::post('/member/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkMemberLockout'])->name('member.check');
+    Route::post('/logistic/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkLogisticLockout'])->name('logistic.check');
+});
+
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -237,7 +237,7 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming admin authentication request (admin portal entry point).
      * Only allows admin and staff users to login through this endpoint.
      */
-    public function storeAdmin(LoginRequest $request): RedirectResponse
+    public function storeAdmin(\App\Http\Requests\Auth\AdminLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();
@@ -323,7 +323,7 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming logistic authentication request (logistic portal entry point).
      * Only allows logistic users to login through this endpoint.
      */
-    public function storeLogistic(LoginRequest $request): RedirectResponse
+    public function storeLogistic(\App\Http\Requests\Auth\LogisticLoginRequest $request): RedirectResponse
     {
         $request->authenticate();
         $request->session()->regenerate();

@@ -6,6 +6,7 @@ use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\CheckSingleSession;
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\CheckPasswordChangeRequired;
+use App\Http\Middleware\LoginRateLimit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -40,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'login.rate.limit' => LoginRateLimit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

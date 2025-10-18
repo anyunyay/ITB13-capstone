@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
 import LoginRestrictionPopup from '@/components/LoginRestrictionPopup';
+import CountdownTimer from '@/components/CountdownTimer';
+import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 
 type AdminLoginForm = {
     email: string;
@@ -36,6 +38,12 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
     const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
+    
+    // Lockout status management
+    const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
+        identifier: data.email,
+        userType: 'admin',
+    });
 
     // Show restriction popup if needed
     useEffect(() => {
@@ -59,6 +67,13 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
             window.location.replace(route('logistic.dashboard'));
         }
     }, [props.auth?.user?.type]);
+
+    // Refresh lockout status when errors change (after failed login)
+    useEffect(() => {
+        if (errors.email || errors.lockout) {
+            refreshLockoutStatus();
+        }
+    }, [errors.email, errors.lockout, refreshLockoutStatus]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -136,9 +151,25 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
                         <Label htmlFor="remember">Remember me</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full bg-blue-600 hover:bg-blue-700" tabIndex={4} disabled={processing}>
+                    <Button 
+                        type="submit" 
+                        className="mt-4 w-full bg-blue-600 hover:bg-blue-700" 
+                        tabIndex={4} 
+                        disabled={processing || lockoutStatus?.locked}
+                    >
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Access Admin Portal
+                        {lockoutStatus?.locked ? (
+                            <>
+                                Try again in{' '}
+                                <CountdownTimer 
+                                    lockExpiresAt={lockoutStatus.lock_expires_at}
+                                    serverTime={lockoutStatus.server_time}
+                                    className="text-black font-bold"
+                                />
+                            </>
+                        ) : (
+                            'Access Admin Portal'
+                        )}
                     </Button>
                 </div>
 
@@ -158,6 +189,22 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
                 {errors.email && (
                     <div className="mb-4 text-center text-sm font-medium text-red-600">
                         {errors.email}
+                    </div>
+                )}
+
+                {lockoutStatus?.locked && (
+                    <div className="mb-4 text-center text-sm font-medium text-red-600">
+                        Account temporarily locked. You can try using{' '}
+                        <TextLink href={route('password.request')} className="text-red-600 underline font-semibold">
+                            forgot password
+                        </TextLink>
+                        {' '}or wait{' '}
+                        <CountdownTimer 
+                            lockExpiresAt={lockoutStatus.lock_expires_at}
+                            serverTime={lockoutStatus.server_time}
+                            className="text-black font-bold"
+                        />
+                        {' '}before trying again.
                     </div>
                 )}
             </AuthLayout>
