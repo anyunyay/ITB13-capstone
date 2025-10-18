@@ -59,10 +59,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   // Use useState to manage the order state for real-time updates
   const [currentOrder, setCurrentOrder] = useState<Order>(order);
   
-  // State for confirmation dialog
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null>(null);
-  
   // State for delivery confirmation modal
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [deliveryImage, setDeliveryImage] = useState<File | null>(null);
@@ -75,11 +71,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   
   // Get display email (masked for non-admin/staff users)
   const displayEmail = getDisplayEmail(currentOrder.customer.email || '', auth?.user?.type);
-
-  // Form for delivery status updates
-  const updateDeliveryStatusForm = useForm({
-    delivery_status: currentOrder.delivery_status,
-  });
 
   // Form for delivery confirmation
   const deliveryForm = useForm({
@@ -103,11 +94,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
   // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
-  // Keep form data synchronized with current order state
-  useEffect(() => {
-    updateDeliveryStatusForm.setData('delivery_status', currentOrder.delivery_status);
-  }, [currentOrder.delivery_status]);
-
   // Get appropriate badge styling for delivery status
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
@@ -122,29 +108,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
-  };
-
-  // Handle delivery status changes with confirmation
-  const handleDeliveryStatusChange = (value: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered') => {
-    // Prevent changes to delivered orders
-    if (currentOrder.delivery_status === 'delivered') {
-      return;
-    }
-
-    // Prevent multiple simultaneous requests
-    if (updateDeliveryStatusForm.processing) {
-      return;
-    }
-
-    // Special handling for delivered status - show delivery modal instead
-    if (value === 'delivered') {
-      setShowDeliveryModal(true);
-      return;
-    }
-
-    // Show confirmation dialog for other status changes
-    setPendingStatus(value);
-    setShowConfirmationDialog(true);
   };
 
   // Handle image upload
@@ -220,57 +183,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       },
       preserveScroll: true,
     });
-  };
-
-  // Confirm status change
-  const confirmStatusChange = () => {
-    if (!pendingStatus) return;
-
-    // Update form data for UI consistency
-    updateDeliveryStatusForm.setData('delivery_status', pendingStatus);
-    
-    // Send update request directly with the selected value
-    router.put(route('logistic.orders.updateDeliveryStatus', currentOrder.id), {
-      delivery_status: pendingStatus
-    }, {
-      onSuccess: () => {
-        // Update local state immediately for instant UI feedback
-        setCurrentOrder(prevOrder => ({
-          ...prevOrder,
-          delivery_status: pendingStatus,
-          delivery_ready_time: pendingStatus === 'ready_to_pickup' ? new Date().toISOString() : prevOrder.delivery_ready_time,
-          delivery_packed_time: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_packed_time,
-          delivered_time: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivered_time,
-          delivery_timeline: {
-            ...prevOrder.delivery_timeline,
-            ready_at: pendingStatus === 'ready_to_pickup' ? new Date().toISOString() : prevOrder.delivery_timeline?.ready_at,
-            packed_at: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_timeline?.packed_at,
-            delivered_at: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivery_timeline?.delivered_at,
-            ready_duration: prevOrder.delivery_timeline?.ready_duration || undefined,
-            packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
-            delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
-            total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
-          }
-        }));
-        setShowConfirmationDialog(false);
-        setPendingStatus(null);
-      },
-      onError: (errors) => {
-        // Handle validation or server errors silently
-        // Errors will be displayed in the form if any
-        setShowConfirmationDialog(false);
-        setPendingStatus(null);
-      },
-      preserveScroll: true,
-    });
-  };
-
-  // Cancel status change
-  const cancelStatusChange = () => {
-    setShowConfirmationDialog(false);
-    setPendingStatus(null);
-    // Reset form to current order status
-    updateDeliveryStatusForm.setData('delivery_status', currentOrder.delivery_status);
   };
 
   return (
@@ -413,7 +325,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           </Card>
         </div>
 
-        {/* Delivery Status Update */}
+        {/* Delivery Status Progress */}
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -425,73 +337,126 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               ) : (
                 <>
                   <Truck className="h-5 w-5 text-blue-400" />
-                  Update Delivery Status
+                  Delivery Progress
                 </>
               )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <div className="max-w-md">
-                <label className="text-sm font-medium text-white">Delivery Status</label>
-                <Select
-                  value={updateDeliveryStatusForm.data.delivery_status}
-                  onValueChange={(value) => handleDeliveryStatusChange(value as 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered')}
-                  disabled={updateDeliveryStatusForm.processing || currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending'}
-                >
-                  <SelectTrigger className={currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending' ? 'bg-gray-700 cursor-not-allowed' : ''}>
-                    <SelectValue placeholder="Select delivery status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending" disabled>Pending</SelectItem>
-                    <SelectItem value="ready_to_pickup" disabled>Ready to Pick Up</SelectItem>
-                    <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                    <SelectItem value="delivered">Mark as Delivered</SelectItem>
-                  </SelectContent>
-                </Select>
-                {currentOrder.delivery_status === 'delivered' && (
-                  <div className="mt-2 space-y-2">
-                    <p className="text-sm text-green-400 flex items-center gap-1">
-                      <CheckCircle className="h-4 w-4" />
-                      This order has been delivered and cannot be modified.
-                    </p>
-                    {currentOrder.delivery_proof_image && (
-                      <div className="mt-3">
-                        <p className="text-sm font-medium text-gray-300 mb-2">Delivery Proof:</p>
-                        <img 
-                          src={currentOrder.delivery_proof_image} 
-                          alt="Delivery proof" 
-                          className="w-32 h-32 object-cover rounded-lg border border-gray-600"
-                        />
-                      </div>
-                    )}
+            {/* Progressive Status Line */}
+            <div className="space-y-4">
+              {/* Status Steps */}
+              <div className="flex items-center justify-between">
+                {/* Step 1: Pending */}
+                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'pending' ? 'text-blue-400' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'pending' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                    {currentOrder.delivery_status === 'pending' ? '1' : '✓'}
                   </div>
-                )}
+                  <span className="text-xs mt-1 text-center">Preparing</span>
+                </div>
+
+                {/* Connector Line */}
+                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+
+                {/* Step 2: Ready to Pick Up */}
+                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'text-green-400' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-600 text-white' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                    {currentOrder.delivery_status === 'ready_to_pickup' ? '2' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? '✓' : '2'}
+                  </div>
+                  <span className="text-xs mt-1 text-center">Ready</span>
+                </div>
+
+                {/* Connector Line */}
+                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+
+                {/* Step 3: Out for Delivery */}
+                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'text-blue-400' : currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                    {currentOrder.delivery_status === 'out_for_delivery' ? '3' : currentOrder.delivery_status === 'delivered' ? '✓' : '3'}
+                  </div>
+                  <span className="text-xs mt-1 text-center">Out for Delivery</span>
+                </div>
+
+                {/* Connector Line */}
+                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+
+                {/* Step 4: Delivered */}
+                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                    {currentOrder.delivery_status === 'delivered' ? '✓' : '4'}
+                  </div>
+                  <span className="text-xs mt-1 text-center">Delivered</span>
+                </div>
+              </div>
+
+              {/* Current Status Message */}
+              <div className="mt-4">
                 {currentOrder.delivery_status === 'pending' && (
-                  <p className="text-sm text-yellow-400 mt-2 flex items-center gap-1">
+                  <p className="text-sm text-yellow-400 flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4" />
                     This order is pending preparation. You cannot change the delivery status until the admin marks it as ready.
                   </p>
                 )}
                 {currentOrder.delivery_status === 'ready_to_pickup' && (
-                  <p className="text-sm text-green-400 mt-2 flex items-center gap-1">
+                  <p className="text-sm text-green-400 flex items-center gap-1">
                     <CheckCircle className="h-4 w-4" />
-                    Order is ready for pickup. You can mark it as out for delivery when you collect it.
+                    Order is ready for pickup. You can mark it as delivered when you complete the delivery.
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (
-                  <p className="text-sm text-blue-400 mt-2 flex items-center gap-1">
+                  <p className="text-sm text-blue-400 flex items-center gap-1">
                     <Truck className="h-4 w-4" />
                     Order is out for delivery. You can mark it as delivered when you complete the delivery.
                   </p>
                 )}
-                {updateDeliveryStatusForm.processing && (
-                  <p className="text-sm text-blue-400 mt-2">Updating status...</p>
-                )}
-                {updateDeliveryStatusForm.errors.delivery_status && (
-                  <p className="text-sm text-red-400 mt-2">{updateDeliveryStatusForm.errors.delivery_status}</p>
+                {currentOrder.delivery_status === 'delivered' && (
+                  <p className="text-sm text-green-400 flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" />
+                    This order has been delivered and cannot be modified.
+                  </p>
                 )}
               </div>
+
+              {/* Action Button - Only for Delivered */}
+              {currentOrder.delivery_status !== 'delivered' && (
+                <div className="mt-4">
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => setShowDeliveryModal(true)}
+                    disabled={currentOrder.delivery_status === 'pending'}
+                  >
+                    {currentOrder.delivery_status === 'pending' ? 'Waiting for Preparation' : 'Mark as Delivered'}
+                  </Button>
+                  {currentOrder.delivery_status === 'pending' && (
+                    <p className="text-xs text-gray-400 mt-2 text-center">
+                      You can only mark orders as delivered after they are ready for pickup
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Delivered Status Display */}
+              {currentOrder.delivery_status === 'delivered' && (
+                <div className="mt-4 p-3 bg-green-900/30 border border-green-600 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-sm font-medium text-green-300">Order Delivered</span>
+                  </div>
+                  <p className="text-sm text-green-400">
+                    This order has been successfully delivered to the customer.
+                  </p>
+                  {currentOrder.delivery_proof_image && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-gray-300 mb-2">Delivery Proof:</p>
+                      <img 
+                        src={currentOrder.delivery_proof_image} 
+                        alt="Delivery proof" 
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-600"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -564,62 +529,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             </div>
           </CardContent>
         </Card>
-
-        {/* Confirmation Dialog */}
-        <Dialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog}>
-          <DialogContent className="bg-gray-800 border-gray-700">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-white">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                Confirm Status Change
-              </DialogTitle>
-              <DialogDescription className="text-gray-300">
-                Are you sure you want to change the delivery status?
-              </DialogDescription>
-            </DialogHeader>
-            
-            {pendingStatus && (
-              <div className="space-y-3">
-                <div className="p-3 bg-gray-700 border border-gray-600 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-300">Current Status:</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getDeliveryStatusBadge(currentOrder.delivery_status)}
-                  </div>
-                </div>
-                
-                <div className="p-3 bg-blue-900/30 border border-blue-600 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Truck className="h-4 w-4 text-blue-400" />
-                    <span className="text-sm font-medium text-blue-300">New Status:</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getDeliveryStatusBadge(pendingStatus)}
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <DialogFooter className="gap-2">
-              <Button 
-                variant="outline" 
-                onClick={cancelStatusChange}
-                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={confirmStatusChange}
-                disabled={updateDeliveryStatusForm.processing}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {updateDeliveryStatusForm.processing ? 'Updating...' : 'Confirm Change'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Delivery Confirmation Modal */}
         <Dialog open={showDeliveryModal} onOpenChange={setShowDeliveryModal}>
