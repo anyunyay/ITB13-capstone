@@ -151,6 +151,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::post('/orders/{order}/unmark-urgent', [OrderController::class, 'unmarkUrgent'])->whereNumber('order')->name('admin.orders.unmarkUrgent');
         });
         Route::middleware(['can:mark orders ready for pickup'])->group(function () {
+            Route::post('/orders/{order}/mark-ready', [OrderController::class, 'markReady'])->whereNumber('order')->name('admin.orders.markReady');
             Route::post('/orders/{order}/mark-picked-up', [OrderController::class, 'markPickedUp'])->whereNumber('order')->name('admin.orders.markPickedUp');
         });
         Route::middleware(['can:generate order report'])->group(function () {

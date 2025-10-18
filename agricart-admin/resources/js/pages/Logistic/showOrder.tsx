@@ -21,12 +21,15 @@ interface Order {
   };
   delivery_address?: string;
   total_amount: number;
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
+  delivery_ready_time?: string;
   delivery_packed_time?: string;
   delivered_time?: string;
   delivery_timeline?: {
+    ready_at?: string;
     packed_at?: string;
     delivered_at?: string;
+    ready_duration?: number;
     packing_duration?: number;
     delivery_duration?: number;
     total_duration?: number;
@@ -58,7 +61,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   
   // State for confirmation dialog
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState<'pending' | 'out_for_delivery' | 'delivered' | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null>(null);
   
   // State for delivery confirmation modal
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -110,6 +113,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -120,7 +125,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   };
 
   // Handle delivery status changes with confirmation
-  const handleDeliveryStatusChange = (value: 'pending' | 'out_for_delivery' | 'delivered') => {
+  const handleDeliveryStatusChange = (value: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered') => {
     // Prevent changes to delivered orders
     if (currentOrder.delivery_status === 'delivered') {
       return;
@@ -199,6 +204,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           delivery_timeline: {
             ...prevOrder.delivery_timeline,
             delivered_at: new Date().toISOString(),
+            ready_duration: prevOrder.delivery_timeline?.ready_duration || undefined,
             packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
             delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
             total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
@@ -232,12 +238,15 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         setCurrentOrder(prevOrder => ({
           ...prevOrder,
           delivery_status: pendingStatus,
+          delivery_ready_time: pendingStatus === 'ready_to_pickup' ? new Date().toISOString() : prevOrder.delivery_ready_time,
           delivery_packed_time: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_packed_time,
           delivered_time: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivered_time,
           delivery_timeline: {
             ...prevOrder.delivery_timeline,
+            ready_at: pendingStatus === 'ready_to_pickup' ? new Date().toISOString() : prevOrder.delivery_timeline?.ready_at,
             packed_at: pendingStatus === 'out_for_delivery' ? new Date().toISOString() : prevOrder.delivery_timeline?.packed_at,
             delivered_at: pendingStatus === 'delivered' ? new Date().toISOString() : prevOrder.delivery_timeline?.delivered_at,
+            ready_duration: prevOrder.delivery_timeline?.ready_duration || undefined,
             packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
             delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
             total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
@@ -312,6 +321,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 </div>
                 {currentOrder.delivery_timeline && (
                   <>
+                    {currentOrder.delivery_ready_time && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Ready At</p>
+                        <p className="text-sm text-green-400">
+                          {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                        </p>
+                      </div>
+                    )}
                     {currentOrder.delivery_packed_time && (
                       <div>
                         <p className="text-sm font-medium text-gray-400">Packed At</p>
@@ -325,6 +342,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                         <p className="text-sm font-medium text-gray-400">Delivered At</p>
                         <p className="text-sm text-green-400">
                           {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                        </p>
+                      </div>
+                    )}
+                    {currentOrder.delivery_timeline.ready_duration && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-400">Ready Duration</p>
+                        <p className="text-sm text-gray-300">
+                          {Math.floor(currentOrder.delivery_timeline.ready_duration / 60)}h {currentOrder.delivery_timeline.ready_duration % 60}m
                         </p>
                       </div>
                     )}
@@ -411,7 +436,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 <label className="text-sm font-medium text-white">Delivery Status</label>
                 <Select
                   value={updateDeliveryStatusForm.data.delivery_status}
-                  onValueChange={(value) => handleDeliveryStatusChange(value as 'pending' | 'out_for_delivery' | 'delivered')}
+                  onValueChange={(value) => handleDeliveryStatusChange(value as 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered')}
                   disabled={updateDeliveryStatusForm.processing || currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending'}
                 >
                   <SelectTrigger className={currentOrder.delivery_status === 'delivered' || currentOrder.delivery_status === 'pending' ? 'bg-gray-700 cursor-not-allowed' : ''}>
@@ -419,6 +444,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending" disabled>Pending</SelectItem>
+                    <SelectItem value="ready_to_pickup" disabled>Ready to Pick Up</SelectItem>
                     <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                     <SelectItem value="delivered">Mark as Delivered</SelectItem>
                   </SelectContent>
@@ -444,7 +470,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 {currentOrder.delivery_status === 'pending' && (
                   <p className="text-sm text-yellow-400 mt-2 flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4" />
-                    This order is pending pickup. You cannot change the delivery status until the admin marks it as picked up.
+                    This order is pending preparation. You cannot change the delivery status until the admin marks it as ready.
+                  </p>
+                )}
+                {currentOrder.delivery_status === 'ready_to_pickup' && (
+                  <p className="text-sm text-green-400 mt-2 flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" />
+                    Order is ready for pickup. You can mark it as out for delivery when you collect it.
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (

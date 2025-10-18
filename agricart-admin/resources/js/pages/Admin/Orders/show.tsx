@@ -44,12 +44,15 @@ interface Order {
   coop_share: number;
   member_share: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
+  delivery_ready_time?: string;
   delivery_packed_time?: string;
   delivered_time?: string;
   delivery_timeline?: {
+    ready_at?: string;
     packed_at?: string;
     delivered_at?: string;
+    ready_duration?: number;
     packing_duration?: number;
     delivery_duration?: number;
     total_duration?: number;
@@ -95,6 +98,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const [selectedRejectionReason, setSelectedRejectionReason] = useState('');
   const [pickedUpDialogOpen, setPickedUpDialogOpen] = useState(false);
   const [pickupConfirmationText, setPickupConfirmationText] = useState('');
+  const [markReadyDialogOpen, setMarkReadyDialogOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
 
   // Common rejection reasons
@@ -169,6 +173,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -183,6 +189,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
       onSuccess: () => {
         setApproveDialogOpen(false);
         approveForm.reset();
+        // Auto-open logistics assignment dialog after approval
+        setAssignLogisticDialogOpen(true);
       },
     });
   };
@@ -201,12 +209,50 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
       onSuccess: () => {
         setAssignLogisticDialogOpen(false);
         assignLogisticForm.reset();
+        // Update local state to reflect the logistic assignment
+        const updatedOrder = {
+          ...currentOrder,
+          logistic: logistics.find(l => l.id.toString() === assignLogisticForm.data.logistic_id)
+        };
+        setCurrentOrder(updatedOrder);
         // Show success message
         alert('Logistic assigned successfully!');
       },
     });
   };
 
+
+  const handleMarkReady = () => {
+    setMarkReadyDialogOpen(true);
+  };
+
+  const confirmMarkReady = () => {
+    router.post(route('admin.orders.markReady', order.id), {}, {
+      onSuccess: () => {
+        // Update the local order state to reflect the new delivery status
+        const updatedOrder = {
+          ...currentOrder,
+          delivery_status: 'ready_to_pickup' as const,
+          delivery_ready_time: new Date().toISOString(),
+          delivery_timeline: {
+            ...currentOrder.delivery_timeline,
+            ready_at: new Date().toISOString(),
+            ready_duration: currentOrder.delivery_timeline?.ready_duration || 0,
+            packing_duration: currentOrder.delivery_timeline?.packing_duration || undefined,
+            delivery_duration: currentOrder.delivery_timeline?.delivery_duration || undefined,
+            total_duration: currentOrder.delivery_timeline?.total_duration || undefined,
+          }
+        };
+
+        setCurrentOrder(updatedOrder);
+        setMarkReadyDialogOpen(false);
+      },
+      onError: (errors) => {
+        console.error('Error marking order as ready:', errors);
+        setMarkReadyDialogOpen(false);
+      },
+    });
+  };
 
   const handleMarkPickedUp = () => {
     if (pickupConfirmationText !== 'Confirm Pick Up') {
@@ -226,6 +272,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           delivery_timeline: {
             ...currentOrder.delivery_timeline,
             packed_at: new Date().toISOString(),
+            ready_duration: currentOrder.delivery_timeline?.ready_duration || undefined,
             packing_duration: currentOrder.delivery_timeline?.packing_duration || 0,
             delivery_duration: currentOrder.delivery_timeline?.delivery_duration || undefined,
             total_duration: currentOrder.delivery_timeline?.total_duration || undefined,
@@ -366,6 +413,14 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                   )}
                   {currentOrder.delivery_timeline && (
                     <>
+                      {currentOrder.delivery_ready_time && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Ready At</span>
+                          <span className="text-sm text-green-600">
+                            {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                          </span>
+                        </div>
+                      )}
                       {currentOrder.delivery_packed_time && (
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-500">Packed At</span>
@@ -379,6 +434,14 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                           <span className="text-sm text-gray-500">Delivered At</span>
                           <span className="text-sm text-green-600">
                             {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                          </span>
+                        </div>
+                      )}
+                      {currentOrder.delivery_timeline.ready_duration && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">Ready Duration</span>
+                          <span className="text-sm text-gray-700">
+                            {Math.floor(currentOrder.delivery_timeline.ready_duration / 60)}h {currentOrder.delivery_timeline.ready_duration % 60}m
                           </span>
                         </div>
                       )}
@@ -667,25 +730,98 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
             )}
 
 
+            {/* Order Ready Management for Approved Orders */}
+            {order.status === 'approved' && currentOrder.logistic && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Ready</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {currentOrder.delivery_status === 'pending' && (
+                    <>
+                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                        <p className="text-sm font-medium text-yellow-800">
+                          Order is approved and ready to be prepared for pickup
+                        </p>
+                        <p className="text-sm text-yellow-600">
+                          Mark the order as ready when it has been prepared and is waiting for pickup.
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        variant="default"
+                        onClick={handleMarkReady}
+                      >
+                        Mark Order as Ready
+                      </Button>
+                    </>
+                  )}
+                  
+                  {currentOrder.delivery_status === 'ready_to_pickup' && (
+                    <>
+                      <div className="p-3 bg-green-50 border border-green-200 rounded">
+                        <p className="text-sm font-medium text-green-800">
+                          Order is ready for pickup
+                        </p>
+                        <p className="text-sm text-green-600">
+                          The order has been prepared and is ready for the logistic provider to collect.
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        disabled
+                      >
+                        ✓ Ready to Pick Up
+                      </Button>
+                    </>
+                  )}
+                  
+                  {(currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered') && (
+                    <>
+                      <div className="p-3 bg-green-50 border border-green-200 rounded">
+                        <p className="text-sm font-medium text-green-800">
+                          Order has been processed
+                        </p>
+                        <p className="text-sm text-green-600">
+                          This order has moved beyond the ready stage.
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        disabled
+                      >
+                        ✓ Ready to Pick Up
+                      </Button>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Order Picked Up Management for Approved Orders */}
-            {order.status === 'approved' && order.logistic && (
+            {order.status === 'approved' && order.logistic && currentOrder.delivery_status !== 'pending' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Order Picked Up</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className={`p-3 rounded ${
-                    currentOrder.delivery_status === 'pending' ? 'bg-yellow-50' :
+                    currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-50' :
                     currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-50' :
                     currentOrder.delivery_status === 'delivered' ? 'bg-green-50' : 'bg-yellow-50'
                   }`}>
-                    {currentOrder.delivery_status === 'pending' && (
+                    {currentOrder.delivery_status === 'ready_to_pickup' && (
                       <>
-                        <p className="text-sm font-medium text-yellow-800">
-                          Order is ready but not yet picked up
+                        <p className="text-sm font-medium text-green-800">
+                          Order is ready for pickup
                         </p>
-                        <p className="text-sm text-yellow-600">
-                          Mark the order as picked up when the logistic provider collects it.
+                        <p className="text-sm text-green-600">
+                          The order has been prepared and is ready for the logistic provider to collect.
                         </p>
                       </>
                     )}
@@ -711,7 +847,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                     )}
                   </div>
                   
-                  {currentOrder.delivery_status === 'pending' ? (
+                  {currentOrder.delivery_status === 'ready_to_pickup' ? (
                     <Dialog open={pickedUpDialogOpen} onOpenChange={setPickedUpDialogOpen}>
                       <DialogTrigger asChild>
                         <Button className="w-full" variant="default">
@@ -780,6 +916,36 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           </div>
         </div>
       </div>
+
+      {/* Mark Ready Confirmation Dialog */}
+      <Dialog open={markReadyDialogOpen} onOpenChange={setMarkReadyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark Order as Ready</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to mark this order as ready for pickup? This will notify the logistic provider that the order is prepared and ready for collection.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+              <p className="text-sm text-blue-800">
+                <strong>Order #{order.id}</strong> will be marked as ready for pickup.
+              </p>
+              <p className="text-sm text-blue-600 mt-1">
+                The logistic provider ({currentOrder.logistic?.name}) will be notified that the order is ready for collection.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMarkReadyDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmMarkReady}>
+              Mark as Ready
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 } 

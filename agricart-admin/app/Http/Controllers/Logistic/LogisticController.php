@@ -19,10 +19,10 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         
-        // Get assigned orders for this logistic - only show pending or out for delivery orders
+        // Get assigned orders for this logistic - only show pending, ready to pickup, or out for delivery orders
         $assignedOrders = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'out_for_delivery'])
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery'])
             ->with(['customer', 'address', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -39,6 +39,7 @@ class LogisticController extends Controller
                         null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
+                    'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
                     'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
                     'delivered_time' => $order->delivered_time?->toISOString(),
                     'delivery_timeline' => $order->getDeliveryTimeline(),
@@ -68,7 +69,7 @@ class LogisticController extends Controller
         
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'out_for_delivery']) // Only show pending or out for delivery
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery']) // Only show pending, ready to pickup, or out for delivery
             ->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by delivery status
@@ -90,6 +91,7 @@ class LogisticController extends Controller
                         null,
                     'total_amount' => $order->total_amount,
                     'delivery_status' => $order->delivery_status,
+                    'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
                     'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
                     'delivered_time' => $order->delivered_time?->toISOString(),
                     'delivery_timeline' => $order->getDeliveryTimeline(),
@@ -126,6 +128,7 @@ class LogisticController extends Controller
                 null,
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,
+            'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             'delivered_time' => $order->delivered_time?->toISOString(),
             'delivery_timeline' => $order->getDeliveryTimeline(),
@@ -159,7 +162,7 @@ class LogisticController extends Controller
 
         // Validate the delivery status value
         $request->validate([
-            'delivery_status' => 'required|in:pending,out_for_delivery,delivered',
+            'delivery_status' => 'required|in:pending,ready_to_pickup,out_for_delivery,delivered',
         ]);
 
         // Get the new delivery status

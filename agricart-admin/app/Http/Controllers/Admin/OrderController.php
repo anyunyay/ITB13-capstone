@@ -172,6 +172,7 @@ class OrderController extends Controller
             'member_share' => $order->member_share,
             'status' => $order->status,
             'delivery_status' => $order->delivery_status,
+            'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             'delivered_time' => $order->delivered_time?->toISOString(),
             'delivery_timeline' => $order->getDeliveryTimeline(),
@@ -379,6 +380,33 @@ class OrderController extends Controller
 
 
 
+    public function markReady(Request $request, SalesAudit $order)
+    {
+        // Check if order is approved and pending
+        if ($order->status !== 'approved' || $order->delivery_status !== 'pending') {
+            return redirect()->back()->with('error', 'Order is not ready to be marked as ready for pickup.');
+        }
+
+        // Update delivery status to ready for pickup using unified method
+        $order->markAsReady();
+
+        // Log the action
+        SystemLogger::logOrderStatusChange(
+            $order->id,
+            'pending',
+            'ready_to_pickup',
+            $request->user()->id,
+            'admin',
+            [
+                'delivery_status' => 'ready_to_pickup',
+                'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
+            ]
+        );
+
+        return redirect()->route('admin.orders.show', $order->id)
+            ->with('message', 'Order marked as ready for pickup successfully.');
+    }
+
     public function markPickedUp(Request $request, SalesAudit $order)
     {
         // Validate confirmation text
@@ -386,8 +414,8 @@ class OrderController extends Controller
             'confirmation_text' => 'required|string|in:Confirm Pick Up',
         ]);
 
-        // Check if order is approved and pending
-        if ($order->status !== 'approved' || $order->delivery_status !== 'pending') {
+        // Check if order is approved and ready for pickup
+        if ($order->status !== 'approved' || $order->delivery_status !== 'ready_to_pickup') {
             return redirect()->back()->with('error', 'Order is not ready for pickup.');
         }
 
@@ -397,7 +425,7 @@ class OrderController extends Controller
         // Log the action
         SystemLogger::logOrderStatusChange(
             $order->id,
-            'pending',
+            'ready_to_pickup',
             'out_for_delivery',
             $request->user()->id,
             'admin',

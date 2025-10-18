@@ -202,6 +202,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -215,6 +217,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     switch (status) {
       case 'pending':
         return 'text-yellow-600 dark:text-yellow-400';
+      case 'ready_to_pickup':
+        return 'text-green-600 dark:text-green-400';
       case 'out_for_delivery':
         return 'text-blue-600 dark:text-blue-400';
       case 'delivered':
@@ -380,15 +384,21 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             </div>
                             <span className="ml-2 text-sm font-medium">Preparing</span>
                           </div>
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
+                              {(order.delivery_status || 'pending') === 'ready_to_pickup' ? '2' : '✓'}
+                            </div>
+                            <span className="ml-2 text-sm font-medium">Ready</span>
+                          </div>
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-blue-600 dark:text-blue-400' : (order.delivery_status || 'pending') === 'delivered' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
-                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '2' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '2'}
+                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
                             </div>
                             <span className="ml-2 text-sm font-medium">Out for Delivery</span>
                           </div>
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-600'}`}>
-                              {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
+                              {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '4'}
                             </div>
                             <span className="ml-2 text-sm font-medium">Delivered</span>
                           </div>

@@ -21,6 +21,7 @@ class SalesAudit extends Model
         'delivery_status',
         'delivery_proof_image',
         'delivery_confirmed',
+        'delivery_ready_time',
         'delivery_packed_time',
         'delivered_time',
         'address_id',
@@ -37,6 +38,7 @@ class SalesAudit extends Model
         'member_share' => 'float',
         'is_urgent' => 'boolean',
         'delivery_confirmed' => 'boolean',
+        'delivery_ready_time' => 'datetime',
         'delivery_packed_time' => 'datetime',
         'delivered_time' => 'datetime',
     ];
@@ -101,6 +103,11 @@ class SalesAudit extends Model
     public function scopeDelivered($query)
     {
         return $query->where('delivery_status', 'delivered');
+    }
+
+    public function scopeReadyToPickup($query)
+    {
+        return $query->where('delivery_status', 'ready_to_pickup');
     }
 
     // Scopes for filtering by ready for pickup status
@@ -207,13 +214,23 @@ class SalesAudit extends Model
         $this->delivery_status = $status;
         
         // Set timestamps based on status changes
-        if ($status === 'out_for_delivery' && $oldStatus === 'pending') {
+        if ($status === 'ready_to_pickup' && $oldStatus === 'pending') {
+            $this->delivery_ready_time = now();
+        } elseif ($status === 'out_for_delivery' && $oldStatus === 'ready_to_pickup') {
             $this->delivery_packed_time = now();
         } elseif ($status === 'delivered' && $oldStatus !== 'delivered') {
             $this->delivered_time = now();
         }
         
         $this->save();
+    }
+
+    /**
+     * Mark order as ready for pickup
+     */
+    public function markAsReady(): void
+    {
+        $this->updateDeliveryStatus('ready_to_pickup');
     }
 
     /**
@@ -238,10 +255,13 @@ class SalesAudit extends Model
     public function getDeliveryTimeline(): array
     {
         return [
+            'ready_at' => $this->delivery_ready_time?->toISOString(),
             'packed_at' => $this->delivery_packed_time?->toISOString(),
             'delivered_at' => $this->delivered_time?->toISOString(),
-            'packing_duration' => $this->delivery_packed_time ? 
-                $this->created_at->diffInMinutes($this->delivery_packed_time) : null,
+            'ready_duration' => $this->delivery_ready_time ? 
+                $this->created_at->diffInMinutes($this->delivery_ready_time) : null,
+            'packing_duration' => $this->delivery_ready_time && $this->delivery_packed_time ? 
+                $this->delivery_ready_time->diffInMinutes($this->delivery_packed_time) : null,
             'delivery_duration' => $this->delivery_packed_time && $this->delivered_time ? 
                 $this->delivery_packed_time->diffInMinutes($this->delivered_time) : null,
             'total_duration' => $this->delivered_time ? 
