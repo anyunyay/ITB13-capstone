@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sales_audit', function (Blueprint $table) {
-            $table->timestamp('delivery_ready_time')->nullable()->after('delivery_status');
+            // Add foreign key constraint for address_id
+            $table->foreign('address_id')->references('id')->on('user_addresses')->onDelete('set null');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sales_audit', function (Blueprint $table) {
-            $table->dropColumn('delivery_ready_time');
+            $table->dropForeign(['address_id']);
         });
     }
 };

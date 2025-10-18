@@ -13,14 +13,21 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id');
+            $table->foreignId('customer_id')->constrained('users')->onDelete('cascade');
             $table->decimal('total_amount', 10, 2)->nullable();
-            $table->text('delivery_address')->nullable(); // Plain text address for delivered items
-            $table->unsignedBigInteger('admin_id')->nullable();
+            $table->decimal('subtotal', 10, 2)->default(0.00);
+            $table->decimal('coop_share', 10, 2)->default(0.00);
+            $table->decimal('member_share', 10, 2)->default(0.00);
+            $table->text('delivery_address')->nullable();
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->text('admin_notes')->nullable();
-            $table->unsignedBigInteger('logistic_id')->nullable();
-            $table->unsignedBigInteger('sales_audit_id')->nullable();
-            $table->timestamp('delivered_at')->nullable(); // When the delivery was completed
+            $table->foreignId('logistic_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('sales_audit_id')->nullable()->constrained('sales_audit')->onDelete('set null');
+            $table->timestamp('delivered_at')->nullable();
+            $table->boolean('customer_received')->default(false);
+            $table->string('customer_rate')->nullable();
+            $table->text('customer_feedback')->nullable();
+            $table->timestamp('customer_confirmed_at')->nullable();
             $table->timestamps();
             
             // Indexes for better performance
