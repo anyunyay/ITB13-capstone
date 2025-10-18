@@ -19,6 +19,7 @@ import StarRating from '@/components/StarRating';
 interface OrderItem {
   id: number;
   product: {
+    id: number;
     name: string;
     price_kilo?: number;
     price_pc?: number;
@@ -26,6 +27,10 @@ interface OrderItem {
   };
   category: string;
   quantity: number;
+  unit_price?: number;
+  subtotal?: number;
+  coop_share?: number;
+  total_amount?: number;
 }
 
 interface Order {
@@ -72,27 +77,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
 
-  // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
-
-  // Helper function to get the correct price for a product based on category
-  const getProductPrice = (product: OrderItem['product'], category: string): number => {
-    let price = 0;
-    switch (category) {
-      case 'Kilo':
-        price = product.price_kilo || 0;
-        break;
-      case 'Pc':
-        price = product.price_pc || 0;
-        break;
-      case 'Tali':
-        price = product.price_tali || 0;
-        break;
-      default:
-        price = 0;
-    }
-    // Ensure the price is a number
-    return Number(price) || 0;
-  };
+  // Note: Backend now provides aggregated quantities and calculated values, so no need for client-side aggregation
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -387,9 +372,6 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         {getStatusBadge(order.status)}
-                        <div className="text-lg font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-lg">
-                          ₱{Number(order.total_amount).toFixed(2)}
-                        </div>
                       </div>
                     </div>
 
@@ -500,15 +482,17 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       </div>
                     )}
 
-                    <div className="overflow-x-auto">
-                      <Table className="w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <Table className="w-full border border-gray-200 dark:border-gray-700 rounded-lg min-w-[800px]">
                         <TableHeader className="bg-gray-50 dark:bg-gray-700">
                           <TableRow className="border-gray-200 dark:border-gray-600">
-                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Product</TableHead>
-                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Category</TableHead>
-                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Qty</TableHead>
-                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Price</TableHead>
-                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold">Subtotal</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold min-w-[150px]">Product Name</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold text-right min-w-[100px]">Quantity</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold text-right min-w-[80px]">Price</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold text-right min-w-[100px]">Subtotal</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold text-right min-w-[120px]">Delivery Fee</TableHead>
+                            <TableHead className="text-gray-700 dark:text-gray-300 font-semibold text-right min-w-[100px]">Total</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody className="bg-white dark:bg-gray-800">
@@ -516,27 +500,24 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             order.audit_trail.map((item: OrderItem) => (
                               <TableRow key={`${item.product.name}-${item.category}`} className="border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <TableCell className="text-gray-900 dark:text-gray-100 font-medium">{item.product.name}</TableCell>
-                                <TableCell className="text-gray-600 dark:text-gray-400">
-                                  <Badge variant="outline" className="text-xs">{item.category}</Badge>
+                                <TableCell className="text-gray-900 dark:text-gray-100 text-right">{item.quantity} {item.category}</TableCell>
+                                <TableCell className="text-gray-900 dark:text-gray-100 text-right">
+                                  {item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : 'No price set'}
                                 </TableCell>
-                                <TableCell className="text-gray-900 dark:text-gray-100">{item.quantity} {item.category}</TableCell>
-                                <TableCell className="text-gray-900 dark:text-gray-100">
-                                  {(() => {
-                                    const price = getProductPrice(item.product, item.category);
-                                    return price > 0 ? `₱${price.toFixed(2)}` : 'No price set';
-                                  })()}
+                                <TableCell className="text-gray-900 dark:text-gray-100 text-right font-semibold">
+                                  ₱{Number(item.subtotal || 0).toFixed(2)}
                                 </TableCell>
-                                <TableCell className="text-gray-900 dark:text-gray-100 font-semibold">
-                                  {(() => {
-                                    const price = getProductPrice(item.product, item.category);
-                                    return price > 0 ? `₱${(item.quantity * price).toFixed(2)}` : 'N/A';
-                                  })()}
+                                <TableCell className="text-gray-900 dark:text-gray-100 text-right">
+                                  ₱{Number(item.coop_share || 0).toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-gray-900 dark:text-gray-100 text-right font-bold text-green-600 dark:text-green-400">
+                                  ₱{Number(item.total_amount || 0).toFixed(2)}
                                 </TableCell>
                               </TableRow>
                             ))
                           ) : (
                             <TableRow className="border-gray-200 dark:border-gray-600">
-                              <TableCell colSpan={5} className="text-center text-gray-500 dark:text-gray-400 py-8">
+                              <TableCell colSpan={6} className="text-center text-gray-500 dark:text-gray-400 py-8">
                                 <div className="flex flex-col items-center gap-2">
                                   <Package className="h-8 w-8 text-gray-400" />
                                   <span>No items found</span>
@@ -546,6 +527,54 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                           )}
                         </TableBody>
                       </Table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                      {order.audit_trail && order.audit_trail.length > 0 ? (
+                        <>
+                          {order.audit_trail.map((item: OrderItem) => (
+                            <Card key={`${item.product.name}-${item.category}`} className="p-4 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-start">
+                                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{item.product.name}</h4>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
+                                    <span className="font-medium">{item.quantity} {item.category}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                                    <span className="font-medium">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : 'No price set'}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                    <span className="font-semibold">₱{Number(item.subtotal || 0).toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600 dark:text-gray-400">Delivery Fee:</span>
+                                    <span className="font-medium">₱{Number(item.coop_share || 0).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                                <div className="border-t border-gray-200 dark:border-gray-600 pt-2">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-semibold text-gray-900 dark:text-gray-100">Total:</span>
+                                    <span className="font-bold text-green-600 dark:text-green-400 text-lg">₱{Number(item.total_amount || 0).toFixed(2)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </>
+                      ) : (
+                        <Card className="p-6 text-center text-muted-foreground bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                          <div className="flex flex-col items-center gap-2">
+                            <Package className="h-8 w-8 text-gray-400" />
+                            <span>No items found</span>
+                          </div>
+                        </Card>
+                      )}
                     </div>
 
                     {/* Order Received Confirmation Section */}
