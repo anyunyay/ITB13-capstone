@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Package, ArrowLeft, TrendingUp, Users } from 'lucide-react';
+import { Package, ArrowLeft, TrendingUp, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member-header';
 
@@ -53,12 +53,26 @@ interface SalesData {
     }>;
 }
 
+interface ComprehensiveStockData {
+    product_id: number;
+    product_name: string;
+    category: string;
+    total_quantity: number;
+    available_quantity: number;
+    sold_quantity: number;
+    balance_quantity: number;
+    unit_price: number;
+    total_revenue: number;
+    product: Product;
+}
+
 interface PageProps {
     availableStocks: Stock[];
     salesData: SalesData;
+    comprehensiveStockData: ComprehensiveStockData[];
 }
 
-export default function AllStocks({ availableStocks, salesData }: PageProps) {
+export default function AllStocks({ availableStocks, salesData, comprehensiveStockData }: PageProps) {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
@@ -67,33 +81,12 @@ export default function AllStocks({ availableStocks, salesData }: PageProps) {
         }
     }, [auth]);
 
-    const allStocks = [...availableStocks];
-    const totalQuantity = allStocks.reduce((sum, stock) => sum + Number(stock.quantity), 0);
-    // Remove total value calculation since we no longer have a single price field
-    
-    // Create sold stocks from sales data for display
-    const soldStocksForDisplay = salesData.salesBreakdown.map(sale => ({
-        id: sale.product_id, // Using product_id as id
-        product_id: sale.product_id,
-        quantity: sale.total_quantity, // Show actual quantity sold
-        member_id: 0,
-        category: sale.category as 'Kilo' | 'Pc' | 'Tali',
-        status: 'sold',
-        product: {
-            id: sale.product_id,
-            name: sale.product_name,
-            price_kilo: sale.price_per_unit,
-            price_pc: sale.price_per_unit,
-            price_tali: sale.price_per_unit,
-            produce_type: 'fruit' // Default value, could be enhanced
-        },
-        lastCustomer: sale.customers.length > 0 ? { id: 0, name: sale.customers[0] } : undefined,
-        created_at: new Date().toISOString(),
-        totalRevenue: sale.total_revenue // Add actual sales revenue
-    }));
-    
-    // Combine all stocks including sold ones
-    const allStocksWithSold = [...allStocks, ...soldStocksForDisplay];
+    // Calculate summary statistics from comprehensive data
+    const totalProducts = comprehensiveStockData.length;
+    const totalQuantity = comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0);
+    const totalSold = comprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0);
+    const totalAvailable = comprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0);
+    const totalRevenue = comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0);
 
     return (
         <div className="min-h-screen bg-gray-900">
@@ -119,118 +112,187 @@ export default function AllStocks({ availableStocks, salesData }: PageProps) {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Total Stocks</CardTitle>
+                            <CardTitle className="text-sm font-medium text-white">Total Products</CardTitle>
                             <Package className="h-4 w-4 text-gray-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{allStocks.length}</div>
-                            <p className="text-xs text-gray-400">All assignments</p>
+                            <div className="text-2xl font-bold text-white">{totalProducts}</div>
+                            <p className="text-xs text-gray-400">Different products</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Available</CardTitle>
-                            <Package className="h-4 w-4 text-green-400" />
+                            <CardTitle className="text-sm font-medium text-white">Total Quantity</CardTitle>
+                            <Package className="h-4 w-4 text-blue-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{availableStocks.length}</div>
-                            <p className="text-xs text-gray-400">Ready for sale</p>
+                            <div className="text-2xl font-bold text-white">{totalQuantity}</div>
+                            <p className="text-xs text-gray-400">All stock items</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Sold</CardTitle>
+                            <CardTitle className="text-sm font-medium text-white">Sold Quantity</CardTitle>
                             <Package className="h-4 w-4 text-red-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{salesData.totalSales}</div>
+                            <div className="text-2xl font-bold text-white">{totalSold}</div>
                             <p className="text-xs text-gray-400">Items sold</p>
                         </CardContent>
                     </Card>
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Customers</CardTitle>
-                            <Users className="h-4 w-4 text-blue-400" />
+                            <CardTitle className="text-sm font-medium text-white">Available (Balance)</CardTitle>
+                            <Package className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">
-                                {salesData.salesBreakdown.reduce((sum, sale) => sum + sale.customers.length, 0)}
-                            </div>
-                            <p className="text-xs text-gray-400">Unique customers</p>
+                            <div className="text-2xl font-bold text-white">{totalAvailable}</div>
+                            <p className="text-xs text-gray-400">Ready for sale</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-gray-800 border-gray-700">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
+                            <Users className="h-4 w-4 text-yellow-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-white">₱{totalRevenue.toLocaleString()}</div>
+                            <p className="text-xs text-gray-400">From sales</p>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Stocks Table */}
+                {/* Comprehensive Stock Overview */}
                 <Card className="bg-gray-800 border-gray-700">
                     <CardHeader>
-                        <CardTitle className="text-white">All Stock Details</CardTitle>
+                        <CardTitle className="text-white">Stock Quantity Overview</CardTitle>
                         <CardDescription className="text-gray-400">
-                            Complete view of all your stock assignments with their current status
+                            Complete breakdown of your stock quantities: Total, Sold, and Available (Balance)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {allStocksWithSold.length > 0 ? (
-                            <Table>
-                                <TableCaption>A list of all your stock assignments</TableCaption>
-                                <TableHeader>
-                                    <TableRow className="border-gray-700">
-                                        <TableHead className="text-gray-300">Product</TableHead>
-                                        <TableHead className="text-gray-300">Type</TableHead>
-                                        <TableHead className="text-gray-300">Quantity</TableHead>
-                                        <TableHead className="text-gray-300">Category</TableHead>
-                                        <TableHead className="text-gray-300">Customer</TableHead>
-                                        <TableHead className="text-gray-300">Price</TableHead>
-                                        <TableHead className="text-gray-300">Total Value</TableHead>
-                                        <TableHead className="text-gray-300">Status</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {allStocksWithSold.map((stock) => (
-                                        <TableRow key={stock.id} className="border-gray-700 hover:bg-gray-700">
-                                            <TableCell className="font-medium text-white">
-                                                {stock.product.name}
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                {stock.product.produce_type}
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                {stock.quantity}
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                <Badge variant="secondary" className="bg-gray-600 text-white">
-                                                    {stock.category}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                {stock.lastCustomer ? (
-                                                    <span className="text-blue-400">{stock.lastCustomer.name}</span>
-                                                ) : (
-                                                    <span className="text-gray-500">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                ₱{stock.product.price_kilo || 0}
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                ₱{stock.totalRevenue ? stock.totalRevenue.toLocaleString() : (Number(stock.quantity) * (stock.product.price_kilo || 0)).toLocaleString()}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge 
-                                                    variant="secondary" 
-                                                    className={
-                                                        stock.status === 'sold' 
-                                                            ? "bg-red-600 text-white" 
-                                                            : "bg-green-600 text-white"
-                                                    }
-                                                >
-                                                    {stock.status === 'sold' ? "Sold" : "Available"}
-                                                </Badge>
-                                            </TableCell>
+                        {comprehensiveStockData.length > 0 ? (
+                            <div className="space-y-4">
+                                {/* Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <Card className="bg-gray-700 border-gray-600">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm text-gray-400">Total Products</p>
+                                                    <p className="text-2xl font-bold text-white">{comprehensiveStockData.length}</p>
+                                                </div>
+                                                <Package className="h-8 w-8 text-blue-400" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-gray-700 border-gray-600">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm text-gray-400">Total Quantity</p>
+                                                    <p className="text-2xl font-bold text-white">
+                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
+                                                    </p>
+                                                </div>
+                                                <TrendingUp className="h-8 w-8 text-green-400" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-gray-700 border-gray-600">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm text-gray-400">Total Revenue</p>
+                                                    <p className="text-2xl font-bold text-white">
+                                                        ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                                <Users className="h-8 w-8 text-yellow-400" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Stock Details Table */}
+                                <Table>
+                                    <TableCaption>Detailed breakdown of all your stock quantities</TableCaption>
+                                    <TableHeader>
+                                        <TableRow className="border-gray-700">
+                                            <TableHead className="text-gray-300">Product Name</TableHead>
+                                            <TableHead className="text-gray-300">Category</TableHead>
+                                            <TableHead className="text-gray-300">Total Stock</TableHead>
+                                            <TableHead className="text-gray-300">Sold Quantity</TableHead>
+                                            <TableHead className="text-gray-300">Available (Balance)</TableHead>
+                                            <TableHead className="text-gray-300">Unit Price</TableHead>
+                                            <TableHead className="text-gray-300">Total Revenue</TableHead>
+                                            <TableHead className="text-gray-300">Status</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {comprehensiveStockData.map((item, index) => (
+                                            <TableRow key={`${item.product_id}-${item.category}`} className="border-gray-700 hover:bg-gray-700">
+                                                <TableCell className="font-medium text-white">
+                                                    {item.product_name}
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <Badge variant="secondary" className="bg-gray-600 text-white">
+                                                        {item.category}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <div className="flex items-center gap-2">
+                                                        <Package className="h-4 w-4 text-blue-400" />
+                                                        <span className="font-semibold">{item.total_quantity}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <div className="flex items-center gap-2">
+                                                        <XCircle className="h-4 w-4 text-red-400" />
+                                                        <span className="font-semibold text-red-300">{item.sold_quantity}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle className="h-4 w-4 text-green-400" />
+                                                        <span className={`font-semibold ${
+                                                            item.balance_quantity > 0 ? 'text-green-300' : 'text-gray-400'
+                                                        }`}>
+                                                            {item.balance_quantity}
+                                                        </span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    ₱{item.unit_price.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <span className="font-semibold text-yellow-300">
+                                                        ₱{item.total_revenue.toLocaleString()}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {item.balance_quantity > 0 ? (
+                                                        <Badge className="bg-green-600 text-white">
+                                                            <CheckCircle className="h-3 w-3 mr-1" />
+                                                            Available
+                                                        </Badge>
+                                                    ) : item.sold_quantity > 0 ? (
+                                                        <Badge className="bg-red-600 text-white">
+                                                            <XCircle className="h-3 w-3 mr-1" />
+                                                            Sold Out
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge className="bg-gray-600 text-white">
+                                                            <AlertCircle className="h-3 w-3 mr-1" />
+                                                            No Stock
+                                                        </Badge>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         ) : (
                             <div className="text-center py-12 text-gray-400">
                                 <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />

@@ -127,10 +127,14 @@ class MemberController extends Controller
             
         // Calculate sales data for sold stocks
         $salesData = $this->calculateSalesData($user->id);
+        
+        // Calculate comprehensive stock data with total, sold, and available quantities
+        $comprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
             
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
-            'salesData' => $salesData
+            'salesData' => $salesData,
+            'comprehensiveStockData' => $comprehensiveStockData
         ]);
     }
 
@@ -204,6 +208,121 @@ class MemberController extends Controller
             'totalQuantitySold' => $totalQuantitySold,
             'salesBreakdown' => $salesBreakdown
         ];
+    }
+
+    /**
+     * Calculate comprehensive stock data with total, sold, and available quantities
+     */
+    private function calculateComprehensiveStockData($memberId)
+    {
+        // Get all stocks for this member (including sold ones)
+        $allStocks = Stock::where('member_id', $memberId)
+            ->whereNull('removed_at')
+            ->with(['product'])
+            ->get();
+
+        // Get sold quantities from sales audit
+        $soldQuantities = [];
+        $deliveredSales = Sales::with(['salesAudit.auditTrail'])
+            ->whereHas('salesAudit', function($query) {
+                $query->where('delivery_status', 'delivered');
+            })
+            ->get();
+
+        foreach ($deliveredSales as $sale) {
+            foreach ($sale->salesAudit->auditTrail as $audit) {
+                // Check if this audit trail involves a stock from this member
+                $stock = Stock::where('id', $audit->stock_id)
+                    ->where('member_id', $memberId)
+                    ->first();
+
+                if ($stock) {
+                    $key = $audit->product_id . '-' . $audit->category;
+                    if (!isset($soldQuantities[$key])) {
+                        $soldQuantities[$key] = [
+                            'product_id' => $audit->product_id,
+                            'product_name' => $audit->product->name,
+                            'category' => $audit->category,
+                            'sold_quantity' => 0,
+                            'total_revenue' => 0,
+                            'unit_price' => $audit->getSalePrice()
+                        ];
+                    }
+                    $soldQuantities[$key]['sold_quantity'] += $audit->quantity;
+                    $soldQuantities[$key]['total_revenue'] += $audit->getTotalAmount();
+                }
+            }
+        }
+
+        // Group stocks by product and category
+        $stockGroups = [];
+        foreach ($allStocks as $stock) {
+            $key = $stock->product_id . '-' . $stock->category;
+            if (!isset($stockGroups[$key])) {
+                $stockGroups[$key] = [
+                    'product_id' => $stock->product_id,
+                    'product_name' => $stock->product->name,
+                    'category' => $stock->category,
+                    'total_quantity' => 0,
+                    'available_quantity' => 0,
+                    'sold_quantity' => 0,
+                    'balance_quantity' => 0,
+                    'unit_price' => $this->getProductPrice($stock->product, $stock->category),
+                    'total_revenue' => 0,
+                    'product' => $stock->product
+                ];
+            }
+            
+            // Add to total quantity
+            $stockGroups[$key]['total_quantity'] += $stock->quantity;
+            
+            // If stock is available (quantity > 0 and no customer assigned)
+            if ($stock->quantity > 0 && is_null($stock->last_customer_id)) {
+                $stockGroups[$key]['available_quantity'] += $stock->quantity;
+            }
+        }
+
+        // Merge with sold quantities and calculate balance
+        foreach ($stockGroups as $key => &$group) {
+            if (isset($soldQuantities[$key])) {
+                $group['sold_quantity'] = $soldQuantities[$key]['sold_quantity'];
+                $group['total_revenue'] = $soldQuantities[$key]['total_revenue'];
+                $group['unit_price'] = $soldQuantities[$key]['unit_price'];
+            }
+            
+            // Calculate balance quantity: Total - Sold
+            $group['balance_quantity'] = $group['total_quantity'] - $group['sold_quantity'];
+            
+            // Ensure available quantity doesn't exceed balance
+            if ($group['available_quantity'] > $group['balance_quantity']) {
+                $group['available_quantity'] = $group['balance_quantity'];
+            }
+        }
+
+        // Convert to array and sort by product name
+        $result = array_values($stockGroups);
+        usort($result, function($a, $b) {
+            return strcmp($a['product_name'], $b['product_name']);
+        });
+
+        return $result;
+    }
+
+    /**
+     * Get product price based on category
+     */
+    private function getProductPrice($product, $category)
+    {
+        switch ($category) {
+            case 'Kilo':
+                return $product->price_kilo ?? 0;
+            case 'Pc':
+                return $product->price_pc ?? 0;
+            case 'Tali':
+                return $product->price_tali ?? 0;
+            default:
+                return $product->price_kilo ?? $product->price_pc ?? $product->price_tali ?? 0;
+        }
     }
 
     public function generateRevenueReport(Request $request)
