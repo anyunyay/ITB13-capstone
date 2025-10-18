@@ -51,17 +51,25 @@ function ProductCard({ product }: { product: Product }) {
     quantity: 1,
   });
 
-  // Initialize stock data when component mounts (only once per product)
+  // Initialize stock data when component mounts
   useEffect(() => {
     if (product.stock_by_category) {
-      // Only initialize if not already done for this product
-      const originalStock = stockManager.getOriginalStockByCategory(product.id);
-      if (Object.keys(originalStock).length === 0) {
-        stockManager.refreshStockData(product.id, product.stock_by_category);
-      }
+      // Always refresh stock data to ensure accuracy
+      stockManager.refreshStockData(product.id, product.stock_by_category);
       setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
     }
   }, [product.id, product.stock_by_category, stockManager]);
+
+  // Subscribe to stock updates for this product
+  useEffect(() => {
+    const unsubscribe = stockManager.subscribe((productId, category) => {
+      if (productId === product.id) {
+        setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
+      }
+    });
+
+    return unsubscribe;
+  }, [product.id, stockManager]);
 
   const categories = Object.keys(availableStock).filter(cat => availableStock[cat] > 0);
   const isKilo = selectedCategory === 'Kilo';
