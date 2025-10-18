@@ -164,18 +164,18 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
     switch (type) {
       case 'new_order':
       case 'delivery_task':
-        return 'text-blue-600';
+        return 'text-green-600';
       case 'low_stock_alert':
-        return 'text-red-600';
+        return 'text-green-600';
       case 'product_sale':
       case 'earnings_update':
         return 'text-green-600';
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':
-        return 'text-orange-600';
+        return 'text-green-600';
       default:
-        return 'text-gray-600';
+        return 'text-green-600';
     }
   };
 
@@ -185,10 +185,10 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         <Button 
           variant="ghost" 
           className={cn(
-            "relative transition-all duration-300 ease-in-out hover:bg-white/10",
+            "relative transition-all duration-300 ease-in-out hover:bg-green-600",
             isScrolled 
               ? "h-9 w-9 text-white hover:text-white" 
-              : "h-11 w-11 text-accent-foreground"
+              : "h-11 w-11 text-green-600 hover:text-white"
           )}
         >
           {unreadCount > 0 ? (
@@ -205,7 +205,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs z-10"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs z-10 bg-green-600"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
@@ -229,7 +229,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         <DropdownMenuSeparator />
         
         {notifications.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-green-600">
             No notifications
           </div>
         ) : (
@@ -237,7 +237,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
             {notifications.slice(0, 10).map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className={`p-3 cursor-pointer ${!notification.read_at ? 'bg-blue-50' : ''}`}
+                className={`p-3 cursor-pointer ${!notification.read_at ? 'bg-green-50' : ''}`}
                 onClick={() => {
                   if (!notification.read_at) {
                     // Mark as read and navigate in one action
@@ -257,16 +257,16 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
                       {notification.message}
                     </p>
                     {notification.data?.sub_message && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-green-600 mt-1">
                         {notification.data.sub_message}
                       </p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-green-600 mt-1">
                       {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </p>
                   </div>
                   {!notification.read_at && (
-                    <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
+                    <div className="w-2 h-2 bg-green-600 rounded-full flex-shrink-0 mt-1" />
                   )}
                 </div>
               </DropdownMenuItem>

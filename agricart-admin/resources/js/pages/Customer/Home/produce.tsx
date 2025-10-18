@@ -10,26 +10,18 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { ProductCard as StandardProductCard } from '@/components/ProductCard';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
+import Footer from '@/components/Footer';
 
 interface Product {
   id: number;
@@ -57,361 +49,91 @@ function ProductCard({ product, onRequireLogin, onStockUpdate }: {
   onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedQuantity, setSelectedQuantity] = useState<number | string>(1);
-  const [message, setMessage] = useState<string | null>(null);
-  const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const { auth } = usePage<PageProps & SharedData>().props;
-  const stockManager = StockManager.getInstance();
+  return (
+    <StandardProductCard 
+      product={product}
+      onRequireLogin={onRequireLogin}
+      onStockUpdate={onStockUpdate}
+                variant="default" 
+      showAddToCart={true}
+    />
+  );
+}
 
-  const { data, setData, post, processing, errors } = useForm({
-    product_id: product.id,
-    category: '',
-    quantity: 1,
-  });
+interface ProductCarouselProps {
+  products: Product[];
+  onRequireLogin: () => void;
+  onStockUpdate: (productId: number, category: string, quantity: number) => void;
+  viewMode?: 'grid' | 'list';
+}
 
-  // Initialize stock data when component mounts (only once per product)
-  useEffect(() => {
-    if (product.stock_by_category) {
-      // Only initialize if not already done for this product
-      const originalStock = stockManager.getOriginalStockByCategory(product.id);
-      if (Object.keys(originalStock).length === 0) {
-        stockManager.refreshStockData(product.id, product.stock_by_category);
-      }
-      setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
-    }
-  }, [product.id, product.stock_by_category, stockManager]);
-
-  const categories = Object.keys(availableStock).filter(cat => availableStock[cat] > 0);
-  const isKilo = selectedCategory === 'Kilo';
-  const maxQty = availableStock[selectedCategory] ?? 0;
-
-  const openDialog = () => {
-    setOpen(true);
-    setSelectedCategory('');
-    setSelectedQuantity(1);
-    setMessage(null);
-  };
-
-  // Create debounced version of add to cart function
-  const debouncedAddToCart = debounce((e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Prevent multiple clicks
-    if (isAddingToCart) {
-      return;
-    }
-
-    if (!auth?.user) {
-      onRequireLogin();
-      setOpen(false);
-      return;
-    }
-
-    if (!selectedCategory) {
-      setMessage('Please select a category.');
-      return;
-    }
-    // Normalize quantity to number
-    const rawQty = typeof selectedQuantity === 'number'
-      ? selectedQuantity
-      : selectedQuantity === ''
-      ? 1
-      : parseFloat(selectedQuantity);
-    const sendQty = isKilo ? Number(rawQty.toFixed(2)) : Math.floor(rawQty);
-
-    // Set adding state immediately to prevent multiple clicks
-    setIsAddingToCart(true);
-
-    // Add to shared stock manager
-    stockManager.addToCart(product.id, selectedCategory, sendQty);
-    setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
-
-    router.post(route('cart.store'), {
-      product_id: product.id,
-      category: selectedCategory,
-      quantity: sendQty,
-    }, {
-      onSuccess: () => {
-        setMessage('Added to cart!');
-        // Update the stock on frontend
-        onStockUpdate(product.id, selectedCategory, sendQty);
-        // Refresh available stock display
-        setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
-        router.reload({ only: ['cart'] });
-        setTimeout(() => {
-          setOpen(false);
-          setIsAddingToCart(false);
-        }, 800);
-      },
-      onError: () => {
-        // Remove from shared stock manager on error
-        stockManager.removeFromCart(product.id, selectedCategory, sendQty);
-        setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
-        setMessage('Failed to add to cart.');
-        setIsAddingToCart(false);
-      },
-      preserveScroll: true,
-    });
-  }, 300); // 300ms debounce delay
-
-  const handleAddToCart = (e: React.FormEvent) => {
-    // Immediate check for multiple clicks
-    if (isAddingToCart) {
-      return;
-    }
-    
-    // Call debounced function
-    debouncedAddToCart(e);
-  };
+export function ProductCarousel({ 
+  products, 
+  onRequireLogin, 
+  onStockUpdate,
+  viewMode = 'grid'
+}: ProductCarouselProps) {
+  if (viewMode === 'list') {
+    return (
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map(product => (
+            <ProductCard 
+              key={product.id}
+              product={product} 
+              onRequireLogin={onRequireLogin}
+              onStockUpdate={onStockUpdate}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Card className="w-70 max-w-sm p-0">
-      <div>
-        {product.image_url || product.image ? (
-          <img 
-            src={product.image_url || product.image} 
-            alt={product.name}
-            className="w-full h-48 object-cover rounded-t-lg"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/images/products/default-product.jpg';
-            }}
-          />
-        ) : (
-          <div className="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-            <span className="text-gray-500 text-sm">No Image</span>
-          </div>
-        )}
-      </div>
-      <CardHeader className="px-6">
-        <CardTitle>
-          <Link 
-            href={`/customer/product/${product.id}`}
-            className="hover:text-blue-600 hover:underline cursor-pointer"
+    <Carousel className="w-full max-w-6xl mx-auto" opts={{ align: 'center', loop: true }}>
+      <CarouselContent className="-ml-2">
+        {products.map(product => (
+          <CarouselItem
+            key={product.id}
+            className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center"
           >
-            {product.name}
-          </Link>
-        </CardTitle>
-        <CardDescription>
-          <div className="text-sm">
-            {product.price_kilo && <div>Kilo: ₱{Number(product.price_kilo).toFixed(2)}</div>}
-            {product.price_pc && <div>Pc: ₱{Number(product.price_pc).toFixed(2)}</div>}
-            {product.price_tali && <div>Tali: ₱{Number(product.price_tali).toFixed(2)}</div>}
-            {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
-          </div>
-        </CardDescription>
-        <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
-        <CardAction>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default" onClick={openDialog}>Add to Cart</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{product.name}</DialogTitle>
-                <DialogTitle className="text-sm text-gray-500">{product.produce_type}</DialogTitle>
-                <DialogDescription>{product.description}</DialogDescription>
-
-                {/* For Displaying Stock */}
-                {Object.keys(availableStock).length > 0 ? (
-                  <div className="mt-2 text-sm text-gray-700">
-                    <strong>Available Stock:</strong>
-                    <ul className="ml-2 list-disc">
-                      {Object.entries(availableStock).map(
-                        ([category, quantity]) => (
-                          <li key={category}>
-                            {category === 'Kilo'
-                              ? quantity.toFixed(2)
-                              : quantity}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                ) : (
-                  <div className="mt-2 text-sm text-gray-700">
-                    <strong>Available Stock:</strong>
-                    <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
-                  </div>
-                )}
-
-                {/* Category Selection */}
-                {categories.length > 0 && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-1">Select Category</label>
-                    <div className="flex gap-2">
-                      {categories.map(category => (
-                        <Button
-                          key={category}
-                          type="button"
-                          variant={selectedCategory === category ? 'default' : 'outline'}
-                          className={selectedCategory === category ? 'border-2 border-blue-500' : ''}
-                          onClick={() => {
-                            setSelectedCategory(category);
-                            setSelectedQuantity(1);
-                          }}
-                        >
-                          {category}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Quantity Input */}
-                {selectedCategory && (
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-1">Quantity</label>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const currentQty =
-                            typeof selectedQuantity === 'number'
-                              ? selectedQuantity
-                              : selectedQuantity === ''
-                              ? 1
-                              : parseFloat(selectedQuantity);
-                          if (isKilo) {
-                            const newQty = Math.max(1, currentQty - 0.25);
-                            setSelectedQuantity(Number(newQty.toFixed(2)));
-                          } else {
-                            const newQty = Math.max(1, Math.floor(currentQty) - 1);
-                            setSelectedQuantity(newQty);
-                          }
-                        }}
-                        disabled={Number((selectedQuantity as any) || 0) <= 1}
-                        className="px-2"
-                      >
-                        {isKilo ? '- 0.25' : '-'}
-                      </Button>
-                      <input
-                        type="number"
-                        min={1}
-                        step={isKilo ? 0.25 : 1}
-                        max={maxQty}
-                        value={selectedQuantity}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === '') {
-                            setSelectedQuantity('');
-                            return;
-                          }
-                          if (isKilo) {
-                            const numValue = parseFloat(value);
-                            if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
-                              setSelectedQuantity(numValue);
-                            }
-                          } else {
-                            // For PC and Tali, only allow integers
-                            const isIntegerString = /^\d+$/.test(value);
-                            if (isIntegerString) {
-                              const numValue = parseInt(value);
-                              if (!isNaN(numValue) && numValue >= 1 && numValue <= maxQty) {
-                                setSelectedQuantity(numValue);
-                              }
-                            }
-                          }
-                        }}
-                        onBlur={(e) => {
-                          if (e.target.value === '') {
-                            setSelectedQuantity(1);
-                            return;
-                          }
-                          if (isKilo) {
-                            const numValue = parseFloat(e.target.value);
-                            if (!isNaN(numValue)) {
-                              const clamped = Math.max(1, Math.min(maxQty, numValue));
-                              const roundedQuarter = Math.round(clamped * 4) / 4;
-                              setSelectedQuantity(Number(roundedQuarter.toFixed(2)));
-                            }
-                          }
-                        }}
-                        className="w-full border rounded p-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const currentQty =
-                            typeof selectedQuantity === 'number'
-                              ? selectedQuantity
-                              : selectedQuantity === ''
-                              ? 1
-                              : parseFloat(selectedQuantity);
-                          if (isKilo) {
-                            const newQty = Math.min(maxQty, currentQty + 0.25);
-                            setSelectedQuantity(Number(newQty.toFixed(2)));
-                          } else {
-                            const base = Math.max(1, Math.floor(currentQty));
-                            const newQty = Math.min(maxQty, base + 1);
-                            setSelectedQuantity(newQty);
-                          }
-                        }}
-                        disabled={Number((selectedQuantity as any) || 0) >= maxQty}
-                        className="px-2"
-                      >
-                        {isKilo ? '+ 0.25' : '+'}
-                      </Button>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Max: {isKilo ? maxQty.toFixed(2) : maxQty}
-                    </div>
-                    {errors.quantity && (
-                      <div className="text-red-500 text-sm mt-1">{errors.quantity}</div>
-                    )}
-                    {errors.category && (
-                      <div className="text-red-500 text-sm mt-1">{errors.category}</div>
-                    )}
-                    {errors.product_id && (
-                      <div className="text-red-500 text-sm mt-1">{errors.product_id}</div>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-4">
-                  <Button
-                    className="w-full"
-                    onClick={handleAddToCart}
-                    disabled={
-                      processing ||
-                      isAddingToCart ||
-                      !selectedCategory ||
-                      Number((selectedQuantity as any) || 0) < 1 ||
-                      Number((selectedQuantity as any) || 0) > maxQty
-                    }
-                  >
-                    {processing || isAddingToCart ? 'Adding...' : 'Add to Cart'}
-                  </Button>
-                  {message && (
-                    <div className="mt-2 text-center text-sm text-green-600">{message}</div>
-                  )}
-                </div>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="px-6">
-        <p className="text-md break-words">{product.description}</p>
-      </CardContent>
-      <CardFooter className="flex-col gap-2" />
-    </Card>
+            <ProductCard 
+              product={product} 
+              onRequireLogin={onRequireLogin}
+              onStockUpdate={onStockUpdate}
+            />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="bg-card/80 hover:bg-card border-border text-foreground hover:text-green-600 dark:hover:text-green-400" />
+      <CarouselNext className="bg-card/80 hover:bg-card border-border text-foreground hover:text-green-600 dark:hover:text-green-400" />
+    </Carousel>
   );
 }
 
 export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+  const [fruitsViewMode, setFruitsViewMode] = useState<'carousel' | 'grid'>('carousel');
+  const [vegetablesViewMode, setVegetablesViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
 
+  // Refresh stock data when page loads to ensure accuracy
+  useEffect(() => {
+    const stockManager = StockManager.getInstance();
+    stockManager.refreshAllStockData(initialProducts);
+  }, [initialProducts]);
+
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  const toggleFruitsViewMode = () => {
+    setFruitsViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+  };
+
+  const toggleVegetablesViewMode = () => {
+    setVegetablesViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+  };
 
   const handleStockUpdate = (productId: number, category: string, quantity: number) => {
     setProducts(prevProducts => 
@@ -433,38 +155,35 @@ export default function CustomerHome() {
     );
   };
 
-  const renderCarousel = (type: string, title: string) => (
-    <>
-      <h1 className="text-2xl font-bold">Available {title}</h1>
-      <Carousel className="w-full max-w-4xl mx-auto" opts={{ align: 'center', loop: true }}>
-        <CarouselContent className="-ml-1">
-          {products
-            .filter(product => product.produce_type === type)
-            .map(product => (
-              <CarouselItem
-                key={product.id}
-                className="pl-1 md:basis-1/2 lg:basis-1/3 flex justify-center"
-              >
-                <ProductCard 
-                  product={product} 
-                  onRequireLogin={handleRequireLogin}
-                  onStockUpdate={handleStockUpdate}
-                />
-              </CarouselItem>
-            ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
-    </>
+  const renderCarousel = (type: string, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void) => (
+    <div className="w-full max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-6 text-center">Available {title}</h1>
+      <ProductCarousel 
+        products={products.filter(product => product.produce_type === type)}
+        onRequireLogin={handleRequireLogin}
+        onStockUpdate={handleStockUpdate}
+        viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
+      />
+      
+      {/* View All Toggle Button */}
+      <div className="flex justify-center mt-8">
+        <Button
+          onClick={toggleFunction}
+          variant="outline"
+          className="px-8 py-3 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+        >
+          {viewMode === 'carousel' ? `View All ${title}` : `Back to ${title}`}
+        </Button>
+      </div>
+    </div>
   );
 
   return (
     <AppHeaderLayout>
       <Head title="Produce" />
-      <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-20">
-        {renderCarousel('fruit', 'Fruits')}
-        {renderCarousel('vegetable', 'Vegetables')}
+      <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-32">
+        {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode)}
+        {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode)}
 
         {/* Login Confirmation Dialog */}
         <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
@@ -482,6 +201,21 @@ export default function CustomerHome() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Spacer between content and footer */}
+      <div className="h-16"></div>
+
+      {/* Footer */}
+      <Footer 
+        companyName="SMMC Cooperative"
+        facebookUrl="https://facebook.com/smmccooperative"
+        emailAddress="contact@smmccooperative.com"
+        physicalAddress="Cabuyao, Laguna, Philippines"
+        navigationLinks={[
+          { title: "Privacy Policy", href: "/privacy" },
+          { title: "Terms of Service", href: "/terms" }
+        ]}
+      />
     </AppHeaderLayout>
   );
 }
