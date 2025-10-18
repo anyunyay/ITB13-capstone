@@ -160,3 +160,47 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Custom Scrollbar Styles for Modal */
+@layer components {
+    .modal-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(34 197 94) rgb(220 252 231);
+    }
+    
+    .modal-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .modal-scrollbar::-webkit-scrollbar-track {
+        background: rgb(220 252 231);
+        border-radius: 4px;
+    }
+    
+    .modal-scrollbar::-webkit-scrollbar-thumb {
+        background: rgb(34 197 94);
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgb(22 163 74);
+    }
+    
+    /* Dark mode scrollbar */
+    .dark .modal-scrollbar {
+        scrollbar-color: rgb(34 197 94) rgb(20 83 45 / 0.3);
+    }
+    
+    .dark .modal-scrollbar::-webkit-scrollbar-track {
+        background: rgb(20 83 45 / 0.3);
+    }
+    
+    .dark .modal-scrollbar::-webkit-scrollbar-thumb {
+        background: rgb(34 197 94);
+    }
+    
+    .dark .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgb(22 163 74);
+    }
+}
