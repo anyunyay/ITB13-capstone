@@ -346,7 +346,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/available-stocks', [MemberController::class, 'availableStocks'])->name('member.availableStocks');
         Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');
         Route::get('/sold-stocks', [MemberController::class, 'soldStocks'])->name('member.soldStocks');
-        Route::get('/partial-stocks', [MemberController::class, 'partialStocks'])->name('member.partialStocks');
         Route::get('/assigned-stocks', [MemberController::class, 'assignedStocks'])->name('member.assignedStocks');
         Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
         

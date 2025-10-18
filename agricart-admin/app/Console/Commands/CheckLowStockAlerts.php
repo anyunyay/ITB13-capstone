@@ -14,14 +14,14 @@ class CheckLowStockAlerts extends Command
      *
      * @var string
      */
-    protected $signature = 'stock:check-low-alerts {--threshold=10 : Stock threshold for available stock alerts} {--partial-threshold=5 : Stock threshold for partial stock alerts}';
+    protected $signature = 'stock:check-low-alerts {--threshold=10 : Stock threshold for available stock alerts}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check for low stock alerts and notify members (available stocks and partial stocks)';
+    protected $description = 'Check for low stock alerts and notify members (available stocks only)';
 
     /**
      * Execute the console command.
@@ -29,7 +29,6 @@ class CheckLowStockAlerts extends Command
     public function handle()
     {
         $threshold = $this->option('threshold');
-        $partialThreshold = $this->option('partial-threshold');
         
         $totalAlertCount = 0;
 
@@ -49,25 +48,9 @@ class CheckLowStockAlerts extends Command
             }
         }
 
-        // Check partial stocks (assigned to customers but not completely sold)
-        $partialLowStocks = Stock::active()
-            ->partial()
-            ->where('quantity', '<=', $partialThreshold)
-            ->where('quantity', '>', 0)
-            ->with(['product', 'member'])
-            ->get();
+        $totalAlertCount = $availableAlertCount;
 
-        $partialAlertCount = 0;
-        foreach ($partialLowStocks as $stock) {
-            if (!$this->hasRecentAlert($stock)) {
-                $stock->member->notify(new LowStockAlertNotification($stock, $partialThreshold));
-                $partialAlertCount++;
-            }
-        }
-
-        $totalAlertCount = $availableAlertCount + $partialAlertCount;
-
-        $this->info("Sent {$availableAlertCount} available stock alerts and {$partialAlertCount} partial stock alerts to members.");
+        $this->info("Sent {$availableAlertCount} available stock alerts to members.");
         $this->info("Total alerts sent: {$totalAlertCount}");
         
         return Command::SUCCESS;

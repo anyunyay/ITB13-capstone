@@ -53,7 +53,6 @@ interface SalesData {
 
 interface Summary {
     availableStocks: number;
-    partialStocks: number;
     soldStocks: number;
     assignedStocks: number;
     totalSales: number;
@@ -63,14 +62,13 @@ interface Summary {
 
 interface PageProps {
     availableStocks: Stock[];
-    partialStocks: Stock[];
     soldStocks: Stock[];
     assignedStocks: Stock[];
     salesData: SalesData;
     summary: Summary;
 }
 
-export default function MemberDashboard({ availableStocks, partialStocks, soldStocks, assignedStocks, salesData, summary }: PageProps) {
+export default function MemberDashboard({ availableStocks, soldStocks, assignedStocks, salesData, summary }: PageProps) {
     const { auth } = usePage<SharedData>().props;
 
     useEffect(() => {
@@ -123,16 +121,6 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                     <CardContent>
                         <div className="text-2xl font-bold text-white">{summary.availableStocks}</div>
                         <p className="text-xs text-gray-400">Ready for sale</p>
-                    </CardContent>
-                </Card>
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-white">Partially Sold</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">{summary.partialStocks}</div>
-                        <p className="text-xs text-gray-400">Approved & partial</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gray-800 border-gray-700">
@@ -223,7 +211,7 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle className="text-white">Assigned Stocks</CardTitle>
-                            <CardDescription className="text-gray-400">Partially sold</CardDescription>
+                            <CardDescription className="text-gray-400">Available for sale</CardDescription>
                         </div>
                         <Button asChild size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                             <Link href={route('member.assignedStocks')}>View All</Link>
@@ -247,9 +235,9 @@ export default function MemberDashboard({ availableStocks, partialStocks, soldSt
                                         </div>
                                         <Badge 
                                             variant="secondary" 
-                                            className="bg-yellow-600 text-white"
+                                            className="bg-green-600 text-white"
                                         >
-                                            Partial
+                                            Available
                                         </Badge>
                                     </div>
                                 ))}

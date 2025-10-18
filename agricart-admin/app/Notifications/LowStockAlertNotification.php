@@ -29,9 +29,8 @@ class LowStockAlertNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $product = $this->stock->product;
-        $isPartial = !is_null($this->stock->last_customer_id);
-        $stockType = $isPartial ? 'Partial Stock' : 'Available Stock';
-        $actionUrl = $isPartial ? '/member/assigned-stocks' : '/member/available-stocks';
+        $stockType = 'Available Stock';
+        $actionUrl = '/member/available-stocks';
         
         return (new MailMessage)
             ->subject('Low Stock Alert - ' . $stockType)
@@ -49,9 +48,8 @@ class LowStockAlertNotification extends Notification implements ShouldQueue
 
     public function toArray($notifiable)
     {
-        $isPartial = !is_null($this->stock->last_customer_id);
-        $stockType = $isPartial ? 'partial' : 'available';
-        $actionUrl = $isPartial ? '/member/assigned-stocks' : '/member/available-stocks';
+        $stockType = 'available';
+        $actionUrl = '/member/available-stocks';
         
         return [
             'stock_id' => $this->stock->id,
