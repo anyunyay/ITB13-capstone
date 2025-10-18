@@ -26,6 +26,16 @@ interface OrderItem {
   price_pc?: number;
   price_tali?: number;
   unit_price?: number;
+  subtotal?: number;
+  coop_share?: number;
+  available_stock?: number;
+  total_amount?: number;
+  stock_preview?: {
+    current_stock: number;
+    quantity_to_deduct: number;
+    remaining_stock: number;
+    sufficient_stock: boolean;
+  };
   stock?: {
     id: number;
     quantity: number;
@@ -100,6 +110,11 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const [pickupConfirmationText, setPickupConfirmationText] = useState('');
   const [markReadyDialogOpen, setMarkReadyDialogOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
+
+  // Check if order has insufficient stock
+  const hasInsufficientStock = order.audit_trail?.some(item => 
+    item.stock_preview && !item.stock_preview.sufficient_stock
+  ) || false;
 
   // Common rejection reasons
   const rejectionReasons = [
@@ -521,13 +536,21 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                       </p>
                     </div>
                   )}
+                  {hasInsufficientStock && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded">
+                      <p className="text-sm text-red-800">
+                        <strong>⚠️ Insufficient Stock Warning:</strong> This order cannot be approved due to insufficient stock. Please check the Available Stock column for details.
+                      </p>
+                    </div>
+                  )}
                   <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
                     <DialogTrigger asChild>
                       <Button 
                         className="w-full" 
                         variant="default"
+                        disabled={hasInsufficientStock}
                       >
-                        Approve Order
+                        {hasInsufficientStock ? 'Cannot Approve - Insufficient Stock' : 'Approve Order'}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>

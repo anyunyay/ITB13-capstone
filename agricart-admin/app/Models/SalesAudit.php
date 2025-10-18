@@ -139,32 +139,120 @@ class SalesAudit extends Model
      */
     public function getAggregatedAuditTrail()
     {
-        $auditTrail = $this->auditTrail()->with('product')->get();
+        $auditTrail = $this->auditTrail()->with(['product', 'product.stocks' => function($query) {
+            $query->where('quantity', '>', 0)->whereNull('removed_at');
+        }])->get();
         
         // Group by product_id and category, then sum quantities
         $aggregated = $auditTrail->groupBy(function ($item) {
             return $item->product_id . '-' . $item->category;
         })->map(function ($items) {
             $firstItem = $items->first();
+            $product = $firstItem->product;
+            
+            // Calculate available stock for this product and category
+            $availableStock = $product->stocks
+                ->where('category', $firstItem->category)
+                ->where('quantity', '>', 0)
+                ->whereNull('removed_at')
+                ->sum('quantity');
+            
+            // Get unit price - try stored prices first, then fallback to product prices
+            $unitPrice = $firstItem->getSalePrice();
+            if ($unitPrice == 0) {
+                // Fallback to product prices based on category
+                switch ($firstItem->category) {
+                    case 'Kilo':
+                        $unitPrice = $product->price_kilo ?? 0;
+                        break;
+                    case 'Pc':
+                        $unitPrice = $product->price_pc ?? 0;
+                        break;
+                    case 'Tali':
+                        $unitPrice = $product->price_tali ?? 0;
+                        break;
+                    default:
+                        $unitPrice = $product->price_kilo ?? $product->price_pc ?? $product->price_tali ?? 0;
+                        break;
+                }
+            }
+            
+            $quantity = $items->sum('quantity');
+            
+            // For pending orders, calculate stock preview
+            $stockPreview = null;
+            if ($this->status === 'pending') {
+                $remainingStock = max(0, $availableStock - $quantity);
+                $stockPreview = [
+                    'current_stock' => $availableStock,
+                    'quantity_to_deduct' => $quantity,
+                    'remaining_stock' => $remainingStock,
+                    'sufficient_stock' => $availableStock >= $quantity
+                ];
+            }
+            $subtotal = $quantity * $unitPrice;
+            $coopShare = $subtotal * 0.10; // 10% co-op share
+            
             return [
                 'id' => $firstItem->id, // Use the first item's ID as representative
                 'product' => [
-                    'id' => $firstItem->product->id,
-                    'name' => $firstItem->product->name,
-                    'price_kilo' => $firstItem->price_kilo ?? $firstItem->product->price_kilo,
-                    'price_pc' => $firstItem->price_pc ?? $firstItem->product->price_pc,
-                    'price_tali' => $firstItem->price_tali ?? $firstItem->product->price_tali,
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price_kilo' => $firstItem->price_kilo ?? $product->price_kilo,
+                    'price_pc' => $firstItem->price_pc ?? $product->price_pc,
+                    'price_tali' => $firstItem->price_tali ?? $product->price_tali,
                 ],
                 'category' => $firstItem->category,
-                'quantity' => $items->sum('quantity'),
-                'unit_price' => $firstItem->getSalePrice(),
-                'total_amount' => $items->sum(function($item) {
-                    return $item->getTotalAmount();
-                }),
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'subtotal' => $subtotal,
+                'coop_share' => $coopShare,
+                'available_stock' => $availableStock,
+                'total_amount' => $subtotal + $coopShare, // Subtotal + co-op share
+                'stock_preview' => $stockPreview, // Only present for pending orders
             ];
         })->values();
 
         return $aggregated;
+    }
+
+    /**
+     * Check if the order has sufficient stock for approval
+     */
+    public function hasSufficientStock(): bool
+    {
+        $aggregatedItems = $this->getAggregatedAuditTrail();
+        
+        foreach ($aggregatedItems as $item) {
+            if ($item['stock_preview'] && !$item['stock_preview']['sufficient_stock']) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Get items with insufficient stock
+     */
+    public function getInsufficientStockItems(): array
+    {
+        $aggregatedItems = $this->getAggregatedAuditTrail();
+        $insufficientItems = [];
+        
+        foreach ($aggregatedItems as $item) {
+            if ($item['stock_preview'] && !$item['stock_preview']['sufficient_stock']) {
+                $insufficientItems[] = [
+                    'product_name' => $item['product']['name'],
+                    'category' => $item['category'],
+                    'requested_quantity' => $item['quantity'],
+                    'available_stock' => $item['stock_preview']['current_stock'],
+                    'shortage' => $item['quantity'] - $item['stock_preview']['current_stock']
+                ];
+            }
+        }
+        
+        return $insufficientItems;
     }
 
     /**

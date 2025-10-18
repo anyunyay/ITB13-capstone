@@ -275,6 +275,17 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Only pending or delayed orders can be approved.');
         }
 
+        // Check if order has sufficient stock before approval
+        if (!$order->hasSufficientStock()) {
+            $insufficientItems = $order->getInsufficientStockItems();
+            $errorMessage = 'Cannot approve order due to insufficient stock:\n';
+            foreach ($insufficientItems as $item) {
+                $errorMessage .= "• {$item['product_name']} ({$item['category']}): Requested {$item['requested_quantity']}, Available {$item['available_stock']}, Shortage {$item['shortage']}\n";
+            }
+            
+            return redirect()->back()->with('error', $errorMessage);
+        }
+
         // Process the stock only when approving
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
