@@ -188,7 +188,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Product Carousel Section */}
-      <section id="produce" className="py-18 bg-gray-50 overflow-hidden">
+      <section id="produce" className="py-18 bg-white overflow-hidden">
         <div className="container mx-auto my-10">
           <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
           <div className={`relative ${styles.carouselContainer}`}>
@@ -225,7 +225,7 @@ export default function CustomerHome({ products }: PageProps) {
                           ? `scale-80 opacity-20 z-10 transform -translate-x-12 -translate-y-6 ${styles.translateZNeg100} ${styles.rotateYNeg25} blur-sm`
                           : 'scale-80 opacity-20 z-10 blur-md'
                       }`}>
-                      <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                      <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
                         {product.image_url ? (
                           <img 
                             src={product.image_url} 
@@ -241,7 +241,7 @@ export default function CustomerHome({ products }: PageProps) {
                         )}
                       </div>
                       <div className="p-4 flex items-center justify-between">
-                        <h3 className="font-semibold text-lg text-green-700">{product.name}</h3>
+                        <h3 className="font-semibold text-lg text-green-600">{product.name}</h3>
                         <p className="text-green-600 font-bold ml-4 whitespace-nowrap">
                           {getDisplayPrice(product)}
                         </p>
@@ -252,8 +252,8 @@ export default function CustomerHome({ products }: PageProps) {
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="bg-transparent text-green-700 hover:bg-green-700 hover:text-white border-transparent hover:border-green-700 transition-all duration-300 ease-in-out" />
-            <CarouselNext className="bg-transparent text-green-700 hover:bg-green-700 hover:text-white border-transparent hover:border-green-700 transition-all duration-300 ease-in-out" />
+            <CarouselPrevious className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
+            <CarouselNext className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
           </Carousel>
           </div>
         </div>

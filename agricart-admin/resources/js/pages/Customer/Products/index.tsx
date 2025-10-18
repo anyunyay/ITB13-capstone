@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
 import {
   Dialog,
@@ -10,7 +10,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import ProductCarousel from '../Home/produce';
+import { ProductCarousel } from '../Home/produce';
+import StockManager from '@/lib/stock-manager';
 
 interface Product {
   id: number;
@@ -35,10 +36,21 @@ interface PageProps {
 
 export default function CustomerProducts() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
 
+  // Refresh stock data when page loads to ensure accuracy
+  useEffect(() => {
+    const stockManager = StockManager.getInstance();
+    stockManager.refreshAllStockData(initialProducts);
+  }, [initialProducts]);
+
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  const toggleViewMode = () => {
+    setViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+  };
 
   const handleStockUpdate = (productId: number, category: string, quantity: number) => {
     setProducts(prevProducts => 
@@ -66,10 +78,10 @@ export default function CustomerProducts() {
       <div className="min-h-[90vh] py-8 mt-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-green-600 mb-4">
               Fresh Produce from Local Cooperatives
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-green-600 max-w-2xl mx-auto">
               Discover our wide selection of fresh fruits and vegetables, 
               sourced directly from trusted farmer cooperatives in your area.
             </p>
@@ -79,7 +91,19 @@ export default function CustomerProducts() {
             products={products}
             onRequireLogin={handleRequireLogin}
             onStockUpdate={handleStockUpdate}
+            viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
           />
+          
+          {/* View All Toggle Button */}
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={toggleViewMode}
+              variant="outline"
+              className="px-8 py-3 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+            >
+              {viewMode === 'carousel' ? 'View All Products' : 'Back to Carousel'}
+            </Button>
+          </div>
         </div>
 
         {/* Login Confirmation Dialog */}

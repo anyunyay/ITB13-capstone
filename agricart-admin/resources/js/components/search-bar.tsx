@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ProductCard } from '@/components/ProductCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { router } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
+import StockManager from '@/lib/stock-manager';
 
 interface Product {
     id: number;
@@ -21,9 +23,10 @@ interface Product {
 
 interface SearchBarProps {
     className?: string;
+    isScrolled?: boolean;
 }
 
-export function SearchBar({ className }: SearchBarProps) {
+export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<Product[]>([]);
@@ -61,6 +64,11 @@ export function SearchBar({ className }: SearchBarProps) {
         try {
             const response = await fetch(`/search?q=${encodeURIComponent(searchQuery)}`);
             const data = await response.json();
+            
+            // Refresh stock data for search results to ensure accuracy
+            const stockManager = StockManager.getInstance();
+            stockManager.refreshAllStockData(data);
+            
             setResults(data);
             setShowResults(true);
         } catch (error) {
@@ -112,7 +120,12 @@ export function SearchBar({ className }: SearchBarProps) {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 cursor-pointer"
+                    className={cn(
+                        "h-9 w-9 cursor-pointer transition-all duration-300 ease-in-out",
+                        isScrolled 
+                            ? "text-white hover:bg-green-600 hover:text-white" 
+                            : "text-green-600 hover:bg-green-600 hover:text-white"
+                    )}
                     onClick={handleExpand}
                 >
                     <Search className="!size-5 opacity-80 group-hover:opacity-100" />
@@ -120,7 +133,10 @@ export function SearchBar({ className }: SearchBarProps) {
             ) : (
                 <div className="flex items-center space-x-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className={cn(
+                            "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4",
+                            isScrolled ? "text-white" : "text-green-600"
+                        )} />
                         <Input
                             ref={inputRef}
                             type="text"
@@ -130,13 +146,21 @@ export function SearchBar({ className }: SearchBarProps) {
                             className="pl-10 pr-10 w-64"
                         />
                         {isLoading && (
-                            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
+                            <Loader2 className={cn(
+                                "absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin",
+                                isScrolled ? "text-white" : "text-green-600"
+                            )} />
                         )}
                     </div>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9"
+                        className={cn(
+                            "h-9 w-9 transition-all duration-300 ease-in-out",
+                            isScrolled 
+                                ? "text-white hover:bg-green-600 hover:text-white" 
+                                : "text-green-600 hover:bg-green-600 hover:text-white"
+                        )}
                         onClick={handleCollapse}
                     >
                         <X className="h-4 w-4" />
@@ -149,36 +173,13 @@ export function SearchBar({ className }: SearchBarProps) {
                 <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto">
                     <CardContent className="p-0">
                         {results.map((product) => (
-                            <div
+                            <ProductCard 
                                 key={product.id}
-                                className="flex items-center space-x-3 p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                                onClick={() => handleProductClick(product)}
-                            >
-                                {product.image_url && (
-                                    <img
-                                        src={product.image_url}
-                                        alt={product.name}
-                                        className="w-12 h-12 object-cover rounded"
-                                        onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.src = '/images/products/default-product.jpg';
-                                        }}
-                                    />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-sm truncate">{product.name}</div>
-                                    <div className="text-xs text-gray-500 truncate">{product.produce_type}</div>
-                                    <div className="text-sm font-semibold text-green-600">
-                                        {product.price_kilo && <div>Kilo: ₱{formatPrice(product.price_kilo)}</div>}
-                                        {product.price_pc && <div>Pc: ₱{formatPrice(product.price_pc)}</div>}
-                                        {product.price_tali && <div>Tali: ₱{formatPrice(product.price_tali)}</div>}
-                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
-                                    </div>
-                                </div>
-                                <div className="text-xs text-gray-400">
-                                    {Object.keys(product.stock_by_category).length > 0 ? 'In Stock' : 'Out of Stock'}
-                                </div>
-                            </div>
+                                product={product}
+                                variant="compact"
+                                showAddToCart={false}
+                                className="border-b last:border-b-0"
+                            />
                         ))}
                     </CardContent>
                 </Card>
@@ -187,7 +188,7 @@ export function SearchBar({ className }: SearchBarProps) {
             {/* No Results */}
             {showResults && results.length === 0 && query.trim().length >= 2 && !isLoading && (
                 <Card className="absolute top-full left-0 right-0 mt-2 z-50">
-                    <CardContent className="p-4 text-center text-gray-500">
+                    <CardContent className="p-4 text-center text-green-600">
                         No products found for "{query}"
                     </CardContent>
                 </Card>
