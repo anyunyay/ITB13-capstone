@@ -13,6 +13,10 @@ interface OrderItem {
   };
   quantity: number;
   category: string;
+  price_kilo?: number;
+  price_pc?: number;
+  price_tali?: number;
+  unit_price?: number;
 }
 
 interface Order {

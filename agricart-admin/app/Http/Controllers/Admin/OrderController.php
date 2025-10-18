@@ -200,12 +200,31 @@ class OrderController extends Controller
         ]);
     }
 
-    public function receiptPreview(Sales $order)
+    public function receiptPreview(SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'admin', 'auditTrail.product']);
         
+        // Transform the order data to include aggregated audit trail with stored prices
+        $transformedOrder = [
+            'id' => $order->id,
+            'customer' => [
+                'name' => $order->customer->name,
+                'email' => $order->customer->email,
+                'contact_number' => $order->customer->contact_number,
+            ],
+            'total_amount' => $order->total_amount,
+            'status' => $order->status,
+            'admin_notes' => $order->admin_notes,
+            'created_at' => $order->created_at->toISOString(),
+            'updated_at' => $order->updated_at->toISOString(),
+            'admin' => $order->admin ? [
+                'name' => $order->admin->name,
+            ] : null,
+            'audit_trail' => $order->getAggregatedAuditTrail(),
+        ];
+        
         return Inertia::render('Admin/Orders/receipt-preview', [
-            'order' => $order,
+            'order' => $transformedOrder,
         ]);
     }
 
