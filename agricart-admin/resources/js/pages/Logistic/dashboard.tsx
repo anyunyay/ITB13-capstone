@@ -15,7 +15,7 @@ interface Order {
   };
   delivery_address?: string;
   total_amount: number;
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
   delivery_packed_time?: string;
   delivered_time?: string;
   delivery_timeline?: {
@@ -41,7 +41,9 @@ interface LogisticDashboardProps {
   assignedOrders: Order[];
   stats: {
     pending: number;
+    ready_to_pickup: number;
     out_for_delivery: number;
+    delivered: number;
     total: number;
   };
 }
@@ -51,6 +53,8 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -72,7 +76,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
           </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Orders</CardTitle>
@@ -93,6 +97,15 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
           
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Ready to Pickup</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-400">{stats.ready_to_pickup}</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Out for Delivery</CardTitle>
             </CardHeader>
             <CardContent>
@@ -100,6 +113,14 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Delivered</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.delivered}</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Assigned Orders */}

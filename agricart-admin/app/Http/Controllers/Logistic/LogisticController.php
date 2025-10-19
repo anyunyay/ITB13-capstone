@@ -19,10 +19,10 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         
-        // Get assigned orders for this logistic - only show pending, ready to pickup, or out for delivery orders
+        // Get assigned orders for this logistic - show all orders including delivered for auditing
         $assignedOrders = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery'])
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered'])
             ->with(['customer', 'address', 'auditTrail.product'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -50,13 +50,17 @@ class LogisticController extends Controller
 
         // Count orders by delivery status
         $pendingCount = $assignedOrders->where('delivery_status', 'pending')->count();
+        $readyToPickupCount = $assignedOrders->where('delivery_status', 'ready_to_pickup')->count();
         $outForDeliveryCount = $assignedOrders->where('delivery_status', 'out_for_delivery')->count();
+        $deliveredCount = $assignedOrders->where('delivery_status', 'delivered')->count();
 
         return Inertia::render('Logistic/dashboard', [
             'assignedOrders' => $assignedOrders,
             'stats' => [
                 'pending' => $pendingCount,
+                'ready_to_pickup' => $readyToPickupCount,
                 'out_for_delivery' => $outForDeliveryCount,
+                'delivered' => $deliveredCount,
                 'total' => $assignedOrders->count(),
             ],
         ]);
@@ -69,7 +73,7 @@ class LogisticController extends Controller
         
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery']) // Only show pending, ready to pickup, or out for delivery
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']) // Show all orders including delivered for auditing
             ->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by delivery status
@@ -171,6 +175,11 @@ class LogisticController extends Controller
         // Get the old status for comparison
         $oldStatus = $order->delivery_status;
 
+        // Validate status transitions to prevent bypassing workflow
+        if ($newStatus === 'delivered' && $oldStatus !== 'out_for_delivery') {
+            abort(403, 'Order must be marked as "Out for Delivery" before it can be marked as delivered. Current status: ' . $oldStatus);
+        }
+
         
         // Update the delivery status using unified method
         $order->updateDeliveryStatus($newStatus);
@@ -247,8 +256,12 @@ class LogisticController extends Controller
         }
 
         // Ensure order is approved and out for delivery
-        if ($order->status !== 'approved' || $order->delivery_status !== 'out_for_delivery') {
-            abort(403, 'Order must be approved and out for delivery before it can be marked as delivered.');
+        if ($order->status !== 'approved') {
+            abort(403, 'Order must be approved before it can be marked as delivered.');
+        }
+        
+        if ($order->delivery_status !== 'out_for_delivery') {
+            abort(403, 'Order must be marked as "Out for Delivery" before it can be marked as delivered. Current status: ' . $order->delivery_status);
         }
 
         // Validate the request

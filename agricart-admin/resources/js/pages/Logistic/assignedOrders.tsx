@@ -16,7 +16,7 @@ interface Order {
   };
   delivery_address?: string;
   total_amount: number;
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
   delivery_packed_time?: string;
   delivered_time?: string;
   delivery_timeline?: {
@@ -51,6 +51,8 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
     switch (status) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
+      case 'ready_to_pickup':
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -83,7 +85,9 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   };
 
   const pendingOrders = orders.filter(order => order.delivery_status === 'pending');
+  const readyToPickupOrders = orders.filter(order => order.delivery_status === 'ready_to_pickup');
   const outForDeliveryOrders = orders.filter(order => order.delivery_status === 'out_for_delivery');
+  const deliveredOrders = orders.filter(order => order.delivery_status === 'delivered');
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -106,10 +110,12 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
           </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all">All Orders ({orders.length})</TabsTrigger>
             <TabsTrigger value="pending">Pending ({pendingOrders.length})</TabsTrigger>
+            <TabsTrigger value="ready_to_pickup">Ready to Pickup ({readyToPickupOrders.length})</TabsTrigger>
             <TabsTrigger value="out_for_delivery">Out for Delivery ({outForDeliveryOrders.length})</TabsTrigger>
+            <TabsTrigger value="delivered">Delivered ({deliveredOrders.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -127,7 +133,6 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
-                    combineOrderItems={combineOrderItems}
                   />
                 ))}
               </div>
@@ -155,6 +160,27 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             )}
           </TabsContent>
 
+          <TabsContent value="ready_to_pickup" className="space-y-4">
+                         {readyToPickupOrders.length === 0 ? (
+               <Card className="bg-gray-800 border-gray-700">
+                 <CardContent className="text-center py-8">
+                   <p className="text-gray-400">No orders ready for pickup.</p>
+                 </CardContent>
+               </Card>
+            ) : (
+              <div className="grid gap-4">
+        {readyToPickupOrders.map((order) => (
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            getDeliveryStatusBadge={getDeliveryStatusBadge}
+            formatQuantity={formatQuantity}
+          />
+        ))}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="out_for_delivery" className="space-y-4">
                          {outForDeliveryOrders.length === 0 ? (
                <Card className="bg-gray-800 border-gray-700">
@@ -165,6 +191,27 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             ) : (
               <div className="grid gap-4">
         {outForDeliveryOrders.map((order) => (
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            getDeliveryStatusBadge={getDeliveryStatusBadge}
+            formatQuantity={formatQuantity}
+          />
+        ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="delivered" className="space-y-4">
+                         {deliveredOrders.length === 0 ? (
+               <Card className="bg-gray-800 border-gray-700">
+                 <CardContent className="text-center py-8">
+                   <p className="text-gray-400">No delivered orders.</p>
+                 </CardContent>
+               </Card>
+            ) : (
+              <div className="grid gap-4">
+        {deliveredOrders.map((order) => (
           <OrderCard 
             key={order.id} 
             order={order} 

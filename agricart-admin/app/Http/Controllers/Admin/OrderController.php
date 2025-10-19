@@ -487,8 +487,13 @@ class OrderController extends Controller
             ]
         );
 
+        // Send notification to assigned logistic
+        if ($order->logistic_id) {
+            $order->logistic->notify(new \App\Notifications\LogisticOrderReadyNotification($order));
+        }
+
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('message', 'Order marked as ready for pickup successfully.');
+            ->with('message', 'Order marked as ready for pickup successfully. Logistic has been notified.');
     }
 
     public function markPickedUp(Request $request, SalesAudit $order)

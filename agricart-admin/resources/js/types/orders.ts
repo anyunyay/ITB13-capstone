@@ -7,7 +7,7 @@ export interface Order {
     };
     total_amount: number;
     status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';
-    delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+    delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
     created_at: string;
     admin?: {
         name: string;

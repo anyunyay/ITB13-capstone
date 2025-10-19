@@ -400,13 +400,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 {currentOrder.delivery_status === 'ready_to_pickup' && (
                   <p className="text-sm text-green-400 flex items-center gap-1">
                     <CheckCircle className="h-4 w-4" />
-                    Order is ready for pickup. You can mark it as delivered when you complete the delivery.
+                    Order is ready for pickup. Please collect it before proceeding to delivery.
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (
                   <p className="text-sm text-blue-400 flex items-center gap-1">
                     <Truck className="h-4 w-4" />
-                    Order is out for delivery. You can mark it as delivered when you complete the delivery.
+                    Order is out for delivery. You can now mark it as delivered when you complete the delivery.
                   </p>
                 )}
                 {currentOrder.delivery_status === 'delivered' && (
@@ -421,15 +421,31 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               {currentOrder.delivery_status !== 'delivered' && (
                 <div className="mt-4">
                   <Button 
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
                     onClick={() => setShowDeliveryModal(true)}
-                    disabled={currentOrder.delivery_status === 'pending'}
+                    disabled={currentOrder.delivery_status !== 'out_for_delivery'}
+                    title={currentOrder.delivery_status !== 'out_for_delivery' ? 
+                      'Order must be marked as "Out for Delivery" before it can be delivered' : 
+                      'Mark this order as delivered'
+                    }
                   >
-                    {currentOrder.delivery_status === 'pending' ? 'Waiting for Preparation' : 'Mark as Delivered'}
+                    {currentOrder.delivery_status === 'pending' ? 'Waiting for Preparation' : 
+                     currentOrder.delivery_status === 'ready_to_pickup' ? 'Waiting for Pickup Confirmation' : 
+                     'Mark as Delivered'}
                   </Button>
                   {currentOrder.delivery_status === 'pending' && (
                     <p className="text-xs text-gray-400 mt-2 text-center">
                       You can only mark orders as delivered after they are ready for pickup
+                    </p>
+                  )}
+                  {currentOrder.delivery_status === 'ready_to_pickup' && (
+                    <p className="text-xs text-gray-400 mt-2 text-center">
+                      Order is ready for pickup. Please confirm pickup before marking as delivered.
+                    </p>
+                  )}
+                  {currentOrder.delivery_status === 'out_for_delivery' && (
+                    <p className="text-xs text-green-400 mt-2 text-center">
+                      Order is out for delivery. You can now mark it as delivered.
                     </p>
                   )}
                 </div>
