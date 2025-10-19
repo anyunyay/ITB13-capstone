@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
-import Footer from '@/components/Footer';
+import SimpleFooter from '@/components/SimpleFooter';
 
 interface Product {
   id: number;
@@ -205,17 +205,8 @@ export default function CustomerHome() {
       {/* Spacer between content and footer */}
       <div className="h-16"></div>
 
-      {/* Footer */}
-      <Footer 
-        companyName="SMMC Cooperative"
-        facebookUrl="https://facebook.com/smmccooperative"
-        emailAddress="contact@smmccooperative.com"
-        physicalAddress="Cabuyao, Laguna, Philippines"
-        navigationLinks={[
-          { title: "Privacy Policy", href: "/privacy" },
-          { title: "Terms of Service", href: "/terms" }
-        ]}
-      />
+      {/* Simple Footer */}
+      <SimpleFooter companyName="SMMC Cooperative" />
     </AppHeaderLayout>
   );
 }
