@@ -111,6 +111,20 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const [markReadyDialogOpen, setMarkReadyDialogOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
 
+  // Update currentOrder when order prop changes (for real-time updates)
+  useEffect(() => {
+    setCurrentOrder(order);
+  }, [order]);
+
+  // Auto-refresh order data every 30 seconds for real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.reload({ only: ['order'] });
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Check if order has insufficient stock
   const hasInsufficientStock = order.audit_trail?.some(item => 
     item.stock_preview && !item.stock_preview.sufficient_stock
@@ -230,8 +244,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           logistic: logistics.find(l => l.id.toString() === assignLogisticForm.data.logistic_id)
         };
         setCurrentOrder(updatedOrder);
-        // Show success message
-        alert('Logistic assigned successfully!');
+        // Refresh the page to get updated order data
+        router.reload({ only: ['order'] });
       },
     });
   };
@@ -244,23 +258,9 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const confirmMarkReady = () => {
     router.post(route('admin.orders.markReady', order.id), {}, {
       onSuccess: () => {
-        // Update the local order state to reflect the new delivery status
-        const updatedOrder = {
-          ...currentOrder,
-          delivery_status: 'ready_to_pickup' as const,
-          delivery_ready_time: new Date().toISOString(),
-          delivery_timeline: {
-            ...currentOrder.delivery_timeline,
-            ready_at: new Date().toISOString(),
-            ready_duration: currentOrder.delivery_timeline?.ready_duration || 0,
-            packing_duration: currentOrder.delivery_timeline?.packing_duration || undefined,
-            delivery_duration: currentOrder.delivery_timeline?.delivery_duration || undefined,
-            total_duration: currentOrder.delivery_timeline?.total_duration || undefined,
-          }
-        };
-
-        setCurrentOrder(updatedOrder);
         setMarkReadyDialogOpen(false);
+        // Refresh the page to get updated order data
+        router.reload({ only: ['order'] });
       },
       onError: (errors) => {
         console.error('Error marking order as ready:', errors);
@@ -279,24 +279,10 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
       confirmation_text: pickupConfirmationText
     }, {
       onSuccess: () => {
-        // Update the local order state to reflect the new delivery status
-        const updatedOrder = {
-          ...currentOrder,
-          delivery_status: 'out_for_delivery' as const,
-          delivery_packed_time: new Date().toISOString(),
-          delivery_timeline: {
-            ...currentOrder.delivery_timeline,
-            packed_at: new Date().toISOString(),
-            ready_duration: currentOrder.delivery_timeline?.ready_duration || undefined,
-            packing_duration: currentOrder.delivery_timeline?.packing_duration || 0,
-            delivery_duration: currentOrder.delivery_timeline?.delivery_duration || undefined,
-            total_duration: currentOrder.delivery_timeline?.total_duration || undefined,
-          }
-        };
-
-        setCurrentOrder(updatedOrder);
         setPickedUpDialogOpen(false);
         setPickupConfirmationText('');
+        // Refresh the page to get updated order data
+        router.reload({ only: ['order'] });
       },
       onError: (errors) => {
         console.error('Error marking order as picked up:', errors);
@@ -769,6 +755,10 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                         <p className="text-sm text-yellow-600">
                           Mark the order as ready when it has been prepared and is waiting for pickup.
                         </p>
+                        <p className="text-xs text-yellow-500 mt-2">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
+                        </p>
                       </div>
                       
                       <Button 
@@ -785,10 +775,19 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                     <>
                       <div className="p-3 bg-green-50 border border-green-200 rounded">
                         <p className="text-sm font-medium text-green-800">
-                          Order is ready for pickup
+                          ✓ Order is ready for pickup
                         </p>
                         <p className="text-sm text-green-600">
                           The order has been prepared and is ready for the logistic provider to collect.
+                        </p>
+                        {currentOrder.delivery_ready_time && (
+                          <p className="text-xs text-green-500 mt-2">
+                            Ready since: {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        <p className="text-xs text-green-500 mt-1">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
                         </p>
                       </div>
                       
@@ -806,10 +805,19 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                     <>
                       <div className="p-3 bg-green-50 border border-green-200 rounded">
                         <p className="text-sm font-medium text-green-800">
-                          Order has been processed
+                          ✓ Order has been processed
                         </p>
                         <p className="text-sm text-green-600">
                           This order has moved beyond the ready stage.
+                        </p>
+                        {currentOrder.delivery_ready_time && (
+                          <p className="text-xs text-green-500 mt-2">
+                            Was ready: {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        <p className="text-xs text-green-500 mt-1">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
                         </p>
                       </div>
                       
@@ -827,44 +835,81 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
             )}
 
             {/* Order Picked Up Management for Approved Orders */}
-            {order.status === 'approved' && order.logistic && currentOrder.delivery_status !== 'pending' && (
+            {order.status === 'approved' && currentOrder.logistic && currentOrder.delivery_status !== 'pending' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Order Picked Up</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className={`p-3 rounded ${
-                    currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-50' :
-                    currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-50' :
-                    currentOrder.delivery_status === 'delivered' ? 'bg-green-50' : 'bg-yellow-50'
+                    currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-50 border border-green-200' :
+                    currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-50 border border-blue-200' :
+                    currentOrder.delivery_status === 'delivered' ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'
                   }`}>
                     {currentOrder.delivery_status === 'ready_to_pickup' && (
                       <>
                         <p className="text-sm font-medium text-green-800">
-                          Order is ready for pickup
+                          ✓ Order is ready for pickup
                         </p>
                         <p className="text-sm text-green-600">
                           The order has been prepared and is ready for the logistic provider to collect.
+                        </p>
+                        {currentOrder.delivery_ready_time && (
+                          <p className="text-xs text-green-500 mt-2">
+                            Ready since: {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        <p className="text-xs text-green-500 mt-1">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
                         </p>
                       </>
                     )}
                     {currentOrder.delivery_status === 'out_for_delivery' && (
                       <>
                         <p className="text-sm font-medium text-blue-800">
-                          Order is out for delivery
+                          ✓ Order is out for delivery
                         </p>
                         <p className="text-sm text-blue-600">
                           The order has been picked up and is currently being delivered to the customer.
+                        </p>
+                        {currentOrder.delivery_packed_time && (
+                          <p className="text-xs text-blue-500 mt-2">
+                            Picked up: {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        {currentOrder.delivery_ready_time && (
+                          <p className="text-xs text-blue-500 mt-1">
+                            Was ready: {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        <p className="text-xs text-blue-500 mt-1">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
                         </p>
                       </>
                     )}
                     {currentOrder.delivery_status === 'delivered' && (
                       <>
                         <p className="text-sm font-medium text-green-800">
-                          Order has been delivered
+                          ✓ Order has been delivered
                         </p>
                         <p className="text-sm text-green-600">
                           The order has been successfully delivered to the customer.
+                        </p>
+                        {currentOrder.delivered_time && (
+                          <p className="text-xs text-green-500 mt-2">
+                            Delivered: {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        {currentOrder.delivery_packed_time && (
+                          <p className="text-xs text-green-500 mt-1">
+                            Picked up: {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
+                          </p>
+                        )}
+                        <p className="text-xs text-green-500 mt-1">
+                          Assigned to: {currentOrder.logistic.name}
+                          {currentOrder.logistic.contact_number && ` (${currentOrder.logistic.contact_number})`}
                         </p>
                       </>
                     )}
