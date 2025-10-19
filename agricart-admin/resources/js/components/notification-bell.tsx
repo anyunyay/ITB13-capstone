@@ -53,12 +53,8 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
         } else if (notification.type === 'earnings_update') {
           router.visit('/member/dashboard');
         } else if (notification.type === 'low_stock_alert') {
-          // Navigate based on stock type (partial or available)
-          if (notification.data?.stock_type === 'partial') {
-            router.visit('/member/assigned-stocks');
-          } else {
-            router.visit('/member/available-stocks');
-          }
+          // Navigate to available stocks for low stock alerts
+          router.visit('/member/available-stocks');
         } else if (notification.action_url) {
           router.visit(notification.action_url);
         }

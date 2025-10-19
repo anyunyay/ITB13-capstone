@@ -289,13 +289,51 @@ class OrderController extends Controller
         // Process the stock only when approving
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
+                // Deduct from available quantity
                 $trail->stock->quantity -= $trail->quantity;
+                
+                // Add to sold quantity
+                $trail->stock->sold_quantity += $trail->quantity;
+                
+                // Set the last customer who bought from this stock
                 $trail->stock->last_customer_id = $order->customer_id;
                 $trail->stock->save();
 
-                // Set status to sold when quantity reaches 0
+                // Log stock update when quantity reaches 0
                 if ($trail->stock->quantity == 0) {
-                    $trail->stock->setSoldStatus();
+                    // Log stock completion
+                    SystemLogger::logStockUpdate(
+                        $trail->stock->id,
+                        $trail->stock->product_id,
+                        $trail->quantity,
+                        0,
+                        $request->user()->id,
+                        $request->user()->type,
+                        'stock_sold',
+                        [
+                            'customer_id' => $order->customer_id,
+                            'order_id' => $order->id,
+                            'sold_quantity' => $trail->stock->sold_quantity,
+                            'total_sold' => $trail->stock->sold_quantity
+                        ]
+                    );
+                } else {
+                    // Log partial sale
+                    SystemLogger::logStockUpdate(
+                        $trail->stock->id,
+                        $trail->stock->product_id,
+                        $trail->quantity,
+                        $trail->stock->quantity,
+                        $request->user()->id,
+                        $request->user()->type,
+                        'stock_partial_sale',
+                        [
+                            'customer_id' => $order->customer_id,
+                            'order_id' => $order->id,
+                            'sold_quantity' => $trail->stock->sold_quantity,
+                            'remaining_quantity' => $trail->stock->quantity
+                        ]
+                    );
                 }
 
                 // Notify member about product sale
@@ -345,10 +383,32 @@ class OrderController extends Controller
             // Reverse stock changes
             foreach ($order->auditTrail as $trail) {
                 if ($trail->stock) {
+                    // Restore available quantity
                     $trail->stock->quantity += $trail->quantity;
+                    
+                    // Deduct from sold quantity
+                    $trail->stock->sold_quantity -= $trail->quantity;
+                    
+                    // Clear customer assignment
                     $trail->stock->last_customer_id = null;
-                    $trail->stock->status = 'available';
                     $trail->stock->save();
+                    
+                    // Log stock reversal
+                    SystemLogger::logStockUpdate(
+                        $trail->stock->id,
+                        $trail->stock->product_id,
+                        $trail->quantity,
+                        $trail->stock->quantity,
+                        $request->user()->id,
+                        $request->user()->type,
+                        'stock_reversal',
+                        [
+                            'order_id' => $order->id,
+                            'reason' => 'order_rejected',
+                            'sold_quantity' => $trail->stock->sold_quantity,
+                            'available_quantity' => $trail->stock->quantity
+                        ]
+                    );
                 }
             }
         }

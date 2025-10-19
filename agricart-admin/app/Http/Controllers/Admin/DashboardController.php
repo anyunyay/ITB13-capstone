@@ -193,11 +193,11 @@ class DashboardController extends Controller
         $activeProducts = Product::active()->count();
         $archivedProducts = Product::archived()->count();
         
-        // Stock statistics
-        $totalStock = Stock::active()->sum('quantity');
+        // Stock statistics - now clearly separated
+        $totalStock = Stock::active()->sum('quantity') + Stock::active()->sum('sold_quantity');
         $availableStock = Stock::available()->sum('quantity');
-        $soldStock = Stock::sold()->count();
-        $partialStock = Stock::partial()->count();
+        $soldStock = Stock::hasSold()->sum('sold_quantity');
+        $completelySoldStock = Stock::sold()->count();
         
         // Low stock products (quantity < 10)
         $lowStockProducts = Stock::active()
@@ -225,7 +225,7 @@ class DashboardController extends Controller
             'totalStock' => $totalStock,
             'availableStock' => $availableStock,
             'soldStock' => $soldStock,
-            'partialStock' => $partialStock,
+            'completelySoldStock' => $completelySoldStock,
             'lowStockProducts' => $lowStockProducts,
             'outOfStockProducts' => $outOfStockProducts,
             'productsByCategory' => $productsByCategory,

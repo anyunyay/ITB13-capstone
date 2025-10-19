@@ -47,7 +47,7 @@ interface DashboardProps {
         totalStock: number;
         availableStock: number;
         soldStock: number;
-        partialStock: number;
+        completelySoldStock: number;
         lowStockProducts: Array<any>;
         outOfStockProducts: Array<any>;
         productsByCategory: Array<{ category: string; count: number; total_quantity: number }>;
@@ -477,8 +477,8 @@ export default function Dashboard({
                                                 <span className="font-medium text-blue-600">{inventoryStats.soldStock}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span>Partial Stock</span>
-                                                <span className="font-medium text-orange-600">{inventoryStats.partialStock}</span>
+                                                <span>Completely Sold</span>
+                                                <span className="font-medium text-purple-600">{inventoryStats.completelySoldStock}</span>
                                             </div>
                                         </div>
                                     </CardContent>

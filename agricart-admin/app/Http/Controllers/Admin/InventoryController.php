@@ -219,9 +219,6 @@ class InventoryController extends Controller
                 case 'sold':
                     $query->sold();
                     break;
-                case 'partial':
-                    $query->partial();
-                    break;
                 case 'removed':
                     $query->removed();
                     break;
@@ -230,13 +227,15 @@ class InventoryController extends Controller
 
         $stocks = $query->orderBy('created_at', 'desc')->get();
 
-        // Calculate summary statistics
+        // Calculate summary statistics with clear separation
         $summary = [
             'total_stocks' => $stocks->count(),
-            'total_quantity' => $stocks->sum('quantity'),
+            'total_quantity' => $stocks->sum('quantity') + $stocks->sum('sold_quantity'),
             'available_stocks' => $stocks->where('quantity', '>', 0)->whereNull('last_customer_id')->whereNull('removed_at')->count(),
-            'sold_stocks' => $stocks->where('quantity', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
-            'partial_stocks' => $stocks->where('quantity', '>', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
+            'available_quantity' => $stocks->where('quantity', '>', 0)->whereNull('last_customer_id')->whereNull('removed_at')->sum('quantity'),
+            'sold_stocks' => $stocks->where('sold_quantity', '>', 0)->whereNull('removed_at')->count(),
+            'sold_quantity' => $stocks->where('sold_quantity', '>', 0)->whereNull('removed_at')->sum('sold_quantity'),
+            'completely_sold_stocks' => $stocks->where('quantity', 0)->where('sold_quantity', '>', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
             'removed_stocks' => $stocks->whereNotNull('removed_at')->count(),
             'total_products' => $stocks->pluck('product_id')->unique()->count(),
             'total_members' => $stocks->pluck('member_id')->unique()->count(),

@@ -94,7 +94,9 @@ export default function soldIndex() {
                                         <TableCell className="text-center">{stock.id ?? 'N/A'}</TableCell>
                                         <TableCell className="text-center">{stock.product?.name}</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
-                                        <TableCell className="text-center">{stock.status}</TableCell>
+                                        <TableCell className="text-center">
+                                            Sold
+                                        </TableCell>
                                         <TableCell className="text-center">{stock.lastCustomer?.name}</TableCell>
                                         <TableCell className="text-center">
                                             {new Date(stock.updated_at).toLocaleString()}

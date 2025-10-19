@@ -76,22 +76,28 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                     Sales Summary
                                 </CardTitle>
                                 <CardDescription>
-                                    You have sold {salesData.totalSales} items across {salesData.salesBreakdown.length} products
+                                    You have sold {salesData.totalQuantitySold} units across {salesData.salesBreakdown.length} products
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="text-center p-4 bg-blue-600 rounded-lg">
+                                        <div className="text-2xl font-bold text-white">
+                                            {salesData.totalQuantitySold}
+                                        </div>
+                                        <div className="text-sm text-blue-100">Units Sold</div>
+                                    </div>
                                     <div className="text-center p-4 bg-green-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalSales}
                                         </div>
                                         <div className="text-sm text-green-100">Total Sales</div>
                                     </div>
-                                    <div className="text-center p-4 bg-blue-600 rounded-lg">
+                                    <div className="text-center p-4 bg-yellow-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             ₱{salesData.totalRevenue.toLocaleString()}
                                         </div>
-                                        <div className="text-sm text-blue-100">Total Revenue</div>
+                                        <div className="text-sm text-yellow-100">Total Revenue</div>
                                     </div>
                                 </div>
                             </CardContent>

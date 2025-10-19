@@ -19,9 +19,12 @@ class StockFactory extends Factory
      */
     public function definition(): array
     {
+        $quantity = $this->faker->numberBetween(1, 10.00);
         return [
             'product_id' => Product::inRandomOrder()->first()->id,
-            'quantity' => $this->faker->numberBetween(1, 10.00),
+            'quantity' => $quantity,
+            'sold_quantity' => 0,
+            'initial_quantity' => $quantity,
             'member_id' => User::where('type', 'member')->inRandomOrder()->first()?->id ?? User::factory()->create(['type' => 'member'])->id,
             'category' => $this->faker->randomElement(['Kilo', 'Pc', 'Tali']),
             'last_customer_id' => null,
@@ -38,7 +41,6 @@ class StockFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'removed_at' => $this->faker->dateTimeBetween('-1 month', 'now'),
             'notes' => $notes ?? $this->faker->sentence(),
-            'status' => 'removed',
         ]);
     }
 }

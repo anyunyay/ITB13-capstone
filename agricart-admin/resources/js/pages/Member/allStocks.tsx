@@ -25,6 +25,8 @@ interface Stock {
     id: number;
     product_id: number;
     quantity: number | string;
+    sold_quantity: number;
+    initial_quantity: number;
     member_id: number;
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
@@ -130,33 +132,36 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <p className="text-xs text-gray-400">All stock items</p>
                         </CardContent>
                     </Card>
+                    {/* Sold Stock Card */}
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Sold Quantity</CardTitle>
-                            <Package className="h-4 w-4 text-red-400" />
+                            <CardTitle className="text-sm font-medium text-white">Sold Stock</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-blue-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{totalSold}</div>
-                            <p className="text-xs text-gray-400">Items sold</p>
+                            <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
+                            <p className="text-xs text-gray-400">Total items sold</p>
                         </CardContent>
                     </Card>
+                    {/* Available Stock Card */}
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Available (Balance)</CardTitle>
+                            <CardTitle className="text-sm font-medium text-white">Available Stock</CardTitle>
                             <Package className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{totalAvailable}</div>
-                            <p className="text-xs text-gray-400">Ready for sale</p>
+                            <div className="text-2xl font-bold text-green-400">{totalAvailable}</div>
+                            <p className="text-xs text-gray-400">Items ready for sale</p>
                         </CardContent>
                     </Card>
+                    {/* Revenue Card */}
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
-                            <Users className="h-4 w-4 text-yellow-400" />
+                            <TrendingUp className="h-4 w-4 text-yellow-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">₱{totalRevenue.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-yellow-400">₱{totalRevenue.toLocaleString()}</div>
                             <p className="text-xs text-gray-400">From sales</p>
                         </CardContent>
                     </Card>

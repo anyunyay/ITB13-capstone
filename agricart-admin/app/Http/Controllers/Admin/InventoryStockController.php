@@ -55,6 +55,8 @@ class InventoryStockController extends Controller
         // Create a new stock entry
         $stock = $product->stocks()->create([
             'quantity' => $request->input('quantity'),
+            'sold_quantity' => 0, // Initialize sold quantity to 0
+            'initial_quantity' => $request->input('quantity'), // Set initial quantity
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
         ]);

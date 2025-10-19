@@ -125,6 +125,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                         <TableHead className="text-gray-300">Price</TableHead>
                                         <TableHead className="text-gray-300">Total Value</TableHead>
                                         <TableHead className="text-gray-300">Status</TableHead>
+                                        <TableHead className="text-gray-300">Customer Assignment</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -137,7 +138,10 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                                 {stock.product.produce_type}
                                             </TableCell>
                                             <TableCell className="text-gray-300">
-                                                {stock.quantity}
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium text-green-400">{stock.quantity}</span>
+                                                    <span className="text-xs text-gray-500">Available</span>
+                                                </div>
                                             </TableCell>
                                             <TableCell className="text-gray-300">
                                                 <Badge variant="secondary" className="bg-gray-600 text-white">
@@ -160,6 +164,17 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                                 <Badge variant="secondary" className="bg-green-600 text-white">
                                                     Available
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-gray-300">
+                                                {stock.last_customer_id ? (
+                                                    <Badge variant="secondary" className="bg-yellow-600 text-white">
+                                                        Assigned
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="secondary" className="bg-gray-600 text-white">
+                                                        Unassigned
+                                                    </Badge>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

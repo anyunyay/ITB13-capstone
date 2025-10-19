@@ -57,8 +57,10 @@ interface ReportSummary {
   total_stocks: number;
   total_quantity: number;
   available_stocks: number;
+  available_quantity: number;
   sold_stocks: number;
-  partial_stocks: number;
+  sold_quantity: number;
+  completely_sold_stocks: number;
   removed_stocks: number;
   total_products: number;
   total_members: number;
@@ -251,10 +253,20 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
           </Card>
           <Card>
             <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.total_stocks}</div>
+              <p className="text-xs text-muted-foreground">{summary.total_quantity} units</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.available_stocks}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.available_stocks}</div>
+              <p className="text-xs text-muted-foreground">{summary.available_quantity} units</p>
             </CardContent>
           </Card>
           <Card>
@@ -262,15 +274,16 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.sold_stocks}</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.sold_stocks}</div>
+              <p className="text-xs text-muted-foreground">{summary.sold_quantity} units</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Partial Stocks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Completely Sold</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.partial_stocks}</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{summary.completely_sold_stocks}</div>
             </CardContent>
           </Card>
           <Card>

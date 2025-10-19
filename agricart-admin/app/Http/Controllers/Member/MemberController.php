@@ -26,7 +26,7 @@ class MemberController extends Controller
         );
         
         // Get stocks using scopes
-        $availableStocks = Stock::available()
+        $availableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
@@ -36,11 +36,6 @@ class MemberController extends Controller
             ->where('member_id', $user->id)
             ->get();
             
-        // Get assigned stocks (stocks that have been bought)
-        $assignedStocks = Stock::where('member_id', $user->id)
-            ->whereNotNull('last_customer_id')
-            ->with(['product', 'lastCustomer'])
-            ->get();
             
         // Get all stocks for debugging
         $allStocks = Stock::where('member_id', $user->id)->get();
@@ -48,15 +43,18 @@ class MemberController extends Controller
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
             
-        // Calculate summary statistics using already fetched data
+        // Calculate summary statistics using already fetched data with clear separation
         $summary = [
             'totalStocks' => $allStocks->count(),
             'availableStocks' => $availableStocks->count(),
             'soldStocks' => $soldStocks->count(),
-            'assignedStocks' => $assignedStocks->count(),
             'removedStocks' => Stock::removed()->where('member_id', $user->id)->count(),
             'stocksWithCustomer' => $allStocks->whereNotNull('last_customer_id')->count(),
             'stocksWithoutCustomer' => $allStocks->whereNull('last_customer_id')->count(),
+            'totalQuantity' => $allStocks->sum('quantity') + $allStocks->sum('sold_quantity'),
+            'availableQuantity' => $availableStocks->sum('quantity'),
+            'soldQuantity' => $allStocks->sum('sold_quantity'),
+            'completelySoldStocks' => $allStocks->where('quantity', 0)->where('sold_quantity', '>', 0)->count(),
             'totalRevenue' => $salesData['totalRevenue'],
             'totalSales' => $salesData['totalSales'],
         ];
@@ -64,7 +62,6 @@ class MemberController extends Controller
         return Inertia::render('Member/dashboard', [
             'availableStocks' => $availableStocks,
             'soldStocks' => $soldStocks,
-            'assignedStocks' => $assignedStocks,
             'salesData' => $salesData,
             'summary' => $summary
         ]);
@@ -83,28 +80,13 @@ class MemberController extends Controller
     }
 
 
-    public function assignedStocks()
-    {
-        $user = Auth::user();
-        
-        // Get assigned stocks (stocks that have been bought)
-        $assignedStocks = Stock::where('member_id', $user->id)
-            ->whereNotNull('last_customer_id')
-            ->with(['product', 'lastCustomer'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-        return Inertia::render('Member/assignedStocks', [
-            'assignedStocks' => $assignedStocks
-        ]);
-    }
 
     public function availableStocks()
     {
         $user = Auth::user();
         
         // Get available stocks (ready for sale) using scope
-        $availableStocks = Stock::available()
+        $availableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->orderBy('created_at', 'desc')
@@ -120,7 +102,7 @@ class MemberController extends Controller
         $user = Auth::user();
         
         // Get all stocks for the member using scopes
-        $availableStocks = Stock::available()
+        $availableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
@@ -221,38 +203,12 @@ class MemberController extends Controller
             ->with(['product'])
             ->get();
 
-        // Get sold quantities from sales audit
-        $soldQuantities = [];
+        // Calculate revenue from delivered sales for this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail'])
             ->whereHas('salesAudit', function($query) {
                 $query->where('delivery_status', 'delivered');
             })
             ->get();
-
-        foreach ($deliveredSales as $sale) {
-            foreach ($sale->salesAudit->auditTrail as $audit) {
-                // Check if this audit trail involves a stock from this member
-                $stock = Stock::where('id', $audit->stock_id)
-                    ->where('member_id', $memberId)
-                    ->first();
-
-                if ($stock) {
-                    $key = $audit->product_id . '-' . $audit->category;
-                    if (!isset($soldQuantities[$key])) {
-                        $soldQuantities[$key] = [
-                            'product_id' => $audit->product_id,
-                            'product_name' => $audit->product->name,
-                            'category' => $audit->category,
-                            'sold_quantity' => 0,
-                            'total_revenue' => 0,
-                            'unit_price' => $audit->getSalePrice()
-                        ];
-                    }
-                    $soldQuantities[$key]['sold_quantity'] += $audit->quantity;
-                    $soldQuantities[$key]['total_revenue'] += $audit->getTotalAmount();
-                }
-            }
-        }
 
         // Group stocks by product and category
         $stockGroups = [];
@@ -273,30 +229,36 @@ class MemberController extends Controller
                 ];
             }
             
-            // Add to total quantity
-            $stockGroups[$key]['total_quantity'] += $stock->quantity;
+            // Add to total quantity (available + sold)
+            $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity;
             
-            // If stock is available (quantity > 0 and no customer assigned)
-            if ($stock->quantity > 0 && is_null($stock->last_customer_id)) {
-                $stockGroups[$key]['available_quantity'] += $stock->quantity;
+            // Add available quantity (current quantity that can be sold)
+            $stockGroups[$key]['available_quantity'] += $stock->quantity;
+            
+            // Add sold quantity (total sold from this stock)
+            $stockGroups[$key]['sold_quantity'] += $stock->sold_quantity;
+        }
+
+        // Calculate revenue from delivered sales
+        foreach ($deliveredSales as $sale) {
+            foreach ($sale->salesAudit->auditTrail as $audit) {
+                // Check if this audit trail involves a stock from this member
+                $stock = Stock::where('id', $audit->stock_id)
+                    ->where('member_id', $memberId)
+                    ->first();
+
+                if ($stock) {
+                    $key = $audit->product_id . '-' . $audit->category;
+                    if (isset($stockGroups[$key])) {
+                        $stockGroups[$key]['total_revenue'] += $audit->getTotalAmount();
+                    }
+                }
             }
         }
 
-        // Merge with sold quantities and calculate balance
+        // Calculate balance quantity: Available quantity (current quantity that can be sold)
         foreach ($stockGroups as $key => &$group) {
-            if (isset($soldQuantities[$key])) {
-                $group['sold_quantity'] = $soldQuantities[$key]['sold_quantity'];
-                $group['total_revenue'] = $soldQuantities[$key]['total_revenue'];
-                $group['unit_price'] = $soldQuantities[$key]['unit_price'];
-            }
-            
-            // Calculate balance quantity: Total - Sold
-            $group['balance_quantity'] = $group['total_quantity'] - $group['sold_quantity'];
-            
-            // Ensure available quantity doesn't exceed balance
-            if ($group['available_quantity'] > $group['balance_quantity']) {
-                $group['available_quantity'] = $group['balance_quantity'];
-            }
+            $group['balance_quantity'] = $group['available_quantity'];
         }
 
         // Convert to array and sort by product name
