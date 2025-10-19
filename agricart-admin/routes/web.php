@@ -141,6 +141,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:view orders'])->group(function () {
             Route::get('/orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('admin.orders.show');
             Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->whereNumber('order')->name('admin.orders.receiptPreview');
+            Route::get('/orders/{order}/delivery-proof', [OrderController::class, 'deliveryProof'])->whereNumber('order')->name('admin.orders.deliveryProof');
         });
         Route::middleware(['can:edit orders'])->group(function () {
             Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->whereNumber('order')->name('admin.orders.approve');

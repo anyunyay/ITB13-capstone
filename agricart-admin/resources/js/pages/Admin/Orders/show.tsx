@@ -55,6 +55,8 @@ interface Order {
   member_share: number;
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed';
   delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
+  delivery_proof_image?: string;
+  delivery_confirmed?: boolean;
   delivery_ready_time?: string;
   delivery_packed_time?: string;
   delivered_time?: string;
@@ -110,6 +112,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const [pickupConfirmationText, setPickupConfirmationText] = useState('');
   const [markReadyDialogOpen, setMarkReadyDialogOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
+  const [deliveryProofModalOpen, setDeliveryProofModalOpen] = useState(false);
 
   // Update currentOrder when order prop changes (for real-time updates)
   useEffect(() => {
@@ -366,6 +369,70 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 />
               </CardContent>
             </Card>
+
+            {/* Delivery Proof Section */}
+            {currentOrder.delivery_status === 'delivered' && currentOrder.delivery_proof_image && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Delivery Proof</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm text-green-600">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span>Delivery confirmed with proof of delivery</span>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-gray-900">Proof of Delivery</h4>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeliveryProofModalOpen(true)}
+                          >
+                            🔍 View Full Size
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = currentOrder.delivery_proof_image!;
+                              link.download = `delivery-proof-order-${currentOrder.id}.jpg`;
+                              link.click();
+                            }}
+                          >
+                            📥 Download
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="relative">
+                        <img
+                          src={currentOrder.delivery_proof_image}
+                          alt="Delivery proof"
+                          className="w-full max-w-md mx-auto rounded-lg shadow-sm border"
+                          style={{ maxHeight: '300px', objectFit: 'contain' }}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/images/products/default-product.jpg';
+                            target.alt = 'Delivery proof not available';
+                          }}
+                        />
+                      </div>
+                      
+                      {currentOrder.delivered_time && (
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          Delivered on {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Admin Notes */}
             {order.admin_notes && (
@@ -1010,6 +1077,53 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
             </Button>
             <Button onClick={confirmMarkReady}>
               Mark as Ready
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delivery Proof Modal */}
+      <Dialog open={deliveryProofModalOpen} onOpenChange={setDeliveryProofModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Delivery Proof - Order #{currentOrder.id}</DialogTitle>
+            <DialogDescription>
+              Proof of delivery uploaded by {currentOrder.logistic?.name || 'logistic provider'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <img
+                src={currentOrder.delivery_proof_image}
+                alt="Delivery proof"
+                className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm border"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/products/default-product.jpg';
+                  target.alt = 'Delivery proof not available';
+                }}
+              />
+            </div>
+            {currentOrder.delivered_time && (
+              <div className="text-center text-sm text-gray-500">
+                Delivered on {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = currentOrder.delivery_proof_image!;
+                link.download = `delivery-proof-order-${currentOrder.id}.jpg`;
+                link.click();
+              }}
+            >
+              📥 Download Image
+            </Button>
+            <Button variant="outline" onClick={() => setDeliveryProofModalOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

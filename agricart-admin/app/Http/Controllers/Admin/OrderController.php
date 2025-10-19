@@ -18,6 +18,7 @@ use App\Notifications\OrderDelayedNotification;
 use App\Notifications\OrderPickedUpNotification;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
@@ -172,6 +173,8 @@ class OrderController extends Controller
             'member_share' => $order->member_share,
             'status' => $order->status,
             'delivery_status' => $order->delivery_status,
+            'delivery_proof_image' => $order->delivery_proof_image ? route('admin.orders.deliveryProof', $order->id) : null,
+            'delivery_confirmed' => $order->delivery_confirmed,
             'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             'delivered_time' => $order->delivered_time?->toISOString(),
@@ -226,6 +229,38 @@ class OrderController extends Controller
         return Inertia::render('Admin/Orders/receipt-preview', [
             'order' => $transformedOrder,
         ]);
+    }
+
+    /**
+     * Securely serve delivery proof images with proper authorization
+     */
+    public function deliveryProof(SalesAudit $order)
+    {
+        // User is already authenticated and authorized via middleware
+
+        // Check if order has delivery proof
+        if (!$order->delivery_proof_image) {
+            abort(404, 'Delivery proof not found for this order.');
+        }
+
+        // Check if the file exists
+        $filePath = storage_path('app/public/' . $order->delivery_proof_image);
+        if (!file_exists($filePath)) {
+            abort(404, 'Delivery proof file not found.');
+        }
+
+        // Get file info
+        $fileInfo = pathinfo($filePath);
+        $mimeType = mime_content_type($filePath);
+        
+        // Set appropriate headers
+        $headers = [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="delivery-proof-order-' . $order->id . '.' . $fileInfo['extension'] . '"',
+            'Cache-Control' => 'private, max-age=3600', // Cache for 1 hour
+        ];
+
+        return response()->file($filePath, $headers);
     }
 
     public function assignLogistic(Request $request, SalesAudit $order)
