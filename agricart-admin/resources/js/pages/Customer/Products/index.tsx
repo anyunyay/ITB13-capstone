@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ProductCarousel } from '../Home/produce';
 import StockManager from '@/lib/stock-manager';
+import SimpleFooter from '@/components/SimpleFooter';
 
 interface Product {
   id: number;
@@ -122,6 +123,9 @@ export default function CustomerProducts() {
           </DialogContent>
         </Dialog>
       </div>
+      
+      {/* Simple Footer */}
+      <SimpleFooter companyName="SMMC Cooperative" />
     </AppHeaderLayout>
   );
 }

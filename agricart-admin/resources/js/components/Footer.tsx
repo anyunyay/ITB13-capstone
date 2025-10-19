@@ -75,6 +75,64 @@ const Footer: React.FC<FooterProps> = ({
 }) => {
   return (
     <footer className={`${styles.footer} ${className}`} role="contentinfo">
+      {/* Top Section - Contact Information */}
+      <div className={styles.footerTop}>
+        <div className={styles.footerContainer}>
+          <div className={styles.contactSection}>
+            <h3 className={styles.contactTitle}>Get In Touch</h3>
+            <p className={styles.contactDescription}>
+              Connect with us for fresh produce, questions, or to learn more about our cooperative.
+            </p>
+            
+            {/* Contact Links Grid */}
+            <div className={styles.contactLinks}>
+              {/* Facebook Link */}
+              <a 
+                href={facebookUrl} 
+                className={styles.contactLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit our Facebook page"
+              >
+                <div className={styles.contactIcon}>
+                  <Facebook className={styles.icon} />
+                </div>
+                <div className={styles.contactInfo}>
+                  <div className={styles.contactLabel}>Follow Us</div>
+                  <div className={styles.contactValue}>Facebook</div>
+                </div>
+              </a>
+
+              {/* Email Link */}
+              <a 
+                href={`mailto:${emailAddress}`}
+                className={styles.contactLink}
+                aria-label="Send us an email"
+              >
+                <div className={styles.contactIcon}>
+                  <Mail className={styles.icon} />
+                </div>
+                <div className={styles.contactInfo}>
+                  <div className={styles.contactLabel}>Email Us</div>
+                  <div className={styles.contactValue}>{emailAddress}</div>
+                </div>
+              </a>
+
+              {/* Address */}
+              <div className={styles.contactLink}>
+                <div className={styles.contactIcon}>
+                  <MapPin className={styles.icon} />
+                </div>
+                <div className={styles.contactInfo}>
+                  <div className={styles.contactLabel}>Visit Us</div>
+                  <div className={styles.contactValue}>{physicalAddress}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Section - Copyright and Navigation */}
       <div className={styles.footerBottom}>
         <div className={styles.footerContainer}>
