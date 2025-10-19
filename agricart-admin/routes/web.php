@@ -163,9 +163,11 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:view sales'])->group(function () {
             Route::get('/sales', [SalesController::class, 'index'])->name('admin.sales.index');
             Route::get('/sales/member-sales', [SalesController::class, 'memberSales'])->name('admin.sales.memberSales');
+            Route::get('/sales/audit-trail', [SalesController::class, 'auditTrail'])->name('admin.sales.auditTrail');
         });
         Route::middleware(['can:generate sales report'])->group(function () {
             Route::get('/sales/report', [SalesController::class, 'generateReport'])->name('admin.sales.report');
+            Route::get('/sales/audit-trail/export', [SalesController::class, 'exportAuditTrail'])->name('admin.sales.auditTrail.export');
         });
 
         // Trend Analysis routes

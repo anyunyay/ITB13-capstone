@@ -11,10 +11,14 @@ class AuditTrail extends Model
 
     protected $fillable = [
         'sale_id',
+        'order_id',
         'stock_id',
+        'member_id',
         'product_id',
+        'product_name',
         'category',
         'quantity',
+        'available_stock_after_sale',
         'price_kilo',
         'price_pc',
         'price_tali',
@@ -26,9 +30,19 @@ class AuditTrail extends Model
         return $this->belongsTo(SalesAudit::class, 'sale_id');
     }
 
+    public function order()
+    {
+        return $this->belongsTo(SalesAudit::class, 'order_id');
+    }
+
     public function stock()
     {
         return $this->belongsTo(Stock::class, 'stock_id');
+    }
+
+    public function member()
+    {
+        return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
     }
 
     public function product()
@@ -38,6 +52,7 @@ class AuditTrail extends Model
 
     protected $casts = [
         'quantity' => 'float',
+        'available_stock_after_sale' => 'float',
         'price_kilo' => 'float',
         'price_pc' => 'float',
         'price_tali' => 'float',
@@ -80,5 +95,49 @@ class AuditTrail extends Model
             'price_tali' => $product->price_tali,
             'unit_price' => $this->getSalePrice(),
         ]);
+    }
+
+    /**
+     * Create a comprehensive audit trail entry for order completion
+     */
+    public static function createOrderCompletionEntry(
+        SalesAudit $order,
+        Stock $stock,
+        Product $product,
+        float $quantitySold,
+        float $availableStockAfterSale
+    ): self {
+        return self::create([
+            'sale_id' => $order->id,
+            'order_id' => $order->id,
+            'stock_id' => $stock->id,
+            'member_id' => $stock->member_id,
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'category' => $stock->category,
+            'quantity' => $quantitySold,
+            'available_stock_after_sale' => $availableStockAfterSale,
+            'price_kilo' => $product->price_kilo,
+            'price_pc' => $product->price_pc,
+            'price_tali' => $product->price_tali,
+            'unit_price' => self::getUnitPrice($product, $stock->category),
+        ]);
+    }
+
+    /**
+     * Get the unit price for a product based on category
+     */
+    private static function getUnitPrice(Product $product, string $category): float
+    {
+        switch ($category) {
+            case 'Kilo':
+                return $product->price_kilo ?? 0;
+            case 'Pc':
+                return $product->price_pc ?? 0;
+            case 'Tali':
+                return $product->price_tali ?? 0;
+            default:
+                return 0;
+        }
     }
 }

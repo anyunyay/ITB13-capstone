@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use App\Models\SalesAudit;
+use App\Services\AuditTrailService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
@@ -321,9 +322,40 @@ class OrderController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
 
+        // Get multi-member order summary before processing
+        $orderSummary = AuditTrailService::getMultiMemberOrderSummary($order);
+        $involvedMembers = collect($orderSummary['members'])->pluck('member_id');
+        
+        Log::info('Processing multi-member order approval', [
+            'order_id' => $order->id,
+            'total_members' => $orderSummary['total_members_involved'],
+            'involved_members' => $involvedMembers->toArray()
+        ]);
+
         // Process the stock only when approving
+        $processedMembers = collect();
+        $processedStocks = collect();
+        
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
+                // Validate no duplicate processing
+                $memberStockKey = $trail->stock->member_id . '_' . $trail->stock->id;
+                if ($processedStocks->contains($memberStockKey)) {
+                    Log::error('Duplicate stock processing detected', [
+                        'order_id' => $order->id,
+                        'member_id' => $trail->stock->member_id,
+                        'stock_id' => $trail->stock->id
+                    ]);
+                    continue;
+                }
+                
+                $processedStocks->push($memberStockKey);
+                $processedMembers->push($trail->stock->member_id);
+                
+                // Store the quantity before deduction for audit trail
+                $quantityBeforeDeduction = $trail->stock->quantity;
+                $quantitySold = $trail->quantity;
+                
                 // Deduct from available quantity
                 $trail->stock->quantity -= $trail->quantity;
                 
@@ -331,6 +363,17 @@ class OrderController extends Controller
                 $trail->stock->sold_quantity += $trail->quantity;
                 
                 $trail->stock->save();
+
+                // Create comprehensive audit trail entry for order completion
+                $availableStockAfterSale = $trail->stock->quantity;
+                
+                // Update the existing audit trail with comprehensive data
+                $trail->update([
+                    'member_id' => $trail->stock->member_id,
+                    'product_name' => $trail->stock->product->name,
+                    'available_stock_after_sale' => $availableStockAfterSale,
+                    'order_id' => $order->id,
+                ]);
 
                 // Log stock update when quantity reaches 0
                 if ($trail->stock->quantity == 0) {
@@ -347,7 +390,10 @@ class OrderController extends Controller
                             'customer_id' => $order->customer_id,
                             'order_id' => $order->id,
                             'sold_quantity' => $trail->stock->sold_quantity,
-                            'total_sold' => $trail->stock->sold_quantity
+                            'total_sold' => $trail->stock->sold_quantity,
+                            'member_id' => $trail->stock->member_id,
+                            'product_name' => $trail->stock->product->name,
+                            'available_stock_after_sale' => $availableStockAfterSale
                         ]
                     );
                 } else {
@@ -364,7 +410,10 @@ class OrderController extends Controller
                             'customer_id' => $order->customer_id,
                             'order_id' => $order->id,
                             'sold_quantity' => $trail->stock->sold_quantity,
-                            'remaining_quantity' => $trail->stock->quantity
+                            'remaining_quantity' => $trail->stock->quantity,
+                            'member_id' => $trail->stock->member_id,
+                            'product_name' => $trail->stock->product->name,
+                            'available_stock_after_sale' => $availableStockAfterSale
                         ]
                     );
                 }
@@ -373,6 +422,26 @@ class OrderController extends Controller
                 $trail->stock->member->notify(new ProductSaleNotification($trail->stock, $order, $order->customer));
             }
         }
+
+        // Validate multi-member order processing completeness
+        $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
+        
+        if (!$validation['is_complete']) {
+            Log::error('Multi-member order validation failed during approval', [
+                'order_id' => $order->id,
+                'validation' => $validation
+            ]);
+            
+            return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
+        }
+
+        // Log successful multi-member order processing
+        Log::info('Multi-member order approved successfully', [
+            'order_id' => $order->id,
+            'processed_members' => $processedMembers->unique()->toArray(),
+            'total_audit_entries' => $validation['total_entries'],
+            'member_breakdown' => $validation['member_breakdown']
+        ]);
 
         $order->update([
             'status' => 'approved',

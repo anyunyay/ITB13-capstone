@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Sales;
 use App\Models\SalesAudit;
+use App\Models\AuditTrail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -325,5 +326,131 @@ class SalesController extends Controller
         }
 
         return $query->orderBy('total_revenue', 'desc')->get();
+    }
+
+    /**
+     * Display audit trail entries for stock changes
+     */
+    public function auditTrail(Request $request)
+    {
+        $query = AuditTrail::with(['member', 'product', 'stock', 'order', 'sale']);
+
+        // Filter by date range if provided
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        }
+
+        // Filter by member if provided
+        if ($request->filled('member_id')) {
+            $query->where('member_id', $request->member_id);
+        }
+
+        // Filter by order if provided
+        if ($request->filled('order_id')) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        $auditTrails = $query->orderBy('created_at', 'desc')->get();
+
+        // Get members for filter dropdown
+        $members = User::where('type', 'member')
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        // Calculate summary statistics
+        $summary = [
+            'total_entries' => $auditTrails->count(),
+            'total_quantity_sold' => $auditTrails->sum('quantity'),
+            'unique_members' => $auditTrails->pluck('member_id')->unique()->count(),
+            'unique_orders' => $auditTrails->pluck('order_id')->unique()->count(),
+            'total_revenue' => $auditTrails->sum(function ($trail) {
+                return $trail->quantity * $trail->getSalePrice();
+            }),
+        ];
+
+        return Inertia::render('Admin/Sales/auditTrail', [
+            'auditTrails' => $auditTrails,
+            'members' => $members,
+            'summary' => $summary,
+            'filters' => $request->only(['start_date', 'end_date', 'member_id', 'order_id']),
+        ]);
+    }
+
+    /**
+     * Export audit trail data to CSV
+     */
+    public function exportAuditTrail(Request $request)
+    {
+        $query = AuditTrail::with(['member', 'product', 'stock', 'order', 'sale']);
+
+        // Apply same filters as auditTrail method
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        }
+
+        if ($request->filled('member_id')) {
+            $query->where('member_id', $request->member_id);
+        }
+
+        if ($request->filled('order_id')) {
+            $query->where('order_id', $request->order_id);
+        }
+
+        $auditTrails = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'audit_trail_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($auditTrails) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV headers
+            fputcsv($file, [
+                'Timestamp',
+                'Order ID',
+                'Member ID',
+                'Member Name',
+                'Stock ID',
+                'Product Name',
+                'Category',
+                'Quantity Sold',
+                'Available Stock After Sale',
+                'Unit Price',
+                'Total Amount',
+                'Order Status'
+            ]);
+
+            foreach ($auditTrails as $trail) {
+                fputcsv($file, [
+                    $trail->created_at->format('Y-m-d H:i:s'),
+                    $trail->order_id,
+                    $trail->member_id,
+                    $trail->member ? $trail->member->name : 'N/A',
+                    $trail->stock_id,
+                    $trail->product_name,
+                    $trail->category,
+                    $trail->quantity,
+                    $trail->available_stock_after_sale,
+                    $trail->getSalePrice(),
+                    $trail->getTotalAmount(),
+                    $trail->order ? $trail->order->status : 'N/A'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

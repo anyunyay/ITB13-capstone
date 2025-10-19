@@ -11,6 +11,7 @@ use App\Models\Sales;
 use App\Models\SalesAudit;
 use App\Models\AuditTrail;
 use App\Models\UserAddress;
+use App\Services\AuditTrailService;
 use App\Notifications\OrderConfirmationNotification;
 use App\Notifications\NewOrderNotification;
 use Illuminate\Http\Request;
@@ -244,13 +245,15 @@ class CartController extends Controller
             $totalPrice = 0;
             $orderItems = [];
             $error = null;
+            $stockTransactions = collect();
+            $involvedMembers = collect();
 
             foreach ($cart->items as $item) {
                 // Get customer visible stock for this item using scope
                 $stocks = Stock::customerVisible()
                     ->where('product_id', $item->product_id)
                     ->where('category', $item->category)
-                    ->with('product')
+                    ->with(['product', 'member'])
                     ->orderBy('created_at', 'asc')
                     ->get();
 
@@ -281,21 +284,50 @@ class CartController extends Controller
                     $itemTotalPrice += $price * $deduct;
                     $remainingQty -= $deduct;
 
-                    // Create an audit trail record with stored prices (but don't deduct stock yet)
-                    $auditTrail = AuditTrail::create([
-                        'sale_id' => $sale->id,
-                        'stock_id' => $stock->id,
-                        'product_id' => $item->product_id,
-                        'category' => $item->category,
-                        'quantity' => $deduct,
-                        'price_kilo' => $stock->product->price_kilo,
-                        'price_pc' => $stock->product->price_pc,
-                        'price_tali' => $stock->product->price_tali,
-                        'unit_price' => $price,
+                    // Track this stock transaction for multi-member audit trail
+                    $stockTransactions->push([
+                        'stock' => $stock,
+                        'product' => $stock->product,
+                        'quantity_sold' => $deduct,
+                        'available_stock_after_sale' => $stock->quantity, // Before deduction
+                        'unit_price' => $price
                     ]);
+
+                    // Track involved members
+                    $involvedMembers->push($stock->member_id);
                 }
 
                 $totalPrice += $itemTotalPrice;
+            }
+
+            // Create comprehensive audit trails for all involved members
+            if ($stockTransactions->isNotEmpty()) {
+                $auditTrails = AuditTrailService::createMultiMemberAuditTrails($sale, $stockTransactions);
+                
+                // Validate audit trail completeness
+                $validation = AuditTrailService::validateMultiMemberAuditTrails(
+                    $sale, 
+                    $involvedMembers->unique()
+                );
+
+                if (!$validation['is_complete']) {
+                    Log::error('Audit trail validation failed for multi-member order', [
+                        'order_id' => $sale->id,
+                        'validation' => $validation
+                    ]);
+                    
+                    // Clean up and return error
+                    $sale->auditTrail()->delete();
+                    $sale->delete();
+                    return redirect()->route('cart.index')->with('checkoutMessage', 'Order processing failed. Please try again.');
+                }
+
+                // Log successful multi-member audit trail creation
+                Log::info('Multi-member audit trails created successfully', [
+                    'order_id' => $sale->id,
+                    'total_members' => $validation['total_entries'],
+                    'member_breakdown' => $validation['member_breakdown']
+                ]);
             }
 
             if ($error) {
