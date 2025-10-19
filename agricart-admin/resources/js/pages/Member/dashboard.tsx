@@ -105,12 +105,20 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                             <h1 className="text-3xl font-bold text-white">Welcome, {auth?.user?.name}!</h1>
                             <p className="text-gray-400 mt-2">Track your stocks and view your activity history</p>
                         </div>
-                        <Button asChild variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                            <Link href={route('member.revenueReport')}>
-                                <FileText className="h-4 w-4 mr-2" />
-                                Revenue Report
-                            </Link>
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button asChild variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                                <Link href={route('member.transactions')}>
+                                    <History className="h-4 w-4 mr-2" />
+                                    Transactions
+                                </Link>
+                            </Button>
+                            <Button asChild variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                                <Link href={route('member.revenueReport')}>
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Revenue Report
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             {/* Summary Cards */}

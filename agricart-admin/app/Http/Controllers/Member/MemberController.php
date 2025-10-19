@@ -7,6 +7,7 @@ use App\Helpers\SystemLogger;
 use App\Models\Stock;
 use App\Models\Sales;
 use App\Models\SalesAudit;
+use App\Models\AuditTrail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -285,6 +286,90 @@ class MemberController extends Controller
         }
     }
 
+    public function transactions(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Log member transactions access
+        SystemLogger::logMemberActivity(
+            'transactions_access',
+            $user->id,
+            ['ip_address' => request()->ip()]
+        );
+        
+        // Get search and filter parameters
+        $search = $request->get('search', '');
+        $productFilter = $request->get('product', '');
+        $dateFrom = $request->get('date_from', '');
+        $dateTo = $request->get('date_to', '');
+        $perPage = $request->get('per_page', 15);
+        
+        // Build query for member's transactions
+        $query = AuditTrail::with(['product', 'sale.customer'])
+            ->whereHas('stock', function($q) use ($user) {
+                $q->where('member_id', $user->id);
+            })
+            ->whereHas('sale', function($q) {
+                $q->whereNotNull('delivered_time'); // Only show delivered transactions
+            });
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('product_name', 'like', "%{$search}%")
+                  ->orWhereHas('sale.customer', function($customerQuery) use ($search) {
+                      $customerQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Apply product filter
+        if ($productFilter && $productFilter !== 'all') {
+            $query->where('product_id', $productFilter);
+        }
+        
+        // Apply date range filter
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        // Get paginated results
+        $transactions = $query->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+        
+        // Get available products for filter dropdown
+        $availableProducts = AuditTrail::with('product')
+            ->whereHas('stock', function($q) use ($user) {
+                $q->where('member_id', $user->id);
+            })
+            ->whereHas('sale', function($q) {
+                $q->whereNotNull('delivered_time');
+            })
+            ->get()
+            ->pluck('product')
+            ->unique('id')
+            ->values();
+        
+        // Calculate summary statistics
+        $summary = $this->calculateTransactionSummary($user->id, $dateFrom, $dateTo);
+        
+        return Inertia::render('Member/transactions', [
+            'transactions' => $transactions,
+            'availableProducts' => $availableProducts,
+            'summary' => $summary,
+            'filters' => [
+                'search' => $search,
+                'product' => $productFilter,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+                'per_page' => $perPage,
+            ]
+        ]);
+    }
+
     public function generateRevenueReport(Request $request)
     {
         $user = Auth::user();
@@ -526,5 +611,47 @@ class MemberController extends Controller
         $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Calculate transaction summary statistics
+     */
+    private function calculateTransactionSummary($memberId, $dateFrom = null, $dateTo = null)
+    {
+        $query = AuditTrail::whereHas('stock', function($q) use ($memberId) {
+            $q->where('member_id', $memberId);
+        })->whereHas('sale', function($q) {
+            $q->whereNotNull('delivered_time');
+        });
+        
+        // Apply date filters if provided
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        $transactions = $query->get();
+        
+        $totalTransactions = $transactions->count();
+        $totalQuantity = $transactions->sum('quantity');
+        $totalRevenue = $transactions->sum(function($transaction) {
+            return $transaction->getTotalAmount();
+        });
+        $totalMemberShare = $transactions->sum(function($transaction) {
+            return $transaction->getTotalAmount() * 0.7; // Assuming 70% member share
+        });
+        $totalCoopShare = $transactions->sum(function($transaction) {
+            return $transaction->getTotalAmount() * 0.3; // Assuming 30% coop share
+        });
+        
+        return [
+            'total_transactions' => $totalTransactions,
+            'total_quantity' => $totalQuantity,
+            'total_revenue' => $totalRevenue,
+            'total_member_share' => $totalMemberShare,
+            'total_coop_share' => $totalCoopShare,
+        ];
     }
 } 
