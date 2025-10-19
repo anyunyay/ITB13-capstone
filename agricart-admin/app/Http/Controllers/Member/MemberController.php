@@ -111,11 +111,27 @@ class MemberController extends Controller
         
         // Calculate comprehensive stock data with total, sold, and available quantities
         $comprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
+        
+        // Get transaction data for the toggle view
+        $transactions = AuditTrail::with(['product', 'sale.customer'])
+            ->whereHas('stock', function($q) use ($user) {
+                $q->where('member_id', $user->id);
+            })
+            ->whereHas('sale', function($q) {
+                $q->whereNotNull('delivered_time'); // Only show delivered transactions
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        // Calculate transaction summary
+        $summary = $this->calculateTransactionSummary($user->id);
             
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
             'salesData' => $salesData,
-            'comprehensiveStockData' => $comprehensiveStockData
+            'comprehensiveStockData' => $comprehensiveStockData,
+            'transactions' => $transactions,
+            'summary' => $summary
         ]);
     }
 
