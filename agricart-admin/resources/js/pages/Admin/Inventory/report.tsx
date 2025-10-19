@@ -44,13 +44,11 @@ interface Stock {
   member_id: number;
   category: 'Kilo' | 'Pc' | 'Tali';
   status: string;
-  last_customer_id?: number;
   removed_at?: string;
   notes?: string;
   created_at: string;
   product: Product;
   member: Member;
-  lastCustomer?: Customer;
 }
 
 interface ReportSummary {
@@ -145,10 +143,8 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
       return <Badge variant="destructive">Removed</Badge>;
-    } else if (stock.quantity == 0 && stock.last_customer_id) {
+    } else if (stock.quantity == 0) {
       return <Badge variant="default">Sold</Badge>;
-    } else if (stock.quantity > 0 && stock.last_customer_id) {
-      return <Badge variant="secondary">Partial</Badge>;
     } else {
       return <Badge variant="outline">Available</Badge>;
     }
@@ -346,10 +342,8 @@ function StockCard({ stock }: { stock: Stock }) {
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
       return <Badge variant="destructive">Removed</Badge>;
-    } else if (stock.quantity == 0 && stock.last_customer_id) {
+    } else if (stock.quantity == 0) {
       return <Badge variant="default">Sold</Badge>;
-    } else if (stock.quantity > 0 && stock.last_customer_id) {
-      return <Badge variant="secondary">Partial</Badge>;
     } else {
       return <Badge variant="outline">Available</Badge>;
     }
@@ -409,14 +403,6 @@ function StockCard({ stock }: { stock: Stock }) {
           </div>
         </div>
         
-        {stock.lastCustomer && (
-          <div className="mt-4 p-3 bg-muted rounded">
-            <h5 className="font-semibold text-sm mb-1">Last Customer:</h5>
-            <p className="text-sm text-muted-foreground">
-              {stock.lastCustomer.name} ({stock.lastCustomer.email})
-            </p>
-          </div>
-        )}
 
         {stock.removed_at && (
           <div className="mt-4 p-3 bg-destructive/10 rounded">

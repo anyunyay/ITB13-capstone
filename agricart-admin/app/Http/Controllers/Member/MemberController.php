@@ -32,7 +32,7 @@ class MemberController extends Controller
             ->get();
             
         $soldStocks = Stock::sold()
-            ->with(['product', 'lastCustomer'])
+            ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
             
@@ -49,8 +49,6 @@ class MemberController extends Controller
             'availableStocks' => $availableStocks->count(),
             'soldStocks' => $soldStocks->count(),
             'removedStocks' => Stock::removed()->where('member_id', $user->id)->count(),
-            'stocksWithCustomer' => $allStocks->whereNotNull('last_customer_id')->count(),
-            'stocksWithoutCustomer' => $allStocks->whereNull('last_customer_id')->count(),
             'totalQuantity' => $allStocks->sum('quantity') + $allStocks->sum('sold_quantity'),
             'availableQuantity' => $availableStocks->sum('quantity'),
             'soldQuantity' => $allStocks->sum('sold_quantity'),

@@ -29,12 +29,7 @@ interface Stock {
     member_id: number;
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
-    last_customer_id?: number;
     product: Product;
-    lastCustomer?: {
-        id: number;
-        name: string;
-    };
     created_at: string;
 }
 
@@ -59,8 +54,6 @@ interface Summary {
     availableStocks: number;
     soldStocks: number;
     removedStocks: number;
-    stocksWithCustomer: number;
-    stocksWithoutCustomer: number;
     totalQuantity: number;
     availableQuantity: number;
     soldQuantity: number;
@@ -204,11 +197,6 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                                             {stock.sold_quantity > 0 && (
                                                 <p className="text-xs text-blue-400">
                                                     {stock.sold_quantity} {stock.category} sold
-                                                </p>
-                                            )}
-                                            {stock.last_customer_id && (
-                                                <p className="text-xs text-yellow-400">
-                                                    Assigned to customer
                                                 </p>
                                             )}
                                         </div>

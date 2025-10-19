@@ -295,8 +295,6 @@ class OrderController extends Controller
                 // Add to sold quantity
                 $trail->stock->sold_quantity += $trail->quantity;
                 
-                // Set the last customer who bought from this stock
-                $trail->stock->last_customer_id = $order->customer_id;
                 $trail->stock->save();
 
                 // Log stock update when quantity reaches 0
@@ -389,8 +387,6 @@ class OrderController extends Controller
                     // Deduct from sold quantity
                     $trail->stock->sold_quantity -= $trail->quantity;
                     
-                    // Clear customer assignment
-                    $trail->stock->last_customer_id = null;
                     $trail->stock->save();
                     
                     // Log stock reversal

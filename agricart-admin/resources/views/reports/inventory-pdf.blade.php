@@ -97,10 +97,8 @@
                 $status = 'Available';
                 if ($stock->removed_at) {
                     $status = 'Removed';
-                } elseif ($stock->quantity == 0 && $stock->last_customer_id) {
+                } elseif ($stock->quantity == 0) {
                     $status = 'Sold';
-                } elseif ($stock->quantity > 0 && $stock->last_customer_id) {
-                    $status = 'Partial';
                 }
             @endphp
              <tr>

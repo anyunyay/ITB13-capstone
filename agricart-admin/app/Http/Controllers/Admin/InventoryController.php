@@ -19,9 +19,9 @@ class InventoryController extends Controller
     { 
         $products = Product::active()->get();
         $archivedProducts = Product::archived()->get();
-        $stocks = Stock::active()->with(['product', 'member', 'lastCustomer'])->get();
-        $removedStocks = Stock::removed()->with(['product', 'member', 'lastCustomer'])->orderBy('removed_at', 'desc')->limit(50)->get();
-        $soldStocks = Stock::sold()->with(['product', 'member', 'lastCustomer'])->orderBy('updated_at', 'desc')->limit(50)->get();
+        $stocks = Stock::active()->with(['product', 'member'])->get();
+        $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();
+        $soldStocks = Stock::sold()->with(['product', 'member'])->orderBy('updated_at', 'desc')->limit(50)->get();
         $auditTrails = AuditTrail::with(['product', 'stock', 'sale'])->orderBy('created_at', 'desc')->limit(100)->get();
         $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
         return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'categories'));
@@ -195,7 +195,7 @@ class InventoryController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Stock::with(['product', 'member', 'lastCustomer']);
+        $query = Stock::with(['product', 'member']);
 
         // Filter by date range (based on stock creation date)
         if ($startDate) {
@@ -231,11 +231,11 @@ class InventoryController extends Controller
         $summary = [
             'total_stocks' => $stocks->count(),
             'total_quantity' => $stocks->sum('quantity') + $stocks->sum('sold_quantity'),
-            'available_stocks' => $stocks->where('quantity', '>', 0)->whereNull('last_customer_id')->whereNull('removed_at')->count(),
-            'available_quantity' => $stocks->where('quantity', '>', 0)->whereNull('last_customer_id')->whereNull('removed_at')->sum('quantity'),
+            'available_stocks' => $stocks->where('quantity', '>', 0)->whereNull('removed_at')->count(),
+            'available_quantity' => $stocks->where('quantity', '>', 0)->whereNull('removed_at')->sum('quantity'),
             'sold_stocks' => $stocks->where('sold_quantity', '>', 0)->whereNull('removed_at')->count(),
             'sold_quantity' => $stocks->where('sold_quantity', '>', 0)->whereNull('removed_at')->sum('sold_quantity'),
-            'completely_sold_stocks' => $stocks->where('quantity', 0)->where('sold_quantity', '>', 0)->whereNotNull('last_customer_id')->whereNull('removed_at')->count(),
+            'completely_sold_stocks' => $stocks->where('quantity', 0)->where('sold_quantity', '>', 0)->whereNull('removed_at')->count(),
             'removed_stocks' => $stocks->whereNotNull('removed_at')->count(),
             'total_products' => $stocks->pluck('product_id')->unique()->count(),
             'total_members' => $stocks->pluck('member_id')->unique()->count(),
@@ -300,9 +300,9 @@ class InventoryController extends Controller
                 $status = 'Available';
                 if ($stock->removed_at) {
                     $status = 'Removed';
-                } elseif ($stock->quantity == 0 && $stock->last_customer_id) {
+                } elseif ($stock->quantity == 0 && $stock->sold_quantity > 0) {
                     $status = 'Sold';
-                } elseif ($stock->quantity > 0 && $stock->last_customer_id) {
+                } elseif ($stock->quantity > 0 && $stock->sold_quantity > 0) {
                     $status = 'Partial';
                 }
 

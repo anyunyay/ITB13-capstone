@@ -18,7 +18,6 @@ export interface Stock {
     category: string;
     status: string;
     member_id?: number;
-    last_customer_id?: number;
     removed_at?: string;
     notes?: string;
     created_at: string;
@@ -32,11 +31,6 @@ export interface Stock {
         image_url: string;
     };
     member?: {
-        id: number;
-        name: string;
-        email: string;
-    };
-    last_customer?: {
         id: number;
         name: string;
         email: string;
@@ -56,7 +50,6 @@ export interface RemovedStock {
     product_id: number;
     quantity: number;
     member_id: number;
-    last_customer_id?: number;
     category: string;
     status?: string;
     removed_at: string;
@@ -72,11 +65,6 @@ export interface RemovedStock {
         image_url: string;
     };
     member?: {
-        id: number;
-        name: string;
-        email: string;
-    };
-    last_customer?: {
         id: number;
         name: string;
         email: string;
@@ -125,7 +113,6 @@ export interface SoldStock {
     product_id: number;
     quantity: number;
     member_id: number;
-    last_customer_id?: number;
     category: string;
     status: string;
     created_at: string;
@@ -139,11 +126,6 @@ export interface SoldStock {
         image_url: string;
     };
     member?: {
-        id: number;
-        name: string;
-        email: string;
-    };
-    last_customer?: {
         id: number;
         name: string;
         email: string;

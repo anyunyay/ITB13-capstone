@@ -48,7 +48,6 @@ class StockSeeder extends Seeder
                 'sold_quantity' => 0,
                 'initial_quantity' => $this->getQuantityForCategory($category),
                 'category' => $category,
-                'last_customer_id' => null,
                 'removed_at' => null,
                 'notes' => null,
             ]);
@@ -74,7 +73,6 @@ class StockSeeder extends Seeder
                     'sold_quantity' => 0,
                     'initial_quantity' => 0,
                     'category' => $category,
-                    'last_customer_id' => null,
                     'removed_at' => now()->subDays(rand(1, 30)),
                     'notes' => 'Stock removed for testing purposes',
                 ]);

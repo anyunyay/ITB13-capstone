@@ -34,10 +34,8 @@ interface RemovedStockItem {
     product_id: number;
     quantity: number;
     member_id: number;
-    last_customer_id?: number;
     product: Product;
     member: Member;
-    lastCustomer?: Customer;
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: 'removed' | 'damaged' | 'expired';
     removed_at: string;
@@ -93,7 +91,6 @@ export default function RemovedStockIndex() {
                                     <TableHead className="text-center">Product Name</TableHead>
                                     <TableHead className="text-center">Quantity</TableHead>
                                     <TableHead className="text-center">Category</TableHead>
-                                    <TableHead className="text-center">Assigned To</TableHead>
                                     <TableHead className="text-center">Removal Notes</TableHead>
                                     <TableHead className="text-center">Removed At</TableHead>
                                     <TableHead className="text-center">Actions</TableHead>
@@ -110,7 +107,6 @@ export default function RemovedStockIndex() {
                                                 : Math.floor(stock.quantity)
                                         }</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
-                                        <TableCell className="text-center">{stock.member?.name}</TableCell>
                                         <TableCell className="text-center max-w-xs truncate" title={stock.notes}>
                                             {stock.notes || 'No notes'}
                                         </TableCell>

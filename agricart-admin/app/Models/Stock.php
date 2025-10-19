@@ -17,12 +17,11 @@ class Stock extends Model
         'member_id', 
         'product_id',
         'category',
-        'last_customer_id',
         'removed_at',
         'notes'
     ];
 
-    protected $with = ['product', 'member', 'lastCustomer'];
+    protected $with = ['product', 'member'];
     
     protected $casts = [
         'removed_at' => 'datetime',
@@ -38,32 +37,25 @@ class Stock extends Model
         return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
     }
 
-    public function lastCustomer()
-    {
-        return $this->belongsTo(User::class, 'last_customer_id')->where('type', 'customer');
-    }
 
 
     /**
      * Scope for stocks that have been completely sold (quantity = 0)
-     * and have been approved by admin (last_customer_id is set)
      */
     public function scopeSold($query)
     {
         return $query->where('quantity', 0)
                     ->where('sold_quantity', '>', 0)
-                    ->whereNotNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
     /**
      * Scope for stocks that are available for purchase
-     * (have quantity > 0 and not assigned to any customer)
+     * (have quantity > 0)
      */
     public function scopeAvailable($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
@@ -93,7 +85,6 @@ class Stock extends Model
     {
         return $query->where('quantity', '>', 0)
                     ->where('sold_quantity', 0)
-                    ->whereNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
@@ -104,7 +95,6 @@ class Stock extends Model
     public function scopeCustomerVisible($query)
     {
         return $query->where('quantity', '>', 0)
-                    ->whereNull('last_customer_id')
                     ->whereNull('removed_at');
     }
 
@@ -190,7 +180,7 @@ class Stock extends Model
      */
     public function isCompletelyAvailable()
     {
-        return $this->quantity > 0 && $this->sold_quantity == 0 && is_null($this->last_customer_id);
+        return $this->quantity > 0 && $this->sold_quantity == 0;
     }
 
     /**

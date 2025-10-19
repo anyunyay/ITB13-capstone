@@ -31,10 +31,6 @@ interface Stock {
     category: 'Kilo' | 'Pc' | 'Tali';
     status?: string;
     product: Product;
-    lastCustomer?: {
-        id: number;
-        name: string;
-    };
     created_at: string;
     totalRevenue?: number; // For sold stocks
 }

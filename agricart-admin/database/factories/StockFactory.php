@@ -27,7 +27,6 @@ class StockFactory extends Factory
             'initial_quantity' => $quantity,
             'member_id' => User::where('type', 'member')->inRandomOrder()->first()?->id ?? User::factory()->create(['type' => 'member'])->id,
             'category' => $this->faker->randomElement(['Kilo', 'Pc', 'Tali']),
-            'last_customer_id' => null,
             'removed_at' => null,
             'notes' => null,
         ];
