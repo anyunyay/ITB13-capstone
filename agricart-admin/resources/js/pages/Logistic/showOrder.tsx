@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, CheckCircle, Truck, Clock, Upload, Camera, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
 
 interface Order {
@@ -29,10 +29,6 @@ interface Order {
     ready_at?: string;
     packed_at?: string;
     delivered_at?: string;
-    ready_duration?: number;
-    packing_duration?: number;
-    delivery_duration?: number;
-    total_duration?: number;
   };
   delivery_proof_image?: string;
   delivery_confirmed: boolean;
@@ -167,10 +163,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           delivery_timeline: {
             ...prevOrder.delivery_timeline,
             delivered_at: new Date().toISOString(),
-            ready_duration: prevOrder.delivery_timeline?.ready_duration || undefined,
-            packing_duration: prevOrder.delivery_timeline?.packing_duration || undefined,
-            delivery_duration: prevOrder.delivery_timeline?.delivery_duration || undefined,
-            total_duration: prevOrder.delivery_timeline?.total_duration || undefined,
           }
         }));
         setShowDeliveryModal(false);
@@ -231,65 +223,29 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                     {getDeliveryStatusBadge(currentOrder.delivery_status)}
                   </div>
                 </div>
-                {currentOrder.delivery_timeline && (
-                  <>
-                    {currentOrder.delivery_ready_time && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Ready At</p>
-                        <p className="text-sm text-green-400">
-                          {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivery_packed_time && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Packed At</p>
-                        <p className="text-sm text-blue-400">
-                          {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivered_time && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Delivered At</p>
-                        <p className="text-sm text-green-400">
-                          {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivery_timeline.ready_duration && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Ready Duration</p>
-                        <p className="text-sm text-gray-300">
-                          {Math.floor(currentOrder.delivery_timeline.ready_duration / 60)}h {currentOrder.delivery_timeline.ready_duration % 60}m
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivery_timeline.packing_duration && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Packing Duration</p>
-                        <p className="text-sm text-gray-300">
-                          {Math.floor(currentOrder.delivery_timeline.packing_duration / 60)}h {currentOrder.delivery_timeline.packing_duration % 60}m
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivery_timeline.delivery_duration && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Delivery Duration</p>
-                        <p className="text-sm text-gray-300">
-                          {Math.floor(currentOrder.delivery_timeline.delivery_duration / 60)}h {currentOrder.delivery_timeline.delivery_duration % 60}m
-                        </p>
-                      </div>
-                    )}
-                    {currentOrder.delivery_timeline.total_duration && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-400">Total Duration</p>
-                        <p className="text-sm text-gray-300">
-                          {Math.floor(currentOrder.delivery_timeline.total_duration / 60)}h {currentOrder.delivery_timeline.total_duration % 60}m
-                        </p>
-                      </div>
-                    )}
-                  </>
+                {currentOrder.delivery_ready_time && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-400">Ready At</p>
+                    <p className="text-sm text-green-400">
+                      {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
+                    </p>
+                  </div>
+                )}
+                {currentOrder.delivery_packed_time && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-400">Packed At</p>
+                    <p className="text-sm text-blue-400">
+                      {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
+                    </p>
+                  </div>
+                )}
+                {currentOrder.delivered_time && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-400">Delivered At</p>
+                    <p className="text-sm text-green-400">
+                      {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                    </p>
+                  </div>
                 )}
               </div>
             </CardContent>

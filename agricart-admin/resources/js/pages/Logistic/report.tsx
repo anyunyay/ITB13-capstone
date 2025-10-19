@@ -25,9 +25,6 @@ interface Order {
   delivery_timeline?: {
     packed_at?: string;
     delivered_at?: string;
-    packing_duration?: number;
-    delivery_duration?: number;
-    total_duration?: number;
   };
   created_at: string;
   audit_trail: Array<{

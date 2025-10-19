@@ -346,14 +346,6 @@ class SalesAudit extends Model
             'ready_at' => $this->delivery_ready_time?->toISOString(),
             'packed_at' => $this->delivery_packed_time?->toISOString(),
             'delivered_at' => $this->delivered_time?->toISOString(),
-            'ready_duration' => $this->delivery_ready_time ? 
-                $this->created_at->diffInMinutes($this->delivery_ready_time) : null,
-            'packing_duration' => $this->delivery_ready_time && $this->delivery_packed_time ? 
-                $this->delivery_ready_time->diffInMinutes($this->delivery_packed_time) : null,
-            'delivery_duration' => $this->delivery_packed_time && $this->delivered_time ? 
-                $this->delivery_packed_time->diffInMinutes($this->delivered_time) : null,
-            'total_duration' => $this->delivered_time ? 
-                $this->created_at->diffInMinutes($this->delivered_time) : null,
         ];
     }
 
