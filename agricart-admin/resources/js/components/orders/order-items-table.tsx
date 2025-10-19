@@ -57,9 +57,9 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
     const combinedItems = items;
     
     // Calculate totals
-    const totalSubtotal = combinedItems.reduce((sum, item) => sum + (item.subtotal || 0), 0);
-    const totalCoopShare = combinedItems.reduce((sum, item) => sum + (item.coop_share || 0), 0);
-    const totalAmount = combinedItems.reduce((sum, item) => sum + (item.total_amount || 0), 0);
+    const totalSubtotal = combinedItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+    const totalCoopShare = combinedItems.reduce((sum, item) => sum + Number(item.coop_share || 0), 0);
+    const totalAmount = combinedItems.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
 
     return (
         <div className="rounded-md border">
@@ -134,19 +134,19 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                                 
                                 <TableCell className={styles.orderTableCell}>
                                     <div className="text-sm">
-                                        ₱{(item.unit_price || 0).toFixed(2)}
+                                        ₱{Number(item.unit_price || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
                                 <TableCell className={styles.orderTableCell}>
                                     <div className="font-semibold text-sm">
-                                        ₱{(item.subtotal || 0).toFixed(2)}
+                                        ₱{Number(item.subtotal || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
                                 <TableCell className={styles.orderTableCell}>
                                     <div className="font-semibold text-sm text-green-600">
-                                        ₱{(item.coop_share || 0).toFixed(2)}
+                                        ₱{Number(item.coop_share || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
