@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create the specific member user with ID 2411000 as requested
-        // This must be done before StockSeeder and UrgentOrderTestSeeder
         $memberUser = User::create([
             'type' => 'member',
             'name' => 'Maria Santos',
@@ -48,12 +47,57 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Now seed products, stocks, and orders with proper relationships
+        // Create additional members for more realistic data distribution
+        $additionalMembers = [
+            [
+                'name' => 'Jose Rodriguez',
+                'contact_number' => '09234567890',
+                'street' => '456 Farm Lane',
+                'barangay' => 'Sala',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ],
+            [
+                'name' => 'Ana Cruz',
+                'contact_number' => '09345678901',
+                'street' => '789 Agriculture Street',
+                'barangay' => 'Sala',
+                'city' => 'Cabuyao',
+                'province' => 'Laguna',
+            ]
+        ];
+
+        foreach ($additionalMembers as $memberData) {
+            $newMember = User::create([
+                'type' => 'member',
+                'name' => $memberData['name'],
+                'email' => null,
+                'contact_number' => $memberData['contact_number'],
+                'registration_date' => now()->subMonths(rand(3, 12)),
+                'document' => 'https://via.placeholder.com/640x480.png?text=member',
+                'password' => Hash::make('12345678'),
+                'email_verified_at' => now(),
+                'active' => true,
+                'is_default' => false,
+                // member_id will be auto-generated
+            ]);
+
+            UserAddress::create([
+                'user_id' => $newMember->id,
+                'street' => $memberData['street'],
+                'barangay' => $memberData['barangay'],
+                'city' => $memberData['city'],
+                'province' => $memberData['province'],
+                'is_active' => true,
+            ]);
+        }
+
+        // Now seed products, stocks, and comprehensive sales data with proper relationships
         $this->call([
             ProductSeeder::class,
             StockSeeder::class,
             PriceTrendSeeder::class,
-            UrgentOrderTestSeeder::class,
+            ComprehensiveSalesSeeder::class,
             MemberEarningsSeeder::class,
         ]);
     }

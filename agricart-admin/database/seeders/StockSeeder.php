@@ -21,15 +21,17 @@ class StockSeeder extends Seeder
         // Get all products
         $products = Product::all();
         
-        // Get the specific member user with ID 2411000 as requested
-        $member = User::where('member_id', '2411000')->first();
-
-        if (!$member) {
-            $this->command->warn('Member with ID 2411000 not found. Stock seeding skipped.');
+        // Get all members including the specific one with ID 2411000
+        $members = User::where('type', 'member')->get();
+        
+        if ($members->isEmpty()) {
+            $this->command->warn('No members found. Stock seeding skipped.');
             return;
         }
 
-        $this->command->info("Creating stocks for member: {$member->name} (ID: {$member->member_id})");
+        $primaryMember = User::where('member_id', '2411000')->first();
+        
+        $this->command->info("Creating stocks for {$members->count()} members...");
 
         foreach ($products as $product) {
             // Determine the category based on which price field is set
@@ -47,20 +49,51 @@ class StockSeeder extends Seeder
                 continue;
             }
 
-            $initialQuantity = $this->getRealisticQuantityForCategory($category, $product->name);
-            $soldQuantity = $this->getRealisticSoldQuantity($initialQuantity);
+            // Distribute stock across multiple members for realistic scenario
+            // Primary member (2411000) gets more stock as the main supplier
+            $membersForThisProduct = collect();
+            
+            if ($primaryMember) {
+                // Primary member always gets stock
+                $membersForThisProduct->push($primaryMember);
+                
+                // Add 1-2 other members randomly for some products
+                if (rand(1, 3) === 1) { // 33% chance to add other members
+                    $otherMembers = $members->where('id', '!=', $primaryMember->id)->random(rand(1, 2));
+                    $membersForThisProduct = $membersForThisProduct->merge($otherMembers);
+                }
+            } else {
+                // Fallback: assign to random members if primary not found
+                $membersForThisProduct = $members->random(rand(1, 2));
+            }
 
-            // Create stock for this product with realistic quantities
-            Stock::create([
-                'product_id' => $product->id,
-                'member_id' => $member->id,
-                'quantity' => $initialQuantity - $soldQuantity,
-                'sold_quantity' => $soldQuantity,
-                'initial_quantity' => $initialQuantity,
-                'category' => $category,
-                'removed_at' => null,
-                'notes' => null,
-            ]);
+            foreach ($membersForThisProduct as $member) {
+                $initialQuantity = $this->getRealisticQuantityForCategory($category, $product->name);
+                
+                // Primary member gets larger quantities, others get smaller
+                if ($member->member_id === '2411000') {
+                    $multiplier = 1.0;
+                } else {
+                    $multiplier = rand(60, 90) / 100; // 60-90% of primary member's quantity
+                    $initialQuantity = (int)($initialQuantity * $multiplier);
+                }
+                
+                if ($initialQuantity <= 0) continue;
+
+                $soldQuantity = $this->getRealisticSoldQuantity($initialQuantity);
+
+                // Create stock for this product with realistic quantities
+                Stock::create([
+                    'product_id' => $product->id,
+                    'member_id' => $member->id,
+                    'quantity' => max(0, $initialQuantity - $soldQuantity),
+                    'sold_quantity' => $soldQuantity,
+                    'initial_quantity' => $initialQuantity,
+                    'category' => $category,
+                    'removed_at' => null,
+                    'notes' => null,
+                ]);
+            }
         }
 
         // Create some removed/exhausted stocks for realistic scenario
