@@ -72,7 +72,6 @@ interface Summary {
     total_quantity: number;
     total_revenue: number;
     total_member_share: number;
-    total_coop_share: number;
 }
 
 interface PageProps {
@@ -125,29 +124,25 @@ export default function MemberTransactions({ transactions, availableProducts, su
         router.get(route('member.transactions'));
     };
 
-    const getSalePrice = (transaction: Transaction): number => {
+    const calculateMemberRevenue = (transaction: Transaction): number => {
+        // Get the appropriate price based on category
+        let price = 0;
         switch (transaction.category) {
             case 'Kilo':
-                return transaction.price_kilo || transaction.unit_price || 0;
+                price = transaction.price_kilo || transaction.unit_price || 0;
+                break;
             case 'Pc':
-                return transaction.price_pc || transaction.unit_price || 0;
+                price = transaction.price_pc || transaction.unit_price || 0;
+                break;
             case 'Tali':
-                return transaction.price_tali || transaction.unit_price || 0;
+                price = transaction.price_tali || transaction.unit_price || 0;
+                break;
             default:
-                return transaction.unit_price || 0;
+                price = transaction.unit_price || 0;
         }
-    };
-
-    const calculateSubtotal = (transaction: Transaction): number => {
-        return transaction.quantity * getSalePrice(transaction);
-    };
-
-    const calculateMemberShare = (transaction: Transaction): number => {
-        return calculateSubtotal(transaction) * 0.7; // 70% member share
-    };
-
-    const calculateCoopShare = (transaction: Transaction): number => {
-        return calculateSubtotal(transaction) * 0.3; // 30% coop share
+        
+        // Member gets 100% of product revenue (no co-op share deduction from member view)
+        return transaction.quantity * price;
     };
 
     const formatCurrency = (amount: number): string => {
@@ -215,7 +210,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-gray-300">Total Transactions</CardTitle>
@@ -251,7 +246,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
 
                     <Card className="bg-gray-800 border-gray-700">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Your Share</CardTitle>
+                            <CardTitle className="text-sm font-medium text-gray-300">Member Revenue</CardTitle>
                             <Users className="h-4 w-4 text-purple-400" />
                         </CardHeader>
                         <CardContent>
@@ -260,16 +255,6 @@ export default function MemberTransactions({ transactions, availableProducts, su
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gray-800 border-gray-700">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Co-op Share</CardTitle>
-                            <DollarSign className="h-4 w-4 text-orange-400" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_coop_share || 0)}</div>
-                            <p className="text-xs text-gray-400">Co-op service fee</p>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 {/* Filters */}
@@ -386,10 +371,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                                             <TableHead className="text-gray-300">Product</TableHead>
                                             <TableHead className="text-gray-300">Category</TableHead>
                                             <TableHead className="text-gray-300">Quantity</TableHead>
-                                            <TableHead className="text-gray-300">Unit Price</TableHead>
                                             <TableHead className="text-gray-300">Subtotal</TableHead>
-                                            <TableHead className="text-gray-300">Your Share</TableHead>
-                                            <TableHead className="text-gray-300">Co-op Share</TableHead>
                                             <TableHead className="text-gray-300">Buyer</TableHead>
                                             <TableHead className="text-gray-300">Date</TableHead>
                                         </TableRow>
@@ -408,17 +390,8 @@ export default function MemberTransactions({ transactions, availableProducts, su
                                                 <TableCell className="text-white">
                                                     {transaction.quantity}
                                                 </TableCell>
-                                                <TableCell className="text-white">
-                                                    {formatCurrency(getSalePrice(transaction))}
-                                                </TableCell>
                                                 <TableCell className="text-white font-medium">
-                                                    {formatCurrency(calculateSubtotal(transaction))}
-                                                </TableCell>
-                                                <TableCell className="text-green-400 font-medium">
-                                                    {formatCurrency(calculateMemberShare(transaction))}
-                                                </TableCell>
-                                                <TableCell className="text-orange-400 font-medium">
-                                                    {formatCurrency(calculateCoopShare(transaction))}
+                                                    {formatCurrency(calculateMemberRevenue(transaction))}
                                                 </TableCell>
                                                 <TableCell className="text-white">
                                                     {transaction.sale.customer.name}

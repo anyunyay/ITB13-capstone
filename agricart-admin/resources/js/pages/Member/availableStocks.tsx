@@ -122,7 +122,6 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                         <TableHead className="text-gray-300">Type</TableHead>
                                         <TableHead className="text-gray-300">Quantity</TableHead>
                                         <TableHead className="text-gray-300">Category</TableHead>
-                                        <TableHead className="text-gray-300">Price</TableHead>
                                         <TableHead className="text-gray-300">Total Value</TableHead>
                                         <TableHead className="text-gray-300">Status</TableHead>
                                     </TableRow>
@@ -146,12 +145,6 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                                 <Badge variant="secondary" className="bg-gray-600 text-white">
                                                     {stock.category}
                                                 </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                {stock.category === 'Kilo' && stock.product.price_kilo && `₱${stock.product.price_kilo}`}
-                                                {stock.category === 'Pc' && stock.product.price_pc && `₱${stock.product.price_pc}`}
-                                                {stock.category === 'Tali' && stock.product.price_tali && `₱${stock.product.price_tali}`}
-                                                {(!stock.product.price_kilo && !stock.product.price_pc && !stock.product.price_tali) && 'No price set'}
                                             </TableCell>
                                             <TableCell className="text-gray-300">
                                                 {stock.category === 'Kilo' && stock.product.price_kilo && `₱${(stock.quantity * stock.product.price_kilo).toLocaleString()}`}

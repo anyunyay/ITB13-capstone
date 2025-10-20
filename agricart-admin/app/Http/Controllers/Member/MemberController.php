@@ -683,7 +683,6 @@ class MemberController extends Controller
         $totalQuantity = 0;
         $totalRevenue = 0.0;
         $totalMemberShare = 0.0;
-        $totalCoopShare = 0.0;
 
         foreach ($sales as $sale) {
             $orderQuantity = 0;
@@ -712,9 +711,6 @@ class MemberController extends Controller
                 $totalQuantity += $orderQuantity;
                 $totalRevenue += $orderMemberRevenue;
                 $totalMemberShare += $orderMemberRevenue; // Member gets 100% of product revenue
-                
-                // Calculate co-op share for this member's portion (10% of member's revenue)
-                $totalCoopShare += $orderMemberRevenue * 0.10;
             }
         }
         
@@ -723,7 +719,6 @@ class MemberController extends Controller
             'total_quantity' => $totalQuantity,
             'total_revenue' => $totalRevenue,
             'total_member_share' => $totalMemberShare,
-            'total_coop_share' => $totalCoopShare,
         ];
     }
 } 
