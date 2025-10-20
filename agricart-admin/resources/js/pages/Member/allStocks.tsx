@@ -274,7 +274,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_member_share || 0)}</div>
-                                    <p className="text-xs text-gray-400">70% of revenue</p>
+                                    <p className="text-xs text-gray-400">Your product revenue</p>
                                 </CardContent>
                             </Card>
 
@@ -285,7 +285,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_coop_share || 0)}</div>
-                                    <p className="text-xs text-gray-400">30% of revenue</p>
+                                    <p className="text-xs text-gray-400">Co-op service fee</p>
                                 </CardContent>
                             </Card>
                         </>

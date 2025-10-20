@@ -140,8 +140,14 @@ class MemberController extends Controller
      */
     private function calculateSalesData($memberId)
     {
-        // Get all delivered sales that involve stocks from this member
+        // Get only delivered sales that involve stocks from this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail.product', 'customer'])
+            ->whereNotNull('delivered_at')
+            ->whereHas('salesAudit.auditTrail', function($query) use ($memberId) {
+                $query->whereHas('stock', function($stockQuery) use ($memberId) {
+                    $stockQuery->where('member_id', $memberId);
+                });
+            })
             ->get();
 
         $totalSales = 0;
@@ -150,6 +156,10 @@ class MemberController extends Controller
         $productSales = []; // Group by product_id
 
         foreach ($deliveredSales as $sale) {
+            $orderRevenue = 0;
+            $orderQuantity = 0;
+            $hasMemberItems = false;
+
             foreach ($sale->salesAudit->auditTrail as $audit) {
                 // Check if this audit trail involves a stock from this member
                 $stock = Stock::where('id', $audit->stock_id)
@@ -157,15 +167,16 @@ class MemberController extends Controller
                     ->first();
 
                 if ($stock) {
-                    $totalSales++;
-                    $totalQuantitySold += $audit->quantity;
+                    $hasMemberItems = true;
+                    $orderQuantity += $audit->quantity;
                     
-                    // Calculate revenue for this item using stored prices
+                    // Calculate member's revenue share for this item
+                    // Use the audit trail's stored sale price (member gets 100% of product price)
                     $price = $audit->getSalePrice();
-                    $itemRevenue = $audit->getTotalAmount();
-                    $totalRevenue += $itemRevenue;
+                    $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
+                    $orderRevenue += $itemRevenue;
 
-                    // Group by product_id
+                    // Group by product_id for breakdown
                     $productId = $audit->product_id;
                     if (!isset($productSales[$productId])) {
                         $productSales[$productId] = [
@@ -190,6 +201,13 @@ class MemberController extends Controller
                         $productSales[$productId]['customers'][] = $sale->customer->name;
                     }
                 }
+            }
+
+            // Only count sales and revenue if this order had items from this member
+            if ($hasMemberItems) {
+                $totalSales++;
+                $totalRevenue += $orderRevenue;
+                $totalQuantitySold += $orderQuantity;
             }
         }
 
@@ -220,8 +238,11 @@ class MemberController extends Controller
 
         // Calculate revenue from delivered sales for this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail'])
-            ->whereHas('salesAudit', function($query) {
-                $query->where('delivery_status', 'delivered');
+            ->whereNotNull('delivered_at')
+            ->whereHas('salesAudit.auditTrail', function($query) use ($memberId) {
+                $query->whereHas('stock', function($stockQuery) use ($memberId) {
+                    $stockQuery->where('member_id', $memberId);
+                });
             })
             ->get();
 
@@ -407,8 +428,9 @@ class MemberController extends Controller
             ]
         );
 
-        // Get all delivered sales that involve stocks from this member
+        // Get only delivered sales that involve stocks from this member
         $query = Sales::with(['salesAudit.auditTrail.product', 'customer'])
+            ->whereNotNull('delivered_at')
             ->whereHas('salesAudit.auditTrail', function($q) use ($user) {
                 $q->whereHas('stock', function($stockQuery) use ($user) {
                     $stockQuery->where('member_id', $user->id);
@@ -471,6 +493,7 @@ class MemberController extends Controller
             $orderTotal = 0;
             $orderQuantity = 0;
             $orderProducts = [];
+            $hasMemberItems = false;
 
             foreach ($sale->salesAudit->auditTrail as $audit) {
                 // Check if this audit trail involves a stock from this member
@@ -479,11 +502,13 @@ class MemberController extends Controller
                     ->first();
 
                 if ($stock) {
+                    $hasMemberItems = true;
                     $orderQuantity += $audit->quantity;
                     
-                    // Calculate revenue for this item using stored prices
+                    // Calculate member's revenue share for this item
+                    // Use the audit trail's stored sale price (member gets 100% of product price)
                     $price = $audit->getSalePrice();
-                    $itemRevenue = $audit->getTotalAmount();
+                    $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
                     $orderTotal += $itemRevenue;
 
                     // Group by product_id
@@ -522,7 +547,8 @@ class MemberController extends Controller
                 }
             }
 
-            if ($orderTotal > 0) {
+            // Only count orders with items from this member
+            if ($hasMemberItems && $orderTotal > 0) {
                 $totalOrders++;
                 $totalRevenue += $orderTotal;
                 $totalQuantitySold += $orderQuantity;
@@ -634,33 +660,63 @@ class MemberController extends Controller
      */
     private function calculateTransactionSummary($memberId, $dateFrom = null, $dateTo = null)
     {
-        $query = AuditTrail::whereHas('stock', function($q) use ($memberId) {
-            $q->where('member_id', $memberId);
-        })->whereHas('sale', function($q) {
-            $q->whereNotNull('delivered_time');
-        });
+        // Get delivered sales for this member through the proper relationship
+        $query = Sales::with(['salesAudit.auditTrail'])
+            ->whereNotNull('delivered_at')
+            ->whereHas('salesAudit.auditTrail', function($q) use ($memberId) {
+                $q->whereHas('stock', function($stockQuery) use ($memberId) {
+                    $stockQuery->where('member_id', $memberId);
+                });
+            });
         
         // Apply date filters if provided
         if ($dateFrom) {
-            $query->whereDate('created_at', '>=', $dateFrom);
+            $query->whereDate('delivered_at', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $query->whereDate('created_at', '<=', $dateTo);
+            $query->whereDate('delivered_at', '<=', $dateTo);
         }
         
-        $transactions = $query->get();
+        $sales = $query->get();
         
-        $totalTransactions = $transactions->count();
-        $totalQuantity = $transactions->sum('quantity');
-        $totalRevenue = $transactions->sum(function($transaction) {
-            return $transaction->getTotalAmount();
-        });
-        $totalMemberShare = $transactions->sum(function($transaction) {
-            return $transaction->getTotalAmount() * 0.7; // Assuming 70% member share
-        });
-        $totalCoopShare = $transactions->sum(function($transaction) {
-            return $transaction->getTotalAmount() * 0.3; // Assuming 30% coop share
-        });
+        $totalTransactions = 0;
+        $totalQuantity = 0;
+        $totalRevenue = 0.0;
+        $totalMemberShare = 0.0;
+        $totalCoopShare = 0.0;
+
+        foreach ($sales as $sale) {
+            $orderQuantity = 0;
+            $orderMemberRevenue = 0.0;
+            $hasMemberItems = false;
+
+            foreach ($sale->salesAudit->auditTrail as $audit) {
+                // Check if this audit trail involves a stock from this member
+                $stock = Stock::where('id', $audit->stock_id)
+                    ->where('member_id', $memberId)
+                    ->first();
+
+                if ($stock) {
+                    $hasMemberItems = true;
+                    $orderQuantity += $audit->quantity;
+                    
+                    // Calculate member's revenue share (100% of product price)
+                    $itemRevenue = $audit->getTotalAmount(); // quantity * price
+                    $orderMemberRevenue += $itemRevenue;
+                }
+            }
+
+            // Only count orders with items from this member
+            if ($hasMemberItems) {
+                $totalTransactions++;
+                $totalQuantity += $orderQuantity;
+                $totalRevenue += $orderMemberRevenue;
+                $totalMemberShare += $orderMemberRevenue; // Member gets 100% of product revenue
+                
+                // Calculate co-op share for this member's portion (10% of member's revenue)
+                $totalCoopShare += $orderMemberRevenue * 0.10;
+            }
+        }
         
         return [
             'total_transactions' => $totalTransactions,
