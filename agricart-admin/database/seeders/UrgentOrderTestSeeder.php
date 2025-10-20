@@ -20,11 +20,16 @@ class UrgentOrderTestSeeder extends Seeder
      */
     public function run(): void
     {
-        // Find the test customer
-        $customer = User::where('email', 'customer@customer.com')->first();
+        // Clear existing sales and audit trail data to avoid conflicts
+        SalesAudit::query()->delete();
+        Sales::query()->delete();
+        AuditTrail::query()->delete();
+
+        // Find the test customer (created by factory)
+        $customer = User::where('type', 'customer')->first();
         
         if (!$customer) {
-            $this->command->error('Customer with email customer@customer.com not found. Please create the customer first.');
+            $this->command->error('No customer found. Please create a customer first.');
             return;
         }
 
@@ -36,11 +41,25 @@ class UrgentOrderTestSeeder extends Seeder
             return;
         }
 
-        // Find some products to use for orders
-        $products = Product::with('stocks')->take(5)->get();
+        // Get admin and logistics for assignment
+        $admin = User::where('type', 'admin')->first();
+        $logistics = User::where('type', 'logistic')->get();
+
+        // Find products with available stocks from our member (ID 2411000)
+        $member = User::where('member_id', '2411000')->first();
+        if (!$member) {
+            $this->command->error('Member with ID 2411000 not found.');
+            return;
+        }
+
+        $products = Product::with(['stocks' => function($query) use ($member) {
+            $query->where('member_id', $member->id)->where('quantity', '>', 0);
+        }])->whereHas('stocks', function($query) use ($member) {
+            $query->where('member_id', $member->id)->where('quantity', '>', 0);
+        })->take(8)->get();
         
         if ($products->isEmpty()) {
-            $this->command->error('No products found. Please seed products first.');
+            $this->command->error('No products with available stock found. Please seed products and stocks first.');
             return;
         }
 
@@ -50,31 +69,31 @@ class UrgentOrderTestSeeder extends Seeder
         // Create orders with different ages to test the logic
         
         // 1. DELAYED ORDER (25 hours old - should be delayed)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(25), 'Delayed Order (25hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(25), 'Delayed Order (25hrs old)');
         
         // 2. DELAYED ORDER (30 hours old - should be delayed)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(30), 'Very Delayed Order (30hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(30), 'Very Delayed Order (30hrs old)');
         
         // 3. URGENT ORDER (22 hours old - 2 hours left - should be urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(22), 'Critical Urgent Order (2hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(22), 'Critical Urgent Order (2hrs left)');
         
         // 4. URGENT ORDER (20 hours old - 4 hours left - should be urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(20), 'High Urgent Order (4hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(20), 'High Urgent Order (4hrs left)');
         
         // 5. URGENT ORDER (18 hours old - 6 hours left - should be urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(18), 'Medium Urgent Order (6hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(18), 'Medium Urgent Order (6hrs left)');
         
         // 6. URGENT ORDER (16 hours old - 8 hours left - should be urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(16), 'Just Urgent Order (8hrs left)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(16), 'Just Urgent Order (8hrs left)');
         
         // 7. RECENT ORDER (10 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(10), 'Recent Order (10hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(10), 'Recent Order (10hrs old)');
         
         // 8. RECENT ORDER (5 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(5), 'Fresh Order (5hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(5), 'Fresh Order (5hrs old)');
         
         // 9. RECENT ORDER (2 hours old - should be recent, not urgent)
-        $this->createTestOrder($customer, $defaultAddress, $products, Carbon::now()->subHours(2), 'Very Fresh Order (2hrs old)');
+        $this->createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, Carbon::now()->subHours(2), 'Very Fresh Order (2hrs old)');
         
 
         $this->command->info('✅ Created 9 test orders with proper status logic:');
@@ -89,23 +108,23 @@ class UrgentOrderTestSeeder extends Seeder
         $this->command->info('You can now test the urgent order popup functionality!');
     }
 
-    private function createTestOrder($customer, $defaultAddress, $products, $createdAt, $description)
+    private function createTestOrder($customer, $defaultAddress, $products, $admin, $logistics, $createdAt, $description)
     {
         // Select 1-3 random products for this order
         $selectedProducts = $products->random(rand(1, 3));
         
-        $totalAmount = 0;
+        $subtotal = 0;
         $orderItems = [];
 
         // Create order with selected products
         foreach ($selectedProducts as $product) {
-            $stock = $product->stocks->first();
-            if (!$stock) continue;
+            $stock = $product->stocks->where('member_id', User::where('member_id', '2411000')->first()->id)->first();
+            if (!$stock || $stock->quantity <= 0) continue;
 
-            $quantity = rand(1, 3);
-            $price = $product->price_kilo ?? $product->price_pc ?? $product->price_tali ?? 100;
+            $quantity = rand(1, min(3, (int)$stock->quantity)); // Don't order more than available
+            $price = $product->price_kilo ?? $product->price_pc ?? $product->price_tali ?? 0;
             $itemTotal = $price * $quantity;
-            $totalAmount += $itemTotal;
+            $subtotal += $itemTotal;
 
             $orderItems[] = [
                 'product' => $product,
@@ -121,6 +140,11 @@ class UrgentOrderTestSeeder extends Seeder
             return null;
         }
 
+        // Calculate financial breakdown
+        $coopShare = $subtotal * 0.10; // 10% co-op share
+        $memberShare = $subtotal; // Member gets 100% of subtotal
+        $totalAmount = $subtotal + $coopShare; // Customer pays subtotal + co-op share
+
         // Apply the proper logic: >24hrs = delayed, 16-24hrs = urgent, <16hrs = recent
         $orderAge = $createdAt->diffInHours(now());
         $hoursLeft = 24 - $orderAge;
@@ -129,36 +153,60 @@ class UrgentOrderTestSeeder extends Seeder
         if ($orderAge > 24) {
             $status = 'delayed';
             $urgencyLevel = 'DELAYED';
+            $deliveryStatus = 'pending';
         } else {
             $status = 'pending';
             if ($orderAge >= 16) {
                 $urgencyLevel = 'URGENT';
+                $deliveryStatus = 'pending';
             } else {
                 $urgencyLevel = 'RECENT';
+                $deliveryStatus = 'pending';
             }
         }
 
-        // Create the sales audit record
+        // Randomly assign a logistic for some orders
+        $assignedLogistic = $logistics->isNotEmpty() ? $logistics->random() : null;
+
+        // Create the sales audit record with proper financial data
         $order = SalesAudit::create([
             'customer_id' => $customer->id,
             'total_amount' => $totalAmount,
+            'subtotal' => $subtotal,
+            'coop_share' => $coopShare,
+            'member_share' => $memberShare,
             'status' => $status,
+            'delivery_status' => $deliveryStatus,
             'address_id' => $defaultAddress->id,
+            'admin_id' => $admin ? $admin->id : null,
+            'logistic_id' => $assignedLogistic ? $assignedLogistic->id : null,
+            'is_urgent' => $urgencyLevel === 'URGENT',
             'created_at' => $createdAt,
             'updated_at' => $createdAt,
         ]);
 
-        // Create audit trail entries
+        // Create audit trail entries with proper pricing data
         foreach ($orderItems as $item) {
             AuditTrail::create([
                 'sale_id' => $order->id,
                 'product_id' => $item['product']->id,
                 'stock_id' => $item['stock']->id,
+                'member_id' => $item['stock']->member_id,
+                'product_name' => $item['product']->name,
+                'category' => $item['stock']->category,
                 'quantity' => $item['quantity'],
-                'category' => 'order',
+                'price_kilo' => $item['product']->price_kilo,
+                'price_pc' => $item['product']->price_pc,
+                'price_tali' => $item['product']->price_tali,
+                'unit_price' => $item['price'],
+                'available_stock_after_sale' => $item['stock']->quantity - $item['quantity'],
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ]);
+
+            // Update stock quantities to reflect the sale
+            $item['stock']->decrement('quantity', $item['quantity']);
+            $item['stock']->increment('sold_quantity', $item['quantity']);
         }
 
         // Format hours left for display
@@ -170,7 +218,8 @@ class UrgentOrderTestSeeder extends Seeder
             $timeInfo = "{$orderAge}hrs old";
         }
         
-        $this->command->info("Created order #{$order->id}: {$description} - ₱{$totalAmount} - Status: {$status} ({$urgencyLevel}) - {$timeInfo} - {$createdAt->diffForHumans()}");
+        $logisticInfo = $assignedLogistic ? " - Logistic: {$assignedLogistic->name}" : "";
+        $this->command->info("Created order #{$order->id}: {$description} - ₱{$totalAmount} - Status: {$status} ({$urgencyLevel}) - {$timeInfo}{$logisticInfo} - {$createdAt->diffForHumans()}");
         
         return $order;
     }
