@@ -215,14 +215,14 @@ export default function CustomerHome() {
       <div className="w-full max-w-7xl mx-auto">
         {/* Section Header with Centered Title and View All Button */}
         <div className="flex justify-center items-center mb-6 relative">
-          <h1 className="text-2xl font-bold text-green-600 dark:text-green-400 text-center">{title}</h1>
+          <h2 className="text-6xl font-bold text-green-600 dark:text-green-400 text-center">{title}</h2>
           <Button
             onClick={toggleFunction}
             variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg ${
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-green-500 ${
               viewMode === 'carousel' 
-                ? 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white' 
-                : 'bg-green-600 text-white border-2 border-green-600 hover:bg-green-700'
+                ? 'text-green-600' 
+                : 'text-green-700'
             }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
@@ -234,10 +234,10 @@ export default function CustomerHome() {
           <Button
             onClick={toggleFunction}
             variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg ${
+            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-green-500 ${
               viewMode === 'carousel' 
-                ? 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white' 
-                : 'bg-green-600 text-white border-2 border-green-600 hover:bg-green-700'
+                ? 'text-green-600' 
+                : 'text-green-700'
             }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
