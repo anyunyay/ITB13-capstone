@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { FeatureCards } from '@/components/FeatureCards';
+import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
 
@@ -85,6 +86,34 @@ export default function CustomerHome({ products }: PageProps) {
       title: 'Cabuyao Grown',
       description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.',
       backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+    }
+  ];
+
+  // Testimonial data
+  const testimonialData = [
+    {
+      id: 1,
+      text: "SMMC Cooperative has transformed our farming community. The fresh produce and support from the cooperative have been outstanding. We're proud to be part of this sustainable agriculture movement.",
+      name: "Maria Santos",
+      role: "Local Farmer & Cooperative Member"
+    },
+    {
+      id: 2,
+      text: "The quality and freshness of the produce from SMMC Cooperative is unmatched. Every purchase supports local farmers and sustainable practices. It's wonderful to be part of this community-driven initiative.",
+      name: "Juan Dela Cruz",
+      role: "Long-time Customer"
+    },
+    {
+      id: 3,
+      text: "Working with SMMC Cooperative has given our family farm new opportunities. The cooperative's commitment to fair trade and sustainable farming practices makes all the difference.",
+      name: "Ana Rodriguez",
+      role: "Farm Owner & Community Leader"
+    },
+    {
+      id: 4,
+      text: "As a chef, I rely on SMMC Cooperative for the freshest ingredients. Their commitment to quality and supporting local farmers aligns perfectly with our restaurant's values and our customers love the taste.",
+      name: "Chef Miguel Torres",
+      role: "Head Chef, Farm-to-Table Restaurant"
     }
   ];
 
@@ -253,6 +282,13 @@ export default function CustomerHome({ products }: PageProps) {
           </button>
         </div>
       </section>
+
+      {/* Testimonial Section with Parallax */}
+      <TestimonialSlider
+        testimonials={testimonialData}
+        parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+        autoplayInterval={6500}
+      />
 
       {/* Feature Cards Section */}
       <div className="relative z-10 w-full bg-gray-50 py-16">
