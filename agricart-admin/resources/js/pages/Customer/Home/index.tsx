@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { SharedData } from '@/types';
 import {
   Dialog,
@@ -13,9 +13,9 @@ import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { FeatureCards } from '@/components/FeatureCards';
+import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
-import styles from './index.module.css';
 
 interface PageProps {
   flash: {
@@ -66,17 +66,54 @@ export default function CustomerHome({ products }: PageProps) {
     {
       icon: '🌿',
       title: '100% Natural',
-      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides.'
+      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides.',
+      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
     },
     {
       icon: '🛍️',
       title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and delivered fresh to your doorstep.'
+      description: 'Harvested at peak ripeness and delivered fresh to your doorstep.',
+      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
     },
     {
       icon: '🌱',
       title: 'Cabuyao Grown',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.'
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.',
+      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+    },
+    {
+      icon: '🌱',
+      title: 'Cabuyao Grown',
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.',
+      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+    }
+  ];
+
+  // Testimonial data
+  const testimonialData = [
+    {
+      id: 1,
+      text: "SMMC Cooperative has transformed our farming community. The fresh produce and support from the cooperative have been outstanding. We're proud to be part of this sustainable agriculture movement.",
+      name: "Maria Santos",
+      role: "Local Farmer & Cooperative Member"
+    },
+    {
+      id: 2,
+      text: "The quality and freshness of the produce from SMMC Cooperative is unmatched. Every purchase supports local farmers and sustainable practices. It's wonderful to be part of this community-driven initiative.",
+      name: "Juan Dela Cruz",
+      role: "Long-time Customer"
+    },
+    {
+      id: 3,
+      text: "Working with SMMC Cooperative has given our family farm new opportunities. The cooperative's commitment to fair trade and sustainable farming practices makes all the difference.",
+      name: "Ana Rodriguez",
+      role: "Farm Owner & Community Leader"
+    },
+    {
+      id: 4,
+      text: "As a chef, I rely on SMMC Cooperative for the freshest ingredients. Their commitment to quality and supporting local farmers aligns perfectly with our restaurant's values and our customers love the taste.",
+      name: "Chef Miguel Torres",
+      role: "Head Chef, Farm-to-Table Restaurant"
     }
   ];
 
@@ -85,62 +122,42 @@ export default function CustomerHome({ products }: PageProps) {
       <Head title="Home - Cooperatives of Farmers" />
 
       {/* Hero Section with Farm Image */}
-      <section className={styles.heroSection}>
-        <AspectRatio ratio={19/9}>
-          <div className={styles.heroImage}>
+      <section className="sticky top-0 z-0 w-full isolation-isolate">
+        <AspectRatio ratio={18/9}>
+          <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
             <div className="w-full h-full relative">
-              <div className="w-full h-full bg-gradient-to-b from-neutral-100 via-oklch-300 to-oklch-400">
-                <img 
-                  src="/images/frontpage/pexels-pixabay-265216.jpg" 
-                  alt="Farm landscape" 
-                  className="w-full h-full object-cover mix-blend-multiply"
-                />
-              </div>
-              {/* Text overlay - no gradient applied */}
-              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-50">
+              <img 
+                src="/images/frontpage/pexels-pixabay-265216.jpg" 
+                alt="Farm landscape" 
+                className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
+                loading="eager"
+                onError={(e) => {
+                  // Fallback handling if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+              {/* Gradient overlay for better text readability using Tailwind */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
+              {/* Text overlay - positioned above gradient */}
+              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-30">
                 <div className="text-left">
-                  <h2 className="text-6xl font-light">Grown Here,</h2>
-                  <h1 className="text-9xl font-bold text-green-600">For You.</h1>
+                  <h2 className="text-7xl font-light">Grown Here,</h2>
+                  <h1 className="text-[164px] leading-none font-bold text-green-600">For You.</h1>
                 </div>
-              </div>
-              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-40">
-                <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('produce')?.scrollIntoView({ behavior: 'smooth' })}>
-                  VIEW PRODUCE
-                  <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
-                </Button>
-                <Button variant="outline" size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth' })}>
-                  EXPLORE
-                  <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
-                </Button>
               </div>
             </div>
           </div>
         </AspectRatio>
-        <div className={styles.heroOverlay}>
-          <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>
-              Cooperatives of Farmers
-            </h1>
-            <p className={styles.heroSubtitle}>
-              Connecting communities with fresh, locally-sourced produce from trusted farmer cooperatives
-            </p>
-            <button
-              className={styles.heroCta}
-              onClick={() => router.visit('/customer/produce')}
-            >
-              Explore Our Products
-            </button>
-          </div>
-        </div>
       </section>
 
       {/* Split Layout Section - Cooperatives of Farmers */}
-      <section id="explore" className={styles.splitSection}>
-        <div className={styles.splitContainer}>
-          <div className={styles.splitContent}>
+      <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10">
+        <div className="max-w-[90vw] mx-auto">
+          <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
-            <div className={styles.splitText}>
+            <div className="flex flex-col gap-6">
               <h2 className="text-6xl text-green-700 font-extrabold mb-4">
                 SMMC Cooperative
               </h2>
@@ -155,32 +172,31 @@ export default function CustomerHome({ products }: PageProps) {
               </p>
 
               {/* Stats */}
-              <div className={styles.splitStats}>
-                <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>00</div>
-                  <div className={styles.splitStatLabel}>Years Experience</div>
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-green-600 font-medium md:text-base">Years Experience</div>
                 </div>
-                <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>00</div>
-                  <div className={styles.splitStatLabel}>Active Farmers</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-green-600 font-medium md:text-base">Active Farmers</div>
                 </div>
-                <div className={styles.splitStat}>
-                  <div className={styles.splitStatNumber}>00</div>
-                  <div className={styles.splitStatLabel}>Cooperatives</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-green-600 font-medium md:text-base">Cooperatives</div>
                 </div>
               </div>
             </div>
 
             {/* Right Side - Image with AspectRatio */}
-            <div className={styles.splitImageContainer}>
-              <AspectRatio ratio={4 / 3} className={styles.splitImage}>
+            <div className="w-full">
+              <AspectRatio ratio={4 / 3} className="rounded-xl overflow-hidden shadow-lg">
                 {/* Stock image placeholder - replace with actual cooperative/farm image */}
-                <div className={styles.splitImagePlaceholder}>
-                  <div className={styles.splitImageContent}>
-                    <div className={styles.splitImageTitle}>SMMC Letters Pic</div>
+                <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
+                  <div className="text-white text-center p-8">
+                    <div className="text-2xl font-semibold mb-2">SMMC Letters Pic</div>
+                  </div>
                 </div>
-                </div>
-                <div className={styles.splitImageOverlay}></div>
               </AspectRatio>
             </div>
           </div>
@@ -188,10 +204,10 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Product Carousel Section */}
-      <section id="produce" className="py-18 bg-white overflow-hidden">
+      <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10">
           <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
-          <div className={`relative ${styles.carouselContainer}`}>
+          <div className="relative overflow-visible">
             <Carousel
               opts={{
                 align: "center",
@@ -207,7 +223,7 @@ export default function CustomerHome({ products }: PageProps) {
               setApi={handleCarouselApi}
               className="w-full max-w-6xl mx-auto"
             >
-            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 ${styles.perspective1000} ${styles.carouselContent}`}>
+            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 [perspective:1000px] overflow-visible mx-0 -mx-8 p-20`}>
               {featuredProducts.map((product, index) => {
                 const isActive = index === currentSlide;
                 const isLeft = index < currentSlide;
@@ -215,14 +231,14 @@ export default function CustomerHome({ products }: PageProps) {
                 
                 return (
                   <CarouselItem key={product.id} className="basis-1/3 pl-4">
-                    <div className={`relative ${styles.transformGpu}`}>
-                      <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative ${styles.transformGpu} ${
+                    <div className="relative [transform-style:preserve-3d]">
+                      <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${
                         isActive 
-                          ? `scale-150 shadow-2xl z-30 transform translate-y-0 ${styles.translateZ0} ${styles.rotateY0} blur-none opacity-100` 
+                          ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]` 
                           : isLeft
-                          ? `scale-80 opacity-20 z-10 transform translate-x-12 -translate-y-6 ${styles.translateZNeg100} ${styles.rotateY25} blur-sm`
+                          ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
                           : isRight
-                          ? `scale-80 opacity-20 z-10 transform -translate-x-12 -translate-y-6 ${styles.translateZNeg100} ${styles.rotateYNeg25} blur-sm`
+                          ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
                           : 'scale-80 opacity-20 z-10 blur-md'
                       }`}>
                       <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
@@ -265,8 +281,19 @@ export default function CustomerHome({ products }: PageProps) {
             Show All Produce
           </button>
         </div>
-        <FeatureCards cards={featureCardsData} />
       </section>
+
+      {/* Testimonial Section with Parallax */}
+      <TestimonialSlider
+        testimonials={testimonialData}
+        parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+        autoplayInterval={6500}
+      />
+
+      {/* Feature Cards Section */}
+      <div className="relative z-10 w-full bg-gray-50 py-16">
+        <FeatureCards cards={featureCardsData} />
+      </div>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
@@ -285,16 +312,18 @@ export default function CustomerHome({ products }: PageProps) {
       </Dialog>
 
       {/* Footer */}
-      <Footer 
-        companyName="SMMC Cooperative"
-        facebookUrl="https://facebook.com/smmccooperative"
-        emailAddress="contact@smmccooperative.com"
-        physicalAddress="Cabuyao, Laguna, Philippines"
-        navigationLinks={[
-          { title: "Privacy Policy", href: "/privacy" },
-          { title: "Terms of Service", href: "/terms" }
-        ]}
-      />
+      <div className="relative z-20 w-full">
+        <Footer 
+          companyName="SMMC Cooperative"
+          facebookUrl="https://facebook.com/smmccooperative"
+          emailAddress="contact@smmccooperative.com"
+          physicalAddress="Cabuyao, Laguna, Philippines"
+          navigationLinks={[
+            { title: "Privacy Policy", href: "/privacy" },
+            { title: "Terms of Service", href: "/terms" }
+          ]}
+        />
+      </div>
     </AppHeaderLayout>
   );
 }
