@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
 import SimpleFooter from '@/components/SimpleFooter';
@@ -195,7 +196,7 @@ export default function CustomerHome() {
     );
   };
 
-  const renderCarousel = (type: string | null, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void) => {
+  const renderCarousel = (type: string | null, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void, sectionId?: string) => {
     // Filter products based on type and available stock
     const filteredProducts = products.filter(product => {
       const hasStock = hasAvailableStock(product);
@@ -212,7 +213,7 @@ export default function CustomerHome() {
     }
 
     return (
-      <div className="w-full max-w-7xl mx-auto">
+      <div id={sectionId} className="w-full max-w-7xl mx-auto">
         {/* Section Header with Centered Title and View All Button */}
         <div className="flex justify-center items-center mb-6 relative">
           <h2 className="text-6xl font-bold text-green-600 dark:text-green-400 text-center">{title}</h2>
@@ -257,14 +258,59 @@ export default function CustomerHome() {
   return (
     <AppHeaderLayout>
       <Head title="Produce" />
-      <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-32">
+      
+      {/* Hero Section with Farm Image */}
+      <section className="relative w-full overflow-hidden">
+        <AspectRatio ratio={25/9}>
+          <div className="w-full h-full">
+            {/* Background image with gradient overlay */}
+            <div className="w-full h-full relative">
+              <div className="w-full h-full bg-gradient-to-b from-neutral-100 via-oklch-300 to-oklch-400">
+                <img 
+                  src="/images/frontpage/pexels-pixabay-265216.jpg" 
+                  alt="Farm landscape" 
+                  className="w-full h-full object-cover mix-blend-multiply"
+                />
+              </div>
+              {/* Text overlay - no gradient applied */}
+              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-50">
+                <div className="text-left">
+                  <h2 className="text-6xl font-light">Grown Here,</h2>
+                  <h1 className="text-9xl font-bold text-green-600">For You.</h1>
+                </div>
+              </div>
+              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-40">
+                {shouldShowSeparateSections ? (
+                  <>
+                    <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('fruits-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                      VIEW FRUITS
+                      <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
+                    </Button>
+                    <Button variant="outline" size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('vegetables-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                      VIEW VEGETABLES
+                      <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('fresh-produce-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                    VIEW All PRODUCE
+                    <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </AspectRatio>
+      </section>
+
+      <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16">
         {shouldShowSeparateSections ? (
           <>
-            {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode)}
-            {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode)}
+            {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
+            {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode, 'vegetables-section')}
           </>
         ) : (
-          renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode)
+          renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
         )}
 
         {/* Login Confirmation Dialog */}

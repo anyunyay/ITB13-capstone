@@ -1,86 +1,12 @@
-.featureSection {
-  background-color: #f9fafb;
+/* FeatureCards Component Styles - Cleaned up version */
+
+/* Import Raleway font */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Custom font family application */
+* {
+  font-family: 'Raleway', ui-sans-serif, system-ui, sans-serif;
 }
 
-.featureContainer {
-  max-width: 90rem;
-  margin: 0 auto;
-}
-
-.featureGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 768px) {
-  .featureGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.featureCard {
-  background-color: white;
-  border-radius: 0.5rem;
-  border: 2px solid #bbf7d0;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s;
-}
-
-.featureCard:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.featureCardContent {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.featureIconContainer {
-  flex-shrink: 0;
-}
-
-.featureIcon {
-  width: 3rem;
-  height: 3rem;
-  background-color: #dcfce7;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.featureIconText {
-  font-size: 1.5rem;
-}
-
-.featureText {
-  flex: 1;
-}
-
-.featureTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #1f2937;
-}
-
-.featureTitleItalic {
-  font-style: italic;
-  color: #059669;
-}
-
-.featureDescription {
-  color: #6b7280;
-  line-height: 1.6;
-  font-size: 0.875rem;
-}
-
-/* Desktop enhancements */
-@media (min-width: 1025px) {
-  .featureCard:hover {
-    transform: translateY(-0.25rem);
-  }
-}
+/* All layout, spacing, positioning, and styling has been moved to Tailwind classes */
+/* Only keeping unique custom styles that cannot be easily replicated with Tailwind utilities */
