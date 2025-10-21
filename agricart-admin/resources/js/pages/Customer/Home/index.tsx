@@ -65,26 +65,26 @@ export default function CustomerHome({ products }: PageProps) {
   const featureCardsData = [
     {
       icon: '🌿',
-      title: '100% Natural',
-      description: 'Our produce is grown using only natural methods, free from harmful chemicals and pesticides.',
+      title: 'Tended with Care',
+      description: 'Our produce is carefully tended by experienced farmers using sustainable methods, ensuring the highest quality and natural growth.',
+      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+    },
+    {
+      icon: '🌱',
+      title: 'Locally Produced',
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate, supporting our community.',
       backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
     },
     {
       icon: '🛍️',
       title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and delivered fresh to your doorstep.',
+      description: 'Harvested at peak ripeness and carefully selected to ensure you receive only the freshest, most flavorful produce.',
       backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
     },
     {
-      icon: '🌱',
-      title: 'Cabuyao Grown',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.',
-      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
-    },
-    {
-      icon: '🌱',
-      title: 'Cabuyao Grown',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate.',
+      icon: '🚚',
+      title: 'Delivered to Your Doorstep',
+      description: 'Conveniently delivered fresh to your doorstep, bringing farm-fresh quality directly to your home.',
       backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
     }
   ];
