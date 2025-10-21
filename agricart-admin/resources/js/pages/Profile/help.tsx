@@ -122,109 +122,160 @@ export default function HelpPage() {
             ]}
             title="Help & Support"
         >
-
-            {/* FAQ Section */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <HelpCircle className="h-5 w-5" />
-                        Frequently Asked Questions
-                    </CardTitle>
-                    <CardDescription>
-                        Find answers to common questions about our services
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search FAQs..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                            <SelectTrigger className="w-full sm:w-48">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {categories.map((category) => (
-                                    <SelectItem key={category} value={category}>
-                                        {category}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        {filteredFaqs.map((faq) => (
-                            <div key={faq.id} className="border rounded-lg">
-                                <button
-                                    onClick={() => toggleExpanded(faq.id)}
-                                    className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Badge variant="secondary" className="text-xs">
-                                            {faq.category}
-                                        </Badge>
-                                        <span className="font-medium">{faq.question}</span>
+            <div className="space-y-6">
+                {/* FAQ Section */}
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 group">
+                    <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                            <div className="flex items-center space-x-6">
+                                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                    <HelpCircle className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                                        Frequently Asked Questions
+                                    </h1>
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            <HelpCircle className="h-3 w-3 mr-1" />
+                                            Support Center
+                                        </span>
                                     </div>
-                                    {expandedItems.includes(faq.id) ? (
-                                        <ChevronUp className="h-4 w-4 text-gray-500" />
-                                    ) : (
-                                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        Find answers to common questions about our services
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-6 py-6">
+                        {/* Search and Filter Section */}
+                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search FAQs..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-12 border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100/50 dark:focus:ring-blue-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                />
+                            </div>
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                <SelectTrigger className="w-full sm:w-48 border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100/50 dark:focus:ring-blue-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50">
+                                    {categories.map((category) => (
+                                        <SelectItem key={category} value={category} className="hover:bg-blue-50/80 dark:hover:bg-blue-900/20 focus:bg-blue-50/80 dark:focus:bg-blue-900/20">
+                                            <span className="text-slate-700 dark:text-slate-300 font-medium">{category}</span>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* FAQ Items */}
+                        <div className="space-y-4">
+                            {filteredFaqs.map((faq) => (
+                                <div key={faq.id} className="bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-all duration-200 overflow-hidden">
+                                    <button
+                                        onClick={() => toggleExpanded(faq.id)}
+                                        className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-100/50 dark:hover:bg-slate-600/30 transition-colors duration-200"
+                                    >
+                                        <div className="flex items-center gap-4 flex-1">
+                                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-medium">
+                                                {faq.category}
+                                            </Badge>
+                                            <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm">{faq.question}</span>
+                                        </div>
+                                        <div className="flex-shrink-0">
+                                            {expandedItems.includes(faq.id) ? (
+                                                <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                                            ) : (
+                                                <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                                            )}
+                                        </div>
+                                    </button>
+                                    {expandedItems.includes(faq.id) && (
+                                        <div className="px-6 pb-4 border-t border-slate-200/50 dark:border-slate-600/50">
+                                            <div className="pt-4 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                                {faq.answer}
+                                            </div>
+                                        </div>
                                     )}
-                                </button>
-                                {expandedItems.includes(faq.id) && (
-                                    <div className="px-4 pb-3 text-gray-600">
-                                        {faq.answer}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* No Results */}
+                        {filteredFaqs.length === 0 && (
+                            <div className="text-center py-12">
+                                <div className="p-4 rounded-full bg-slate-100/80 dark:bg-slate-700/30 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                                    <HelpCircle className="h-10 w-10 text-slate-400 dark:text-slate-500" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">No FAQs found</h3>
+                                <p className="text-slate-600 dark:text-slate-400">Try adjusting your search terms or category filter.</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+
+                {/* Contact Information */}
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
+                    <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                            <div className="flex items-center space-x-6">
+                                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                    <Phone className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                                        Other Ways to Reach Us
+                                    </h2>
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                            <Phone className="h-3 w-3 mr-1" />
+                                            Contact Support
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    {filteredFaqs.length === 0 && (
-                        <div className="text-center py-8">
-                            <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">No FAQs found</h3>
-                            <p className="text-gray-500">Try adjusting your search terms or category filter.</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-
-            {/* Contact Information */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Phone className="h-5 w-5" />
-                        Other Ways to Reach Us
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3 p-4 border rounded-lg">
-                            <Mail className="h-5 w-5 text-blue-600" />
-                            <div>
-                                <p className="font-medium">Email Support</p>
-                                <p className="text-sm text-gray-600">support@agricart.com</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        Get in touch with our support team for personalized assistance
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-4 border rounded-lg">
-                            <Phone className="h-5 w-5 text-green-600" />
-                            <div>
-                                <p className="font-medium">Phone Support</p>
-                                <p className="text-sm text-gray-600">(02) 1234-5678</p>
+                    </CardHeader>
+                    <CardContent className="px-6 py-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                        <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Email Support</p>
+                                        <p className="font-semibold text-slate-800 dark:text-slate-200">support@agricart.com</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">We'll respond within 24 hours</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                        <Phone className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Phone Support</p>
+                                        <p className="font-semibold text-slate-800 dark:text-slate-200">(02) 1234-5678</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Mon-Fri 9AM-6PM</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </ProfileWrapper>
     );
 }
