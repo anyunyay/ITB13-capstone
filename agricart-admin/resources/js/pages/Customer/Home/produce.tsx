@@ -44,18 +44,20 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-function ProductCard({ product, onRequireLogin, onStockUpdate }: { 
+function ProductCard({ product, onRequireLogin, onStockUpdate, className }: { 
   product: Product; 
   onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
+  className?: string;
 }) {
   return (
     <StandardProductCard 
       product={product}
       onRequireLogin={onRequireLogin}
       onStockUpdate={onStockUpdate}
-                variant="default" 
+      variant="default" 
       showAddToCart={true}
+      className={className}
     />
   );
 }
@@ -75,15 +77,20 @@ export function ProductCarousel({
 }: ProductCarouselProps) {
   if (viewMode === 'list') {
     return (
-      <div className="w-full max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="-ml-2 flex flex-wrap">
           {products.map(product => (
-            <ProductCard 
+            <div
               key={product.id}
-              product={product} 
-              onRequireLogin={onRequireLogin}
-              onStockUpdate={onStockUpdate}
-            />
+              className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6 w-full sm:w-auto"
+            >
+              <ProductCard 
+                product={product} 
+                onRequireLogin={onRequireLogin}
+                onStockUpdate={onStockUpdate}
+                className="w-full max-w-none"
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -91,17 +98,18 @@ export function ProductCarousel({
   }
 
   return (
-    <Carousel className="w-full max-w-6xl mx-auto" opts={{ align: 'center', loop: true }}>
+    <Carousel className="w-full max-w-7xl mx-auto" opts={{ align: 'center', loop: true }}>
       <CarouselContent className="-ml-2">
         {products.map(product => (
           <CarouselItem
             key={product.id}
-            className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center"
+            className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6"
           >
             <ProductCard 
               product={product} 
               onRequireLogin={onRequireLogin}
               onStockUpdate={onStockUpdate}
+              className="w-full max-w-none"
             />
           </CarouselItem>
         ))}
@@ -116,8 +124,36 @@ export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [fruitsViewMode, setFruitsViewMode] = useState<'carousel' | 'grid'>('carousel');
   const [vegetablesViewMode, setVegetablesViewMode] = useState<'carousel' | 'grid'>('carousel');
+  const [produceViewMode, setProduceViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
+
+  // Helper function to check if a product has available stock
+  const hasAvailableStock = (product: Product): boolean => {
+    if (!product.stock_by_category) return false;
+    return Object.values(product.stock_by_category).some(quantity => quantity > 0);
+  };
+
+  // Get active fruit products (with available stock)
+  const activeFruits = products.filter(product => 
+    product.produce_type === 'fruit' && hasAvailableStock(product)
+  );
+
+  // Determine layout based on active fruit count
+  const shouldShowSeparateSections = activeFruits.length >= 3;
+
+  // Reset view modes when switching between layouts to avoid inconsistencies
+  useEffect(() => {
+    if (!shouldShowSeparateSections) {
+      // When switching to merged view, ensure we're in carousel mode for better UX
+      setProduceViewMode('carousel');
+    }
+  }, [shouldShowSeparateSections]);
+
+  // Update products state when initialProducts change
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   // Refresh stock data when page loads to ensure accuracy
   useEffect(() => {
@@ -133,6 +169,10 @@ export default function CustomerHome() {
 
   const toggleVegetablesViewMode = () => {
     setVegetablesViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+  };
+
+  const toggleProduceViewMode = () => {
+    setProduceViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
   };
 
   const handleStockUpdate = (productId: number, category: string, quantity: number) => {
@@ -155,35 +195,77 @@ export default function CustomerHome() {
     );
   };
 
-  const renderCarousel = (type: string, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void) => (
-    <div className="w-full max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-6 text-center">Available {title}</h1>
-      <ProductCarousel 
-        products={products.filter(product => product.produce_type === type)}
-        onRequireLogin={handleRequireLogin}
-        onStockUpdate={handleStockUpdate}
-        viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
-      />
-      
-      {/* View All Toggle Button */}
-      <div className="flex justify-center mt-8">
-        <Button
-          onClick={toggleFunction}
-          variant="outline"
-          className="px-8 py-3 text-base font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
-        >
-          {viewMode === 'carousel' ? `View All ${title}` : `Back to ${title}`}
-        </Button>
+  const renderCarousel = (type: string | null, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void) => {
+    // Filter products based on type and available stock
+    const filteredProducts = products.filter(product => {
+      const hasStock = hasAvailableStock(product);
+      if (type === null) {
+        // Show all produce types (fruit and vegetable)
+        return hasStock;
+      }
+      return product.produce_type === type && hasStock;
+    });
+
+    // Don't render if no products with stock
+    if (filteredProducts.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="w-full max-w-7xl mx-auto">
+        {/* Section Header with Centered Title and View All Button */}
+        <div className="flex justify-center items-center mb-6 relative">
+          <h1 className="text-2xl font-bold text-green-600 dark:text-green-400 text-center">{title}</h1>
+          <Button
+            onClick={toggleFunction}
+            variant={viewMode === 'carousel' ? 'outline' : 'default'}
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg ${
+              viewMode === 'carousel' 
+                ? 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white' 
+                : 'bg-green-600 text-white border-2 border-green-600 hover:bg-green-700'
+            }`}
+          >
+            {viewMode === 'carousel' ? 'View All' : 'View Less'}
+          </Button>
+        </div>
+        
+        {/* Mobile View All Button */}
+        <div className="flex justify-center mb-4 sm:hidden">
+          <Button
+            onClick={toggleFunction}
+            variant={viewMode === 'carousel' ? 'outline' : 'default'}
+            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg ${
+              viewMode === 'carousel' 
+                ? 'border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white' 
+                : 'bg-green-600 text-white border-2 border-green-600 hover:bg-green-700'
+            }`}
+          >
+            {viewMode === 'carousel' ? 'View All' : 'View Less'}
+          </Button>
+        </div>
+        
+        <ProductCarousel 
+          products={filteredProducts}
+          onRequireLogin={handleRequireLogin}
+          onStockUpdate={handleStockUpdate}
+          viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
+        />
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <AppHeaderLayout>
       <Head title="Produce" />
       <div className="flex flex-col items-center justify-center min-h-[90vh] gap-12 px-4 mt-32">
-        {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode)}
-        {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode)}
+        {shouldShowSeparateSections ? (
+          <>
+            {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode)}
+            {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode)}
+          </>
+        ) : (
+          renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode)
+        )}
 
         {/* Login Confirmation Dialog */}
         <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
