@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { FeatureCards } from '@/components/FeatureCards';
 import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
@@ -123,13 +122,13 @@ export default function CustomerHome({ products }: PageProps) {
 
       {/* Hero Section with Farm Image */}
       <section className="sticky top-0 z-0 w-full isolation-isolate">
-        <AspectRatio ratio={18/9}>
+        <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
             <div className="w-full h-full relative">
-              <img 
-                src="/images/frontpage/pexels-pixabay-265216.jpg" 
-                alt="Farm landscape" 
+              <img
+                src="/images/frontpage/pexels-pixabay-265216.jpg"
+                alt="Farm landscape"
                 className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
                 loading="eager"
                 onError={(e) => {
@@ -205,7 +204,7 @@ export default function CustomerHome({ products }: PageProps) {
 
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
-        <div className="container mx-auto my-10">
+        <div className="container mx-auto my-10 p-20">
           <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
           <div className="relative overflow-visible">
             <Carousel
@@ -223,77 +222,72 @@ export default function CustomerHome({ products }: PageProps) {
               setApi={handleCarouselApi}
               className="w-full max-w-6xl mx-auto"
             >
-            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 [perspective:1000px] overflow-visible mx-0 -mx-8 p-20`}>
-              {featuredProducts.map((product, index) => {
-                const isActive = index === currentSlide;
-                const isLeft = index < currentSlide;
-                const isRight = index > currentSlide;
-                
-                return (
-                  <CarouselItem key={product.id} className="basis-1/3 pl-4">
-                    <div className="relative [transform-style:preserve-3d]">
-                      <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${
-                        isActive 
-                          ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]` 
-                          : isLeft
-                          ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
-                          : isRight
-                          ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
-                          : 'scale-80 opacity-20 z-10 blur-md'
-                      }`}>
-                      <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
-                        {product.image_url ? (
-                          <img 
-                            src={product.image_url} 
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <img
-                            src="/storage/products/default-product.jpg"
-                            alt="Default product"
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+              <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 [perspective:1000px] overflow-visible mx-0 -mx-8 p-20`}>
+                {featuredProducts.map((product, index) => {
+                  const isActive = index === currentSlide;
+                  const isLeft = index < currentSlide;
+                  const isRight = index > currentSlide;
+
+                  return (
+                    <CarouselItem key={product.id} className="basis-1/3 pl-4">
+                      <div className="relative [transform-style:preserve-3d]">
+                        <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${isActive
+                            ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
+                            : isLeft
+                              ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
+                              : isRight
+                                ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
+                                : 'scale-80 opacity-20 z-10 blur-md'
+                          }`}>
+                          <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src="/storage/products/default-product.jpg"
+                                alt="Default product"
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="p-4 flex items-center justify-between">
+                            <h3 className="font-semibold text-lg text-green-600">{product.name}</h3>
+                            <p className="text-green-600 font-bold ml-4 whitespace-nowrap">
+                              {getDisplayPrice(product)}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-4 flex items-center justify-between">
-                        <h3 className="font-semibold text-lg text-green-600">{product.name}</h3>
-                        <p className="text-green-600 font-bold ml-4 whitespace-nowrap">
-                          {getDisplayPrice(product)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
-            <CarouselNext className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
-          </Carousel>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
+              <CarouselNext className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
+            </Carousel>
           </div>
-        </div>
-        <div className="text-center mb-8 mt-4">
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-            onClick={() => router.visit('/customer/produce')}
-          >
-            Show All Produce
-          </button>
+          <div className="text-center mb-8 mt-4">
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+              onClick={() => router.visit('/customer/produce')}
+            >
+              Show All Produce
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Testimonial Section with Parallax */}
+      {/* Testimonial Section with Parallax and Feature Cards */}
       <TestimonialSlider
         testimonials={testimonialData}
         parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
         autoplayInterval={6500}
+        featureCards={featureCardsData}
       />
-
-      {/* Feature Cards Section */}
-      <div className="relative z-10 w-full bg-gray-50 py-16">
-        <FeatureCards cards={featureCardsData} />
-      </div>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
@@ -313,7 +307,7 @@ export default function CustomerHome({ products }: PageProps) {
 
       {/* Footer */}
       <div className="relative z-20 w-full">
-        <Footer 
+        <Footer
           companyName="SMMC Cooperative"
           facebookUrl="https://facebook.com/smmccooperative"
           emailAddress="contact@smmccooperative.com"
