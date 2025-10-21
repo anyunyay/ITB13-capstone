@@ -174,11 +174,6 @@ export default function CustomerHome({ products }: PageProps) {
         </div>
       </section>
 
-      {/* Feature Cards Section */}
-      <div className="relative z-10 w-full bg-gray-50 py-16">
-        <FeatureCards cards={featureCardsData} />
-      </div>
-
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10">
@@ -199,7 +194,7 @@ export default function CustomerHome({ products }: PageProps) {
               setApi={handleCarouselApi}
               className="w-full max-w-6xl mx-auto"
             >
-            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 [perspective:1000px] overflow-visible mx-0 -mx-8`}>
+            <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-4 [perspective:1000px] overflow-visible mx-0 -mx-8 p-20`}>
               {featuredProducts.map((product, index) => {
                 const isActive = index === currentSlide;
                 const isLeft = index < currentSlide;
@@ -258,6 +253,11 @@ export default function CustomerHome({ products }: PageProps) {
           </button>
         </div>
       </section>
+
+      {/* Feature Cards Section */}
+      <div className="relative z-10 w-full bg-gray-50 py-16">
+        <FeatureCards cards={featureCardsData} />
+      </div>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
