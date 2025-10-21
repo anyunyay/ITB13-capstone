@@ -18,10 +18,27 @@ class ProfileController extends Controller
      */
     public function profile()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         
+        // Load the user with default address relationship
+        $user->load('defaultAddress');
+        
+        // Convert user to array and add default address data
+        $userData = $user->toArray();
+        if ($user->defaultAddress) {
+            $userData['default_address'] = [
+                'id' => $user->defaultAddress->id,
+                'street' => $user->defaultAddress->street,
+                'barangay' => $user->defaultAddress->barangay,
+                'city' => $user->defaultAddress->city,
+                'province' => $user->defaultAddress->province,
+                'is_active' => $user->defaultAddress->is_active,
+            ];
+        }
+        
         return Inertia::render('Profile/profile', [
-            'user' => $user
+            'user' => $userData
         ]);
     }
 

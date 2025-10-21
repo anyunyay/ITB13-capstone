@@ -272,26 +272,20 @@ export default function AddressPage() {
 
     return (
         <ProfileWrapper 
+            breadcrumbs={[
+                { title: 'Address Management', href: routes.addresses }
+            ]}
             title="Address Management"
         >
-            <div className="text-sm text-muted-foreground mb-6">
-                Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
-            </div>
-            <div className="flex justify-end mb-6">
-                <Button onClick={handleAddNew} className="flex items-center gap-2">
-                    <PlusCircle className="h-4 w-4" />
-                    Add New Address
-                </Button>
-            </div>
-
+            <div className="space-y-6">
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-md p-4">
-                        <div className="flex">
+                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-xl p-4">
+                        <div className="flex items-center gap-3">
                             <div className="flex-shrink-0">
                                 <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
                             </div>
-                            <div className="ml-3">
+                            <div className="flex-1">
                                 <p className="text-sm font-medium text-green-800 dark:text-green-200">
                                     {flash.success}
                                 </p>
@@ -301,12 +295,12 @@ export default function AddressPage() {
                 )}
 
                 {flash?.error && (
-                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-md p-4">
-                        <div className="flex">
+                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-xl p-4">
+                        <div className="flex items-center gap-3">
                             <div className="flex-shrink-0">
                                 <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
                             </div>
-                            <div className="ml-3">
+                            <div className="flex-1">
                                 <p className="text-sm font-medium text-red-800 dark:text-red-200">
                                     {flash.error}
                                 </p>
@@ -315,217 +309,248 @@ export default function AddressPage() {
                     </div>
                 )}
 
-            <div className="space-y-6">
-                {/* Main Address from Registration */}
-                {(user.address || user.barangay || user.city || user.province) && (
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground">
-                            {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
-                        </h3>
-                        <Card className={`border-2 ${isActiveAddressSameAsMain() ? 'border-blue-200 dark:border-blue-800/30 bg-blue-50 dark:bg-blue-950/20' : 'border-green-200 dark:border-green-800/30 bg-green-50 dark:bg-green-950/20'}`}>
-                            <CardContent className="p-6">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3">
-                                        <div className={`flex items-center gap-2 ${isActiveAddressSameAsMain() ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'}`}>
-                                            <MapPin className="h-4 w-4" />
-                                            <span className="text-sm font-medium">Registration Address</span>
-                                            <div className={`flex items-center gap-1 ${isActiveAddressSameAsMain() ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
-                                                <CheckCircle className="h-4 w-4" />
-                                                <span className="text-xs font-medium">
-                                                    {isActiveAddressSameAsMain() ? 'Active' : 'Main'}
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                            Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
+                        </p>
+                    </div>
+                    <Button 
+                        onClick={handleAddNew} 
+                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    >
+                        <PlusCircle className="h-4 w-4" />
+                        Add New Address
+                    </Button>
+                </div>
+
+                {/* Address Cards Section */}
+                <div className="space-y-6">
+                    {/* Main Address from Registration */}
+                    {(user.address || user.barangay || user.city || user.province) && (
+                        <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
+                            <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                                    <div className="flex items-center space-x-6">
+                                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                            <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                                                {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
+                                            </h3>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                                    isActiveAddressSameAsMain() 
+                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                                        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                }`}>
+                                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                                    {isActiveAddressSameAsMain() ? 'Active' : 'Main Address'}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-3">
                                         <Button
-                                            variant="outline"
-                                            size="sm"
                                             onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
-                                            className="flex items-center gap-1"
+                                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={mainAddressHasOngoingOrders}
                                         >
-                                            <Edit className="h-3 w-3" />
+                                            <Edit className="h-4 w-4" />
                                             Edit
                                         </Button>
                                         {isActiveAddressSameAsMain() && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                disabled
-                                                className="flex items-center gap-1 text-gray-400 cursor-not-allowed opacity-50"
-                                            >
-                                                <CheckCircle className="h-3 w-3" />
+                                            <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                <CheckCircle className="h-3 w-3 mr-1" />
                                                 Currently Active
-                                            </Button>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
-                                
-                                <div className="mt-3 space-y-1">
-                                    {user.address && <p className="font-medium text-foreground">{user.address}</p>}
-                                    {(user.barangay || user.city) && (
-                                        <p className="text-muted-foreground">
-                                            {user.barangay && user.city ? `${user.barangay}, ${user.city}` : user.barangay || user.city}
-                                        </p>
-                                    )}
-                                    {user.province && <p className="text-muted-foreground">{user.province}</p>}
-                                </div>
-                                {!isActiveAddressSameAsMain() && (
-                                    <div className="mt-2 text-xs text-green-600 dark:text-green-400">
-                                        This is your main address from registration. You can edit it or add additional addresses below.
-                                    </div>
-                                )}
-                                {mainAddressHasOngoingOrders && (
-                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" />
-                                        This address has ongoing orders - editing is restricted
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-
-                {/* Currently Active Address - Only show if different from main address */}
-                {addresses.find(addr => addr.is_active) && !isActiveAddressSameAsMain() && (
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground">Currently Active Address</h3>
-                        <Card className="border-2 border-blue-200 dark:border-blue-800/30 bg-blue-50 dark:bg-blue-950/20">
-                            <CardContent className="p-6">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3">
-                                        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                                            {getAddressIcon()}
-                                            <span className="text-sm font-medium">Active Address</span>
-                                            <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                                                <CheckCircle className="h-4 w-4" />
-                                                <span className="text-xs font-medium">Active</span>
+                            </CardHeader>
+                            <CardContent className="px-6 py-6">
+                                <div className="space-y-4">
+                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600 mt-0.5 flex-shrink-0">
+                                                <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Address Details</p>
+                                                {user.address && <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{user.address}</p>}
+                                                {(user.barangay || user.city) && (
+                                                    <p className="text-slate-600 dark:text-slate-400">
+                                                        {user.barangay && user.city ? `${user.barangay}, ${user.city}` : user.barangay || user.city}
+                                                    </p>
+                                                )}
+                                                {user.province && <p className="text-slate-600 dark:text-slate-400">{user.province}</p>}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    
+                                    {!isActiveAddressSameAsMain() && (
+                                        <div className="text-sm text-green-600 dark:text-green-400 bg-green-50/80 dark:bg-green-900/20 p-3 rounded-lg border border-green-200/50 dark:border-green-800/30">
+                                            This is your main address from registration. You can edit it or add additional addresses below.
+                                        </div>
+                                    )}
+                                    {mainAddressHasOngoingOrders && (
+                                        <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
+                                            <AlertCircle className="h-4 w-4" />
+                                            This address has ongoing orders - editing is restricted
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Currently Active Address - Only show if different from main address */}
+                    {addresses.find(addr => addr.is_active) && !isActiveAddressSameAsMain() && (
+                        <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 group">
+                            <CardHeader className="bg-gradient-to-r from-blue-100/80 to-blue-200/80 dark:from-blue-700/50 dark:to-blue-800/50 backdrop-blur-sm border-b border-blue-200/50 dark:border-blue-600/50">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                                    <div className="flex items-center space-x-6">
+                                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                            <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                                                Currently Active Address
+                                            </h3>
+                                            <div className="flex items-center gap-2">
+                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                                    Active
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
                                         <Button
-                                            variant="outline"
-                                            size="sm"
                                             onClick={() => handleEdit(addresses.find(addr => addr.is_active)!)}
-                                            className="flex items-center gap-1"
+                                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
-                                            <Edit className="h-3 w-3" />
+                                            <Edit className="h-4 w-4" />
                                             Edit
                                         </Button>
                                         <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled
-                                            className="flex items-center gap-1 text-gray-400 cursor-not-allowed opacity-50"
-                                        >
-                                            <CheckCircle className="h-3 w-3" />
-                                            Currently Active
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
                                             onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
-                                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
-                                            <Trash2 className="h-3 w-3" />
+                                            <Trash2 className="h-4 w-4" />
                                             Delete
                                         </Button>
+                                        <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            <CheckCircle className="h-3 w-3 mr-1" />
+                                            Currently Active
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div className="mt-3 space-y-1">
-                                    <p className="font-medium text-foreground">{addresses.find(addr => addr.is_active)!.street}</p>
-                                    <p className="text-muted-foreground">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
-                                    <p className="text-muted-foreground">{addresses.find(addr => addr.is_active)!.province}</p>
-                                </div>
-                                <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                                    This address is used for checkout and other operations
-                                </div>
-                                {addresses.find(addr => addr.is_active)?.has_ongoing_orders && (
-                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                                        <AlertCircle className="h-3 w-3" />
-                                        This address has ongoing orders - editing/deleting is restricted
+                            </CardHeader>
+                            <CardContent className="px-6 py-6">
+                                <div className="space-y-4">
+                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600 mt-0.5 flex-shrink-0">
+                                                <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Address Details</p>
+                                                <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{addresses.find(addr => addr.is_active)!.street}</p>
+                                                <p className="text-slate-600 dark:text-slate-400">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
+                                                <p className="text-slate-600 dark:text-slate-400">{addresses.find(addr => addr.is_active)!.province}</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
+                                    
+                                    <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200/50 dark:border-blue-800/30">
+                                        This address is used for checkout and other operations
+                                    </div>
+                                    
+                                    {addresses.find(addr => addr.is_active)?.has_ongoing_orders && (
+                                        <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
+                                            <AlertCircle className="h-4 w-4" />
+                                            This address has ongoing orders - editing/deleting is restricted
+                                        </div>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
-                    </div>
-                )}
+                    )}
 
-                {addresses.length > 0 && (
-                    <>
-                        {/* Other Saved Addresses */}
-                        {addresses.filter(addr => !addr.is_active).length > 0 && (
-                            <div className="space-y-2">
-                                <h3 className="text-lg font-semibold text-foreground">Other Addresses</h3>
-                                <div className="grid gap-4">
-                                    {addresses.filter(addr => !addr.is_active).map((address) => (
-                                        <Card key={address.id} className="border border-border">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                                            {getAddressIcon()}
-                                                            <span className="text-sm font-medium">Saved Address</span>
+                    {/* Other Saved Addresses */}
+                    {addresses.filter(addr => !addr.is_active).length > 0 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700/50">
+                                    <Home className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300">
+                                    Other Addresses
+                                </h3>
+                            </div>
+                            <div className="grid gap-6">
+                                {addresses.filter(addr => !addr.is_active).map((address) => (
+                                    <Card key={address.id} className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
+                                        <CardContent className="p-6">
+                                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                                <div className="flex-1 space-y-4">
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600 mt-0.5 flex-shrink-0">
+                                                            <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Saved Address</p>
+                                                            <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{address.street}</p>
+                                                            <p className="text-slate-600 dark:text-slate-400">{address.barangay}, {address.city}</p>
+                                                            <p className="text-slate-600 dark:text-slate-400">{address.province}</p>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleEdit(address)}
-                                                            className="flex items-center gap-1"
-                                                            disabled={address.has_ongoing_orders}
-                                                        >
-                                                            <Edit className="h-3 w-3" />
-                                                            Edit
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleSetActive(address.id)}
-                                                            className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
-                                                            disabled={address.has_ongoing_orders}
-                                                        >
-                                                            <CheckCircle className="h-3 w-3" />
-                                                            Set as Active
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleDelete(address.id)}
-                                                            className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                                                            disabled={address.has_ongoing_orders}
-                                                        >
-                                                            <Trash2 className="h-3 w-3" />
-                                                            Delete
-                                                        </Button>
-                                                    </div>
+                                                    {address.has_ongoing_orders && (
+                                                        <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
+                                                            <AlertCircle className="h-4 w-4" />
+                                                            This address has ongoing orders - editing/deleting is restricted
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                
-                                                <div className="mt-3 space-y-1">
-                                                    <p className="font-medium text-foreground">{address.street}</p>
-                                                    <p className="text-muted-foreground">{address.barangay}, {address.city}</p>
-                                                    <p className="text-muted-foreground">{address.province}</p>
+                                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                                    <Button
+                                                        onClick={() => handleEdit(address)}
+                                                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        disabled={address.has_ongoing_orders}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleSetActive(address.id)}
+                                                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        disabled={address.has_ongoing_orders}
+                                                    >
+                                                        <CheckCircle className="h-4 w-4" />
+                                                        Set as Active
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDelete(address.id)}
+                                                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        disabled={address.has_ongoing_orders}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                        Delete
+                                                    </Button>
                                                 </div>
-                                                {address.has_ongoing_orders && (
-                                                    <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                                                        <AlertCircle className="h-3 w-3" />
-                                                        This address has ongoing orders - editing/deleting is restricted
-                                                    </div>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    ))}
-                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                             </div>
-                        )}
-                    </>
-                )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

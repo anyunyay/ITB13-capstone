@@ -13,7 +13,9 @@ interface PageProps {
         id: number;
         name: string;
         email: string;
+        type: string;
     };
+    [key: string]: any;
 }
 
 export default function PasswordPage() {
@@ -97,143 +99,205 @@ export default function PasswordPage() {
             ]}
             title="Change Password"
         >
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Lock className="h-5 w-5" />
-                        Security Settings
-                    </CardTitle>
-                    <CardDescription>
-                        Update your password to keep your account secure
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="current_password">Current Password</Label>
-                            <div className="relative">
-                                <Input
-                                    id="current_password"
-                                    type={showCurrentPassword ? 'text' : 'password'}
-                                    value={data.current_password}
-                                    onChange={(e) => setData('current_password', e.target.value)}
-                                    placeholder="Enter your current password"
-                                    required
-                                />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                >
-                                    {showCurrentPassword ? (
-                                        <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                        <Eye className="h-4 w-4" />
-                                    )}
-                                </Button>
-                            </div>
-                            {errors.current_password && <p className="text-sm text-red-500">{errors.current_password}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="password">New Password</Label>
-                            <div className="relative">
-                                <Input
-                                    id="password"
-                                    type={showNewPassword ? 'text' : 'password'}
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="Enter your new password"
-                                    required
-                                />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                    onClick={() => setShowNewPassword(!showNewPassword)}
-                                >
-                                    {showNewPassword ? (
-                                        <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                        <Eye className="h-4 w-4" />
-                                    )}
-                                </Button>
-                            </div>
-                            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-                        </div>
-
-                        {data.password && (
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <Label>Password Strength</Label>
-                                    <span className={`text-sm font-medium ${
-                                        passwordStrength <= 2 ? 'text-red-500' : 
-                                        passwordStrength <= 3 ? 'text-yellow-500' : 'text-green-500'
-                                    }`}>
-                                        {getStrengthText(passwordStrength)}
-                                    </span>
+            <div className="space-y-6">
+                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
+                    <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                            <div className="flex items-center space-x-6">
+                                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                    <Lock className="h-6 w-6 text-green-600 dark:text-green-400" />
                                 </div>
-                                <Progress 
-                                    value={strengthPercentage} 
-                                    className="h-2"
-                                />
                                 <div className="space-y-1">
-                                    {requirements.map((req, index) => (
-                                        <div key={index} className="flex items-center gap-2 text-sm">
-                                            {req.met ? (
-                                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                            ) : (
-                                                <XCircle className="h-4 w-4 text-gray-400" />
-                                            )}
-                                            <span className={req.met ? 'text-green-600' : 'text-gray-500'}>
-                                                {req.text}
-                                            </span>
-                                        </div>
-                                    ))}
+                                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                                        Security Settings
+                                    </h1>
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                            <Lock className="h-3 w-3 mr-1" />
+                                            Password Protection
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        Update your password to keep your account secure
+                                    </p>
                                 </div>
                             </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <Label htmlFor="password_confirmation">Confirm New Password</Label>
-                            <div className="relative">
-                                <Input
-                                    id="password_confirmation"
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    value={data.password_confirmation}
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    placeholder="Confirm your new password"
-                                    required
-                                />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                >
-                                    {showConfirmPassword ? (
-                                        <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                        <Eye className="h-4 w-4" />
-                                    )}
-                                </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-6 py-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            {/* Current Password Section */}
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                        <Lock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    Current Password
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="space-y-3">
+                                            <Label htmlFor="current_password" className="text-sm font-medium text-slate-700 dark:text-slate-300">Current Password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="current_password"
+                                                    type={showCurrentPassword ? 'text' : 'password'}
+                                                    value={data.current_password}
+                                                    onChange={(e) => setData('current_password', e.target.value)}
+                                                    placeholder="Enter your current password"
+                                                    required
+                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                >
+                                                    {showCurrentPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.current_password && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.current_password}</p>}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            {errors.password_confirmation && <p className="text-sm text-red-500">{errors.password_confirmation}</p>}
+
+                            {/* New Password Section */}
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                        <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    New Password
+                                </h3>
+                                <div className="space-y-4">
+                                    {/* New Password Field */}
+                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="space-y-3">
+                                            <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">New Password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={showNewPassword ? 'text' : 'password'}
+                                                    value={data.password}
+                                                    onChange={(e) => setData('password', e.target.value)}
+                                                    placeholder="Enter your new password"
+                                                    required
+                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                >
+                                                    {showNewPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.password && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.password}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Password Strength Indicator */}
+                                    {data.password && (
+                                        <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50">
+                                            <div className="space-y-4">
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password Strength</Label>
+                                                    <span className={`text-sm font-medium ${
+                                                        passwordStrength <= 2 ? 'text-red-500 dark:text-red-400' : 
+                                                        passwordStrength <= 3 ? 'text-yellow-500 dark:text-yellow-400' : 'text-green-500 dark:text-green-400'
+                                                    }`}>
+                                                        {getStrengthText(passwordStrength)}
+                                                    </span>
+                                                </div>
+                                                <Progress 
+                                                    value={strengthPercentage} 
+                                                    className={`h-3 rounded-full ${
+                                                        passwordStrength <= 2 ? '[&>div]:bg-red-500' : 
+                                                        passwordStrength <= 3 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'
+                                                    }`}
+                                                />
+                                                <div className="space-y-2">
+                                                    {requirements.map((req, index) => (
+                                                        <div key={index} className="flex items-center gap-3 text-sm">
+                                                            {req.met ? (
+                                                                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
+                                                            ) : (
+                                                                <XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                                            )}
+                                                            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
+                                                                {req.text}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Confirm Password Field */}
+                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="space-y-3">
+                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm New Password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password_confirmation"
+                                                    type={showConfirmPassword ? 'text' : 'password'}
+                                                    value={data.password_confirmation}
+                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                    placeholder="Confirm your new password"
+                                                    required
+                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.password_confirmation && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.password_confirmation}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex justify-end">
-                            <Button type="submit" disabled={processing || passwordStrength < 3}>
+                        {/* Submit Button */}
+                        <div className="flex justify-end pt-6 border-t border-slate-200/50 dark:border-slate-600/50">
+                            <Button 
+                                type="submit" 
+                                disabled={processing || passwordStrength < 3} 
+                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
+                                <Lock className="h-4 w-4" />
                                 {processing ? 'Changing Password...' : 'Change Password'}
                             </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
         </ProfileWrapper>
     );
 }
