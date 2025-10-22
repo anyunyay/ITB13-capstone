@@ -71,8 +71,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
             setIsScrolled(scrollTop > 20);
         };
 
+        const handleScrollSnap = (event: CustomEvent) => {
+            const scrollTop = event.detail.scrollTop;
+            setIsScrolled(scrollTop > 20);
+        };
+
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener('scroll-snap', handleScrollSnap as EventListener);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('scroll-snap', handleScrollSnap as EventListener);
+        };
     }, []);
     const showSearchBar =
         page.url === '/' ||

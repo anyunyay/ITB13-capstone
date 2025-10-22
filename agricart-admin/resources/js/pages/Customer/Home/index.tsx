@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { SharedData } from '@/types';
 import {
@@ -16,6 +16,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
+import styles from './smoothScroll.module.css';
 
 interface PageProps {
   flash: {
@@ -38,8 +39,26 @@ interface PageProps {
 export default function CustomerHome({ products }: PageProps) {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  // Handle scroll detection for header transformation
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const scrollTop = scrollContainer.scrollTop;
+      // Update the header's scroll state by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('scroll-snap', { 
+        detail: { scrollTop } 
+      }));
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Get featured products (first 6 products for the carousel)
   const featuredProducts = products.slice(0, 6);
@@ -112,8 +131,28 @@ export default function CustomerHome({ products }: PageProps) {
     <AppHeaderLayout>
       <Head title="Home - Cooperatives of Farmers" />
 
-      {/* Hero Section with Farm Image */}
-      <section className="sticky top-0 z-0 w-full isolation-isolate">
+      {/* Scroll container with snap behavior */}
+      <div 
+        ref={scrollContainerRef} 
+        className={`h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth ${styles.smoothScrollContainer}`}
+        style={{ 
+          scrollBehavior: 'smooth',
+          scrollSnapType: 'y mandatory',
+          scrollSnapStop: 'always',
+          overscrollBehavior: 'contain',
+          scrollPaddingTop: '0px',
+          scrollPaddingBottom: '0px'
+        }}
+      >
+        {/* Hero Section with Farm Image */}
+        <section 
+          className={`relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -162,8 +201,16 @@ export default function CustomerHome({ products }: PageProps) {
         </AspectRatio>
       </section>
 
-      {/* Split Layout Section - Cooperatives of Farmers */}
-      <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10">
+        {/* Split Layout Section - Cooperatives of Farmers */}
+        <section 
+          id="explore" 
+          className={`py-40 px-4 bg-gray-50 relative z-10 snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="max-w-[90vw] mx-auto">
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
@@ -267,8 +314,16 @@ export default function CustomerHome({ products }: PageProps) {
         </div>
       </section>
 
-      {/* Product Carousel Section */}
-      <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
+        {/* Product Carousel Section */}
+        <section 
+          id="produce" 
+          className={`py-18 bg-white overflow-hidden relative z-10 snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="container mx-auto my-10 p-20">
           <motion.h2
             className="text-6xl font-bold text-center text-primary mb-8"
@@ -403,12 +458,21 @@ export default function CustomerHome({ products }: PageProps) {
         </div>
       </section>
 
-      {/* Testimonial Section with Parallax */}
-      <TestimonialSlider
-        testimonials={testimonialData}
-        parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
-        autoplayInterval={6500}
-      />
+        {/* Testimonial Section with Parallax */}
+        <section 
+          className={`snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
+          <TestimonialSlider
+            testimonials={testimonialData}
+            parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+            autoplayInterval={6500}
+          />
+        </section>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
@@ -426,18 +490,26 @@ export default function CustomerHome({ products }: PageProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Footer */}
-      <div className="relative z-20 w-full">
-        <Footer
-          companyName="SMMC Cooperative"
-          facebookUrl="https://facebook.com/smmccooperative"
-          emailAddress="contact@smmccooperative.com"
-          physicalAddress="Cabuyao, Laguna, Philippines"
-          navigationLinks={[
-            { title: "Privacy Policy", href: "/privacy" },
-            { title: "Terms of Service", href: "/terms" }
-          ]}
-        />
+        {/* Footer */}
+        <div 
+          className={`relative z-20 w-full snap-start snap-always snap-stop ${styles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
+          <Footer
+            companyName="SMMC Cooperative"
+            facebookUrl="https://facebook.com/smmccooperative"
+            emailAddress="contact@smmccooperative.com"
+            physicalAddress="Cabuyao, Laguna, Philippines"
+            navigationLinks={[
+              { title: "Privacy Policy", href: "/privacy" },
+              { title: "Terms of Service", href: "/terms" }
+            ]}
+          />
+        </div>
       </div>
     </AppHeaderLayout>
   );

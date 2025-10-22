@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, Leaf, Users, Truck, Shield, Globe } from 'lucide-react';
 import Footer from '@/components/Footer';
 import styles from './aboutUs.module.css';
+import smoothScrollStyles from './smoothScroll.module.css';
 
 interface PageProps {
   flash: {
@@ -22,10 +23,29 @@ export default function AboutUs({ }: PageProps) {
   const valuesRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Throttled scroll handler for better performance
   const handleScroll = useCallback(() => {
     setScrollY(window.scrollY);
+  }, []);
+
+  // Handle scroll detection for header transformation
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleScrollSnap = () => {
+      const scrollTop = scrollContainer.scrollTop;
+      setScrollY(scrollTop);
+      // Update the header's scroll state by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('scroll-snap', { 
+        detail: { scrollTop } 
+      }));
+    };
+
+    scrollContainer.addEventListener('scroll', handleScrollSnap, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScrollSnap);
   }, []);
 
   // Scroll listener for parallax effects with throttling
@@ -119,8 +139,28 @@ const values = [
     <AppHeaderLayout>
       <Head title="About Us - SMMC Cooperative" />
 
-      {/* Hero Section with Farm Image */}
-      <section className="sticky top-0 z-0 w-full isolation-isolate">
+      {/* Scroll container with snap behavior */}
+      <div 
+        ref={scrollContainerRef} 
+        className={`h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth ${smoothScrollStyles.smoothScrollContainer}`}
+        style={{ 
+          scrollBehavior: 'smooth',
+          scrollSnapType: 'y mandatory',
+          scrollSnapStop: 'always',
+          overscrollBehavior: 'contain',
+          scrollPaddingTop: '0px',
+          scrollPaddingBottom: '0px'
+        }}
+      >
+        {/* Hero Section with Farm Image */}
+        <section 
+          className={`relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -192,8 +232,16 @@ const values = [
         </AspectRatio>
       </section>
 
-      {/* Who We Are Section */}
-      <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden">
+        {/* Who We Are Section */}
+        <section 
+          id="who-we-are" 
+          className={`h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Content */}
@@ -241,8 +289,16 @@ const values = [
         </div>
       </section>
 
-      {/* Vision & Values Section */}
-      <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden">
+        {/* Vision & Values Section */}
+        <section 
+          ref={valuesRef} 
+          className={`h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -301,8 +357,16 @@ const values = [
         </div>
       </section>
 
-      {/* Members Section */}
-      <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden">
+        {/* Members Section */}
+        <section 
+          ref={missionRef} 
+          className={`h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
           {/* New Image and Content Layout */}
           <motion.div
@@ -394,8 +458,16 @@ const values = [
         </div>
       </section>
 
-      {/* Services Section */}
-      <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden">
+        {/* Services Section */}
+        <section 
+          ref={servicesRef} 
+          className={`h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
         <div className="max-w-[90vw] mx-auto">
           <div className="space-y-4">
             {services.map((service, index) => (
@@ -453,18 +525,26 @@ const values = [
         </div>
       </section>
 
-      {/* Footer */}
-      <div className="relative z-20 w-full">
-        <Footer
-          companyName="SMMC Cooperative"
-          facebookUrl="https://facebook.com/smmccooperative"
-          emailAddress="contact@smmccooperative.com"
-          physicalAddress="Cabuyao, Laguna, Philippines"
-          navigationLinks={[
-            { title: "Privacy Policy", href: "/privacy" },
-            { title: "Terms of Service", href: "/terms" }
-          ]}
-        />
+        {/* Footer */}
+        <div 
+          className={`relative z-20 w-full snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
+          style={{ 
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always',
+            scrollMarginTop: '0px'
+          }}
+        >
+          <Footer
+            companyName="SMMC Cooperative"
+            facebookUrl="https://facebook.com/smmccooperative"
+            emailAddress="contact@smmccooperative.com"
+            physicalAddress="Cabuyao, Laguna, Philippines"
+            navigationLinks={[
+              { title: "Privacy Policy", href: "/privacy" },
+              { title: "Terms of Service", href: "/terms" }
+            ]}
+          />
+        </div>
       </div>
     </AppHeaderLayout>
   );
