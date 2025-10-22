@@ -130,10 +130,8 @@ export default function CustomerHome({ products }: PageProps) {
     <AppHeaderLayout>
       <Head title="Home - Cooperatives of Farmers" />
 
-      {/* Scroll container with snap behavior */}
-      <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth', scrollSnapType: 'y mandatory' }}>
-        {/* Hero Section with Farm Image */}
-        <section className="relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center" style={{ scrollSnapAlign: 'start' }}>
+      {/* Hero Section - Fixed outside scroll container */}
+      <section className="fixed top-0 left-0 w-full h-screen z-0">
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -182,8 +180,13 @@ export default function CustomerHome({ products }: PageProps) {
         </AspectRatio>
       </section>
 
+      {/* Scroll container with snap behavior - starts after Hero */}
+      <div ref={scrollContainerRef} className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
+        {/* Spacer section to account for fixed Hero */}
+        <section className="h-screen snap-start"></section>
+
         {/* Split Layout Section - Cooperatives of Farmers */}
-        <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10 snap-start snap-always snap-stop h-screen flex items-center">
+        <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10 snap-start h-screen flex items-center">
         <div className="max-w-[90vw] mx-auto">
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
@@ -288,7 +291,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
         {/* Product Carousel Section */}
-        <section id="produce" className="py-18 bg-white overflow-hidden relative z-10 snap-start snap-always snap-stop h-screen flex items-center">
+        <section id="produce" className="py-18 bg-white overflow-hidden relative z-10 snap-start h-screen flex items-center">
         <div className="container mx-auto my-10 p-20">
           <motion.h2
             className="text-6xl font-bold text-center text-primary mb-8"
@@ -424,7 +427,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
         {/* Testimonial Section with Parallax */}
-        <section className="snap-start snap-always snap-stop h-screen flex items-center">
+        <section className="snap-start h-screen flex items-center">
           <TestimonialSlider
             testimonials={testimonialData}
             parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
@@ -449,7 +452,7 @@ export default function CustomerHome({ products }: PageProps) {
       </Dialog>
 
         {/* Footer */}
-        <div className="relative z-20 w-full snap-start snap-always snap-stop">
+        <div className="relative z-20 w-full snap-start">
           <Footer
             companyName="SMMC Cooperative"
             facebookUrl="https://facebook.com/smmccooperative"

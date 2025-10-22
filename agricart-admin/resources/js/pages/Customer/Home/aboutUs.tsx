@@ -138,10 +138,8 @@ const values = [
     <AppHeaderLayout>
       <Head title="About Us - SMMC Cooperative" />
 
-      {/* Scroll container with snap behavior */}
-      <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth', scrollSnapType: 'y mandatory' }}>
-        {/* Hero Section with Farm Image */}
-        <section className="relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center" style={{ scrollSnapAlign: 'start' }}>
+      {/* Hero Section - Fixed outside scroll container */}
+      <section className="fixed top-0 left-0 w-full h-screen z-0">
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -213,8 +211,13 @@ const values = [
         </AspectRatio>
       </section>
 
+      {/* Scroll container with snap behavior - starts after Hero */}
+      <div ref={scrollContainerRef} className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
+        {/* Spacer section to account for fixed Hero */}
+        <section className="h-screen snap-start"></section>
+
         {/* Who We Are Section */}
-        <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop">
+        <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Content */}
@@ -263,7 +266,7 @@ const values = [
       </section>
 
         {/* Vision & Values Section */}
-        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop">
+        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -323,7 +326,7 @@ const values = [
       </section>
 
         {/* Members Section */}
-        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start snap-always snap-stop">
+        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start">
         <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
           {/* New Image and Content Layout */}
           <motion.div
@@ -416,7 +419,7 @@ const values = [
       </section>
 
         {/* Services Section */}
-        <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start snap-always snap-stop">
+        <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start">
         <div className="max-w-[90vw] mx-auto">
           <div className="space-y-4">
             {services.map((service, index) => (
@@ -475,7 +478,7 @@ const values = [
       </section>
 
         {/* Footer */}
-        <div className="relative z-20 w-full snap-start snap-always snap-stop">
+        <div className="relative z-20 w-full snap-start">
           <Footer
             companyName="SMMC Cooperative"
             facebookUrl="https://facebook.com/smmccooperative"
