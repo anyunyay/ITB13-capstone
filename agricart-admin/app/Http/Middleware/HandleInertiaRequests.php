@@ -67,6 +67,10 @@ class HandleInertiaRequests extends Middleware
         // Share notifications for authenticated users based on their type
         if ($request->user()) {
             $user = $request->user();
+            
+            // Share user's appearance settings
+            $appearanceSettings = \App\Models\AppearanceSettings::getForUser($user->id);
+            $shared['userTheme'] = $appearanceSettings->theme;
             $notificationTypes = [];
             
             switch ($user->type) {

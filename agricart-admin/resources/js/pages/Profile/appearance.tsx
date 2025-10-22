@@ -70,10 +70,22 @@ export default function AppearancePage() {
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Apply initial theme on component mount
+    // Apply initial theme on component mount and sync with localStorage
     useEffect(() => {
         const root = document.documentElement;
         const currentTheme = user?.theme || 'system';
+        
+        // Sync server-side theme with localStorage
+        const savedTheme = localStorage.getItem('appearance');
+        if (currentTheme !== savedTheme) {
+            localStorage.setItem('appearance', currentTheme);
+            // Also set cookie for SSR
+            const setCookie = (name: string, value: string, days = 365) => {
+                const maxAge = days * 24 * 60 * 60;
+                document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
+            };
+            setCookie('appearance', currentTheme);
+        }
         
         if (currentTheme === 'system') {
             root.classList.remove('light', 'dark');
@@ -91,15 +103,14 @@ export default function AppearancePage() {
     const handleSave = () => {
         patch(routes.appearanceUpdate, {
             onSuccess: () => {
-                // Apply theme after successful save
-                const root = document.documentElement;
-                if (data.theme === 'system') {
-                    root.classList.remove('light', 'dark');
-                    root.classList.add(systemTheme);
-                } else {
-                    root.classList.remove('light', 'dark');
-                    root.classList.add(data.theme);
-                }
+                // Sync with localStorage and cookies for client-side persistence
+                localStorage.setItem('appearance', data.theme);
+                const setCookie = (name: string, value: string, days = 365) => {
+                    const maxAge = days * 24 * 60 * 60;
+                    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
+                };
+                setCookie('appearance', data.theme);
+                
                 setFlashMessage({
                     type: 'success',
                     message: t(currentLanguage, 'appearance.messages.success')
