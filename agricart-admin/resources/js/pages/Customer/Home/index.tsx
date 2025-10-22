@@ -143,7 +143,7 @@ export default function CustomerHome({ products }: PageProps) {
               <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-30">
                 <div className="text-left">
                   <h2 className="text-7xl font-light">Grown Here,</h2>
-                  <h1 className="text-[164px] leading-none font-bold text-green-600">For You.</h1>
+                  <h1 className="text-[164px] leading-none font-bold text-primary">For You.</h1>
                 </div>
               </div>
             </div>
@@ -157,13 +157,13 @@ export default function CustomerHome({ products }: PageProps) {
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
             <div className="flex flex-col gap-6">
-              <h2 className="text-6xl text-green-700 font-extrabold mb-4">
+              <h2 className="text-6xl text-primary font-extrabold mb-4">
                 SMMC Cooperative
               </h2>
-              <p className="text-4xl text-gray-800 font-semibold mb-6">
+              <p className="text-4xl text-foreground font-semibold mb-6">
                 Empowering Local Communities Through Sustainable Agriculture
               </p>
-              <p className="text-2xl text-gray-600 mb-4 space-y-4 leading-relaxed">
+              <p className="text-2xl text-muted-foreground mb-4 space-y-4 leading-relaxed">
                 Our network of farmer cooperatives represents the heart of sustainable agriculture in our region.
                 We bring together dedicated farmers who share a commitment to quality, environmental stewardship,
                 and community development. Through collective effort, we ensure that fresh, nutritious produce
@@ -171,18 +171,18 @@ export default function CustomerHome({ products }: PageProps) {
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
-                  <div className="text-sm text-green-600 font-medium md:text-base">Years Experience</div>
+                  <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-primary font-medium md:text-base">Years Experience</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
-                  <div className="text-sm text-green-600 font-medium md:text-base">Active Farmers</div>
+                  <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-primary font-medium md:text-base">Active Farmers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1 md:text-3xl">00</div>
-                  <div className="text-sm text-green-600 font-medium md:text-base">Cooperatives</div>
+                  <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
+                  <div className="text-sm text-primary font-medium md:text-base">Cooperatives</div>
                 </div>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function CustomerHome({ products }: PageProps) {
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10 p-20">
-          <h3 className="text-6xl font-bold text-center text-green-700 mb-8">Featured Products</h3>
+          <h3 className="text-6xl font-bold text-center text-primary mb-8">Featured Products</h3>
           <div className="relative overflow-visible">
             <Carousel
               opts={{
@@ -255,8 +255,8 @@ export default function CustomerHome({ products }: PageProps) {
                             )}
                           </div>
                           <div className="p-4 flex items-center justify-between">
-                            <h3 className="font-semibold text-lg text-green-600">{product.name}</h3>
-                            <p className="text-green-600 font-bold ml-4 whitespace-nowrap">
+                            <h3 className="font-semibold text-lg text-primary">{product.name}</h3>
+                            <p className="text-primary font-bold ml-4 whitespace-nowrap">
                               {getDisplayPrice(product)}
                             </p>
                           </div>
@@ -266,13 +266,13 @@ export default function CustomerHome({ products }: PageProps) {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
-              <CarouselNext className="bg-transparent text-green-600 hover:bg-green-600 hover:text-white border-transparent hover:border-green-600 transition-all duration-300 ease-in-out" />
+              <CarouselPrevious className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
+              <CarouselNext className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
             </Carousel>
           </div>
           <div className="text-center mb-8 mt-4">
             <button
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
               onClick={() => router.visit('/customer/produce')}
             >
               Show All Produce

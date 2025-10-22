@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
-import SimpleFooter from '@/components/SimpleFooter';
+import Footer from '@/components/Footer';
 
 interface Product {
   id: number;
@@ -115,8 +115,8 @@ export function ProductCarousel({
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="bg-card/80 hover:bg-card border-border text-foreground hover:text-green-600 dark:hover:text-green-400" />
-      <CarouselNext className="bg-card/80 hover:bg-card border-border text-foreground hover:text-green-600 dark:hover:text-green-400" />
+      <CarouselPrevious className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
+      <CarouselNext className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
     </Carousel>
   );
 }
@@ -216,14 +216,14 @@ export default function CustomerHome() {
       <div id={sectionId} className="w-full max-w-7xl mx-auto">
         {/* Section Header with Centered Title and View All Button */}
         <div className="flex justify-center items-center mb-6 relative">
-          <h2 className="text-6xl font-bold text-green-600 dark:text-green-400 text-center">{title}</h2>
+          <h2 className="text-6xl font-semibold text-primary text-center">{title}</h2>
           <Button
             onClick={toggleFunction}
             variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-green-500 ${
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-primary ${
               viewMode === 'carousel' 
-                ? 'text-green-600' 
-                : 'text-green-700'
+                ? 'text-primary' 
+                : 'text-primary'
             }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
@@ -235,10 +235,10 @@ export default function CustomerHome() {
           <Button
             onClick={toggleFunction}
             variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-green-500 ${
+            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-primary ${
               viewMode === 'carousel' 
-                ? 'text-green-600' 
-                : 'text-green-700'
+                ? 'text-primary' 
+                : 'text-primary'
             }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
@@ -259,7 +259,7 @@ export default function CustomerHome() {
     <AppHeaderLayout>
       <Head title="Produce" />
 
-      <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16">
+      <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16 mt-10 bg-background">
         {shouldShowSeparateSections ? (
           <>
             {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
@@ -286,11 +286,19 @@ export default function CustomerHome() {
         </Dialog>
       </div>
 
-      {/* Spacer between content and footer */}
-      <div className="h-16"></div>
-
-      {/* Simple Footer */}
-      <SimpleFooter companyName="SMMC Cooperative" />
+      {/* Footer */}
+      <div className="relative z-20 w-full">
+        <Footer
+          companyName="SMMC Cooperative"
+          facebookUrl="https://facebook.com/smmccooperative"
+          emailAddress="contact@smmccooperative.com"
+          physicalAddress="Cabuyao, Laguna, Philippines"
+          navigationLinks={[
+            { title: "Privacy Policy", href: "/privacy" },
+            { title: "Terms of Service", href: "/terms" }
+          ]}
+        />
+      </div>
     </AppHeaderLayout>
   );
 }
