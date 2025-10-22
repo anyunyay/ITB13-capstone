@@ -274,8 +274,8 @@ export default function CustomerHome() {
           <h2 className="text-6xl font-semibold text-primary text-center">{title}</h2>
           <Button
             onClick={toggleFunction}
-            variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-primary ${
+            variant="ghost"
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${
               viewMode === 'carousel' 
                 ? 'text-primary' 
                 : 'text-primary'
@@ -289,8 +289,8 @@ export default function CustomerHome() {
         <div className="flex justify-center mb-4 sm:hidden">
           <Button
             onClick={toggleFunction}
-            variant={viewMode === 'carousel' ? 'outline' : 'default'}
-            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg shadow-md hover:shadow-lg border-0 bg-transparent hover:bg-transparent hover:text-primary ${
+            variant="ghost"
+            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${
               viewMode === 'carousel' 
                 ? 'text-primary' 
                 : 'text-primary'
