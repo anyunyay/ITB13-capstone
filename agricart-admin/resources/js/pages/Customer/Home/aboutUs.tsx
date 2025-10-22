@@ -1,6 +1,6 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head } from '@inertiajs/react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,18 +18,8 @@ interface PageProps {
 
 export default function AboutUs({ }: PageProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
-
-  // Parallax scroll effects
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const heroY = useTransform(heroScroll, [0, 1], ["0%", "-30%"]);
-  const heroOpacity = useTransform(heroScroll, [0, 0.5], [1, 0]);
 
   // Intersection Observer for animations
   useEffect(() => {
@@ -100,52 +90,59 @@ export default function AboutUs({ }: PageProps) {
     <AppHeaderLayout>
       <Head title="About Us - SMMC Cooperative" />
 
-      {/* Hero Section */}
-      <section ref={heroRef} className={`relative min-h-screen flex items-center justify-center overflow-hidden ${styles.smoothScroll}`}>
-        {/* Background with parallax */}
-        <motion.div 
-          className="absolute inset-0 w-full h-[120%]"
-          style={{ y: heroY, opacity: heroOpacity }}
-        >
-          <div 
-            className="w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: "url('/images/frontpage/pexels-pixabay-265216.jpg')",
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        </motion.div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 text-center text-white px-4 max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight ${styles.textGradient}`}>
-              About
-              <span className="block text-primary">SMMC Cooperative</span>
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-              Empowering local communities through sustainable agriculture, 
-              fair trade, and fresh produce delivery.
-            </p>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            >
-              <Button 
-                size="lg" 
-                className={`${styles.buttonGradient} text-primary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
-                onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Learn More About Us
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
+      {/* Hero Section with Farm Image */}
+      <section className="sticky top-0 z-0 w-full isolation-isolate">
+        <AspectRatio ratio={18 / 9}>
+          <div className="absolute top-0 left-0 w-full h-full">
+            {/* Background image with gradient overlay */}
+            <div className="w-full h-full relative">
+              <img
+                src="/images/frontpage/pexels-pixabay-265216.jpg"
+                alt="About SMMC Cooperative"
+                className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
+                loading="eager"
+                onError={(e) => {
+                  // Fallback handling if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+              {/* Gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
+              {/* Text overlay - positioned above gradient */}
+              <div className="absolute inset-0 flex items-center justify-center text-white z-30 px-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="text-center max-w-6xl mx-auto"
+                >
+                  <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+                    About
+                    <span className="block text-primary">SMMC Cooperative</span>
+                  </h1>
+                  <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light mb-8 max-w-4xl mx-auto leading-relaxed">
+                    Empowering local communities through sustainable agriculture, 
+                    fair trade, and fresh produce delivery.
+                  </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                  >
+                    <Button 
+                      size="lg" 
+                      className={`${styles.buttonGradient} text-primary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                      onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                      Learn More About Us
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </AspectRatio>
       </section>
 
       {/* Who We Are Section */}
