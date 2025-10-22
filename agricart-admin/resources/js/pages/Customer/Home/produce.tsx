@@ -258,50 +258,6 @@ export default function CustomerHome() {
   return (
     <AppHeaderLayout>
       <Head title="Produce" />
-      
-      {/* Hero Section with Farm Image */}
-      <section className="relative w-full overflow-hidden">
-        <AspectRatio ratio={25/9}>
-          <div className="w-full h-full">
-            {/* Background image with gradient overlay */}
-            <div className="w-full h-full relative">
-              <div className="w-full h-full bg-gradient-to-b from-neutral-100 via-oklch-300 to-oklch-400">
-                <img 
-                  src="/images/frontpage/pexels-pixabay-265216.jpg" 
-                  alt="Farm landscape" 
-                  className="w-full h-full object-cover mix-blend-multiply"
-                />
-              </div>
-              {/* Text overlay - no gradient applied */}
-              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-50">
-                <div className="text-left">
-                  <h2 className="text-6xl font-light">Grown Here,</h2>
-                  <h1 className="text-9xl font-bold text-green-600">For You.</h1>
-                </div>
-              </div>
-              <div className="absolute left-10 right-10 bottom-10 flex gap-8 z-40">
-                {shouldShowSeparateSections ? (
-                  <>
-                    <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('fruits-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                      VIEW FRUITS
-                      <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
-                    </Button>
-                    <Button variant="outline" size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('vegetables-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                      VIEW VEGETABLES
-                      <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
-                    </Button>
-                  </>
-                ) : (
-                  <Button size="lg" className="group relative border-0 rounded-none bg-transparent text-white text-3xl font-light w-full hover:bg-transparent hover:text-white pb-6" onClick={() => document.getElementById('fresh-produce-section')?.scrollIntoView({ behavior: 'smooth' })}>
-                    VIEW All PRODUCE
-                    <div className="absolute bottom-0 left-0 w-full h-2 rounded bg-white transition-colors group-hover:bg-green-600"></div>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </AspectRatio>
-      </section>
 
       <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16">
         {shouldShowSeparateSections ? (
