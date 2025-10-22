@@ -192,7 +192,7 @@ export default function CustomerHome({ products }: PageProps) {
               >
                 SMMC Cooperative
               </motion.h2>
-              <motion.p 
+              <motion.h3
                 className="text-4xl text-foreground font-semibold mb-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -200,7 +200,7 @@ export default function CustomerHome({ products }: PageProps) {
                 viewport={{ once: true }}
               >
                 Empowering Local Communities Through Sustainable Agriculture
-              </motion.p>
+              </motion.h3>
               <motion.p 
                 className="text-2xl text-muted-foreground mb-4 space-y-4 leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
@@ -279,7 +279,7 @@ export default function CustomerHome({ products }: PageProps) {
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10 p-20">
-          <motion.h3 
+          <motion.h2 
             className="text-6xl font-bold text-center text-primary mb-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -287,7 +287,7 @@ export default function CustomerHome({ products }: PageProps) {
             viewport={{ once: true }}
           >
             Featured Products
-          </motion.h3>
+          </motion.h2>
           <motion.div 
             className="relative overflow-visible"
             initial={{ opacity: 0, y: 50 }}

@@ -67,46 +67,51 @@ export default function AboutUs({ }: PageProps) {
   }, []);
 
   // Values data
-  const values = [
+const values = [
     {
-      icon: <Leaf className="w-8 h-8" />,
-      title: "Sustainability",
-      description: "We prioritize eco-friendly farming practices that protect our environment for future generations while maintaining soil health and biodiversity."
+        icon: <Leaf className="w-8 h-8" />,
+        title: "Sustainability",
+        description: "We prioritize eco-friendly farming practices that protect the environment while maintaining soil health and biodiversity."
     },
     {
-      icon: <Users className="w-8 h-8" />,
-      title: "Community",
-      description: "Building strong relationships with local farmers and customers, fostering a supportive network that benefits everyone in our community."
+        icon: <Users className="w-8 h-8" />,
+        title: "Community",
+        description: "We build strong relationships with farmers and customers, fostering a supportive network that benefits the whole community."
     },
     {
-      icon: <Shield className="w-8 h-8" />,
-      title: "Quality",
-      description: "Committed to delivering the highest quality produce through careful selection, proper handling, and maintaining freshness from farm to table."
+        icon: <Shield className="w-8 h-8" />,
+        title: "Quality",
+        description: "Committed to delivering top-quality produce through careful selection, handling, and maintaining freshness."
     },
     {
-      icon: <Globe className="w-8 h-8" />,
-      title: "Local Focus",
-      description: "Supporting local farmers and reducing our carbon footprint by sourcing produce from nearby farms and minimizing transportation distances."
+        icon: <Globe className="w-8 h-8" />,
+        title: "Local Focus",
+        description: "Supporting local farmers and reducing our carbon footprint by sourcing from nearby farms."
     }
-  ];
+];
 
   // What we do data
   const services = [
     {
       icon: <Truck className="w-12 h-12" />,
       title: "Fresh Produce Sourcing",
-      description: "We work directly with local farmers to source the freshest, highest-quality produce. Our network includes certified organic farms and traditional family farms that share our commitment to sustainable agriculture.",
-      features: ["Direct farmer partnerships", "Quality assurance", "Seasonal variety", "Fair trade practices"],
+      description: "We work directly with local farmers to source the freshest, highest-quality produce.",
       image: "/images/frontpage/pexels-pixabay-265216.jpg",
-      parallaxSpeed: 0.5
+      parallaxSpeed: 0.1
     },
     {
       icon: <Heart className="w-12 h-12" />,
       title: "Cooperative Support",
-      description: "We provide comprehensive support to our farming cooperatives, including training, resources, and market access. Our goal is to strengthen the agricultural community and ensure fair compensation for farmers.",
-      features: ["Farmer training programs", "Market access", "Financial support", "Community development"],
+      description: "We provide comprehensive support to our farming cooperatives, including training and market access.",
       image: "/images/frontpage/pexels-pixabay-265216.jpg",
-      parallaxSpeed: 0.3
+      parallaxSpeed: 0.1
+    },
+    {
+      icon: <Shield className="w-12 h-12" />,
+      title: "Quality Assurance",
+      description: "We ensure all products meet the highest standards through rigorous quality control and testing.",
+      image: "/images/frontpage/pexels-pixabay-265216.jpg",
+      parallaxSpeed: 0.1
     }
   ];
 
@@ -201,7 +206,7 @@ export default function AboutUs({ }: PageProps) {
               <h2 className="text-6xl font-bold text-primary mb-6">
                 Who We Are
               </h2>
-              <div className="space-y-4 sm:space-y-6 text-base sm:text-lg text-gray-700 leading-relaxed">
+              <div className="space-y-4 sm:space-y-6 text-2xl text-gray-700 leading-relaxed">
                 <p>
                   SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
                   of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
@@ -211,11 +216,6 @@ export default function AboutUs({ }: PageProps) {
                   Our story began with a simple vision: to create a direct connection between local farmers
                   and consumers, ensuring fair compensation for our agricultural partners while providing
                   fresh, nutritious food to our community.
-                </p>
-                <p>
-                  Today, we're proud to support over 50 local farmers across the region, providing them with
-                  training, resources, and market access while delivering the freshest produce directly to
-                  your doorstep.
                 </p>
               </div>
             </motion.div>
@@ -252,7 +252,7 @@ export default function AboutUs({ }: PageProps) {
             className="text-center mb-12 sm:mb-16"
           >
             <motion.h2
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 sm:mb-6"
+              className="text-6xl font-bold text-primary mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -261,14 +261,13 @@ export default function AboutUs({ }: PageProps) {
               Our Vision & Values
             </motion.h2>
             <motion.p
-              className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              viewport={{ once: true }}
+                className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                viewport={{ once: true }}
             >
-              We believe in creating a sustainable future where local agriculture thrives,
-              communities are strengthened, and everyone has access to fresh, nutritious food.
+                We build sustainable local agriculture that strengthens communities and delivers fresh, nutritious food.
             </motion.p>
           </motion.div>
 
@@ -286,12 +285,12 @@ export default function AboutUs({ }: PageProps) {
                     <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary ${styles.iconBounce}`}>
                       {value.icon}
                     </div>
-                    <CardTitle className="text-xl font-bold text-primary">
+                    <CardTitle className="text-4xl font-bold text-primary">
                       {value.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-2xl text-gray-600 leading-relaxed">
                       {value.description}
                     </p>
                   </CardContent>
@@ -382,7 +381,7 @@ export default function AboutUs({ }: PageProps) {
                 Agriculture Excellence
               </motion.h2>
               <motion.p
-                className="text-lg sm:text-xl text-gray-600 leading-relaxed"
+                className="text-2xl text-gray-600 leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
@@ -396,9 +395,9 @@ export default function AboutUs({ }: PageProps) {
       </section>
 
       {/* Services Section */}
-      <section ref={servicesRef} className="py-20 bg-gray-50 relative overflow-hidden">
-        <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-12 sm:space-y-16">
+      <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden">
+        <div className="max-w-[90vw] mx-auto">
+          <div className="space-y-4">
             {services.map((service, index) => (
               <motion.div
                 key={index}
@@ -406,39 +405,31 @@ export default function AboutUs({ }: PageProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 viewport={{ once: true }}
-                className={`max-w-[90vw] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                   }`}
               >
                 {/* Content */}
                 <div className={index % 2 === 1 ? 'lg:col-start-2 mx-20' : 'mx-20'}>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-foreground ${styles.iconBounce}`}>
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
                       {service.icon}
                     </div>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    <h3 className="text-4xl font-bold text-popover-foreground">
                       {service.title}
                     </h3>
                   </div>
-                  <p className="text-base sm:text-lg text-foreground mb-4 sm:mb-6 leading-relaxed">
+                  <p className="text-2xl text-popover-foreground mb-4 sm:mb-6 leading-relaxed">
                     {service.description}
                   </p>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {service.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center gap-3 text-foreground">
-                        <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
 
                 {/* Image/Visual with Parallax */}
                 <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                  <AspectRatio ratio={4 / 3} className="w-full overflow-hidden shadow-lg relative">
+                  <AspectRatio ratio={4 / 1} className="w-full overflow-hidden shadow-lg relative">
                     <motion.div
                       className="w-full h-full"
                       style={{
-                        transform: `translate3d(0, ${scrollY * service.parallaxSpeed}px, 0)`,
+                        transform: `translate3d(0, ${(scrollY - (servicesRef.current?.offsetTop || 0)) * service.parallaxSpeed}px, 0)`,
                         willChange: 'transform'
                       }}
                     >
@@ -461,8 +452,6 @@ export default function AboutUs({ }: PageProps) {
           </div>
         </div>
       </section>
-
-
 
       {/* Footer */}
       <div className="relative z-20 w-full">
