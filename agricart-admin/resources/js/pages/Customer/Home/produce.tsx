@@ -3,6 +3,7 @@ import { Head, usePage, router, useForm, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
 import { debounce } from '@/lib/debounce';
+import { useScrollRestoration, usePageState } from '@/hooks/useScrollRestoration';
 import {
   Carousel,
   CarouselContent,
@@ -123,11 +124,32 @@ export function ProductCarousel({
 
 export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
-  const [fruitsViewMode, setFruitsViewMode] = useState<'carousel' | 'grid'>('carousel');
-  const [vegetablesViewMode, setVegetablesViewMode] = useState<'carousel' | 'grid'>('carousel');
-  const [produceViewMode, setProduceViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
+
+  // Initialize scroll restoration
+  useScrollRestoration('produce-page');
+
+  // Define initial view modes
+  const initialViewModes = {
+    fruits: 'carousel' as 'carousel' | 'grid',
+    vegetables: 'carousel' as 'carousel' | 'grid',
+    produce: 'carousel' as 'carousel' | 'grid'
+  };
+
+  // Load saved page state
+  const { savePageState, loadPageState } = usePageState('produce-page', initialViewModes);
+  const savedState = loadPageState();
+  
+  const [fruitsViewMode, setFruitsViewMode] = useState<'carousel' | 'grid'>(
+    savedState?.fruits || 'carousel'
+  );
+  const [vegetablesViewMode, setVegetablesViewMode] = useState<'carousel' | 'grid'>(
+    savedState?.vegetables || 'carousel'
+  );
+  const [produceViewMode, setProduceViewMode] = useState<'carousel' | 'grid'>(
+    savedState?.produce || 'carousel'
+  );
 
   // Helper function to check if a product has available stock
   const hasAvailableStock = (product: Product): boolean => {
@@ -165,15 +187,48 @@ export default function CustomerHome() {
   const handleRequireLogin = () => setShowLoginConfirm(true);
 
   const toggleFruitsViewMode = () => {
-    setFruitsViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+    setFruitsViewMode(prevMode => {
+      const newMode = prevMode === 'carousel' ? 'grid' : 'carousel';
+      // Save state after update
+      setTimeout(() => {
+        savePageState({
+          fruits: newMode,
+          vegetables: vegetablesViewMode,
+          produce: produceViewMode
+        });
+      }, 0);
+      return newMode;
+    });
   };
 
   const toggleVegetablesViewMode = () => {
-    setVegetablesViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+    setVegetablesViewMode(prevMode => {
+      const newMode = prevMode === 'carousel' ? 'grid' : 'carousel';
+      // Save state after update
+      setTimeout(() => {
+        savePageState({
+          fruits: fruitsViewMode,
+          vegetables: newMode,
+          produce: produceViewMode
+        });
+      }, 0);
+      return newMode;
+    });
   };
 
   const toggleProduceViewMode = () => {
-    setProduceViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
+    setProduceViewMode(prevMode => {
+      const newMode = prevMode === 'carousel' ? 'grid' : 'carousel';
+      // Save state after update
+      setTimeout(() => {
+        savePageState({
+          fruits: fruitsViewMode,
+          vegetables: vegetablesViewMode,
+          produce: newMode
+        });
+      }, 0);
+      return newMode;
+    });
   };
 
   const handleStockUpdate = (productId: number, category: string, quantity: number) => {

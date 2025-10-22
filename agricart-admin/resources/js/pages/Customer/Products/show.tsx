@@ -111,7 +111,7 @@ export default function ProductShow({ product, auth }: Props) {
     };
 
     const handleBack = () => {
-        router.visit('/');
+        router.visit('/customer/produce');
     };
 
     const totalStock = Object.values(product.stock_by_category).reduce((sum, quantity) => sum + quantity, 0);
@@ -133,7 +133,7 @@ export default function ProductShow({ product, auth }: Props) {
                         className="flex items-center space-x-2"
                     >
                         <ArrowLeft className="h-4 w-4" />
-                        <span>Back to Home</span>
+                        <span>Back to Produce</span>
                     </Button>
                 </div>
 

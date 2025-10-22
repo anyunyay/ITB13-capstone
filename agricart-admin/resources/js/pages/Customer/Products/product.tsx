@@ -68,7 +68,9 @@ function ProductCard({ product }: { product: Product }) {
       }
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, [product.id, stockManager]);
 
   const categories = Object.keys(availableStock).filter(cat => availableStock[cat] > 0);
@@ -402,7 +404,7 @@ export default function ProductPage() {
   const { product } = usePage<PageProps & SharedData>().props;
 
   const handleBack = () => {
-    router.visit('/');
+    router.visit('/customer/produce');
   };
 
   return (
@@ -416,7 +418,7 @@ export default function ProductPage() {
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
+            <span>Back to Produce</span>
           </Button>
         </div>
 
