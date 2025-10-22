@@ -16,7 +16,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
 import Autoplay from 'embla-carousel-autoplay';
-import styles from './smoothScroll.module.css';
 
 interface PageProps {
   flash: {
@@ -132,27 +131,9 @@ export default function CustomerHome({ products }: PageProps) {
       <Head title="Home - Cooperatives of Farmers" />
 
       {/* Scroll container with snap behavior */}
-      <div 
-        ref={scrollContainerRef} 
-        className={`h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth ${styles.smoothScrollContainer}`}
-        style={{ 
-          scrollBehavior: 'smooth',
-          scrollSnapType: 'y mandatory',
-          scrollSnapStop: 'always',
-          overscrollBehavior: 'contain',
-          scrollPaddingTop: '0px',
-          scrollPaddingBottom: '0px'
-        }}
-      >
+      <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth', scrollSnapType: 'y mandatory' }}>
         {/* Hero Section with Farm Image */}
-        <section 
-          className={`relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section className="relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center" style={{ scrollSnapAlign: 'start' }}>
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -202,15 +183,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
         {/* Split Layout Section - Cooperatives of Farmers */}
-        <section 
-          id="explore" 
-          className={`py-40 px-4 bg-gray-50 relative z-10 snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10 snap-start snap-always snap-stop h-screen flex items-center">
         <div className="max-w-[90vw] mx-auto">
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
@@ -315,15 +288,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
         {/* Product Carousel Section */}
-        <section 
-          id="produce" 
-          className={`py-18 bg-white overflow-hidden relative z-10 snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section id="produce" className="py-18 bg-white overflow-hidden relative z-10 snap-start snap-always snap-stop h-screen flex items-center">
         <div className="container mx-auto my-10 p-20">
           <motion.h2
             className="text-6xl font-bold text-center text-primary mb-8"
@@ -459,14 +424,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
         {/* Testimonial Section with Parallax */}
-        <section 
-          className={`snap-start snap-always snap-stop h-screen flex items-center ${styles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section className="snap-start snap-always snap-stop h-screen flex items-center">
           <TestimonialSlider
             testimonials={testimonialData}
             parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
@@ -491,14 +449,7 @@ export default function CustomerHome({ products }: PageProps) {
       </Dialog>
 
         {/* Footer */}
-        <div 
-          className={`relative z-20 w-full snap-start snap-always snap-stop ${styles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <div className="relative z-20 w-full snap-start snap-always snap-stop">
           <Footer
             companyName="SMMC Cooperative"
             facebookUrl="https://facebook.com/smmccooperative"

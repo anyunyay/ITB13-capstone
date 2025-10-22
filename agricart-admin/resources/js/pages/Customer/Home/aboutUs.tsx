@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Heart, Leaf, Users, Truck, Shield, Globe } from 'lucide-react';
 import Footer from '@/components/Footer';
 import styles from './aboutUs.module.css';
-import smoothScrollStyles from './smoothScroll.module.css';
 
 interface PageProps {
   flash: {
@@ -140,27 +139,9 @@ const values = [
       <Head title="About Us - SMMC Cooperative" />
 
       {/* Scroll container with snap behavior */}
-      <div 
-        ref={scrollContainerRef} 
-        className={`h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth ${smoothScrollStyles.smoothScrollContainer}`}
-        style={{ 
-          scrollBehavior: 'smooth',
-          scrollSnapType: 'y mandatory',
-          scrollSnapStop: 'always',
-          overscrollBehavior: 'contain',
-          scrollPaddingTop: '0px',
-          scrollPaddingBottom: '0px'
-        }}
-      >
+      <div ref={scrollContainerRef} className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth', scrollSnapType: 'y mandatory' }}>
         {/* Hero Section with Farm Image */}
-        <section 
-          className={`relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section className="relative z-0 w-full snap-start snap-always snap-stop h-screen flex items-center" style={{ scrollSnapAlign: 'start' }}>
         <AspectRatio ratio={18 / 9}>
           <div className="absolute top-0 left-0 w-full h-full">
             {/* Background image with gradient overlay */}
@@ -233,15 +214,7 @@ const values = [
       </section>
 
         {/* Who We Are Section */}
-        <section 
-          id="who-we-are" 
-          className={`h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Content */}
@@ -290,15 +263,7 @@ const values = [
       </section>
 
         {/* Vision & Values Section */}
-        <section 
-          ref={valuesRef} 
-          className={`h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start snap-always snap-stop">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -358,15 +323,7 @@ const values = [
       </section>
 
         {/* Members Section */}
-        <section 
-          ref={missionRef} 
-          className={`h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start snap-always snap-stop">
         <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
           {/* New Image and Content Layout */}
           <motion.div
@@ -459,15 +416,7 @@ const values = [
       </section>
 
         {/* Services Section */}
-        <section 
-          ref={servicesRef} 
-          className={`h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start snap-always snap-stop">
         <div className="max-w-[90vw] mx-auto">
           <div className="space-y-4">
             {services.map((service, index) => (
@@ -526,14 +475,7 @@ const values = [
       </section>
 
         {/* Footer */}
-        <div 
-          className={`relative z-20 w-full snap-start snap-always snap-stop ${smoothScrollStyles.smoothScrollSection}`}
-          style={{ 
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always',
-            scrollMarginTop: '0px'
-          }}
-        >
+        <div className="relative z-20 w-full snap-start snap-always snap-stop">
           <Footer
             companyName="SMMC Cooperative"
             facebookUrl="https://facebook.com/smmccooperative"
