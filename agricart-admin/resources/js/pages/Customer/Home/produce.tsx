@@ -46,18 +46,18 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-function ProductCard({ product, onRequireLogin, onStockUpdate, className }: { 
-  product: Product; 
+function ProductCard({ product, onRequireLogin, onStockUpdate, className }: {
+  product: Product;
   onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
   className?: string;
 }) {
   return (
-    <StandardProductCard 
+    <StandardProductCard
       product={product}
       onRequireLogin={onRequireLogin}
       onStockUpdate={onStockUpdate}
-      variant="default" 
+      variant="default"
       showAddToCart={true}
       className={className}
     />
@@ -71,9 +71,9 @@ interface ProductCarouselProps {
   viewMode?: 'grid' | 'list';
 }
 
-export function ProductCarousel({ 
-  products, 
-  onRequireLogin, 
+export function ProductCarousel({
+  products,
+  onRequireLogin,
   onStockUpdate,
   viewMode = 'grid'
 }: ProductCarouselProps) {
@@ -86,8 +86,8 @@ export function ProductCarousel({
               key={product.id}
               className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6 w-full sm:w-auto"
             >
-              <ProductCard 
-                product={product} 
+              <ProductCard
+                product={product}
                 onRequireLogin={onRequireLogin}
                 onStockUpdate={onStockUpdate}
                 className="w-full max-w-none"
@@ -107,8 +107,8 @@ export function ProductCarousel({
             key={product.id}
             className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6"
           >
-            <ProductCard 
-              product={product} 
+            <ProductCard
+              product={product}
               onRequireLogin={onRequireLogin}
               onStockUpdate={onStockUpdate}
               className="w-full max-w-none"
@@ -140,7 +140,7 @@ export default function CustomerHome() {
   // Load saved page state
   const { savePageState, loadPageState } = usePageState('produce-page', initialViewModes);
   const savedState = loadPageState();
-  
+
   const [fruitsViewMode, setFruitsViewMode] = useState<'carousel' | 'grid'>(
     savedState?.fruits || 'carousel'
   );
@@ -158,7 +158,7 @@ export default function CustomerHome() {
   };
 
   // Get active fruit products (with available stock)
-  const activeFruits = products.filter(product => 
+  const activeFruits = products.filter(product =>
     product.produce_type === 'fruit' && hasAvailableStock(product)
   );
 
@@ -232,12 +232,12 @@ export default function CustomerHome() {
   };
 
   const handleStockUpdate = (productId: number, category: string, quantity: number) => {
-    setProducts(prevProducts => 
+    setProducts(prevProducts =>
       prevProducts.map(product => {
         if (product.id === productId && product.stock_by_category) {
           const currentStock = product.stock_by_category[category] || 0;
           const newStock = Math.max(0, currentStock - quantity);
-          
+
           return {
             ...product,
             stock_by_category: {
@@ -275,32 +275,30 @@ export default function CustomerHome() {
           <Button
             onClick={toggleFunction}
             variant="ghost"
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${
-              viewMode === 'carousel' 
-                ? 'text-primary' 
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
+                ? 'text-primary'
                 : 'text-primary'
-            }`}
+              }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
           </Button>
         </div>
-        
+
         {/* Mobile View All Button */}
         <div className="flex justify-center mb-4 sm:hidden">
           <Button
             onClick={toggleFunction}
             variant="ghost"
-            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${
-              viewMode === 'carousel' 
-                ? 'text-primary' 
+            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
+                ? 'text-primary'
                 : 'text-primary'
-            }`}
+              }`}
           >
             {viewMode === 'carousel' ? 'View All' : 'View Less'}
           </Button>
         </div>
-        
-        <ProductCarousel 
+
+        <ProductCarousel
           products={filteredProducts}
           onRequireLogin={handleRequireLogin}
           onStockUpdate={handleStockUpdate}

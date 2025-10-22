@@ -232,12 +232,12 @@ export default function CustomerHome({ products }: PageProps) {
                     <CarouselItem key={product.id} className="basis-1/3 pl-4">
                       <div className="relative [transform-style:preserve-3d]">
                         <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${isActive
-                            ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
-                            : isLeft
-                              ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
-                              : isRight
-                                ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
-                                : 'scale-80 opacity-20 z-10 blur-md'
+                          ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
+                          : isLeft
+                            ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
+                            : isRight
+                              ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
+                              : 'scale-80 opacity-20 z-10 blur-md'
                           }`}>
                           <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
                             {product.image_url ? (
