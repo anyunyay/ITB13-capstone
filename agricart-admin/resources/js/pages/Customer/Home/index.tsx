@@ -66,26 +66,17 @@ export default function CustomerHome({ products }: PageProps) {
     {
       icon: '🌿',
       title: 'Tended with Care',
-      description: 'Our produce is carefully tended by experienced farmers using sustainable methods, ensuring the highest quality and natural growth.',
-      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+      description: 'Our produce is carefully tended by experienced farmers using sustainable methods, ensuring the highest quality and natural growth.'
     },
     {
       icon: '🌱',
       title: 'Locally Produced',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate, supporting our community.',
-      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate, supporting our community.'
     },
     {
       icon: '🛍️',
       title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and carefully selected to ensure you receive only the freshest, most flavorful produce.',
-      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
-    },
-    {
-      icon: '🚚',
-      title: 'Delivered to Your Doorstep',
-      description: 'Conveniently delivered fresh to your doorstep, bringing farm-fresh quality directly to your home.',
-      backgroundImage: '/images/frontpage/pexels-pixabay-265216.jpg'
+      description: 'Harvested at peak ripeness and carefully selected to ensure you receive only the freshest, most flavorful produce.'
     }
   ];
 
@@ -142,13 +133,13 @@ export default function CustomerHome({ products }: PageProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
               {/* Text overlay - positioned above gradient */}
               <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-30">
-                <motion.div 
+                <motion.div
                   className="text-left"
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, ease: "easeOut" }}
                 >
-                  <motion.h2 
+                  <motion.h2
                     className="text-7xl font-light"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -156,7 +147,7 @@ export default function CustomerHome({ products }: PageProps) {
                   >
                     Grown Here,
                   </motion.h2>
-                  <motion.h1 
+                  <motion.h1
                     className="text-[164px] leading-none font-bold text-primary"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -176,14 +167,14 @@ export default function CustomerHome({ products }: PageProps) {
         <div className="max-w-[90vw] mx-auto">
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
-            <motion.div 
+            <motion.div
               className="flex flex-col gap-6"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
             >
-              <motion.h2 
+              <motion.h2
                 className="text-6xl text-primary font-extrabold mb-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -201,7 +192,7 @@ export default function CustomerHome({ products }: PageProps) {
               >
                 Empowering Local Communities Through Sustainable Agriculture
               </motion.h3>
-              <motion.p 
+              <motion.p
                 className="text-2xl text-muted-foreground mb-4 space-y-4 leading-relaxed"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -215,14 +206,14 @@ export default function CustomerHome({ products }: PageProps) {
               </motion.p>
 
               {/* Stats */}
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-3 gap-6 pt-6 border-t border-border"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                <motion.div 
+                <motion.div
                   className="text-center"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -232,7 +223,7 @@ export default function CustomerHome({ products }: PageProps) {
                   <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
                   <div className="text-sm text-primary font-medium md:text-base">Years Experience</div>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   className="text-center"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -242,7 +233,7 @@ export default function CustomerHome({ products }: PageProps) {
                   <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
                   <div className="text-sm text-primary font-medium md:text-base">Active Farmers</div>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   className="text-center"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -256,7 +247,7 @@ export default function CustomerHome({ products }: PageProps) {
             </motion.div>
 
             {/* Right Side - Image with AspectRatio */}
-            <motion.div 
+            <motion.div
               className="w-full"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -279,7 +270,7 @@ export default function CustomerHome({ products }: PageProps) {
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10 p-20">
-          <motion.h2 
+          <motion.h2
             className="text-6xl font-bold text-center text-primary mb-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -288,7 +279,7 @@ export default function CustomerHome({ products }: PageProps) {
           >
             Featured Products
           </motion.h2>
-          <motion.div 
+          <motion.div
             className="relative overflow-visible"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -358,7 +349,7 @@ export default function CustomerHome({ products }: PageProps) {
               <CarouselNext className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
             </Carousel>
           </motion.div>
-          <motion.div 
+          <motion.div
             className="text-center mb-8 mt-4"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -372,15 +363,51 @@ export default function CustomerHome({ products }: PageProps) {
               Show All Produce
             </button>
           </motion.div>
+
+          <div className="container mx-auto sm:px-6 lg:px-8">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+              {featureCardsData.map((card, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                  className="group relative"
+                >
+                  {/* Main card */}
+                  <div className="bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-sm rounded-2xl border-2 border-primary/20 px-8 py-6 shadow-lg transition-all duration-500 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-primary/40 hover:from-primary/20 hover:to-primary/10 min-w-fit">
+                    <div className="flex items-center gap-4">
+                      {/* Icon container with gradient background */}
+                      <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out group-hover:scale-110 group-hover:shadow-xl">
+                        <span className="text-2xl">{card.icon}</span>
+                      </div>
+                      
+                      {/* Title */}
+                      <div className="flex flex-col">
+                        <h3 className="text-xl font-bold text-primary transition-all duration-500 ease-in-out group-hover:text-primary/90 whitespace-nowrap">
+                          {card.title}
+                        </h3>
+                        <div className="w-full h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 transition-all duration-500 ease-in-out group-hover:from-primary/80"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative elements */}
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out"></div>
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Testimonial Section with Parallax and Feature Cards */}
+      {/* Testimonial Section with Parallax */}
       <TestimonialSlider
         testimonials={testimonialData}
         parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
         autoplayInterval={6500}
-        featureCards={featureCardsData}
       />
 
       {/* Login Confirmation Dialog */}
