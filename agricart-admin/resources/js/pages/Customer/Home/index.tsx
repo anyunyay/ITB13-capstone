@@ -1,6 +1,7 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type { SharedData } from '@/types';
 import {
   Dialog,
@@ -141,10 +142,29 @@ export default function CustomerHome({ products }: PageProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
               {/* Text overlay - positioned above gradient */}
               <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-30">
-                <div className="text-left">
-                  <h2 className="text-7xl font-light">Grown Here,</h2>
-                  <h1 className="text-[164px] leading-none font-bold text-primary">For You.</h1>
-                </div>
+                <motion.div 
+                  className="text-left"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                >
+                  <motion.h2 
+                    className="text-7xl font-light"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                  >
+                    Grown Here,
+                  </motion.h2>
+                  <motion.h1 
+                    className="text-[164px] leading-none font-bold text-primary"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                  >
+                    For You.
+                  </motion.h1>
+                </motion.div>
               </div>
             </div>
           </div>
@@ -156,39 +176,93 @@ export default function CustomerHome({ products }: PageProps) {
         <div className="max-w-[90vw] mx-auto">
           <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
             {/* Left Side - Content */}
-            <div className="flex flex-col gap-6">
-              <h2 className="text-6xl text-primary font-extrabold mb-4">
+            <motion.div 
+              className="flex flex-col gap-6"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
+              <motion.h2 
+                className="text-6xl text-primary font-extrabold mb-4"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
                 SMMC Cooperative
-              </h2>
-              <p className="text-4xl text-foreground font-semibold mb-6">
+              </motion.h2>
+              <motion.p 
+                className="text-4xl text-foreground font-semibold mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
                 Empowering Local Communities Through Sustainable Agriculture
-              </p>
-              <p className="text-2xl text-muted-foreground mb-4 space-y-4 leading-relaxed">
+              </motion.p>
+              <motion.p 
+                className="text-2xl text-muted-foreground mb-4 space-y-4 leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
                 Our network of farmer cooperatives represents the heart of sustainable agriculture in our region.
                 We bring together dedicated farmers who share a commitment to quality, environmental stewardship,
                 and community development. Through collective effort, we ensure that fresh, nutritious produce
                 reaches your table while supporting the livelihoods of local farming families.
-              </p>
+              </motion.p>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border">
-                <div className="text-center">
+              <motion.div 
+                className="grid grid-cols-3 gap-6 pt-6 border-t border-border"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
+                <motion.div 
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
                   <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
                   <div className="text-sm text-primary font-medium md:text-base">Years Experience</div>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div 
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
                   <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
                   <div className="text-sm text-primary font-medium md:text-base">Active Farmers</div>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div 
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
                   <div className="text-2xl font-bold text-primary mb-1 md:text-3xl">00</div>
                   <div className="text-sm text-primary font-medium md:text-base">Cooperatives</div>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
 
             {/* Right Side - Image with AspectRatio */}
-            <div className="w-full">
+            <motion.div 
+              className="w-full"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true }}
+            >
               <AspectRatio ratio={4 / 3} className="rounded-xl overflow-hidden shadow-lg">
                 {/* Stock image placeholder - replace with actual cooperative/farm image */}
                 <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
@@ -197,7 +271,7 @@ export default function CustomerHome({ products }: PageProps) {
                   </div>
                 </div>
               </AspectRatio>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -205,8 +279,22 @@ export default function CustomerHome({ products }: PageProps) {
       {/* Product Carousel Section */}
       <section id="produce" className="py-18 bg-white overflow-hidden relative z-10">
         <div className="container mx-auto my-10 p-20">
-          <h3 className="text-6xl font-bold text-center text-primary mb-8">Featured Products</h3>
-          <div className="relative overflow-visible">
+          <motion.h3 
+            className="text-6xl font-bold text-center text-primary mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true }}
+          >
+            Featured Products
+          </motion.h3>
+          <motion.div 
+            className="relative overflow-visible"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            viewport={{ once: true }}
+          >
             <Carousel
               opts={{
                 align: "center",
@@ -269,15 +357,21 @@ export default function CustomerHome({ products }: PageProps) {
               <CarouselPrevious className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
               <CarouselNext className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
             </Carousel>
-          </div>
-          <div className="text-center mb-8 mt-4">
+          </motion.div>
+          <motion.div 
+            className="text-center mb-8 mt-4"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+            viewport={{ once: true }}
+          >
             <button
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
               onClick={() => router.visit('/customer/produce')}
             >
               Show All Produce
             </button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
