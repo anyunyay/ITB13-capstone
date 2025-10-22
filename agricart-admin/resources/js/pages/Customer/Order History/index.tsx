@@ -208,7 +208,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
+        return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Ready to Pick Up</Badge>;
       case 'out_for_delivery':
         return <Badge variant="default">Out for Delivery</Badge>;
       case 'delivered':
@@ -221,15 +221,15 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const getDeliveryStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-secondary';
       case 'ready_to_pickup':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-primary';
       case 'out_for_delivery':
-        return 'text-blue-600 dark:text-blue-400';
+        return 'text-primary';
       case 'delivered':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-primary';
       default:
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-muted-foreground';
     }
   };
 

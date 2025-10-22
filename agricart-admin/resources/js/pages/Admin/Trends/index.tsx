@@ -652,12 +652,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         return interpolatedData;
     }, [series, timePeriod, startDate, endDate, selectedMonth, selectedYear, interpolateData, selectedProducts, priceCategoryToggles]);
 
-    // Generate colors for different products
+    // Generate colors for different products using theme colors
     const getProductColor = (productName: string, index: number) => {
         const colors = [
-            '#8884d8', '#82ca9d', '#ff7300', '#ffc658', '#8dd1e1', 
-            '#d084d0', '#ffb347', '#87ceeb', '#dda0dd', '#98fb98',
-            '#f0e68c', '#ffa07a', '#20b2aa', '#ff6347', '#32cd32'
+            '#16a34a', '#059669', '#047857', '#065f46', '#10b981', // Green variations
+            '#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', // Emerald variations
+            '#84cc16', '#65a30d', '#4d7c0f', '#365314', '#1a2e05'  // Additional green tones
         ];
         return colors[index % colors.length];
     };

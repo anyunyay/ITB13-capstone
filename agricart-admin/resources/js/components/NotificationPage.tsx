@@ -150,19 +150,19 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
     switch (type) {
       case 'new_order':
       case 'delivery_task':
-        return 'border-l-blue-500 bg-blue-50';
+        return 'border-l-primary bg-primary/5';
       case 'low_stock_alert':
-        return 'border-l-red-500 bg-red-50';
+        return 'border-l-destructive bg-destructive/5';
       case 'product_sale':
       case 'earnings_update':
       case 'order_confirmation':
-        return 'border-l-green-500 bg-green-50';
+        return 'border-l-primary bg-primary/5';
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':
-        return 'border-l-orange-500 bg-orange-50';
+        return 'border-l-secondary bg-secondary/5';
       default:
-        return 'border-l-gray-500 bg-gray-50';
+        return 'border-l-muted-foreground bg-muted';
     }
   };
 

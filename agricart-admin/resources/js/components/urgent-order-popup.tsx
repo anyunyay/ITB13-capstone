@@ -201,10 +201,10 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
             
             return (
               <Alert key={order.id} className={`${
-                urgencyLevel === 'overdue' ? 'border-red-200 bg-red-50' :
-                urgencyLevel === 'critical' ? 'border-red-300 bg-red-100' :
-                urgencyLevel === 'high' ? 'border-orange-200 bg-orange-50' :
-                'border-yellow-200 bg-yellow-50'
+                urgencyLevel === 'overdue' ? 'border-destructive/20 bg-destructive/5' :
+                urgencyLevel === 'critical' ? 'border-destructive/30 bg-destructive/10' :
+                urgencyLevel === 'high' ? 'border-secondary/20 bg-secondary/5' :
+                'border-primary/20 bg-primary/5'
               }`}>
                 <Clock className="h-4 w-4" />
                 <AlertDescription>
@@ -237,7 +237,7 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
             <X className="h-4 w-4 mr-2" />
             Dismiss
           </Button>
-          <Button onClick={handleGoToOrders} className="bg-amber-600 hover:bg-amber-700">
+          <Button onClick={handleGoToOrders} className="bg-primary hover:bg-primary/90">
             <Clock className="h-4 w-4 mr-2" />
             Go to Orders
           </Button>
