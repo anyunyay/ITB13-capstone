@@ -165,4 +165,15 @@ class HomeController extends Controller
 
         return Inertia::render('Customer/Home/produce', compact('products'));
     }
+
+    public function about()
+    {
+        // Check customer email verification
+        $verificationRedirect = $this->ensureCustomerEmailVerified();
+        if ($verificationRedirect) {
+            return $verificationRedirect;
+        }
+
+        return Inertia::render('Customer/Home/aboutUs');
+    }
 }
