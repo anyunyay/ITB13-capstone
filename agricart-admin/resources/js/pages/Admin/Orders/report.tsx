@@ -262,7 +262,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Member Share</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Revenue</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
@@ -397,7 +397,7 @@ function OrderCard({ order }: { order: Order }) {
               <span className="font-medium">Co-op Share:</span> <span className="text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
             </p>
             <p className="text-sm">
-              <span className="font-medium">Member Share:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
+              <span className="font-medium">Revenue:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
             </p>
             <p className="text-sm">
               <span className="font-medium">Items:</span> {order.audit_trail?.length || 0}

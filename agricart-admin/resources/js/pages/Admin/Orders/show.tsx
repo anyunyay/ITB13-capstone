@@ -556,7 +556,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                     <span className="text-sm font-medium text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Member Share (100%):</span>
+                    <span className="text-sm text-gray-500">Revenue (100%):</span>
                     <span className="text-sm font-medium text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
                   </div>
                   {order.admin && (

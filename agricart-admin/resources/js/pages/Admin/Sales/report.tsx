@@ -209,7 +209,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Member Share (100%)</CardTitle>
+                <CardTitle className="text-sm font-medium">Revenue (100%)</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -249,7 +249,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                       <TableHead className="text-center">ID</TableHead>
                       <TableHead className="text-center">Total Amount</TableHead>
                       <TableHead className="text-center">Co-op Share</TableHead>
-                      <TableHead className="text-center">Member Share</TableHead>
+                      <TableHead className="text-center">Revenue</TableHead>
                       <TableHead className="text-center">Processed By</TableHead>
                       <TableHead className="text-center">Logistic</TableHead>
                       <TableHead className="text-center">Created</TableHead>
