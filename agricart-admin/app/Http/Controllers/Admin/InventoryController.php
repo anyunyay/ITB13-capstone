@@ -289,32 +289,17 @@ class InventoryController extends Controller
                 'Quantity',
                 'Category',
                 'Member',
-                'Status',
-                'Created At',
-                'Removed At',
                 'Notes'
             ]);
 
             // Write stock data
             foreach ($stocks as $stock) {
-                $status = 'Available';
-                if ($stock->removed_at) {
-                    $status = 'Removed';
-                } elseif ($stock->quantity == 0 && $stock->sold_quantity > 0) {
-                    $status = 'Sold';
-                } elseif ($stock->quantity > 0 && $stock->sold_quantity > 0) {
-                    $status = 'Partial';
-                }
-
                 fputcsv($file, [
                     $stock->id,
                     $stock->product->name ?? 'N/A',
                     $stock->quantity,
                     $stock->category,
                     $stock->member->name ?? 'N/A',
-                    $status,
-                    $stock->created_at->format('Y-m-d H:i:s'),
-                    $stock->removed_at ? $stock->removed_at->format('Y-m-d H:i:s') : 'N/A',
                     $stock->notes ?? 'N/A'
                 ]);
             }
