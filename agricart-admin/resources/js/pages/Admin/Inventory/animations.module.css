@@ -104,6 +104,26 @@
   }
 }
 
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* ==========================================================================
    ANIMATION CLASSES
    ========================================================================== */
@@ -127,6 +147,14 @@
 
 .scaleIn {
   animation: scaleIn 0.3s ease-out;
+}
+
+.tabSlideIn {
+  animation: tabSlideIn 0.3s ease-out;
+}
+
+.tabFadeIn {
+  animation: tabFadeIn 0.2s ease-in-out;
 }
 
 /* Loading animations */

@@ -1,11 +1,13 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Package, Warehouse } from 'lucide-react';
+import animations from './animations.module.css';
 import { PermissionGate } from '@/components/permission-gate';
 import { FlashMessage } from '@/components/flash-message';
 import { PermissionGuard } from '@/components/permission-guard';
@@ -35,6 +37,9 @@ interface PageProps extends SharedData {
 export default function InventoryIndex() {
     const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
+    
+    // Toggle state for switching between Product and Stock management
+    const [activeTab, setActiveTab] = useState<'products' | 'stocks'>('products');
     
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
@@ -272,58 +277,75 @@ export default function InventoryIndex() {
                     <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4">
                         <DashboardHeader stockStats={stockStats} />
 
-
                         {/* Flash Messages and Alerts */}
                         <div className="space-y-2">
-                        <FlashMessage flash={flash} />
-                        {errors.archive && (
+                            <FlashMessage flash={flash} />
+                            {errors.archive && (
                                 <Alert className="border-destructive/50 bg-destructive/10">
                                     <AlertTriangle className='h-4 w-4 text-destructive' />
-                                <AlertTitle>Error!</AlertTitle>
-                                <AlertDescription>{errors.archive}</AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
+                                    <AlertTitle>Error!</AlertTitle>
+                                    <AlertDescription>{errors.archive}</AlertDescription>
+                                </Alert>
+                            )}
+                        </div>
 
-                        <ProductManagement
-                            products={currentProducts}
-                            categories={categories}
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            selectedCategory={selectedCategory}
-                            setSelectedCategory={setSelectedCategory}
-                            sortBy={sortBy}
-                            setSortBy={setSortBy}
-                            filteredAndSortedProducts={filteredAndSortedProducts}
-                            paginatedProducts={paginatedProducts}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
-                            totalPages={totalPages}
-                            totalProducts={totalProducts}
-                            itemsPerPage={itemsPerPage}
-                            processing={processing}
-                            handleArchive={handleArchive}
-                            handleDelete={handleDelete}
-                            handleRestore={handleRestore}
-                            showArchived={showArchived}
-                            setShowArchived={toggleArchivedView}
-                            archivingProduct={archivingProduct || null}
-                            restoringProduct={restoringProduct || null}
-                        />
+                        {/* Toggle Tabs for Product and Stock Management */}
+                        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'products' | 'stocks')} className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 mb-6">
+                                <TabsTrigger value="products" className="flex items-center gap-2">
+                                    <Package className="h-4 w-4" />
+                                    Product Management
+                                </TabsTrigger>
+                                <TabsTrigger value="stocks" className="flex items-center gap-2">
+                                    <Warehouse className="h-4 w-4" />
+                                    Stock Management
+                                </TabsTrigger>
+                            </TabsList>
 
-                        <StockManagement
-                            stocks={stocks}
-                            removedStocks={removedStocks}
-                            soldStocks={soldStocks}
-                            auditTrails={auditTrails}
-                            stockCurrentPage={stockCurrentPage}
-                            setStockCurrentPage={setStockCurrentPage}
-                            stockItemsPerPage={stockItemsPerPage}
-                            processing={processing}
-                            handleRemovePerishedStock={handleRemovePerishedStock}
-                            getFilteredStocks={getFilteredStocks}
-                            getPaginatedStocks={getPaginatedStocks}
-                        />
+                            <TabsContent value="products" className={`mt-0 ${animations.tabSlideIn}`}>
+                                <ProductManagement
+                                    products={currentProducts}
+                                    categories={categories}
+                                    searchTerm={searchTerm}
+                                    setSearchTerm={setSearchTerm}
+                                    selectedCategory={selectedCategory}
+                                    setSelectedCategory={setSelectedCategory}
+                                    sortBy={sortBy}
+                                    setSortBy={setSortBy}
+                                    filteredAndSortedProducts={filteredAndSortedProducts}
+                                    paginatedProducts={paginatedProducts}
+                                    currentPage={currentPage}
+                                    setCurrentPage={setCurrentPage}
+                                    totalPages={totalPages}
+                                    totalProducts={totalProducts}
+                                    itemsPerPage={itemsPerPage}
+                                    processing={processing}
+                                    handleArchive={handleArchive}
+                                    handleDelete={handleDelete}
+                                    handleRestore={handleRestore}
+                                    showArchived={showArchived}
+                                    setShowArchived={toggleArchivedView}
+                                    archivingProduct={archivingProduct || null}
+                                    restoringProduct={restoringProduct || null}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="stocks" className={`mt-0 ${animations.tabSlideIn}`}>
+                                <StockManagement
+                                    stocks={stocks}
+                                    removedStocks={removedStocks}
+                                    soldStocks={soldStocks}
+                                    auditTrails={auditTrails}
+                                    stockCurrentPage={stockCurrentPage}
+                                    setStockCurrentPage={setStockCurrentPage}
+                                    stockItemsPerPage={stockItemsPerPage}
+                                    processing={processing}
+                                    handleRemovePerishedStock={handleRemovePerishedStock}
+                                    getFilteredStocks={getFilteredStocks}
+                                    getPaginatedStocks={getPaginatedStocks}
+                                />
+                            </TabsContent>
+                        </Tabs>
 
                         {/* Modals */}
                         <RemoveStockModal
