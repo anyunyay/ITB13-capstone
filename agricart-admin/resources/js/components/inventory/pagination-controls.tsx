@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
 interface PaginationControlsProps {
     currentPage: number;
@@ -46,24 +45,25 @@ export const PaginationControls = ({
     if (totalPages <= 1) return null;
 
     return (
-        <div className={styles.paginationContainer}>
-            <span className={styles.paginationText}>
+        <div className="flex flex-col gap-3 mt-8 px-4 py-3 sm:px-6 sm:py-4 bg-card border border-border rounded-xl shadow-sm sm:flex-row sm:items-center sm:justify-center sm:relative">
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:absolute sm:left-6 sm:top-1/2 sm:transform sm:-translate-y-1/2 sm:whitespace-nowrap">
                 {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
             </span>
             
-            <div className={styles.paginationControls}>
+            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={styles.paginationButton}
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
                 </Button>
                 
-                <div className={styles.paginationNumbers}>
+                <div className="flex items-center gap-1">
                     {getVisiblePages().map((page, index) => (
                         <div key={index}>
                             {page === '...' ? (
@@ -73,7 +73,11 @@ export const PaginationControls = ({
                                     variant={currentPage === page ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => onPageChange(page as number)}
-                                    className={styles.paginationNumber}
+                                    className={`min-w-[2.25rem] sm:min-w-[2.5rem] h-[2.25rem] sm:h-[2.5rem] p-0 border border-border rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                                        currentPage === page 
+                                            ? 'bg-background text-foreground border-foreground font-semibold' 
+                                            : 'bg-background text-foreground hover:bg-muted hover:border-border hover:text-foreground'
+                                    }`}
                                 >
                                     {page}
                                 </Button>
@@ -87,10 +91,11 @@ export const PaginationControls = ({
                     size="sm"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={styles.paginationButton}
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                    <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
             </div>
         </div>

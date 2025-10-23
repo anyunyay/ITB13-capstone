@@ -17,7 +17,6 @@ import { ArchiveProductModal } from '@/components/inventory/archive-product-moda
 import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
 import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
 import { Product, Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
-import styles from './inventory.module.css';
 
 interface PageProps extends SharedData {
     products: Product[];
@@ -269,8 +268,8 @@ export default function InventoryIndex() {
         >
             <AppLayout>
                 <Head title="Inventory Management" />
-                <div className={styles.inventoryContainer}>
-                    <div className={styles.mainContent}>
+                <div className="min-h-screen bg-background">
+                    <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4">
                         <DashboardHeader stockStats={stockStats} />
 
 
