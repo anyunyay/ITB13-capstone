@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, UserPlus } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
@@ -71,7 +71,15 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
+        <AuthLayout 
+            title="Create an account" 
+            description="Enter your details below to create your account"
+            imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+            imagePosition="left"
+            icon={<UserPlus />}
+            iconBgColor="bg-primary/10"
+            iconColor="text-primary"
+        >
             <Head title="Register" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, User } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
 import InputError from '@/components/input-error';
@@ -18,6 +18,7 @@ type LoginForm = {
     email: string;
     password: string;
     remember: boolean;
+    lockout?: string;
 };
 
 interface LoginProps {
@@ -30,7 +31,7 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword, restrictionPopup }: LoginProps) {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
+    const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
         email: '',
         password: '',
         remember: false,
@@ -85,18 +86,16 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
 
     return (
         <>
-            <AuthLayout title="Customer Login" description="Welcome back! Sign in to your customer account">
+            <AuthLayout 
+                title="Customer Login" 
+                description="Welcome back! Sign in to your customer account"
+                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imagePosition="left"
+                icon={<User />}
+                iconBgColor="bg-primary/10"
+                iconColor="text-primary"
+            >
                 <Head title="Customer Login" />
-
-            <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-                    <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Customer Access</h2>
-                <p className="text-sm text-gray-600">Shop and manage your orders</p>
-            </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

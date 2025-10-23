@@ -88,16 +88,13 @@ export default function LogisticLogin({ status, canResetPassword, restrictionPop
             <AuthLayout 
                 title="Logistics Portal Access" 
                 description="Sign in to manage deliveries and track shipments"
+                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imagePosition="right"
+                icon={<Truck />}
+                iconBgColor="bg-primary/10"
+                iconColor="text-primary"
             >
                 <Head title="Logistics Login" />
-
-            <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
-                    <Truck className="h-8 w-8 text-orange-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Logistics Access</h2>
-                <p className="text-sm text-gray-600">Manage deliveries and track shipments</p>
-            </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

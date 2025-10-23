@@ -88,16 +88,13 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
             <AuthLayout 
                 title="Member Portal Access" 
                 description="Welcome back! Sign in to access your member benefits"
+                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imagePosition="left"
+                icon={<Users />}
+                iconBgColor="bg-accent/10"
+                iconColor="text-accent"
             >
                 <Head title="Member Login" />
-
-            <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                    <Users className="h-8 w-8 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Member Access</h2>
-                <p className="text-sm text-gray-600">Exclusive benefits and features await</p>
-            </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

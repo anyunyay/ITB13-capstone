@@ -1,34 +1,92 @@
 import AppLogoIcon from '@/components/app-logo-icon';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
-export default function AuthCardLayout({
-    children,
-    title,
-    description,
-}: PropsWithChildren<{
-    name?: string;
+interface AuthCardLayoutProps {
     title?: string;
     description?: string;
-}>) {
-    return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
-            <div className="flex w-full max-w-md flex-col gap-6">
-                <Link href={route('home')} className="flex items-center gap-2 self-center font-medium">
-                    <div className="flex h-9 w-9 items-center justify-center">
-                        <AppLogoIcon className="size-9 fill-current text-black dark:text-white" />
-                    </div>
-                </Link>
+    imageUrl?: string;
+    imagePosition?: 'left' | 'right';
+    icon?: React.ReactNode;
+    iconBgColor?: string;
+    iconColor?: string;
+}
 
-                <div className="flex flex-col gap-6">
-                    <Card className="rounded-xl">
-                        <CardHeader className="px-10 pt-8 pb-0 text-center">
-                            <CardTitle className="text-xl">{title}</CardTitle>
-                            <CardDescription>{description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="px-10 py-8">{children}</CardContent>
-                    </Card>
+export default function AuthCardLayout({ 
+    children, 
+    title, 
+    description, 
+    imageUrl, 
+    imagePosition = 'left',
+    icon,
+    iconBgColor = 'bg-primary/10',
+    iconColor = 'text-primary'
+}: PropsWithChildren<AuthCardLayoutProps>) {
+    return (
+        <div className="relative flex min-h-svh items-center justify-center p-4">
+            {/* Blurred Background Image */}
+            <div 
+                className="absolute inset-0 auth-blur-background"
+                style={{
+                    backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    filter: 'blur(20px)'
+                }}
+            />
+            
+            {/* Overlay for better contrast */}
+            <div className="absolute inset-0 bg-background/80 auth-blur-overlay" />
+            
+            {/* Main Content */}
+            <div className="relative z-10 w-full max-w-6xl">
+                <div className="grid min-h-[600px] overflow-hidden rounded-2xl bg-card shadow-2xl border border-border lg:grid-cols-2">
+                    {/* Image Section */}
+                    {imageUrl && (
+                        <div className={`relative hidden lg:block ${imagePosition === 'left' ? 'order-1' : 'order-2'}`}>
+                            <div className="h-full w-full">
+                                <img
+                                    src={imageUrl}
+                                    alt={title || 'Authentication'}
+                                    className="h-full w-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent" />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Form Section */}
+                    <div className={`flex flex-col justify-center p-8 lg:p-12 ${imagePosition === 'left' ? 'lg:order-2' : 'lg:order-1'}`}>
+                        {/* Logo and Header */}
+                        <div className="mb-8 text-center">
+                            <Link href={route('home')} className="mb-6 inline-block">
+                                <div className="flex items-center justify-center">
+                                    <AppLogoIcon className="h-12 w-12 fill-current text-foreground" />
+                                </div>
+                            </Link>
+
+                            {/* Icon */}
+                            {icon && (
+                                <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${iconBgColor}`}>
+                                    <div className={`h-8 w-8 ${iconColor}`}>
+                                        {icon}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Title and Description */}
+                            <div className="space-y-2">
+                                <h1 className="text-2xl font-bold text-card-foreground">{title}</h1>
+                                <p className="text-sm text-muted-foreground">{description}</p>
+                            </div>
+                        </div>
+
+                        {/* Form Content */}
+                        <div className="max-w-md mx-auto w-full">
+                            {children}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

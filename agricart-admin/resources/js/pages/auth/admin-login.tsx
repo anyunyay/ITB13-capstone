@@ -88,16 +88,13 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
             <AuthLayout 
                 title="Admin Portal Access" 
                 description="Enter your credentials to access the administrative dashboard"
+                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imagePosition="right"
+                icon={<Shield />}
+                iconBgColor="bg-secondary/10"
+                iconColor="text-secondary"
             >
                 <Head title="Admin Login" />
-
-            <div className="mb-6 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                    <Shield className="h-8 w-8 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Administrative Access</h2>
-                <p className="text-sm text-gray-600">Restricted area for authorized personnel only</p>
-            </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">

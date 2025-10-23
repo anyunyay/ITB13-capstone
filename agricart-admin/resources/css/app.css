@@ -207,4 +207,17 @@
     .dark .modal-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgb(5 150 105); /* emerald-600 */
     }
+
+    /* Auth page blurred background effects */
+    .auth-blur-background {
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    .auth-blur-overlay {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
 }
