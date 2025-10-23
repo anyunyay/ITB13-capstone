@@ -182,7 +182,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       <LogisticHeader />
       <Head title={`Order #${currentOrder.id} Details`} />
       
-      <div className="p-6 space-y-6">
+      <div className="p-6 pt-25 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Order #{currentOrder.id}</h1>

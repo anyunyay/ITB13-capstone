@@ -66,7 +66,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
       <LogisticHeader />
       <Head title="Logistic Dashboard" />
       
-      <div className="p-6 space-y-8">
+      <div className="p-6 pt-25 space-y-8">
         {/* Welcome Section */}
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-foreground">Welcome back!</h1>

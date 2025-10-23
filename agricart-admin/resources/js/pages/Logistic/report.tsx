@@ -124,7 +124,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
       <LogisticHeader />
       <Head title="Logistic Orders Report" />
       
-      <div className="p-6">
+      <div className="p-6 pt-25">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Logistic Orders Report</h1>
