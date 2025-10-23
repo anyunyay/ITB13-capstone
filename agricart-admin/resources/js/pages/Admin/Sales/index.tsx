@@ -42,6 +42,8 @@ interface MemberSale {
   total_revenue: number;
   total_coop_share: number;
   total_member_share: number;
+  total_cogs: number;
+  total_gross_profit: number;
   total_quantity_sold: number;
 }
 
@@ -343,6 +345,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                         <TableHead>Total Revenue</TableHead>
                         <TableHead>Co-op Share</TableHead>
                         <TableHead>Revenue</TableHead>
+                        <TableHead>COGS</TableHead>
+                        <TableHead>Gross Profit</TableHead>
                         <TableHead>Quantity Sold</TableHead>
                         <TableHead>Average Revenue</TableHead>
                       </TableRow>
@@ -360,13 +364,15 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell className="font-medium">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-green-600 font-medium">PHP {Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-blue-600 font-medium">PHP {Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium">PHP {Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{member.total_quantity_sold}</TableCell>
                           <TableCell>PHP {member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
                         </TableRow>
                       ))}
                       {memberSales.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          <TableCell colSpan={9} className="text-center text-muted-foreground">
                             No member sales data found.
                           </TableCell>
                         </TableRow>
