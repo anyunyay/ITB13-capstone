@@ -55,6 +55,8 @@ class MemberController extends Controller
             'soldQuantity' => $allStocks->sum('sold_quantity'),
             'completelySoldStocks' => $allStocks->where('quantity', 0)->where('sold_quantity', '>', 0)->count(),
             'totalRevenue' => $salesData['totalRevenue'],
+            'totalCogs' => $salesData['totalCogs'],
+            'totalGrossProfit' => $salesData['totalGrossProfit'],
             'totalSales' => $salesData['totalSales'],
         ];
         
@@ -152,11 +154,15 @@ class MemberController extends Controller
 
         $totalSales = 0;
         $totalRevenue = 0;
+        $totalCogs = 0;
+        $totalGrossProfit = 0;
         $totalQuantitySold = 0;
         $productSales = []; // Group by product_id
 
         foreach ($deliveredSales as $sale) {
             $orderRevenue = 0;
+            $orderCogs = 0;
+            $orderGrossProfit = 0;
             $orderQuantity = 0;
             $hasMemberItems = false;
 
@@ -175,6 +181,12 @@ class MemberController extends Controller
                     $price = $audit->getSalePrice();
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
                     $orderRevenue += $itemRevenue;
+                    
+                    // Calculate COGS and Gross Profit for this item
+                    $itemCogs = ($itemRevenue / 1.3) * 0.7;
+                    $itemGrossProfit = $itemRevenue - $itemCogs;
+                    $orderCogs += $itemCogs;
+                    $orderGrossProfit += $itemGrossProfit;
 
                     // Group by product_id for breakdown
                     $productId = $audit->product_id;
@@ -185,6 +197,8 @@ class MemberController extends Controller
                             'total_quantity' => 0,
                             'price_per_unit' => $price,
                             'total_revenue' => 0,
+                            'total_cogs' => 0,
+                            'total_gross_profit' => 0,
                             'category' => $audit->category,
                             'sales_count' => 0,
                             'customers' => []
@@ -194,6 +208,8 @@ class MemberController extends Controller
                     // Add quantities and revenue
                     $productSales[$productId]['total_quantity'] += $audit->quantity;
                     $productSales[$productId]['total_revenue'] += $itemRevenue;
+                    $productSales[$productId]['total_cogs'] += $itemCogs;
+                    $productSales[$productId]['total_gross_profit'] += $itemGrossProfit;
                     $productSales[$productId]['sales_count']++;
 
                     // Add customer if not already in the list
@@ -207,6 +223,8 @@ class MemberController extends Controller
             if ($hasMemberItems) {
                 $totalSales++;
                 $totalRevenue += $orderRevenue;
+                $totalCogs += $orderCogs;
+                $totalGrossProfit += $orderGrossProfit;
                 $totalQuantitySold += $orderQuantity;
             }
         }
@@ -220,6 +238,8 @@ class MemberController extends Controller
         return [
             'totalSales' => $totalSales,
             'totalRevenue' => $totalRevenue,
+            'totalCogs' => $totalCogs,
+            'totalGrossProfit' => $totalGrossProfit,
             'totalQuantitySold' => $totalQuantitySold,
             'salesBreakdown' => $salesBreakdown
         ];
@@ -261,6 +281,8 @@ class MemberController extends Controller
                     'balance_quantity' => 0,
                     'unit_price' => $this->getProductPrice($stock->product, $stock->category),
                     'total_revenue' => 0,
+                    'total_cogs' => 0,
+                    'total_gross_profit' => 0,
                     'product' => $stock->product
                 ];
             }
@@ -286,7 +308,13 @@ class MemberController extends Controller
                 if ($stock) {
                     $key = $audit->product_id . '-' . $audit->category;
                     if (isset($stockGroups[$key])) {
-                        $stockGroups[$key]['total_revenue'] += $audit->getTotalAmount();
+                        $itemRevenue = $audit->getTotalAmount();
+                        $itemCogs = ($itemRevenue / 1.3) * 0.7;
+                        $itemGrossProfit = $itemRevenue - $itemCogs;
+                        
+                        $stockGroups[$key]['total_revenue'] += $itemRevenue;
+                        $stockGroups[$key]['total_cogs'] += $itemCogs;
+                        $stockGroups[$key]['total_gross_profit'] += $itemGrossProfit;
                     }
                 }
             }
@@ -683,10 +711,14 @@ class MemberController extends Controller
         $totalQuantity = 0;
         $totalRevenue = 0.0;
         $totalMemberShare = 0.0;
+        $totalCogs = 0.0;
+        $totalGrossProfit = 0.0;
 
         foreach ($sales as $sale) {
             $orderQuantity = 0;
             $orderMemberRevenue = 0.0;
+            $orderCogs = 0.0;
+            $orderGrossProfit = 0.0;
             $hasMemberItems = false;
 
             foreach ($sale->salesAudit->auditTrail as $audit) {
@@ -702,6 +734,12 @@ class MemberController extends Controller
                     // Calculate member's revenue share (100% of product price)
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price
                     $orderMemberRevenue += $itemRevenue;
+                    
+                    // Calculate COGS and Gross Profit for this item
+                    $itemCogs = ($itemRevenue / 1.3) * 0.7;
+                    $itemGrossProfit = $itemRevenue - $itemCogs;
+                    $orderCogs += $itemCogs;
+                    $orderGrossProfit += $itemGrossProfit;
                 }
             }
 
@@ -711,6 +749,8 @@ class MemberController extends Controller
                 $totalQuantity += $orderQuantity;
                 $totalRevenue += $orderMemberRevenue;
                 $totalMemberShare += $orderMemberRevenue; // Member gets 100% of product revenue
+                $totalCogs += $orderCogs;
+                $totalGrossProfit += $orderGrossProfit;
             }
         }
         
@@ -719,6 +759,8 @@ class MemberController extends Controller
             'total_quantity' => $totalQuantity,
             'total_revenue' => $totalRevenue,
             'total_member_share' => $totalMemberShare,
+            'total_cogs' => $totalCogs,
+            'total_gross_profit' => $totalGrossProfit,
         ];
     }
 } 
