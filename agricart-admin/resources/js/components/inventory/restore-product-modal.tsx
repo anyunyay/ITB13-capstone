@@ -37,9 +37,9 @@ export const RestoreProductModal = ({
                     </DialogDescription>
                 </DialogHeader>
                 
-                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <p className="text-sm text-green-800">
+                <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <p className="text-sm text-primary">
                         This product will be moved back to active products and will be available for stock management.
                     </p>
                 </div>

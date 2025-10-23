@@ -104,7 +104,7 @@ export const StockManagement = ({
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <Badge 
                                 variant={item.type === 'removed' ? "destructive" : "default"}
-                                className={item.type === 'removed' ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400" : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"}
+                                className={item.type === 'removed' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
                             >
                                 {item.action}
                             </Badge>
@@ -147,12 +147,12 @@ export const StockManagement = ({
                         <Badge 
                             variant={dataType === 'sold' ? "default" : item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                             className={
-                                dataType === 'sold' ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" :
+                                dataType === 'sold' ? "bg-primary/10 text-primary" :
                                 item.quantity > 10 
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" 
+                                    ? "bg-primary/10 text-primary" 
                                     : item.quantity > 0 
-                                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400" 
-                                        : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                                        ? "bg-secondary/10 text-secondary" 
+                                        : "bg-destructive/10 text-destructive"
                             }
                         >
                             {dataType === 'sold' ? 'Sold' : 

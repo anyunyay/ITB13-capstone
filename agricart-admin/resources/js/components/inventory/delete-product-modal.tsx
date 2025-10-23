@@ -60,9 +60,9 @@ export const DeleteProductModal = ({
                         />
                     </div>
                     
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <AlertTriangle className="h-4 w-4 text-red-600" />
-                        <p className="text-sm text-red-800">
+                    <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-destructive" />
+                        <p className="text-sm text-destructive">
                             This action will permanently delete the product and all associated data. This cannot be undone.
                         </p>
                     </div>

@@ -55,15 +55,26 @@
   border-bottom-color: color-mix(in srgb, var(--border) 30%, transparent);
 }
 
+/* Status indicators with color-mix */
+.statusActive {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.statusArchived {
+  background-color: color-mix(in srgb, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+}
+
 /* Dark mode status indicators with color-mix */
 .dark .statusActive {
-  background-color: color-mix(in srgb, rgb(34 197 94) 30%, transparent);
-  color: rgb(134 239 172);
+  background-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  color: var(--primary);
 }
 
 .dark .statusArchived {
-  background-color: color-mix(in srgb, rgb(239 68 68) 30%, transparent);
-  color: rgb(248 113 113);
+  background-color: color-mix(in srgb, var(--destructive) 30%, transparent);
+  color: var(--destructive);
 }
 
 /* Accessibility and print optimizations */

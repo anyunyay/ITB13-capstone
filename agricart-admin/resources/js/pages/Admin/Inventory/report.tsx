@@ -244,7 +244,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Quantity</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.total_quantity}</div>
+              <div className="text-2xl font-bold text-primary">{summary.total_quantity}</div>
             </CardContent>
           </Card>
           <Card>
@@ -252,7 +252,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.total_stocks}</div>
+              <div className="text-2xl font-bold text-secondary">{summary.total_stocks}</div>
               <p className="text-xs text-muted-foreground">{summary.total_quantity} units</p>
             </CardContent>
           </Card>
@@ -261,7 +261,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.available_stocks}</div>
+              <div className="text-2xl font-bold text-primary">{summary.available_stocks}</div>
               <p className="text-xs text-muted-foreground">{summary.available_quantity} units</p>
             </CardContent>
           </Card>
@@ -270,7 +270,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.sold_stocks}</div>
+              <div className="text-2xl font-bold text-secondary">{summary.sold_stocks}</div>
               <p className="text-xs text-muted-foreground">{summary.sold_quantity} units</p>
             </CardContent>
           </Card>
@@ -279,7 +279,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Completely Sold</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{summary.completely_sold_stocks}</div>
+              <div className="text-2xl font-bold text-accent">{summary.completely_sold_stocks}</div>
             </CardContent>
           </Card>
           <Card>
@@ -287,7 +287,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Removed Stocks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{summary.removed_stocks}</div>
+              <div className="text-2xl font-bold text-destructive">{summary.removed_stocks}</div>
             </CardContent>
           </Card>
           <Card>
@@ -295,7 +295,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{summary.total_products}</div>
+              <div className="text-2xl font-bold text-accent">{summary.total_products}</div>
             </CardContent>
           </Card>
           <Card>
@@ -303,7 +303,7 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{summary.total_members}</div>
+              <div className="text-2xl font-bold text-muted-foreground">{summary.total_members}</div>
             </CardContent>
           </Card>
         </div>
@@ -385,7 +385,7 @@ function StockCard({ stock }: { stock: Stock }) {
             <h4 className="font-semibold mb-2">Stock Details</h4>
             <p className="text-sm">
               <span className="font-medium">Quantity:</span> 
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 ml-2">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2">
                 {stock.quantity}
               </span>
             </p>
