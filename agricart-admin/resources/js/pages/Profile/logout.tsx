@@ -79,13 +79,13 @@ export default function LogoutPage() {
             title="Logout"
         >
 
-            <Card>
+            <Card className="bg-card border-border">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-card-foreground">
                         <LogOut className="h-5 w-5" />
                         Account Security
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-muted-foreground">
                         Manage your account session and security settings
                     </CardDescription>
                 </CardHeader>
@@ -98,9 +98,9 @@ export default function LogoutPage() {
                     </Alert>
 
                     <div className="space-y-4">
-                        <div className="p-4 border rounded-lg">
-                            <h3 className="font-semibold mb-2">Logout from this device</h3>
-                            <p className="text-sm text-gray-600 mb-4">
+                        <div className="p-4 border border-border rounded-lg bg-card">
+                            <h3 className="font-semibold mb-2 text-card-foreground">Logout from this device</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
                                 This will log you out from this browser/device only. You'll remain logged in on other devices.
                             </p>
                             <Button 
@@ -113,12 +113,12 @@ export default function LogoutPage() {
                             </Button>
                         </div>
 
-                        <div className="p-4 border rounded-lg border-orange-200 bg-orange-50">
-                            <h3 className="font-semibold mb-2 flex items-center gap-2">
+                        <div className="p-4 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                            <h3 className="font-semibold mb-2 flex items-center gap-2 text-orange-800 dark:text-orange-200">
                                 <AlertTriangle className="h-4 w-4 text-orange-600" />
                                 Logout from all devices
                             </h3>
-                            <p className="text-sm text-gray-600 mb-4">
+                            <p className="text-sm text-muted-foreground mb-4">
                                 This will log you out from all devices and browsers. You'll need to log in again on any device you want to use.
                             </p>
                             <Button 
@@ -133,9 +133,9 @@ export default function LogoutPage() {
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t">
-                        <h3 className="font-semibold mb-2">Security Tips</h3>
-                        <ul className="text-sm text-gray-600 space-y-1">
+                    <div className="pt-4 border-t border-border">
+                        <h3 className="font-semibold mb-2 text-card-foreground">Security Tips</h3>
+                        <ul className="text-sm text-muted-foreground space-y-1">
                             <li>• Always log out when using shared or public computers</li>
                             <li>• Use strong, unique passwords for your account</li>
                             <li>• Enable two-factor authentication if available</li>

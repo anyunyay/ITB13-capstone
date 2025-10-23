@@ -312,13 +312,13 @@ export default function AddressPage() {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-1">
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground">
                             Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
                         </p>
                     </div>
                     <Button 
                         onClick={handleAddNew} 
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
                         <PlusCircle className="h-4 w-4" />
                         Add New Address
@@ -329,22 +329,22 @@ export default function AddressPage() {
                 <div className="space-y-6">
                     {/* Main Address from Registration */}
                     {(user.address || user.barangay || user.city || user.province) && (
-                        <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
-                            <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                        <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
+                            <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
                                     <div className="flex items-center space-x-6">
-                                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                                            <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                        <div className="p-2 rounded-lg bg-secondary/10">
+                                            <MapPin className="h-6 w-6 text-secondary" />
                                         </div>
                                         <div className="space-y-1">
-                                            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                                            <h3 className="text-xl font-bold text-card-foreground">
                                                 {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
                                             </h3>
                                             <div className="flex items-center gap-2">
                                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                                                     isActiveAddressSameAsMain() 
-                                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                                        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                        ? 'bg-secondary/10 text-secondary'
+                                                        : 'bg-primary/10 text-primary'
                                                 }`}>
                                                     <CheckCircle className="h-3 w-3 mr-1" />
                                                     {isActiveAddressSameAsMain() ? 'Active' : 'Main Address'}
@@ -355,14 +355,14 @@ export default function AddressPage() {
                                     <div className="flex items-center gap-3">
                                         <Button
                                             onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
-                                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={mainAddressHasOngoingOrders}
                                         >
                                             <Edit className="h-4 w-4" />
                                             Edit
                                         </Button>
                                         {isActiveAddressSameAsMain() && (
-                                            <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
                                                 <CheckCircle className="h-3 w-3 mr-1" />
                                                 Currently Active
                                             </div>

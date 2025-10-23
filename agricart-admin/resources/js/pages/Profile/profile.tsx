@@ -147,36 +147,36 @@ export default function ProfilePage() {
         >
             <div className="space-y-6">
                 {/* Main Profile Header */}
-                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
-                    <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
+                    <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
-                                    <Avatar className="h-24 w-24 border-4 border-white/50 dark:border-slate-600/50 shadow-2xl ring-4 ring-slate-200/50 dark:ring-slate-600/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-green-500/20">
+                                    <Avatar className="h-24 w-24 border-4 border-card/50 shadow-2xl ring-4 ring-border/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20">
                                         <AvatarImage 
                                             src={user?.avatar_url || undefined} 
                                             alt={user?.name} 
                                             className="object-cover"
                                         />
-                                        <AvatarFallback className="text-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                        <AvatarFallback className="text-2xl bg-gradient-to-br from-muted to-muted/60 text-card-foreground font-bold">
                                             {user?.name ? getInitials(user.name) : 'U'}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-slate-800 shadow-lg flex items-center justify-center">
-                                        <Shield className="h-4 w-4 text-white" />
+                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full border-4 border-card shadow-lg flex items-center justify-center">
+                                        <Shield className="h-4 w-4 text-primary-foreground" />
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                                    <h1 className="text-2xl font-bold text-card-foreground">
                                         {user?.name || 'No Name'}
                                     </h1>
                                     <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
                                             <User className="h-3 w-3 mr-1" />
                                             {getUserTypeLabel(user?.type || '')}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    <p className="text-sm text-muted-foreground">
                                         Member since {formatDate(user?.created_at)}
                                     </p>
                                 </div>
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                             <div className="flex flex-col sm:items-end gap-3">
                                 <Button
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                 >
                                     <Edit className="h-4 w-4" />
                                     Edit Profile
@@ -196,34 +196,34 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Contact Information */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                                        <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-secondary/10">
+                                        <Mail className="h-5 w-5 text-secondary" />
                                     </div>
                                     Contact Information
                                 </h3>
                                 <div className="space-y-4">
                                     {user?.type !== 'member' && (
-                                        <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                        <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                             <div className="flex items-center gap-4">
-                                                <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600">
-                                                    <Mail className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                <div className="p-2 rounded-lg bg-muted">
+                                                    <Mail className="h-4 w-4 text-muted-foreground" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Email Address</p>
-                                                    <p className="font-medium text-slate-800 dark:text-slate-200 text-lg">{displayEmail}</p>
+                                                    <p className="text-sm text-muted-foreground mb-1">Email Address</p>
+                                                    <p className="font-medium text-card-foreground text-lg">{displayEmail}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="flex items-center gap-4">
-                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600">
-                                                <Phone className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                            <div className="p-2 rounded-lg bg-muted">
+                                                <Phone className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Contact Number</p>
-                                                <p className="font-medium text-slate-800 dark:text-slate-200 text-lg">{displayPhone || 'Not provided'}</p>
+                                                <p className="text-sm text-muted-foreground mb-1">Contact Number</p>
+                                                <p className="font-medium text-card-foreground text-lg">{displayPhone || 'Not provided'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -232,22 +232,22 @@ export default function ProfilePage() {
 
                             {/* Account Information */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                        <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                        <Shield className="h-5 w-5 text-primary" />
                                     </div>
                                     Account Information
                                 </h3>
                                 <div className="space-y-4">
                                     {/* Current Address */}
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="flex items-start gap-4">
-                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600 mt-0.5 flex-shrink-0">
-                                                <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                            <div className="p-2 rounded-lg bg-muted mt-0.5 flex-shrink-0">
+                                                <MapPin className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Current Address</p>
-                                                <p className="font-medium text-slate-800 dark:text-slate-200 leading-relaxed text-lg">
+                                                <p className="text-sm text-muted-foreground mb-2">Current Address</p>
+                                                <p className="font-medium text-card-foreground leading-relaxed text-lg">
                                                     {getCurrentAddress()}
                                                 </p>
                                             </div>
@@ -255,14 +255,14 @@ export default function ProfilePage() {
                                     </div>
 
                                     {/* Account Created */}
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="flex items-center gap-4">
-                                            <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-600">
-                                                <Calendar className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                            <div className="p-2 rounded-lg bg-muted">
+                                                <Calendar className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Account Created</p>
-                                                <p className="font-medium text-slate-800 dark:text-slate-200 text-lg">{formatDate(user?.created_at)}</p>
+                                                <p className="text-sm text-muted-foreground mb-1">Account Created</p>
+                                                <p className="font-medium text-card-foreground text-lg">{formatDate(user?.created_at)}</p>
                                             </div>
                                         </div>
                                     </div>

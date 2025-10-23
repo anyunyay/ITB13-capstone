@@ -100,24 +100,24 @@ export default function PasswordPage() {
             title="Change Password"
         >
             <div className="space-y-6">
-                <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 group">
-                    <CardHeader className="bg-gradient-to-r from-slate-100/80 to-slate-200/80 dark:from-slate-700/50 dark:to-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-600/50">
+                <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
+                    <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
                             <div className="flex items-center space-x-6">
-                                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                    <Lock className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                    <Lock className="h-6 w-6 text-primary" />
                                 </div>
                                 <div className="space-y-1">
-                                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                                    <h1 className="text-2xl font-bold text-card-foreground">
                                         Security Settings
                                     </h1>
                                     <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                                             <Lock className="h-3 w-3 mr-1" />
                                             Password Protection
                                         </span>
                                     </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    <p className="text-sm text-muted-foreground">
                                         Update your password to keep your account secure
                                     </p>
                                 </div>
@@ -129,16 +129,16 @@ export default function PasswordPage() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Current Password Section */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                                        <Lock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-secondary/10">
+                                        <Lock className="h-5 w-5 text-secondary" />
                                     </div>
                                     Current Password
                                 </h3>
                                 <div className="space-y-4">
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="current_password" className="text-sm font-medium text-slate-700 dark:text-slate-300">Current Password</Label>
+                                            <Label htmlFor="current_password" className="text-sm font-medium text-card-foreground">Current Password</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="current_password"
@@ -147,7 +147,7 @@ export default function PasswordPage() {
                                                     onChange={(e) => setData('current_password', e.target.value)}
                                                     placeholder="Enter your current password"
                                                     required
-                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
                                                 <Button
                                                     type="button"
@@ -157,13 +157,13 @@ export default function PasswordPage() {
                                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                                                 >
                                                     {showCurrentPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                                                     ) : (
-                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
                                                     )}
                                                 </Button>
                                             </div>
-                                            {errors.current_password && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.current_password}</p>}
+                                            {errors.current_password && <p className="text-sm text-destructive font-medium">{errors.current_password}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -171,17 +171,17 @@ export default function PasswordPage() {
 
                             {/* New Password Section */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                        <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                        <Lock className="h-5 w-5 text-primary" />
                                     </div>
                                     New Password
                                 </h3>
                                 <div className="space-y-4">
                                     {/* New Password Field */}
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">New Password</Label>
+                                            <Label htmlFor="password" className="text-sm font-medium text-card-foreground">New Password</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="password"
@@ -190,7 +190,7 @@ export default function PasswordPage() {
                                                     onChange={(e) => setData('password', e.target.value)}
                                                     placeholder="Enter your new password"
                                                     required
-                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
                                                 <Button
                                                     type="button"
@@ -200,24 +200,24 @@ export default function PasswordPage() {
                                                     onClick={() => setShowNewPassword(!showNewPassword)}
                                                 >
                                                     {showNewPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                                                     ) : (
-                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
                                                     )}
                                                 </Button>
                                             </div>
-                                            {errors.password && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.password}</p>}
+                                            {errors.password && <p className="text-sm text-destructive font-medium">{errors.password}</p>}
                                         </div>
                                     </div>
 
                                     {/* Password Strength Indicator */}
                                     {data.password && (
-                                        <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50">
+                                        <div className="p-5 bg-muted/80 rounded-xl border border-border/50">
                                             <div className="space-y-4">
                                                 <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password Strength</Label>
+                                                    <Label className="text-sm font-medium text-card-foreground">Password Strength</Label>
                                                     <span className={`text-sm font-medium ${
-                                                        passwordStrength <= 2 ? 'text-red-500 dark:text-red-400' : 
+                                                        passwordStrength <= 2 ? 'text-destructive' : 
                                                         passwordStrength <= 3 ? 'text-yellow-500 dark:text-yellow-400' : 'text-green-500 dark:text-green-400'
                                                     }`}>
                                                         {getStrengthText(passwordStrength)}
@@ -236,9 +236,9 @@ export default function PasswordPage() {
                                                             {req.met ? (
                                                                 <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
                                                             ) : (
-                                                                <XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                                                                <XCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                                             )}
-                                                            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}>
+                                                            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
                                                                 {req.text}
                                                             </span>
                                                         </div>
@@ -249,9 +249,9 @@ export default function PasswordPage() {
                                     )}
 
                                     {/* Confirm Password Field */}
-                                    <div className="p-5 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm New Password</Label>
+                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-card-foreground">Confirm New Password</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="password_confirmation"
@@ -260,7 +260,7 @@ export default function PasswordPage() {
                                                     onChange={(e) => setData('password_confirmation', e.target.value)}
                                                     placeholder="Confirm your new password"
                                                     required
-                                                    className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-3"
+                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
                                                 <Button
                                                     type="button"
@@ -270,13 +270,13 @@ export default function PasswordPage() {
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                 >
                                                     {showConfirmPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                                                     ) : (
-                                                        <Eye className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
                                                     )}
                                                 </Button>
                                             </div>
-                                            {errors.password_confirmation && <p className="text-sm text-red-500 dark:text-red-400 font-medium">{errors.password_confirmation}</p>}
+                                            {errors.password_confirmation && <p className="text-sm text-destructive font-medium">{errors.password_confirmation}</p>}
                                         </div>
                                     </div>
                                 </div>
@@ -284,11 +284,11 @@ export default function PasswordPage() {
                         </div>
 
                         {/* Submit Button */}
-                        <div className="flex justify-end pt-6 border-t border-slate-200/50 dark:border-slate-600/50">
+                        <div className="flex justify-end pt-6 border-t border-border/50">
                             <Button 
                                 type="submit" 
                                 disabled={processing || passwordStrength < 3} 
-                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                                 <Lock className="h-4 w-4" />
                                 {processing ? 'Changing Password...' : 'Change Password'}
