@@ -9,7 +9,6 @@ import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-rea
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { Product } from '@/types/inventory';
-// CSS modules import removed - using Tailwind classes instead
 
 interface ProductManagementProps {
     products: Product[];
