@@ -18,13 +18,18 @@ export function LogisticHeader() {
     };
 
     return (
-        <header className="bg-gray-900 border-b border-gray-700 px-6 py-4">
+        <header className="bg-card border-b border-border px-6 py-4 shadow-sm relative z-10">
             <div className="flex items-center justify-between">
                 {/* Logo and Navigation */}
                 <div className="flex items-center space-x-8">
-                    <div className="flex items-center space-x-2">
-                        <Truck className="h-8 w-8 text-blue-400" />
-                        <span className="text-xl font-bold text-white">Agricart Logistics</span>
+                    <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <Truck className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                            <span className="text-xl font-bold text-foreground">Agricart Logistics</span>
+                            <p className="text-xs text-muted-foreground">Delivery Management</p>
+                        </div>
                     </div>
                 </div>
 
@@ -36,10 +41,10 @@ export function LogisticHeader() {
                     />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                <Avatar className="h-8 w-8">
+                            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-muted">
+                                <Avatar className="h-10 w-10">
                                     <AvatarImage src={(user as any)?.avatar_url || ''} alt={user?.name} />
-                                    <AvatarFallback>
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
                                         {user?.name?.charAt(0)?.toUpperCase() || 'L'}
                                     </AvatarFallback>
                                 </Avatar>

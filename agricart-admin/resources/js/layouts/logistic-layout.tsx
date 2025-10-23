@@ -8,9 +8,9 @@ interface LogisticLayoutProps {
 
 export default function LogisticLayout({ children, breadcrumbs = [] }: PropsWithChildren<LogisticLayoutProps>) {
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-gray-900 relative z-0" style={{ isolation: 'isolate' }}>
             <LogisticHeader />
-            <main className="flex-1 space-y-4 p-4 pt-6">
+            <main className="flex-1 space-y-4 p-4 pt-6 relative z-0" style={{ isolation: 'isolate' }}>
                 {children}
             </main>
         </div>

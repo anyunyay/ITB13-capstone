@@ -120,29 +120,28 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-background">
       <LogisticHeader />
       <Head title="Logistic Orders Report" />
       
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">Logistic Orders Report</h1>
-            <p className="text-gray-400">Generate and export reports for your assigned orders</p>
+            <h1 className="text-3xl font-bold text-foreground">Logistic Orders Report</h1>
+            <p className="text-muted-foreground">Generate and export reports for your assigned orders</p>
           </div>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
-              className="text-white border-gray-600 hover:bg-gray-800"
               onClick={() => window.history.back()}
             >
               Back to Dashboard
             </Button>
-            <Button onClick={() => exportReport('csv')} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+            <Button onClick={() => exportReport('csv')} variant="outline">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Export CSV
             </Button>
-            <Button onClick={() => exportReport('pdf')} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+            <Button onClick={() => exportReport('pdf')} variant="outline">
               <FileText className="mr-2 h-4 w-4" />
               Export PDF
             </Button>
@@ -150,39 +149,37 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         </div>
 
         {/* Filters */}
-        <Card className="mb-6 bg-gray-800 border-gray-700">
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-white">Filters</CardTitle>
+            <CardTitle className="text-foreground">Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <Label htmlFor="start_date" className="text-white">Start Date</Label>
+                <Label htmlFor="start_date">Start Date</Label>
                 <Input
                   id="start_date"
                   type="date"
                   value={localFilters.start_date || ''}
                   onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
               <div>
-                <Label htmlFor="end_date" className="text-white">End Date</Label>
+                <Label htmlFor="end_date">End Date</Label>
                 <Input
                   id="end_date"
                   type="date"
                   value={localFilters.end_date || ''}
                   onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
               <div>
-                <Label htmlFor="delivery_status" className="text-white">Delivery Status</Label>
+                <Label htmlFor="delivery_status">Delivery Status</Label>
                 <Select
                   value={localFilters.delivery_status}
                   onValueChange={(value) => handleFilterChange('delivery_status', value)}
                 >
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                  <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -194,7 +191,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 </Select>
               </div>
               <div className="flex items-end">
-                <Button onClick={applyFilters} className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button onClick={applyFilters} className="w-full bg-primary hover:bg-primary/90">
                   Apply Filters
                 </Button>
               </div>
@@ -204,64 +201,64 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{summary.total_orders}</div>
+              <div className="text-2xl font-bold text-foreground">{summary.total_orders}</div>
             </CardContent>
           </Card>
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Total Revenue</CardTitle>
-            </CardHeader>
-                         <CardContent>
-               <div className="text-2xl font-bold text-green-400">
-                 PHP {Number(summary.total_revenue).toFixed(2)}
-               </div>
-             </CardContent>
-          </Card>
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Pending Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-400">{summary.pending_orders}</div>
+              <div className="text-2xl font-bold text-primary">
+                PHP {Number(summary.total_revenue).toFixed(2)}
+              </div>
             </CardContent>
           </Card>
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Out for Delivery</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-400">{summary.out_for_delivery_orders}</div>
+              <div className="text-2xl font-bold text-yellow-600">{summary.pending_orders}</div>
             </CardContent>
           </Card>
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Delivered Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Out for Delivery</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-400">{summary.delivered_orders}</div>
+              <div className="text-2xl font-bold text-blue-600">{summary.out_for_delivery_orders}</div>
             </CardContent>
           </Card>
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Avg Order Value</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Delivered Orders</CardTitle>
             </CardHeader>
-                         <CardContent>
-               <div className="text-2xl font-bold text-purple-400">
-                 PHP {Number(summary.average_order_value).toFixed(2)}
-               </div>
-             </CardContent>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{summary.delivered_orders}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Avg Order Value</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-secondary">
+                PHP {Number(summary.average_order_value).toFixed(2)}
+              </div>
+            </CardContent>
           </Card>
         </div>
 
         {/* Orders List */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-white">Orders ({orders.length})</CardTitle>
+            <CardTitle className="text-foreground">Orders ({orders.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -269,7 +266,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 <OrderCard key={order.id} order={order} />
               ))}
               {orders.length === 0 && (
-                <div className="text-center text-gray-400 py-8">
+                <div className="text-center text-muted-foreground py-8">
                   No orders found for the selected filters.
                 </div>
               )}
@@ -287,21 +284,21 @@ function OrderCard({ order }: { order: Order }) {
       case 'pending':
         return <Badge variant="secondary">Pending</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default">Out for Delivery</Badge>;
+        return <Badge className="bg-blue-600 text-white">Out for Delivery</Badge>;
       case 'delivered':
-        return <Badge variant="outline">Delivered</Badge>;
+        return <Badge variant="outline" className="border-green-600 text-green-600">Delivered</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   return (
-    <Card className="bg-gray-700 border-gray-600">
+    <Card className="bg-muted/50">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg text-white">Order #{order.id}</CardTitle>
-            <p className="text-sm text-gray-400">
+            <CardTitle className="text-lg text-foreground">Order #{order.id}</CardTitle>
+            <p className="text-sm text-muted-foreground">
               {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
@@ -315,7 +312,7 @@ function OrderCard({ order }: { order: Order }) {
             {order.picked_up ? (
               <Badge className="bg-blue-600 text-white text-xs">✓ Picked Up</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-gray-600 text-white text-xs">Not Picked Up</Badge>
+              <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">Not Picked Up</Badge>
             )}
           </div>
         </div>
@@ -323,27 +320,27 @@ function OrderCard({ order }: { order: Order }) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h4 className="font-semibold mb-2 text-white">Customer Information</h4>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Customer Information</h4>
+            <p className="text-sm text-muted-foreground">
               <span className="font-medium">Name:</span> {order.customer.name}
             </p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-muted-foreground">
               <span className="font-medium">Email:</span> {order.customer.email}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 text-white">Order Summary</h4>
-                         <p className="text-sm text-gray-300">
-               <span className="font-medium">Total Amount:</span> PHP {Number(order.total_amount).toFixed(2)}
-             </p>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Order Summary</h4>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium">Total Amount:</span> PHP {Number(order.total_amount).toFixed(2)}
+            </p>
+            <p className="text-sm text-muted-foreground">
               <span className="font-medium">Items:</span> {order.audit_trail?.length || 0}
             </p>
           </div>
         </div>
 
         <div className="mt-4">
-          <h4 className="font-semibold mb-2 text-white">Order Items</h4>
+          <h4 className="font-semibold mb-2 text-foreground">Order Items</h4>
           <div className="space-y-2">
             {(() => {
               // Group items by product ID and combine quantities
@@ -365,13 +362,13 @@ function OrderCard({ order }: { order: Order }) {
 
               return combinedItems.length > 0 ? (
                 combinedItems.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm text-gray-300">
+                  <div key={item.id} className="flex justify-between text-sm text-muted-foreground">
                     <span>{item.product.name} ({item.category})</span>
                     <span>{item.quantity} {item.category}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-400">No items found</p>
+                <p className="text-sm text-muted-foreground">No items found</p>
               );
             })()}
           </div>
