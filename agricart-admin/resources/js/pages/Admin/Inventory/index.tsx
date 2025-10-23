@@ -37,22 +37,22 @@ interface PageProps extends SharedData {
 export default function InventoryIndex() {
     const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
-    
+
     // Toggle state for switching between Product and Stock management
     const [activeTab, setActiveTab] = useState<'products' | 'stocks'>('products');
-    
+
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [showArchived, setShowArchived] = useState(false);
-    
+
     // Reset pagination when switching views
     const toggleArchivedView = (show: boolean) => {
         setShowArchived(show);
         setCurrentPage(1); // Reset to first page when switching views
     };
-    
+
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(12); // 12 products per page for better focus
@@ -66,15 +66,15 @@ export default function InventoryIndex() {
         stock_id: 0,
         other_reason: '',
     });
-    
+
     // Loading states for specific operations
     const [archivingProduct, setArchivingProduct] = useState<number | null>(null);
     const [restoringProduct, setRestoringProduct] = useState<number | null>(null);
-    
+
     // Remove stock modal state
     const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
     const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-    
+
     // Product modals state
     const [archiveModalOpen, setArchiveModalOpen] = useState(false);
     const [restoreModalOpen, setRestoreModalOpen] = useState(false);
@@ -83,13 +83,13 @@ export default function InventoryIndex() {
 
     // Get the current product list based on view state
     const currentProducts = showArchived ? archivedProducts : products;
-    
+
     // Filter and sort products
     const filteredAndSortedProducts = (currentProducts || [])
         .filter(product => {
             const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                product.produce_type?.toLowerCase().includes(searchTerm.toLowerCase());
+                product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.produce_type?.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCategory = selectedCategory === 'all' || product.produce_type === selectedCategory;
             return matchesSearch && matchesCategory;
         })
@@ -146,7 +146,7 @@ export default function InventoryIndex() {
     // Handle archive product submission
     const handleArchiveSubmit = () => {
         if (!selectedProduct) return;
-        
+
         setArchivingProduct(selectedProduct.id);
         post(route('inventory.archive', selectedProduct.id), {
             onSuccess: () => {
@@ -173,7 +173,7 @@ export default function InventoryIndex() {
     // Handle delete product submission
     const handleDeleteSubmit = () => {
         if (!selectedProduct) return;
-        
+
         router.delete(route('inventory.destroy', selectedProduct.id), {
             data: { reason: data.reason || 'Deleted by admin' },
             onSuccess: () => {
@@ -193,7 +193,7 @@ export default function InventoryIndex() {
     // Handle restore product submission
     const handleRestoreSubmit = () => {
         if (!selectedProduct) return;
-        
+
         setRestoringProduct(selectedProduct.id);
         post(route('inventory.archived.restore', selectedProduct.id), {
             onSuccess: () => {
@@ -239,13 +239,13 @@ export default function InventoryIndex() {
         }
 
         const finalReason = data.reason === 'Other' ? data.other_reason : data.reason;
-        
+
         setData({
             stock_id: selectedStock.id,
             reason: finalReason,
             other_reason: data.other_reason
         });
-        
+
         post(route('inventory.storeRemovePerishedStock', selectedStock.product_id), {
             onSuccess: () => {
                 reset();
@@ -267,18 +267,18 @@ export default function InventoryIndex() {
     };
 
     return (
-        <PermissionGuard 
+        <PermissionGuard
             permissions={['view inventory', 'create products', 'edit products', 'view archive', 'view stocks', 'create stocks', 'edit stocks', 'view sold stock', 'view stock trail']}
             pageTitle="Inventory Access Denied"
         >
             <AppLayout>
                 <Head title="Inventory Management" />
                 <div className="min-h-screen bg-background">
-                    <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4">
+                    <div className="w-full px-4 py-4 flex flex-col gap-1 sm:px-6 lg:px-8">
                         <DashboardHeader stockStats={stockStats} />
 
                         {/* Flash Messages and Alerts */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <FlashMessage flash={flash} />
                             {errors.archive && (
                                 <Alert className="border-destructive/50 bg-destructive/10">
@@ -291,7 +291,7 @@ export default function InventoryIndex() {
 
                         {/* Toggle Tabs for Product and Stock Management */}
                         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'products' | 'stocks')} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 mb-6">
+                            <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="products" className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />
                                     Product Management
@@ -387,9 +387,9 @@ export default function InventoryIndex() {
                             onSubmit={handleDeleteSubmit}
                             processing={processing}
                         />
-                            </div>
-                        </div>
-        </AppLayout>
+                    </div>
+                </div>
+            </AppLayout>
         </PermissionGuard>
     );
 }

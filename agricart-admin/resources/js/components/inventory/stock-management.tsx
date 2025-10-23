@@ -47,25 +47,25 @@ export const StockManagement = ({
             if (dataType === 'trail') {
                 return (
                     <TableRow>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Date</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Product</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Quantity</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Category</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Member</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Action</TableHead>
-                        <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Notes</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Date</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Category</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Member</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Action</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Notes</TableHead>
                     </TableRow>
                 );
             }
             return (
                 <TableRow>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Stock ID</TableHead>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Product Name</TableHead>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Quantity</TableHead>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Category</TableHead>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Assigned To</TableHead>
-                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Status</TableHead>
-                    {dataType === 'stocks' && <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</TableHead>}
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Stock ID</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product Name</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Category</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Assigned To</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Status</TableHead>
+                    {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Actions</TableHead>}
                 </TableRow>
             );
         };
@@ -73,8 +73,8 @@ export const StockManagement = ({
         const renderTableRow = (item: any, index: number) => {
             if (dataType === 'trail') {
                 return (
-                    <TableRow key={item.id} className="border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)]">
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="text-sm">
                                 {new Date(item.date).toLocaleDateString()}
                             </div>
@@ -82,10 +82,10 @@ export const StockManagement = ({
                                 {new Date(item.date).toLocaleTimeString()}
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="font-medium">{item.product}</div>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="font-semibold">
                                 {item.category === 'Kilo'
                                     ? `${item.quantity} kg`
@@ -95,13 +95,13 @@ export const StockManagement = ({
                                 }
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <Badge variant="secondary">{item.category}</Badge>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             {item.member}
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <Badge 
                                 variant={item.type === 'removed' ? "destructive" : "default"}
                                 className={item.type === 'removed' ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400" : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"}
@@ -109,7 +109,7 @@ export const StockManagement = ({
                                 {item.action}
                             </Badge>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="max-w-xs truncate" title={item.notes}>
                                 {item.notes}
                             </div>
@@ -120,14 +120,14 @@ export const StockManagement = ({
 
             // For stocks and sold stocks
             return (
-                <TableRow key={item.id} className="border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)]">
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <Badge variant="outline">#{item.id}</Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <div className="font-medium">{item.product?.name || '-'}</div>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <div className="font-semibold">
                             {item.category === 'Kilo'
                                 ? `${item.quantity} kg`
@@ -137,13 +137,13 @@ export const StockManagement = ({
                             }
                         </div>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <Badge variant="secondary">{item.category || '-'}</Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         {item.member?.name || 'Unassigned'}
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-foreground">
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <Badge 
                             variant={dataType === 'sold' ? "default" : item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                             className={
@@ -161,10 +161,10 @@ export const StockManagement = ({
                         </Badge>
                     </TableCell>
                     {dataType === 'stocks' && (
-                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                            <div className="flex gap-2">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
                                 <PermissionGate permission="edit stocks">
-                                    <Button asChild size="sm" className="transition-all duration-200 hover:scale-105">
+                                    <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap">
                                         <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
                                             <Edit className="h-3 w-3 mr-1" />
                                             Edit
@@ -177,7 +177,7 @@ export const StockManagement = ({
                                         onClick={() => handleRemovePerishedStock(item)} 
                                         size="sm"
                                         variant="destructive"
-                                        className="transition-all duration-200 hover:scale-105"
+                                        className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
                                     >
                                         <Trash2 className="h-3 w-3 mr-1" />
                                         Remove
@@ -261,7 +261,7 @@ export const StockManagement = ({
 
 
     return (
-        <div className="bg-card border border-border rounded-xl p-5 mb-4 shadow-sm">
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
             <div className="flex flex-col gap-3 mb-6 pb-4 border-b border-border md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
                     <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">

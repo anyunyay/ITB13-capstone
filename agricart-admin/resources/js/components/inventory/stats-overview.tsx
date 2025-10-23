@@ -7,7 +7,7 @@ interface StatsOverviewProps {
 
 export const StatsOverview = ({ stockStats }: StatsOverviewProps) => {
     return (
-        <div className="grid grid-cols-5 gap-2 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <div className="bg-card border border-border rounded-lg p-5 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary">
                 <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                     <Package className="h-5 w-5" />

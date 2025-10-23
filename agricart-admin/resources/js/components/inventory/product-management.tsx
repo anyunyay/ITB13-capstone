@@ -8,7 +8,10 @@ import { route } from 'ziggy-js';
 import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
+import { ViewToggle } from './view-toggle';
+import { ProductTable } from './product-table';
 import { Product } from '@/types/inventory';
+import { useState } from 'react';
 
 interface ProductManagementProps {
     products: Product[];
@@ -61,6 +64,8 @@ export const ProductManagement = ({
     archivingProduct,
     restoringProduct
 }: ProductManagementProps) => {
+    // View state for toggle between cards and table
+    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
     
     // Helper function to check if a product is being processed
     const isProductProcessing = (productId: number) => {
@@ -68,7 +73,7 @@ export const ProductManagement = ({
     };
 
     return (
-        <div className="bg-card border border-border rounded-xl p-5 mb-4 shadow-sm">
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
             <div className="mb-4 pb-3 border-b border-border">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
@@ -85,7 +90,11 @@ export const ProductManagement = ({
                             </p>
                         </div>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
+                    <div className="flex gap-2 flex-shrink-0 items-center">
+                        <ViewToggle 
+                            currentView={currentView} 
+                            onViewChange={setCurrentView} 
+                        />
                         <PermissionGate permission="create products">
                             <Button asChild size="sm" className="bg-primary text-primary-foreground border border-primary hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] hover:border-[color-mix(in_srgb,var(--primary)_90%,black_10%)]">
                                 <Link href={route('inventory.create')}>
@@ -192,8 +201,9 @@ export const ProductManagement = ({
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3">
-                            {paginatedProducts?.map((product) => (
+                        {currentView === 'cards' ? (
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
+                                {paginatedProducts?.map((product) => (
                                 <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
                                     <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
                                         <img 
@@ -317,7 +327,18 @@ export const ProductManagement = ({
                                     </CardFooter>
                                 </Card>
                             ))}
-                        </div>
+                            </div>
+                        ) : (
+                            <ProductTable
+                                products={paginatedProducts}
+                                processing={processing}
+                                handleArchive={handleArchive}
+                                handleDelete={handleDelete}
+                                handleRestore={handleRestore}
+                                archivingProduct={archivingProduct}
+                                restoringProduct={restoringProduct}
+                            />
+                        )}
 
                         <PaginationControls
                             currentPage={currentPage}
