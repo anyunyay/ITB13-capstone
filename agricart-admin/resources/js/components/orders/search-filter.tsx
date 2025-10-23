@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X } from 'lucide-react';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface SearchFilterProps {
     searchTerm: string;
@@ -33,21 +32,21 @@ export const SearchFilter = ({
     const hasActiveFilters = searchTerm || selectedStatus !== 'all' || selectedDeliveryStatus !== 'all';
 
     return (
-        <div className={styles.searchFilterSection}>
-            <div className={styles.searchControls}>
-                <div className={styles.searchInputContainer}>
-                    <Search className={styles.searchIcon} />
+        <div className="bg-card border border-border rounded-xl p-6 mb-8 shadow-sm">
+            <div className="flex flex-col gap-4 mb-4 md:flex-row md:items-center">
+                <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                     <Input
                         type="text"
                         placeholder="Search orders by customer name, email, or order ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className={styles.searchInput}
+                        className="pl-10 pr-10 w-full py-3 border-border rounded-lg bg-background text-foreground text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20"
                     />
                     {searchTerm && (
                         <button
                             onClick={() => setSearchTerm('')}
-                            className={styles.clearButton}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded"
                             type="button"
                         >
                             <X className="h-4 w-4" />
@@ -55,9 +54,9 @@ export const SearchFilter = ({
                     )}
                 </div>
                 
-                <div className={styles.filterControls}>
+                <div className="flex gap-3 flex-wrap">
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                        <SelectTrigger className={styles.filterSelect}>
+                        <SelectTrigger className="min-w-[150px] bg-background border-border rounded-lg py-3 text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20">
                             <SelectValue placeholder="All Statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -71,7 +70,7 @@ export const SearchFilter = ({
                     </Select>
                     
                     <Select value={selectedDeliveryStatus} onValueChange={setSelectedDeliveryStatus}>
-                        <SelectTrigger className={styles.filterSelect}>
+                        <SelectTrigger className="min-w-[150px] bg-background border-border rounded-lg py-3 text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20">
                             <SelectValue placeholder="All Delivery Statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -84,8 +83,8 @@ export const SearchFilter = ({
                 </div>
             </div>
             
-            <div className={styles.resultsInfo}>
-                <span className={styles.resultsCount}>
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+                <span className="text-sm text-muted-foreground font-medium">
                     {filteredResults === totalResults 
                         ? `${totalResults} orders found`
                         : `${filteredResults} of ${totalResults} orders`
@@ -94,7 +93,7 @@ export const SearchFilter = ({
                 {hasActiveFilters && (
                     <button
                         onClick={clearSearch}
-                        className={styles.clearSearch}
+                        className="text-sm text-primary hover:text-primary/80 transition-colors"
                         type="button"
                     >
                         Clear all filters

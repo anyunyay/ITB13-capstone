@@ -1,6 +1,5 @@
 import { Package, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { OrderStats } from '@/types/orders';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface StatsOverviewProps {
     orderStats: OrderStats;
@@ -46,19 +45,19 @@ export const StatsOverview = ({ orderStats }: StatsOverviewProps) => {
     ];
 
     return (
-        <div className={styles.statsDashboard}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {stats.map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
-                    <div key={index} className={styles.statCard}>
-                        <div className={styles.statIcon}>
+                    <div key={index} className="bg-card border border-border rounded-lg p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
+                        <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
                             <IconComponent className="h-6 w-6" />
                         </div>
-                        <div className={styles.statContent}>
-                            <div className={styles.statValue}>
+                        <div className="flex-1">
+                            <div className="text-2xl font-bold text-foreground leading-none">
                                 {stat.value.toLocaleString()}
                             </div>
-                            <div className={styles.statLabel}>
+                            <div className="text-sm text-muted-foreground mt-1">
                                 {stat.label}
                             </div>
                         </div>

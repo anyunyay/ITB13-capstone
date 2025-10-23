@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface PaginationControlsProps {
     currentPage: number;
@@ -46,24 +45,24 @@ export const PaginationControls = ({
     if (totalPages <= 1) return null;
 
     return (
-        <div className={styles.paginationContainer}>
-            <span className={styles.paginationText}>
+        <div className="flex items-center justify-center mt-8 p-4 bg-card border border-border rounded-xl shadow-sm relative">
+            <span className="text-sm text-muted-foreground font-medium whitespace-nowrap absolute left-4 top-1/2 transform -translate-y-1/2">
                 {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
             </span>
             
-            <div className={styles.paginationControls}>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={styles.paginationButton}
+                    className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm font-medium transition-all hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground min-h-[2.5rem]"
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                 </Button>
                 
-                <div className={styles.paginationNumbers}>
+                <div className="flex items-center gap-1">
                     {getVisiblePages().map((page, index) => (
                         <div key={index}>
                             {page === '...' ? (
@@ -73,7 +72,11 @@ export const PaginationControls = ({
                                     variant={currentPage === page ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => onPageChange(page as number)}
-                                    className={styles.paginationNumber}
+                                    className={`min-w-[2.5rem] h-[2.5rem] p-0 border border-border rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center ${
+                                        currentPage === page 
+                                            ? 'bg-background text-foreground border-foreground font-semibold' 
+                                            : 'bg-background text-foreground hover:bg-muted hover:border-border hover:text-foreground'
+                                    }`}
                                 >
                                     {page}
                                 </Button>
@@ -87,7 +90,7 @@ export const PaginationControls = ({
                     size="sm"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={styles.paginationButton}
+                    className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm font-medium transition-all hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground min-h-[2.5rem]"
                 >
                     Next
                     <ChevronRight className="h-4 w-4" />
