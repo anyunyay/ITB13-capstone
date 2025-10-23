@@ -22,7 +22,6 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\AddressController;
-use App\Http\Controllers\Customer\AppearanceController;
 use App\Http\Controllers\Member\MemberController;
 use App\Http\Controllers\Member\NotificationController as MemberNotificationController;
 use App\Http\Controllers\Logistic\LogisticController;
@@ -74,8 +73,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('admin.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('admin.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
-        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('admin.profile.appearance');
-        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('admin.profile.appearance.update');
+        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('admin.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
         
@@ -295,8 +293,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
-        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('customer.profile.appearance');
-        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('customer.profile.appearance.update');
+        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('customer.profile.logout.page');
         
@@ -319,8 +316,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('logistic.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('logistic.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
-        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('logistic.profile.appearance');
-        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('logistic.profile.appearance.update');
+        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('logistic.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('logistic.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
         
@@ -357,8 +353,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('member.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('member.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
-        Route::get('/profile/appearance', [AppearanceController::class, 'index'])->name('member.profile.appearance');
-        Route::patch('/profile/appearance', [AppearanceController::class, 'update'])->name('member.profile.appearance.update');
+        Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('member.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('member.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
         

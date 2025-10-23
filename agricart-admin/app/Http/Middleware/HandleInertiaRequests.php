@@ -68,9 +68,8 @@ class HandleInertiaRequests extends Middleware
         if ($request->user()) {
             $user = $request->user();
             
-            // Share user's appearance settings
-            $appearanceSettings = \App\Models\AppearanceSettings::getForUser($user->id);
-            $shared['userTheme'] = $appearanceSettings->theme;
+            // Share user's appearance settings (using built-in cookie-based approach)
+            $shared['userTheme'] = $user->appearance ?? 'system';
             $notificationTypes = [];
             
             switch ($user->type) {
