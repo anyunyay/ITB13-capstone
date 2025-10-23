@@ -126,7 +126,7 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                             <span className={styles.orderInfoValue}>Co-op Share:</span> <span className="text-green-600">₱{Number(order.coop_share || 0).toFixed(2)}</span>
                         </p>
                         <p className={styles.orderInfoItem}>
-                            <span className={styles.orderInfoValue}>Member Share:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
+                            <span className={styles.orderInfoValue}>Revenue:</span> <span className="text-blue-600">₱{Number(order.member_share || 0).toFixed(2)}</span>
                         </p>
                         <p className={styles.orderInfoItem}>
                             <span className={styles.orderInfoValue}>Items:</span> {combinedItems.length}

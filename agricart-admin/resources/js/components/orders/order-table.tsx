@@ -128,7 +128,7 @@ export const OrderTable = ({
                         <TableHead className={styles.orderTableHeaderCell}>
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
-                                Member Share
+                                Revenue
                             </div>
                         </TableHead>
                         <TableHead className={styles.orderTableHeaderCell}>
