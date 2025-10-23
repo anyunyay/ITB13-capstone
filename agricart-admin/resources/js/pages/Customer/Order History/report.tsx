@@ -144,7 +144,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
       <Head title="My Orders Report" />
       <div className="max-w-4xl mx-auto p-4 mt-20">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">My Orders Report</h1>
+          <h1 className="text-3xl font-bold text-foreground">My Orders Report</h1>
           <div className="flex gap-2">
             <Button onClick={() => exportReport('csv')} variant="outline">
               <Download className="h-4 w-4 mr-2" />
@@ -221,52 +221,52 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary.total_orders}</div>
+              <div className="text-2xl font-bold text-card-foreground">{summary.total_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Spent</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 ₱{Number(summary.total_spent).toFixed(2)}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Pending Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{summary.pending_orders}</div>
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.pending_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Approved Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Approved Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{summary.approved_orders}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.approved_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Rejected Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Rejected Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{summary.rejected_orders}</div>
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{summary.rejected_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Delivered Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Delivered Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{summary.delivered_orders}</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.delivered_orders}</div>
             </CardContent>
           </Card>
         </div>
@@ -274,39 +274,39 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
         {/* Orders List */}
         <Card>
           <CardHeader>
-            <CardTitle>Orders ({orders.length})</CardTitle>
+            <CardTitle className="text-card-foreground">Orders ({orders.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {orders.map((order) => (
-                <div key={order.id} className="border rounded-lg p-4">
+                <div key={order.id} className="border border-border rounded-lg p-4 bg-card">
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold">Order #{order.id}</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 className="font-semibold text-card-foreground">Order #{order.id}</h3>
+                      <p className="text-sm text-muted-foreground">
                         {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(order.status)}
                       {getDeliveryStatusBadge(order.delivery_status)}
-                      <span className="font-semibold text-lg">
+                      <span className="font-semibold text-lg text-card-foreground">
                         ₱{Number(order.total_amount).toFixed(2)}
                       </span>
                     </div>
                   </div>
                   
                   {order.admin_notes && (
-                    <div className="mb-2 p-2 bg-amber-100 border-l-4 border-amber-400 rounded">
-                      <p className="text-sm text-amber-900">
+                    <div className="mb-2 p-2 bg-amber-100 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-500 rounded">
+                      <p className="text-sm text-amber-900 dark:text-amber-100">
                         <strong>Admin Notes:</strong> {order.admin_notes}
                       </p>
                     </div>
                   )}
 
                   {order.logistic && (
-                    <div className="mb-2 p-2 bg-teal-50 border-l-4 border-teal-400 rounded">
-                      <p className="text-sm text-teal-900">
+                    <div className="mb-2 p-2 bg-secondary/10 border-l-4 border-secondary rounded">
+                      <p className="text-sm text-card-foreground">
                         <strong>Delivery:</strong> {order.logistic.name}
                         {order.logistic.contact_number && (
                           <span> ({order.logistic.contact_number})</span>
@@ -315,7 +315,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                     </div>
                   )}
 
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     <strong>Items:</strong> {combineOrderItems(order.audit_trail).map(item => 
                       `${item.product.name} (${item.quantity} ${item.category})`
                     ).join(', ')}
@@ -323,7 +323,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                 </div>
               ))}
               {orders.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-muted-foreground py-8">
                   No orders found for the selected filters.
                 </div>
               )}
