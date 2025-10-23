@@ -7,7 +7,6 @@ import { SearchFilter } from './search-filter';
 import { ViewToggle } from './view-toggle';
 import { Order } from '@/types/orders';
 import { useState } from 'react';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface OrderManagementProps {
     orders: Order[];
@@ -62,10 +61,10 @@ export const OrderManagement = ({
     const renderOrders = (ordersToRender: Order[]) => {
         if (ordersToRender.length === 0) {
             return (
-                <div className={styles.emptyState}>
-                    <Package className={styles.emptyStateIcon} />
-                    <h3 className={styles.emptyStateTitle}>No orders found</h3>
-                    <p className={styles.emptyStateDescription}>
+                <div className="text-center py-12">
+                    <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+                    <p className="text-muted-foreground">
                         {currentStatus === 'all' 
                             ? 'No orders match your current filters.'
                             : `No ${currentStatus} orders found.`
@@ -78,7 +77,7 @@ export const OrderManagement = ({
         return (
             <>
                 {currentView === 'cards' ? (
-                    <div className={styles.orderGrid}>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {ordersToRender.map((order) => (
                             <OrderCard 
                                 key={order.id} 
@@ -110,20 +109,20 @@ export const OrderManagement = ({
     };
 
     return (
-        <div className={styles.orderManagementSection}>
-            <div className={styles.sectionHeader}>
-                <div className={styles.sectionTitleContainer}>
-                    <div className={styles.sectionIcon}>
+        <div className="bg-card border border-border rounded-xl p-5 mb-4 shadow-sm">
+            <div className="flex flex-col gap-3 mb-6 pb-4 border-b border-border md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 text-primary p-3 rounded-lg">
                         <Package className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className={styles.sectionTitle}>Order Management</h2>
-                        <p className={styles.sectionSubtitle}>
+                        <h2 className="text-2xl font-semibold text-foreground mb-1">Order Management</h2>
+                        <p className="text-sm text-muted-foreground">
                             Monitor and manage customer orders, track delivery status, and process order requests
                         </p>
                     </div>
                 </div>
-                <div className={styles.sectionActions}>
+                <div className="flex gap-3 flex-wrap items-center">
                     <ViewToggle 
                         currentView={currentView} 
                         onViewChange={setCurrentView} 
@@ -131,7 +130,7 @@ export const OrderManagement = ({
                 </div>
             </div>
 
-            <div className={styles.sectionContent}>
+            <div className="space-y-6">
                 <SearchFilter
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}

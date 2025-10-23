@@ -6,7 +6,7 @@ import { UrgentOrderPopup } from '@/components/urgent-order-popup';
 import { DashboardHeader } from '@/components/orders/dashboard-header';
 import { OrderManagement } from '@/components/orders/order-management';
 import { Order, OrdersPageProps } from '@/types/orders';
-import styles from './orders.module.css';
+import animations from './orders-animations.module.css';
 
 export default function OrdersIndex({ orders, allOrders, currentStatus, highlightOrderId, urgentOrders = [], showUrgentApproval = false }: OrdersPageProps) {
   // Ensure urgentOrders is always an array
@@ -106,8 +106,8 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     >
       <AppLayout>
         <Head title="Order Management" />
-        <div className={styles.ordersContainer}>
-          <div className={styles.mainContent}>
+        <div className="min-h-screen bg-background">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col gap-4">
             <DashboardHeader orderStats={orderStats} />
             <OrderManagement
               orders={orders}
