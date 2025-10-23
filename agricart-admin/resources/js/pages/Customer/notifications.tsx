@@ -20,7 +20,7 @@ export default function NotificationsPage({ notifications }: NotificationsPagePr
   return (
     <AppHeaderLayout>
       <Head title="Notifications" />
-      <div className="max-w-4xl mx-auto p-4 mt-20">
+      <div className="max-w-4xl mx-auto p-4 mt-20 bg-background">
         <NotificationPage notifications={notifications} userType="customer" />
       </div>
     </AppHeaderLayout>

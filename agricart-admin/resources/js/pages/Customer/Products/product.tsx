@@ -187,25 +187,25 @@ function ProductCard({ product }: { product: Product }) {
                 <Badge variant="destructive">Out of Stock</Badge>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-card-foreground">{product.name}</h1>
             <div className="mt-2 space-y-1">
               {product.price_kilo && (
-                <p className="text-lg font-semibold text-green-600">
+                <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                   Kilo: ₱{formatPrice(product.price_kilo)}
                 </p>
               )}
               {product.price_pc && (
-                <p className="text-lg font-semibold text-green-600">
+                <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                   Piece: ₱{formatPrice(product.price_pc)}
                 </p>
               )}
               {product.price_tali && (
-                <p className="text-lg font-semibold text-green-600">
+                <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                   Tali: ₱{formatPrice(product.price_tali)}
                 </p>
               )}
               {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                <p className="text-lg font-semibold text-gray-500">
+                <p className="text-lg font-semibold text-muted-foreground">
                   No prices set
                 </p>
               )}
@@ -214,7 +214,7 @@ function ProductCard({ product }: { product: Product }) {
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-gray-600 leading-relaxed">{product.description}</p>
+            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
 
           {/* Stock Information */}
@@ -230,7 +230,7 @@ function ProductCard({ product }: { product: Product }) {
                 <div className="space-y-2">
                   {Object.entries(availableStock).map(([category, quantity]) => (
                     <div key={category} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 capitalize">{category}</span>
+                      <span className="text-sm text-muted-foreground capitalize">{category}</span>
                       <Badge variant="outline">{quantity}</Badge>
                     </div>
                   ))}
@@ -350,7 +350,7 @@ function ProductCard({ product }: { product: Product }) {
                     {isKilo ? '+0.25' : '+1'}
                   </Button>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   Max: {isKilo ? maxQty.toFixed(2) : maxQty}
                 </div>
                 {errors.quantity && (

@@ -485,7 +485,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Table Layout */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
                   {/* Table Header */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700">
                     <div className="grid grid-cols-12 gap-4 px-6 py-3">
@@ -511,9 +511,9 @@ export default function CartPage() {
                   </div>
 
                   {/* Table Body */}
-                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <div className="divide-y divide-border">
                 {cartItems.map((item) => (
-                      <div key={item.item_id} className="group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
+                      <div key={item.item_id} className="group hover:bg-muted/50 transition-colors duration-200">
                         <div className="grid grid-cols-12 gap-4 px-6 py-4 items-center">
                           {/* Product Column */}
                           <div className="col-span-4">
@@ -524,17 +524,17 @@ export default function CartPage() {
                               </div>
                               {/* Product Info */}
                               <div className="flex-1 min-w-0">
-                                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                                <h3 className="text-base font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
                                   {item.name}
                                 </h3>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                <p className="text-xs text-muted-foreground mb-1">
                                   Product ID: {item.product_id}
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
                                     {item.category}
                                   </span>
-                                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                                     <span>In Stock</span>
                                   </div>
@@ -545,7 +545,7 @@ export default function CartPage() {
 
                           {/* Category Column */}
                           <div className="col-span-1 text-center">
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <span className="text-sm font-semibold text-card-foreground">
                               {item.category}
                             </span>
                           </div>
@@ -702,20 +702,20 @@ export default function CartPage() {
 
                           {/* Unit Price Column */}
                           <div className="col-span-2 text-left">
-                            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <div className="text-sm font-semibold text-card-foreground">
                               ₱{((Number(item.total_price) || 0) / (Number(item.quantity) || 1)).toFixed(2)}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-muted-foreground">
                               per {item.category}
                             </div>
                           </div>
 
                           {/* Subtotal Column */}
                           <div className="col-span-2 text-left">
-                            <div className="text-base font-bold text-gray-900 dark:text-white">
+                            <div className="text-base font-bold text-card-foreground">
                               ₱{(Number(item.total_price) || 0).toFixed(2)}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-muted-foreground">
                               Available: {formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0, item.category)}
                             </div>
                           </div>
@@ -734,7 +734,7 @@ export default function CartPage() {
                         </div>
                         
                         {/* Action Buttons Row - Full Width */}
-                        <div className="col-span-12 px-6 py-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-600">
+                        <div className="col-span-12 px-6 py-3 bg-muted/50 border-t border-border">
                           <div className="flex items-center justify-center gap-3">
                           {editingItems.has(item.item_id) ? (
                             <>
@@ -825,7 +825,7 @@ export default function CartPage() {
               {/* Delivery Address and Order Summary Section */}
               <div className="lg:col-span-1 space-y-5 sticky top-24 self-start">
                 {/* Delivery Address Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
                   <div className="flex items-center gap-2 mb-2.5">
                     <MapPin className="h-4 w-4 text-green-600 dark:text-green-400" />
                     <h3 className="text-sm font-semibold text-green-600 dark:text-green-400">Delivery Address</h3>
@@ -1018,7 +1018,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Order Summary Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
                   <h3 className="text-sm font-semibold text-green-600 dark:text-green-400 mb-2.5">Order Summary</h3>
                   
                   <div className="space-y-1.5 mb-2.5">
@@ -1123,7 +1123,7 @@ export default function CartPage() {
 
       {/* Address Confirmation Dialog */}
       <Dialog open={showAddressConfirmation} onOpenChange={setShowAddressConfirmation}>
-        <DialogContent className="bg-white dark:bg-gray-800 border-green-200 dark:border-green-700">
+        <DialogContent className="bg-card border-green-200 dark:border-green-700">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
               <AlertTriangle className="h-5 w-5 text-orange-500 dark:text-orange-400" />

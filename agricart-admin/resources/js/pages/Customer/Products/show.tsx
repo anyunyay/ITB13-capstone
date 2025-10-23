@@ -168,25 +168,25 @@ export default function ProductShow({ product, auth }: Props) {
                                     <Badge variant="destructive">Out of Stock</Badge>
                                 )}
                             </div>
-                            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                            <h1 className="text-3xl font-bold text-card-foreground">{product.name}</h1>
                             <div className="mt-2 space-y-1">
                                 {product.price_kilo && (
-                                    <p className="text-lg font-semibold text-green-600">
+                                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                         Kilo: ₱{formatPrice(product.price_kilo)}
                                     </p>
                                 )}
                                 {product.price_pc && (
-                                    <p className="text-lg font-semibold text-green-600">
+                                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                         Piece: ₱{formatPrice(product.price_pc)}
                                     </p>
                                 )}
                                 {product.price_tali && (
-                                    <p className="text-lg font-semibold text-green-600">
+                                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                         Tali: ₱{formatPrice(product.price_tali)}
                                     </p>
                                 )}
                                 {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                    <p className="text-lg font-semibold text-gray-500">
+                                    <p className="text-lg font-semibold text-muted-foreground">
                                         No prices set
                                     </p>
                                 )}
@@ -195,7 +195,7 @@ export default function ProductShow({ product, auth }: Props) {
 
                         <div>
                             <h3 className="text-lg font-semibold mb-2">Description</h3>
-                            <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
                         </div>
 
                         {/* Stock Information */}
@@ -211,7 +211,7 @@ export default function ProductShow({ product, auth }: Props) {
                                     <div className="space-y-2">
                                         {Object.entries(product.stock_by_category).map(([category, quantity]) => (
                                             <div key={category} className="flex justify-between items-center">
-                                                <span className="text-sm text-gray-600 capitalize">{category}</span>
+                                                <span className="text-sm text-muted-foreground capitalize">{category}</span>
                                                 <Badge variant="outline">{quantity}</Badge>
                                             </div>
                                         ))}
@@ -242,12 +242,12 @@ export default function ProductShow({ product, auth }: Props) {
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>{product.name}</DialogTitle>
-                                        <DialogTitle className="text-sm text-gray-500">{product.produce_type}</DialogTitle>
+                                        <DialogTitle className="text-sm text-muted-foreground">{product.produce_type}</DialogTitle>
                                         <DialogDescription>{product.description}</DialogDescription>
 
                                         {/* For Displaying Stock */}
                                         {product.stock_by_category ? (
-                                            <div className="mt-2 text-sm text-gray-700">
+                                            <div className="mt-2 text-sm text-card-foreground">
                                                 <strong>Available Stock:</strong>
                                                 {Object.keys(product.stock_by_category).length > 0 ? (
                                                     <ul className="ml-2 list-disc">
@@ -266,7 +266,7 @@ export default function ProductShow({ product, auth }: Props) {
                                                 )}
                                             </div>
                                         ) : (
-                                            <div className="mt-2 text-sm text-gray-700">
+                                            <div className="mt-2 text-sm text-card-foreground">
                                                 <strong>Available Stock:</strong>
                                                 <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
                                             </div>
@@ -379,7 +379,7 @@ export default function ProductShow({ product, auth }: Props) {
                                                         {isKilo ? '+0.25' : '+1'}
                                                     </Button>
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-xs text-muted-foreground mt-1">
                                                     Max: {isKilo ? maxQty.toFixed(2) : maxQty}
                                                 </div>
                                                 {errors.quantity && (

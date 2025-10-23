@@ -186,7 +186,7 @@ export default function CustomerHome({ products }: PageProps) {
         <section className="h-screen snap-start"></section>
 
         {/* Split Layout Section - Cooperatives of Farmers */}
-        <section id="explore" className="py-40 px-4 bg-gray-50 relative z-10 snap-start h-screen flex items-center">
+        <section id="explore" className="py-40 px-4 bg-muted relative z-10 snap-start h-screen flex items-center">
           <div className="max-w-[90vw] mx-auto">
             <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
               {/* Left Side - Content */}
@@ -291,7 +291,7 @@ export default function CustomerHome({ products }: PageProps) {
         </section>
 
         {/* Product Carousel Section */}
-        <section id="produce" className="py-18 bg-white overflow-hidden relative z-10 snap-start h-screen flex items-center">
+        <section id="produce" className="py-18 bg-background overflow-hidden relative z-10 snap-start h-screen flex items-center">
           <div className="container mx-auto my-10 p-20">
             <motion.h2
               className="text-6xl font-bold text-center text-primary mb-8"
@@ -333,7 +333,7 @@ export default function CustomerHome({ products }: PageProps) {
                     return (
                       <CarouselItem key={product.id} className="basis-1/3 pl-4">
                         <div className="relative [transform-style:preserve-3d]">
-                          <div className={`bg-white rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${isActive
+                          <div className={`bg-card rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${isActive
                             ? `scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
                             : isLeft
                               ? `scale-80 opacity-20 z-10 translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
@@ -341,7 +341,7 @@ export default function CustomerHome({ products }: PageProps) {
                                 ? `scale-80 opacity-20 z-10 -translate-x-12 -translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
                                 : 'scale-80 opacity-20 z-10 blur-md'
                             }`}>
-                            <div className="h-48 bg-white flex items-center justify-center overflow-hidden">
+                            <div className="h-48 bg-card flex items-center justify-center overflow-hidden">
                               {product.image_url ? (
                                 <img
                                   src={product.image_url}

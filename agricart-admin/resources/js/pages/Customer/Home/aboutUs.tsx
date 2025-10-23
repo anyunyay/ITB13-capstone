@@ -217,7 +217,7 @@ export default function AboutUs({ }: PageProps) {
         <section className="h-screen snap-start"></section>
 
         {/* Who We Are Section */}
-        <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
+        <section id="who-we-are" className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Content */}
@@ -230,7 +230,7 @@ export default function AboutUs({ }: PageProps) {
                 <h2 className="text-6xl font-bold text-primary mb-6">
                   Who We Are
                 </h2>
-                <div className="space-y-4 sm:space-y-6 text-2xl text-gray-700 leading-relaxed">
+                <div className="space-y-4 sm:space-y-6 text-2xl text-muted-foreground leading-relaxed">
                   <p>
                     SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
                     of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
@@ -266,7 +266,7 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Vision & Values Section */}
-        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
+        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -285,7 +285,7 @@ export default function AboutUs({ }: PageProps) {
                 Our Vision & Values
               </motion.h2>
               <motion.p
-                className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4"
+                className="text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -314,7 +314,7 @@ export default function AboutUs({ }: PageProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl text-gray-600 leading-relaxed">
+                      <p className="text-2xl text-muted-foreground leading-relaxed">
                         {value.description}
                       </p>
                     </CardContent>
@@ -326,7 +326,7 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Members Section */}
-        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start">
+        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-background relative overflow-hidden snap-start">
           <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
             {/* New Image and Content Layout */}
             <motion.div
@@ -405,7 +405,7 @@ export default function AboutUs({ }: PageProps) {
                   Agriculture Excellence
                 </motion.h2>
                 <motion.p
-                  className="text-2xl text-gray-600 leading-relaxed"
+                  className="text-2xl text-muted-foreground leading-relaxed"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
@@ -420,7 +420,7 @@ export default function AboutUs({ }: PageProps) {
       </div>
 
       {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
-      <section ref={servicesRef} className="h-[120vh] flex items-center justify-center bg-gray-50 relative overflow-hidden" style={{
+      <section ref={servicesRef} className="h-[120vh] flex items-center justify-center bg-muted relative overflow-hidden" style={{
         backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
