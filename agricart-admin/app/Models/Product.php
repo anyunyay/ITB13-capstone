@@ -17,6 +17,7 @@ class Product extends Model
         'description',
         'image',
         'produce_type',
+        'archived_at',
     ];
 
     /**
@@ -25,6 +26,13 @@ class Product extends Model
      * @var array
      */
     protected $appends = ['image_url'];
+
+    protected $casts = [
+        'price_kilo' => 'decimal:2',
+        'price_pc' => 'decimal:2',
+        'price_tali' => 'decimal:2',
+        'archived_at' => 'datetime',
+    ];
 
     public function stocks()
     {

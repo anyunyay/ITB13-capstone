@@ -57,6 +57,11 @@ class Sales extends Model
         return $this->hasMany(AuditTrail::class, 'sale_id'); 
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'order_id');
+    }
+
     public function salesAudit()
     {
         return $this->belongsTo(SalesAudit::class, 'sales_audit_id');

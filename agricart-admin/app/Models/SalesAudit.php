@@ -73,6 +73,11 @@ class SalesAudit extends Model
         return $this->hasMany(Sales::class, 'sales_audit_id');
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'order_id');
+    }
+
     // Scopes for filtering by status
     public function scopePending($query)
     {

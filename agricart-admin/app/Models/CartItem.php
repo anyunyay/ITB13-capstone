@@ -21,13 +21,17 @@ class CartItem extends Model
         return $this->belongsTo(Cart::class);
     }
 
-    public function stock()
+    public function user()
     {
-        return $this->belongsTo(Stock::class);
+        return $this->hasOneThrough(User::class, Cart::class, 'id', 'id', 'cart_id', 'user_id');
     }
 
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
+
+    protected $casts = [
+        'quantity' => 'decimal:2',
+    ];
 }

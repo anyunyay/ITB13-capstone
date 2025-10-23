@@ -13,6 +13,12 @@ class MemberEarnings extends Model
         'available_earnings',
     ];
 
+    protected $casts = [
+        'total_earnings' => 'decimal:2',
+        'pending_earnings' => 'decimal:2',
+        'available_earnings' => 'decimal:2',
+    ];
+
     /**
      * Get the member that owns the earnings.
      */

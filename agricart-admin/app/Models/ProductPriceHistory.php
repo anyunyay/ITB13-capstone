@@ -16,6 +16,12 @@ class ProductPriceHistory extends Model
         'price_tali',
     ];
 
+    protected $casts = [
+        'price_kilo' => 'decimal:2',
+        'price_pc' => 'decimal:2',
+        'price_tali' => 'decimal:2',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class);

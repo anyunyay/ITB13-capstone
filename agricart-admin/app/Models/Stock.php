@@ -25,6 +25,9 @@ class Stock extends Model
     
     protected $casts = [
         'removed_at' => 'datetime',
+        'quantity' => 'decimal:2',
+        'sold_quantity' => 'decimal:2',
+        'initial_quantity' => 'decimal:2',
     ];
     
     public function product()

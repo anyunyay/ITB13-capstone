@@ -43,6 +43,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_default',
         // Session management
         'current_session_id',
+        // Email verification
+        'email_verified_at',
     ];
 
     /**
@@ -177,6 +179,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function memberEarnings()
     {
         return $this->hasOne(MemberEarnings::class, 'member_id');
+    }
+
+    // Cart relationship
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
     }
 
     /**
