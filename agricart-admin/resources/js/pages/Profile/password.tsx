@@ -94,9 +94,6 @@ export default function PasswordPage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: 'Change Password', href: routes.passwordPage }
-            ]}
             title="Change Password"
         >
             <div className="space-y-6">

@@ -140,9 +140,6 @@ export default function ProfilePage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: 'Profile Information', href: routes.profileInfo }
-            ]}
             title="Profile Information"
         >
             <div className="space-y-6">

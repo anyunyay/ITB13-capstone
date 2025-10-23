@@ -73,9 +73,6 @@ export default function LogoutPage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: 'Logout', href: routes.logoutPage }
-            ]}
             title="Logout"
         >
 

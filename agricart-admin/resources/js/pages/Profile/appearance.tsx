@@ -160,9 +160,6 @@ export default function AppearancePage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: t(currentLanguage, 'appearance.title'), href: routes.appearancePage }
-            ]}
             title={t(currentLanguage, 'appearance.title')}
         >
             <div className="space-y-6">
