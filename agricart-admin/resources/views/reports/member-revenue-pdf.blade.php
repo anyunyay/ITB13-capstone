@@ -94,6 +94,8 @@
                     <th>Quantity</th>
                     <th>Price/Unit</th>
                     <th>Product Total</th>
+                    <th>COGS</th>
+                    <th>Gross Profit</th>
                     <th>Order Total</th>
                     <th>Date</th>
                 </tr>
@@ -110,6 +112,8 @@
                             <td class="currency">{{ $product['quantity'] }}</td>
                             <td class="currency">PHP {{ number_format($product['price_per_unit'], 2) }}</td>
                             <td class="currency">PHP {{ number_format($product['total_price'], 2) }}</td>
+                            <td class="currency">PHP {{ number_format($product['cogs'], 2) }}</td>
+                            <td class="currency">PHP {{ number_format($product['gross_profit'], 2) }}</td>
                             <td class="currency">PHP {{ number_format($order['total_amount'], 2) }}</td>
                             <td>{{ date('Y-m-d H:i', strtotime($order['created_at'])) }}</td>
                         </tr>

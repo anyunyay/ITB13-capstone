@@ -16,6 +16,8 @@ interface ProductSale {
   total_quantity: number;
   price_per_unit: number;
   total_revenue: number;
+  total_cogs: number;
+  total_gross_profit: number;
   category: string;
   sales_count: number;
   customers: string[];
@@ -27,6 +29,8 @@ interface OrderDetail {
   customer_email: string;
   total_amount: number;
   total_quantity: number;
+  total_cogs: number;
+  total_gross_profit: number;
   created_at: string;
   products: {
     product_name: string;
@@ -34,6 +38,8 @@ interface OrderDetail {
     category: string;
     price_per_unit: number;
     total_price: number;
+    cogs: number;
+    gross_profit: number;
   }[];
 }
 
@@ -41,6 +47,8 @@ interface SalesData {
   totalRevenue: number;
   totalOrders: number;
   totalQuantitySold: number;
+  totalCogs: number;
+  totalGrossProfit: number;
   productSales: ProductSale[];
   orderDetails: OrderDetail[];
 }
@@ -49,6 +57,8 @@ interface ReportSummary {
   total_revenue: number;
   total_orders: number;
   total_quantity_sold: number;
+  total_cogs: number;
+  total_gross_profit: number;
   average_order_value: number;
   total_products: number;
   date_range: {
@@ -196,7 +206,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
@@ -245,6 +255,32 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
               <div className="text-2xl font-bold text-white">{summary.total_quantity_sold}</div>
               <p className="text-xs text-gray-400">
                 Total units sold
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">COGS</CardTitle>
+              <TrendingUp className="h-4 w-4 text-orange-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-400">₱{Number(summary.total_cogs || 0).toFixed(2)}</div>
+              <p className="text-xs text-gray-400">
+                Cost of goods sold
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Gross Profit</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-400">₱{Number(summary.total_gross_profit || 0).toFixed(2)}</div>
+              <p className="text-xs text-gray-400">
+                Revenue minus COGS
               </p>
             </CardContent>
           </Card>
@@ -355,12 +391,18 @@ function ProductSaleCard({ product, index }: { product: ProductSale; index: numb
             <div className="text-2xl font-bold text-green-400">
               ₱{Number(product.total_revenue).toFixed(2)}
             </div>
+            <div className="text-sm text-orange-400">
+              COGS: ₱{Number(product.total_cogs || 0).toFixed(2)}
+            </div>
+            <div className="text-sm text-green-400">
+              Gross Profit: ₱{Number(product.total_gross_profit || 0).toFixed(2)}
+            </div>
             <p className="text-sm text-gray-400">{product.sales_count} sales</p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <h4 className="font-semibold mb-2 text-white">Performance Metrics</h4>
             <p className="text-sm text-gray-300">
@@ -391,6 +433,18 @@ function ProductSaleCard({ product, index }: { product: ProductSale; index: numb
               {product.customers.slice(0, 3).join(', ')}
               {product.customers.length > 3 && ` +${product.customers.length - 3} more`}
             </div>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-white">Financial Analysis</h4>
+            <p className="text-sm text-gray-300">
+              <span className="font-medium">Total Revenue:</span> ₱{Number(product.total_revenue).toFixed(2)}
+            </p>
+            <p className="text-sm text-orange-300">
+              <span className="font-medium">COGS:</span> ₱{Number(product.total_cogs || 0).toFixed(2)}
+            </p>
+            <p className="text-sm text-green-300">
+              <span className="font-medium">Gross Profit:</span> ₱{Number(product.total_gross_profit || 0).toFixed(2)}
+            </p>
           </div>
         </div>
       </CardContent>

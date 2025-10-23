@@ -483,6 +483,8 @@ class MemberController extends Controller
             'total_revenue' => $salesData['totalRevenue'],
             'total_orders' => $salesData['totalOrders'],
             'total_quantity_sold' => $salesData['totalQuantitySold'],
+            'total_cogs' => $salesData['totalCogs'],
+            'total_gross_profit' => $salesData['totalGrossProfit'],
             'average_order_value' => $salesData['totalOrders'] > 0 ? $salesData['totalRevenue'] / $salesData['totalOrders'] : 0,
             'total_products' => count($salesData['productSales']),
             'date_range' => [
@@ -514,12 +516,16 @@ class MemberController extends Controller
         $totalRevenue = 0;
         $totalOrders = 0;
         $totalQuantitySold = 0;
+        $totalCogs = 0;
+        $totalGrossProfit = 0;
         $productSales = [];
         $orderDetails = [];
 
         foreach ($sales as $sale) {
             $orderTotal = 0;
             $orderQuantity = 0;
+            $orderCogs = 0;
+            $orderGrossProfit = 0;
             $orderProducts = [];
             $hasMemberItems = false;
 
@@ -538,6 +544,12 @@ class MemberController extends Controller
                     $price = $audit->getSalePrice();
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
                     $orderTotal += $itemRevenue;
+                    
+                    // Calculate COGS and Gross Profit for this item
+                    $itemCogs = ($itemRevenue / 1.3) * 0.7;
+                    $itemGrossProfit = $itemRevenue - $itemCogs;
+                    $orderCogs += $itemCogs;
+                    $orderGrossProfit += $itemGrossProfit;
 
                     // Group by product_id
                     $productId = $audit->product_id;
@@ -548,6 +560,8 @@ class MemberController extends Controller
                             'total_quantity' => 0,
                             'price_per_unit' => $price,
                             'total_revenue' => 0,
+                            'total_cogs' => 0,
+                            'total_gross_profit' => 0,
                             'category' => $audit->category,
                             'sales_count' => 0,
                             'customers' => []
@@ -557,6 +571,8 @@ class MemberController extends Controller
                     // Add quantities and revenue
                     $productSales[$productId]['total_quantity'] += $audit->quantity;
                     $productSales[$productId]['total_revenue'] += $itemRevenue;
+                    $productSales[$productId]['total_cogs'] += $itemCogs;
+                    $productSales[$productId]['total_gross_profit'] += $itemGrossProfit;
                     $productSales[$productId]['sales_count']++;
 
                     // Add customer if not already in the list
@@ -570,7 +586,9 @@ class MemberController extends Controller
                         'quantity' => $audit->quantity,
                         'category' => $audit->category,
                         'price_per_unit' => $price,
-                        'total_price' => $itemRevenue
+                        'total_price' => $itemRevenue,
+                        'cogs' => $itemCogs,
+                        'gross_profit' => $itemGrossProfit
                     ];
                 }
             }
@@ -580,6 +598,8 @@ class MemberController extends Controller
                 $totalOrders++;
                 $totalRevenue += $orderTotal;
                 $totalQuantitySold += $orderQuantity;
+                $totalCogs += $orderCogs;
+                $totalGrossProfit += $orderGrossProfit;
 
                 $orderDetails[] = [
                     'order_id' => $sale->id,
@@ -587,6 +607,8 @@ class MemberController extends Controller
                     'customer_email' => $sale->customer->email,
                     'total_amount' => $orderTotal,
                     'total_quantity' => $orderQuantity,
+                    'total_cogs' => $orderCogs,
+                    'total_gross_profit' => $orderGrossProfit,
                     'created_at' => $sale->created_at,
                     'products' => $orderProducts
                 ];
@@ -603,6 +625,8 @@ class MemberController extends Controller
             'totalRevenue' => $totalRevenue,
             'totalOrders' => $totalOrders,
             'totalQuantitySold' => $totalQuantitySold,
+            'totalCogs' => $totalCogs,
+            'totalGrossProfit' => $totalGrossProfit,
             'productSales' => $productSalesArray,
             'orderDetails' => $orderDetails
         ];
@@ -639,6 +663,8 @@ class MemberController extends Controller
                 'Quantity',
                 'Price Per Unit',
                 'Product Total',
+                'COGS',
+                'Gross Profit',
                 'Order Total',
                 'Created At'
             ]);
@@ -655,6 +681,8 @@ class MemberController extends Controller
                         $product['quantity'],
                         'PHP ' . number_format($product['price_per_unit'], 2),
                         'PHP ' . number_format($product['total_price'], 2),
+                        'PHP ' . number_format($product['cogs'], 2),
+                        'PHP ' . number_format($product['gross_profit'], 2),
                         'PHP ' . number_format($order['total_amount'], 2),
                         $order['created_at']->format('Y-m-d H:i:s')
                     ]);
