@@ -117,6 +117,9 @@
                 <th>Member Email</th>
                 <th>Total Orders</th>
                 <th>Total Revenue</th>
+                <th>Revenue (100%)</th>
+                <th>COGS</th>
+                <th>Gross Profit</th>
                 <th>Quantity Sold</th>
                 <th>Average Revenue</th>
             </tr>
@@ -132,6 +135,9 @@
                 <td>{{ $member->member_email }}</td>
                 <td>{{ $member->total_orders }}</td>
                 <td>PHP {{ number_format($member->total_revenue, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($member->total_member_share, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($member->total_cogs, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($member->total_gross_profit, 2, '.', ',') }}</td>
                 <td>{{ $member->total_quantity_sold }}</td>
                 <td>PHP {{ number_format($averageRevenue, 2, '.', ',') }}</td>
             </tr>
