@@ -7,7 +7,6 @@ import { format } from 'date-fns';
 import { Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { Order } from '@/types/orders';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface OrderTableProps {
     orders: Order[];
@@ -27,15 +26,15 @@ export const OrderTable = ({
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
-                return <Badge variant="secondary" className={styles.statusPending}>Pending</Badge>;
+                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
             case 'approved':
-                return <Badge variant="default" className={styles.statusApproved}>Approved</Badge>;
+                return <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>;
             case 'rejected':
-                return <Badge variant="destructive" className={styles.statusRejected}>Rejected</Badge>;
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">Rejected</Badge>;
             case 'expired':
                 return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
             case 'delayed':
-                return <Badge variant="destructive" className={styles.statusDelayed}>Delayed</Badge>;
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">Delayed</Badge>;
             case 'cancelled':
                 return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
             default:
@@ -66,10 +65,10 @@ export const OrderTable = ({
 
     if (orders.length === 0) {
         return (
-            <div className={styles.emptyState}>
-                <Package className={styles.emptyStateIcon} />
-                <h3 className={styles.emptyStateTitle}>No orders found</h3>
-                <p className={styles.emptyStateDescription}>
+            <div className="text-center py-12">
+                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+                <p className="text-muted-foreground">
                     No orders match your current filters.
                 </p>
             </div>
@@ -78,71 +77,71 @@ export const OrderTable = ({
 
     return (
         <div className="rounded-md border">
-            <Table className={styles.orderTable}>
-                <TableHeader className={styles.orderTableHeader}>
+            <Table className="w-full border-collapse text-sm">
+                <TableHeader className="bg-muted/50 border-b-2">
                     <TableRow>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
                                 Order ID
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
                                 Date
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <User className="h-4 w-4" />
                                 Customer
                             </div>
                         </TableHead>
                         {!compact && (
-                            <TableHead className={styles.orderTableHeaderCell}>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 <div className="flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
                                     Email
                                 </div>
                             </TableHead>
                         )}
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Total Amount
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Subtotal
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Co-op Share
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Revenue
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
                                 Items
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>Status</TableHead>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Status</TableHead>
                         {!compact && (
-                            <TableHead className={styles.orderTableHeaderCell}>Delivery Status</TableHead>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Delivery Status</TableHead>
                         )}
                         {!compact && (
-                            <TableHead className={styles.orderTableHeaderCell}>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 <div className="flex items-center gap-2">
                                     <Truck className="h-4 w-4" />
                                     Logistic
@@ -150,7 +149,7 @@ export const OrderTable = ({
                             </TableHead>
                         )}
                         {showActions && (
-                            <TableHead className={styles.orderTableHeaderCell}>Actions</TableHead>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Actions</TableHead>
                         )}
                     </TableRow>
                 </TableHeader>
@@ -180,22 +179,22 @@ export const OrderTable = ({
                         return (
                             <TableRow 
                                 key={order.id} 
-                                className={`${styles.orderTableRow} ${highlighted ? styles.highlightedRow : ''} ${urgent ? styles.urgentRow : ''}`}
+                                className={`border-b transition-all hover:bg-muted/20 ${highlighted ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' : ''} ${urgent ? 'bg-orange-50 border-l-4 border-l-orange-500 shadow-sm' : ''}`}
                             >
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="flex items-center gap-2">
                                         <Badge variant="outline" className="font-mono">
                                             #{order.id}
                                         </Badge>
                                         {urgent && (
-                                            <Badge variant="destructive" className={styles.statusUrgent}>
+                                            <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse">
                                                 Urgent
                                             </Badge>
                                         )}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">
                                         <div className="font-medium">
                                             {format(new Date(order.created_at), 'MMM dd, yyyy')}
@@ -206,7 +205,7 @@ export const OrderTable = ({
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="flex flex-col">
                                         <div className="font-medium text-sm">
                                             {order.customer.name}
@@ -221,38 +220,21 @@ export const OrderTable = ({
                                 </TableCell>
                                 
                                 {!compact && (
-                                    <TableCell className={styles.orderTableCell}>
+                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                         <div className="text-sm text-muted-foreground">
                                             {order.customer.email}
                                         </div>
                                     </TableCell>
                                 )}
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="font-semibold text-sm">
                                         ₱{Number(order.total_amount).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
-                                    <div className="font-medium text-sm">
-                                        ₱{Number(order.subtotal || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
-                                    <div className="font-medium text-sm text-green-600">
-                                        ₱{Number(order.coop_share || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className={styles.orderTableCell}>
-                                    <div className="font-medium text-sm text-blue-600">
-                                        ₱{Number(order.member_share || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">
                                         <div className="font-medium">{totalItems} items</div>
                                         <div className="text-muted-foreground text-xs">
@@ -271,18 +253,18 @@ export const OrderTable = ({
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     {getStatusBadge(order.status)}
                                 </TableCell>
                                 
                                 {!compact && (
-                                    <TableCell className={styles.orderTableCell}>
+                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                         {order.status === 'approved' ? getDeliveryStatusBadge(order.delivery_status) : '-'}
                                     </TableCell>
                                 )}
                                 
                                 {!compact && (
-                                    <TableCell className={styles.orderTableCell}>
+                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                         {order.logistic ? (
                                             <div className="text-sm">
                                                 <div className="font-medium">{order.logistic.name}</div>
@@ -299,10 +281,10 @@ export const OrderTable = ({
                                 )}
                                 
                                 {showActions && (
-                                    <TableCell className={styles.orderTableCell}>
-                                        <div className={styles.orderActionCell}>
+                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                        <div className="flex gap-2 items-center">
                                             <PermissionGate permission="view orders">
-                                                <Button asChild variant="outline" size="sm" className={styles.orderActionButton}>
+                                                <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:scale-105 hover:shadow-sm">
                                                     <Link href={route('admin.orders.show', order.id)}>
                                                         <Eye className="h-3 w-3 mr-1" />
                                                         View

@@ -12,7 +12,7 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ orderStats }: DashboardHeaderProps) => {
     return (
-        <div className="bg-gradient-to-br from-card to-card/95 border border-border rounded-xl p-5 mb-3 shadow-lg flex flex-col gap-3">
+        <div className="bg-gradient-to-br from-card to-card/95 border border-border rounded-xl p-6 shadow-lg flex flex-col gap-4">
             <div className="flex flex-col gap-3 mb-1 md:flex-row md:items-center md:justify-between">
                 <div className="flex-1">
                     <div className="flex items-center gap-3">

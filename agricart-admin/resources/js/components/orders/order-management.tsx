@@ -77,7 +77,7 @@ export const OrderManagement = ({
         return (
             <>
                 {currentView === 'cards' ? (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4">
                         {ordersToRender.map((order) => (
                             <OrderCard 
                                 key={order.id} 
@@ -109,8 +109,8 @@ export const OrderManagement = ({
     };
 
     return (
-        <div className="bg-card border border-border rounded-xl p-5 mb-4 shadow-sm">
-            <div className="flex flex-col gap-3 mb-6 pb-4 border-b border-border md:flex-row md:items-center md:justify-between">
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="flex flex-col gap-3 pb-4 border-b border-border md:flex-row md:items-center md:justify-between mb-4">
                 <div className="flex items-center gap-4">
                     <div className="bg-primary/10 text-primary p-3 rounded-lg">
                         <Package className="h-6 w-6" />
@@ -130,7 +130,7 @@ export const OrderManagement = ({
                 </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <SearchFilter
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -161,23 +161,23 @@ export const OrderManagement = ({
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="all" className="mt-6">
+                    <TabsContent value="all" className="mt-2">
                         {renderOrders(paginatedOrders)}
                     </TabsContent>
 
-                    <TabsContent value="pending" className="mt-6">
+                    <TabsContent value="pending" className="mt-2">
                         {renderOrders(paginatedOrders)}
                     </TabsContent>
 
-                    <TabsContent value="approved" className="mt-6">
+                    <TabsContent value="approved" className="mt-2">
                         {renderOrders(paginatedOrders)}
                     </TabsContent>
 
-                    <TabsContent value="rejected" className="mt-6">
+                    <TabsContent value="rejected" className="mt-2">
                         {renderOrders(paginatedOrders)}
                     </TabsContent>
 
-                    <TabsContent value="delayed" className="mt-6">
+                    <TabsContent value="delayed" className="mt-2">
                         {renderOrders(paginatedOrders)}
                     </TabsContent>
                 </Tabs>

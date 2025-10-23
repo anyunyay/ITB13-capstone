@@ -1,7 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Package, DollarSign, Hash } from 'lucide-react';
-import styles from '../../pages/Admin/Orders/orders.module.css';
 
 interface OrderItem {
     id: number;
@@ -43,10 +42,10 @@ interface OrderItemsTableProps {
 export const OrderItemsTable = ({ items, showStock = false, compact = false }: OrderItemsTableProps) => {
     if (!items || items.length === 0) {
         return (
-            <div className={styles.emptyState}>
-                <Package className={styles.emptyStateIcon} />
-                <h3 className={styles.emptyStateTitle}>No items found</h3>
-                <p className={styles.emptyStateDescription}>
+            <div className="text-center py-12">
+                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No items found</h3>
+                <p className="text-muted-foreground">
                     This order doesn't contain any items.
                 </p>
             </div>
@@ -63,41 +62,41 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
 
     return (
         <div className="rounded-md border">
-            <Table className={`${styles.orderTable} ${compact ? styles.compact : ''}`}>
-                <TableHeader className={styles.orderTableHeader}>
+            <Table className={`w-full border-collapse text-sm ${compact ? 'text-xs' : ''}`}>
+                <TableHeader className="bg-muted/50 border-b-2">
                     <TableRow>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Hash className="h-4 w-4" />
                                 #
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
                                 Product
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>Quantity</TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Quantity</TableHead>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Unit Price
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Subtotal
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Co-op Share
                             </div>
                         </TableHead>
-                        <TableHead className={styles.orderTableHeaderCell}>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
                                 Available Stock
@@ -108,14 +107,14 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                 <TableBody>
                     {combinedItems.map((item, index) => {
                         return (
-                            <TableRow key={item.id} className={styles.orderTableRow}>
-                                <TableCell className={styles.orderTableCell}>
+                            <TableRow key={item.id} className="border-b transition-all hover:bg-muted/20">
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="font-mono text-sm">
                                         {index + 1}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="flex flex-col">
                                         <div className="font-medium text-sm">
                                             {item.product.name}
@@ -126,31 +125,31 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="font-semibold text-sm">
                                         {item.quantity} {item.category}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">
                                         ₱{Number(item.unit_price || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="font-semibold text-sm">
                                         ₱{Number(item.subtotal || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="font-semibold text-sm text-green-600">
                                         ₱{Number(item.coop_share || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className={styles.orderTableCell}>
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">
                                         {item.stock_preview ? (
                                             // Stock preview for pending orders
@@ -189,8 +188,8 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                     })}
                     
                     {/* Total Row */}
-                    <TableRow className={`${styles.orderTableRow} border-t-2 border-primary/20 bg-primary/5`}>
-                        <TableCell className={styles.orderTableCell} colSpan={6}>
+                    <TableRow className="border-t-2 border-primary/20 bg-primary/5 font-semibold">
+                        <TableCell className="p-3 text-sm text-foreground align-top border-b" colSpan={6}>
                             <div className="flex justify-end">
                                 <div className="text-right space-y-1">
                                     <div className="flex justify-between gap-4 text-sm">

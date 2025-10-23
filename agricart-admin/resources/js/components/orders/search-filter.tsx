@@ -32,7 +32,7 @@ export const SearchFilter = ({
     const hasActiveFilters = searchTerm || selectedStatus !== 'all' || selectedDeliveryStatus !== 'all';
 
     return (
-        <div className="bg-card border border-border rounded-xl p-6 mb-8 shadow-sm">
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
             <div className="flex flex-col gap-4 mb-4 md:flex-row md:items-center">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
