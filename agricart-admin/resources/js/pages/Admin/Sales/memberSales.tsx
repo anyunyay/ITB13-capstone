@@ -18,6 +18,9 @@ interface MemberSale {
   total_orders: number;
   total_revenue: number;
   total_coop_share: number;
+  total_member_share: number;
+  total_cogs: number;
+  total_gross_profit: number;
   total_quantity_sold: number;
 }
 
@@ -37,7 +40,9 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
   // Calculate summary statistics
   const totalRevenue = memberSales.reduce((sum, member) => sum + Number(member.total_revenue || 0), 0);
   const totalCoopShare = memberSales.reduce((sum, member) => sum + Number(member.total_coop_share || 0), 0);
-  const totalMemberShare = totalRevenue - totalCoopShare;
+  const totalMemberShare = memberSales.reduce((sum, member) => sum + Number(member.total_member_share || 0), 0);
+  const totalCogs = memberSales.reduce((sum, member) => sum + Number(member.total_cogs || 0), 0);
+  const totalGrossProfit = memberSales.reduce((sum, member) => sum + Number(member.total_gross_profit || 0), 0);
   const totalOrders = memberSales.reduce((sum, member) => sum + Number(member.total_orders || 0), 0);
   const totalQuantity = memberSales.reduce((sum, member) => sum + Number(member.total_quantity_sold || 0), 0);
   const averageRevenue = memberSales.length > 0 ? totalRevenue / memberSales.length : 0;
@@ -155,6 +160,32 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                 </CardContent>
               </Card>
 
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">COGS</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">PHP {Number(totalCogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Cost of Goods Sold
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Gross Profit</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">PHP {Number(totalGrossProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Revenue - COGS
+                  </p>
+                </CardContent>
+              </Card>
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
@@ -213,6 +244,8 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                     <TableHead>Total Revenue</TableHead>
                     <TableHead>Co-op Share</TableHead>
                     <TableHead>Revenue</TableHead>
+                    <TableHead>COGS</TableHead>
+                    <TableHead>Gross Profit</TableHead>
                     <TableHead>Quantity Sold</TableHead>
                     <TableHead>Average Revenue</TableHead>
                     <TableHead>Performance</TableHead>
@@ -251,6 +284,12 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                           <div className="font-medium text-blue-600">PHP {Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
                         <TableCell>
+                          <div className="font-medium text-orange-600">PHP {Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-green-600">PHP {Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        </TableCell>
+                        <TableCell>
                           <div className="font-medium">{member.total_quantity_sold}</div>
                         </TableCell>
                         <TableCell>
@@ -274,7 +313,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   })}
                   {memberSales.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground">
+                      <TableCell colSpan={11} className="text-center text-muted-foreground">
                         No member sales data found.
                       </TableCell>
                     </TableRow>

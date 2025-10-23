@@ -236,7 +236,7 @@ class SalesController extends Controller
                 }
             } else {
                 // Member sales data only
-                fputcsv($file, ['Rank', 'Member Name', 'Member Email', 'Total Orders', 'Total Revenue', 'Quantity Sold', 'Average Revenue']);
+                fputcsv($file, ['Rank', 'Member Name', 'Member Email', 'Total Orders', 'Total Revenue', 'Revenue (100%)', 'COGS', 'Gross Profit', 'Quantity Sold', 'Average Revenue']);
                 
                 foreach ($memberSales as $index => $member) {
                     $averageRevenue = $member->total_orders > 0 ? $member->total_revenue / $member->total_orders : 0;
@@ -246,6 +246,9 @@ class SalesController extends Controller
                         $member->member_email,
                         $member->total_orders,
                         number_format($member->total_revenue, 2),
+                        number_format($member->total_member_share, 2),
+                        number_format($member->total_cogs, 2),
+                        number_format($member->total_gross_profit, 2),
                         $member->total_quantity_sold,
                         number_format($averageRevenue, 2)
                     ]);
@@ -331,6 +334,32 @@ class SalesController extends Controller
                         ELSE 0
                     END
                 ) as total_member_share'),
+                DB::raw('SUM(
+                    CASE 
+                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        THEN (audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7
+                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        THEN (audit_trails.quantity * audit_trails.price_pc / 1.3) * 0.7
+                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        THEN (audit_trails.quantity * audit_trails.price_tali / 1.3) * 0.7
+                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        THEN (audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7
+                        ELSE 0
+                    END
+                ) as total_cogs'),
+                DB::raw('SUM(
+                    CASE 
+                        WHEN audit_trails.category = "Kilo" AND audit_trails.price_kilo IS NOT NULL 
+                        THEN audit_trails.quantity * audit_trails.price_kilo - ((audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7)
+                        WHEN audit_trails.category = "Pc" AND audit_trails.price_pc IS NOT NULL 
+                        THEN audit_trails.quantity * audit_trails.price_pc - ((audit_trails.quantity * audit_trails.price_pc / 1.3) * 0.7)
+                        WHEN audit_trails.category = "Tali" AND audit_trails.price_tali IS NOT NULL 
+                        THEN audit_trails.quantity * audit_trails.price_tali - ((audit_trails.quantity * audit_trails.price_tali / 1.3) * 0.7)
+                        WHEN audit_trails.category = "order" AND audit_trails.price_kilo IS NOT NULL 
+                        THEN audit_trails.quantity * audit_trails.price_kilo - ((audit_trails.quantity * audit_trails.price_kilo / 1.3) * 0.7)
+                        ELSE 0
+                    END
+                ) as total_gross_profit'),
                 DB::raw('SUM(audit_trails.quantity) as total_quantity_sold')
             )
             ->groupBy('members.id', 'members.name', 'members.email');

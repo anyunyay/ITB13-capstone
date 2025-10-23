@@ -47,6 +47,8 @@ interface MemberSale {
   total_revenue: number;
   total_coop_share: number;
   total_member_share: number;
+  total_cogs: number;
+  total_gross_profit: number;
   total_quantity_sold: number;
 }
 
@@ -398,6 +400,10 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
             <div className="text-sm">
               <span className="text-green-600">Co-op: ₱{Number(member.total_coop_share || 0).toFixed(2)}</span>
               <span className="text-blue-600 ml-2">Member: ₱{Number(member.total_member_share || 0).toFixed(2)}</span>
+              <div className="mt-1">
+                <span className="text-orange-600">COGS: ₱{Number(member.total_cogs || 0).toFixed(2)}</span>
+                <span className="text-green-600 ml-2">Gross Profit: ₱{Number(member.total_gross_profit || 0).toFixed(2)}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -414,6 +420,18 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
             </p>
             <p className="text-sm">
               <span className="font-medium">Average Revenue:</span> ₱{Number(averageRevenue).toFixed(2)}
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2">Financial Analysis</h4>
+            <p className="text-sm">
+              <span className="font-medium">Revenue (100%):</span> ₱{Number(member.total_member_share || 0).toFixed(2)}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium text-orange-600">COGS:</span> ₱{Number(member.total_cogs || 0).toFixed(2)}
+            </p>
+            <p className="text-sm">
+              <span className="font-medium text-green-600">Gross Profit:</span> ₱{Number(member.total_gross_profit || 0).toFixed(2)}
             </p>
           </div>
           <div>
