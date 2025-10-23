@@ -50,12 +50,28 @@ export default function AppearancePage() {
     const currentLanguage = (user?.language || 'en') as Language;
 
     const { data, setData, patch, processing, errors } = useForm({
-        theme: initialValues.theme,
-        language: initialValues.language,
+        theme: user?.theme || 'system',
+        language: user?.language || 'en',
     });
 
     // Check if any changes have been made
     const hasChanges = data.theme !== initialValues.theme || data.language !== initialValues.language;
+
+    // Sync form state with server-side theme on mount (only once)
+    useEffect(() => {
+        const serverTheme = user?.theme || 'system';
+        const serverLanguage = user?.language || 'en';
+        
+        // Update initial values to match server state
+        setInitialValues({
+            theme: serverTheme,
+            language: serverLanguage,
+        });
+        
+        // Always sync form data with server state on mount
+        setData('theme', serverTheme);
+        setData('language', serverLanguage);
+    }, []); // Only run on mount
 
     // Detect system theme preference
     useEffect(() => {
@@ -70,47 +86,48 @@ export default function AppearancePage() {
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Apply initial theme on component mount and sync with localStorage
+    // Apply theme changes when form data changes or system theme changes
     useEffect(() => {
         const root = document.documentElement;
-        const currentTheme = user?.theme || 'system';
+        const currentTheme = data.theme;
         
-        // Sync server-side theme with localStorage
-        const savedTheme = localStorage.getItem('appearance');
-        if (currentTheme !== savedTheme) {
+        // Only apply theme if it's valid
+        if (currentTheme && ['light', 'dark', 'system'].includes(currentTheme)) {
+            root.classList.remove('light', 'dark');
+            if (currentTheme === 'system') {
+                root.classList.add(systemTheme);
+            } else {
+                root.classList.add(currentTheme);
+            }
+            
+            // Sync with localStorage and cookies for persistence
             localStorage.setItem('appearance', currentTheme);
-            // Also set cookie for SSR
             const setCookie = (name: string, value: string, days = 365) => {
                 const maxAge = days * 24 * 60 * 60;
                 document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
             };
             setCookie('appearance', currentTheme);
         }
-        
-        if (currentTheme === 'system') {
-            root.classList.remove('light', 'dark');
-            root.classList.add(systemTheme);
-        } else {
-            root.classList.remove('light', 'dark');
-            root.classList.add(currentTheme);
-        }
-    }, [user?.theme, systemTheme]);
+    }, [data.theme, systemTheme]);
+
 
     const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
         setData('theme', theme);
     };
 
     const handleSave = () => {
+        // Validate theme before saving
+        if (!['light', 'dark', 'system'].includes(data.theme)) {
+            setFlashMessage({
+                type: 'error',
+                message: 'Invalid theme selection'
+            });
+            setTimeout(() => setFlashMessage(null), 5000);
+            return;
+        }
+
         patch(routes.appearanceUpdate, {
             onSuccess: () => {
-                // Sync with localStorage and cookies for client-side persistence
-                localStorage.setItem('appearance', data.theme);
-                const setCookie = (name: string, value: string, days = 365) => {
-                    const maxAge = days * 24 * 60 * 60;
-                    document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-                };
-                setCookie('appearance', data.theme);
-                
                 setFlashMessage({
                     type: 'success',
                     message: t(currentLanguage, 'appearance.messages.success')
@@ -124,7 +141,8 @@ export default function AppearancePage() {
                     language: data.language,
                 });
             },
-            onError: () => {
+            onError: (errors) => {
+                console.error('Appearance update failed:', errors);
                 setFlashMessage({
                     type: 'error',
                     message: t(currentLanguage, 'appearance.messages.error')
@@ -142,9 +160,6 @@ export default function AppearancePage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: t(currentLanguage, 'appearance.title'), href: routes.appearancePage }
-            ]}
             title={t(currentLanguage, 'appearance.title')}
         >
             <div className="space-y-6">

@@ -34,41 +34,35 @@ const faqs: FAQ[] = [
     {
         id: 2,
         question: "What payment methods do you accept?",
-        answer: "We accept cash on delivery (COD), credit cards, debit cards, and digital wallets like GCash and PayMaya.",
+        answer: "We only accept cash on delivery (COD).",
         category: "Payment"
     },
     {
         id: 3,
         question: "How long does delivery take?",
-        answer: "Delivery typically takes 1-3 business days for Metro Manila and 3-7 business days for provincial areas.",
+        answer: "Delivery typically takes 1-3 business days within Sala.",
         category: "Delivery"
     },
     {
         id: 4,
         question: "Can I track my order?",
-        answer: "Yes! You can track your order status in the 'My Orders' section of your account dashboard.",
+        answer: "Yes! You can track your order status in the 'Order History' section.",
         category: "Tracking"
     },
     {
         id: 5,
-        question: "What is your return policy?",
-        answer: "We offer a 7-day return policy for unopened items. Contact our support team to initiate a return.",
-        category: "Returns"
-    },
-    {
-        id: 6,
         question: "How do I update my account information?",
         answer: "You can update your account information in the Profile section of your account dashboard.",
         category: "Account"
     },
     {
-        id: 7,
+        id: 6,
         question: "Are there any delivery fees?",
-        answer: "Delivery fees vary by location. Free delivery is available for orders over ₱500 in Metro Manila.",
+        answer: "Yes — delivery fees are 10% of the order total.",
         category: "Pricing"
     },
     {
-        id: 8,
+        id: 7,
         question: "How do I contact customer support?",
         answer: "You can contact us through the support form below, email us at support@agricart.com, or call our hotline at (02) 1234-5678.",
         category: "Account"
@@ -117,9 +111,6 @@ export default function HelpPage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: 'Help & Support', href: routes.helpPage }
-            ]}
             title="Help & Support"
         >
             <div className="space-y-6">

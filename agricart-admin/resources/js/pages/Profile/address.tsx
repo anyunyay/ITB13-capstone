@@ -272,9 +272,6 @@ export default function AddressPage() {
 
     return (
         <ProfileWrapper 
-            breadcrumbs={[
-                { title: 'Address Management', href: routes.addresses }
-            ]}
             title="Address Management"
         >
             <div className="space-y-6">
