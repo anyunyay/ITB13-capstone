@@ -41,6 +41,8 @@ interface Stock {
 interface SalesData {
     totalSales: number;
     totalRevenue: number;
+    totalCogs: number;
+    totalGrossProfit: number;
     totalQuantitySold: number;
     salesBreakdown: Array<{
         product_id: number;
@@ -48,6 +50,8 @@ interface SalesData {
         total_quantity: number;
         price_per_unit: number;
         total_revenue: number;
+        total_cogs: number;
+        total_gross_profit: number;
         category: string;
         sales_count: number;
         customers: string[];
@@ -64,6 +68,8 @@ interface ComprehensiveStockData {
     balance_quantity: number;
     unit_price: number;
     total_revenue: number;
+    total_cogs: number;
+    total_gross_profit: number;
     product: Product;
 }
 
@@ -116,6 +122,8 @@ interface Summary {
     total_quantity: number;
     total_revenue: number;
     total_member_share: number;
+    total_cogs: number;
+    total_gross_profit: number;
 }
 
 interface PageProps {
@@ -226,7 +234,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
                     {showTransactions ? (
                         <>
                             <Card className="bg-gray-800 border-gray-700">
@@ -270,6 +278,28 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 <CardContent>
                                     <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_member_share || 0)}</div>
                                     <p className="text-xs text-gray-400">Your product revenue</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gray-800 border-gray-700">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-gray-300">COGS</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-orange-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-orange-400">{formatCurrency(summary?.total_cogs || 0)}</div>
+                                    <p className="text-xs text-gray-400">Cost of goods sold</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gray-800 border-gray-700">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-gray-300">Gross Profit</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-green-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-green-400">{formatCurrency(summary?.total_gross_profit || 0)}</div>
+                                    <p className="text-xs text-gray-400">Revenue minus COGS</p>
                                 </CardContent>
                             </Card>
 
@@ -327,6 +357,30 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 <CardContent>
                                     <div className="text-2xl font-bold text-yellow-400">₱{totalRevenue.toLocaleString()}</div>
                                     <p className="text-xs text-gray-400">From sales</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* COGS Card */}
+                            <Card className="bg-gray-800 border-gray-700">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-white">COGS</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-orange-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-orange-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toLocaleString()}</div>
+                                    <p className="text-xs text-gray-400">Cost of goods sold</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* Gross Profit Card */}
+                            <Card className="bg-gray-800 border-gray-700">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-white">Gross Profit</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-green-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-green-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toLocaleString()}</div>
+                                    <p className="text-xs text-gray-400">Revenue minus COGS</p>
                                 </CardContent>
                             </Card>
                         </>
@@ -458,6 +512,8 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                             <TableHead className="text-gray-300">Sold Quantity</TableHead>
                                             <TableHead className="text-gray-300">Available (Balance)</TableHead>
                                             <TableHead className="text-gray-300">Total Revenue</TableHead>
+                                            <TableHead className="text-gray-300">COGS</TableHead>
+                                            <TableHead className="text-gray-300">Gross Profit</TableHead>
                                             <TableHead className="text-gray-300">Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -497,6 +553,16 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                 <TableCell className="text-gray-300">
                                                     <span className="font-semibold text-yellow-300">
                                                         ₱{item.total_revenue.toLocaleString()}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <span className="font-semibold text-orange-300">
+                                                        ₱{(item.total_cogs || 0).toLocaleString()}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-gray-300">
+                                                    <span className="font-semibold text-green-300">
+                                                        ₱{(item.total_gross_profit || 0).toLocaleString()}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>

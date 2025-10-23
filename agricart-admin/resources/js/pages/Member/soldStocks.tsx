@@ -24,6 +24,8 @@ interface Product {
 interface SalesData {
     totalSales: number;
     totalRevenue: number;
+    totalCogs: number;
+    totalGrossProfit: number;
     totalQuantitySold: number;
     salesBreakdown: Array<{
         product_id: number;
@@ -31,6 +33,8 @@ interface SalesData {
         total_quantity: number;
         price_per_unit: number;
         total_revenue: number;
+        total_cogs: number;
+        total_gross_profit: number;
         category: string;
         sales_count: number;
         customers: string[];
@@ -80,7 +84,7 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                                     <div className="text-center p-4 bg-blue-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalQuantitySold}
@@ -98,6 +102,18 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                             ₱{salesData.totalRevenue.toLocaleString()}
                                         </div>
                                         <div className="text-sm text-yellow-100">Total Revenue</div>
+                                    </div>
+                                    <div className="text-center p-4 bg-orange-600 rounded-lg">
+                                        <div className="text-2xl font-bold text-white">
+                                            ₱{salesData.totalCogs.toLocaleString()}
+                                        </div>
+                                        <div className="text-sm text-orange-100">COGS</div>
+                                    </div>
+                                    <div className="text-center p-4 bg-purple-600 rounded-lg">
+                                        <div className="text-2xl font-bold text-white">
+                                            ₱{salesData.totalGrossProfit.toLocaleString()}
+                                        </div>
+                                        <div className="text-sm text-purple-100">Gross Profit</div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -119,6 +135,8 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                             <TableHead className="text-center text-gray-300">Category</TableHead>
                                             <TableHead className="text-center text-gray-300">Price/Unit</TableHead>
                                             <TableHead className="text-center text-gray-300">Total Revenue</TableHead>
+                                            <TableHead className="text-center text-gray-300">COGS</TableHead>
+                                            <TableHead className="text-center text-gray-300">Gross Profit</TableHead>
                                             <TableHead className="text-center text-gray-300">Customers</TableHead>
                                             <TableHead className="text-center text-gray-300">Sales Count</TableHead>
                                         </TableRow>
@@ -141,15 +159,21 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                                 <TableCell className="text-center text-green-400 font-medium">
                                                     ₱{sale.total_revenue.toLocaleString()}
                                                 </TableCell>
-                                                                                            <TableCell className="text-center text-gray-300">
-                                                <div className="text-xs">
-                                                    {sale.customers.map((customer, idx) => (
-                                                        <div key={idx} className="text-blue-400">
-                                                            {customer}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </TableCell>
+                                                <TableCell className="text-center text-orange-400 font-medium">
+                                                    ₱{sale.total_cogs.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell className="text-center text-purple-400 font-medium">
+                                                    ₱{sale.total_gross_profit.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell className="text-center text-gray-300">
+                                                    <div className="text-xs">
+                                                        {sale.customers.map((customer, idx) => (
+                                                            <div key={idx} className="text-blue-400">
+                                                                {customer}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </TableCell>
                                                 <TableCell className="text-center text-gray-300">
                                                     {sale.sales_count}
                                                 </TableCell>

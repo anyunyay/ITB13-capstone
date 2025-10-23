@@ -36,6 +36,8 @@ interface Stock {
 interface SalesData {
     totalSales: number;
     totalRevenue: number;
+    totalCogs: number;
+    totalGrossProfit: number;
     totalQuantitySold: number;
     salesBreakdown: Array<{
         product_id: number;
@@ -43,6 +45,8 @@ interface SalesData {
         total_quantity: number;
         price_per_unit: number;
         total_revenue: number;
+        total_cogs: number;
+        total_gross_profit: number;
         category: string;
         sales_count: number;
         customers: string[];
@@ -60,6 +64,8 @@ interface Summary {
     completelySoldStocks: number;
     totalSales: number;
     totalRevenue: number;
+    totalCogs: number;
+    totalGrossProfit: number;
     totalQuantitySold: number;
 }
 
@@ -114,7 +120,7 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                     </div>
                 </div>
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
                 {/* Available Stock Card */}
                 <Card className="bg-gray-800 border-gray-700">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -168,6 +174,28 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                     <CardContent>
                         <div className="text-2xl font-bold text-yellow-400">₱{summary.totalRevenue.toLocaleString()}</div>
                         <p className="text-xs text-gray-400">From {summary.totalSales} sales</p>
+                    </CardContent>
+                </Card>
+                {/* COGS Card */}
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-white">COGS</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-orange-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-orange-400">₱{summary.totalCogs.toLocaleString()}</div>
+                        <p className="text-xs text-gray-400">Cost of Goods Sold</p>
+                    </CardContent>
+                </Card>
+                {/* Gross Profit Card */}
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-white">Gross Profit</CardTitle>
+                        <DollarSign className="h-4 w-4 text-green-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-400">₱{summary.totalGrossProfit.toLocaleString()}</div>
+                        <p className="text-xs text-gray-400">Revenue - COGS</p>
                     </CardContent>
                 </Card>
             </div>
