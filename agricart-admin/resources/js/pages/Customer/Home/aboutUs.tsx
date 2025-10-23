@@ -38,8 +38,8 @@ export default function AboutUs({ }: PageProps) {
       const scrollTop = scrollContainer.scrollTop;
       setScrollY(scrollTop);
       // Update the header's scroll state by dispatching a custom event
-      window.dispatchEvent(new CustomEvent('scroll-snap', { 
-        detail: { scrollTop } 
+      window.dispatchEvent(new CustomEvent('scroll-snap', {
+        detail: { scrollTop }
       }));
     };
 
@@ -50,7 +50,7 @@ export default function AboutUs({ }: PageProps) {
   // Scroll listener for parallax effects with throttling
   useEffect(() => {
     let ticking = false;
-    
+
     const throttledScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
@@ -86,28 +86,28 @@ export default function AboutUs({ }: PageProps) {
   }, []);
 
   // Values data
-const values = [
+  const values = [
     {
-        icon: <Leaf className="w-8 h-8" />,
-        title: "Sustainability",
-        description: "We prioritize eco-friendly farming practices that protect the environment while maintaining soil health and biodiversity."
+      icon: <Leaf className="w-8 h-8" />,
+      title: "Sustainability",
+      description: "We prioritize eco-friendly farming practices that protect the environment while maintaining soil health and biodiversity."
     },
     {
-        icon: <Users className="w-8 h-8" />,
-        title: "Community",
-        description: "We build strong relationships with farmers and customers, fostering a supportive network that benefits the whole community."
+      icon: <Users className="w-8 h-8" />,
+      title: "Community",
+      description: "We build strong relationships with farmers and customers, fostering a supportive network that benefits the whole community."
     },
     {
-        icon: <Shield className="w-8 h-8" />,
-        title: "Quality",
-        description: "Committed to delivering top-quality produce through careful selection, handling, and maintaining freshness."
+      icon: <Shield className="w-8 h-8" />,
+      title: "Quality",
+      description: "Committed to delivering top-quality produce through careful selection, handling, and maintaining freshness."
     },
     {
-        icon: <Globe className="w-8 h-8" />,
-        title: "Local Focus",
-        description: "Supporting local farmers and reducing our carbon footprint by sourcing from nearby farms."
+      icon: <Globe className="w-8 h-8" />,
+      title: "Local Focus",
+      description: "Supporting local farmers and reducing our carbon footprint by sourcing from nearby farms."
     }
-];
+  ];
 
   // What we do data
   const services = [
@@ -218,209 +218,217 @@ const values = [
 
         {/* Who We Are Section */}
         <section id="who-we-are" className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-6xl font-bold text-primary mb-6">
-                Who We Are
-              </h2>
-              <div className="space-y-4 sm:space-y-6 text-2xl text-gray-700 leading-relaxed">
-                <p>
-                  SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
-                  of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
-                  passionate about growing the finest produce while protecting our environment.
-                </p>
-                <p>
-                  Our story began with a simple vision: to create a direct connection between local farmers
-                  and consumers, ensuring fair compensation for our agricultural partners while providing
-                  fresh, nutritious food to our community.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <AspectRatio ratio={4 / 3} className="rounded-2xl overflow-hidden shadow-2xl">
-                <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
-                  <div className="text-white text-center p-8">
-                    <div className="text-3xl font-bold mb-4">SMMC Cooperative</div>
-                    <div className="text-lg">Local Farmers Working Together</div>
-                  </div>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+              {/* Content */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-6xl font-bold text-primary mb-6">
+                  Who We Are
+                </h2>
+                <div className="space-y-4 sm:space-y-6 text-2xl text-gray-700 leading-relaxed">
+                  <p>
+                    SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
+                    of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
+                    passionate about growing the finest produce while protecting our environment.
+                  </p>
+                  <p>
+                    Our story began with a simple vision: to create a direct connection between local farmers
+                    and consumers, ensuring fair compensation for our agricultural partners while providing
+                    fresh, nutritious food to our community.
+                  </p>
                 </div>
-              </AspectRatio>
-            </motion.div>
+              </motion.div>
+
+              {/* Image */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                viewport={{ once: true }}
+                className="relative"
+              >
+                <AspectRatio ratio={4 / 3} className="rounded-2xl overflow-hidden shadow-2xl">
+                  <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
+                    <div className="text-white text-center p-8">
+                      <div className="text-3xl font-bold mb-4">SMMC Cooperative</div>
+                      <div className="text-lg">Local Farmers Working Together</div>
+                    </div>
+                  </div>
+                </AspectRatio>
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         {/* Vision & Values Section */}
         <section ref={valuesRef} className="h-screen flex items-center justify-center bg-white relative overflow-hidden snap-start">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <motion.h2
-              className="text-6xl font-bold text-primary mb-4 sm:mb-6"
-              initial={{ opacity: 0, y: 30 }}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
+              className="text-center mb-12 sm:mb-16"
             >
-              Our Vision & Values
-            </motion.h2>
-            <motion.p
+              <motion.h2
+                className="text-6xl font-bold text-primary mb-4 sm:mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+                viewport={{ once: true }}
+              >
+                Our Vision & Values
+              </motion.h2>
+              <motion.p
                 className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
-            >
-                We build sustainable local agriculture that strengthens communities and delivers fresh, nutritious food.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                viewport={{ once: true }}
               >
-                <Card className={`h-full text-center ${styles.cardHover} ${styles.hoverLift}`}>
-                  <CardHeader className="pb-4">
-                    <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary ${styles.iconBounce}`}>
-                      {value.icon}
-                    </div>
-                    <CardTitle className="text-4xl font-bold text-primary">
-                      {value.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl text-gray-600 leading-relaxed">
-                      {value.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                We build sustainable local agriculture that strengthens communities and delivers fresh, nutritious food.
+              </motion.p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+              {values.map((value, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
+                  <Card className={`h-full text-center ${styles.cardHover} ${styles.hoverLift}`}>
+                    <CardHeader className="pb-4">
+                      <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary ${styles.iconBounce}`}>
+                        {value.icon}
+                      </div>
+                      <CardTitle className="text-4xl font-bold text-primary">
+                        {value.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl text-gray-600 leading-relaxed">
+                        {value.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         {/* Members Section */}
         <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-white relative overflow-hidden snap-start">
-        <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
-          {/* New Image and Content Layout */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            viewport={{ once: true }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center"
-          >
-            {/* Left Side - Overlapping Images */}
+          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
+            {/* New Image and Content Layout */}
             <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center"
             >
-              {/* Bottom Image - Portrait/Square (Background) */}
+              {/* Left Side - Overlapping Images */}
               <motion.div
-                className="absolute -bottom-20 right-0 z-10 w-7/10"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                className="relative"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                <AspectRatio ratio={4 / 5} className="rounded-2xl overflow-hidden shadow-lg">
-                  <img
-                    src="/images/frontpage/pexels-pixabay-265216.jpg"
-                    alt="Community farmers working together"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </AspectRatio>
+                {/* Bottom Image - Portrait/Square (Background) */}
+                <motion.div
+                  className="absolute -bottom-30 right-0 z-10 w-7/10"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
+                  <AspectRatio ratio={4 / 5} className="rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src="/images/frontpage/pexels-pixabay-265216.jpg"
+                      alt="Community farmers working together"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </AspectRatio>
+                </motion.div>
+
+                {/* Top Image - Landscape (Foreground) */}
+                <motion.div
+                  className="relative -bottom-50 right-5 z-20 w-9/10"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
+                  <AspectRatio ratio={16 / 9} className="rounded-2xl overflow-hidden shadow-xl">
+                    <img
+                      src="/images/frontpage/pexels-pixabay-265216.jpg"
+                      alt="Sustainable farming practices"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </AspectRatio>
+                </motion.div>
               </motion.div>
 
-              {/* Top Image - Landscape (Foreground) */}
+              {/* Right Side - Content */}
               <motion.div
-                className="relative -bottom-40 right-5 z-20 w-9/10"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+                className="space-y-6"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                <AspectRatio ratio={16 / 9} className="rounded-2xl overflow-hidden shadow-xl">
-                  <img
-                    src="/images/frontpage/pexels-pixabay-265216.jpg"
-                    alt="Sustainable farming practices"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </AspectRatio>
+                <motion.h2
+                  className="text-6xl font-bold text-primary"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
+                  Agriculture Excellence
+                </motion.h2>
+                <motion.p
+                  className="text-2xl text-gray-600 leading-relaxed"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                >
+                  We work directly with local farmers to source the freshest, highest-quality produce through sustainable farming practices that protect our environment and support our community.
+                </motion.p>
               </motion.div>
             </motion.div>
+          </div>
+        </section>
+      </div>
 
-            {/* Right Side - Content */}
-            <motion.div
-              className="space-y-6"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              viewport={{ once: true }}
-            >
-              <motion.h2
-                className="text-6xl font-bold text-primary"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-                viewport={{ once: true }}
-              >
-                Agriculture Excellence
-              </motion.h2>
-              <motion.p
-                className="text-2xl text-gray-600 leading-relaxed"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
-                viewport={{ once: true }}
-              >
-                We work directly with local farmers to source the freshest, highest-quality produce through sustainable farming practices that protect our environment and support our community.
-              </motion.p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-        {/* Services Section */}
-        <section ref={servicesRef} className="h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden snap-start">
-        <div className="max-w-[90vw] mx-auto">
+      {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
+      <section ref={servicesRef} className="h-[120vh] flex items-center justify-center bg-gray-50 relative overflow-hidden" style={{
+        backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
+        {/* Background overlay for better content readability */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="max-w-[90vw] mx-auto relative z-10">
           <div className="space-y-4">
             {services.map((service, index) => (
               <motion.div
@@ -477,19 +485,18 @@ const values = [
         </div>
       </section>
 
-        {/* Footer */}
-        <div className="relative z-20 w-full snap-start">
-          <Footer
-            companyName="SMMC Cooperative"
-            facebookUrl="https://facebook.com/smmccooperative"
-            emailAddress="contact@smmccooperative.com"
-            physicalAddress="Cabuyao, Laguna, Philippines"
-            navigationLinks={[
-              { title: "Privacy Policy", href: "/privacy" },
-              { title: "Terms of Service", href: "/terms" }
-            ]}
-          />
-        </div>
+      {/* Footer - Outside scroll-snap container */}
+      <div className="relative z-20 w-full">
+        <Footer
+          companyName="SMMC Cooperative"
+          facebookUrl="https://facebook.com/smmccooperative"
+          emailAddress="contact@smmccooperative.com"
+          physicalAddress="Cabuyao, Laguna, Philippines"
+          navigationLinks={[
+            { title: "Privacy Policy", href: "/privacy" },
+            { title: "Terms of Service", href: "/terms" }
+          ]}
+        />
       </div>
     </AppHeaderLayout>
   );

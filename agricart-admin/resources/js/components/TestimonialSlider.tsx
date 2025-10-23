@@ -74,7 +74,7 @@ export function TestimonialSlider({
   return (
     <section 
       ref={sectionRef}
-      className="relative min-h-screen overflow-hidden"
+      className="relative min-h-screen overflow-hidden p-10"
     >
       {/* Shared Parallax Background */}
       <div className="absolute inset-0 will-change-transform overflow-hidden">
