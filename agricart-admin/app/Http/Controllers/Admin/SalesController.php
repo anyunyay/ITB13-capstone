@@ -41,11 +41,17 @@ class SalesController extends Controller
         $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
 
         // Calculate summary statistics from both delivered and pending orders
+        $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
+        $totalCogs = ($totalMemberShare / 1.3) * 0.7;
+        $totalGrossProfit = $totalMemberShare - $totalCogs;
+        
         $summary = [
             'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
             'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
             'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
-            'total_member_share' => $salesRaw->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_member_share' => $totalMemberShare,
+            'total_cogs' => $totalCogs,
+            'total_gross_profit' => $totalGrossProfit,
             'total_orders' => $salesRaw->count() + $pendingOrders->count(),
             'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
                 ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
@@ -56,6 +62,9 @@ class SalesController extends Controller
 
         // Map sales with customer confirmation data
         $sales = $salesRaw->map(function ($sale) {
+            $cogs = ($sale->member_share / 1.3) * 0.7;
+            $grossProfit = $sale->member_share - $cogs;
+            
             return [
                 'id' => $sale->id,
                 'customer' => [
@@ -68,6 +77,8 @@ class SalesController extends Controller
                 'subtotal' => $sale->subtotal,
                 'coop_share' => $sale->coop_share,
                 'member_share' => $sale->member_share,
+                'cogs' => $cogs,
+                'gross_profit' => $grossProfit,
                 'delivery_address' => $sale->delivery_address,
                 'admin' => $sale->admin ? [
                     'id' => $sale->admin->id,
@@ -138,11 +149,17 @@ class SalesController extends Controller
         $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
 
         // Calculate summary statistics from both delivered and pending orders
+        $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
+        $totalCogs = ($totalMemberShare / 1.3) * 0.7;
+        $totalGrossProfit = $totalMemberShare - $totalCogs;
+        
         $summary = [
             'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
             'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
             'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
-            'total_member_share' => $salesRaw->sum('member_share') + $pendingOrders->sum('member_share'),
+            'total_member_share' => $totalMemberShare,
+            'total_cogs' => $totalCogs,
+            'total_gross_profit' => $totalGrossProfit,
             'total_orders' => $salesRaw->count() + $pendingOrders->count(),
             'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
                 ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
@@ -199,12 +216,18 @@ class SalesController extends Controller
             
             if ($exportType === 'sales') {
                 // Sales data only
-                fputcsv($file, ['Sale ID', 'Total Amount', 'Delivered Date', 'Customer', 'Processed By', 'Logistic']);
+                fputcsv($file, ['Sale ID', 'Total Amount', 'Revenue (100%)', 'COGS', 'Gross Profit', 'Delivered Date', 'Customer', 'Processed By', 'Logistic']);
                 
                 foreach ($salesRaw as $sale) {
+                    $cogs = ($sale->member_share / 1.3) * 0.7;
+                    $grossProfit = $sale->member_share - $cogs;
+                    
                     fputcsv($file, [
                         $sale->id,
                         number_format($sale->total_amount, 2),
+                        number_format($sale->member_share, 2),
+                        number_format($cogs, 2),
+                        number_format($grossProfit, 2),
                         $sale->delivered_at->format('Y-m-d H:i:s'),
                         $sale->customer->name ?? 'N/A',
                         $sale->admin->name ?? 'N/A',

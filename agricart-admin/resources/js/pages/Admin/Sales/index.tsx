@@ -19,6 +19,12 @@ interface Sale {
     email: string;
   };
   total_amount: number;
+  subtotal?: number;
+  coop_share?: number;
+  member_share: number;
+  cogs: number;
+  gross_profit: number;
+  status?: string;
   created_at: string;
   admin?: {
     name: string;
@@ -35,6 +41,7 @@ interface MemberSale {
   total_orders: number;
   total_revenue: number;
   total_coop_share: number;
+  total_member_share: number;
   total_quantity_sold: number;
 }
 
@@ -46,6 +53,8 @@ interface SalesPageProps {
     total_subtotal: number;
     total_coop_share: number;
     total_member_share: number;
+    total_cogs: number;
+    total_gross_profit: number;
     total_orders: number;
     average_order_value: number;
     average_coop_share: number;
@@ -119,18 +128,44 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenue (100%)</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Full product revenue to members
-                  </p>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revenue (100%)</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">
+                  Full product revenue to members
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">COGS</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">PHP {Number(summary.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">
+                  Cost of Goods Sold
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Gross Profit</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">
+                  Revenue - COGS
+                </p>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -193,6 +228,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                         <TableHead>Total Amount</TableHead>
                         <TableHead>Co-op Share</TableHead>
                         <TableHead>Revenue</TableHead>
+                        <TableHead>COGS</TableHead>
+                        <TableHead>Gross Profit</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Processed By</TableHead>
                         <TableHead>Logistic</TableHead>
@@ -211,6 +248,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell className="font-medium">PHP {Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-green-600 font-medium">PHP {Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-blue-600 font-medium">PHP {Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium">PHP {Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>{sale.admin?.name || 'N/A'}</TableCell>
                           <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
@@ -218,7 +257,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       ))}
                       {sales.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center text-muted-foreground">
+                          <TableCell colSpan={10} className="text-center text-muted-foreground">
                             No sales found.
                           </TableCell>
                         </TableRow>
@@ -247,6 +286,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                         <TableHead>Subtotal</TableHead>
                         <TableHead>Co-op Share</TableHead>
                         <TableHead>Revenue</TableHead>
+                        <TableHead>COGS</TableHead>
+                        <TableHead>Gross Profit</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
@@ -265,6 +306,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell className="font-medium">PHP {Number(order.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-green-600 font-medium">PHP {Number(order.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-blue-600 font-medium">PHP {Number(order.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium">PHP {Number(((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">PHP {Number((order.member_share || 0) - ((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>
                             <Badge variant={order.status === 'pending' ? 'secondary' : order.status === 'approved' ? 'default' : 'destructive'}>
@@ -275,7 +318,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       ))}
                       {pendingOrders.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center text-muted-foreground">
+                          <TableCell colSpan={10} className="text-center text-muted-foreground">
                             No pending orders found.
                           </TableCell>
                         </TableRow>

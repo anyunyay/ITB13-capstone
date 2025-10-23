@@ -27,6 +27,9 @@ interface Sale {
   };
   total_amount: number;
   coop_share: number;
+  member_share: number;
+  cogs: number;
+  gross_profit: number;
   created_at: string;
   admin?: {
     name: string;
@@ -43,6 +46,7 @@ interface MemberSale {
   total_orders: number;
   total_revenue: number;
   total_coop_share: number;
+  total_member_share: number;
   total_quantity_sold: number;
 }
 
@@ -50,6 +54,8 @@ interface ReportSummary {
   total_revenue: number;
   total_coop_share: number;
   total_member_share: number;
+  total_cogs: number;
+  total_gross_profit: number;
   total_orders: number;
   average_order_value: number;
   average_coop_share: number;
@@ -220,6 +226,32 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">COGS</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">₱{Number(summary.total_cogs).toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Cost of Goods Sold
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Gross Profit</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_gross_profit).toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Revenue - COGS
+                </p>
+              </CardContent>
+            </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
@@ -250,6 +282,8 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                       <TableHead className="text-center">Total Amount</TableHead>
                       <TableHead className="text-center">Co-op Share</TableHead>
                       <TableHead className="text-center">Revenue</TableHead>
+                      <TableHead className="text-center">COGS</TableHead>
+                      <TableHead className="text-center">Gross Profit</TableHead>
                       <TableHead className="text-center">Processed By</TableHead>
                       <TableHead className="text-center">Logistic</TableHead>
                       <TableHead className="text-center">Created</TableHead>
@@ -272,6 +306,16 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                         <TableCell>
                           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                             ₱{Number(sale.member_share || 0).toFixed(2)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                            ₱{Number(sale.cogs || 0).toFixed(2)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            ₱{Number(sale.gross_profit || 0).toFixed(2)}
                           </Badge>
                         </TableCell>
                         <TableCell>
