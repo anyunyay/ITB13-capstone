@@ -74,6 +74,20 @@ const categories = ["All", "Ordering", "Payment", "Delivery", "Tracking", "Retur
 export default function HelpPage() {
     const { user } = usePage<PageProps>().props;
     
+    // Only allow Customer users to access the Help page
+    if (user.type !== 'customer') {
+        return (
+            <ProfileWrapper title="Access Denied">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-card-foreground mb-2">Access Denied</h2>
+                        <p className="text-muted-foreground">This page is only available for Customer users.</p>
+                    </div>
+                </div>
+            </ProfileWrapper>
+        );
+    }
+    
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
         const userType = user.type;

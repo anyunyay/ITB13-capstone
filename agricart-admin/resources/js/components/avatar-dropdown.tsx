@@ -74,12 +74,14 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                                 Appearance
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link className="block w-full" href={routes.help} as="button" prefetch onClick={cleanup}>
-                                <HelpCircle className="mr-2 h-4 w-4" />
-                                Help
-                            </Link>
-                        </DropdownMenuItem>
+                        {user.type === 'customer' && (
+                            <DropdownMenuItem asChild>
+                                <Link className="block w-full" href={routes.help} as="button" prefetch onClick={cleanup}>
+                                    <HelpCircle className="mr-2 h-4 w-4" />
+                                    Help
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
