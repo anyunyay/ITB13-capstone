@@ -420,6 +420,11 @@ Route::prefix('api/lockout')->name('api.lockout.')->middleware(['login.rate.limi
     Route::post('/logistic/check', [\App\Http\Controllers\Api\LockoutStatusController::class, 'checkLogisticLockout'])->name('logistic.check');
 });
 
+// User appearance API routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::patch('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'update'])->name('user.appearance.update');
+    Route::get('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'show'])->name('user.appearance.show');
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

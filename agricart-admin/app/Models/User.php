@@ -45,6 +45,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'current_session_id',
         // Email verification
         'email_verified_at',
+        // Appearance settings
+        'appearance',
     ];
 
     /**

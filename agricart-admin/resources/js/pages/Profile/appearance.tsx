@@ -9,6 +9,10 @@ import { Palette, Sun, Moon, Monitor, Globe } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { t, Language } from '@/lib/translations';
 import { FlashMessage } from '@/components/flash-message';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/hooks/useToast';
+import { useThemeChange, useEffectiveTheme } from '@/hooks/useThemeChange';
+import { ToastContainer } from '@/components/ui/toast';
 
 interface PageProps {
     user: {
@@ -25,6 +29,10 @@ interface PageProps {
 export default function AppearancePage() {
     // Appearance settings page - notifications removed
     const { user } = usePage<PageProps>().props;
+    const { theme, setTheme, isLoading: themeLoading, error: themeError } = useTheme();
+    const { toasts, removeToast, showSuccess, showError } = useToast();
+    const themeChangeKey = useThemeChange(); // Force re-render on theme change
+    const effectiveTheme = useEffectiveTheme(); // Get current effective theme
     
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -86,54 +94,35 @@ export default function AppearancePage() {
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
-    // Apply theme changes when form data changes or system theme changes
+    // Sync form data with theme context when theme changes
     useEffect(() => {
-        const root = document.documentElement;
-        const currentTheme = data.theme;
-        
-        // Only apply theme if it's valid
-        if (currentTheme && ['light', 'dark', 'system'].includes(currentTheme)) {
-            root.classList.remove('light', 'dark');
-            if (currentTheme === 'system') {
-                root.classList.add(systemTheme);
-            } else {
-                root.classList.add(currentTheme);
-            }
-            
-            // Sync with localStorage and cookies for persistence
-            localStorage.setItem('appearance', currentTheme);
-            const setCookie = (name: string, value: string, days = 365) => {
-                const maxAge = days * 24 * 60 * 60;
-                document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-            };
-            setCookie('appearance', currentTheme);
+        if (data.theme !== theme) {
+            setData('theme', theme);
         }
-    }, [data.theme, systemTheme]);
+    }, [theme]);
 
 
-    const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
-        setData('theme', theme);
+    const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
+        try {
+            setData('theme', newTheme);
+            await setTheme(newTheme);
+            showSuccess(t(currentLanguage, 'appearance.messages.success'));
+        } catch (error) {
+            console.error('Theme change failed:', error);
+            showError(t(currentLanguage, 'appearance.messages.error'));
+        }
     };
 
     const handleSave = () => {
         // Validate theme before saving
         if (!['light', 'dark', 'system'].includes(data.theme)) {
-            setFlashMessage({
-                type: 'error',
-                message: 'Invalid theme selection'
-            });
-            setTimeout(() => setFlashMessage(null), 5000);
+            showError('Invalid theme selection');
             return;
         }
 
         patch(routes.appearanceUpdate, {
             onSuccess: () => {
-                setFlashMessage({
-                    type: 'success',
-                    message: t(currentLanguage, 'appearance.messages.success')
-                });
-                // Clear the flash message after 5 seconds
-                setTimeout(() => setFlashMessage(null), 5000);
+                showSuccess(t(currentLanguage, 'appearance.messages.success'));
                 
                 // Update initial values to current values after successful save
                 setInitialValues({
@@ -143,12 +132,7 @@ export default function AppearancePage() {
             },
             onError: (errors) => {
                 console.error('Appearance update failed:', errors);
-                setFlashMessage({
-                    type: 'error',
-                    message: t(currentLanguage, 'appearance.messages.error')
-                });
-                // Clear the flash message after 5 seconds
-                setTimeout(() => setFlashMessage(null), 5000);
+                showError(t(currentLanguage, 'appearance.messages.error'));
             },
         });
     };
@@ -161,8 +145,9 @@ export default function AppearancePage() {
     return (
         <ProfileWrapper 
             title={t(currentLanguage, 'appearance.title')}
+            key={themeChangeKey} // Force re-render on theme change
         >
-            <div className="space-y-6">
+            <div className="space-y-6" key={`content-${themeChangeKey}`}>
                 {/* Flash Messages */}
                 {flashMessage && (
                     <div 
@@ -213,10 +198,11 @@ export default function AppearancePage() {
                                     <div className="p-5 bg-muted/80 rounded-xl border border-border/50">
                                         <div className="grid grid-cols-3 gap-4">
                                             <Button
-                                                variant={data.theme === 'light' ? 'default' : 'outline'}
+                                                variant={theme === 'light' ? 'default' : 'outline'}
                                                 onClick={() => handleThemeChange('light')}
+                                                disabled={themeLoading}
                                                 className={`flex flex-col items-center gap-3 h-auto py-6 transition-all duration-300 rounded-xl ${
-                                                    data.theme === 'light' 
+                                                    theme === 'light' 
                                                         ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105' 
                                                         : 'border-2 border-border/50 text-muted-foreground hover:bg-primary/10 hover:border-primary hover:text-primary'
                                                 }`}
@@ -225,10 +211,11 @@ export default function AppearancePage() {
                                                 <span className="text-sm font-semibold">{t(currentLanguage, 'appearance.theme.light')}</span>
                                             </Button>
                                             <Button
-                                                variant={data.theme === 'dark' ? 'default' : 'outline'}
+                                                variant={theme === 'dark' ? 'default' : 'outline'}
                                                 onClick={() => handleThemeChange('dark')}
+                                                disabled={themeLoading}
                                                 className={`flex flex-col items-center gap-3 h-auto py-6 transition-all duration-300 rounded-xl ${
-                                                    data.theme === 'dark' 
+                                                    theme === 'dark' 
                                                         ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105' 
                                                         : 'border-2 border-border/50 text-muted-foreground hover:bg-primary/10 hover:border-primary hover:text-primary'
                                                 }`}
@@ -237,10 +224,11 @@ export default function AppearancePage() {
                                                 <span className="text-sm font-semibold">{t(currentLanguage, 'appearance.theme.dark')}</span>
                                             </Button>
                                             <Button
-                                                variant={data.theme === 'system' ? 'default' : 'outline'}
+                                                variant={theme === 'system' ? 'default' : 'outline'}
                                                 onClick={() => handleThemeChange('system')}
+                                                disabled={themeLoading}
                                                 className={`flex flex-col items-center gap-3 h-auto py-6 transition-all duration-300 rounded-xl ${
-                                                    data.theme === 'system' 
+                                                    theme === 'system' 
                                                         ? 'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105' 
                                                         : 'border-2 border-border/50 text-muted-foreground hover:bg-primary/10 hover:border-primary hover:text-primary'
                                                 }`}
@@ -249,7 +237,7 @@ export default function AppearancePage() {
                                                 <span className="text-sm font-semibold">{t(currentLanguage, 'appearance.theme.system')}</span>
                                             </Button>
                                         </div>
-                                        {data.theme === 'system' && (
+                                        {theme === 'system' && (
                                             <div className="mt-4 text-sm text-muted-foreground bg-muted/80 p-3 rounded-lg border border-border/50">
                                                 {t(currentLanguage, 'appearance.theme.systemDescription', { theme: systemTheme })}
                                             </div>
@@ -305,6 +293,9 @@ export default function AppearancePage() {
                     </Button>
                 </div>
             </div>
+            
+            {/* Toast Container */}
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
         </ProfileWrapper>
     );
 }
