@@ -79,6 +79,9 @@
             <tr>
                 <th>Sale ID</th>
                 <th>Total Amount</th>
+                <th>Revenue (100%)</th>
+                <th>COGS</th>
+                <th>Gross Profit</th>
                 <th>Processed By</th>
                 <th>Logistic</th>
                 <th>Created Date</th>
@@ -86,9 +89,16 @@
         </thead>
         <tbody>
             @foreach($sales as $sale)
+            @php
+                $cogs = ($sale->member_share / 1.3) * 0.7;
+                $grossProfit = $sale->member_share - $cogs;
+            @endphp
             <tr>
                 <td>#{{ $sale->id }}</td>
                 <td>PHP {{ number_format($sale->total_amount, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($sale->member_share, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($cogs, 2, '.', ',') }}</td>
+                <td>PHP {{ number_format($grossProfit, 2, '.', ',') }}</td>
                 <td>{{ $sale->admin->name ?? 'N/A' }}</td>
                 <td>{{ $sale->logistic->name ?? 'N/A' }}</td>
                 <td>{{ $sale->created_at->format('Y-m-d H:i') }}</td>
