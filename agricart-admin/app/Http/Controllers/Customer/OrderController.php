@@ -95,7 +95,24 @@ class OrderController extends Controller
 
         // Filter by delivery status (primary filter for tabs)
         if ($deliveryStatus !== 'all') {
-            $salesAuditQuery->where('delivery_status', $deliveryStatus);
+            if ($deliveryStatus === 'pending') {
+                // Pending tab: show orders with status 'pending' or 'delayed', or approved orders still being prepared
+                $salesAuditQuery->where(function($query) {
+                    $query->whereIn('status', ['pending', 'delayed'])
+                          ->orWhere(function($subQuery) {
+                              $subQuery->where('status', 'approved')
+                                       ->where('delivery_status', 'pending');
+                          });
+                });
+            } elseif ($deliveryStatus === 'out_for_delivery') {
+                // Out for Delivery tab: show approved orders that are ready for pickup or out for delivery
+                $salesAuditQuery->where('status', 'approved')
+                    ->whereIn('delivery_status', ['ready_to_pickup', 'out_for_delivery']);
+            } elseif ($deliveryStatus === 'delivered') {
+                // Delivered tab: show approved orders that are delivered (but not yet in sales table)
+                $salesAuditQuery->where('status', 'approved')
+                    ->where('delivery_status', 'delivered');
+            }
         }
 
         // Filter by status (secondary filter)
@@ -144,15 +161,34 @@ class OrderController extends Controller
             ->values();
 
         // Get counts for delivery status tabs (avoid double counting)
-        $salesCount = $user->sales()->count();
-        $salesAuditCount = $user->salesAudit()->count();
         $existingSalesIds = $user->sales()->pluck('sales_audit_id')->filter();
-        $uniqueSalesAuditCount = $user->salesAudit()->whereNotIn('id', $existingSalesIds)->count();
+        $salesCount = $user->sales()->count();
         
-        $allOrdersCount = $salesCount + $uniqueSalesAuditCount;
-        $pendingDeliveryOrders = $user->salesAudit()->where('delivery_status', 'pending')->whereNotIn('id', $existingSalesIds)->count();
-        $outForDeliveryOrders = $user->salesAudit()->where('delivery_status', 'out_for_delivery')->whereNotIn('id', $existingSalesIds)->count();
-        $deliveredOrders = $salesCount; // All sales table orders are delivered
+        // Calculate counts for each tab based on actual status logic
+        $pendingOrders = $user->salesAudit()
+            ->where(function($query) {
+                $query->whereIn('status', ['pending', 'delayed'])
+                      ->orWhere(function($subQuery) {
+                          $subQuery->where('status', 'approved')
+                                   ->where('delivery_status', 'pending');
+                      });
+            })
+            ->whereNotIn('id', $existingSalesIds)
+            ->count();
+            
+        $outForDeliveryOrders = $user->salesAudit()
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['ready_to_pickup', 'out_for_delivery'])
+            ->whereNotIn('id', $existingSalesIds)
+            ->count();
+            
+        $deliveredOrders = $user->salesAudit()
+            ->where('status', 'approved')
+            ->where('delivery_status', 'delivered')
+            ->whereNotIn('id', $existingSalesIds)
+            ->count() + $salesCount; // Include sales table orders
+        
+        $allOrdersCount = $pendingOrders + $outForDeliveryOrders + $deliveredOrders;
 
         return Inertia::render('Customer/Order History/index', [
             'orders' => $allOrders,
@@ -160,7 +196,7 @@ class OrderController extends Controller
             'currentDeliveryStatus' => $deliveryStatus,
             'counts' => [
                 'all' => $allOrdersCount,
-                'pending' => $pendingDeliveryOrders,
+                'pending' => $pendingOrders,
                 'approved' => $outForDeliveryOrders,
                 'rejected' => 0, // Not used for delivery status tabs
                 'delivered' => $deliveredOrders,
@@ -263,7 +299,24 @@ class OrderController extends Controller
 
         // Filter by delivery status (primary filter)
         if ($deliveryStatus !== 'all') {
-            $salesAuditQuery->where('delivery_status', $deliveryStatus);
+            if ($deliveryStatus === 'pending') {
+                // Pending tab: show orders with status 'pending' or 'delayed', or approved orders still being prepared
+                $salesAuditQuery->where(function($query) {
+                    $query->whereIn('status', ['pending', 'delayed'])
+                          ->orWhere(function($subQuery) {
+                              $subQuery->where('status', 'approved')
+                                       ->where('delivery_status', 'pending');
+                          });
+                });
+            } elseif ($deliveryStatus === 'out_for_delivery') {
+                // Out for Delivery tab: show approved orders that are ready for pickup or out for delivery
+                $salesAuditQuery->where('status', 'approved')
+                    ->whereIn('delivery_status', ['ready_to_pickup', 'out_for_delivery']);
+            } elseif ($deliveryStatus === 'delivered') {
+                // Delivered tab: show approved orders that are delivered (but not yet in sales table)
+                $salesAuditQuery->where('status', 'approved')
+                    ->where('delivery_status', 'delivered');
+            }
         }
 
         // Filter by status (secondary filter)

@@ -37,7 +37,7 @@ interface Order {
   id: number;
   total_amount: number;
   status: 'pending' | 'approved' | 'rejected' | 'delayed' | 'cancelled' | 'delivered';
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered' | null;
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered' | null;
   created_at: string;
   delivered_at?: string;
   admin_notes?: string;
@@ -386,9 +386,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             </div>
                             <span className="ml-2 text-sm font-medium">Preparing</span>
                           </div>
-                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
-                              {(order.delivery_status || 'pending') === 'out_for_delivery' ? '2' : '✓'}
+                          <div className={`flex items-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
+                              {(order.delivery_status || 'pending') === 'ready_to_pickup' ? '2' : '✓'}
                             </div>
                             <span className="ml-2 text-sm font-medium">Ready</span>
                           </div>
