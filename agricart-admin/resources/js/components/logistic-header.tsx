@@ -18,7 +18,7 @@ export function LogisticHeader() {
     };
 
     return (
-        <header className="bg-card border-b border-border px-6 py-4 shadow-sm">
+        <header className="bg-card border-b border-border px-6 py-4 shadow-sm relative z-10">
             <div className="flex items-center justify-between">
                 {/* Logo and Navigation */}
                 <div className="flex items-center space-x-8">

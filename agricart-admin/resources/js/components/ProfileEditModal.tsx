@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -109,6 +109,20 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     // Track if name has been modified
     const isNameModified = nameData.name !== (user?.name || '');
 
+    // Cleanup effect to ensure proper modal state management
+    useEffect(() => {
+        if (!isOpen) {
+            // Reset all modal states when closed
+            setIsEmailChangeModalOpen(false);
+            setIsPhoneChangeModalOpen(false);
+            setSelectedAvatar(null);
+            setAvatarPreview(null);
+            if (avatarInputRef.current) {
+                avatarInputRef.current.value = '';
+            }
+        }
+    }, [isOpen]);
+
     const handleClose = () => {
         // Reset form state when closing
         setNameData('name', user?.name || '');
@@ -117,6 +131,9 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         if (avatarInputRef.current) {
             avatarInputRef.current.value = '';
         }
+        // Close any open sub-modals first
+        setIsEmailChangeModalOpen(false);
+        setIsPhoneChangeModalOpen(false);
         onClose();
     };
 
@@ -197,7 +214,11 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     return (
         <>
             <Dialog open={isOpen} onOpenChange={handleClose}>
-                <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+                <DialogContent 
+                    className="sm:max-w-lg max-h-[85vh] overflow-y-auto"
+                    onPointerDownOutside={(e) => e.preventDefault()}
+                    onEscapeKeyDown={handleClose}
+                >
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <User className="h-5 w-5" />

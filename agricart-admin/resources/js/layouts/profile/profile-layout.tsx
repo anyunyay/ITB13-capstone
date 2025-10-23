@@ -15,7 +15,7 @@ export default function ProfileLayout({ children, breadcrumbs = [], title }: Pro
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
             }}></div>
             
-            <div className="relative z-10 pt-20 pb-10">
+            <div className="relative z-10 pt-20 pb-10" style={{ isolation: 'isolate' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumbs */}
                     {breadcrumbs.length > 0 && (
