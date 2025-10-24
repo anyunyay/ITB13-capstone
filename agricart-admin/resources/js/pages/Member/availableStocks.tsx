@@ -51,7 +51,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
     return (
         <div className="min-h-screen bg-gray-900">
             <MemberHeader />
-            <div className="p-6">
+            <div className="p-6 pt-25">
                 <Head title="Available Stocks" />
                 
                 {/* Header */}

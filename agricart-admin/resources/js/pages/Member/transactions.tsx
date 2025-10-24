@@ -164,7 +164,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
         return (
             <div className="min-h-screen bg-gray-900">
                 <MemberHeader />
-                <div className="p-6">
+                <div className="p-6 pt-25">
                     <div className="text-center py-12">
                         <div className="text-white text-xl">Loading...</div>
                     </div>
@@ -178,7 +178,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
         return (
             <div className="min-h-screen bg-gray-900">
                 <MemberHeader />
-                <div className="p-6">
+                <div className="p-6 pt-25">
                     <div className="text-center py-12">
                         <div className="text-white text-xl">Loading transactions...</div>
                     </div>
@@ -190,7 +190,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
     return (
         <div className="min-h-screen bg-gray-900">
             <MemberHeader />
-            <div className="p-6">
+            <div className="p-6 pt-15">
                 <Head title="Member Transactions" />
                 
                 {/* Header */}

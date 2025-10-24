@@ -138,7 +138,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
   return (
     <div className="min-h-screen bg-gray-900">
       <MemberHeader />
-      <div className="p-6">
+      <div className="p-6 pt-25">
         <Head title="Revenue Report" />
         
         {/* Header */}

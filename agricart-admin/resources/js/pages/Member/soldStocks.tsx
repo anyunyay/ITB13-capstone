@@ -57,7 +57,7 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
     return (
         <div className="min-h-screen bg-gray-900">
             <MemberHeader />
-            <div className="p-6">
+            <div className="p-6 pt-25">
                 <Head title="Sold Stocks" />
                 <div className="mb-6">
                     <Button asChild variant="outline" className="mb-4 border-gray-600 text-gray-300 hover:bg-gray-700">
