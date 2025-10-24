@@ -34,11 +34,11 @@ export const LogisticAssignment = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Logistic Assignment</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Logistic Assignment</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {logistic ? (
-          <div className="p-3 bg-green-50 rounded">
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm font-medium text-green-800">
               Assigned to: {logistic.name}
             </p>

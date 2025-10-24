@@ -15,12 +15,12 @@ export const AdminNotes = ({ adminNotes, admin }: AdminNotesProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Admin Notes</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Admin Notes</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-gray-700">{adminNotes}</p>
+        <p className="text-sm text-foreground leading-relaxed">{adminNotes}</p>
         {admin && (
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-muted-foreground mt-3">
             Added by {admin.name}
           </p>
         )}

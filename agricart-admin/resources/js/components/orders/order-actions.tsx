@@ -51,18 +51,18 @@ export const OrderActions = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Actions</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Actions</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {status === 'delayed' && (
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded">
+          <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
             <p className="text-sm text-orange-800">
               <strong>This order is delayed.</strong> It has exceeded the standard 24-hour processing time but can still be approved or rejected.
             </p>
           </div>
         )}
         {hasInsufficientStock && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-800">
               <strong>⚠️ Insufficient Stock Warning:</strong> This order cannot be approved due to insufficient stock. Please check the Available Stock column for details.
             </p>

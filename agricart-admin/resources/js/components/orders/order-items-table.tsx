@@ -61,60 +61,63 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
     const totalAmount = combinedItems.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
 
     return (
-        <div className="rounded-md border">
-            <Table className={`w-full border-collapse text-sm ${compact ? 'text-xs' : ''}`}>
-                <TableHeader className="bg-muted/50 border-b-2">
+        <div className="rounded-lg border border-border overflow-hidden">
+            <div className="overflow-x-auto">
+                <Table className={`w-full border-collapse text-sm ${compact ? 'text-xs' : ''}`}>
+                <TableHeader className="bg-muted/50">
                     <TableRow>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <Hash className="h-4 w-4" />
                                 #
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
                                 Product
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Quantity</TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quantity</TableHead>
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Unit Price
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Subtotal
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
                                 Co-op Share
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
-                                <Package className="h-4 w-4" />
-                                Available Stock
-                            </div>
-                        </TableHead>
+                        {showStock && (
+                            <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <div className="flex items-center gap-2">
+                                    <Package className="h-4 w-4" />
+                                    Available Stock
+                                </div>
+                            </TableHead>
+                        )}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {combinedItems.map((item, index) => {
                         return (
-                            <TableRow key={item.id} className="border-b transition-all hover:bg-muted/20">
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                            <TableRow key={item.id} className="border-b border-border transition-all hover:bg-muted/20">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
                                     <div className="font-mono text-sm">
                                         {index + 1}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
                                     <div className="flex flex-col">
                                         <div className="font-medium text-sm">
                                             {item.product.name}
@@ -125,84 +128,88 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
                                     <div className="font-semibold text-sm">
                                         {item.quantity} {item.category}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
                                     <div className="text-sm">
                                         ₱{Number(item.unit_price || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
                                     <div className="font-semibold text-sm">
                                         ₱{Number(item.subtotal || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="font-semibold text-sm text-green-600">
+                                <TableCell className="p-4 text-sm text-foreground align-top">
+                                    <div className="font-semibold text-sm text-primary">
                                         ₱{Number(item.coop_share || 0).toFixed(2)}
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm">
-                                        {item.stock_preview ? (
-                                            // Stock preview for pending orders
-                                            <div>
-                                                <div className={`font-medium ${
-                                                    item.stock_preview.sufficient_stock ? 'text-green-600' : 'text-red-600'
-                                                }`}>
-                                                    {item.stock_preview.current_stock} → {item.stock_preview.remaining_stock} after approval
-                                                </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Deducting: {item.stock_preview.quantity_to_deduct} {item.category}
-                                                </div>
-                                                {!item.stock_preview.sufficient_stock && (
-                                                    <div className="text-xs text-red-600 font-medium mt-1">
-                                                        ⚠️ Insufficient stock!
+                                {showStock && (
+                                    <TableCell className="p-4 text-sm text-foreground align-top">
+                                        <div className="text-sm">
+                                            {item.stock_preview ? (
+                                                // Stock preview for pending orders
+                                                <div>
+                                                    <div className={`font-medium ${
+                                                        item.stock_preview.sufficient_stock ? 'text-primary' : 'text-destructive'
+                                                    }`}>
+                                                        {item.stock_preview.current_stock} → {item.stock_preview.remaining_stock} after approval
                                                     </div>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            // Regular stock display for approved orders
-                                            <div>
-                                                <div className={`font-medium ${
-                                                    (item.available_stock || 0) > 0 ? 'text-green-600' : 'text-red-600'
-                                                }`}>
-                                                    {item.available_stock || 0} {item.category}
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Deducting: {item.stock_preview.quantity_to_deduct} {item.category}
+                                                    </div>
+                                                    {!item.stock_preview.sufficient_stock && (
+                                                        <div className="text-xs text-destructive font-medium mt-1">
+                                                            ⚠️ Insufficient stock!
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Available
+                                            ) : (
+                                                // Regular stock display for approved orders
+                                                <div>
+                                                    <div className={`font-medium ${
+                                                        (item.available_stock || 0) > 0 ? 'text-primary' : 'text-destructive'
+                                                    }`}>
+                                                        {item.available_stock || 0} {item.category}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Available
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </TableCell>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                )}
                             </TableRow>
                         );
                     })}
                     
                     {/* Total Row */}
-                    <TableRow className="border-t-2 border-primary/20 bg-primary/5 font-semibold">
-                        <TableCell className="p-3 text-sm text-foreground align-top border-b" colSpan={6}>
+                    <TableRow className="border-t-2 border-border bg-muted/30">
+                        <TableCell className="p-4 text-foreground" colSpan={showStock ? 7 : 6}>
                             <div className="flex justify-end">
-                                <div className="text-right space-y-1">
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-muted-foreground">Subtotal:</span>
-                                        <span className="font-medium">₱{totalSubtotal.toFixed(2)}</span>
+                                <div className="w-full max-w-md space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
+                                        <span className="text-sm font-medium text-foreground">₱{totalSubtotal.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-sm">
-                                        <span className="text-muted-foreground">Co-op Share (10%):</span>
-                                        <span className="font-medium text-green-600">₱{totalCoopShare.toFixed(2)}</span>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-muted-foreground">Co-op Share (10%)</span>
+                                        <span className="text-sm font-medium text-primary">₱{totalCoopShare.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between gap-4 text-lg font-bold border-t pt-1">
-                                        <span className="text-primary">Total Amount:</span>
-                                        <span className="text-primary">₱{totalAmount.toFixed(2)}</span>
+                                    <div className="border-t border-border pt-3 mt-3">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-base font-semibold text-foreground">Total Amount</span>
+                                            <span className="text-base font-semibold text-primary">₱{totalAmount.toFixed(2)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -210,6 +217,7 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                     </TableRow>
                 </TableBody>
             </Table>
+            </div>
         </div>
     );
 };

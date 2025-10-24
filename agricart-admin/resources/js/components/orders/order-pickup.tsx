@@ -46,10 +46,10 @@ export const OrderPickup = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Order Picked Up</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Order Picked Up</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className={`p-3 rounded ${
+      <CardContent className="space-y-4">
+        <div className={`p-4 rounded-lg ${
           deliveryStatus === 'ready_to_pickup' ? 'bg-green-50 border border-green-200' :
           deliveryStatus === 'out_for_delivery' ? 'bg-blue-50 border border-blue-200' :
           deliveryStatus === 'delivered' ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'
@@ -149,7 +149,7 @@ export const OrderPickup = ({
                     placeholder="Confirm Pick Up"
                     className="mt-2"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     This action cannot be undone. The order will be marked as picked up and delivery status will be set to "Out for Delivery".
                   </p>
                 </div>

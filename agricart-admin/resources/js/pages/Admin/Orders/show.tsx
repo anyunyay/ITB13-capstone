@@ -138,7 +138,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   }, []);
 
   // Check if order has insufficient stock
-  const hasInsufficientStock = order.audit_trail?.some(item => 
+  const hasInsufficientStock = order.audit_trail?.some(item =>
     item.stock_preview && !item.stock_preview.sufficient_stock
   ) || false;
 
@@ -186,7 +186,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
         url.searchParams.delete('highlight');
         window.history.replaceState({}, '', url.toString());
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [highlight]);
@@ -305,15 +305,15 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   return (
     <AppLayout>
       <Head title={`Order #${order.id}`} />
-      <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-blue-500 rounded-lg shadow-lg' : ''}`}>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Order #{order.id}</h1>
-            <p className="text-gray-500">
+      <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-primary rounded-lg shadow-lg bg-primary/5' : ''}`}>
+        <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Order #{order.id}</h1>
+            <p className="text-muted-foreground">
               Placed on {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {getStatusBadge(order.status)}
             {isUrgent && (
               <Badge variant="destructive" className="animate-pulse">
@@ -326,37 +326,140 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               </Badge>
             )}
             <Link href={route('admin.orders.index')}>
-              <Button variant="outline">Back to Orders</Button>
+              <Button variant="outline" className="whitespace-nowrap">Back to Orders</Button>
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Order Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Customer Information */}
-            <CustomerInformation 
-              customer={order.customer}
-              deliveryAddress={order.delivery_address}
-            />
+        {/* Main Content Layout */}
+        <div className="space-y-6">
+          {/* Primary Content Grid */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Left Column - Main Content */}
+            <div className="xl:col-span-2 space-y-6">
+              {/* Customer Information */}
+              <CustomerInformation
+                customer={order.customer}
+                deliveryAddress={order.delivery_address}
+              />
 
-            {/* Order Items */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Items</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OrderItemsTable 
-                  items={order.audit_trail || []} 
-                  showStock={true}
-                  compact={false}
+              {/* Order Items */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-foreground">Order Items</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <OrderItemsTable
+                    items={order.audit_trail || []}
+                    showStock={true}
+                    compact={false}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Order Management Components */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Order Ready Management for Approved Orders */}
+                {order.status === 'approved' && currentOrder.logistic && (
+                  <OrderReady
+                    orderId={order.id}
+                    deliveryStatus={currentOrder.delivery_status}
+                    logistic={currentOrder.logistic}
+                    deliveryReadyTime={currentOrder.delivery_ready_time}
+                    markReadyDialogOpen={markReadyDialogOpen}
+                    setMarkReadyDialogOpen={setMarkReadyDialogOpen}
+                    onMarkReady={handleMarkReady}
+                    onConfirmMarkReady={confirmMarkReady}
+                  />
+                )}
+
+                {/* Order Picked Up Management for Approved Orders */}
+                {order.status === 'approved' && currentOrder.logistic && currentOrder.delivery_status !== 'pending' && (
+                  <OrderPickup
+                    orderId={order.id}
+                    deliveryStatus={currentOrder.delivery_status}
+                    logistic={currentOrder.logistic}
+                    deliveryReadyTime={currentOrder.delivery_ready_time}
+                    deliveryPackedTime={currentOrder.delivery_packed_time}
+                    deliveredTime={currentOrder.delivered_time}
+                    pickedUpDialogOpen={pickedUpDialogOpen}
+                    setPickedUpDialogOpen={setPickedUpDialogOpen}
+                    pickupConfirmationText={pickupConfirmationText}
+                    setPickupConfirmationText={setPickupConfirmationText}
+                    pickedUpForm={pickedUpForm}
+                    onMarkPickedUp={handleMarkPickedUp}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="xl:col-span-1 space-y-6">
+              {/* Order Summary */}
+              <OrderSummary
+                status={order.status}
+                deliveryStatus={currentOrder.delivery_status}
+                deliveryTimeline={currentOrder.delivery_timeline}
+                deliveryReadyTime={currentOrder.delivery_ready_time}
+                deliveryPackedTime={currentOrder.delivery_packed_time}
+                deliveredTime={currentOrder.delivered_time}
+                auditTrailLength={order.audit_trail?.length || 0}
+                totalAmount={order.total_amount}
+                subtotal={order.subtotal}
+                coopShare={order.coop_share}
+                memberShare={order.member_share}
+                admin={order.admin}
+                logistic={order.logistic}
+                getStatusBadge={getStatusBadge}
+                getDeliveryStatusBadge={getDeliveryStatusBadge}
+              />
+
+              {/* Receipt Preview for Approved Orders */}
+              {order.status === 'approved' && (
+                <ReceiptPreview
+                  orderId={order.id}
+                  customerEmail={order.customer.email}
                 />
-              </CardContent>
-            </Card>
+              )}
 
+              {/* Logistic Assignment for Approved Orders */}
+              {order.status === 'approved' && (
+                <LogisticAssignment
+                  orderId={order.id}
+                  logistic={order.logistic}
+                  logistics={logistics}
+                  assignLogisticDialogOpen={assignLogisticDialogOpen}
+                  setAssignLogisticDialogOpen={setAssignLogisticDialogOpen}
+                  assignLogisticForm={assignLogisticForm}
+                  onAssignLogistic={handleAssignLogistic}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons Row */}
+          <OrderActions
+            orderId={order.id}
+            status={order.status}
+            hasInsufficientStock={hasInsufficientStock}
+            approveDialogOpen={approveDialogOpen}
+            setApproveDialogOpen={setApproveDialogOpen}
+            rejectDialogOpen={rejectDialogOpen}
+            setRejectDialogOpen={setRejectDialogOpen}
+            approveForm={approveForm}
+            rejectForm={rejectForm}
+            selectedRejectionReason={selectedRejectionReason}
+            setSelectedRejectionReason={setSelectedRejectionReason}
+            rejectionReasons={rejectionReasons}
+            onApprove={handleApprove}
+            onReject={handleReject}
+          />
+
+          {/* Additional Information Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Delivery Proof Section */}
             {currentOrder.delivery_status === 'delivered' && currentOrder.delivery_proof_image && (
-              <DeliveryProof 
+              <DeliveryProof
                 deliveryProofImage={currentOrder.delivery_proof_image}
                 deliveredTime={currentOrder.delivered_time}
                 orderId={currentOrder.id}
@@ -365,105 +468,10 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
             )}
 
             {/* Admin Notes */}
-            <AdminNotes 
+            <AdminNotes
               adminNotes={order.admin_notes || ''}
               admin={order.admin}
             />
-          </div>
-
-          {/* Action Panel */}
-          <div className="space-y-6">
-            {/* Order Summary */}
-            <OrderSummary 
-              status={order.status}
-              deliveryStatus={currentOrder.delivery_status}
-              deliveryTimeline={currentOrder.delivery_timeline}
-              deliveryReadyTime={currentOrder.delivery_ready_time}
-              deliveryPackedTime={currentOrder.delivery_packed_time}
-              deliveredTime={currentOrder.delivered_time}
-              auditTrailLength={order.audit_trail?.length || 0}
-              totalAmount={order.total_amount}
-              subtotal={order.subtotal}
-              coopShare={order.coop_share}
-              memberShare={order.member_share}
-              admin={order.admin}
-              logistic={order.logistic}
-              getStatusBadge={getStatusBadge}
-              getDeliveryStatusBadge={getDeliveryStatusBadge}
-            />
-
-            {/* Action Buttons */}
-            <OrderActions 
-              orderId={order.id}
-              status={order.status}
-              hasInsufficientStock={hasInsufficientStock}
-              approveDialogOpen={approveDialogOpen}
-              setApproveDialogOpen={setApproveDialogOpen}
-              rejectDialogOpen={rejectDialogOpen}
-              setRejectDialogOpen={setRejectDialogOpen}
-              approveForm={approveForm}
-              rejectForm={rejectForm}
-              selectedRejectionReason={selectedRejectionReason}
-              setSelectedRejectionReason={setSelectedRejectionReason}
-              rejectionReasons={rejectionReasons}
-              onApprove={handleApprove}
-              onReject={handleReject}
-            />
-
-
-            {/* Receipt Preview for Approved Orders */}
-            {order.status === 'approved' && (
-              <ReceiptPreview 
-                orderId={order.id}
-                customerEmail={order.customer.email}
-              />
-            )}
-
-            {/* Logistic Assignment for Approved Orders */}
-            {order.status === 'approved' && (
-              <LogisticAssignment 
-                orderId={order.id}
-                logistic={order.logistic}
-                logistics={logistics}
-                assignLogisticDialogOpen={assignLogisticDialogOpen}
-                setAssignLogisticDialogOpen={setAssignLogisticDialogOpen}
-                assignLogisticForm={assignLogisticForm}
-                onAssignLogistic={handleAssignLogistic}
-              />
-            )}
-
-
-            {/* Order Ready Management for Approved Orders */}
-            {order.status === 'approved' && currentOrder.logistic && (
-              <OrderReady 
-                orderId={order.id}
-                deliveryStatus={currentOrder.delivery_status}
-                logistic={currentOrder.logistic}
-                deliveryReadyTime={currentOrder.delivery_ready_time}
-                markReadyDialogOpen={markReadyDialogOpen}
-                setMarkReadyDialogOpen={setMarkReadyDialogOpen}
-                onMarkReady={handleMarkReady}
-                onConfirmMarkReady={confirmMarkReady}
-              />
-            )}
-
-            {/* Order Picked Up Management for Approved Orders */}
-            {order.status === 'approved' && currentOrder.logistic && currentOrder.delivery_status !== 'pending' && (
-              <OrderPickup 
-                orderId={order.id}
-                deliveryStatus={currentOrder.delivery_status}
-                logistic={currentOrder.logistic}
-                deliveryReadyTime={currentOrder.delivery_ready_time}
-                deliveryPackedTime={currentOrder.delivery_packed_time}
-                deliveredTime={currentOrder.delivered_time}
-                pickedUpDialogOpen={pickedUpDialogOpen}
-                setPickedUpDialogOpen={setPickedUpDialogOpen}
-                pickupConfirmationText={pickupConfirmationText}
-                setPickupConfirmationText={setPickupConfirmationText}
-                pickedUpForm={pickedUpForm}
-                onMarkPickedUp={handleMarkPickedUp}
-              />
-            )}
           </div>
         </div>
       </div>

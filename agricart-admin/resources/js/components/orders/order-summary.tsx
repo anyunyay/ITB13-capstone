@@ -57,24 +57,24 @@ export const OrderSummary = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Order Summary</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">Order Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Status</span>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-muted-foreground">Status</span>
             {getStatusBadge(status)}
           </div>
           {status === 'approved' && deliveryStatus && (
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Delivery Status</span>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Delivery Status</span>
               <div className="flex items-center gap-2">
                 {getDeliveryStatusBadge(deliveryStatus)}
                 {deliveryStatus === 'out_for_delivery' && (
-                  <span className="text-xs text-blue-600">(Picked Up)</span>
+                  <span className="text-xs text-primary">(Picked Up)</span>
                 )}
                 {deliveryStatus === 'delivered' && (
-                  <span className="text-xs text-green-600">(Completed)</span>
+                  <span className="text-xs text-primary">(Completed)</span>
                 )}
               </div>
             </div>
@@ -83,92 +83,94 @@ export const OrderSummary = ({
             <>
               {deliveryReadyTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Ready At</span>
-                  <span className="text-sm text-green-600">
+                  <span className="text-sm font-medium text-muted-foreground">Ready At</span>
+                  <span className="text-sm text-primary">
                     {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                   </span>
                 </div>
               )}
               {deliveryPackedTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Packed At</span>
-                  <span className="text-sm text-blue-600">
+                  <span className="text-sm font-medium text-muted-foreground">Packed At</span>
+                  <span className="text-sm text-secondary">
                     {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
                   </span>
                 </div>
               )}
               {deliveredTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Delivered At</span>
-                  <span className="text-sm text-green-600">
+                  <span className="text-sm font-medium text-muted-foreground">Delivered At</span>
+                  <span className="text-sm text-primary">
                     {format(new Date(deliveredTime), 'MMM dd, yyyy HH:mm')}
                   </span>
                 </div>
               )}
               {deliveryTimeline.ready_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Ready Duration</span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm font-medium text-muted-foreground">Ready Duration</span>
+                  <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.ready_duration / 60)}h {deliveryTimeline.ready_duration % 60}m
                   </span>
                 </div>
               )}
               {deliveryTimeline.packing_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Packing Duration</span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm font-medium text-muted-foreground">Packing Duration</span>
+                  <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.packing_duration / 60)}h {deliveryTimeline.packing_duration % 60}m
                   </span>
                 </div>
               )}
               {deliveryTimeline.delivery_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Delivery Duration</span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm font-medium text-muted-foreground">Delivery Duration</span>
+                  <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.delivery_duration / 60)}h {deliveryTimeline.delivery_duration % 60}m
                   </span>
                 </div>
               )}
               {deliveryTimeline.total_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Total Duration</span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm font-medium text-muted-foreground">Total Duration</span>
+                  <span className="text-sm text-foreground font-medium">
                     {Math.floor(deliveryTimeline.total_duration / 60)}h {deliveryTimeline.total_duration % 60}m
                   </span>
                 </div>
               )}
             </>
           )}
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Items</span>
-            <span className="text-sm">{auditTrailLength}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Total Amount</span>
-            <span className="text-sm font-medium">₱{totalAmount.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Subtotal:</span>
-            <span className="text-sm font-medium">₱{Number(subtotal || 0).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Co-op Share (10%):</span>
-            <span className="text-sm font-medium text-green-600">₱{Number(coopShare || 0).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-500">Revenue (100%):</span>
-            <span className="text-sm font-medium text-blue-600">₱{Number(memberShare || 0).toFixed(2)}</span>
+          <div className="border-t border-border pt-3 mt-4">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Items</span>
+              <span className="text-sm text-foreground font-medium">{auditTrailLength}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
+              <span className="text-sm text-foreground">₱{Number(subtotal || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Co-op Share (10%)</span>
+              <span className="text-sm font-medium text-primary">₱{Number(coopShare || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm font-medium text-muted-foreground">Revenue (100%)</span>
+              <span className="text-sm font-medium text-secondary">₱{Number(memberShare || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-semibold border-t border-border pt-2 mt-2">
+              <span className="text-sm font-semibold text-foreground">Total Amount</span>
+              <span className="text-sm font-semibold text-foreground">₱{totalAmount.toFixed(2)}</span>
+            </div>
           </div>
           {admin && (
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Processed by</span>
-              <span className="text-sm">{admin.name}</span>
+              <span className="text-sm font-medium text-muted-foreground">Processed by</span>
+              <span className="text-sm text-foreground">{admin.name}</span>
             </div>
           )}
           {logistic && (
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Assigned to</span>
-              <span className="text-sm">{logistic.name}</span>
+              <span className="text-sm font-medium text-muted-foreground">Assigned to</span>
+              <span className="text-sm text-foreground">{logistic.name}</span>
             </div>
           )}
         </div>

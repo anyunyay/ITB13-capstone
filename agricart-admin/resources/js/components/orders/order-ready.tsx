@@ -36,12 +36,12 @@ export const OrderReady = ({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Order Ready</CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground">Order Ready</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {deliveryStatus === 'pending' && (
             <>
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm font-medium text-yellow-800">
                   Order is approved and ready to be prepared for pickup
                 </p>
@@ -66,7 +66,7 @@ export const OrderReady = ({
           
           {deliveryStatus === 'ready_to_pickup' && (
             <>
-              <div className="p-3 bg-green-50 border border-green-200 rounded">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm font-medium text-green-800">
                   ✓ Order is ready for pickup
                 </p>
@@ -96,7 +96,7 @@ export const OrderReady = ({
           
           {(deliveryStatus === 'out_for_delivery' || deliveryStatus === 'delivered') && (
             <>
-              <div className="p-3 bg-green-50 border border-green-200 rounded">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm font-medium text-green-800">
                   ✓ Order has been processed
                 </p>
@@ -136,7 +136,7 @@ export const OrderReady = ({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
                 <strong>Order #{orderId}</strong> will be marked as ready for pickup.
               </p>
