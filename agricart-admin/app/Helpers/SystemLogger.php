@@ -7,6 +7,105 @@ use Illuminate\Support\Facades\Log;
 class SystemLogger
 {
     /**
+     * Determine if an action should be logged based on importance and suspiciousness
+     */
+    private static function shouldLogAction($eventType, $action, $context = [])
+    {
+        // Always log security events
+        if ($eventType === 'security_event') {
+            return true;
+        }
+        
+        // Always log authentication failures and account lockouts
+        if ($eventType === 'authentication') {
+            $event = $context['event'] ?? '';
+            if (in_array($event, ['login_failed', 'logout'])) {
+                return true;
+            }
+            // Only log successful logins if they're suspicious (multiple attempts, unusual location, etc.)
+            if ($event === 'login_success') {
+                $isLocked = $context['is_locked'] ?? false;
+                $attemptsRemaining = $context['attempts_remaining'] ?? null;
+                return $isLocked || ($attemptsRemaining !== null && $attemptsRemaining < 3);
+            }
+        }
+        
+        // Always log critical errors
+        if ($eventType === 'critical_error') {
+            return true;
+        }
+        
+        // Log important business transactions
+        if (in_array($eventType, ['checkout', 'order_status_change', 'stock_update'])) {
+            return true;
+        }
+        
+        // Log user management actions (create, delete, role changes)
+        if ($eventType === 'user_management') {
+            $importantActions = ['create', 'delete', 'role_change', 'activate', 'deactivate'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log product management actions (create, delete, significant updates)
+        if ($eventType === 'product_management') {
+            $importantActions = ['create', 'delete', 'price_change', 'stock_critical'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log delivery status changes
+        if ($eventType === 'delivery_status_change') {
+            return true;
+        }
+        
+        // Log maintenance activities
+        if ($eventType === 'maintenance') {
+            return true;
+        }
+        
+        // Log report generation and data export
+        if (in_array($eventType, ['report_generation', 'data_export'])) {
+            return true;
+        }
+        
+        // Log admin activities only for important actions
+        if ($eventType === 'admin_activity') {
+            $importantActions = [
+                'system_logs_access', 'user_management', 'product_management', 
+                'order_management', 'financial_reports', 'system_settings',
+                'backup_created', 'maintenance_mode', 'security_settings'
+            ];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log member activities only for important actions
+        if ($eventType === 'member_activity') {
+            $importantActions = ['transactions_access', 'financial_data_access', 'sensitive_operations'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log staff activities only for important actions
+        if ($eventType === 'staff_activity') {
+            $importantActions = ['order_processing', 'inventory_management', 'customer_support', 'financial_operations'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log customer activities only for important actions
+        if ($eventType === 'customer_activity') {
+            $importantActions = ['checkout', 'payment', 'sensitive_data_access'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Log logistic activities only for important actions
+        if ($eventType === 'logistic_activity') {
+            $importantActions = ['delivery_management', 'inventory_management', 'financial_operations'];
+            return in_array($action, $importantActions);
+        }
+        
+        // Don't log routine page access, dashboard views, or normal browsing
+        return false;
+    }
+    
+    /**
      * Format log context into clear, human-friendly sentences
      */
     private static function formatLogContext($context, $message)
@@ -197,10 +296,18 @@ class SystemLogger
     }
     
     /**
-     * Log with human-readable formatting
+     * Log with human-readable formatting (only if action is important)
      */
     private static function logFormatted($level, $message, $context = [])
     {
+        $eventType = $context['event_type'] ?? '';
+        $action = $context['action'] ?? '';
+        
+        // Check if this action should be logged
+        if (!self::shouldLogAction($eventType, $action, $context)) {
+            return; // Skip logging for routine actions
+        }
+        
         $formattedContext = self::formatLogContext($context, $message);
         $formattedMessage = $message;
         
