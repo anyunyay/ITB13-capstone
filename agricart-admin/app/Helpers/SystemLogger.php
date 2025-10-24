@@ -7,6 +7,211 @@ use Illuminate\Support\Facades\Log;
 class SystemLogger
 {
     /**
+     * Format log context into clear, human-friendly sentences
+     */
+    private static function formatLogContext($context, $message)
+    {
+        // Get user information for personalized messages
+        $userType = $context['user_type'] ?? 'user';
+        $userId = $context['user_id'] ?? $context['admin_id'] ?? $context['staff_id'] ?? $context['member_id'] ?? $context['customer_id'] ?? $context['logistic_id'] ?? null;
+        $userEmail = $context['user_email'] ?? null;
+        $ipAddress = $context['ip_address'] ?? 'unknown location';
+        
+        // Format timestamp as readable date and time
+        $timestamp = isset($context['timestamp']) ? date('F j, Y', strtotime($context['timestamp'])) : 'unknown date';
+        $time = isset($context['timestamp']) ? date('g:i A', strtotime($context['timestamp'])) : 'unknown time';
+        
+        // Create user-friendly identifier with proper capitalization
+        $userIdentifier = $userEmail ?: ($userId ? "User #{$userId}" : 'Unknown user');
+        
+        // Event type descriptions
+        $eventType = $context['event_type'] ?? '';
+        $action = $context['action'] ?? '';
+        
+        // Build complete sentence based on event type
+        $sentence = '';
+        
+        switch ($eventType) {
+            case 'admin_activity':
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "Admin {$userIdentifier} {$actionText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'authentication':
+                $event = $context['event'] ?? '';
+                if ($event === 'login_success') {
+                    $sentence = "{$userIdentifier} successfully logged in on {$timestamp} at {$time} from IP address {$ipAddress}";
+                } elseif ($event === 'login_failed') {
+                    $attemptsRemaining = $context['attempts_remaining'] ?? null;
+                    $isLocked = $context['is_locked'] ?? false;
+                    if ($isLocked) {
+                        $sentence = "Account was locked for {$userIdentifier} due to multiple failed login attempts on {$timestamp} at {$time} from IP address {$ipAddress}";
+                    } else {
+                        $attemptsText = $attemptsRemaining ? " with {$attemptsRemaining} attempts remaining" : "";
+                        $sentence = "Failed login attempt for {$userIdentifier}{$attemptsText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                    }
+                } elseif ($event === 'logout') {
+                    $sentence = "{$userIdentifier} logged out on {$timestamp} at {$time} from IP address {$ipAddress}";
+                } else {
+                    $eventText = ucwords(str_replace('_', ' ', $event));
+                    $sentence = "{$userIdentifier} performed authentication event: {$eventText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                }
+                break;
+                
+            case 'security_event':
+                $event = $context['event'] ?? '';
+                if ($event === 'password_changed') {
+                    $sentence = "{$userIdentifier} changed their password on {$timestamp} at {$time} from IP address {$ipAddress}";
+                } elseif ($event === 'login_failed') {
+                    $attemptsRemaining = $context['attempts_remaining'] ?? null;
+                    $isLocked = $context['is_locked'] ?? false;
+                    if ($isLocked) {
+                        $sentence = "Account was locked for {$userIdentifier} due to multiple failed login attempts on {$timestamp} at {$time} from IP address {$ipAddress}";
+                    } else {
+                        $attemptsText = $attemptsRemaining ? " with {$attemptsRemaining} attempts remaining" : "";
+                        $sentence = "Failed login attempt for {$userIdentifier}{$attemptsText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                    }
+                } else {
+                    $eventText = ucwords(str_replace('_', ' ', $event));
+                    $sentence = "Security event occurred: {$eventText} for {$userIdentifier} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                }
+                break;
+                
+            case 'checkout':
+                $orderId = $context['order_id'] ?? '';
+                $amount = isset($context['total_amount']) ? "₱" . number_format($context['total_amount'], 2) : '';
+                $amountText = $amount ? " for a total of {$amount}" : "";
+                $sentence = "Customer {$userIdentifier} completed checkout for Order #{$orderId}{$amountText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'order_status_change':
+                $orderId = $context['order_id'] ?? '';
+                $oldStatus = ucfirst($context['old_status'] ?? '');
+                $newStatus = ucfirst($context['new_status'] ?? '');
+                $sentence = "Order #{$orderId} status was changed from {$oldStatus} to {$newStatus} by {$userIdentifier} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'stock_update':
+                $productName = $context['product_name'] ?? "Product #" . ($context['product_id'] ?? '');
+                $oldQty = $context['old_quantity'] ?? 0;
+                $newQty = $context['new_quantity'] ?? 0;
+                $reason = $context['reason'] ?? 'manual update';
+                $reasonText = ucwords(str_replace('_', ' ', $reason));
+                $sentence = "Stock was updated for {$productName} from {$oldQty} to {$newQty} items (Reason: {$reasonText}) by {$userIdentifier} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'user_management':
+                $targetUserId = $context['target_user_id'] ?? '';
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "{$userIdentifier} {$actionText} user #{$targetUserId} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'product_management':
+                $productName = $context['product_name'] ?? "Product #" . ($context['product_id'] ?? '');
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "{$userIdentifier} {$actionText} product: {$productName} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'delivery_status_change':
+                $orderId = $context['order_id'] ?? '';
+                $oldStatus = ucfirst($context['old_status'] ?? '');
+                $newStatus = ucfirst($context['new_status'] ?? '');
+                $sentence = "Delivery status for Order #{$orderId} was changed from {$oldStatus} to {$newStatus} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'critical_error':
+                $error = $context['error'] ?? 'Unknown error';
+                $sentence = "Critical system error occurred: {$error} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'maintenance':
+                $sentence = "System maintenance was performed by {$userIdentifier} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'member_activity':
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "Member {$userIdentifier} performed: {$actionText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'staff_activity':
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "Staff member {$userIdentifier} performed: {$actionText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'customer_activity':
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "Customer {$userIdentifier} performed: {$actionText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'logistic_activity':
+                $actionText = ucwords(str_replace('_', ' ', $action));
+                $sentence = "Logistics staff {$userIdentifier} performed: {$actionText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'report_generation':
+                $reportType = ucwords(str_replace('_', ' ', $context['report_type'] ?? 'report'));
+                $sentence = "{$userIdentifier} generated a {$reportType} report on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            case 'data_export':
+                $exportType = ucwords(str_replace('_', ' ', $context['export_type'] ?? 'data'));
+                $recordCount = $context['record_count'] ?? '';
+                $recordText = $recordCount ? " containing {$recordCount} records" : "";
+                $sentence = "{$userIdentifier} exported {$exportType}{$recordText} on {$timestamp} at {$time} from IP address {$ipAddress}";
+                break;
+                
+            default:
+                $eventText = ucwords(str_replace('_', ' ', $eventType));
+                $sentence = "System event occurred: {$eventText} for {$userIdentifier} on {$timestamp} at {$time} from IP address {$ipAddress}";
+        }
+        
+        // Add additional context if relevant
+        $additionalInfo = [];
+        
+        if (isset($context['admin_notes']) && $context['admin_notes']) {
+            $additionalInfo[] = "Note: " . $context['admin_notes'];
+        }
+        
+        if (isset($context['cart_items_count']) && $context['cart_items_count'] > 0) {
+            $additionalInfo[] = "Cart contained {$context['cart_items_count']} items";
+        }
+        
+        if (isset($context['filters_applied']) && !empty($context['filters_applied'])) {
+            $filters = [];
+            foreach ($context['filters_applied'] as $key => $value) {
+                $filters[] = ucfirst($key) . ": " . $value;
+            }
+            $additionalInfo[] = "Applied filters: " . implode(', ', $filters);
+        }
+        
+        if (isset($context['total_logs_viewed']) && $context['total_logs_viewed'] > 0) {
+            $additionalInfo[] = "viewing {$context['total_logs_viewed']} logs";
+        }
+        
+        // Combine sentence with additional information
+        if (!empty($additionalInfo)) {
+            $sentence .= ", " . implode(', ', $additionalInfo);
+        }
+        
+        return [$sentence];
+    }
+    
+    /**
+     * Log with human-readable formatting
+     */
+    private static function logFormatted($level, $message, $context = [])
+    {
+        $formattedContext = self::formatLogContext($context, $message);
+        $formattedMessage = $message;
+        
+        if (!empty($formattedContext)) {
+            $formattedMessage .= " | " . implode(' | ', $formattedContext);
+        }
+        
+        // Log only the formatted message without JSON context
+        Log::channel('system')->$level($formattedMessage);
+    }
+    /**
      * Log customer checkout events
      */
     public static function logCheckout($userId, $orderId, $totalAmount, $status = 'success', $details = [])
@@ -20,7 +225,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Customer checkout completed', $context);
+        self::logFormatted('info', 'Customer checkout completed', $context);
     }
 
     /**
@@ -38,7 +243,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Order status changed', $context);
+        self::logFormatted('info', 'Order status changed', $context);
     }
 
     /**
@@ -59,7 +264,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Stock quantity updated', $context);
+        self::logFormatted('info', 'Stock quantity updated', $context);
     }
 
     /**
@@ -76,7 +281,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('User management action performed', $context);
+        self::logFormatted('info', 'User management action performed', $context);
     }
 
     /**
@@ -93,7 +298,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Product management action performed', $context);
+        self::logFormatted('info', 'Product management action performed', $context);
     }
 
     /**
@@ -110,7 +315,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Delivery status changed', $context);
+        self::logFormatted('info', 'Delivery status changed', $context);
     }
 
     /**
@@ -124,7 +329,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $context);
 
-        Log::channel('system')->error('Critical system error occurred', $logContext);
+        self::logFormatted('error', 'Critical system error occurred', $logContext);
     }
 
     /**
@@ -140,7 +345,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->warning('Security event detected', $context);
+        self::logFormatted('warning', 'Security event detected', $context);
     }
 
     /**
@@ -155,7 +360,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('System maintenance performed', $context);
+        self::logFormatted('info', 'System maintenance performed', $context);
     }
 
     /**
@@ -171,7 +376,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Member activity performed', $context);
+        self::logFormatted('info', 'Member activity performed', $context);
     }
 
     /**
@@ -187,7 +392,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Staff activity performed', $context);
+        self::logFormatted('info', 'Staff activity performed', $context);
     }
 
     /**
@@ -203,7 +408,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Customer activity performed', $context);
+        self::logFormatted('info', 'Customer activity performed', $context);
     }
 
     /**
@@ -219,7 +424,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Logistic activity performed', $context);
+        self::logFormatted('info', 'Logistic activity performed', $context);
     }
 
     /**
@@ -235,7 +440,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Admin activity performed', $context);
+        self::logFormatted('info', 'Admin activity performed', $context);
     }
 
     /**
@@ -251,7 +456,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Report generated', $context);
+        self::logFormatted('info', 'Report generated', $context);
     }
 
     /**
@@ -267,7 +472,7 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Authentication event', $context);
+        self::logFormatted('info', 'Authentication event', $context);
     }
 
     /**
@@ -283,6 +488,6 @@ class SystemLogger
             'timestamp' => now()->toISOString(),
         ], $details);
 
-        Log::channel('system')->info('Data export performed', $context);
+        self::logFormatted('info', 'Data export performed', $context);
     }
 }

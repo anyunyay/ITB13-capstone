@@ -77,10 +77,10 @@ class SystemLogsPageIntegrationTest extends TestCase
         $this->assertTrue(file_exists($logPath));
         
         $logContent = file_get_contents($logPath);
-        $this->assertStringContainsString('login_success', $logContent);
-        $this->assertStringContainsString('password_changed', $logContent);
-        $this->assertStringContainsString('dashboard_access', $logContent);
-        $this->assertStringContainsString('admin', $logContent);
+        $this->assertStringContainsString('successfully logged in', $logContent);
+        $this->assertStringContainsString('changed their password', $logContent);
+        $this->assertStringContainsString('Dashboard Access', $logContent);
+        $this->assertStringContainsString('Admin User', $logContent);
         $this->assertStringContainsString('127.0.0.1', $logContent);
     }
 }

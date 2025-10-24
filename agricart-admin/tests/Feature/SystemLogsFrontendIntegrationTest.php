@@ -148,7 +148,7 @@ class SystemLogsFrontendIntegrationTest extends TestCase
         $logPath = storage_path('logs/system.log');
         $logContent = file_get_contents($logPath);
         
-        $this->assertStringContainsString('system_logs_access', $logContent);
-        $this->assertStringContainsString('admin', $logContent);
+        $this->assertStringContainsString('System Logs Access', $logContent);
+        $this->assertStringContainsString('Admin User', $logContent);
     }
 }
