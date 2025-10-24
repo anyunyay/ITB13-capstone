@@ -656,6 +656,10 @@ class OrderController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $status = $request->get('status', 'all');
+        $deliveryStatus = $request->get('delivery_status', 'all');
+        $search = $request->get('search');
+        $minAmount = $request->get('min_amount');
+        $maxAmount = $request->get('max_amount');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -672,6 +676,30 @@ class OrderController extends Controller
         // Filter by status
         if ($status !== 'all') {
             $query->where('status', $status);
+        }
+
+        // Filter by delivery status
+        if ($deliveryStatus !== 'all') {
+            $query->where('delivery_status', $deliveryStatus);
+        }
+
+        // Filter by amount range
+        if ($minAmount !== null && $minAmount !== '') {
+            $query->where('total_amount', '>=', $minAmount);
+        }
+        if ($maxAmount !== null && $maxAmount !== '') {
+            $query->where('total_amount', '<=', $maxAmount);
+        }
+
+        // Search functionality
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('customer', function($customerQuery) use ($search) {
+                    $customerQuery->where('name', 'like', "%{$search}%")
+                                 ->orWhere('email', 'like', "%{$search}%");
+                })->orWhere('admin_notes', 'like', "%{$search}%")
+                  ->orWhere('id', 'like', "%{$search}%");
+            });
         }
 
         $orders = $query->orderBy('created_at', 'desc')->get();
@@ -704,6 +732,10 @@ class OrderController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'status' => $status,
+                'delivery_status' => $deliveryStatus,
+                'search' => $search,
+                'min_amount' => $minAmount,
+                'max_amount' => $maxAmount,
             ],
         ]);
     }
@@ -734,13 +766,19 @@ class OrderController extends Controller
                 'Order ID',
                 'Customer Name',
                 'Customer Email',
+                'Customer Contact',
                 'Total Amount',
+                'Subtotal',
+                'Co-op Share',
+                'Member Share',
                 'Status',
                 'Delivery Status',
                 'Created Date',
                 'Processed By',
                 'Admin Notes',
-                'Logistic'
+                'Logistic',
+                'Logistic Contact',
+                'Items Count'
             ]);
 
             // Write order data
@@ -749,13 +787,19 @@ class OrderController extends Controller
                     $order->id,
                     $order->customer->name ?? 'N/A',
                     $order->customer->email ?? 'N/A',
+                    $order->customer->contact_number ?? 'N/A',
                     '₱' . number_format($order->total_amount, 2),
+                    '₱' . number_format($order->subtotal ?? 0, 2),
+                    '₱' . number_format($order->coop_share ?? 0, 2),
+                    '₱' . number_format($order->member_share ?? 0, 2),
                     $order->status,
                     $order->delivery_status ?? 'N/A',
                     $order->created_at->format('Y-m-d H:i:s'),
                     $order->admin->name ?? 'N/A',
                     $order->admin_notes ?? 'N/A',
-                    $order->logistic->name ?? 'N/A'
+                    $order->logistic->name ?? 'N/A',
+                    $order->logistic->contact_number ?? 'N/A',
+                    $order->auditTrail->count()
                 ]);
             }
 
