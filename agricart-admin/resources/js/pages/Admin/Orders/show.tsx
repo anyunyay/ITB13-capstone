@@ -414,6 +414,24 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 getDeliveryStatusBadge={getDeliveryStatusBadge}
               />
 
+              {/* Action Buttons Row */}
+              <OrderActions
+                orderId={order.id}
+                status={order.status}
+                hasInsufficientStock={hasInsufficientStock}
+                approveDialogOpen={approveDialogOpen}
+                setApproveDialogOpen={setApproveDialogOpen}
+                rejectDialogOpen={rejectDialogOpen}
+                setRejectDialogOpen={setRejectDialogOpen}
+                approveForm={approveForm}
+                rejectForm={rejectForm}
+                selectedRejectionReason={selectedRejectionReason}
+                setSelectedRejectionReason={setSelectedRejectionReason}
+                rejectionReasons={rejectionReasons}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+
               {/* Receipt Preview for Approved Orders */}
               {order.status === 'approved' && (
                 <ReceiptPreview
@@ -436,24 +454,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               )}
             </div>
           </div>
-
-          {/* Action Buttons Row */}
-          <OrderActions
-            orderId={order.id}
-            status={order.status}
-            hasInsufficientStock={hasInsufficientStock}
-            approveDialogOpen={approveDialogOpen}
-            setApproveDialogOpen={setApproveDialogOpen}
-            rejectDialogOpen={rejectDialogOpen}
-            setRejectDialogOpen={setRejectDialogOpen}
-            approveForm={approveForm}
-            rejectForm={rejectForm}
-            selectedRejectionReason={selectedRejectionReason}
-            setSelectedRejectionReason={setSelectedRejectionReason}
-            rejectionReasons={rejectionReasons}
-            onApprove={handleApprove}
-            onReject={handleReject}
-          />
 
           {/* Additional Information Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
