@@ -74,53 +74,23 @@ const ReceiptPreview: React.FC<ReceiptPreviewProps> = ({ order }) => {
       <Head title={`Order Receipt Preview - Order #${order.id}`} />
       
       <Dialog open={true} onOpenChange={() => window.history.back()}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">
-              📄 Receipt Preview - Order #{order.id}
+        <DialogContent className="max-w-6xl w-[95vw] h-[95vh] max-h-[95vh] overflow-hidden sm:w-[90vw] sm:h-[90vh] sm:max-h-[90vh]">
+          <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white">
+            <DialogTitle className="text-lg sm:text-xl font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <span className="truncate">📄 Receipt Preview - Order #{order.id}</span>
+              <button
+                onClick={() => window.print()}
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors whitespace-nowrap"
+              >
+                📄 Print
+              </button>
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            {/* Order Summary */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-gray-800 mb-3">Order Summary</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-gray-600">Customer</p>
-                  <p className="font-medium">{order.customer.name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Email</p>
-                  <p className="font-medium">{order.customer.email}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Total Amount</p>
-                  <p className="font-medium text-green-600">
-                    ₱{order.total_amount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Items</p>
-                  <p className="font-medium">{order.audit_trail?.length || 0} item(s)</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Receipt Preview */}
-            <div className="border rounded-lg overflow-hidden">
-              <div className="bg-gray-50 px-4 py-2 border-b">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700">Email Preview</span>
-                  <button
-                    onClick={() => window.print()}
-                    className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                  >
-                    📄 Print
-                  </button>
-                </div>
-              </div>
-              <div className="p-4">
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {/* Receipt Preview - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-4xl mx-auto">
                 <OrderReceiptPreview order={order} />
               </div>
             </div>
