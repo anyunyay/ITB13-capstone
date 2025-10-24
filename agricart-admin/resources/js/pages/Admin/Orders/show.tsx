@@ -57,6 +57,10 @@ interface Order {
     name: string;
     email: string;
     contact_number?: string;
+    address?: string;
+    barangay?: string;
+    city?: string;
+    province?: string;
   };
   total_amount: number;
   subtotal: number;
@@ -79,6 +83,7 @@ interface Order {
     total_duration?: number;
   };
   created_at: string;
+  updated_at: string;
   admin?: {
     name: string;
   };
@@ -437,6 +442,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 <ReceiptPreview
                   orderId={order.id}
                   customerEmail={order.customer.email}
+                  order={order}
                 />
               )}
 

@@ -156,6 +156,10 @@ class OrderController extends Controller
                 'name' => $order->customer->name,
                 'email' => $order->customer->email,
                 'contact_number' => $order->customer->contact_number,
+                'address' => $order->address ? $order->address->street : ($order->customer->defaultAddress ? $order->customer->defaultAddress->street : null),
+                'barangay' => $order->address ? $order->address->barangay : ($order->customer->defaultAddress ? $order->customer->defaultAddress->barangay : null),
+                'city' => $order->address ? $order->address->city : ($order->customer->defaultAddress ? $order->customer->defaultAddress->city : null),
+                'province' => $order->address ? $order->address->province : ($order->customer->defaultAddress ? $order->customer->defaultAddress->province : null),
             ],
             'delivery_address' => $order->address ? 
                 $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 

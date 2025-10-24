@@ -28,7 +28,7 @@ interface Order {
     city?: string;
     province?: string;
   };
-  admin: {
+  admin?: {
     name: string;
   };
   audit_trail: OrderItem[];
@@ -123,7 +123,7 @@ export default function OrderReceiptPreview({ order }: OrderReceiptPreviewProps)
             
             <div className="flex justify-between items-center py-1">
               <span className="font-semibold text-gray-600">Approved by:</span>
-              <span className="text-gray-800">{order.admin.name}</span>
+              <span className="text-gray-800">{order.admin?.name || 'N/A'}</span>
             </div>
             
             <div className="flex justify-between items-center py-1">
