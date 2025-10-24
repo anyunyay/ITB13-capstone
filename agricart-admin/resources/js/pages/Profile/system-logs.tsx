@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-// import { ScrollArea } from '@/components/ui/scroll-area';
+// import { ScrollArea } from '@/components/ui/scroll-area'; // Component not available
 import { 
     Search, 
     Filter, 
@@ -29,7 +29,11 @@ import {
     Database,
     FileText,
     Calendar,
-    Clock
+    Clock,
+    Activity,
+    TrendingUp,
+    Users,
+    AlertCircle
 } from 'lucide-react';
 
 interface LogEntry {
@@ -98,6 +102,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [dateTo, setDateTo] = useState(filters.date_to || '');
     const [perPage, setPerPage] = useState(filters.per_page || 25);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+    const [showDetails, setShowDetails] = useState(false);
 
     const eventTypes = [
         { value: 'all', label: 'All Events' },
@@ -266,6 +272,132 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         }
     };
 
+    const formatActionDetails = (log: LogEntry) => {
+        const details = [];
+        
+        if (log.context.user_id) {
+            details.push(`User ID: ${log.context.user_id}`);
+        }
+        if (log.context.user_email) {
+            details.push(`Email: ${log.context.user_email}`);
+        }
+        if (log.context.ip_address) {
+            details.push(`IP: ${log.context.ip_address}`);
+        }
+        if (log.context.action) {
+            details.push(`Action: ${log.context.action}`);
+        }
+        if (log.context.product_name) {
+            details.push(`Product: ${log.context.product_name}`);
+        }
+        if (log.context.order_id) {
+            details.push(`Order ID: ${log.context.order_id}`);
+        }
+        if (log.context.total_amount) {
+            details.push(`Amount: ₱${log.context.total_amount.toFixed(2)}`);
+        }
+        if (log.context.status) {
+            details.push(`Status: ${log.context.status}`);
+        }
+        
+        return details;
+    };
+
+    const formatAdminActivityDetails = (log: LogEntry) => {
+        const details = [];
+        
+        // Action
+        if (log.context.action) {
+            details.push({
+                label: 'Action',
+                value: log.context.action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                icon: <Settings className="h-4 w-4" />
+            });
+        }
+        
+        // Admin ID
+        if (log.context.admin_id) {
+            details.push({
+                label: 'Admin ID',
+                value: log.context.admin_id.toString(),
+                icon: <User className="h-4 w-4" />
+            });
+        }
+        
+        // User Type
+        if (log.context.user_type) {
+            details.push({
+                label: 'User Type',
+                value: log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1),
+                icon: <Users className="h-4 w-4" />
+            });
+        }
+        
+        // Event Type
+        if (log.context.event_type) {
+            details.push({
+                label: 'Event Type',
+                value: log.context.event_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                icon: <Activity className="h-4 w-4" />
+            });
+        }
+        
+        // IP Address
+        if (log.context.ip_address) {
+            details.push({
+                label: 'IP Address',
+                value: log.context.ip_address,
+                icon: <Shield className="h-4 w-4" />
+            });
+        }
+        
+        // Filters Applied
+        if (log.context.filters_applied) {
+            const filters = Object.entries(log.context.filters_applied)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join(', ');
+            details.push({
+                label: 'Filters Applied',
+                value: filters || 'None',
+                icon: <Filter className="h-4 w-4" />
+            });
+        }
+        
+        // Total Logs Viewed
+        if (log.context.total_logs_viewed !== undefined) {
+            details.push({
+                label: 'Total Logs Viewed',
+                value: log.context.total_logs_viewed.toString(),
+                icon: <Database className="h-4 w-4" />
+            });
+        }
+        
+        return details;
+    };
+
+    const getEventTypeColor = (eventType: string) => {
+        switch (eventType) {
+            case 'authentication':
+                return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'security_event':
+                return 'bg-red-100 text-red-800 border-red-200';
+            case 'checkout':
+                return 'bg-green-100 text-green-800 border-green-200';
+            case 'order_status_change':
+                return 'bg-purple-100 text-purple-800 border-purple-200';
+            case 'stock_update':
+                return 'bg-orange-100 text-orange-800 border-orange-200';
+            case 'user_management':
+                return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+            case 'product_management':
+                return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+            case 'admin_activity':
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+            default:
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
     return (
         <ProfileWrapper
             breadcrumbs={[
@@ -305,51 +437,63 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
             <div className="space-y-6">
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
-                        <CardContent className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card className="border-l-4 border-l-blue-500">
+                        <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Total Logs</p>
-                                    <p className="text-2xl font-bold text-gray-900">{summary.total_logs.toLocaleString()}</p>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Total Logs</p>
+                                    <p className="text-3xl font-bold text-gray-900">{summary.total_logs.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500 mt-1">All system activities</p>
                                 </div>
-                                <Database className="h-8 w-8 text-blue-500" />
+                                <div className="p-3 rounded-full bg-blue-100">
+                                    <Database className="h-6 w-6 text-blue-600" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="p-4">
+                    <Card className="border-l-4 border-l-green-500">
+                        <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Today's Logs</p>
-                                    <p className="text-2xl font-bold text-gray-900">{summary.today_logs.toLocaleString()}</p>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Today's Activity</p>
+                                    <p className="text-3xl font-bold text-gray-900">{summary.today_logs.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500 mt-1">Recent activity</p>
                                 </div>
-                                <Calendar className="h-8 w-8 text-green-500" />
+                                <div className="p-3 rounded-full bg-green-100">
+                                    <Activity className="h-6 w-6 text-green-600" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="p-4">
+                    <Card className="border-l-4 border-l-red-500">
+                        <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Errors</p>
-                                    <p className="text-2xl font-bold text-red-600">{summary.error_count.toLocaleString()}</p>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Errors</p>
+                                    <p className="text-3xl font-bold text-red-600">{summary.error_count.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500 mt-1">Issues detected</p>
                                 </div>
-                                <AlertTriangle className="h-8 w-8 text-red-500" />
+                                <div className="p-3 rounded-full bg-red-100">
+                                    <AlertCircle className="h-6 w-6 text-red-600" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="p-4">
+                    <Card className="border-l-4 border-l-purple-500">
+                        <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Active Users</p>
-                                    <p className="text-2xl font-bold text-gray-900">{summary.unique_users.toLocaleString()}</p>
+                                    <p className="text-sm font-medium text-gray-600 mb-1">Active Users</p>
+                                    <p className="text-3xl font-bold text-gray-900">{summary.unique_users.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500 mt-1">Unique users</p>
                                 </div>
-                                <User className="h-8 w-8 text-purple-500" />
+                                <div className="p-3 rounded-full bg-purple-100">
+                                    <Users className="h-6 w-6 text-purple-600" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -471,102 +615,124 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 {/* Logs Display */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>System Logs</CardTitle>
-                        <p className="text-sm text-gray-600">
-                            Showing {logs.data.length} of {logs.total} logs
-                        </p>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Activity className="h-5 w-5" />
+                                    System Logs
+                                </CardTitle>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Showing {logs.data.length} of {logs.total} logs
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                    {logs.data.length} entries
+                                </Badge>
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="max-h-[600px] overflow-y-auto">
-                            <div className="space-y-4">
-                                {logs.data.map((log) => (
-                                    <div key={log.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center space-x-2">
-                                                {getLevelIcon(log.level)}
-                                                {getLevelBadge(log.level)}
-                                                <Badge variant="outline" className="flex items-center">
-                                                    {getEventTypeIcon(log.context.event_type)}
-                                                    <span className="ml-1">{log.context.event_type?.replace('_', ' ') || 'Unknown Event'}</span>
-                                                </Badge>
-                                                {log.context.user_type && (
-                                                    <Badge variant="secondary">
-                                                        {log.context.user_type}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <div className="text-right text-sm text-gray-500">
-                                                <div className="flex items-center">
-                                                    <Clock className="h-3 w-3 mr-1" />
-                                                    {formatRelativeTime(log.context.timestamp || log.created_at)}
-                                                </div>
-                                                <div className="text-xs">
-                                                    {formatTimestamp(log.context.timestamp || log.created_at)}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-2">
-                                            <h4 className="font-medium text-gray-900">{log.message || 'No message'}</h4>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                                            {log.context.user_id && (
-                                                <div>
-                                                    <span className="font-medium">User ID:</span> {log.context.user_id}
-                                                </div>
-                                            )}
-                                            {log.context.user_email && (
-                                                <div>
-                                                    <span className="font-medium">Email:</span> {log.context.user_email}
-                                                </div>
-                                            )}
-                                            {log.context.ip_address && (
-                                                <div>
-                                                    <span className="font-medium">IP:</span> {log.context.ip_address}
-                                                </div>
-                                            )}
-                                            {log.context.action && (
-                                                <div>
-                                                    <span className="font-medium">Action:</span> {log.context.action}
-                                                </div>
-                                            )}
-                                            {log.context.product_name && (
-                                                <div>
-                                                    <span className="font-medium">Product:</span> {log.context.product_name}
-                                                </div>
-                                            )}
-                                            {log.context.order_id && (
-                                                <div>
-                                                    <span className="font-medium">Order ID:</span> {log.context.order_id}
-                                                </div>
-                                            )}
-                                            {log.context.total_amount && (
-                                                <div>
-                                                    <span className="font-medium">Amount:</span> ₱{log.context.total_amount.toFixed(2)}
-                                                </div>
-                                            )}
-                                            {log.context.status && (
-                                                <div>
-                                                    <span className="font-medium">Status:</span> {log.context.status}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {Object.keys(log.context).length > 6 && (
-                                            <details className="mt-2">
-                                                <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800">
-                                                    View Additional Details
-                                                </summary>
-                                                <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                                                    <pre className="whitespace-pre-wrap">
-                                                        {JSON.stringify(log.context, null, 2)}
-                                                    </pre>
-                                                </div>
-                                            </details>
-                                        )}
+                        <div className="h-[600px] w-full overflow-y-auto">
+                            <div className="space-y-3">
+                                {logs.data.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No logs found</h3>
+                                        <p className="text-gray-500">Try adjusting your filters or check back later.</p>
                                     </div>
-                                ))}
+                                ) : (
+                                    logs.data.map((log) => (
+                                        <div key={log.id} className="border rounded-xl p-5 hover:shadow-md transition-all duration-200 bg-white">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex items-center space-x-3">
+                                                    {getLevelIcon(log.level)}
+                                                    {getLevelBadge(log.level)}
+                                                    <Badge 
+                                                        variant="outline" 
+                                                        className={`flex items-center gap-2 ${getEventTypeColor(log.context.event_type || '')}`}
+                                                    >
+                                                        {getEventTypeIcon(log.context.event_type)}
+                                                        <span className="font-medium">
+                                                            {log.context.event_type?.replace('_', ' ') || 'Unknown Event'}
+                                                        </span>
+                                                    </Badge>
+                                                    {log.context.user_type && (
+                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                                                            {log.context.user_type}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="text-right text-sm text-gray-500">
+                                                    <div className="flex items-center gap-1 mb-1">
+                                                        <Clock className="h-3 w-3" />
+                                                        <span className="font-medium">{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
+                                                    </div>
+                                                    <div className="text-xs text-gray-400">
+                                                        {formatTimestamp(log.context.timestamp || log.created_at)}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <h4 className="font-semibold text-gray-900 text-lg mb-2">
+                                                    {log.message || 'No message'}
+                                                </h4>
+                                            </div>
+
+                                            {/* Admin Activity Logs - Special Formatting */}
+                                            {log.context.event_type === 'admin_activity' ? (
+                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <Settings className="h-5 w-5 text-blue-600" />
+                                                        <h5 className="font-semibold text-blue-900">Admin Activity Details</h5>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                        {formatAdminActivityDetails(log).map((detail, index) => (
+                                                            <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
+                                                                <div className="text-blue-600">{detail.icon}</div>
+                                                                <div className="flex-1">
+                                                                    <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                                                                        {detail.label}
+                                                                    </div>
+                                                                    <div className="text-sm font-semibold text-gray-900 mt-1">
+                                                                        {detail.value}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : formatActionDetails(log).length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                                    {formatActionDetails(log).map((detail, index) => (
+                                                        <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                            <span className="text-gray-700">{detail}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : null}
+
+                                            {Object.keys(log.context).length > 6 && (
+                                                <div className="mt-4">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            setSelectedLog(log);
+                                                            setShowDetails(true);
+                                                        }}
+                                                        className="w-full"
+                                                    >
+                                                        <Eye className="h-4 w-4 mr-2" />
+                                                        View Full Details
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -606,6 +772,103 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Log Details Modal */}
+                {showDetails && selectedLog && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b">
+                                <h3 className="text-lg font-semibold">Log Details</h3>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowDetails(false)}
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                            <div className="max-h-[70vh] overflow-y-auto">
+                                <div className="p-6 space-y-6">
+                                    {/* Basic Information */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-500">Level</label>
+                                            <div className="mt-1">
+                                                {getLevelBadge(selectedLog.level)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-500">Event Type</label>
+                                            <div className="mt-1">
+                                                <Badge 
+                                                    variant="outline" 
+                                                    className={`${getEventTypeColor(selectedLog.context.event_type || '')}`}
+                                                >
+                                                    {selectedLog.context.event_type?.replace('_', ' ') || 'Unknown Event'}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-500">Timestamp</label>
+                                            <p className="mt-1 text-sm text-gray-900">
+                                                {formatTimestamp(selectedLog.context.timestamp || selectedLog.created_at)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-500">User Type</label>
+                                            <p className="mt-1 text-sm text-gray-900">
+                                                {selectedLog.context.user_type || 'N/A'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-500">Message</label>
+                                        <p className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+                                            {selectedLog.message || 'No message'}
+                                        </p>
+                                    </div>
+
+                                    {/* Admin Activity Details - Special Formatting */}
+                                    {selectedLog.context.event_type === 'admin_activity' ? (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Settings className="h-5 w-5 text-blue-600" />
+                                                <h5 className="font-semibold text-blue-900">Admin Activity Details</h5>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {formatAdminActivityDetails(selectedLog).map((detail, index) => (
+                                                    <div key={index} className="bg-white rounded-lg p-4 border border-blue-100">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="text-blue-600">{detail.icon}</div>
+                                                            <div className="flex-1">
+                                                                <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                                                                    {detail.label}
+                                                                </div>
+                                                                <div className="text-sm font-semibold text-gray-900 mt-1">
+                                                                    {detail.value}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-500">Context Data</label>
+                                            <div className="mt-1 bg-gray-50 p-4 rounded-lg">
+                                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                                                    {JSON.stringify(selectedLog.context, null, 2)}
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </ProfileWrapper>
     );
