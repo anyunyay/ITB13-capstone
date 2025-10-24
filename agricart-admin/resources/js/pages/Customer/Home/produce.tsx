@@ -24,6 +24,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
 import Footer from '@/components/Footer';
+import { ProduceSearchBar } from '@/components/ProduceSearchBar';
 
 interface Product {
   id: number;
@@ -126,6 +127,8 @@ export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
+  const [filteredProducts, setFilteredProducts] = useState(initialProducts);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Initialize scroll restoration
   useScrollRestoration('produce-page');
@@ -157,8 +160,8 @@ export default function CustomerHome() {
     return Object.values(product.stock_by_category).some(quantity => quantity > 0);
   };
 
-  // Get active fruit products (with available stock)
-  const activeFruits = products.filter(product =>
+  // Get active fruit products (with available stock) from filtered results
+  const activeFruits = filteredProducts.filter(product =>
     product.produce_type === 'fruit' && hasAvailableStock(product)
   );
 
@@ -176,7 +179,28 @@ export default function CustomerHome() {
   // Update products state when initialProducts change
   useEffect(() => {
     setProducts(initialProducts);
+    setFilteredProducts(initialProducts);
   }, [initialProducts]);
+
+  // Filter products based on search query
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setFilteredProducts(products);
+      return;
+    }
+
+    const filtered = products.filter(product => {
+      const searchTerm = query.toLowerCase();
+      return (
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm) ||
+        product.produce_type.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    setFilteredProducts(filtered);
+  };
 
   // Refresh stock data when page loads to ensure accuracy
   useEffect(() => {
@@ -253,7 +277,7 @@ export default function CustomerHome() {
 
   const renderCarousel = (type: string | null, title: string, viewMode: 'carousel' | 'grid', toggleFunction: () => void, sectionId?: string) => {
     // Filter products based on type and available stock
-    const filteredProducts = products.filter(product => {
+    const typeFilteredProducts = filteredProducts.filter(product => {
       const hasStock = hasAvailableStock(product);
       if (type === null) {
         // Show all produce types (fruit and vegetable)
@@ -263,7 +287,7 @@ export default function CustomerHome() {
     });
 
     // Don't render if no products with stock
-    if (filteredProducts.length === 0) {
+    if (typeFilteredProducts.length === 0) {
       return null;
     }
 
@@ -299,7 +323,7 @@ export default function CustomerHome() {
         </div>
 
         <ProductCarousel
-          products={filteredProducts}
+          products={typeFilteredProducts}
           onRequireLogin={handleRequireLogin}
           onStockUpdate={handleStockUpdate}
           viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
@@ -313,14 +337,36 @@ export default function CustomerHome() {
       <Head title="Produce" />
 
       <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16 mt-10 bg-background">
-        {shouldShowSeparateSections ? (
-          <>
-            {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
-            {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode, 'vegetables-section')}
-          </>
-        ) : (
-          renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
+        {/* Search Bar */}
+        <div className="w-full">
+          <ProduceSearchBar onSearch={handleSearch} />
+        </div>
+        {/* No Results Message */}
+        {searchQuery && filteredProducts.length === 0 && (
+          <div className="w-full max-w-5xl mx-auto text-center py-16">
+            <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl p-12 border-2 border-green-200 dark:border-green-700 backdrop-blur-md">
+              <div className="text-8xl mb-6">🔍</div>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                No products found
+              </h3>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                We couldn't find any products matching <span className="font-semibold text-green-600">"{searchQuery}"</span>
+              </p>
+            </div>
+          </div>
         )}
+
+        {/* Product Sections */}
+        {!searchQuery || filteredProducts.length > 0 ? (
+          shouldShowSeparateSections ? (
+            <>
+              {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
+              {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode, 'vegetables-section')}
+            </>
+          ) : (
+            renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
+          )
+        ) : null}
 
         {/* Login Confirmation Dialog */}
         <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>

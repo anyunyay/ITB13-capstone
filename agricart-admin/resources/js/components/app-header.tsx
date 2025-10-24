@@ -85,8 +85,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     }, []);
     const showSearchBar =
         page.url === '/' ||
-        page.url.startsWith('/customer/produce') ||
-        page.url.startsWith('/customer/product');
+        page.url.startsWith('/customer/') && !page.url.startsWith('/customer/produce');
 
     const handleNotificationClick = (n: any) => {
         const orderId = n.data?.order_id;
