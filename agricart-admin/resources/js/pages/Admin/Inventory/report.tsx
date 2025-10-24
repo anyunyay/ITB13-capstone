@@ -6,8 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { BarChart3, Download, FileText, Search, Filter, X, Grid3X3, Table, ChevronDown, CalendarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
+import { format } from 'date-fns';
 import { useState } from 'react';
+import { ViewToggle } from '@/components/inventory/view-toggle';
 
 interface Product {
   id: number;
@@ -69,29 +76,131 @@ interface ReportFilters {
   end_date?: string;
   category: string;
   status: string;
+  member_ids: string[];
+  product_type: string;
+  min_quantity?: string;
+  max_quantity?: string;
+  search?: string;
 }
 
 interface ReportPageProps {
   stocks: Stock[];
   summary: ReportSummary;
+  members: Member[];
+  productTypes: string[];
   filters: ReportFilters;
 }
 
-export default function InventoryReport({ stocks, summary, filters }: ReportPageProps) {
-  const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
+export default function InventoryReport({ stocks, summary, members, productTypes, filters }: ReportPageProps) {
+  // Ensure member_ids is always an array
+  const normalizedFilters: ReportFilters = {
+    ...filters,
+    member_ids: Array.isArray(filters.member_ids) ? filters.member_ids : []
+  };
+  
+  const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
+  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  
+  // Date picker states
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    localFilters.start_date ? new Date(localFilters.start_date) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    localFilters.end_date ? new Date(localFilters.end_date) : undefined
+  );
 
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  // Date handling functions
+  const handleStartDateChange = (date: Date | undefined) => {
+    setStartDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      start_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setEndDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      end_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const getDateRangeDisplay = () => {
+    if (!startDate && !endDate) return 'No date range selected';
+    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
+    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+  };
+
+  const getDurationDisplay = () => {
+    if (!startDate || !endDate) return '';
+    const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
+    if (diffInDays === 1) return '1 day';
+    if (diffInDays === 7) return '1 week';
+    if (diffInDays === 30) return '1 month';
+    if (diffInDays < 7) return `${diffInDays} days`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
+    return `${Math.round(diffInDays / 30)} months`;
+  };
+
+  const handleMemberToggle = (memberId: string) => {
+    setLocalFilters(prev => {
+      const isSelected = prev.member_ids.includes(memberId);
+      
+      if (isSelected) {
+        // Remove member if already selected
+        return {
+          ...prev,
+          member_ids: prev.member_ids.filter(id => id !== memberId)
+        };
+      } else {
+        // Add member if not selected (with limit check)
+        if (prev.member_ids.length >= 5) {
+          return prev; // Max 5 members selected
+        }
+        return {
+          ...prev,
+          member_ids: [...prev.member_ids, memberId]
+        };
+      }
+    });
+  };
+
+  const selectAllMembers = () => {
+    setLocalFilters(prev => ({
+      ...prev,
+      member_ids: members.slice(0, 5).map(member => member.id.toString()) // Max 5 members
+    }));
+  };
+
+  const deselectAllMembers = () => {
+    setLocalFilters(prev => ({
+      ...prev,
+      member_ids: []
+    }));
+  };
+
   const applyFilters = () => {
-    const params = new URLSearchParams();
-    if (localFilters.start_date) params.append('start_date', localFilters.start_date);
-    if (localFilters.end_date) params.append('end_date', localFilters.end_date);
-    if (localFilters.category !== 'all') params.append('category', localFilters.category);
-    if (localFilters.status !== 'all') params.append('status', localFilters.status);
+    const params: Record<string, any> = {};
+    if (localFilters.start_date) params.start_date = localFilters.start_date;
+    if (localFilters.end_date) params.end_date = localFilters.end_date;
+    if (localFilters.category !== 'all') params.category = localFilters.category;
+    if (localFilters.status !== 'all') params.status = localFilters.status;
+    if (localFilters.member_ids.length > 0) {
+      params.member_ids = localFilters.member_ids;
+    }
+    if (localFilters.product_type !== 'all') params.product_type = localFilters.product_type;
+    if (localFilters.min_quantity) params.min_quantity = localFilters.min_quantity;
+    if (localFilters.max_quantity) params.max_quantity = localFilters.max_quantity;
+    if (localFilters.search) params.search = localFilters.search;
     
-    router.get(route('inventory.report'), Object.fromEntries(params));
+    router.get(route('inventory.report'), params);
   };
 
   const exportReport = (format: 'csv' | 'pdf') => {
@@ -100,6 +209,13 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.category !== 'all') params.append('category', localFilters.category);
     if (localFilters.status !== 'all') params.append('status', localFilters.status);
+    if (localFilters.member_ids.length > 0) {
+      localFilters.member_ids.forEach(id => params.append('member_ids[]', id));
+    }
+    if (localFilters.product_type !== 'all') params.append('product_type', localFilters.product_type);
+    if (localFilters.min_quantity) params.append('min_quantity', localFilters.min_quantity);
+    if (localFilters.max_quantity) params.append('max_quantity', localFilters.max_quantity);
+    if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
     
     if (format === 'csv') {
@@ -121,6 +237,13 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       if (localFilters.category !== 'all') displayParams.append('category', localFilters.category);
       if (localFilters.status !== 'all') displayParams.append('status', localFilters.status);
+      if (localFilters.member_ids.length > 0) {
+        localFilters.member_ids.forEach(id => displayParams.append('member_ids[]', id));
+      }
+      if (localFilters.product_type !== 'all') displayParams.append('product_type', localFilters.product_type);
+      if (localFilters.min_quantity) displayParams.append('min_quantity', localFilters.min_quantity);
+      if (localFilters.max_quantity) displayParams.append('max_quantity', localFilters.max_quantity);
+      if (localFilters.search) displayParams.append('search', localFilters.search);
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('inventory.report')}?${displayParams.toString()}`;
@@ -150,51 +273,276 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
     }
   };
 
+  const clearFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setLocalFilters({
+      start_date: '',
+      end_date: '',
+      category: 'all',
+      status: 'all',
+      member_ids: [],
+      product_type: 'all',
+      min_quantity: '',
+      max_quantity: '',
+      search: ''
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return localFilters.start_date || localFilters.end_date || 
+           localFilters.category !== 'all' || localFilters.status !== 'all' ||
+           localFilters.member_ids.length > 0 || localFilters.product_type !== 'all' ||
+           localFilters.min_quantity || localFilters.max_quantity || localFilters.search;
+  };
+
   return (
     <AppSidebarLayout>
       <Head title="Inventory Report" />
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Inventory Report</h1>
-          <div className="flex gap-2">
-            <Button onClick={() => exportReport('csv')} variant="outline">
+      <div className="min-h-screen bg-background">
+        <div className="w-full px-4 py-4 flex flex-col gap-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
+                  <BarChart3 className="h-8 w-8" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">Inventory Report</h1>
+                  <p className="text-muted-foreground mt-1">
+                    Generate comprehensive inventory reports and analytics
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
               Export CSV
             </Button>
-            <Button onClick={() => exportReport('pdf')} variant="outline">
+                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
               Export PDF
             </Button>
           </div>
         </div>
+          </div>
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{summary.total_stocks}</div>
+                <p className="text-xs text-muted-foreground mt-1">All inventory items</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Quantity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">{summary.total_quantity}</div>
+                <p className="text-xs text-muted-foreground mt-1">Available + Sold units</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">{summary.available_stocks}</div>
+                <p className="text-xs text-muted-foreground mt-1">{summary.available_quantity} units available</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-secondary">{summary.sold_stocks}</div>
+                <p className="text-xs text-muted-foreground mt-1">{summary.sold_quantity} units sold</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Completely Sold</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-accent">{summary.completely_sold_stocks}</div>
+                <p className="text-xs text-muted-foreground mt-1">Fully depleted items</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Removed Stocks</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-destructive">{summary.removed_stocks}</div>
+                <p className="text-xs text-muted-foreground mt-1">Removed items</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-accent">{summary.total_products}</div>
+                <p className="text-xs text-muted-foreground mt-1">Unique products</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div>
-                <Label htmlFor="start_date">Start Date</Label>
+                <div className="text-3xl font-bold text-muted-foreground">{summary.total_members}</div>
+                <p className="text-xs text-muted-foreground mt-1">Active members</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Advanced Filters - Collapsible */}
+          <Card className="shadow-sm">
+            <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Filter className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                      {hasActiveFilters() && (
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                          Active
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {hasActiveFilters() && (
+                        <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                          <X className="h-4 w-4" />
+                          Clear Filters
+                        </Button>
+                      )}
+                      <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent>
+                  {/* Search Bar */}
+                  <div className="mb-6">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  id="start_date"
-                  type="date"
-                  value={localFilters.start_date || ''}
-                  onChange={(e) => handleFilterChange('start_date', e.target.value)}
+                        placeholder="Search products, members, or descriptions..."
+                        value={localFilters.search || ''}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
                 />
               </div>
+                  </div>
+
+                  {/* Date Range Summary */}
+                  {(startDate || endDate) && (
+                    <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                      <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="end_date">End Date</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={localFilters.end_date || ''}
-                  onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                />
+                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                          {getDurationDisplay() && (
+                            <p className="text-xs text-primary/70 mt-1">
+                              Duration: {getDurationDisplay()}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setStartDate(undefined);
+                            setEndDate(undefined);
+                            setLocalFilters(prev => ({
+                              ...prev,
+                              start_date: '',
+                              end_date: ''
+                            }));
+                          }}
+                          className="text-xs"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Filter Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Start Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={handleStartDateChange}
+                            initialFocus
+                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">End Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={endDate}
+                            onSelect={handleEndDateChange}
+                            initialFocus
+                            disabled={(date) => 
+                              date > new Date() || 
+                              date < new Date("1900-01-01") || 
+                              (startDate ? date < startDate : false)
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
               </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="category" className="text-sm font-medium">Category</Label>
                 <Select value={localFilters.category} onValueChange={(value) => handleFilterChange('category', value)}>
-                  <SelectTrigger>
+                        <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,10 +553,10 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="status" className="text-sm font-medium">Status</Label>
                 <Select value={localFilters.status} onValueChange={(value) => handleFilterChange('status', value)}>
-                  <SelectTrigger>
+                        <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,119 +568,173 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-end">
-                <Button onClick={applyFilters} className="w-full">
-                  Apply Filters
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Members</Label>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={selectAllMembers}
+                            className="text-xs px-2 py-1 h-6"
+                          >
+                            Select All (Max 5)
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={deselectAllMembers}
+                            className="text-xs px-2 py-1 h-6"
+                          >
+                            Clear
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+                      <div className="max-h-32 overflow-y-auto border border-border rounded-lg p-3 bg-background">
+                        {members.length > 0 ? (
+                          <div className="space-y-1">
+                            {members.map((member) => {
+                              const isSelected = localFilters.member_ids.includes(member.id.toString());
+                              const isDisabled = !isSelected && localFilters.member_ids.length >= 5;
+                              
+                              return (
+                                <div 
+                                  key={member.id} 
+                                  className={`flex items-center space-x-2 px-2 py-1 rounded hover:bg-muted/50 transition-colors ${
+                                    isDisabled ? 'opacity-50' : ''
+                                  }`}
+                                >
+                                  <Checkbox
+                                    id={`member-${member.id}`}
+                                    checked={isSelected}
+                                    onCheckedChange={() => handleMemberToggle(member.id.toString())}
+                                    disabled={isDisabled}
+                                    className="border-border"
+                                  />
+                                  <Label
+                                    htmlFor={`member-${member.id}`}
+                                    className={`text-sm font-normal cursor-pointer flex-1 truncate ${
+                                      isDisabled ? 'cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    {member.name}
+                                  </Label>
+                                </div>
+                              );
+                            })}
+                            {localFilters.member_ids.length >= 5 && (
+                              <p className="text-xs text-muted-foreground mt-2 text-center">
+                                Maximum 5 members selected
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No members available</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="product_type" className="text-sm font-medium">Product Type</Label>
+                      <Select value={localFilters.product_type} onValueChange={(value) => handleFilterChange('product_type', value)}>
+                        <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          {productTypes.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="min_quantity" className="text-sm font-medium">Min Quantity</Label>
+                      <Input
+                        id="min_quantity"
+                        type="number"
+                        placeholder="Minimum"
+                        value={localFilters.min_quantity || ''}
+                        onChange={(e) => handleFilterChange('min_quantity', e.target.value)}
+                        className="border-border rounded-lg bg-background text-foreground focus:border-primary"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="max_quantity" className="text-sm font-medium">Max Quantity</Label>
+                      <Input
+                        id="max_quantity"
+                        type="number"
+                        placeholder="Maximum"
+                        value={localFilters.max_quantity || ''}
+                        onChange={(e) => handleFilterChange('max_quantity', e.target.value)}
+                        className="border-border rounded-lg bg-background text-foreground focus:border-primary"
+                      />
+                    </div>
+                  </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.total_stocks}</div>
+                  <div className="flex justify-end">
+                    <Button onClick={applyFilters} className="bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
+                      Apply Filters
+                    </Button>
+                  </div>
             </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Quantity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{summary.total_quantity}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-secondary">{summary.total_stocks}</div>
-              <p className="text-xs text-muted-foreground">{summary.total_quantity} units</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{summary.available_stocks}</div>
-              <p className="text-xs text-muted-foreground">{summary.available_quantity} units</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-secondary">{summary.sold_stocks}</div>
-              <p className="text-xs text-muted-foreground">{summary.sold_quantity} units</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Completely Sold</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-accent">{summary.completely_sold_stocks}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Removed Stocks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">{summary.removed_stocks}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-accent">{summary.total_products}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-muted-foreground">{summary.total_members}</div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Stocks List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Stocks ({stocks.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
+          {/* Stocks List */}
+          <Card className="shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Stock Report ({stocks.length} items)</CardTitle>
+                <div className="flex items-center gap-4">
+                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
+                  <div className="text-sm text-muted-foreground">
+                    {stocks.length > 0 ? `Showing ${stocks.length} stock items` : 'No items found'}
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {stocks.length > 0 ? (
+                <>
+                  {currentView === 'cards' ? (
             <div className="space-y-4">
               {stocks.map((stock) => (
                 <StockCard key={stock.id} stock={stock} />
               ))}
-              {stocks.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
-                      <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                      </svg>
                     </div>
-                    <p className="text-sm">No stocks found for the selected filters.</p>
+                  ) : (
+                    <StockTable stocks={stocks} />
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                      <BarChart3 className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">No stocks found</h3>
+                    <p className="text-muted-foreground max-w-md">
+                      {hasActiveFilters() 
+                        ? 'No stocks match your current filter criteria. Try adjusting your filters to see more results.'
+                        : 'No stock data available for the selected time period.'
+                      }
+                    </p>
+                    {hasActiveFilters() && (
+                      <Button onClick={clearFilters} variant="outline" className="mt-4">
+                        Clear Filters
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
-            </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </AppSidebarLayout>
   );
@@ -341,72 +743,95 @@ export default function InventoryReport({ stocks, summary, filters }: ReportPage
 function StockCard({ stock }: { stock: Stock }) {
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
-      return <Badge variant="destructive">Removed</Badge>;
+      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">Removed</Badge>;
     } else if (stock.quantity == 0) {
-      return <Badge variant="default">Sold</Badge>;
+      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">Sold</Badge>;
     } else {
-      return <Badge variant="outline">Available</Badge>;
+      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Available</Badge>;
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
+              <BarChart3 className="h-4 w-4" />
+            </div>
           <div>
-            <CardTitle className="text-lg">Stock #{stock.id}</CardTitle>
+              <CardTitle className="text-lg text-foreground">Stock #{stock.id}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {dayjs(stock.created_at).format('MMM DD, YYYY HH:mm')}
+                Created {dayjs(stock.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {getStatusBadge(stock)}
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="font-semibold mb-2">Product Information</h4>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              Product Information
+            </h4>
+            <div className="space-y-2">
             <p className="text-sm">
-              <span className="font-medium">Name:</span> {stock.product.name}
+                <span className="font-medium text-foreground">Name:</span> 
+                <span className="text-muted-foreground ml-2">{stock.product.name}</span>
             </p>
             <p className="text-sm">
-              <span className="font-medium">Type:</span> {stock.product.produce_type}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Category:</span> 
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2">
+                <span className="font-medium text-foreground">Type:</span> 
+                <span className="text-muted-foreground ml-2">{stock.product.produce_type}</span>
+              </p>
+              <p className="text-sm flex items-center">
+                <span className="font-medium text-foreground">Category:</span> 
+                <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
                 {stock.category}
-              </span>
+                </Badge>
             </p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-semibold mb-2">Stock Details</h4>
-            <p className="text-sm">
-              <span className="font-medium">Quantity:</span> 
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2">
-                {stock.quantity}
-              </span>
+          
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 bg-secondary rounded-full"></div>
+              Stock Details
+            </h4>
+            <div className="space-y-2">
+              <p className="text-sm flex items-center">
+                <span className="font-medium text-foreground">Quantity:</span> 
+                <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
+                  {stock.quantity} units
+                </Badge>
             </p>
             <p className="text-sm">
-              <span className="font-medium">Member:</span> {stock.member.name}
+                <span className="font-medium text-foreground">Member:</span> 
+                <span className="text-muted-foreground ml-2">{stock.member.name}</span>
             </p>
             <p className="text-sm">
-              <span className="font-medium">Email:</span> {stock.member.email}
+                <span className="font-medium text-foreground">Email:</span> 
+                <span className="text-muted-foreground ml-2">{stock.member.email}</span>
             </p>
             {stock.member.contact_number && (
               <p className="text-sm">
-                <span className="font-medium">Contact:</span> {stock.member.contact_number}
+                  <span className="font-medium text-foreground">Contact:</span> 
+                  <span className="text-muted-foreground ml-2">{stock.member.contact_number}</span>
               </p>
             )}
+            </div>
           </div>
         </div>
-        
 
         {stock.removed_at && (
-          <div className="mt-4 p-3 bg-destructive/10 rounded">
-            <h5 className="font-semibold text-sm mb-1 text-destructive">Removed:</h5>
+          <div className="mt-6 p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+            <h5 className="font-semibold text-sm mb-2 text-destructive flex items-center gap-2">
+              <div className="w-2 h-2 bg-destructive rounded-full"></div>
+              Removed
+            </h5>
             <p className="text-sm text-destructive">
               {dayjs(stock.removed_at).format('MMM DD, YYYY HH:mm')}
             </p>
@@ -414,13 +839,97 @@ function StockCard({ stock }: { stock: Stock }) {
         )}
 
         {stock.notes && (
-          <div className="mt-4 p-3 bg-muted rounded">
-            <h5 className="font-semibold text-sm mb-1">Notes:</h5>
+          <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg">
+            <h5 className="font-semibold text-sm mb-2 text-foreground flex items-center gap-2">
+              <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+              Notes
+            </h5>
             <p className="text-sm text-muted-foreground">{stock.notes}</p>
           </div>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function StockTable({ stocks }: { stocks: Stock[] }) {
+  const getStatusBadge = (stock: Stock) => {
+    if (stock.removed_at) {
+      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">Removed</Badge>;
+    } else if (stock.quantity == 0) {
+      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">Sold</Badge>;
+    } else {
+      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Available</Badge>;
+    }
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Stock ID</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Product</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Quantity</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Category</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Member</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Created</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stocks.map((stock, index) => (
+            <tr key={stock.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
+              <td className="py-3 px-4">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  #{stock.id}
+                </Badge>
+              </td>
+              <td className="py-3 px-4">
+                <div>
+                  <div className="font-medium text-foreground">{stock.product.name}</div>
+                  <div className="text-sm text-muted-foreground">{stock.product.produce_type}</div>
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  {stock.quantity} units
+                </Badge>
+              </td>
+              <td className="py-3 px-4">
+                <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
+                  {stock.category}
+                </Badge>
+              </td>
+              <td className="py-3 px-4">
+                <div>
+                  <div className="font-medium text-foreground">{stock.member.name}</div>
+                  <div className="text-sm text-muted-foreground">{stock.member.email}</div>
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                {getStatusBadge(stock)}
+              </td>
+              <td className="py-3 px-4 text-sm text-muted-foreground">
+                {dayjs(stock.created_at).format('MMM DD, YYYY')}
+              </td>
+              <td className="py-3 px-4">
+                <div className="max-w-xs">
+                  {stock.notes ? (
+                    <p className="text-sm text-muted-foreground truncate" title={stock.notes}>
+                      {stock.notes}
+                    </p>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

@@ -192,6 +192,15 @@ class InventoryController extends Controller
         $endDate = $request->get('end_date');
         $category = $request->get('category', 'all');
         $status = $request->get('status', 'all');
+        $memberIds = $request->input('member_ids', []);
+        // Ensure it's always an array
+        if (!is_array($memberIds)) {
+            $memberIds = $memberIds ? [$memberIds] : [];
+        }
+        $productType = $request->get('product_type', 'all');
+        $minQuantity = $request->get('min_quantity');
+        $maxQuantity = $request->get('max_quantity');
+        $search = $request->get('search');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -208,6 +217,39 @@ class InventoryController extends Controller
         // Filter by category
         if ($category !== 'all') {
             $query->where('category', $category);
+        }
+
+        // Filter by members
+        if (!empty($memberIds)) {
+            $query->whereIn('member_id', $memberIds);
+        }
+
+        // Filter by product type
+        if ($productType !== 'all') {
+            $query->whereHas('product', function($q) use ($productType) {
+                $q->where('produce_type', $productType);
+            });
+        }
+
+        // Filter by quantity range
+        if ($minQuantity !== null && $minQuantity !== '') {
+            $query->where('quantity', '>=', $minQuantity);
+        }
+        if ($maxQuantity !== null && $maxQuantity !== '') {
+            $query->where('quantity', '<=', $maxQuantity);
+        }
+
+        // Search functionality
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('product', function($productQuery) use ($search) {
+                    $productQuery->where('name', 'like', "%{$search}%")
+                                 ->orWhere('description', 'like', "%{$search}%");
+                })->orWhereHas('member', function($memberQuery) use ($search) {
+                    $memberQuery->where('name', 'like', "%{$search}%")
+                               ->orWhere('email', 'like', "%{$search}%");
+                });
+            });
         }
 
         // Filter by status
@@ -248,15 +290,26 @@ class InventoryController extends Controller
             return $this->exportToPdf($stocks, $summary, $display);
         }
 
+        // Get unique values for filter dropdowns
+        $members = \App\Models\User::where('type', 'member')->select('id', 'name')->get();
+        $productTypes = \App\Models\Product::select('produce_type')->distinct()->pluck('produce_type')->filter();
+
         // Return view for display
         return Inertia::render('Admin/Inventory/report', [
             'stocks' => $stocks,
             'summary' => $summary,
+            'members' => $members,
+            'productTypes' => $productTypes,
             'filters' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'category' => $category,
                 'status' => $status,
+                'member_ids' => $memberIds,
+                'product_type' => $productType,
+                'min_quantity' => $minQuantity,
+                'max_quantity' => $maxQuantity,
+                'search' => $search,
             ],
         ]);
     }
