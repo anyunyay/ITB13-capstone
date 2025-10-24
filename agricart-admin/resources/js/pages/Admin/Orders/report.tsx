@@ -293,7 +293,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
@@ -314,25 +314,6 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
               </CardContent>
             </Card>
             
-            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Co-op Share</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-primary">₱{Number(summary.total_coop_share).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Cooperative earnings</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Member Share</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-secondary">₱{Number(summary.total_member_share).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Member earnings</p>
-              </CardContent>
-            </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
@@ -717,14 +698,6 @@ function OrderCard({ order }: { order: Order }) {
               <p className="text-sm">
                 <span className="font-medium text-foreground">Subtotal:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(order.subtotal || 0).toFixed(2)}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">Co-op Share:</span> 
-                <span className="text-green-600 ml-2">₱{Number(order.coop_share || 0).toFixed(2)}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">Member Share:</span> 
-                <span className="text-blue-600 ml-2">₱{Number(order.member_share || 0).toFixed(2)}</span>
               </p>
               <p className="text-sm">
                 <span className="font-medium text-foreground">Items:</span> 
