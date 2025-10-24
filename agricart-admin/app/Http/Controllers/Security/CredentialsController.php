@@ -10,6 +10,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Helpers\SystemLogger;
 
 class CredentialsController extends \App\Http\Controllers\Controller
 {
@@ -58,6 +59,18 @@ class CredentialsController extends \App\Http\Controllers\Controller
             'email_verified_at' => now(), // Automatically verify email for all users
             'is_default' => false, // Mark as non-default after successful update
         ]);
+
+        // Log initial password setup
+        SystemLogger::logSecurityEvent(
+            'initial_password_setup',
+            $user->id,
+            request()->ip(),
+            [
+                'user_type' => $user->type,
+                'user_email' => $user->email,
+                'is_default_account' => true
+            ]
+        );
         
         // Redirect to appropriate dashboard
         return redirect()->route($this->getDashboardRouteForType($user->type))

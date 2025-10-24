@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Helpers\SystemLogger;
 
 class PasswordChangeController extends \App\Http\Controllers\Controller
 {
@@ -47,6 +48,17 @@ class PasswordChangeController extends \App\Http\Controllers\Controller
         $user->update([
             'password' => Hash::make($validated['password']),
         ]);
+
+        // Log password change
+        SystemLogger::logSecurityEvent(
+            'password_changed',
+            $user->id,
+            request()->ip(),
+            [
+                'user_type' => $user->type,
+                'user_email' => $user->email
+            ]
+        );
 
         // Redirect based on user type
         if ($user->type === 'staff') {

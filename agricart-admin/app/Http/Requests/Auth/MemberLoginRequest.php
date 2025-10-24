@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Services\LoginLockoutService;
+use App\Helpers\SystemLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +56,19 @@ class MemberLoginRequest extends FormRequest
         if (!$user || !\Hash::check($this->input('password'), $user->password)) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($memberId, $userType, $ipAddress);
+            
+            // Log failed login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed',
+                null,
+                $ipAddress,
+                [
+                    'member_id' => $memberId,
+                    'user_type' => $userType,
+                    'is_locked' => $lockoutInfo['is_locked'],
+                    'attempts_remaining' => $lockoutInfo['attempts_remaining'] ?? null
+                ]
+            );
             
             $messages = ['member_id' => __('auth.failed')];
             

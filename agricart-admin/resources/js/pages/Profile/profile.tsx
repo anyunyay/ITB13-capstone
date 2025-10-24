@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
-import { User, Edit, Mail, Phone, Calendar, Shield, MapPin } from 'lucide-react';
+import { User, Edit, Mail, Phone, Calendar, Shield, MapPin, FileText, Settings, Key, Palette, HelpCircle, LogOut, Database } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileEditModal from '@/components/ProfileEditModal';
 import { getDisplayEmail } from '@/lib/utils';
+import { router } from '@inertiajs/react';
 
 // Utility function to mask phone numbers for security (show only last 3 digits)
 const maskPhone = (phone: string): string => {
@@ -268,6 +269,101 @@ export default function ProfilePage() {
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* Navigation Links for Admin/Staff */}
+                {(user?.type === 'admin' || user?.type === 'staff') && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                    <Settings className="h-5 w-5 text-primary" />
+                                </div>
+                                Admin Tools
+                            </CardTitle>
+                            <CardDescription>
+                                Access administrative features and system management tools
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {/* System Logs */}
+                                <Button
+                                    variant="outline"
+                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                    onClick={() => router.visit(route('admin.system-logs'))}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Database className="h-5 w-5 text-primary" />
+                                        <span className="font-medium">System Logs</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground text-left">
+                                        View and analyze system activity logs, user actions, and security events
+                                    </p>
+                                </Button>
+
+                                {/* Password Change */}
+                                <Button
+                                    variant="outline"
+                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                    onClick={() => router.visit(route('admin.profile.password'))}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Key className="h-5 w-5 text-primary" />
+                                        <span className="font-medium">Change Password</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground text-left">
+                                        Update your account password for enhanced security
+                                    </p>
+                                </Button>
+
+                                {/* Appearance Settings */}
+                                <Button
+                                    variant="outline"
+                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                    onClick={() => router.visit(route('admin.profile.appearance'))}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Palette className="h-5 w-5 text-primary" />
+                                        <span className="font-medium">Appearance</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground text-left">
+                                        Customize your interface theme and display preferences
+                                    </p>
+                                </Button>
+
+                                {/* Help & Support */}
+                                <Button
+                                    variant="outline"
+                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                    onClick={() => router.visit(route('admin.profile.help'))}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <HelpCircle className="h-5 w-5 text-primary" />
+                                        <span className="font-medium">Help & Support</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground text-left">
+                                        Get help, documentation, and contact support
+                                    </p>
+                                </Button>
+
+                                {/* Logout */}
+                                <Button
+                                    variant="outline"
+                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-destructive/5 hover:border-destructive/20 transition-all duration-200"
+                                    onClick={() => router.visit(route('admin.profile.logout.page'))}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <LogOut className="h-5 w-5 text-destructive" />
+                                        <span className="font-medium">Logout</span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground text-left">
+                                        Sign out of your account securely
+                                    </p>
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             {/* Profile Edit Modal */}

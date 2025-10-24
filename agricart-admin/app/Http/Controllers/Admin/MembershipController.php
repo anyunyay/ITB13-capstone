@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\PasswordChangeRequest;
 use App\Notifications\MembershipUpdateNotification;
+use App\Helpers\SystemLogger;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
@@ -270,6 +271,19 @@ class MembershipController extends Controller
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+
+        // Log report generation
+        SystemLogger::logReportGeneration(
+            'membership_report',
+            request()->user()->id,
+            request()->user()->type,
+            [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'format' => $format,
+                'display' => $display
+            ]
+        );
 
         $query = User::where('type', 'member');
 

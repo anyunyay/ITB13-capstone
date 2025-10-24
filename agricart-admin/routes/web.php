@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\LogisticController as AdminLogisticController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\SystemLogsController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Customer\CartController;
 // Customer Controllers
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('admin.profile.help');
         Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
+        
+        // System Logs routes (admin and staff only)
+        Route::get('/system-logs', [SystemLogsController::class, 'index'])->name('admin.system-logs');
+        Route::get('/system-logs/export', [SystemLogsController::class, 'export'])->name('admin.system-logs.export');
         
         // Admin Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('admin.profile.email-change.send-otp');

@@ -202,7 +202,7 @@ class LogisticController extends Controller
             $totalAmount = $order->total_amount; // Already includes co-op share
             
             // Create a Sales record for the delivered order
-            Sales::create([
+            $sale = Sales::create([
                 'customer_id' => $order->customer_id,
                 'subtotal' => $subtotal, // Product prices from sales_audit
                 'coop_share' => $coopShare, // Co-op share from sales_audit
@@ -215,6 +215,21 @@ class LogisticController extends Controller
                 'sales_audit_id' => $order->id,
                 'delivered_at' => now(),
             ]);
+
+            // Log sales creation
+            SystemLogger::logLogisticActivity(
+                'sales_created',
+                Auth::id(),
+                [
+                    'sale_id' => $sale->id,
+                    'order_id' => $order->id,
+                    'customer_id' => $order->customer_id,
+                    'total_amount' => $totalAmount,
+                    'subtotal' => $subtotal,
+                    'coop_share' => $coopShare,
+                    'member_share' => $memberShare
+                ]
+            );
         }
 
         // Log delivery status change

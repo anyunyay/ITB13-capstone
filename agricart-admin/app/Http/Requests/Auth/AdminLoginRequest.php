@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Services\LoginLockoutService;
+use App\Helpers\SystemLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,19 @@ class AdminLoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, 'admin', $ipAddress);
+            
+            // Log failed login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed',
+                null,
+                $ipAddress,
+                [
+                    'email' => $email,
+                    'user_type' => 'admin',
+                    'is_locked' => $lockoutInfo['is_locked'],
+                    'attempts_remaining' => $lockoutInfo['attempts_remaining'] ?? null
+                ]
+            );
             
             $messages = ['email' => __('auth.failed')];
             

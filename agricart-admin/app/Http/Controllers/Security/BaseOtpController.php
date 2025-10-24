@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\SystemLogger;
 
 abstract class BaseOtpController extends \App\Http\Controllers\Controller
 {
@@ -207,6 +208,19 @@ abstract class BaseOtpController extends \App\Http\Controllers\Controller
         }
         
         $user->save();
+
+        // Log successful verification
+        SystemLogger::logSecurityEvent(
+            $this->getVerificationType() . '_changed',
+            $user->id,
+            request()->ip(),
+            [
+                'user_type' => $user->type,
+                'old_value' => $user->{$this->getUserFieldName()},
+                'new_value' => $otpRequest->getVerificationTarget(),
+                'verification_type' => $this->getVerificationType()
+            ]
+        );
 
         // Mark the request as used
         $otpRequest->markAsUsed();

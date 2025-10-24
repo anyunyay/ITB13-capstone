@@ -3,7 +3,7 @@ import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings, MapPin, Lock, Palette, HelpCircle, User as UserIcon } from 'lucide-react';
+import { LogOut, Settings, MapPin, Lock, Palette, HelpCircle, User as UserIcon, Database } from 'lucide-react';
 import { clearSessionData } from '@/lib/csrf-cleanup';
 
 interface AvatarDropdownProps {
@@ -54,6 +54,14 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                                 Profile
                             </Link>
                         </DropdownMenuItem>
+                        {(user.type === 'admin' || user.type === 'staff') && (
+                            <DropdownMenuItem asChild>
+                                <Link className="block w-full" href="/admin/system-logs" as="button" prefetch onClick={cleanup}>
+                                    <Database className="mr-2 h-4 w-4" />
+                                    System Logs
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
                         {user.type === 'customer' && (
                             <DropdownMenuItem asChild>
                                 <Link className="block w-full" href={routes.addresses} as="button" prefetch onClick={cleanup}>

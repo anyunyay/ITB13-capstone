@@ -246,6 +246,17 @@ class AuthenticatedSessionController extends Controller
 
         // Block non-admin/staff users from using admin login
         if (!in_array($user->type, ['admin', 'staff'])) {
+            // Log failed login attempt
+            SystemLogger::logAuthentication(
+                'login_failed_wrong_portal',
+                $user->id,
+                $user->type,
+                [
+                    'target_portal' => 'admin',
+                    'ip_address' => $request->ip()
+                ]
+            );
+            
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -258,6 +269,14 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user->ensurePermissions();
+
+        // Log successful admin/staff login
+        SystemLogger::logAuthentication(
+            'login_success',
+            $user->id,
+            $user->type,
+            ['ip_address' => $request->ip()]
+        );
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -289,6 +308,17 @@ class AuthenticatedSessionController extends Controller
 
         // Block non-members from using member login
         if ($user->type !== 'member') {
+            // Log failed login attempt
+            SystemLogger::logAuthentication(
+                'login_failed_wrong_portal',
+                $user->id,
+                $user->type,
+                [
+                    'target_portal' => 'member',
+                    'ip_address' => $request->ip()
+                ]
+            );
+            
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -301,6 +331,14 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user->ensurePermissions();
+
+        // Log successful member login
+        SystemLogger::logAuthentication(
+            'login_success',
+            $user->id,
+            'member',
+            ['ip_address' => $request->ip()]
+        );
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -332,6 +370,17 @@ class AuthenticatedSessionController extends Controller
 
         // Block non-logistics from using logistics login
         if ($user->type !== 'logistic') {
+            // Log failed login attempt
+            SystemLogger::logAuthentication(
+                'login_failed_wrong_portal',
+                $user->id,
+                $user->type,
+                [
+                    'target_portal' => 'logistic',
+                    'ip_address' => $request->ip()
+                ]
+            );
+            
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -344,6 +393,14 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user->ensurePermissions();
+
+        // Log successful logistic login
+        SystemLogger::logAuthentication(
+            'login_success',
+            $user->id,
+            'logistic',
+            ['ip_address' => $request->ip()]
+        );
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {

@@ -11,6 +11,7 @@ use App\Models\Stock;
 use App\Models\MemberEarnings;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Helpers\SystemLogger;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Log admin dashboard access
+        SystemLogger::logAdminActivity(
+            'dashboard_access',
+            request()->user()->id,
+            ['ip_address' => request()->ip()]
+        );
+
         // Get current date and date ranges
         $now = Carbon::now();
         $today = $now->copy()->startOfDay();

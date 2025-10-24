@@ -8,6 +8,7 @@ use App\Models\Stock;
 use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
 use App\Models\AuditTrail;
+use App\Helpers\SystemLogger;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -65,6 +66,21 @@ class InventoryController extends Controller
                 'image' => 'images/products/' . $imageName,
                 'produce_type' => $request->input('produce_type'),
             ]);
+
+            // Log product creation
+            SystemLogger::logProductManagement(
+                'create',
+                $product->id,
+                $request->user()->id,
+                $request->user()->type,
+                [
+                    'product_name' => $product->name,
+                    'produce_type' => $product->produce_type,
+                    'price_kilo' => $product->price_kilo,
+                    'price_pc' => $product->price_pc,
+                    'price_tali' => $product->price_tali
+                ]
+            );
 
             // Record initial price snapshot
             ProductPriceHistory::create([
@@ -124,6 +140,22 @@ class InventoryController extends Controller
                 $original['price_tali'] != $product->price_tali
             );
 
+            // Log product update
+            SystemLogger::logProductManagement(
+                'update',
+                $product->id,
+                $request->user()->id,
+                $request->user()->type,
+                [
+                    'product_name' => $product->name,
+                    'produce_type' => $product->produce_type,
+                    'price_kilo' => $product->price_kilo,
+                    'price_pc' => $product->price_pc,
+                    'price_tali' => $product->price_tali,
+                    'price_changed' => $changed
+                ]
+            );
+
             if ($changed) {
                 // Record in ProductPriceHistory
                 ProductPriceHistory::create([
@@ -173,6 +205,18 @@ class InventoryController extends Controller
                     'message' => "Cannot delete product '{$product->name}'. {$reason}"
                 ]);
         }
+
+        // Log product deletion
+        SystemLogger::logProductManagement(
+            'delete',
+            $product->id,
+            request()->user()->id,
+            request()->user()->type,
+            [
+                'product_name' => $product->name,
+                'produce_type' => $product->produce_type
+            ]
+        );
 
         // Delete the image file if it exists
         if ($product->image && file_exists(public_path($product->image))) {
