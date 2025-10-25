@@ -156,7 +156,7 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title="Add Member" />
-                <div className="max-w-4xl mx-auto p-6 space-y-6">
+                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-6">
                         <Button variant="ghost" size="sm" asChild>

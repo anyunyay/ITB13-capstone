@@ -38,6 +38,7 @@ export default function Index() {
     
     // Search state
     const [searchTerm, setSearchTerm] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
     
     // View state
     const [showDeactivated, setShowDeactivated] = useState(false);
@@ -250,7 +251,7 @@ export default function Index() {
             <AppLayout>
                 <Head title="Membership Management" />
                 <div className="min-h-screen bg-background">
-                    <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4">
+                    <div className="w-full flex flex-col px-4 py-4 sm:px-6 lg:px-8">
                         <DashboardHeader memberStats={memberStats} />
 
                         <FlashMessages
@@ -271,6 +272,8 @@ export default function Index() {
                             members={members}
                             searchTerm={searchTerm}
                             setSearchTerm={setSearchTerm}
+                            showSearch={showSearch}
+                            setShowSearch={setShowSearch}
                             filteredAndSortedMembers={filteredAndSortedMembers}
                             paginatedMembers={paginatedMembers}
                             currentPage={currentPage}

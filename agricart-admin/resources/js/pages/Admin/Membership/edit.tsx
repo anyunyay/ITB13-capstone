@@ -139,7 +139,7 @@ export default function Edit({member}: Props) {
         >
             <AppLayout>
                 <Head title="Update Member"/>
-                <div className='w-8/12 p-4'>
+                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (

@@ -112,7 +112,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     >
       <AppLayout>
         <Head title="Membership Report" />
-        <div className="p-6">
+        <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Membership Report</h1>
           <div className="flex gap-2">

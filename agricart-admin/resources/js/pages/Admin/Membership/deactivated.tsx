@@ -94,7 +94,7 @@ export default function Deactivated() {
         >
             <AppLayout>
                 <Head title="Deactivated Members" />
-                <div className="m-4">
+                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold">Deactivated Members</h1>
                     <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function Deactivated() {
                     </div>
                 </div>
 
-                <div className='m-4'>
+                <div>
                     <div>
                         {flash.message && (
                             <Alert>

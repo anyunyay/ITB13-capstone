@@ -15,6 +15,8 @@ interface MemberManagementProps {
     members: Member[];
     searchTerm: string;
     setSearchTerm: (term: string) => void;
+    showSearch: boolean;
+    setShowSearch: (show: boolean) => void;
     filteredAndSortedMembers: Member[];
     paginatedMembers: Member[];
     currentPage: number;
@@ -38,6 +40,8 @@ export const MemberManagement = ({
     members,
     searchTerm,
     setSearchTerm,
+    showSearch,
+    setShowSearch,
     filteredAndSortedMembers,
     paginatedMembers,
     currentPage,
@@ -70,6 +74,15 @@ export const MemberManagement = ({
         setCurrentPage(1);
     };
 
+    // Handle search toggle
+    const handleSearchToggle = () => {
+        if (showSearch) {
+            // Clear search when hiding
+            setSearchTerm('');
+        }
+        setShowSearch(!showSearch);
+    };
+
     // Get sort icon for a field
     const getSortIcon = (field: string) => {
         if (sortBy !== field) {
@@ -96,6 +109,14 @@ export const MemberManagement = ({
                 </div>
                 <div className="flex gap-3 flex-wrap">
                     <Button
+                        variant={showSearch ? "default" : "outline"}
+                        onClick={handleSearchToggle}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        {showSearch ? 'Hide Search' : 'Search'}
+                    </Button>
+                    <Button
                         variant={showDeactivated ? "default" : "outline"}
                         onClick={() => setShowDeactivated(!showDeactivated)}
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
@@ -116,7 +137,9 @@ export const MemberManagement = ({
             </div>
 
             {/* Search and Filter */}
-            <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
+                showSearch ? styles.expanded : styles.collapsed
+            }`}>
                 <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
                     <div className="relative flex-1">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
