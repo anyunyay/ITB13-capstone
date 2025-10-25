@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'email_verified_at' => now(), // Members are considered verified by default
             'active' => true,
-            'is_default' => true,
+            'is_default' => false,
         ]);
 
         // Create default address for the member
