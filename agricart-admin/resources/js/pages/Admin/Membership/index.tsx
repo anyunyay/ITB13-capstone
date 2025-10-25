@@ -249,8 +249,8 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title="Membership Management" />
-                <div className={styles.membershipContainer}>
-                    <div className={styles.mainContent}>
+                <div className="min-h-screen bg-background">
+                    <div className="max-w-6xl mx-auto p-4 flex flex-col gap-4">
                         <DashboardHeader memberStats={memberStats} />
 
                         <FlashMessages

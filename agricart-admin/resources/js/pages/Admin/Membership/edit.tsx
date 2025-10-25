@@ -116,7 +116,7 @@ export default function Edit({member}: Props) {
     }
 
     // Check if update should be disabled
-    const isUpdateDisabled = member.document_marked_for_deletion && !hasNewFile;
+    const isUpdateDisabled = Boolean(member.document_marked_for_deletion) && !hasNewFile;
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -327,7 +327,7 @@ export default function Edit({member}: Props) {
                         onFileDelete={handleFileDelete}
                         accept=".jpg,.jpeg,.png,.pdf"
                         memberId={member.id}
-                        documentMarkedForDeletion={member.document_marked_for_deletion}
+                        documentMarkedForDeletion={Boolean(member.document_marked_for_deletion)}
                     />
                     {errors.document && <p className="text-sm text-red-500 mt-1">{errors.document}</p>}
                     

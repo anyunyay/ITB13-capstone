@@ -81,24 +81,24 @@ export const MemberManagement = ({
     };
 
     return (
-        <div className={styles.memberManagementSection}>
-            <div className={styles.sectionHeader}>
-                <div className={styles.sectionTitleContainer}>
-                    <div className={styles.sectionIcon}>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 text-primary p-3 rounded-lg flex items-center justify-center">
                         <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className={styles.sectionTitle}>Member Directory</h2>
-                        <p className={styles.sectionSubtitle}>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Member Directory</h2>
+                        <p className="text-sm text-muted-foreground m-0">
                             {showDeactivated ? 'Viewing deactivated members' : 'Manage and view all registered members'}
                         </p>
                     </div>
                 </div>
-                <div className={styles.sectionActions}>
+                <div className="flex gap-3 flex-wrap">
                     <Button
                         variant={showDeactivated ? "default" : "outline"}
                         onClick={() => setShowDeactivated(!showDeactivated)}
-                        className={styles.sectionActionButton}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         {showDeactivated ? (
                             <>
@@ -116,27 +116,27 @@ export const MemberManagement = ({
             </div>
 
             {/* Search and Filter */}
-            <div className={styles.searchFilterSection}>
-                <div className={styles.searchControls}>
-                    <div className={styles.searchInputContainer}>
-                        <Search className={styles.searchIcon} />
+            <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         <Input
                             type="text"
                             placeholder="Search members by name, ID, or contact..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className={styles.searchInput}
+                            className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
                         />
                     </div>
                 </div>
-                <div className={styles.resultsInfo}>
-                    <span className={styles.resultsCount}>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-sm text-muted-foreground font-medium">
                         Showing {paginatedMembers.length} of {totalMembers} members
                     </span>
                     {searchTerm && (
                         <button
                             onClick={() => setSearchTerm('')}
-                            className={styles.clearSearch}
+                            className="text-sm text-primary no-underline transition-colors duration-200 hover:text-primary/80"
                         >
                             Clear search
                         </button>
@@ -148,10 +148,10 @@ export const MemberManagement = ({
             {paginatedMembers.length > 0 ? (
                 <>
                     <div className="rounded-md border">
-                        <Table className={styles.memberTable}>
-                            <TableHeader className={styles.memberTableHeader}>
+                        <Table className="w-full border-collapse">
+                            <TableHeader className="bg-muted/50">
                                 <TableRow>
-                                    <TableHead className={styles.memberTableHeaderCell}>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleSort('id')}
@@ -161,11 +161,11 @@ export const MemberManagement = ({
                                             {getSortIcon('id')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Member ID</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Name</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Contact</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Address</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Member ID</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Name</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleSort('registration_date')}
@@ -175,9 +175,9 @@ export const MemberManagement = ({
                                             {getSortIcon('registration_date')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Type</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Document</TableHead>
-                                    <TableHead className={styles.memberTableHeaderCell}>Actions</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Type</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Document</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -185,32 +185,32 @@ export const MemberManagement = ({
                                     <TableRow
                                         key={member.id}
                                         id={`member-row-${member.id}`}
-                                        className={`${styles.memberTableRow} ${
+                                        className={`border-b border-border transition-colors duration-150 hover:bg-muted/30 ${
                                             highlightMemberId === member.id ? styles.highlighted : ''
                                         }`}
                                     >
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <Badge variant="outline">#{idx + 1}</Badge>
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             {member.member_id || 'N/A'}
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <div className="font-medium">{member.name}</div>
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             {member.contact_number || 'N/A'}
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             {member.default_address ? 
                                                 `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
                                                 : 'N/A'
                                             }
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             {member.registration_date || 'N/A'}
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <div className="flex flex-col gap-1">
                                                 <Badge variant="secondary">
                                                     {member.type || 'Regular'}
@@ -222,17 +222,17 @@ export const MemberManagement = ({
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className={styles.memberTableCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <SafeImage 
                                                 src={member.document} 
                                                 alt={`Document for ${member.name}`} 
                                                 className="max-w-24 object-cover rounded"
                                             />
                                         </TableCell>
-                                        <TableCell className={styles.memberActionCell}>
-                                            <div className={styles.memberActionCell}>
+                                        <TableCell className="px-4 py-3 text-sm text-foreground">
+                                            <div className="flex gap-2">
                                                 <PermissionGate permission="edit members">
-                                                    <Button asChild size="sm" className={styles.memberActionButton}>
+                                                    <Button asChild size="sm" className="transition-all duration-200 hover:scale-105">
                                                         <Link href={route('membership.edit', member.id)}>
                                                             <Edit className="h-3 w-3 mr-1" />
                                                             Edit
@@ -247,7 +247,7 @@ export const MemberManagement = ({
                                                                 onClick={() => onDeactivate(member)} 
                                                                 size="sm"
                                                                 variant="destructive"
-                                                                className={styles.memberActionButton}
+                                                                className="transition-all duration-200 hover:scale-105"
                                                             >
                                                                 <UserMinus className="h-3 w-3 mr-1" />
                                                                 Deactivate
@@ -260,7 +260,7 @@ export const MemberManagement = ({
                                                             disabled={processing} 
                                                             onClick={() => onReactivate(member)} 
                                                             size="sm"
-                                                            className={`${styles.memberActionButton} bg-green-600 hover:bg-green-700 text-white`}
+                                                            className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105"
                                                         >
                                                             <RotateCcw className="h-3 w-3 mr-1" />
                                                             Reactivate
@@ -284,12 +284,12 @@ export const MemberManagement = ({
                     />
                 </>
             ) : (
-                <div className={styles.emptyState}>
-                    <UsersRound className={styles.emptyStateIcon} />
-                    <h3 className={styles.emptyStateTitle}>
+                <div className="text-center py-8">
+                    <UsersRound className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
                         {searchTerm ? 'No members found' : 'No members available'}
                     </h3>
-                    <p className={styles.emptyStateDescription}>
+                    <p className="text-muted-foreground">
                         {searchTerm 
                             ? 'Try adjusting your search criteria or filters.'
                             : 'Add new members to get started with membership management.'
