@@ -7,6 +7,7 @@ import { route } from 'ziggy-js';
 import { UsersRound, Search, Edit, UserMinus, RotateCcw, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
+import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Member } from '../../types/membership';
 import { SafeImage } from '@/lib/image-utils';
 import styles from '../../pages/Admin/Membership/membership.module.css';
@@ -137,35 +138,15 @@ export const MemberManagement = ({
             </div>
 
             {/* Search and Filter */}
-            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
-                showSearch ? styles.expanded : styles.collapsed
-            }`}>
-                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                        <Input
-                            type="text"
-                            placeholder="Search members by name, ID, or contact..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
-                        />
-                    </div>
-                </div>
-                <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <span className="text-sm text-muted-foreground font-medium">
-                        Showing {paginatedMembers.length} of {totalMembers} members
-                    </span>
-                    {searchTerm && (
-                        <button
-                            onClick={() => setSearchTerm('')}
-                            className="text-sm text-primary no-underline transition-colors duration-200 hover:text-primary/80"
-                        >
-                            Clear search
-                        </button>
-                    )}
-                </div>
-            </div>
+            <AdminSearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                showSearch={showSearch}
+                setShowSearch={setShowSearch}
+                placeholder="Search members by name, ID, or contact..."
+                resultsCount={paginatedMembers.length}
+                totalCount={totalMembers}
+            />
 
             {/* Members Table */}
             {paginatedMembers.length > 0 ? (
