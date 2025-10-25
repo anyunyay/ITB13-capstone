@@ -8,6 +8,7 @@ import { route } from 'ziggy-js';
 import { IdCard, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
+import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Logistic } from '../../types/logistics';
 import styles from '../../pages/Admin/Logistics/logistics.module.css';
 
@@ -15,6 +16,8 @@ interface LogisticManagementProps {
     logistics: Logistic[];
     searchTerm: string;
     setSearchTerm: (term: string) => void;
+    showSearch: boolean;
+    setShowSearch: (show: boolean) => void;
     filteredAndSortedLogistics: Logistic[];
     paginatedLogistics: Logistic[];
     currentPage: number;
@@ -38,6 +41,8 @@ export const LogisticManagement = ({
     logistics,
     searchTerm,
     setSearchTerm,
+    showSearch,
+    setShowSearch,
     filteredAndSortedLogistics,
     paginatedLogistics,
     currentPage,
@@ -88,6 +93,19 @@ export const LogisticManagement = ({
                 </div>
                 <div className={styles.sectionActions}>
                     <Button
+                        variant={showSearch ? "default" : "outline"}
+                        onClick={() => {
+                            if (showSearch) {
+                                setSearchTerm('');
+                            }
+                            setShowSearch(!showSearch);
+                        }}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        {showSearch ? 'Hide Search' : 'Search'}
+                    </Button>
+                    <Button
                         variant={showDeactivated ? "default" : "outline"}
                         onClick={() => setShowDeactivated(!showDeactivated)}
                         className={styles.sectionActionButton}
@@ -108,33 +126,15 @@ export const LogisticManagement = ({
             </div>
 
             {/* Search and Filter */}
-            <div className={styles.searchFilterSection}>
-                <div className={styles.searchControls}>
-                    <div className={styles.searchInputContainer}>
-                        <Search className={styles.searchIcon} />
-                        <Input
-                            type="text"
-                            placeholder="Search logistics by ID, name, email, or contact..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={styles.searchInput}
-                        />
-                    </div>
-                </div>
-                <div className={styles.resultsInfo}>
-                    <span className={styles.resultsCount}>
-                        Showing {paginatedLogistics.length} of {totalLogistics} logistics
-                    </span>
-                    {searchTerm && (
-                        <button
-                            onClick={() => setSearchTerm('')}
-                            className={styles.clearSearch}
-                        >
-                            Clear search
-                        </button>
-                    )}
-                </div>
-            </div>
+            <AdminSearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                showSearch={showSearch}
+                setShowSearch={setShowSearch}
+                placeholder="Search logistics by ID, name, email, or contact..."
+                resultsCount={paginatedLogistics.length}
+                totalCount={totalLogistics}
+            />
 
             {/* Logistics Table */}
             {paginatedLogistics.length > 0 ? (

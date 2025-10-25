@@ -27,6 +27,7 @@ export default function Index() {
     
     // State management
     const [searchTerm, setSearchTerm] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('name');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -173,6 +174,8 @@ export default function Index() {
                             logistics={logistics}
                             searchTerm={searchTerm}
                             setSearchTerm={setSearchTerm}
+                            showSearch={showSearch}
+                            setShowSearch={setShowSearch}
                             filteredAndSortedLogistics={filteredAndSortedLogistics}
                             paginatedLogistics={paginatedLogistics}
                             currentPage={currentPage}
