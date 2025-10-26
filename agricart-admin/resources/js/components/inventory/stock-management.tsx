@@ -1,14 +1,17 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History } from 'lucide-react';
+import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
 import { useState } from 'react';
+import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
 interface StockManagementProps {
     stocks: Stock[];
@@ -22,6 +25,14 @@ interface StockManagementProps {
     handleRemovePerishedStock: (stock: Stock) => void;
     getFilteredStocks: (status: string) => Stock[];
     getPaginatedStocks: (stocks: Stock[], page: number, itemsPerPage: number) => Stock[];
+    stockSearchTerm: string;
+    setStockSearchTerm: (term: string) => void;
+    showStockSearch: boolean;
+    setShowStockSearch: (show: boolean) => void;
+    selectedStockCategory: string;
+    setSelectedStockCategory: (category: string) => void;
+    stockSortBy: string;
+    setStockSortBy: (sort: string) => void;
 }
 
 export const StockManagement = ({
@@ -35,7 +46,15 @@ export const StockManagement = ({
     processing,
     handleRemovePerishedStock,
     getFilteredStocks,
-    getPaginatedStocks
+    getPaginatedStocks,
+    stockSearchTerm,
+    setStockSearchTerm,
+    showStockSearch,
+    setShowStockSearch,
+    selectedStockCategory,
+    setSelectedStockCategory,
+    stockSortBy,
+    setStockSortBy
 }: StockManagementProps) => {
     const [currentView, setCurrentView] = useState<'stocks' | 'trail' | 'sold'>('stocks');
 
@@ -274,7 +293,21 @@ export const StockManagement = ({
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-3 flex-wrap items-center">
+                    <Button
+                        variant={showStockSearch ? "default" : "outline"}
+                        onClick={() => {
+                            if (showStockSearch) {
+                                setStockSearchTerm('');
+                            }
+                            setShowStockSearch(!showStockSearch);
+                        }}
+                        size="sm"
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        {showStockSearch ? 'Hide Search' : 'Search'}
+                    </Button>
                     <Button 
                         disabled={processing} 
                         variant={currentView === 'stocks' ? "default" : "outline"} 
@@ -306,6 +339,79 @@ export const StockManagement = ({
                             Sold Items
                         </Button>
                     </PermissionGate>
+                </div>
+            </div>
+
+            {/* Stock Search Bar */}
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
+                showStockSearch ? styles.expanded : styles.collapsed
+            }`}>
+                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
+                    <div className="relative flex-1 flex items-center">
+                        <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
+                        <Input
+                            type="text"
+                            placeholder="Search stocks by product name, type, category, or stock ID..."
+                            value={stockSearchTerm}
+                            onChange={(e) => setStockSearchTerm(e.target.value)}
+                            className="w-full pl-9 pr-9 py-2 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
+                        />
+                        {stockSearchTerm && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setStockSearchTerm('')}
+                                className="absolute right-2 p-1 min-w-auto h-6 w-6 rounded-full bg-muted text-muted-foreground border-none hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                                ×
+                            </Button>
+                        )}
+                    </div>
+                    <div className="flex gap-3 flex-shrink-0">
+                        <Select value={selectedStockCategory} onValueChange={setSelectedStockCategory}>
+                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                                <Filter className="h-4 w-4" />
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                <SelectItem value="Kilo">Kilo</SelectItem>
+                                <SelectItem value="Pc">Piece</SelectItem>
+                                <SelectItem value="Tali">Tali</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={stockSortBy} onValueChange={setStockSortBy}>
+                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                                <SelectValue placeholder="Sort by" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="id">Stock ID</SelectItem>
+                                <SelectItem value="quantity">Quantity (High to Low)</SelectItem>
+                                <SelectItem value="product">Product Name</SelectItem>
+                                <SelectItem value="category">Category</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-sm text-muted-foreground font-medium">
+                        {stockSearchTerm || selectedStockCategory !== 'all' 
+                            ? 'Filtered results' 
+                            : 'Ready to search stocks'}
+                    </span>
+                    {(stockSearchTerm || selectedStockCategory !== 'all') && (
+                        <button
+                            onClick={() => {
+                                setStockSearchTerm('');
+                                setSelectedStockCategory('all');
+                                setStockSortBy('id');
+                            }}
+                            className="text-sm text-primary hover:text-primary/80 transition-colors"
+                            type="button"
+                        >
+                            Clear filters
+                        </button>
+                    )}
                 </div>
             </div>
 

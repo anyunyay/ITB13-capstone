@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertTriangle, Package, Warehouse } from 'lucide-react';
 import animations from './animations.module.css';
 import { PermissionGate } from '@/components/permission-gate';
@@ -41,12 +41,24 @@ export default function InventoryIndex() {
     // Toggle state for switching between Product and Stock management
     const [activeTab, setActiveTab] = useState<'products' | 'stocks'>('products');
 
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(12); // 12 products per page for better focus
+    const [stockCurrentPage, setStockCurrentPage] = useState(1);
+    const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
+
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [showArchived, setShowArchived] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
+    
+    // Stock search and filter state
+    const [stockSearchTerm, setStockSearchTerm] = useState('');
+    const [showStockSearch, setShowStockSearch] = useState(false);
+    const [selectedStockCategory, setSelectedStockCategory] = useState('all');
+    const [stockSortBy, setStockSortBy] = useState('id');
 
     // Reset pagination when switching views
     const toggleArchivedView = (show: boolean) => {
@@ -54,11 +66,10 @@ export default function InventoryIndex() {
         setCurrentPage(1); // Reset to first page when switching views
     };
 
-    // Pagination states
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(12); // 12 products per page for better focus
-    const [stockCurrentPage, setStockCurrentPage] = useState(1);
-    const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
+    // Reset stock pagination when search or filters change
+    useEffect(() => {
+        setStockCurrentPage(1);
+    }, [stockSearchTerm, selectedStockCategory, stockSortBy, setStockCurrentPage]);
 
 
     // Form for archive and delete operations
@@ -120,7 +131,22 @@ export default function InventoryIndex() {
     // Stock filtering and pagination functions
     const getFilteredStocks = (status: string) => {
         if (!stocks || !Array.isArray(stocks)) return [];
-        return stocks.filter(stock => {
+        
+        const filtered = stocks.filter(stock => {
+            // Search filter
+            const matchesSearch = !stockSearchTerm || 
+                stock.product?.name?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
+                stock.product?.produce_type?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
+                stock.category?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
+                stock.id.toString().includes(stockSearchTerm);
+            
+            if (!matchesSearch) return false;
+            
+            // Category filter
+            const matchesCategory = selectedStockCategory === 'all' || stock.category === selectedStockCategory;
+            if (!matchesCategory) return false;
+            
+            // Status filter
             if (status === 'all') return true;
             if (status === 'available') return stock.quantity > 10;
             if (status === 'low') return stock.quantity > 0 && stock.quantity <= 10;
@@ -130,6 +156,22 @@ export default function InventoryIndex() {
             if (status === 'Pc') return stock.category === 'Pc';
             if (status === 'Tali') return stock.category === 'Tali';
             return true;
+        });
+        
+        // Sort filtered stocks
+        return filtered.sort((a, b) => {
+            switch (stockSortBy) {
+                case 'id':
+                    return a.id - b.id;
+                case 'quantity':
+                    return b.quantity - a.quantity; // Descending (highest first)
+                case 'product':
+                    return (a.product?.name || '').localeCompare(b.product?.name || '');
+                case 'category':
+                    return (a.category || '').localeCompare(b.category || '');
+                default:
+                    return a.id - b.id;
+            }
         });
     };
 
@@ -346,6 +388,14 @@ export default function InventoryIndex() {
                                     handleRemovePerishedStock={handleRemovePerishedStock}
                                     getFilteredStocks={getFilteredStocks}
                                     getPaginatedStocks={getPaginatedStocks}
+                                    stockSearchTerm={stockSearchTerm}
+                                    setStockSearchTerm={setStockSearchTerm}
+                                    showStockSearch={showStockSearch}
+                                    setShowStockSearch={setShowStockSearch}
+                                    selectedStockCategory={selectedStockCategory}
+                                    setSelectedStockCategory={setSelectedStockCategory}
+                                    stockSortBy={stockSortBy}
+                                    setStockSortBy={setStockSortBy}
                                 />
                             </TabsContent>
                         </Tabs>
