@@ -51,7 +51,7 @@ export function AppSidebar() {
   }
 
   // Orders - check for order-related permissions
-  if (can('view orders') || can('create orders') || can('edit orders') || 
+          if (can('view orders') || can('manage orders') || 
       can('generate order report')) {
     mainNavItems.push({
       title: 'Orders',

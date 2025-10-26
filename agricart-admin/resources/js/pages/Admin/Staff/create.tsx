@@ -55,8 +55,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
       description: 'Access to order management and processing',
       permissions: [
         'view orders',
-        'create orders',
-        'edit orders',
+        'manage orders',
         'approve orders',
         'reject orders',
         'process orders',

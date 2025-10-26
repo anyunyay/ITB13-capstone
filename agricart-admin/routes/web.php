@@ -147,7 +147,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/orders/{order}/receipt-preview', [OrderController::class, 'receiptPreview'])->whereNumber('order')->name('admin.orders.receiptPreview');
             Route::get('/orders/{order}/delivery-proof', [OrderController::class, 'deliveryProof'])->whereNumber('order')->name('admin.orders.deliveryProof');
         });
-        Route::middleware(['can:edit orders'])->group(function () {
+        Route::middleware(['can:manage orders'])->group(function () {
             Route::post('/orders/{order}/approve', [OrderController::class, 'approve'])->whereNumber('order')->name('admin.orders.approve');
             Route::post('/orders/{order}/reject', [OrderController::class, 'reject'])->whereNumber('order')->name('admin.orders.reject');
             Route::post('/orders/{order}/process', [OrderController::class, 'process'])->whereNumber('order')->name('admin.orders.process');

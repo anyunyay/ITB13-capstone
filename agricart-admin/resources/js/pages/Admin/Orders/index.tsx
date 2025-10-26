@@ -101,7 +101,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
 
   return (
     <PermissionGuard 
-      permissions={['view orders', 'create orders', 'edit orders', 'generate order report']}
+      permissions={['view orders', 'manage orders', 'generate order report']}
       pageTitle="Order Management Access Denied"
     >
       <AppLayout>

@@ -49,8 +49,7 @@ class RoleSeeder extends Seeder
 
             // Order Management
             'view orders',
-            'create orders',
-            'edit orders',
+            'manage orders',
             'delete orders', // Available for Staff (with admin approval)
             'approve orders',
             'reject orders',

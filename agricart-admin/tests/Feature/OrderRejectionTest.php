@@ -16,9 +16,9 @@ class OrderRejectionTest extends TestCase
 
     public function test_rejected_order_has_null_delivery_status()
     {
-        // Create an admin with edit orders permission
+        // Create an admin with manage orders permission
         $admin = User::factory()->admin()->create();
-        $admin->givePermissionTo('edit orders');
+        $admin->givePermissionTo('manage orders');
 
         // Create a customer
         $customer = User::factory()->customer()->create();
@@ -48,9 +48,9 @@ class OrderRejectionTest extends TestCase
 
     public function test_approved_order_rejected_has_null_delivery_status()
     {
-        // Create an admin with edit orders permission
+        // Create an admin with manage orders permission
         $admin = User::factory()->admin()->create();
-        $admin->givePermissionTo('edit orders');
+        $admin->givePermissionTo('manage orders');
 
         // Create a customer
         $customer = User::factory()->customer()->create();
