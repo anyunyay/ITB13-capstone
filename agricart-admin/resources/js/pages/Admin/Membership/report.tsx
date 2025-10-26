@@ -5,13 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Users, Download, FileText, Filter, X, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, Grid3X3, Table } from 'lucide-react';
 import dayjs from 'dayjs';
+import { format } from 'date-fns';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { SafeImage } from '@/lib/image-utils';
 
 interface Member {
   id: number;
+  member_id?: string;
   name: string;
   email: string;
   contact_number?: string;
@@ -32,6 +38,7 @@ interface ReportSummary {
 interface ReportFilters {
   start_date?: string;
   end_date?: string;
+  search?: string;
 }
 
 interface ReportPageProps {
@@ -42,23 +49,85 @@ interface ReportPageProps {
 
 export default function MembershipReport({ members, summary, filters }: ReportPageProps) {
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+  
+  // Date picker states
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    localFilters.start_date ? new Date(localFilters.start_date) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    localFilters.end_date ? new Date(localFilters.end_date) : undefined
+  );
 
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  // Date handling functions
+  const handleStartDateChange = (date: Date | undefined) => {
+    setStartDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      start_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setEndDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      end_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const getDateRangeDisplay = () => {
+    if (!startDate && !endDate) return 'No date range selected';
+    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
+    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+  };
+
+  const getDurationDisplay = () => {
+    if (!startDate || !endDate) return '';
+    const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
+    if (diffInDays === 1) return '1 day';
+    if (diffInDays === 7) return '1 week';
+    if (diffInDays === 30) return '1 month';
+    if (diffInDays < 7) return `${diffInDays} days`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
+    return `${Math.round(diffInDays / 30)} months`;
+  };
+
   const applyFilters = () => {
-    const params = new URLSearchParams();
-    if (localFilters.start_date) params.append('start_date', localFilters.start_date);
-    if (localFilters.end_date) params.append('end_date', localFilters.end_date);
+    const params: Record<string, any> = {};
+    if (localFilters.start_date) params.start_date = localFilters.start_date;
+    if (localFilters.end_date) params.end_date = localFilters.end_date;
+    if (localFilters.search) params.search = localFilters.search;
     
-    router.get(route('membership.report'), Object.fromEntries(params));
+    router.get(route('membership.report'), params);
+  };
+
+  const clearFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setLocalFilters({
+      start_date: '',
+      end_date: '',
+      search: ''
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return localFilters.start_date || localFilters.end_date || 
+           localFilters.search;
   };
 
   const exportReport = (format: 'csv' | 'pdf') => {
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
+    if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
     
     if (format === 'csv') {
@@ -78,6 +147,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      if (localFilters.search) displayParams.append('search', localFilters.search);
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('membership.report')}?${displayParams.toString()}`;
@@ -97,13 +167,6 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     }
   };
 
-  const getVerificationBadge = (verified: boolean) => {
-    return verified ? (
-      <Badge variant="default">Verified</Badge>
-    ) : (
-      <Badge variant="secondary">Pending</Badge>
-    );
-  };
 
   return (
     <PermissionGuard 
@@ -112,121 +175,286 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     >
       <AppLayout>
         <Head title="Membership Report" />
-        <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Membership Report</h1>
-          <div className="flex gap-2">
-            <Button onClick={() => exportReport('csv')} variant="outline">
-              Export CSV
-            </Button>
-            <Button onClick={() => exportReport('pdf')} variant="outline">
-              Export PDF
-            </Button>
+        <div className="min-h-screen bg-background">
+          <div className="w-full px-4 py-4 flex flex-col gap-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
+                    <Users className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold text-foreground">Membership Report</h1>
+                    <p className="text-muted-foreground mt-1">
+                      Generate comprehensive membership reports and analytics
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                  </Button>
+                  <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Export PDF
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Total Members
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-foreground">{summary.total_members}</div>
+                  <p className="text-xs text-muted-foreground mt-1">All registered members</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Active Members
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{summary.active_members}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Verified and active</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Pending Verification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-600">{summary.pending_verification}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Awaiting verification</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    Recent (30 days)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">{summary.recent_registrations}</div>
+                  <p className="text-xs text-muted-foreground mt-1">New registrations</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Advanced Filters - Collapsible */}
+            <Card className="shadow-sm">
+              <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Filter className="h-5 w-5 text-primary" />
+                        <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                        {hasActiveFilters() && (
+                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {hasActiveFilters() && (
+                          <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                            <X className="h-4 w-4" />
+                            Clear Filters
+                          </Button>
+                        )}
+                        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                        <Input
+                          placeholder="Search by member name or ID..."
+                          value={localFilters.search || ''}
+                          onChange={(e) => handleFilterChange('search', e.target.value)}
+                          className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Date Range Summary */}
+                    {(startDate || endDate) && (
+                      <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                            <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                            {getDurationDisplay() && (
+                              <p className="text-xs text-primary/70 mt-1">
+                                Duration: {getDurationDisplay()}
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setStartDate(undefined);
+                              setEndDate(undefined);
+                              setLocalFilters(prev => ({
+                                ...prev,
+                                start_date: '',
+                                end_date: ''
+                              }));
+                            }}
+                            className="text-xs"
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Clear
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Filter Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Start Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={startDate}
+                              onSelect={handleStartDateChange}
+                              initialFocus
+                              disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">End Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={endDate}
+                              onSelect={handleEndDateChange}
+                              initialFocus
+                              disabled={(date) => 
+                                date > new Date() || 
+                                date < new Date("1900-01-01") || 
+                                (startDate ? date < startDate : false)
+                              }
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="flex items-end">
+                        <Button onClick={applyFilters} className="w-full bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
+                          Apply Filters
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
+
+            {/* Members List */}
+            <Card className="shadow-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl">Members Report ({members.length} members)</CardTitle>
+                  <div className="flex items-center gap-4">
+                    <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
+                    <div className="text-sm text-muted-foreground">
+                      {members.length > 0 ? `Showing ${members.length} members` : 'No members found'}
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {members.length > 0 ? (
+                  <>
+                    {currentView === 'cards' ? (
+                      <div className="space-y-4">
+                        {members.map((member) => (
+                          <MemberCard key={member.id} member={member} />
+                        ))}
+                      </div>
+                    ) : (
+                      <MemberTable members={members} />
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                        <Users className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-medium text-foreground mb-2">No members found</h3>
+                      <p className="text-muted-foreground max-w-md">
+                        {hasActiveFilters() 
+                          ? 'No members match your current filter criteria. Try adjusting your filters to see more results.'
+                          : 'No membership data available for the selected time period.'
+                        }
+                      </p>
+                      {hasActiveFilters() && (
+                        <Button onClick={clearFilters} variant="outline" className="mt-4">
+                          Clear Filters
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="start_date">Start Date</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={localFilters.start_date || ''}
-                  onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date">End Date</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={localFilters.end_date || ''}
-                  onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button onClick={applyFilters} className="w-full">
-                  Apply Filters
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.total_members}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Active Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{summary.active_members}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Pending Verification</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{summary.pending_verification}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Recent (30 days)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{summary.recent_registrations}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Members List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Members ({members.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {members.map((member) => (
-                <MemberCard key={member.id} member={member} />
-              ))}
-              {members.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  No members found for the selected filters.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </AppLayout>
+      </AppLayout>
     </PermissionGuard>
   );
 }
 
 function MemberCard({ member }: { member: Member }) {
-  const getVerificationBadge = (verified: boolean) => {
-    return verified ? (
-      <Badge variant="default">Verified</Badge>
-    ) : (
-      <Badge variant="secondary">Pending</Badge>
-    );
-  };
 
   return (
     <Card>
@@ -234,12 +462,14 @@ function MemberCard({ member }: { member: Member }) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Member #{member.id}</CardTitle>
+            {member.member_id && (
+              <p className="text-sm text-blue-600 font-mono font-semibold">
+                ID: {member.member_id}
+              </p>
+            )}
             <p className="text-sm text-gray-500">
               {dayjs(member.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {getVerificationBadge(!!member.email_verified_at)}
           </div>
         </div>
       </CardHeader>
@@ -247,11 +477,13 @@ function MemberCard({ member }: { member: Member }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <h4 className="font-semibold mb-2">Member Information</h4>
+            {member.member_id && (
+              <p className="text-sm">
+                <span className="font-medium">Member ID:</span> <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
+              </p>
+            )}
             <p className="text-sm">
               <span className="font-medium">Name:</span> {member.name}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Email:</span> {member.email}
             </p>
             {member.contact_number && (
               <p className="text-sm">
@@ -269,14 +501,6 @@ function MemberCard({ member }: { member: Member }) {
             <p className="text-sm">
               <span className="font-medium">Registration Date:</span> {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : 'N/A'}
             </p>
-            <p className="text-sm">
-              <span className="font-medium">Email Verified:</span> {member.email_verified_at ? 'Yes' : 'No'}
-            </p>
-            {member.email_verified_at && (
-              <p className="text-sm">
-                <span className="font-medium">Verified On:</span> {dayjs(member.email_verified_at).format('MMM DD, YYYY')}
-              </p>
-            )}
           </div>
         </div>
         
@@ -292,5 +516,93 @@ function MemberCard({ member }: { member: Member }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ViewToggle Component
+function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'table'; onViewChange: (view: 'cards' | 'table') => void }) {
+  return (
+    <div className="flex gap-1 bg-muted p-1 rounded-lg border border-border">
+      <Button
+        variant={currentView === 'cards' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onViewChange('cards')}
+        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+      >
+        <Grid3X3 className="h-4 w-4 mr-2" />
+        Cards
+      </Button>
+      <Button
+        variant={currentView === 'table' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onViewChange('table')}
+        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+      >
+        <Table className="h-4 w-4 mr-2" />
+        Table
+      </Button>
+    </div>
+  );
+}
+
+// MemberTable Component
+function MemberTable({ members }: { members: Member[] }) {
+  const getVerificationBadge = (verified: boolean) => {
+    return verified ? (
+      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+        <UserCheck className="h-3 w-3 mr-1" />
+        Verified
+      </Badge>
+    ) : (
+      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+        <Clock className="h-3 w-3 mr-1" />
+        Pending
+      </Badge>
+    );
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Member ID</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Name</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Contact</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Address</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Registration Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map((member, index) => (
+            <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
+              <td className="py-3 px-4">
+                {member.member_id ? (
+                  <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
+                ) : (
+                  <span className="text-muted-foreground">N/A</span>
+                )}
+              </td>
+              <td className="py-3 px-4">
+                <div className="font-medium text-foreground">{member.name}</div>
+              </td>
+              <td className="py-3 px-4">
+                <div className="text-sm text-muted-foreground">
+                  {member.contact_number || 'N/A'}
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                <div className="text-sm text-muted-foreground max-w-xs truncate">
+                  {member.address || 'N/A'}
+                </div>
+              </td>
+              <td className="py-3 px-4 text-sm text-muted-foreground">
+                {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : 'N/A'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 } 
