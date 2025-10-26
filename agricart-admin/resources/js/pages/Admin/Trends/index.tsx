@@ -13,7 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { PermissionGuard } from '@/components/permission-guard';
 import type { SharedData } from '@/types';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -700,14 +700,22 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                 <Head title="Trend Analysis" />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold tracking-tight">Price Trend Analysis</h1>
-                                <p className="text-muted-foreground">Visualize product price fluctuations with advanced filtering options</p>
+                        {/* Dashboard Header */}
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
+                                    <TrendingUp className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Price Trend Analysis</h1>
+                                    <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                        Visualize product price fluctuations with advanced filtering options
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
-                    <Card className="mb-4">
+                    <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
                             <CardTitle>Filters</CardTitle>

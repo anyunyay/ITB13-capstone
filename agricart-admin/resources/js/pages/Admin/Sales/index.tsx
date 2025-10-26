@@ -81,27 +81,40 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
         <Head title="Sales Management" />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">Sales Management</h1>
+            {/* Dashboard Header */}
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
+              <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Sales Management</h1>
+                      <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                        Comprehensive sales analytics and revenue tracking
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 items-center">
+                  <PermissionGate permission="view sales">
+                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href={route('admin.sales.memberSales')}>
+                        Member Sales
+                      </Link>
+                    </Button>
+                  </PermissionGate>
+                  <PermissionGate permission="generate sales report">
+                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href={route('admin.sales.report')}>
+                        View Report
+                      </Link>
+                    </Button>
+                  </PermissionGate>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <PermissionGate permission="view sales">
-                <Link href={route('admin.sales.memberSales')}>
-                  <Button variant="outline">
-                    Member Sales
-                  </Button>
-                </Link>
-              </PermissionGate>
-                             <PermissionGate permission="generate sales report">
-                 <Link href={route('admin.sales.report')}>
-                   <Button variant="outline">
-                     View Report
-                   </Button>
-                 </Link>
-               </PermissionGate>
-            </div>
-          </div>
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
