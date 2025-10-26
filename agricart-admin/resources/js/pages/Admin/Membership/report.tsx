@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Users, Download, FileText, Filter, X, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, Grid3X3, Table } from 'lucide-react';
+import { Users, Download, FileText, Filter, X, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, LayoutGrid, Table } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -404,10 +404,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">Members Report ({members.length} members)</CardTitle>
                   <div className="flex items-center gap-4">
-                    <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                     <div className="text-sm text-muted-foreground">
                       {members.length > 0 ? `Showing ${members.length} members` : 'No members found'}
                     </div>
+                    <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                   </div>
                 </div>
               </CardHeader>
@@ -529,8 +529,7 @@ function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'tab
         onClick={() => onViewChange('cards')}
         className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
       >
-        <Grid3X3 className="h-4 w-4 mr-2" />
-        Cards
+        <LayoutGrid className="h-4 w-4" />
       </Button>
       <Button
         variant={currentView === 'table' ? 'default' : 'outline'}
@@ -538,8 +537,7 @@ function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'tab
         onClick={() => onViewChange('table')}
         className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
       >
-        <Table className="h-4 w-4 mr-2" />
-        Table
+        <Table className="h-4 w-4" />
       </Button>
     </div>
   );

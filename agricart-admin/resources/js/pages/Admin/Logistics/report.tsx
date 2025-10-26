@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, Grid3X3, Table, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -427,28 +427,26 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">Logistics Members ({logistics.length})</CardTitle>
                   <div className="flex items-center gap-4">
+                    <div className="text-sm text-muted-foreground">
+                      {logistics.length > 0 ? `Showing ${logistics.length} logistics members` : 'No members found'}
+                    </div>
                     <div className="flex items-center gap-2">
                       <Button
                         variant={currentView === 'cards' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setCurrentView('cards')}
-                        className="flex items-center gap-2"
+                        className="flex items-center"
                       >
-                        <Grid3X3 className="h-4 w-4" />
-                        Cards
+                        <LayoutGrid className="h-4 w-4" />
                       </Button>
                       <Button
                         variant={currentView === 'table' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setCurrentView('table')}
-                        className="flex items-center gap-2"
+                        className="flex items-center"
                       >
                         <Table className="h-4 w-4" />
-                        Table
                       </Button>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {logistics.length > 0 ? `Showing ${logistics.length} logistics members` : 'No members found'}
                     </div>
                   </div>
                 </div>

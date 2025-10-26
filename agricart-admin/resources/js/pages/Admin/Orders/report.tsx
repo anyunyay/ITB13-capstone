@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, Grid3X3, Table, ChevronDown, CalendarIcon } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -555,10 +555,10 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">Order Report ({orders.length} orders)</CardTitle>
                 <div className="flex items-center gap-4">
-                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                   <div className="text-sm text-muted-foreground">
                     {orders.length > 0 ? `Showing ${orders.length} orders` : 'No orders found'}
                   </div>
+                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                 </div>
               </div>
             </CardHeader>

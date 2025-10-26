@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Grid3X3, Table } from 'lucide-react';
+import { LayoutGrid, Table } from 'lucide-react';
 
 interface ViewToggleProps {
     currentView: 'cards' | 'table';
@@ -15,8 +15,7 @@ export const ViewToggle = ({ currentView, onViewChange }: ViewToggleProps) => {
                 onClick={() => onViewChange('cards')}
                 className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
             >
-                <Grid3X3 className="h-4 w-4 mr-2" />
-                Cards
+                <LayoutGrid className="h-4 w-4" />
             </Button>
             <Button
                 variant={currentView === 'table' ? 'default' : 'outline'}
@@ -24,8 +23,7 @@ export const ViewToggle = ({ currentView, onViewChange }: ViewToggleProps) => {
                 onClick={() => onViewChange('table')}
                 className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
             >
-                <Table className="h-4 w-4 mr-2" />
-                Table
+                <Table className="h-4 w-4" />
             </Button>
         </div>
     );
