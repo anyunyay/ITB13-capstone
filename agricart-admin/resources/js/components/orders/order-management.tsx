@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Package, Search } from 'lucide-react';
 import { PaginationControls } from './pagination-controls';
 import { OrderCard } from './order-card';
 import { OrderTable } from './order-table';
@@ -16,6 +17,8 @@ interface OrderManagementProps {
     urgentOrders?: Order[];
     searchTerm: string;
     setSearchTerm: (term: string) => void;
+    showSearch: boolean;
+    setShowSearch: (show: boolean) => void;
     selectedStatus: string;
     setSelectedStatus: (status: string) => void;
     selectedDeliveryStatus: string;
@@ -37,6 +40,8 @@ export const OrderManagement = ({
     urgentOrders = [],
     searchTerm,
     setSearchTerm,
+    showSearch,
+    setShowSearch,
     selectedStatus,
     setSelectedStatus,
     selectedDeliveryStatus,
@@ -123,6 +128,19 @@ export const OrderManagement = ({
                     </div>
                 </div>
                 <div className="flex gap-3 flex-wrap items-center">
+                    <Button
+                        variant={showSearch ? "default" : "outline"}
+                        onClick={() => {
+                            if (showSearch) {
+                                setSearchTerm('');
+                            }
+                            setShowSearch(!showSearch);
+                        }}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        {showSearch ? 'Hide Search' : 'Search'}
+                    </Button>
                     <ViewToggle 
                         currentView={currentView} 
                         onViewChange={setCurrentView} 
@@ -140,6 +158,7 @@ export const OrderManagement = ({
                     setSelectedDeliveryStatus={setSelectedDeliveryStatus}
                     totalResults={allOrders.length}
                     filteredResults={filteredOrders.length}
+                    isVisible={showSearch}
                 />
 
                 <Tabs value={currentStatus} onValueChange={onStatusChange} className="w-full">

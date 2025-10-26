@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X } from 'lucide-react';
+import styles from '../../pages/Admin/Orders/orders-animations.module.css';
 
 interface SearchFilterProps {
     searchTerm: string;
@@ -11,6 +12,7 @@ interface SearchFilterProps {
     setSelectedDeliveryStatus: (status: string) => void;
     totalResults: number;
     filteredResults: number;
+    isVisible?: boolean;
 }
 
 export const SearchFilter = ({
@@ -21,7 +23,8 @@ export const SearchFilter = ({
     selectedDeliveryStatus,
     setSelectedDeliveryStatus,
     totalResults,
-    filteredResults
+    filteredResults,
+    isVisible = true
 }: SearchFilterProps) => {
     const clearSearch = () => {
         setSearchTerm('');
@@ -32,7 +35,9 @@ export const SearchFilter = ({
     const hasActiveFilters = searchTerm || selectedStatus !== 'all' || selectedDeliveryStatus !== 'all';
 
     return (
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+        <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
+            isVisible ? styles.expanded : styles.collapsed
+        }`}>
             <div className="flex flex-col gap-4 mb-4 md:flex-row md:items-center">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

@@ -17,6 +17,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
   const [selectedDeliveryStatus, setSelectedDeliveryStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showSearch, setShowSearch] = useState(false);
   const itemsPerPage = 12;
 
   // Handle highlighting effect when coming from notification
@@ -97,7 +98,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   // Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedStatus, selectedDeliveryStatus]);
+  }, [searchTerm, selectedStatus, selectedDeliveryStatus, showSearch]);
 
   return (
     <PermissionGuard 
@@ -117,6 +118,8 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               urgentOrders={safeUrgentOrders}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
+              showSearch={showSearch}
+              setShowSearch={setShowSearch}
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
               selectedDeliveryStatus={selectedDeliveryStatus}
