@@ -47,7 +47,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
         'create stocks',
         'edit stocks',
         'view sold stock',
-        'view stock trail'
+        'view stock trail',
+        'generate inventory report'
       ]
     },
     {
@@ -62,7 +63,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
         'assign logistics',
         'mark orders urgent',
         'unmark orders urgent',
-        'view order receipts'
+        'view order receipts',
+        'generate order report'
       ]
     },
     {
@@ -71,7 +73,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       permissions: [
         'view sales',
         'view member sales',
-        'export sales data'
+        'export sales data',
+        'generate sales report'
       ]
     },
     {
@@ -82,7 +85,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
         'create logistics',
         'edit logistics',
         'deactivate logistics',
-        'reactivate logistics'
+        'reactivate logistics',
+        'generate logistics report'
       ]
     },
     {
@@ -95,20 +99,10 @@ export default function StaffCreate({ availablePermissions }: Props) {
     }
   ];
 
-  // Separate permissions for reports and deletions
-  const reportPermissions = [
-    'generate inventory report',
-    'generate order report',
-    'generate sales report',
-    'generate logistics report',
-    'generate trend report'
-  ];
-
   const deletePermissions = [
     'delete products',
     'delete archived products',
-    'delete stocks',
-    'delete orders'
+    'delete stocks'
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -372,36 +366,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
                             </div>
                           ))}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Report Permissions */}
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-base font-medium">Report Permissions</Label>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Select which reports this staff member can generate.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {reportPermissions.map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`report-permission-${permission}`}
-                          checked={data.permissions.includes(permission)}
-                          onCheckedChange={(checked) => 
-                            handlePermissionChange(permission, checked as boolean)
-                          }
-                        />
-                        <Label
-                          htmlFor={`report-permission-${permission}`}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {permission}
-                        </Label>
                       </div>
                     ))}
                   </div>

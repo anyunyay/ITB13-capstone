@@ -423,7 +423,6 @@ class StaffController extends Controller
             'edit stocks' => 'view stocks',
             'delete stocks' => 'view stocks',
             'manage orders' => 'view orders',
-            'delete orders' => 'view orders',
             'create logistics' => 'view logistics',
             'edit logistics' => 'view logistics',
             'deactivate logistics' => 'view logistics',

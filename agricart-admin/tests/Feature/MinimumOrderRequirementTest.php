@@ -31,7 +31,7 @@ class MinimumOrderRequirementTest extends TestCase
             'view inventory', 'create products', 'edit products', 'delete products',
             'view archive', 'archive products', 'unarchive products', 'delete archived products',
             'view stocks', 'create stocks', 'edit stocks', 'delete stocks',
-            'view orders', 'manage orders', 'delete orders',
+            'view orders', 'manage orders',
             'view sold stock', 'view stock trail',
             'view logistics', 'create logistics', 'edit logistics', 'delete logistics',
             'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
