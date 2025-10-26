@@ -44,14 +44,6 @@
         td {
             font-size: 10px;
         }
-        .status-verified {
-            color: #059669;
-            font-weight: bold;
-        }
-        .status-pending {
-            color: #d97706;
-            font-weight: bold;
-        }
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -73,28 +65,24 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Member ID</th>
                 <th>Name</th>
-                <th>Email</th>
                 <th>Contact Number</th>
                 <th>Address</th>
                 <th>Registration Date</th>
-                <th>Email Verified</th>
                 <th>Created Date</th>
             </tr>
         </thead>
         <tbody>
             @foreach($members as $member)
             <tr>
-                <td>{{ $member->id }}</td>
-                <td>{{ $member->name }}</td>
-                <td>{{ $member->email }}</td>
-                <td>{{ $member->contact_number ?? 'N/A' }}</td>
-                <td>{{ $member->address ?? 'N/A' }}</td>
-                <td>{{ $member->registration_date ? $member->registration_date->format('Y-m-d') : 'N/A' }}</td>
-                <td class="{{ $member->email_verified_at ? 'status-verified' : 'status-pending' }}">
-                    {{ $member->email_verified_at ? 'Yes' : 'No' }}
-                </td>
-                <td>{{ $member->created_at->format('Y-m-d H:i') }}</td>
+                <td>{{ $member['id'] }}</td>
+                <td>{{ $member['member_id'] ?? 'N/A' }}</td>
+                <td>{{ $member['name'] }}</td>
+                <td>{{ $member['contact_number'] ?? 'N/A' }}</td>
+                <td>{{ $member['address'] ?? 'N/A' }}</td>
+                <td>{{ $member['registration_date'] ? \Carbon\Carbon::parse($member['registration_date'])->format('Y-m-d') : 'N/A' }}</td>
+                <td>{{ \Carbon\Carbon::parse($member['created_at'])->format('Y-m-d H:i') }}</td>
             </tr>
             @endforeach
         </tbody>
