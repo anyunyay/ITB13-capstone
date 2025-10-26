@@ -132,9 +132,10 @@ export default function Dashboard({
         >
             <AppSidebarLayout>
                 <Head title="Admin Dashboard" />
-                <div className="p-6 space-y-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
+                <div className="min-h-screen bg-background">
+                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                             <p className="text-muted-foreground">Overview of all system activities and performance metrics</p>
@@ -587,6 +588,7 @@ export default function Dashboard({
                             </div>
                         </TabsContent>
                     </Tabs>
+                    </div>
                 </div>
             </AppSidebarLayout>
         </PermissionGuard>

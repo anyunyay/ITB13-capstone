@@ -150,9 +150,9 @@ export default function StaffCreate({ availablePermissions }: Props) {
     >
       <AppLayout>
         <Head title="Add Staff Member" />
-        
-        <div className="m-4">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="min-h-screen bg-background">
+          <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -423,8 +423,9 @@ export default function StaffCreate({ availablePermissions }: Props) {
             </form>
           </CardContent>
         </Card>
-      </div>
-    </AppLayout>
+          </div>
+        </div>
+      </AppLayout>
     </PermissionGuard>
   );
 } 

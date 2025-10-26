@@ -79,8 +79,9 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
     >
       <AppLayout>
         <Head title="Sales Management" />
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="min-h-screen bg-background">
+          <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold">Sales Management</h1>
             </div>
@@ -383,6 +384,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
               </Card>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </AppLayout>
     </PermissionGuard>

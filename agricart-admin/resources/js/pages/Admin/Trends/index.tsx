@@ -698,13 +698,14 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         <PermissionGuard permissions={['view inventory']} pageTitle="Trend Analysis Access Denied">
             <AppLayout>
                 <Head title="Trend Analysis" />
-                <div className="m-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Price Trend Analysis</h1>
-                            <p className="text-muted-foreground">Visualize product price fluctuations with advanced filtering options</p>
+                <div className="min-h-screen bg-background">
+                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h1 className="text-3xl font-bold tracking-tight">Price Trend Analysis</h1>
+                                <p className="text-muted-foreground">Visualize product price fluctuations with advanced filtering options</p>
+                            </div>
                         </div>
-                    </div>
 
                     <Card className="mb-4">
                         <CardHeader>
@@ -1238,6 +1239,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                             </div>
                         </CardContent>
                     </Card>
+                    </div>
                 </div>
             </AppLayout>
         </PermissionGuard>
