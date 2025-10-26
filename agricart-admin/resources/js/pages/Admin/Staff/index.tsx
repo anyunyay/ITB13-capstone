@@ -28,14 +28,42 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(filters.sort_order);
   const [processing, setProcessing] = useState(false);
   const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const itemsPerPage = staff.per_page;
   const totalPages = staff.last_page;
   const totalStaff = staff.total;
 
+  // Helper function to determine staff category based on permissions
+  const getStaffCategory = (member: Staff): string => {
+    const permissions = member.permissions.map(p => p.name);
+    
+    // Check for specific category permissions
+    const hasInventory = permissions.some(p => 
+      p.includes('inventory') || p.includes('products') || p.includes('stocks')
+    );
+    const hasOrders = permissions.some(p => p.includes('order'));
+    const hasSales = permissions.some(p => p.includes('sales'));
+    const hasLogistics = permissions.some(p => p.includes('logistic'));
+    const hasTrends = permissions.some(p => p.includes('trend'));
+    
+    // Return the primary category (prioritize order of appearance)
+    if (hasOrders) return 'orders';
+    if (hasInventory) return 'inventory';
+    if (hasLogistics) return 'logistics';
+    if (hasSales) return 'sales';
+    if (hasTrends) return 'trends';
+    return 'general';
+  };
+
   // Filter and sort staff data
   const filteredAndSortedStaff = useMemo(() => {
     let filtered = staff.data;
+
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(member => getStaffCategory(member) === selectedCategory);
+    }
 
     // Apply search filter
     if (searchTerm) {
@@ -74,7 +102,7 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
     });
 
     return filtered;
-  }, [staff.data, searchTerm, sortBy, sortOrder]);
+  }, [staff.data, searchTerm, sortBy, sortOrder, selectedCategory]);
 
   // Paginate the filtered results
   const paginatedStaff = useMemo(() => {
@@ -205,6 +233,8 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
               staff={staff.data}
               searchTerm={searchTerm}
               setSearchTerm={handleSearchChange}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
               filteredAndSortedStaff={filteredAndSortedStaff}
               paginatedStaff={paginatedStaff}
               currentPage={currentPage}

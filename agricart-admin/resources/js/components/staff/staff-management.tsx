@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown, Shield } from 'lucide-react';
+import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown, Shield, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
@@ -14,6 +15,8 @@ interface StaffManagementProps {
     staff: Staff[];
     searchTerm: string;
     setSearchTerm: (term: string) => void;
+    selectedCategory: string;
+    setSelectedCategory: (category: string) => void;
     filteredAndSortedStaff: Staff[];
     paginatedStaff: Staff[];
     currentPage: number;
@@ -34,6 +37,8 @@ export const StaffManagement = ({
     staff,
     searchTerm,
     setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
     filteredAndSortedStaff,
     paginatedStaff,
     currentPage,
@@ -140,28 +145,51 @@ export const StaffManagement = ({
 
             {/* Search and Filter */}
             <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
-                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                        <Input
-                            type="text"
-                            placeholder="Search staff by name, email, or contact..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
-                        />
+                <div className="flex flex-col gap-3 mb-3">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                                type="text"
+                                placeholder="Search staff by name, email, or contact..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                            <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                                <SelectTrigger className="w-full md:w-[200px]">
+                                    <SelectValue placeholder="All Categories" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Categories</SelectItem>
+                                    <SelectItem value="inventory">Inventory Management</SelectItem>
+                                    <SelectItem value="orders">Order Management</SelectItem>
+                                    <SelectItem value="logistics">Logistics Management</SelectItem>
+                                    <SelectItem value="sales">Sales Management</SelectItem>
+                                    <SelectItem value="trends">Trend Analysis</SelectItem>
+                                    <SelectItem value="general">General Staff</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                     <span className="text-sm text-muted-foreground font-medium">
-                        Showing {paginatedStaff.length} of {totalStaff} staff members
+                        Showing {paginatedStaff.length} of {filteredAndSortedStaff.length} staff members
+                        {selectedCategory !== 'all' && ` (${selectedCategory} category)`}
                     </span>
-                    {searchTerm && (
+                    {(searchTerm || selectedCategory !== 'all') && (
                         <button
-                            onClick={() => setSearchTerm('')}
+                            onClick={() => {
+                                setSearchTerm('');
+                                setSelectedCategory('all');
+                            }}
                             className="text-sm text-primary no-underline transition-colors duration-200 hover:text-primary/80"
                         >
-                            Clear search
+                            Clear filters
                         </button>
                     )}
                 </div>
