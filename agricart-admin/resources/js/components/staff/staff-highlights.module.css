@@ -1,0 +1,14 @@
+/* Highlight animation for staff table rows */
+.highlighted {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  animation: highlightPulse 2s ease-in-out;
+}
+
+@keyframes highlightPulse {
+  0%, 100% { 
+    background-color: color-mix(in srgb, var(--primary) 10%, transparent); 
+  }
+  50% { 
+    background-color: color-mix(in srgb, var(--primary) 20%, transparent); 
+  }
+}

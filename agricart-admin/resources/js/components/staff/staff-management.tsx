@@ -8,7 +8,7 @@ import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown,
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
-import styles from '../../pages/Admin/Staff/staff.module.css';
+import styles from './staff-highlights.module.css';
 
 interface StaffManagementProps {
     staff: Staff[];
@@ -124,15 +124,15 @@ export const StaffManagement = ({
     };
 
     return (
-        <div className={styles.staffManagementSection}>
-            <div className={styles.sectionHeader}>
-                <div className={styles.sectionTitleContainer}>
-                    <div className={styles.sectionIcon}>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                         <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className={styles.sectionTitle}>Staff Directory</h2>
-                        <p className={styles.sectionSubtitle}>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Staff Directory</h2>
+                        <p className="text-sm text-muted-foreground m-0">
                             Manage and view all staff members and their permissions
                         </p>
                     </div>
@@ -140,27 +140,27 @@ export const StaffManagement = ({
             </div>
 
             {/* Search and Filter */}
-            <div className={styles.searchFilterSection}>
-                <div className={styles.searchControls}>
-                    <div className={styles.searchInputContainer}>
-                        <Search className={styles.searchIcon} />
+            <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         <Input
                             type="text"
                             placeholder="Search staff by name, email, or contact..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className={styles.searchInput}
+                            className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
                         />
                     </div>
                 </div>
-                <div className={styles.resultsInfo}>
-                    <span className={styles.resultsCount}>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                    <span className="text-sm text-muted-foreground font-medium">
                         Showing {paginatedStaff.length} of {totalStaff} staff members
                     </span>
                     {searchTerm && (
                         <button
                             onClick={() => setSearchTerm('')}
-                            className={styles.clearSearch}
+                            className="text-sm text-primary no-underline transition-colors duration-200 hover:text-primary/80"
                         >
                             Clear search
                         </button>
@@ -171,10 +171,10 @@ export const StaffManagement = ({
             {/* Staff Table */}
             {paginatedStaff.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className={styles.staffTable}>
-                        <thead className={styles.staffTableHeader}>
+                    <table className="w-full border-collapse">
+                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
                             <tr>
-                                <th className={styles.staffTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('id')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -182,7 +182,7 @@ export const StaffManagement = ({
                                         ID {getSortIcon('id')}
                                     </button>
                                 </th>
-                                <th className={styles.staffTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('name')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -190,11 +190,11 @@ export const StaffManagement = ({
                                         Name {getSortIcon('name')}
                                     </button>
                                 </th>
-                                <th className={styles.staffTableHeaderCell}>Email</th>
-                                <th className={styles.staffTableHeaderCell}>Contact</th>
-                                <th className={styles.staffTableHeaderCell}>Address</th>
-                                <th className={styles.staffTableHeaderCell}>Permissions</th>
-                                <th className={styles.staffTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Permissions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('created_at')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -202,42 +202,43 @@ export const StaffManagement = ({
                                         Created {getSortIcon('created_at')}
                                     </button>
                                 </th>
-                                <th className={styles.staffTableHeaderCell}>Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedStaff.map((staffMember) => (
                                 <tr
                                     key={staffMember.id}
-                                    className={`${styles.staffTableRow} ${
+                                    className={`border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)] ${
                                         highlightStaffId === staffMember.id ? styles.highlighted : ''
                                     }`}
                                 >
-                                    <td className={styles.staffTableCell}>{staffMember.id}</td>
-                                    <td className={styles.staffTableCell}>
-                                        <div className="font-medium">{staffMember.name}</div>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">{staffMember.id}</td>
+                                    <td className="px-4 py-3 text-sm font-medium text-foreground">
+                                        <div>{staffMember.name}</div>
                                     </td>
-                                    <td className={styles.staffTableCell}>{staffMember.email}</td>
-                                    <td className={styles.staffTableCell}>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">{staffMember.email}</td>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
                                         {staffMember.contact_number || 'N/A'}
                                     </td>
-                                    <td className={styles.staffTableCell}>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
                                         {staffMember.default_address ? 
                                             `${staffMember.default_address.street}, ${staffMember.default_address.barangay}, ${staffMember.default_address.city}, ${staffMember.default_address.province}` 
                                             : 'N/A'
                                         }
                                     </td>
-                                    <td className={styles.staffTableCell}>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
                                         <div className="flex flex-wrap gap-1">
                                             {staffMember.permissions.length > 0 ? (
                                                 staffMember.permissions.slice(0, 3).map((permission) => (
-                                                    <span
+                                                    <Badge
                                                         key={permission.name}
-                                                        className={`${styles.permissionBadge} ${styles[getPermissionCategory(permission.name)]}`}
+                                                        variant="secondary"
+                                                        className="text-xs gap-1"
                                                     >
                                                         <Shield className="h-3 w-3" />
                                                         {getPermissionDisplayName(permission.name)}
-                                                    </span>
+                                                    </Badge>
                                                 ))
                                             ) : (
                                                 <span className="text-muted-foreground text-sm">No permissions</span>
@@ -246,9 +247,9 @@ export const StaffManagement = ({
                                                 <TooltipProvider>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
-                                                            <span className={`${styles.permissionBadge} ${styles.default}`}>
+                                                            <Badge variant="secondary" className="text-xs">
                                                                 +{staffMember.permissions.length - 3} more
-                                                            </span>
+                                                            </Badge>
                                                         </TooltipTrigger>
                                                         <TooltipContent>
                                                             <div className="max-w-xs">
@@ -264,17 +265,17 @@ export const StaffManagement = ({
                                             )}
                                         </div>
                                     </td>
-                                    <td className={styles.staffTableCell}>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
                                         {new Date(staffMember.created_at).toLocaleDateString()}
                                     </td>
-                                    <td className={styles.staffTableCell}>
-                                        <div className={styles.staffActionCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">
+                                        <div className="flex gap-2">
                                             <PermissionGate permission="edit staffs">
                                                 <Button
                                                     asChild
                                                     variant="outline"
                                                     size="sm"
-                                                    className={styles.staffActionButton}
+                                                    className="transition-all duration-200 hover:scale-105"
                                                 >
                                                     <Link href={route('staff.edit', staffMember.id)}>
                                                         <Edit className="h-4 w-4" />
@@ -288,7 +289,7 @@ export const StaffManagement = ({
                                                     size="sm"
                                                     onClick={() => onDelete(staffMember)}
                                                     disabled={processing}
-                                                    className={styles.staffActionButton}
+                                                    className="transition-all duration-200 hover:scale-105"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                     Delete
@@ -302,12 +303,12 @@ export const StaffManagement = ({
                     </table>
                 </div>
             ) : (
-                <div className={styles.emptyState}>
-                    <UsersRound className={styles.emptyStateIcon} />
-                    <h3 className={styles.emptyStateTitle}>
+                <div className="text-center py-8">
+                    <UsersRound className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
                         {searchTerm ? 'No staff found' : 'No staff available'}
                     </h3>
-                    <p className={styles.emptyStateDescription}>
+                    <p className="text-muted-foreground">
                         {searchTerm 
                             ? `No staff members match your search for "${searchTerm}". Try adjusting your search terms.`
                             : 'No staff members have been added yet.'
