@@ -29,6 +29,7 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
   const [processing, setProcessing] = useState(false);
   const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showSearch, setShowSearch] = useState(false);
 
   const itemsPerPage = staff.per_page;
   const totalPages = staff.last_page;
@@ -249,6 +250,8 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
               setSortBy={handleSortChange}
               sortOrder={sortOrder}
               setSortOrder={setSortOrder}
+              showSearch={showSearch}
+              setShowSearch={setShowSearch}
             />
           </div>
         </div>

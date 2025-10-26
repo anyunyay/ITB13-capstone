@@ -31,6 +31,8 @@ interface StaffManagementProps {
     setSortBy: (sort: string) => void;
     sortOrder: 'asc' | 'desc';
     setSortOrder: (order: 'asc' | 'desc') => void;
+    showSearch: boolean;
+    setShowSearch: (show: boolean) => void;
 }
 
 export const StaffManagement = ({
@@ -52,7 +54,9 @@ export const StaffManagement = ({
     sortBy,
     setSortBy,
     sortOrder,
-    setSortOrder
+    setSortOrder,
+    showSearch,
+    setShowSearch
 }: StaffManagementProps) => {
     const handleSort = (field: string) => {
         if (sortBy === field) {
@@ -141,10 +145,27 @@ export const StaffManagement = ({
                         </p>
                     </div>
                 </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant={showSearch ? "default" : "outline"}
+                        onClick={() => {
+                            if (showSearch) {
+                                setSearchTerm('');
+                            }
+                            setShowSearch(!showSearch);
+                        }}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        <Search className="h-4 w-4 mr-2" />
+                        {showSearch ? 'Hide Search' : 'Search'}
+                    </Button>
+                </div>
             </div>
 
             {/* Search and Filter */}
-            <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
+                showSearch ? styles.expanded : styles.collapsed
+            }`}>
                 <div className="flex flex-col gap-3 mb-3">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center">
                         <div className="relative flex-1">

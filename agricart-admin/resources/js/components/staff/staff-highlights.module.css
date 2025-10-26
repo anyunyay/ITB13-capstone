@@ -12,3 +12,44 @@
     background-color: color-mix(in srgb, var(--primary) 20%, transparent); 
   }
 }
+
+/* Search toggle animations */
+.searchToggleContainer {
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  will-change: max-height, opacity, padding, margin, border;
+}
+
+.searchToggleContainer.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.searchToggleContainer.expanded {
+  max-height: 400px;
+  opacity: 1;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+/* Accessibility - Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .searchToggleContainer {
+    transition: none;
+  }
+}
+
+/* Responsive search button */
+@media (max-width: 640px) {
+  .searchToggleContainer {
+    margin-bottom: 0.75rem;
+  }
+}
