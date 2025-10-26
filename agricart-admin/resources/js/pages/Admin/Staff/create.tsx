@@ -87,29 +87,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Staff Management',
-      description: 'Access to staff management (Admin only permissions)',
-      permissions: [
-        'view staffs',
-        'create staffs',
-        'edit staffs',
-        'delete staffs',
-        'generate staff report'
-      ]
-    },
-    {
-      name: 'Membership Management',
-      description: 'Access to membership management (Admin only permissions)',
-      permissions: [
-        'view membership',
-        'create members',
-        'edit members',
-        'deactivate members',
-        'reactivate members',
-        'generate membership report'
-      ]
-    },
-    {
       name: 'Trend Analysis',
       description: 'Access to trend analysis and reporting',
       permissions: [
@@ -125,8 +102,6 @@ export default function StaffCreate({ availablePermissions }: Props) {
     'generate order report',
     'generate sales report',
     'generate logistics report',
-    'generate staff report',
-    'generate membership report',
     'generate trend report'
   ];
 
@@ -134,8 +109,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
     'delete products',
     'delete archived products',
     'delete stocks',
-    'delete orders',
-    'delete staffs'
+    'delete orders'
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
