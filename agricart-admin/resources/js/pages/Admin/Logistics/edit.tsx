@@ -90,7 +90,8 @@ export default function Edit({ logistic }: Props) {
         >
             <AppLayout>
                 <Head title="Update Logistic" />
-                <div className="w-8/12 p-4 mx-auto">
+                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="max-w-4xl mx-auto w-full">
                     <form onSubmit={handleUpdate} className='space-y-4'>
                         {/* Display Error */}
                         {Object.keys(errors).length > 0 && (
@@ -273,6 +274,7 @@ export default function Edit({ logistic }: Props) {
                         </div>
                         <Button disabled={processing} type="submit">Update Logistic Details</Button>
                     </form>
+                    </div>
                 </div>
             </AppLayout>
         </PermissionGuard>

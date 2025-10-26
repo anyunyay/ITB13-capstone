@@ -80,7 +80,7 @@ export default function Index() {
             <AppLayout>
                 <Head title="Add Logistics Partner" />
                 <div className="min-h-screen bg-background">
-                    <div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
+                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Header Section */}
                         <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
                             <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
