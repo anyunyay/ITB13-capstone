@@ -12,6 +12,7 @@ import { ViewToggle } from './view-toggle';
 import { ProductTable } from './product-table';
 import { Product } from '@/types/inventory';
 import { useState } from 'react';
+import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
 interface ProductManagementProps {
     products: Product[];
@@ -37,6 +38,8 @@ interface ProductManagementProps {
     setShowArchived: (show: boolean) => void;
     archivingProduct: number | null;
     restoringProduct: number | null;
+    showSearch: boolean;
+    setShowSearch: (show: boolean) => void;
 }
 
 export const ProductManagement = ({
@@ -62,7 +65,9 @@ export const ProductManagement = ({
     showArchived,
     setShowArchived,
     archivingProduct,
-    restoringProduct
+    restoringProduct,
+    showSearch,
+    setShowSearch
 }: ProductManagementProps) => {
     // View state for toggle between cards and table
     const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
@@ -91,6 +96,20 @@ export const ProductManagement = ({
                         </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0 items-center">
+                        <Button
+                            variant={showSearch ? "default" : "outline"}
+                            onClick={() => {
+                                if (showSearch) {
+                                    setSearchTerm('');
+                                }
+                                setShowSearch(!showSearch);
+                            }}
+                            size="sm"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                            <Search className="h-4 w-4 mr-2" />
+                            {showSearch ? 'Hide Search' : 'Search'}
+                        </Button>
                         <ViewToggle 
                             currentView={currentView} 
                             onViewChange={setCurrentView} 
@@ -119,7 +138,9 @@ export const ProductManagement = ({
             </div>
 
             {/* Compact Search and Filter Controls */}
-            <div className="bg-card border border-border rounded-lg p-4 mb-6 shadow-sm">
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
+                showSearch ? styles.expanded : styles.collapsed
+            }`}>
                 <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
                     <div className="relative flex-1 flex items-center">
                         <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />

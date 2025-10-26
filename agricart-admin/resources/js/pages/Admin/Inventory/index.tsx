@@ -46,6 +46,7 @@ export default function InventoryIndex() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [showArchived, setShowArchived] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
 
     // Reset pagination when switching views
     const toggleArchivedView = (show: boolean) => {
@@ -327,6 +328,8 @@ export default function InventoryIndex() {
                                     setShowArchived={toggleArchivedView}
                                     archivingProduct={archivingProduct || null}
                                     restoringProduct={restoringProduct || null}
+                                    showSearch={showSearch}
+                                    setShowSearch={setShowSearch}
                                 />
                             </TabsContent>
 
