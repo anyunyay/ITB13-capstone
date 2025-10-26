@@ -12,7 +12,6 @@ import { DeactivationModal } from '@/components/membership/deactivation-modal';
 import { PasswordApprovalModal } from '@/components/membership/password-approval-modal';
 import { PasswordRejectionModal } from '@/components/membership/password-rejection-modal';
 import { Member, PasswordChangeRequest, MemberStats } from '../../../types/membership';
-import styles from './membership.module.css';
 
 interface PageProps {
     flash: {
