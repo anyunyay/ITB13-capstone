@@ -1,6 +1,5 @@
 import { IdCard, UserPlus, UserMinus, Clock } from 'lucide-react';
 import { LogisticStats } from '../../types/logistics';
-import styles from '../../pages/Admin/Logistics/logistics.module.css';
 
 interface StatsOverviewProps {
     logisticStats: LogisticStats;
@@ -8,44 +7,44 @@ interface StatsOverviewProps {
 
 export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
     return (
-        <div className={styles.statsDashboard}>
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2.5 rounded-lg flex items-center justify-center">
                     <IdCard className="h-6 w-6" />
                 </div>
-                <div className={styles.statContent}>
-                    <div className={styles.statValue}>{logisticStats.totalLogistics}</div>
-                    <div className={styles.statLabel}>Total Logistics</div>
+                <div className="flex-1">
+                    <div className="text-xl font-bold text-foreground leading-none">{logisticStats.totalLogistics}</div>
+                    <div className="text-sm text-muted-foreground mt-2">Total Logistics</div>
                 </div>
             </div>
             
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2.5 rounded-lg flex items-center justify-center">
                     <UserPlus className="h-6 w-6" />
                 </div>
-                <div className={styles.statContent}>
-                    <div className={styles.statValue}>{logisticStats.activeLogistics}</div>
-                    <div className={styles.statLabel}>Active Logistics</div>
+                <div className="flex-1">
+                    <div className="text-xl font-bold text-foreground leading-none">{logisticStats.activeLogistics}</div>
+                    <div className="text-sm text-muted-foreground mt-2">Active Logistics</div>
                 </div>
             </div>
             
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2.5 rounded-lg flex items-center justify-center">
                     <UserMinus className="h-6 w-6" />
                 </div>
-                <div className={styles.statContent}>
-                    <div className={styles.statValue}>{logisticStats.deactivatedLogistics}</div>
-                    <div className={styles.statLabel}>Deactivated</div>
+                <div className="flex-1">
+                    <div className="text-xl font-bold text-foreground leading-none">{logisticStats.deactivatedLogistics}</div>
+                    <div className="text-sm text-muted-foreground mt-2">Deactivated</div>
                 </div>
             </div>
             
-            <div className={styles.statCard}>
-                <div className={styles.statIcon}>
+            <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2.5 rounded-lg flex items-center justify-center">
                     <Clock className="h-6 w-6" />
                 </div>
-                <div className={styles.statContent}>
-                    <div className={styles.statValue}>{logisticStats.pendingRequests}</div>
-                    <div className={styles.statLabel}>Pending Requests</div>
+                <div className="flex-1">
+                    <div className="text-xl font-bold text-foreground leading-none">{logisticStats.pendingRequests}</div>
+                    <div className="text-sm text-muted-foreground mt-2">Pending Requests</div>
                 </div>
             </div>
         </div>

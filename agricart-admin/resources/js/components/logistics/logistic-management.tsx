@@ -10,7 +10,7 @@ import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Logistic } from '../../types/logistics';
-import styles from '../../pages/Admin/Logistics/logistics.module.css';
+import styles from './logistic-highlights.module.css';
 
 interface LogisticManagementProps {
     logistics: Logistic[];
@@ -78,20 +78,20 @@ export const LogisticManagement = ({
     };
 
     return (
-        <div className={styles.logisticManagementSection}>
-            <div className={styles.sectionHeader}>
-                <div className={styles.sectionTitleContainer}>
-                    <div className={styles.sectionIcon}>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                         <IdCard className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className={styles.sectionTitle}>Logistics Directory</h2>
-                        <p className={styles.sectionSubtitle}>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Logistics Directory</h2>
+                        <p className="text-sm text-muted-foreground m-0">
                             {showDeactivated ? 'Viewing deactivated logistics' : 'Manage and view all registered logistics partners'}
                         </p>
                     </div>
                 </div>
-                <div className={styles.sectionActions}>
+                <div className="flex gap-3 flex-wrap">
                     <Button
                         variant={showSearch ? "default" : "outline"}
                         onClick={() => {
@@ -108,7 +108,7 @@ export const LogisticManagement = ({
                     <Button
                         variant={showDeactivated ? "default" : "outline"}
                         onClick={() => setShowDeactivated(!showDeactivated)}
-                        className={styles.sectionActionButton}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         {showDeactivated ? (
                             <>
@@ -139,10 +139,10 @@ export const LogisticManagement = ({
             {/* Logistics Table */}
             {paginatedLogistics.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className={styles.logisticTable}>
-                        <thead className={styles.logisticTableHeader}>
+                    <table className="w-full border-collapse">
+                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
                             <tr>
-                                <th className={styles.logisticTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('id')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -150,7 +150,7 @@ export const LogisticManagement = ({
                                         ID {getSortIcon('id')}
                                     </button>
                                 </th>
-                                <th className={styles.logisticTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('name')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -158,10 +158,10 @@ export const LogisticManagement = ({
                                         Name {getSortIcon('name')}
                                     </button>
                                 </th>
-                                <th className={styles.logisticTableHeaderCell}>Email</th>
-                                <th className={styles.logisticTableHeaderCell}>Contact</th>
-                                <th className={styles.logisticTableHeaderCell}>Address</th>
-                                <th className={styles.logisticTableHeaderCell}>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('registration_date')}
                                         className="flex items-center gap-1 hover:text-foreground"
@@ -169,51 +169,51 @@ export const LogisticManagement = ({
                                         Registration Date {getSortIcon('registration_date')}
                                     </button>
                                 </th>
-                                <th className={styles.logisticTableHeaderCell}>Status</th>
-                                <th className={styles.logisticTableHeaderCell}>Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Status</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {paginatedLogistics.map((logistic) => (
                                 <tr
                                     key={logistic.id}
-                                    className={`${styles.logisticTableRow} ${
+                                    className={`border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)] ${
                                         highlightLogisticId === logistic.id ? styles.highlighted : ''
                                     }`}
                                 >
-                                    <td className={styles.logisticTableCell}>{logistic.id}</td>
-                                    <td className={styles.logisticTableCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.id}</td>
+                                    <td className="px-4 py-3 text-sm text-foreground">
                                         <div className="font-medium">{logistic.name}</div>
                                     </td>
-                                    <td className={styles.logisticTableCell}>{logistic.email}</td>
-                                    <td className={styles.logisticTableCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
+                                    <td className="px-4 py-3 text-sm text-foreground">
                                         {logistic.contact_number || 'N/A'}
                                     </td>
-                                    <td className={styles.logisticTableCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">
                                         {logistic.default_address ? 
                                             `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
                                             : 'N/A'
                                         }
                                     </td>
-                                    <td className={styles.logisticTableCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">
                                         {logistic.registration_date ? 
                                             new Date(logistic.registration_date).toLocaleDateString() 
                                             : 'N/A'
                                         }
                                     </td>
-                                    <td className={styles.logisticTableCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">
                                         <Badge variant={logistic.can_be_deactivated ? "default" : "secondary"}>
                                             {logistic.can_be_deactivated ? "Active" : "Protected"}
                                         </Badge>
                                     </td>
-                                    <td className={styles.logisticTableCell}>
-                                        <div className={styles.logisticActionCell}>
+                                    <td className="px-4 py-3 text-sm text-foreground">
+                                        <div className="flex gap-2">
                                             <PermissionGate permission="edit logistics">
                                                 <Button
                                                     asChild
                                                     variant="outline"
                                                     size="sm"
-                                                    className={styles.logisticActionButton}
+                                                    className="transition-all duration-200 hover:scale-105"
                                                 >
                                                     <Link href={route('logistics.edit', logistic.id)}>
                                                         <Edit className="h-4 w-4" />
@@ -232,7 +232,7 @@ export const LogisticManagement = ({
                                                                         size="sm"
                                                                         onClick={() => onDeactivate(logistic)}
                                                                         disabled={processing || !logistic.can_be_deactivated}
-                                                                        className={`${styles.logisticActionButton} ${
+                                                                        className={`transition-all duration-200 hover:scale-105 ${
                                                                             !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
                                                                         }`}
                                                                     >
@@ -256,7 +256,7 @@ export const LogisticManagement = ({
                                                         size="sm"
                                                         onClick={() => onReactivate(logistic)}
                                                         disabled={processing}
-                                                        className={`${styles.logisticActionButton} bg-green-600 hover:bg-green-700 text-white`}
+                                                        className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105"
                                                     >
                                                         <RotateCcw className="h-4 w-4" />
                                                         Reactivate
@@ -271,12 +271,12 @@ export const LogisticManagement = ({
                     </table>
                 </div>
             ) : (
-                <div className={styles.emptyState}>
-                    <IdCard className={styles.emptyStateIcon} />
-                    <h3 className={styles.emptyStateTitle}>
+                <div className="text-center py-8">
+                    <IdCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
                         {searchTerm ? 'No logistics found' : 'No logistics available'}
                     </h3>
-                    <p className={styles.emptyStateDescription}>
+                    <p className="text-muted-foreground">
                         {searchTerm 
                             ? `No logistics match your search for "${searchTerm}". Try adjusting your search terms.`
                             : showDeactivated 

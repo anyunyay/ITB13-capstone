@@ -26,7 +26,6 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Logistic } from '@/types/logistics';
-import styles from './logistics.module.css';
 
 interface PageProps extends SharedData {
     flash: {
@@ -75,27 +74,27 @@ export default function Deactivated() {
         >
             <AppLayout>
                 <Head title="Deactivated Logistics" />
-                <div className={styles.logisticsContainer}>
-                    <div className={styles.mainContent}>
+                <div className="min-h-screen bg-background">
+                    <div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
                         {/* Flash Messages */}
                         <FlashMessage flash={flash} />
                         
                         {/* Header Section */}
-                        <div className={styles.dashboardHeader}>
-                            <div className={styles.headerMain}>
-                                <div className={styles.headerTitleSection}>
-                                    <div className={styles.titleContainer}>
-                                        <RotateCcw className={styles.headerIcon} />
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3">
+                                        <RotateCcw className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
-                                            <h1 className={styles.headerTitle}>Deactivated Logistics</h1>
-                                            <p className={styles.headerSubtitle}>
+                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Deactivated Logistics</h1>
+                                            <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                                                 View and manage deactivated logistics partners
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className={styles.headerActions}>
-                                    <Button asChild variant="outline" className={styles.secondaryAction}>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('logistics.index')}>
                                             <RotateCcw className="h-4 w-4 mr-2" />
                                             Back to Active Logistics
@@ -106,15 +105,15 @@ export default function Deactivated() {
                         </div>
 
                         {/* Deactivated Logistics Table */}
-                        <div className={styles.logisticManagementSection}>
-                            <div className={styles.sectionHeader}>
-                                <div className={styles.sectionTitleContainer}>
-                                    <div className={styles.sectionIcon}>
+                        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+                            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                                         <RotateCcw className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h2 className={styles.sectionTitle}>Deactivated Logistics Partners</h2>
-                                        <p className={styles.sectionSubtitle}>
+                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Deactivated Logistics Partners</h2>
+                                        <p className="text-sm text-muted-foreground m-0">
                                             {deactivatedLogistics.length} deactivated logistics partner{deactivatedLogistics.length !== 1 ? 's' : ''} found
                                         </p>
                                     </div>
@@ -123,43 +122,43 @@ export default function Deactivated() {
 
                             {deactivatedLogistics.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <table className={styles.logisticTable}>
-                                        <thead className={styles.logisticTableHeader}>
+                                    <table className="w-full border-collapse">
+                                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
                                             <tr>
-                                                <th className={styles.logisticTableHeaderCell}>ID</th>
-                                                <th className={styles.logisticTableHeaderCell}>Name</th>
-                                                <th className={styles.logisticTableHeaderCell}>Email</th>
-                                                <th className={styles.logisticTableHeaderCell}>Contact Number</th>
-                                                <th className={styles.logisticTableHeaderCell}>Address</th>
-                                                <th className={styles.logisticTableHeaderCell}>Registration Date</th>
-                                                <th className={styles.logisticTableHeaderCell}>Actions</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">ID</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Name</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact Number</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Registration Date</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {deactivatedLogistics.map((logistic, idx) => (
-                                                <tr key={logistic.id} className={styles.logisticTableRow}>
-                                                    <td className={styles.logisticTableCell}>{idx + 1}</td>
-                                                    <td className={styles.logisticTableCell}>
+                                                <tr key={logistic.id} className="border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)]">
+                                                    <td className="px-4 py-3 text-sm text-foreground">{idx + 1}</td>
+                                                    <td className="px-4 py-3 text-sm text-foreground">
                                                         <div className="font-medium">{logistic.name}</div>
                                                     </td>
-                                                    <td className={styles.logisticTableCell}>{logistic.email}</td>
-                                                    <td className={styles.logisticTableCell}>
+                                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
+                                                    <td className="px-4 py-3 text-sm text-foreground">
                                                         {logistic.contact_number || 'N/A'}
                                                     </td>
-                                                    <td className={styles.logisticTableCell}>
+                                                    <td className="px-4 py-3 text-sm text-foreground">
                                                         {logistic.default_address ? 
                                                             `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
                                                             : 'N/A'
                                                         }
                                                     </td>
-                                                    <td className={styles.logisticTableCell}>
+                                                    <td className="px-4 py-3 text-sm text-foreground">
                                                         {logistic.registration_date ? 
                                                             new Date(logistic.registration_date).toLocaleDateString() 
                                                             : 'N/A'
                                                         }
                                                     </td>
-                                                    <td className={styles.logisticTableCell}>
-                                                        <div className={styles.logisticActionCell}>
+                                                    <td className="px-4 py-3 text-sm text-foreground">
+                                                        <div className="flex gap-2">
                                                             <PermissionGate permission="edit logistics">
                                                                 <Button 
                                                                     disabled={processing} 
@@ -178,10 +177,10 @@ export default function Deactivated() {
                                     </table>
                                 </div>
                             ) : (
-                                <div className={styles.emptyState}>
-                                    <RotateCcw className={styles.emptyStateIcon} />
-                                    <h3 className={styles.emptyStateTitle}>No deactivated logistics found</h3>
-                                    <p className={styles.emptyStateDescription}>
+                                <div className="text-center py-8">
+                                    <RotateCcw className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                                    <h3 className="text-lg font-medium text-foreground mb-2">No deactivated logistics found</h3>
+                                    <p className="text-muted-foreground">
                                         There are currently no deactivated logistics partners in the system.
                                     </p>
                                 </div>

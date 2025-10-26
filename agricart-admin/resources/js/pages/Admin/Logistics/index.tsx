@@ -12,7 +12,6 @@ import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
-import styles from './logistics.module.css';
 
 interface PageProps extends SharedData {
     logistics: Logistic[];
@@ -161,8 +160,8 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title="Logistics Management" />
-                <div className={styles.logisticsContainer}>
-                    <div className={styles.mainContent}>
+                <div className="min-h-screen bg-background">
+                    <div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
                         {/* Flash Messages */}
                         <FlashMessage flash={flash} />
                         

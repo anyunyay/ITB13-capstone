@@ -16,7 +16,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import styles from './logistics.module.css';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -80,24 +79,24 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title="Add Logistics Partner" />
-                <div className={styles.logisticsContainer}>
-                    <div className={styles.mainContent}>
+                <div className="min-h-screen bg-background">
+                    <div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
                         {/* Header Section */}
-                        <div className={styles.dashboardHeader}>
-                            <div className={styles.headerMain}>
-                                <div className={styles.headerTitleSection}>
-                                    <div className={styles.titleContainer}>
-                                        <IdCard className={styles.headerIcon} />
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3">
+                                        <IdCard className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
-                                            <h1 className={styles.headerTitle}>Add Logistics Partner</h1>
-                                            <p className={styles.headerSubtitle}>
+                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Add Logistics Partner</h1>
+                                            <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                                                 Register a new logistics partner to handle deliveries
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className={styles.headerActions}>
-                                    <Button asChild variant="outline" className={styles.secondaryAction}>
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('logistics.index')}>
                                             <IdCard className="h-4 w-4 mr-2" />
                                             Back to Logistics
@@ -108,15 +107,15 @@ export default function Index() {
                         </div>
 
                         {/* Form Section */}
-                        <div className={styles.logisticManagementSection}>
-                            <div className={styles.sectionHeader}>
-                                <div className={styles.sectionTitleContainer}>
-                                    <div className={styles.sectionIcon}>
+                        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+                            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                                         <IdCard className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h2 className={styles.sectionTitle}>Logistics Partner Information</h2>
-                                        <p className={styles.sectionSubtitle}>
+                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Logistics Partner Information</h2>
+                                        <p className="text-sm text-muted-foreground m-0">
                                             Enter the details for the new logistics partner
                                         </p>
                                     </div>
@@ -140,7 +139,7 @@ export default function Index() {
                         </Alert>
                     )}
 
-                    <div className='gap-1.5'>
+                    <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="logistic name">Name</Label>
                         <Input 
                             placeholder="Logistic Name" 
@@ -152,11 +151,11 @@ export default function Index() {
                             }} 
                         />
                     </div>
-                    <div className='gap-1.5'>
+                    <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="logistic email">Email</Label>
                         <Input placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
                     </div>
-                    <div className='gap-1.5'>
+                    <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="logistic password">Password</Label>
                         <PasswordInput 
                             placeholder="Password (minimum 8 characters)" 
@@ -164,7 +163,7 @@ export default function Index() {
                             onChange={(e) => setData('password', e.target.value)} 
                         />
                     </div>
-                    <div className='gap-1.5'>
+                    <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="logistic contact_number">Contact Number</Label>
                         <Input 
                             type="tel"
@@ -180,7 +179,7 @@ export default function Index() {
                     <div className="space-y-4">
                         <Label className="text-base font-medium">Address Information</Label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className='gap-1.5'>
+                            <div className='flex flex-col gap-1.5'>
                                 <Label htmlFor="street">Street Address</Label>
                                 <Input 
                                     placeholder="Enter street address" 
@@ -188,7 +187,7 @@ export default function Index() {
                                     onChange={(e) => setData('street', e.target.value)} 
                                 />
                             </div>
-                            <div className='gap-1.5'>
+                            <div className='flex flex-col gap-1.5'>
                                 <Label htmlFor="barangay">Barangay</Label>
                                 <Input 
                                     placeholder="Enter barangay" 
@@ -196,7 +195,7 @@ export default function Index() {
                                     onChange={(e) => setData('barangay', e.target.value)} 
                                 />
                             </div>
-                            <div className='gap-1.5'>
+                            <div className='flex flex-col gap-1.5'>
                                 <Label htmlFor="city">City</Label>
                                 <Input 
                                     placeholder="Enter city" 
@@ -204,7 +203,7 @@ export default function Index() {
                                     onChange={(e) => setData('city', e.target.value)} 
                                 />
                             </div>
-                            <div className='gap-1.5'>
+                            <div className='flex flex-col gap-1.5'>
                                 <Label htmlFor="province">Province</Label>
                                 <Input 
                                     placeholder="Enter province" 
@@ -214,7 +213,7 @@ export default function Index() {
                             </div>
                         </div>
                     </div>
-                    <div className='gap-1.5'>
+                    <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="registration date">Registration Date</Label>
                         <div className="flex flex-col gap-3">
                             <div className="relative flex gap-2">
@@ -275,7 +274,7 @@ export default function Index() {
                                     <Button 
                                         disabled={processing} 
                                         type="submit" 
-                                        className={styles.primaryAction}
+                                        className="bg-primary text-primary-foreground border-0 px-5 py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md"
                                     >
                                         <IdCard className="h-4 w-4 mr-2" />
                                         {processing ? 'Adding...' : 'Add Logistics Partner'}
