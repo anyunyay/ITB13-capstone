@@ -269,6 +269,7 @@ class MembershipController extends Controller
     {
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+        $search = $request->get('search');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -280,6 +281,7 @@ class MembershipController extends Controller
             [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'search' => $search,
                 'format' => $format,
                 'display' => $display
             ]
@@ -295,7 +297,29 @@ class MembershipController extends Controller
             $query->whereDate('registration_date', '<=', $endDate);
         }
 
-        $members = $query->orderBy('created_at', 'desc')->get();
+
+        // Search functionality
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('id', 'like', '%' . $search . '%')
+                  ->orWhere('member_id', 'like', '%' . $search . '%');
+            });
+        }
+
+        $members = $query->orderBy('created_at', 'desc')->get()->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'member_id' => $member->member_id,
+                'name' => $member->name,
+                'contact_number' => $member->contact_number,
+                'address' => $member->address,
+                'registration_date' => $member->registration_date,
+                'document' => $member->document,
+                'email_verified_at' => $member->email_verified_at,
+                'created_at' => $member->created_at,
+            ];
+        });
 
         // Calculate summary statistics
         $summary = [
@@ -319,6 +343,7 @@ class MembershipController extends Controller
             'filters' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'search' => $search,
             ],
         ]);
     }
@@ -347,26 +372,24 @@ class MembershipController extends Controller
             // Write headers
             fputcsv($file, [
                 'ID',
+                'Member ID',
                 'Name',
-                'Email',
                 'Contact Number',
                 'Address',
                 'Registration Date',
-                'Email Verified',
                 'Created Date'
             ]);
 
             // Write members data
             foreach ($members as $member) {
                 fputcsv($file, [
-                    $member->id,
-                    $member->name,
-                    $member->email,
-                    $member->contact_number ?? 'N/A',
-                    'N/A', // Address moved to user_addresses table
-                    $member->registration_date ? $member->registration_date->format('Y-m-d') : 'N/A',
-                    $member->email_verified_at ? 'Yes' : 'No',
-                    $member->created_at->format('Y-m-d H:i:s')
+                    $member['id'],
+                    $member['member_id'] ?? 'N/A',
+                    $member['name'],
+                    $member['contact_number'] ?? 'N/A',
+                    $member['address'] ?? 'N/A',
+                    $member['registration_date'] ? \Carbon\Carbon::parse($member['registration_date'])->format('Y-m-d') : 'N/A',
+                    \Carbon\Carbon::parse($member['created_at'])->format('Y-m-d H:i:s')
                 ]);
             }
 
