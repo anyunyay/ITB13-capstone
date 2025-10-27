@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Package, BarChart3 } from 'lucide-react';
+import { Package, BarChart3, Plus } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { StatsOverview } from './stats-overview';
 import { StockStats } from '@/types/inventory';
@@ -26,6 +26,14 @@ export const DashboardHeader = ({ stockStats }: DashboardHeaderProps) => {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
+                    <PermissionGate permission="create products">
+                        <Button asChild size="sm" className="bg-primary text-primary-foreground border border-primary hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] hover:border-[color-mix(in_srgb,var(--primary)_90%,black_10%)] transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                            <Link href={route('inventory.create')}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Product
+                            </Link>
+                        </Button>
+                    </PermissionGate>
                     <PermissionGate permission="generate inventory report">
                         <Button asChild variant="outline" className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
                             <Link href={route('inventory.report')}>

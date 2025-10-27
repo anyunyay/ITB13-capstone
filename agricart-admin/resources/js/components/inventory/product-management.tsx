@@ -110,18 +110,6 @@ export const ProductManagement = ({
                             <Search className="h-4 w-4 mr-2" />
                             {showSearch ? 'Hide Search' : 'Search'}
                         </Button>
-                        <ViewToggle 
-                            currentView={currentView} 
-                            onViewChange={setCurrentView} 
-                        />
-                        <PermissionGate permission="create products">
-                            <Button asChild size="sm" className="bg-primary text-primary-foreground border border-primary hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] hover:border-[color-mix(in_srgb,var(--primary)_90%,black_10%)]">
-                                <Link href={route('inventory.create')}>
-                                    <Plus className="h-4 w-4" />
-                                    Add Product
-                                </Link>
-                            </Button>
-                        </PermissionGate>
                         <PermissionGate permission="view archive">
                             <Button 
                                 variant={showArchived ? "default" : "outline"} 
@@ -133,6 +121,10 @@ export const ProductManagement = ({
                                 {showArchived ? 'Active Products' : 'Archived Products'}
                             </Button>
                         </PermissionGate>
+                        <ViewToggle 
+                            currentView={currentView} 
+                            onViewChange={setCurrentView} 
+                        />
                     </div>
                 </div>
             </div>
