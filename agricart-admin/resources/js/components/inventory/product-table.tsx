@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, Eye } from 'lucide-react';
+import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
@@ -16,6 +16,10 @@ interface ProductTableProps {
     handleRestore: (id: number, name: string) => void;
     archivingProduct: number | null;
     restoringProduct: number | null;
+    sortBy: string;
+    sortOrder: 'asc' | 'desc';
+    setSortBy: (sort: string) => void;
+    setSortOrder: (order: 'asc' | 'desc') => void;
 }
 
 export const ProductTable = ({
@@ -25,8 +29,29 @@ export const ProductTable = ({
     handleDelete,
     handleRestore,
     archivingProduct,
-    restoringProduct
+    restoringProduct,
+    sortBy,
+    sortOrder,
+    setSortBy,
+    setSortOrder
 }: ProductTableProps) => {
+    const handleSort = (field: string) => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(field);
+            setSortOrder('asc');
+        }
+    };
+
+    const getSortIcon = (field: string) => {
+        if (sortBy !== field) {
+            return <ArrowUpDown className="h-4 w-4" />;
+        }
+        return sortOrder === 'asc' ? 
+            <ArrowUp className="h-4 w-4" /> : 
+            <ArrowDown className="h-4 w-4" />;
+    };
     const getStatusBadge = (archived_at: string | null) => {
         if (archived_at) {
             return <Badge variant="destructive" className={styles.statusArchived}>Archived</Badge>;
@@ -52,22 +77,34 @@ export const ProductTable = ({
                 <TableHeader className={styles.inventoryTableHeader}>
                     <TableRow>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleSort('name')}
+                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                            >
                                 <Package className="h-4 w-4" />
                                 Product
-                            </div>
+                                {getSortIcon('name')}
+                            </button>
                         </TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleSort('type')}
+                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                            >
                                 <Tag className="h-4 w-4" />
                                 Category
-                            </div>
+                                {getSortIcon('type')}
+                            </button>
                         </TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleSort('price')}
+                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                            >
                                 <DollarSign className="h-4 w-4" />
                                 Prices
-                            </div>
+                                {getSortIcon('price')}
+                            </button>
                         </TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Status</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Actions</TableHead>

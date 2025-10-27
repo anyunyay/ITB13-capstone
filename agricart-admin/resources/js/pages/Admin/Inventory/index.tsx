@@ -52,6 +52,7 @@ export default function InventoryIndex() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [showArchived, setShowArchived] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     
@@ -60,6 +61,7 @@ export default function InventoryIndex() {
     const [showStockSearch, setShowStockSearch] = useState(false);
     const [selectedStockCategory, setSelectedStockCategory] = useState('all');
     const [stockSortBy, setStockSortBy] = useState('id');
+    const [stockSortOrder, setStockSortOrder] = useState<'asc' | 'desc'>('asc');
 
     // Reset pagination when switching views
     const toggleArchivedView = (show: boolean) => {
@@ -70,7 +72,7 @@ export default function InventoryIndex() {
     // Reset stock pagination when search or filters change
     useEffect(() => {
         setStockCurrentPage(1);
-    }, [stockSearchTerm, selectedStockCategory, stockSortBy, setStockCurrentPage]);
+    }, [stockSearchTerm, selectedStockCategory, stockSortBy, stockSortOrder, setStockCurrentPage]);
 
 
     // Form for archive and delete operations
@@ -107,18 +109,23 @@ export default function InventoryIndex() {
             return matchesSearch && matchesCategory;
         })
         .sort((a, b) => {
+            let comparison = 0;
             switch (sortBy) {
                 case 'name':
-                    return a.name?.localeCompare(b.name || '') || 0;
+                    comparison = a.name?.localeCompare(b.name || '') || 0;
+                    break;
                 case 'type':
-                    return a.produce_type?.localeCompare(b.produce_type || '') || 0;
+                    comparison = a.produce_type?.localeCompare(b.produce_type || '') || 0;
+                    break;
                 case 'price':
                     const priceA = a.price_kilo || a.price_pc || a.price_tali || 0;
                     const priceB = b.price_kilo || b.price_pc || b.price_tali || 0;
-                    return priceA - priceB;
+                    comparison = priceA - priceB;
+                    break;
                 default:
                     return 0;
             }
+            return sortOrder === 'asc' ? comparison : -comparison;
         });
 
     // Pagination for products
@@ -161,18 +168,24 @@ export default function InventoryIndex() {
         
         // Sort filtered stocks
         return filtered.sort((a, b) => {
+            let comparison = 0;
             switch (stockSortBy) {
                 case 'id':
-                    return a.id - b.id;
+                    comparison = a.id - b.id;
+                    break;
                 case 'quantity':
-                    return b.quantity - a.quantity; // Descending (highest first)
+                    comparison = a.quantity - b.quantity;
+                    break;
                 case 'product':
-                    return (a.product?.name || '').localeCompare(b.product?.name || '');
+                    comparison = (a.product?.name || '').localeCompare(b.product?.name || '');
+                    break;
                 case 'category':
-                    return (a.category || '').localeCompare(b.category || '');
+                    comparison = (a.category || '').localeCompare(b.category || '');
+                    break;
                 default:
                     return a.id - b.id;
             }
+            return stockSortOrder === 'asc' ? comparison : -comparison;
         });
     };
 
@@ -356,6 +369,8 @@ export default function InventoryIndex() {
                                     setSelectedCategory={setSelectedCategory}
                                     sortBy={sortBy}
                                     setSortBy={setSortBy}
+                                    sortOrder={sortOrder}
+                                    setSortOrder={setSortOrder}
                                     filteredAndSortedProducts={filteredAndSortedProducts}
                                     paginatedProducts={paginatedProducts}
                                     currentPage={currentPage}
@@ -398,6 +413,8 @@ export default function InventoryIndex() {
                                     setSelectedStockCategory={setSelectedStockCategory}
                                     stockSortBy={stockSortBy}
                                     setStockSortBy={setStockSortBy}
+                                    stockSortOrder={stockSortOrder}
+                                    setStockSortOrder={setStockSortOrder}
                                 />
                             </TabsContent>
                         </Tabs>

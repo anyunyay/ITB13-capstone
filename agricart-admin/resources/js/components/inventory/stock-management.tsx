@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter } from 'lucide-react';
+import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { Stock, RemovedStock, SoldStock } from '@/types/inventory';
@@ -34,6 +34,8 @@ interface StockManagementProps {
     setSelectedStockCategory: (category: string) => void;
     stockSortBy: string;
     setStockSortBy: (sort: string) => void;
+    stockSortOrder: 'asc' | 'desc';
+    setStockSortOrder: (order: 'asc' | 'desc') => void;
 }
 
 export const StockManagement = ({
@@ -56,9 +58,30 @@ export const StockManagement = ({
     selectedStockCategory,
     setSelectedStockCategory,
     stockSortBy,
-    setStockSortBy
+    setStockSortBy,
+    stockSortOrder,
+    setStockSortOrder
 }: StockManagementProps) => {
     const [currentView, setCurrentView] = useState<'stocks' | 'trail' | 'sold'>('stocks');
+
+    const handleStockSort = (field: string) => {
+        if (stockSortBy === field) {
+            setStockSortOrder(stockSortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setStockSortBy(field);
+            setStockSortOrder('asc');
+        }
+        setStockCurrentPage(1); // Reset to first page when sorting changes
+    };
+
+    const getStockSortIcon = (field: string) => {
+        if (stockSortBy !== field) {
+            return <ArrowUpDown className="h-4 w-4 ml-1" />;
+        }
+        return stockSortOrder === 'asc' ? 
+            <ArrowUp className="h-4 w-4 ml-1" /> : 
+            <ArrowDown className="h-4 w-4 ml-1" />;
+    };
 
     const renderUnifiedTable = (data: any[], dataType: 'stocks' | 'trail' | 'sold', title: string) => {
         const paginatedData = getPaginatedStocks(data, stockCurrentPage, stockItemsPerPage);
@@ -95,10 +118,30 @@ export const StockManagement = ({
             // For regular stocks view
             return (
                 <TableRow>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Stock ID</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product Name</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Category</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('id')} className="flex items-center hover:text-foreground transition-colors">
+                            Stock ID
+                            {getStockSortIcon('id')}
+                        </button>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('product')} className="flex items-center hover:text-foreground transition-colors">
+                            Product Name
+                            {getStockSortIcon('product')}
+                        </button>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('quantity')} className="flex items-center hover:text-foreground transition-colors">
+                            Quantity
+                            {getStockSortIcon('quantity')}
+                        </button>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('category')} className="flex items-center hover:text-foreground transition-colors">
+                            Category
+                            {getStockSortIcon('category')}
+                        </button>
+                    </TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Assigned To</TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Status</TableHead>
                     {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Actions</TableHead>}
@@ -491,15 +534,23 @@ export const StockManagement = ({
                                 <SelectItem value="Tali">Tali</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Select value={stockSortBy} onValueChange={setStockSortBy}>
-                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                        <Select value={`${stockSortBy}-${stockSortOrder}`} onValueChange={(value) => {
+                            const [field, order] = value.split('-');
+                            setStockSortBy(field);
+                            setStockSortOrder(order as 'asc' | 'desc');
+                        }}>
+                            <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                                 <SelectValue placeholder="Sort by" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="id">Stock ID</SelectItem>
-                                <SelectItem value="quantity">Quantity (High to Low)</SelectItem>
-                                <SelectItem value="product">Product Name</SelectItem>
-                                <SelectItem value="category">Category</SelectItem>
+                                <SelectItem value="id-asc">Stock ID (Low to High)</SelectItem>
+                                <SelectItem value="id-desc">Stock ID (High to Low)</SelectItem>
+                                <SelectItem value="quantity-asc">Quantity (Low to High)</SelectItem>
+                                <SelectItem value="quantity-desc">Quantity (High to Low)</SelectItem>
+                                <SelectItem value="product-asc">Product Name (A-Z)</SelectItem>
+                                <SelectItem value="product-desc">Product Name (Z-A)</SelectItem>
+                                <SelectItem value="category-asc">Category (A-Z)</SelectItem>
+                                <SelectItem value="category-desc">Category (Z-A)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

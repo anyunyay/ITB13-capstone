@@ -12,6 +12,7 @@ import { ViewToggle } from './view-toggle';
 import { ProductTable } from './product-table';
 import { Product } from '@/types/inventory';
 import { useState } from 'react';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
 interface ProductManagementProps {
@@ -23,6 +24,8 @@ interface ProductManagementProps {
     setSelectedCategory: (category: string) => void;
     sortBy: string;
     setSortBy: (sort: string) => void;
+    sortOrder: 'asc' | 'desc';
+    setSortOrder: (order: 'asc' | 'desc') => void;
     filteredAndSortedProducts: Product[];
     paginatedProducts: Product[];
     currentPage: number;
@@ -51,6 +54,8 @@ export const ProductManagement = ({
     setSelectedCategory,
     sortBy,
     setSortBy,
+    sortOrder,
+    setSortOrder,
     filteredAndSortedProducts,
     paginatedProducts,
     currentPage,
@@ -169,14 +174,21 @@ export const ProductManagement = ({
                                 ))}
                             </SelectContent>
                         </Select>
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                        <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
+                            const [field, order] = value.split('-');
+                            setSortBy(field);
+                            setSortOrder(order as 'asc' | 'desc');
+                        }}>
+                            <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                                 <SelectValue placeholder="Sort by" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="name">Name (A-Z)</SelectItem>
-                                <SelectItem value="type">Category</SelectItem>
-                                <SelectItem value="price">Price (Low to High)</SelectItem>
+                                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                                <SelectItem value="type-asc">Category (A-Z)</SelectItem>
+                                <SelectItem value="type-desc">Category (Z-A)</SelectItem>
+                                <SelectItem value="price-asc">Price (Low to High)</SelectItem>
+                                <SelectItem value="price-desc">Price (High to Low)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -350,6 +362,10 @@ export const ProductManagement = ({
                                 handleRestore={handleRestore}
                                 archivingProduct={archivingProduct}
                                 restoringProduct={restoringProduct}
+                                sortBy={sortBy}
+                                sortOrder={sortOrder}
+                                setSortBy={setSortBy}
+                                setSortOrder={setSortOrder}
                             />
                         )}
 
