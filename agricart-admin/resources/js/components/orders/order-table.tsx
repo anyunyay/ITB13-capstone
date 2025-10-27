@@ -4,9 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { format } from 'date-fns';
-import { Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck } from 'lucide-react';
+import { Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { Order } from '@/types/orders';
+import { useState } from 'react';
 
 interface OrderTableProps {
     orders: Order[];
@@ -14,6 +15,9 @@ interface OrderTableProps {
     urgentOrders?: Order[];
     showActions?: boolean;
     compact?: boolean;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    onSortChange?: (field: string) => void;
 }
 
 export const OrderTable = ({ 
@@ -21,8 +25,68 @@ export const OrderTable = ({
     highlightOrderId, 
     urgentOrders = [], 
     showActions = true,
-    compact = false 
+    compact = false,
+    sortBy: externalSortBy,
+    sortOrder: externalSortOrder,
+    onSortChange
 }: OrderTableProps) => {
+    // Internal sorting state if not provided externally
+    const [internalSortBy, setInternalSortBy] = useState('id');
+    const [internalSortOrder, setInternalSortOrder] = useState<'asc' | 'desc'>('desc');
+    
+    const sortBy = externalSortBy || internalSortBy;
+    const sortOrder = externalSortOrder || internalSortOrder;
+    
+    const handleSort = (field: string) => {
+        if (externalSortBy !== undefined && onSortChange) {
+            onSortChange(field);
+        } else {
+            if (internalSortBy === field) {
+                setInternalSortOrder(internalSortOrder === 'asc' ? 'desc' : 'asc');
+            } else {
+                setInternalSortBy(field);
+                setInternalSortOrder('desc');
+            }
+        }
+    };
+
+    const getSortIcon = (field: string) => {
+        if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+        return sortOrder === 'asc' ? 
+            <ArrowUp className="h-4 w-4 ml-1" /> : 
+            <ArrowDown className="h-4 w-4 ml-1" />;
+    };
+    
+    // Sort orders
+    const sortedOrders = [...orders].sort((a, b) => {
+        let comparison = 0;
+        switch (sortBy) {
+            case 'id':
+                comparison = a.id - b.id;
+                break;
+            case 'created_at':
+                comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                break;
+            case 'total_amount':
+                comparison = a.total_amount - b.total_amount;
+                break;
+            case 'subtotal':
+                comparison = ((a as any).subtotal || 0) - ((b as any).subtotal || 0);
+                break;
+            case 'coop_share':
+                comparison = ((a as any).coop_share || 0) - ((b as any).coop_share || 0);
+                break;
+            case 'member_share':
+                comparison = ((a as any).member_share || 0) - ((b as any).member_share || 0);
+                break;
+            case 'customer':
+                comparison = a.customer.name.localeCompare(b.customer.name);
+                break;
+            default:
+                return 0;
+        }
+        return sortOrder === 'asc' ? comparison : -comparison;
+    });
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
@@ -75,28 +139,34 @@ export const OrderTable = ({
         );
     }
 
+    // Use sorted orders
+    const ordersToDisplay = sortedOrders;
+
     return (
         <div className="rounded-md border">
             <Table className="w-full border-collapse text-sm">
                 <TableHeader className="bg-muted/50 border-b-2">
                     <TableRow>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <Package className="h-4 w-4" />
                                 Order ID
-                            </div>
+                                {getSortIcon('id')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('created_at')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <Calendar className="h-4 w-4" />
                                 Date
-                            </div>
+                                {getSortIcon('created_at')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <User className="h-4 w-4" />
                                 Customer
-                            </div>
+                                {getSortIcon('customer')}
+                            </button>
                         </TableHead>
                         {!compact && (
                             <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
@@ -107,28 +177,32 @@ export const OrderTable = ({
                             </TableHead>
                         )}
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
                                 Total Amount
-                            </div>
+                                {getSortIcon('total_amount')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('subtotal')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
                                 Subtotal
-                            </div>
+                                {getSortIcon('subtotal')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
                                 Co-op Share
-                            </div>
+                                {getSortIcon('coop_share')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                            <button onClick={() => handleSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
                                 Revenue
-                            </div>
+                                {getSortIcon('member_share')}
+                            </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
@@ -154,7 +228,7 @@ export const OrderTable = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {orders.map((order) => {
+                    {ordersToDisplay.map((order) => {
                         const urgent = isUrgent(order);
                         const highlighted = isHighlighted(order);
                         

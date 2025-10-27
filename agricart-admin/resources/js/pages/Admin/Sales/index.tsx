@@ -1,5 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +11,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { Calendar, DollarSign, ShoppingCart, Users, TrendingUp } from 'lucide-react';
+import { Calendar, DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface Sale {
   id: number;
@@ -71,6 +72,62 @@ interface SalesPageProps {
 
 export default function SalesIndex({ sales, pendingOrders, summary, memberSales, filters }: SalesPageProps) {
   const { can } = usePermissions();
+  
+  // Sorting state
+  const [sortBy, setSortBy] = useState('id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+  
+  // Helper to get sort icon
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+  
+  // Sort sales data
+  const sortedSales = [...sales].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'total_amount':
+        comparison = a.total_amount - b.total_amount;
+        break;
+      case 'coop_share':
+        comparison = (a.coop_share || 0) - (b.coop_share || 0);
+        break;
+      case 'member_share':
+        comparison = a.member_share - b.member_share;
+        break;
+      case 'cogs':
+        comparison = a.cogs - b.cogs;
+        break;
+      case 'gross_profit':
+        comparison = a.gross_profit - b.gross_profit;
+        break;
+      case 'customer':
+        comparison = a.customer.name.localeCompare(b.customer.name);
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
 
   return (
     <PermissionGuard 
@@ -239,20 +296,60 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Sale ID</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Total Amount</TableHead>
-                        <TableHead>Co-op Share</TableHead>
-                        <TableHead>Revenue</TableHead>
-                        <TableHead>COGS</TableHead>
-                        <TableHead>Gross Profit</TableHead>
-                        <TableHead>Date</TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('id')} className="flex items-center hover:text-foreground transition-colors">
+                            Sale ID
+                            {getSortIcon('id')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('customer')} className="flex items-center hover:text-foreground transition-colors">
+                            Customer
+                            {getSortIcon('customer')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('total_amount')} className="flex items-center hover:text-foreground transition-colors">
+                            Total Amount
+                            {getSortIcon('total_amount')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('coop_share')} className="flex items-center hover:text-foreground transition-colors">
+                            Co-op Share
+                            {getSortIcon('coop_share')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('member_share')} className="flex items-center hover:text-foreground transition-colors">
+                            Revenue
+                            {getSortIcon('member_share')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('cogs')} className="flex items-center hover:text-foreground transition-colors">
+                            COGS
+                            {getSortIcon('cogs')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('gross_profit')} className="flex items-center hover:text-foreground transition-colors">
+                            Gross Profit
+                            {getSortIcon('gross_profit')}
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('created_at')} className="flex items-center hover:text-foreground transition-colors">
+                            Date
+                            {getSortIcon('created_at')}
+                          </button>
+                        </TableHead>
                         <TableHead>Processed By</TableHead>
                         <TableHead>Logistic</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sales.map((sale) => (
+                      {sortedSales.map((sale) => (
                         <TableRow key={sale.id}>
                           <TableCell className="font-medium">#{sale.id}</TableCell>
                           <TableCell>
@@ -271,7 +368,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
                         </TableRow>
                       ))}
-                      {sales.length === 0 && (
+                      {sortedSales.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={10} className="text-center text-muted-foreground">
                             No sales found.
@@ -354,7 +451,12 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Member</TableHead>
+                        <TableHead>
+                          <button onClick={() => handleSort('member')} className="flex items-center hover:text-foreground transition-colors">
+                            Member
+                            {getSortIcon('member')}
+                          </button>
+                        </TableHead>
                         <TableHead>Total Orders</TableHead>
                         <TableHead>Total Revenue</TableHead>
                         <TableHead>Co-op Share</TableHead>
