@@ -266,13 +266,26 @@ class ComprehensiveSalesSeeder extends Seeder
      */
     private function createSalesRecord($salesAudit, $deliveredAt, $confirmedAt = null, $overrides = [])
     {
+        // Get the full address string
+        $deliveryAddress = null;
+        if ($salesAudit->address) {
+            $address = $salesAudit->address;
+            $deliveryAddress = sprintf(
+                '%s, %s, %s, %s',
+                $address->street ?? '',
+                $address->barangay ?? '',
+                $address->city ?? '',
+                $address->province ?? ''
+            );
+        }
+
         $defaults = [
             'customer_id' => $salesAudit->customer_id,
             'total_amount' => $salesAudit->total_amount,
             'subtotal' => $salesAudit->subtotal,
             'coop_share' => $salesAudit->coop_share,
             'member_share' => $salesAudit->member_share,
-            'delivery_address' => $salesAudit->address ? $salesAudit->address->full_address : null,
+            'delivery_address' => $deliveryAddress,
             'admin_id' => $salesAudit->admin_id,
             'logistic_id' => $salesAudit->logistic_id,
             'sales_audit_id' => $salesAudit->id,
