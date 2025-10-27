@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Stock;
-use App\Models\StockTrail;
 use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
-use App\Models\AuditTrail;
+use App\Models\StockTrail;
 use App\Helpers\SystemLogger;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,12 +23,13 @@ class InventoryController extends Controller
         $stocks = Stock::active()->with(['product', 'member'])->get();
         $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();
         $soldStocks = Stock::sold()->with(['product', 'member'])->orderBy('updated_at', 'desc')->limit(50)->get();
-        $auditTrails = AuditTrail::with(['product', 'stock', 'sale'])->orderBy('created_at', 'desc')->limit(100)->get();
         $stockTrails = StockTrail::with(['product', 'stock', 'member', 'performedByUser'])
             ->orderBy('created_at', 'desc')
-            ->limit(100)
+            ->limit(200)
             ->get();
         $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
+        // Pass empty array for auditTrails to maintain compatibility with frontend
+        $auditTrails = [];
         return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
     }
 

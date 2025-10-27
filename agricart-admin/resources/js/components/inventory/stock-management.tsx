@@ -9,7 +9,7 @@ import { route } from 'ziggy-js';
 import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
-import { Stock, RemovedStock, SoldStock, AuditTrail, StockTrail } from '@/types/inventory';
+import { Stock, RemovedStock, SoldStock } from '@/types/inventory';
 import { useState } from 'react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
@@ -17,8 +17,8 @@ interface StockManagementProps {
     stocks: Stock[];
     removedStocks: RemovedStock[];
     soldStocks: SoldStock[];
-    auditTrails: AuditTrail[];
-    stockTrails: StockTrail[];
+    auditTrails: any[]; // Keeping for backward compatibility
+    stockTrails: any[]; // Keeping for backward compatibility
     stockCurrentPage: number;
     setStockCurrentPage: (page: number) => void;
     stockItemsPerPage: number;
@@ -74,6 +74,7 @@ export const StockManagement = ({
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Category</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Member</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Action</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Total Amount</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Notes</TableHead>
                     </TableRow>
                 );
@@ -124,11 +125,16 @@ export const StockManagement = ({
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <Badge 
-                                variant={item.type === 'removed' ? "destructive" : "default"}
-                                className={item.type === 'removed' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
+                                variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
+                                className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
                             >
                                 {item.action}
                             </Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <div className="font-semibold">
+                                ₱{(item.totalAmount || 0).toFixed(2)}
+                            </div>
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="max-w-xs truncate" title={item.notes}>
@@ -250,20 +256,44 @@ export const StockManagement = ({
     };
 
     const getCombinedTrailData = () => {
-        return stockTrails.map(trail => ({
-            id: trail.id,
-            type: trail.action_type,
-            product: trail.product?.name || 'Unknown Product',
-            quantity: trail.new_quantity || 0,
-            category: trail.category || 'N/A',
-            member: trail.member?.name || trail.performedByUser?.name || 'Unknown',
-            date: trail.created_at,
-            notes: trail.notes || `Action: ${trail.action_type}`,
-            action: getActionLabel(trail.action_type),
-            oldQuantity: trail.old_quantity,
-            newQuantity: trail.new_quantity,
-            actionType: trail.action_type
-        })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        // Use stock trails data
+        return stockTrails.map(trail => {
+            // Get quantity change from stock trail
+            const oldQuantity = trail.old_quantity || 0;
+            const newQuantity = trail.new_quantity || 0;
+            const quantityChange = Math.abs(oldQuantity - newQuantity);
+            
+            // Calculate price based on action type
+            let price = 0;
+            if (trail.product) {
+                if (trail.category === 'Kilo') {
+                    price = trail.product.price_kilo || 0;
+                } else if (trail.category === 'Pc') {
+                    price = trail.product.price_pc || 0;
+                } else if (trail.category === 'Tali') {
+                    price = trail.product.price_tali || 0;
+                }
+            }
+            
+            // Calculate total amount for the stock trail
+            const totalAmount = trail.action_type === 'sale' ? quantityChange * price : 0;
+            
+            return {
+                id: trail.id,
+                type: trail.action_type,
+                product: trail.product?.name || 'Unknown Product',
+                quantity: quantityChange,
+                category: trail.category || 'N/A',
+                member: trail.member?.name || trail.performedByUser?.name || 'Unknown',
+                date: trail.created_at,
+                notes: trail.notes || `Action: ${trail.action_type}`,
+                action: getActionLabel(trail.action_type),
+                oldQuantity: trail.old_quantity,
+                newQuantity: trail.new_quantity,
+                actionType: trail.action_type,
+                totalAmount: totalAmount
+            };
+        }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     };
 
     const getActionLabel = (actionType: string) => {

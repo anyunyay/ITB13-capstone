@@ -74,10 +74,14 @@ export interface RemovedStock {
 export interface AuditTrail {
     id: number;
     sale_id?: number;
+    order_id?: number;
     stock_id?: number;
+    member_id?: number;
     product_id: number;
+    product_name?: string;
     category: string;
     quantity: number;
+    available_stock_after_sale?: number;
     price_kilo?: number;
     price_pc?: number;
     price_tali?: number;
@@ -106,6 +110,11 @@ export interface AuditTrail {
         total_amount: number;
         status: string;
     };
+    member?: {
+        id: number;
+        name: string;
+        email: string;
+    };
 }
 
 export interface SoldStock {
@@ -132,42 +141,4 @@ export interface SoldStock {
     };
 }
 
-export interface StockTrail {
-    id: number;
-    stock_id: number;
-    product_id: number;
-    member_id?: number;
-    performed_by?: number;
-    action_type: 'created' | 'updated' | 'removed' | 'restored';
-    old_quantity?: number;
-    new_quantity?: number;
-    category?: string;
-    notes?: string;
-    performed_by_type?: string;
-    created_at: string;
-    updated_at: string;
-    product?: {
-        id: number;
-        name: string;
-        produce_type: string;
-        description: string;
-        image: string;
-        image_url: string;
-    };
-    stock?: {
-        id: number;
-        quantity: number;
-        category?: string;
-        member_id?: number;
-    };
-    member?: {
-        id: number;
-        name: string;
-        email: string;
-    };
-    performedByUser?: {
-        id: number;
-        name: string;
-        type: string;
-    };
-}
+// StockTrail interface removed as we're now using AuditTrail for stock history

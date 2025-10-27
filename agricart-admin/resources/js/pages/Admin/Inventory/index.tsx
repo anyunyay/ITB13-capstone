@@ -18,7 +18,7 @@ import { RemoveStockModal } from '@/components/inventory/remove-stock-modal';
 import { ArchiveProductModal } from '@/components/inventory/archive-product-modal';
 import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
 import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
-import { Product, Stock, RemovedStock, SoldStock, AuditTrail, StockTrail } from '@/types/inventory';
+import { Product, Stock, RemovedStock, SoldStock } from '@/types/inventory';
 
 interface PageProps extends SharedData {
     products: Product[];
@@ -26,8 +26,8 @@ interface PageProps extends SharedData {
     stocks: Stock[];
     removedStocks: RemovedStock[];
     soldStocks: SoldStock[];
-    auditTrails: AuditTrail[];
-    stockTrails: StockTrail[];
+    auditTrails: any[]; // Keeping for backward compatibility
+    stockTrails: any[]; // Keeping for backward compatibility
     categories: string[];
     errors: {
         archive?: string;
