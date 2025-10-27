@@ -120,7 +120,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -325,7 +325,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
 
           {/* Performance Insights */}
           {memberSales.length > 0 && (
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Top Performers</CardTitle>
@@ -334,7 +334,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   <div className="space-y-4">
                     {memberSales.slice(0, 3).map((member, index) => (
                       <div key={member.member_id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <Badge variant={index === 0 ? "default" : index === 1 ? "secondary" : "outline"}>
                             #{index + 1}
                           </Badge>

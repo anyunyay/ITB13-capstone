@@ -75,15 +75,15 @@ export default function Deactivated() {
             <AppLayout>
                 <Head title="Deactivated Logistics" />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Flash Messages */}
                         <FlashMessage flash={flash} />
                         
                         {/* Header Section */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
-                            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
                                         <RotateCcw className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
                                             <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Deactivated Logistics</h1>
@@ -106,8 +106,8 @@ export default function Deactivated() {
 
                         {/* Deactivated Logistics Table */}
                         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
-                            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-2 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-2">
                                     <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                                         <RotateCcw className="h-6 w-6" />
                                     </div>

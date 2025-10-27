@@ -311,14 +311,14 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
     <AppLayout>
       <Head title={`Order #${order.id}`} />
       <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-primary rounded-lg shadow-lg bg-primary/5' : ''}`}>
-        <div className="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-2 mb-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-foreground mb-2">Order #{order.id}</h1>
             <p className="text-muted-foreground">
               Placed on {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {getStatusBadge(order.status)}
             {isUrgent && (
               <Badge variant="destructive" className="animate-pulse">
@@ -339,7 +339,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
         {/* Main Content Layout */}
         <div className="space-y-6">
           {/* Primary Content Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-2">
             {/* Left Column - Main Content */}
             <div className="xl:col-span-2 space-y-6">
               {/* Customer Information */}
@@ -363,7 +363,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               </Card>
 
               {/* Order Management Components */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* Order Ready Management for Approved Orders */}
                 {order.status === 'approved' && currentOrder.logistic && (
                   <OrderReady
@@ -462,7 +462,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           </div>
 
           {/* Additional Information Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {/* Delivery Proof Section */}
             {currentOrder.delivery_status === 'delivered' && currentOrder.delivery_proof_image && (
               <DeliveryProof

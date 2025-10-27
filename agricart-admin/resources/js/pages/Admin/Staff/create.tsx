@@ -151,8 +151,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       <AppLayout>
         <Head title="Add Staff Member" />
         <div className="min-h-screen bg-background">
-          <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-4">
+          <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -176,7 +176,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
                   <Input
@@ -250,7 +250,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="street">Street Address</Label>
                     <Input
@@ -385,7 +385,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {deletePermissions.map((permission) => (
                       <div key={permission} className="flex items-center space-x-2">
                         <Checkbox
@@ -411,7 +411,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 )}
               </div>
 
-              <div className="flex items-center justify-end gap-4">
+              <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" asChild>
                   <Link href="/admin/staff">Cancel</Link>
                 </Button>

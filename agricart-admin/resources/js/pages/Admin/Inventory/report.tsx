@@ -300,11 +300,11 @@ export default function InventoryReport({ stocks, summary, members, productTypes
     <AppSidebarLayout>
       <Head title="Inventory Report" />
       <div className="min-h-screen bg-background">
-        <div className="w-full px-4 py-4 flex flex-col gap-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2">
                 <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
                   <BarChart3 className="h-8 w-8" />
                 </div>
@@ -315,7 +315,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
               Export CSV
@@ -329,7 +329,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
@@ -417,7 +417,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
                       <CardTitle className="text-xl">Advanced Filters</CardTitle>
                       {hasActiveFilters() && (
@@ -426,7 +426,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                           <X className="h-4 w-4" />
@@ -488,7 +488,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                   )}
 
                   {/* Filter Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Start Date</Label>
                       <Popover>
@@ -690,7 +690,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">Stock Report ({stocks.length} items)</CardTitle>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground">
                     {stocks.length > 0 ? `Showing ${stocks.length} stock items` : 'No items found'}
                   </div>
@@ -755,7 +755,7 @@ function StockCard({ stock }: { stock: Stock }) {
     <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
               <BarChart3 className="h-4 w-4" />
             </div>
@@ -772,7 +772,7 @@ function StockCard({ stock }: { stock: Stock }) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>

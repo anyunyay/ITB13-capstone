@@ -133,12 +133,12 @@ export default function Dashboard({
             <AppSidebarLayout>
                 <Head title="Admin Dashboard" />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Dashboard Header */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
-                            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
                                         <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
                                             <BarChart3 className="h-6 w-6" />
                                         </div>
@@ -168,7 +168,7 @@ export default function Dashboard({
                         </div>
 
                     {/* Key Metrics Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                         {/* Orders Today */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -229,7 +229,7 @@ export default function Dashboard({
                     </div>
 
                     {/* Alerts and Urgent Items */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                         {/* Urgent Orders */}
                         <Card className="border-red-200 bg-red-50">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -305,7 +305,7 @@ export default function Dashboard({
 
                         {/* Overview Tab */}
                         <TabsContent value="overview" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                                 {/* Order Status Breakdown */}
                                 <Card>
                                     <CardHeader>
@@ -344,7 +344,7 @@ export default function Dashboard({
                             </div>
 
                             {/* Growth Metrics */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
@@ -383,7 +383,7 @@ export default function Dashboard({
 
                         {/* Performance Tab */}
                         <TabsContent value="performance" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                                 {/* Top Selling Products */}
                                 <Card>
                                     <CardHeader>
@@ -449,7 +449,7 @@ export default function Dashboard({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                         {logisticsPerformance.slice(0, 6).map((logistic) => (
                                             <div key={logistic.id} className="border rounded-lg p-4">
                                                 <div className="font-medium">{logistic.name}</div>
@@ -468,7 +468,7 @@ export default function Dashboard({
 
                         {/* Inventory Tab */}
                         <TabsContent value="inventory" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                                 {/* Stock Overview */}
                                 <Card>
                                     <CardHeader>
@@ -547,7 +547,7 @@ export default function Dashboard({
 
                         {/* Recent Activity Tab */}
                         <TabsContent value="activity" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                                 {/* Recent Orders */}
                                 <Card>
                                     <CardHeader>
@@ -583,7 +583,7 @@ export default function Dashboard({
                                     <CardContent>
                                         <div className="space-y-3">
                                             {recentActivity.slice(0, 8).map((activity) => (
-                                                <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-3">
+                                                <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-2">
                                                     <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
                                                     <div className="flex-1">
                                                         <div className="text-sm">{activity.description}</div>

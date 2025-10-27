@@ -139,7 +139,7 @@ export default function Edit({member}: Props) {
         >
             <AppLayout>
                 <Head title="Update Member"/>
-                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (
@@ -191,7 +191,7 @@ export default function Edit({member}: Props) {
                     {/* Address Fields */}
                     <div className="space-y-4">
                         <Label className="text-base font-medium">Address Information</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div className='gap-1.5'>
                                 <Label htmlFor="street">Street Address</Label>
                                 <Input 
@@ -232,7 +232,7 @@ export default function Edit({member}: Props) {
                     </div>
                     <div className='gap-1.5'>
                         <Label htmlFor="member registration_date">Registration Date</Label>
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
                             <div className="relative flex gap-2">
                                 {/*
                                   Set up state for date, value (display string), month, and popover open.

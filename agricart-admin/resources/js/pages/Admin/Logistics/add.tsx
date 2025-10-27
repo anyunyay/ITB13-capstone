@@ -80,12 +80,12 @@ export default function Index() {
             <AppLayout>
                 <Head title="Add Logistics Partner" />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Header Section */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-3">
-                            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-2">
                                         <IdCard className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
                                             <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Add Logistics Partner</h1>
@@ -108,8 +108,8 @@ export default function Index() {
 
                         {/* Form Section */}
                         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
-                            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-2 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-2">
                                     <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                                         <IdCard className="h-6 w-6" />
                                     </div>
@@ -178,7 +178,7 @@ export default function Index() {
                     {/* Address Fields */}
                     <div className="space-y-4">
                         <Label className="text-base font-medium">Address Information</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div className='flex flex-col gap-1.5'>
                                 <Label htmlFor="street">Street Address</Label>
                                 <Input 
@@ -215,7 +215,7 @@ export default function Index() {
                     </div>
                     <div className='flex flex-col gap-1.5'>
                         <Label htmlFor="registration date">Registration Date</Label>
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
                             <div className="relative flex gap-2">
                                 <Input
                                     id="date"

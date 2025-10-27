@@ -90,7 +90,7 @@ export default function Edit({ logistic }: Props) {
         >
             <AppLayout>
                 <Head title="Update Logistic" />
-                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                     <div className="max-w-4xl mx-auto w-full">
                     <form onSubmit={handleUpdate} className='space-y-4'>
                         {/* Display Error */}
@@ -144,7 +144,7 @@ export default function Edit({ logistic }: Props) {
                         {/* Address Fields */}
                         <div className="space-y-4">
                             <Label className="text-base font-medium">Address Information</Label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <div className='flex flex-col gap-1.5'>
                                     <Label htmlFor="street">Street Address</Label>
                                     <Input 
@@ -185,7 +185,7 @@ export default function Edit({ logistic }: Props) {
                         </div>
                         <div className='flex flex-col gap-1.5'>
                             <Label htmlFor="logistic registration_date">Registration Date</Label>
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-2">
                                 <div className="relative flex gap-2">
                                     {/*
                                       Set up state for date, value (display string), month, and popover open.

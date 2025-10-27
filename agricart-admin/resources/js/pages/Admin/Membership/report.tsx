@@ -176,11 +176,11 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       <AppLayout>
         <Head title="Membership Report" />
         <div className="min-h-screen bg-background">
-          <div className="w-full px-4 py-4 flex flex-col gap-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-2">
                   <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
                     <Users className="h-8 w-8" />
                   </div>
@@ -191,7 +191,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-2 items-center">
                   <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
                     Export CSV
@@ -205,7 +205,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
               <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -265,7 +265,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CollapsibleTrigger asChild>
                   <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <Filter className="h-5 w-5 text-primary" />
                         <CardTitle className="text-xl">Advanced Filters</CardTitle>
                         {hasActiveFilters() && (
@@ -274,7 +274,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         {hasActiveFilters() && (
                           <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                             <X className="h-4 w-4" />
@@ -336,7 +336,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     )}
 
                     {/* Filter Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Start Date</Label>
                         <Popover>
@@ -403,7 +403,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">Members Report ({members.length} members)</CardTitle>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <div className="text-sm text-muted-foreground">
                       {members.length > 0 ? `Showing ${members.length} members` : 'No members found'}
                     </div>
@@ -474,7 +474,7 @@ function MemberCard({ member }: { member: Member }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
             <h4 className="font-semibold mb-2">Member Information</h4>
             {member.member_id && (

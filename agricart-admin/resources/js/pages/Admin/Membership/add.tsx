@@ -156,9 +156,9 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title="Add Member" />
-                <div className="w-full flex flex-col gap-6 px-4 py-4 sm:px-6 lg:px-8">
+                <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                     {/* Header */}
-                    <div className="flex items-center gap-4 mb-6">
+                    <div className="flex items-center gap-2 mb-6">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={route('membership.index')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -326,7 +326,7 @@ export default function Index() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="street" className="flex items-center gap-2">
                                             Street Address
@@ -517,7 +517,7 @@ export default function Index() {
                                     <CheckCircle className="h-4 w-4 text-green-500" />
                                 )}
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex gap-2">
                                 <Button variant="outline" asChild>
                                     <Link href={route('membership.index')}>
                                         Cancel

@@ -143,7 +143,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                     </div>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-sm font-medium text-gray-600">Total Entries</CardTitle>
@@ -195,7 +195,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
                                 <div>
                                     <Label htmlFor="start_date">Start Date</Label>
                                     <Input
