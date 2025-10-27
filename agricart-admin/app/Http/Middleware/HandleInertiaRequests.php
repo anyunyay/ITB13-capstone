@@ -105,9 +105,11 @@ class HandleInertiaRequests extends Middleware
             }
 
             if (!empty($notificationTypes)) {
-                $shared['notifications'] = $user->unreadNotifications()
+                // Share all notifications (read and unread) for the notification bell in header
+                $shared['notifications'] = $user->notifications()
                     ->whereIn('type', $notificationTypes)
                     ->orderBy('created_at', 'desc')
+                    ->limit(20)
                     ->get()
                     ->map(function ($notification) {
                         return [
