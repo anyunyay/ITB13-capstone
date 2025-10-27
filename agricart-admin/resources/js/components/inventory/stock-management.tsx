@@ -79,6 +79,20 @@ export const StockManagement = ({
                     </TableRow>
                 );
             }
+            // For sold stocks view
+            if (dataType === 'sold') {
+                return (
+                    <TableRow>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Stock ID</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product Name</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity Sold</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Assigned To</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Total Amount</TableHead>
+                    </TableRow>
+                );
+            }
+            
+            // For regular stocks view
             return (
                 <TableRow>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Stock ID</TableHead>
@@ -145,7 +159,53 @@ export const StockManagement = ({
                 );
             }
 
-            // For stocks and sold stocks
+            // For sold stocks view
+            if (dataType === 'sold') {
+                // Calculate total amount for sold stock
+                let totalAmount = 0;
+                if (item.product) {
+                    let price = 0;
+                    if (item.category === 'Kilo') {
+                        price = item.product.price_kilo || 0;
+                    } else if (item.category === 'Pc') {
+                        price = item.product.price_pc || 0;
+                    } else if (item.category === 'Tali') {
+                        price = item.product.price_tali || 0;
+                    }
+                    totalAmount = (item.sold_quantity || 0) * price;
+                }
+                
+                return (
+                    <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <Badge variant="outline">#{item.id}</Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <div className="font-medium">{item.product?.name || '-'}</div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <div className="font-semibold">
+                                {item.category === 'Kilo'
+                                    ? `${item.sold_quantity || 0} kg sold`
+                                    : item.category
+                                    ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} sold`
+                                    : `${item.sold_quantity || 0} sold`
+                                }
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            {item.member?.name || 'Unassigned'}
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
+                            <div className="font-semibold">
+                                ₱{totalAmount.toFixed(2)}
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                );
+            }
+            
+            // For regular stocks
             return (
                 <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
@@ -156,12 +216,25 @@ export const StockManagement = ({
                     </TableCell>
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <div className="font-semibold">
-                            {item.category === 'Kilo'
-                                ? `${item.quantity} kg`
-                                : item.category
-                                ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                : item.quantity
-                            }
+                            {dataType === 'stocks' && item.quantity === 0 ? (
+                                <div>
+                                    {item.category === 'Kilo'
+                                        ? `${item.sold_quantity || 0} kg sold`
+                                        : item.category
+                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} sold`
+                                        : `${item.sold_quantity || 0} sold`
+                                    }
+                                </div>
+                            ) : (
+                                <div>
+                                    {item.category === 'Kilo'
+                                        ? `${item.quantity} kg`
+                                        : item.category
+                                        ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                        : item.quantity
+                                    }
+                                </div>
+                            )}
                         </div>
                     </TableCell>
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
@@ -172,9 +245,8 @@ export const StockManagement = ({
                     </TableCell>
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <Badge 
-                            variant={dataType === 'sold' ? "default" : item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
+                            variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                             className={
-                                dataType === 'sold' ? "bg-primary/10 text-primary" :
                                 item.quantity > 10 
                                     ? "bg-primary/10 text-primary" 
                                     : item.quantity > 0 
@@ -182,8 +254,7 @@ export const StockManagement = ({
                                         : "bg-destructive/10 text-destructive"
                             }
                         >
-                            {dataType === 'sold' ? 'Sold' : 
-                             item.quantity > 10 ? 'Available' : 
+                            {item.quantity > 10 ? 'Available' : 
                              item.quantity > 0 ? 'Low Stock' : 'Out of Stock'}
                         </Badge>
                     </TableCell>
@@ -276,7 +347,17 @@ export const StockManagement = ({
             }
             
             // Calculate total amount for the stock trail
-            const totalAmount = trail.action_type === 'sale' ? quantityChange * price : 0;
+            let totalAmount = 0;
+            if (trail.action_type === 'sale') {
+                // For sales, calculate based on quantity sold
+                totalAmount = quantityChange * price;
+            } else if (trail.action_type === 'created' || trail.action_type === 'updated') {
+                // For stock additions, calculate based on new quantity
+                totalAmount = newQuantity * price;
+            } else if (trail.action_type === 'removed') {
+                // For removals, calculate based on the removed quantity
+                totalAmount = quantityChange * price;
+            }
             
             return {
                 id: trail.id,
@@ -301,9 +382,11 @@ export const StockManagement = ({
             'created': 'Added',
             'updated': 'Updated',
             'removed': 'Removed',
-            'restored': 'Restored'
+            'restored': 'Restored',
+            'sale': 'Sale',
+            'reversal': 'Reversal'
         };
-        return labels[actionType] || actionType;
+        return labels[actionType] || actionType.charAt(0).toUpperCase() + actionType.slice(1);
     };
 
 
@@ -364,7 +447,7 @@ export const StockManagement = ({
                             onClick={() => setCurrentView('sold')}
                         >
                             <Eye className="h-4 w-4 mr-2" />
-                            Sold Items
+                            Sold History
                         </Button>
                     </PermissionGate>
                 </div>
@@ -446,15 +529,16 @@ export const StockManagement = ({
             <div>
                 {currentView === 'stocks' ? (
                     <Tabs defaultValue="all" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="all">All Stocks</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-5">
+                            <TabsTrigger value="all">Current Stocks</TabsTrigger>
                             <TabsTrigger value="available">Available</TabsTrigger>
                             <TabsTrigger value="low">Low Stock</TabsTrigger>
-                            <TabsTrigger value="out">Out of Stock</TabsTrigger>
+                            <TabsTrigger value="out">Sold Out</TabsTrigger>
+                            <TabsTrigger value="sold">Sold Items</TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="all">
-                            {renderUnifiedTable(getFilteredStocks('all'), 'stocks', 'All Stocks')}
+                            {renderUnifiedTable(getFilteredStocks('all'), 'stocks', 'Current Stocks')}
                         </TabsContent>
                         
                         <TabsContent value="available">
@@ -466,13 +550,17 @@ export const StockManagement = ({
                         </TabsContent>
                         
                         <TabsContent value="out">
-                            {renderUnifiedTable(getFilteredStocks('out'), 'stocks', 'Out of Stock Items')}
+                            {renderUnifiedTable(getFilteredStocks('out'), 'stocks', 'Sold Out Items')}
+                        </TabsContent>
+                        
+                        <TabsContent value="sold">
+                            {renderUnifiedTable(soldStocks, 'sold', 'Sold Items')}
                         </TabsContent>
                     </Tabs>
                 ) : (
                     <div>
                         {currentView === 'trail' && renderUnifiedTable(getCombinedTrailData(), 'trail', 'Stock Trail')}
-                        {currentView === 'sold' && renderUnifiedTable(soldStocks, 'sold', 'Sold Stocks')}
+                        {currentView === 'sold' && renderUnifiedTable(soldStocks, 'sold', 'Sold History')}
                     </div>
                 )}
             </div>

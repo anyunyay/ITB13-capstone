@@ -148,7 +148,7 @@ export default function InventoryIndex() {
             if (!matchesCategory) return false;
             
             // Status filter
-            if (status === 'all') return true;
+            if (status === 'all') return stock.quantity > 0; // Exclude sold-out items from All Stocks view
             if (status === 'available') return stock.quantity > 10;
             if (status === 'low') return stock.quantity > 0 && stock.quantity <= 10;
             if (status === 'out') return stock.quantity === 0;
