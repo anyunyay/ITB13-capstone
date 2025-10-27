@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\StockTrail;
 use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
 use App\Models\AuditTrail;
@@ -24,8 +25,12 @@ class InventoryController extends Controller
         $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();
         $soldStocks = Stock::sold()->with(['product', 'member'])->orderBy('updated_at', 'desc')->limit(50)->get();
         $auditTrails = AuditTrail::with(['product', 'stock', 'sale'])->orderBy('created_at', 'desc')->limit(100)->get();
+        $stockTrails = StockTrail::with(['product', 'stock', 'member', 'performedByUser'])
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get();
         $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
-        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'categories'));
+        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
     }
 
     public function create()

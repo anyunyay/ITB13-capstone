@@ -9,7 +9,7 @@ import { route } from 'ziggy-js';
 import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from './pagination-controls';
-import { Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
+import { Stock, RemovedStock, SoldStock, AuditTrail, StockTrail } from '@/types/inventory';
 import { useState } from 'react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
 
@@ -18,6 +18,7 @@ interface StockManagementProps {
     removedStocks: RemovedStock[];
     soldStocks: SoldStock[];
     auditTrails: AuditTrail[];
+    stockTrails: StockTrail[];
     stockCurrentPage: number;
     setStockCurrentPage: (page: number) => void;
     stockItemsPerPage: number;
@@ -40,6 +41,7 @@ export const StockManagement = ({
     removedStocks,
     soldStocks,
     auditTrails,
+    stockTrails,
     stockCurrentPage,
     setStockCurrentPage,
     stockItemsPerPage,
@@ -248,34 +250,30 @@ export const StockManagement = ({
     };
 
     const getCombinedTrailData = () => {
-        return [
-            // Removed stocks
-            ...removedStocks.map(stock => ({
-                id: `removed-${stock.id}`,
-                type: 'removed',
-                product: stock.product?.name || 'Unknown Product',
-                quantity: stock.quantity,
-                category: stock.category,
-                member: stock.member?.name || 'Unknown Member',
-                date: stock.removed_at,
-                notes: stock.notes || 'No notes',
-                action: 'Removed'
-            })),
-            // Audit trail entries (only sales and other non-removal entries)
-            ...auditTrails
-                .filter(trail => trail.sale_id !== null) // Only show sales-related audit entries
-                .map(trail => ({
-                    id: `audit-${trail.id}`,
-                    type: 'audit',
-                    product: trail.product?.name || 'Unknown Product',
-                    quantity: trail.quantity,
-                    category: trail.category,
-                    member: trail.stock?.member_id ? 'Member Stock' : 'System',
-                    date: trail.created_at,
-                    notes: trail.sale ? `Sale #${trail.sale.id}` : 'System Update',
-                    action: trail.quantity > 0 ? 'Added' : 'Updated'
-                }))
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return stockTrails.map(trail => ({
+            id: trail.id,
+            type: trail.action_type,
+            product: trail.product?.name || 'Unknown Product',
+            quantity: trail.new_quantity || 0,
+            category: trail.category || 'N/A',
+            member: trail.member?.name || trail.performedByUser?.name || 'Unknown',
+            date: trail.created_at,
+            notes: trail.notes || `Action: ${trail.action_type}`,
+            action: getActionLabel(trail.action_type),
+            oldQuantity: trail.old_quantity,
+            newQuantity: trail.new_quantity,
+            actionType: trail.action_type
+        })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    };
+
+    const getActionLabel = (actionType: string) => {
+        const labels: { [key: string]: string } = {
+            'created': 'Added',
+            'updated': 'Updated',
+            'removed': 'Removed',
+            'restored': 'Restored'
+        };
+        return labels[actionType] || actionType;
     };
 
 

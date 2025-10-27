@@ -18,7 +18,7 @@ import { RemoveStockModal } from '@/components/inventory/remove-stock-modal';
 import { ArchiveProductModal } from '@/components/inventory/archive-product-modal';
 import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
 import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
-import { Product, Stock, RemovedStock, SoldStock, AuditTrail } from '@/types/inventory';
+import { Product, Stock, RemovedStock, SoldStock, AuditTrail, StockTrail } from '@/types/inventory';
 
 interface PageProps extends SharedData {
     products: Product[];
@@ -27,6 +27,7 @@ interface PageProps extends SharedData {
     removedStocks: RemovedStock[];
     soldStocks: SoldStock[];
     auditTrails: AuditTrail[];
+    stockTrails: StockTrail[];
     categories: string[];
     errors: {
         archive?: string;
@@ -35,7 +36,7 @@ interface PageProps extends SharedData {
 }
 
 export default function InventoryIndex() {
-    const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
+    const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], stockTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
 
     // Toggle state for switching between Product and Stock management
@@ -381,6 +382,7 @@ export default function InventoryIndex() {
                                     removedStocks={removedStocks}
                                     soldStocks={soldStocks}
                                     auditTrails={auditTrails}
+                                    stockTrails={stockTrails}
                                     stockCurrentPage={stockCurrentPage}
                                     setStockCurrentPage={setStockCurrentPage}
                                     stockItemsPerPage={stockItemsPerPage}

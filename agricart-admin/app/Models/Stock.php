@@ -40,6 +40,11 @@ class Stock extends Model
         return $this->belongsTo(User::class, 'member_id')->where('type', 'member');
     }
 
+    public function stockTrails()
+    {
+        return $this->hasMany(StockTrail::class);
+    }
+
 
 
     /**

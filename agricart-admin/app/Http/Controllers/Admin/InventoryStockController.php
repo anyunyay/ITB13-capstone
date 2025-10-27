@@ -7,6 +7,7 @@ use App\Helpers\SystemLogger;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Stock;
+use App\Models\StockTrail;
 use App\Notifications\InventoryUpdateNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -60,6 +61,20 @@ class InventoryStockController extends Controller
             'member_id' => $request->input('member_id'),
             'category' => $request->input('category'),
         ]);
+
+        // Record stock trail
+        StockTrail::record(
+            stockId: $stock->id,
+            productId: $product->id,
+            actionType: 'created',
+            oldQuantity: 0,
+            newQuantity: $request->input('quantity'),
+            memberId: $request->input('member_id'),
+            category: $request->input('category'),
+            notes: 'Stock created',
+            performedBy: $request->user()->id,
+            performedByType: $request->user()->type
+        );
 
         // Log stock creation
         SystemLogger::logStockUpdate(
@@ -125,6 +140,20 @@ class InventoryStockController extends Controller
             'category' => $request->input('category'),
         ]);
 
+        // Record stock trail
+        StockTrail::record(
+            stockId: $stock->id,
+            productId: $product->id,
+            actionType: 'updated',
+            oldQuantity: $oldQuantity,
+            newQuantity: $request->input('quantity'),
+            memberId: $request->input('member_id'),
+            category: $request->input('category'),
+            notes: 'Stock updated',
+            performedBy: $request->user()->id,
+            performedByType: $request->user()->type
+        );
+
         // Log stock update
         SystemLogger::logStockUpdate(
             $stock->id,
@@ -173,14 +202,30 @@ class InventoryStockController extends Controller
             return redirect()->back()->withErrors(['stock_id' => 'Invalid stock selected.']);
         }
 
+        $oldQuantity = $stock->quantity;
+        
         // Mark stock as removed using the new method
         $stock->remove($request->reason);
+
+        // Record stock trail
+        StockTrail::record(
+            stockId: $stock->id,
+            productId: $product->id,
+            actionType: 'removed',
+            oldQuantity: $oldQuantity,
+            newQuantity: 0,
+            memberId: $stock->member_id,
+            category: $stock->category,
+            notes: $request->reason,
+            performedBy: $request->user()->id,
+            performedByType: $request->user()->type
+        );
 
         // Log stock removal
         SystemLogger::logStockUpdate(
             $stock->id,
             $product->id,
-            $stock->quantity,
+            $oldQuantity,
             0,
             $request->user()->id,
             $request->user()->type,
@@ -212,13 +257,29 @@ class InventoryStockController extends Controller
 
     public function restoreStock(Stock $stock)
     {
+        $oldQuantity = $stock->quantity;
+        
         $stock->restore();
+        
+        // Record stock trail
+        StockTrail::record(
+            stockId: $stock->id,
+            productId: $stock->product_id,
+            actionType: 'restored',
+            oldQuantity: $oldQuantity,
+            newQuantity: $stock->quantity,
+            memberId: $stock->member_id,
+            category: $stock->category,
+            notes: 'Stock restored',
+            performedBy: request()->user()->id,
+            performedByType: request()->user()->type
+        );
         
         // Log stock restoration
         SystemLogger::logStockUpdate(
             $stock->id,
             $stock->product_id,
-            0,
+            $oldQuantity,
             $stock->quantity,
             request()->user()->id,
             request()->user()->type,

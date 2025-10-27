@@ -131,3 +131,43 @@ export interface SoldStock {
         email: string;
     };
 }
+
+export interface StockTrail {
+    id: number;
+    stock_id: number;
+    product_id: number;
+    member_id?: number;
+    performed_by?: number;
+    action_type: 'created' | 'updated' | 'removed' | 'restored';
+    old_quantity?: number;
+    new_quantity?: number;
+    category?: string;
+    notes?: string;
+    performed_by_type?: string;
+    created_at: string;
+    updated_at: string;
+    product?: {
+        id: number;
+        name: string;
+        produce_type: string;
+        description: string;
+        image: string;
+        image_url: string;
+    };
+    stock?: {
+        id: number;
+        quantity: number;
+        category?: string;
+        member_id?: number;
+    };
+    member?: {
+        id: number;
+        name: string;
+        email: string;
+    };
+    performedByUser?: {
+        id: number;
+        name: string;
+        type: string;
+    };
+}
