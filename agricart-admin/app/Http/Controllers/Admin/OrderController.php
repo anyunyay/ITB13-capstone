@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use App\Models\SalesAudit;
+use App\Models\StockTrail;
 use App\Services\AuditTrailService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -368,6 +369,20 @@ class OrderController extends Controller
                 
                 $trail->stock->save();
 
+                // Record stock movement in stock_trails table
+                StockTrail::record(
+                    stockId: $trail->stock->id,
+                    productId: $trail->stock->product_id,
+                    actionType: 'sale',
+                    oldQuantity: $quantityBeforeDeduction,
+                    newQuantity: $trail->stock->quantity,
+                    memberId: $trail->stock->member_id,
+                    category: $trail->stock->category,
+                    notes: "Stock sold to customer (Order #{$order->id}, Customer ID: {$order->customer_id})",
+                    performedBy: $request->user()->id,
+                    performedByType: $request->user()->type
+                );
+
                 // Create comprehensive audit trail entry for order completion
                 $availableStockAfterSale = $trail->stock->quantity;
                 
@@ -489,6 +504,9 @@ class OrderController extends Controller
             // Reverse stock changes
             foreach ($order->auditTrail as $trail) {
                 if ($trail->stock) {
+                    // Store quantity before reversal
+                    $quantityBeforeReversal = $trail->stock->quantity;
+                    
                     // Restore available quantity
                     $trail->stock->quantity += $trail->quantity;
                     
@@ -496,6 +514,20 @@ class OrderController extends Controller
                     $trail->stock->sold_quantity -= $trail->quantity;
                     
                     $trail->stock->save();
+                    
+                    // Record stock reversal in stock_trails table
+                    StockTrail::record(
+                        stockId: $trail->stock->id,
+                        productId: $trail->stock->product_id,
+                        actionType: 'reversal',
+                        oldQuantity: $quantityBeforeReversal,
+                        newQuantity: $trail->stock->quantity,
+                        memberId: $trail->stock->member_id,
+                        category: $trail->stock->category,
+                        notes: "Stock reversed due to order rejection (Order #{$order->id})",
+                        performedBy: $request->user()->id,
+                        performedByType: $request->user()->type
+                    );
                     
                     // Log stock reversal
                     SystemLogger::logStockUpdate(
