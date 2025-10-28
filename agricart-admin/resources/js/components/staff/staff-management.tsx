@@ -323,7 +323,7 @@ export const StaffManagement = ({
                                                     asChild
                                                     variant="outline"
                                                     size="sm"
-                                                    className="transition-all duration-200 hover:scale-105"
+                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                 >
                                                     <Link href={route('staff.edit', staffMember.id)}>
                                                         <Edit className="h-4 w-4" />
@@ -337,7 +337,7 @@ export const StaffManagement = ({
                                                     size="sm"
                                                     onClick={() => onDelete(staffMember)}
                                                     disabled={processing}
-                                                    className="transition-all duration-200 hover:scale-105"
+                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                     Delete

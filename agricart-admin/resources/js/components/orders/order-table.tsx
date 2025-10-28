@@ -358,7 +358,7 @@ export const OrderTable = ({
                                     <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                         <div className="flex gap-2 items-center">
                                             <PermissionGate permission="view orders">
-                                                <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:scale-105 hover:shadow-sm">
+                                                <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:shadow-lg hover:opacity-90">
                                                     <Link href={route('admin.orders.show', order.id)}>
                                                         <Eye className="h-3 w-3 mr-1" />
                                                         View

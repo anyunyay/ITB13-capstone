@@ -213,7 +213,7 @@ export const LogisticManagement = ({
                                                     asChild
                                                     variant="outline"
                                                     size="sm"
-                                                    className="transition-all duration-200 hover:scale-105"
+                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                 >
                                                     <Link href={route('logistics.edit', logistic.id)}>
                                                         <Edit className="h-4 w-4" />
@@ -232,7 +232,7 @@ export const LogisticManagement = ({
                                                                         size="sm"
                                                                         onClick={() => onDeactivate(logistic)}
                                                                         disabled={processing || !logistic.can_be_deactivated}
-                                                                        className={`transition-all duration-200 hover:scale-105 ${
+                                                                        className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
                                                                             !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
                                                                         }`}
                                                                     >
@@ -256,7 +256,7 @@ export const LogisticManagement = ({
                                                         size="sm"
                                                         onClick={() => onReactivate(logistic)}
                                                         disabled={processing}
-                                                        className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105"
+                                                        className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                     >
                                                         <RotateCcw className="h-4 w-4" />
                                                         Reactivate

@@ -167,13 +167,13 @@ export const ProductTable = ({
                                 </div>
                             </TableCell>
                             <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                {getStatusBadge(product.archived_at)}
+                                {getStatusBadge(product.archived_at || null)}
                             </TableCell>
                             <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
                                 <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
                                     {!product.archived_at && (
                                         <PermissionGate permission="create stocks">
-                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap">
+                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                                 <Link href={route('inventory.addStock', product.id)}>
                                                     <Plus className="h-3 w-3 mr-1" />
                                                     Stock
@@ -184,7 +184,7 @@ export const ProductTable = ({
                                     
                                     {!product.archived_at && (
                                         <PermissionGate permission="edit products">
-                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap">
+                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                                 <Link href={route('inventory.edit', product.id)}>
                                                     <Edit className="h-3 w-3 mr-1" />
                                                     Edit
@@ -218,7 +218,7 @@ export const ProductTable = ({
                                                 <Button 
                                                     variant="outline" 
                                                     size="sm"
-                                                    className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
+                                                    className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                                     disabled={processing || archivingProduct === product.id}
                                                     onClick={() => handleArchive(product.id, product.name)}
                                                 >
@@ -232,7 +232,7 @@ export const ProductTable = ({
                                             <Button 
                                                 variant="outline" 
                                                 size="sm"
-                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
+                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                                 disabled={processing || restoringProduct === product.id}
                                                 onClick={() => handleRestore(product.id, product.name)}
                                             >
@@ -246,7 +246,7 @@ export const ProductTable = ({
                                         <Button 
                                             variant="destructive" 
                                             size="sm"
-                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
+                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                             disabled={processing}
                                             onClick={() => handleDelete(product.id, product.name)}
                                         >

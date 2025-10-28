@@ -305,7 +305,7 @@ export const StockManagement = ({
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
                                 <PermissionGate permission="edit stocks">
-                                    <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap">
+                                    <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                         <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
                                             <Edit className="h-3 w-3 mr-1" />
                                             Edit
@@ -318,7 +318,7 @@ export const StockManagement = ({
                                         onClick={() => handleRemovePerishedStock(item)} 
                                         size="sm"
                                         variant="destructive"
-                                        className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
+                                        className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                     >
                                         <Trash2 className="h-3 w-3 mr-1" />
                                         Remove

@@ -236,7 +236,7 @@ export const MemberManagement = ({
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <div className="flex gap-2">
                                                 <PermissionGate permission="edit members">
-                                                    <Button asChild size="sm" className="transition-all duration-200 hover:scale-105">
+                                                    <Button asChild size="sm" className="transition-all duration-200 hover:shadow-lg hover:opacity-90">
                                                         <Link href={route('membership.edit', member.id)}>
                                                             <Edit className="h-3 w-3 mr-1" />
                                                             Edit
@@ -251,7 +251,7 @@ export const MemberManagement = ({
                                                                 onClick={() => onDeactivate(member)} 
                                                                 size="sm"
                                                                 variant="destructive"
-                                                                className="transition-all duration-200 hover:scale-105"
+                                                                className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                             >
                                                                 <UserMinus className="h-3 w-3 mr-1" />
                                                                 Deactivate
@@ -264,7 +264,7 @@ export const MemberManagement = ({
                                                             disabled={processing} 
                                                             onClick={() => onReactivate(member)} 
                                                             size="sm"
-                                                            className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105"
+                                                            className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                         >
                                                             <RotateCcw className="h-3 w-3 mr-1" />
                                                             Reactivate
