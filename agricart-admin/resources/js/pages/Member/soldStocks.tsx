@@ -84,7 +84,7 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
                                     <div className="text-center p-4 bg-blue-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalQuantitySold}
@@ -114,6 +114,18 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                             ₱{salesData.totalGrossProfit.toLocaleString()}
                                         </div>
                                         <div className="text-sm text-purple-100">Gross Profit</div>
+                                    </div>
+                                    <div className="text-center p-4 bg-cyan-600 rounded-lg">
+                                        <div className="text-2xl font-bold text-white">
+                                            ₱{salesData.totalQuantitySold > 0 ? Math.round(salesData.totalRevenue / salesData.totalQuantitySold) : 0}
+                                        </div>
+                                        <div className="text-sm text-cyan-100">Avg Price/Unit</div>
+                                    </div>
+                                    <div className="text-center p-4 bg-teal-600 rounded-lg">
+                                        <div className="text-2xl font-bold text-white">
+                                            {salesData.totalRevenue > 0 ? Math.round((salesData.totalGrossProfit / salesData.totalRevenue) * 100) : 0}%
+                                        </div>
+                                        <div className="text-sm text-teal-100">Profit Margin</div>
                                     </div>
                                 </div>
                             </CardContent>

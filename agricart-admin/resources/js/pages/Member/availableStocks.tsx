@@ -69,7 +69,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-foreground">Total Stocks</CardTitle>
@@ -100,6 +100,54 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                 {new Set(availableStocks.map(s => s.category)).size}
                             </div>
                             <p className="text-xs text-muted-foreground">Different types</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-foreground">Products</CardTitle>
+                            <Package className="h-4 w-4 text-blue-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-foreground">
+                                {new Set(availableStocks.map(s => s.product_id)).size}
+                            </div>
+                            <p className="text-xs text-muted-foreground">Unique items</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-foreground">Avg Quantity</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-yellow-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-foreground">
+                                {availableStocks.length > 0 ? Math.round(totalQuantity / availableStocks.length) : 0}
+                            </div>
+                            <p className="text-xs text-muted-foreground">Per stock item</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-foreground">Kilo Items</CardTitle>
+                            <Package className="h-4 w-4 text-green-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-foreground">
+                                {availableStocks.filter(s => s.category === 'Kilo').length}
+                            </div>
+                            <p className="text-xs text-muted-foreground">By weight</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-foreground">Piece Items</CardTitle>
+                            <Package className="h-4 w-4 text-orange-400" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-foreground">
+                                {availableStocks.filter(s => s.category === 'Pc').length}
+                            </div>
+                            <p className="text-xs text-muted-foreground">By piece</p>
                         </CardContent>
                     </Card>
                 </div>
