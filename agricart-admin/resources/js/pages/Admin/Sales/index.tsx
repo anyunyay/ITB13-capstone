@@ -181,7 +181,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">PHP {Number(summary.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold">₱{Number(summary.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   From {summary.total_orders} orders
                 </p>
@@ -194,7 +194,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
                     Added on top of product prices
                   </p>
@@ -207,7 +207,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">PHP {Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold text-blue-600">₱{Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Full product revenue to members
                 </p>
@@ -220,7 +220,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-orange-600">PHP {Number(summary.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold text-orange-600">₱{Number(summary.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Cost of Goods Sold
                 </p>
@@ -233,7 +233,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">PHP {Number(summary.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Revenue - COGS
                 </p>
@@ -259,7 +259,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">PHP {Number(summary.average_order_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold">₱{Number(summary.average_order_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Per order
                 </p>
@@ -308,32 +308,32 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                             {getSortIcon('customer')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('total_amount')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-right">
+                          <button onClick={() => handleSort('total_amount')} className="flex items-center justify-end hover:text-foreground transition-colors">
                             Total Amount
                             {getSortIcon('total_amount')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('coop_share')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-right">
+                          <button onClick={() => handleSort('coop_share')} className="flex items-center justify-end hover:text-foreground transition-colors">
                             Co-op Share
                             {getSortIcon('coop_share')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('member_share')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-right">
+                          <button onClick={() => handleSort('member_share')} className="flex items-center justify-end hover:text-foreground transition-colors">
                             Revenue
                             {getSortIcon('member_share')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('cogs')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-right">
+                          <button onClick={() => handleSort('cogs')} className="flex items-center justify-end hover:text-foreground transition-colors">
                             COGS
                             {getSortIcon('cogs')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('gross_profit')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-right">
+                          <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-end hover:text-foreground transition-colors">
                             Gross Profit
                             {getSortIcon('gross_profit')}
                           </button>
@@ -358,11 +358,11 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                               <div className="text-sm text-muted-foreground">{sale.customer.email}</div>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium">PHP {Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium">PHP {Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium">PHP {Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="font-medium text-right">₱{Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium text-right">₱{Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium text-right">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>{sale.admin?.name || 'N/A'}</TableCell>
                           <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
@@ -415,12 +415,12 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                               <div className="text-sm text-muted-foreground">{order.customer.email}</div>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium">PHP {Number(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="font-medium">PHP {Number(order.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number(order.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium">PHP {Number(order.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium">PHP {Number(((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number((order.member_share || 0) - ((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="font-medium">₱{Number(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="font-medium">₱{Number(order.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">₱{Number(order.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium">₱{Number(order.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium">₱{Number(((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">₱{Number((order.member_share || 0) - ((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>
                             <Badge variant={order.status === 'pending' ? 'secondary' : order.status === 'approved' ? 'default' : 'destructive'}>
@@ -477,13 +477,13 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                             </div>
                           </TableCell>
                           <TableCell>{member.total_orders}</TableCell>
-                          <TableCell className="font-medium">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium">PHP {Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium">PHP {Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium">PHP {Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="font-medium">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">₱{Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-blue-600 font-medium">₱{Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-orange-600 font-medium">₱{Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-green-600 font-medium">₱{Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{member.total_quantity_sold}</TableCell>
-                          <TableCell>PHP {member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
+                          <TableCell>₱{member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
                         </TableRow>
                       ))}
                       {memberSales.length === 0 && (

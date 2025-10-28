@@ -808,7 +808,7 @@ function OrderTable({ orders }: { orders: Order[] }) {
           <tr className="border-b border-border bg-muted/50">
             <th className="text-left py-3 px-4 font-semibold text-foreground">Order ID</th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Total Amount</th>
+            <th className="text-right py-3 px-4 font-semibold text-foreground">Total Amount</th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">Delivery Status</th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">Created</th>
@@ -830,7 +830,7 @@ function OrderTable({ orders }: { orders: Order[] }) {
                   <div className="text-sm text-muted-foreground">{order.customer.email}</div>
                 </div>
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 text-right">
                 <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
                   ₱{Number(order.total_amount).toFixed(2)}
                 </Badge>

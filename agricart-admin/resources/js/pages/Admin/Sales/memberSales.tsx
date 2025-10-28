@@ -127,7 +127,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">PHP {Number(totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold">₱{Number(totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   From all members
                 </p>
@@ -140,7 +140,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">PHP {Number(totalCoopShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">₱{Number(totalCoopShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
                     Added on top of product prices
                   </p>
@@ -153,7 +153,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">PHP {Number(totalMemberShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-blue-600">₱{Number(totalMemberShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
                     Full product revenue to members
                   </p>
@@ -166,7 +166,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">PHP {Number(totalCogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-orange-600">₱{Number(totalCogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
                     Cost of Goods Sold
                   </p>
@@ -179,7 +179,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">PHP {Number(totalGrossProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">₱{Number(totalGrossProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
                     Revenue - COGS
                   </p>
@@ -205,7 +205,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">PHP {Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div className="text-2xl font-bold">₱{Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
                   Per member
                 </p>
@@ -241,13 +241,13 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                     <TableHead>Rank</TableHead>
                     <TableHead>Member</TableHead>
                     <TableHead>Total Orders</TableHead>
-                    <TableHead>Total Revenue</TableHead>
-                    <TableHead>Co-op Share</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>COGS</TableHead>
-                    <TableHead>Gross Profit</TableHead>
+                    <TableHead className="text-right">Total Revenue</TableHead>
+                    <TableHead className="text-right">Co-op Share</TableHead>
+                    <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead className="text-right">COGS</TableHead>
+                    <TableHead className="text-right">Gross Profit</TableHead>
                     <TableHead>Quantity Sold</TableHead>
-                    <TableHead>Average Revenue</TableHead>
+                    <TableHead className="text-right">Average Revenue</TableHead>
                     <TableHead>Performance</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -274,26 +274,26 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                         <TableCell>
                           <div className="font-medium">{member.total_orders}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-green-600">PHP {Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium text-green-600">₱{Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-blue-600">PHP {Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium text-blue-600">₱{Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-orange-600">PHP {Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium text-orange-600">₱{Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-green-600">PHP {Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium text-green-600">₱{Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">{member.total_quantity_sold}</div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium">PHP {Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <TableCell className="text-right">
+                          <div className="font-medium">₱{Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -340,7 +340,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                           </Badge>
                           <div>
                             <div className="font-medium">{member.member_name}</div>
-                            <div className="text-sm text-muted-foreground">PHP {Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            <div className="text-sm text-muted-foreground">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           </div>
                         </div>
                       </div>

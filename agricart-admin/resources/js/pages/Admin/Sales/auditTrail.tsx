@@ -113,7 +113,9 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-PH', {
             style: 'currency',
-            currency: 'PHP'
+            currency: 'PHP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         }).format(amount);
     };
 
@@ -273,8 +275,8 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                             <TableHead>Category</TableHead>
                                             <TableHead>Quantity Sold</TableHead>
                                             <TableHead>Stock After Sale</TableHead>
-                                            <TableHead>Unit Price</TableHead>
-                                            <TableHead>Total Amount</TableHead>
+                                            <TableHead className="text-right">Unit Price</TableHead>
+                                            <TableHead className="text-right">Total Amount</TableHead>
                                             <TableHead>Order Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -313,10 +315,10 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                                 <TableCell className="font-medium">
                                                     {trail.available_stock_after_sale}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-right">
                                                     {formatCurrency(trail.unit_price)}
                                                 </TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell className="font-medium text-right">
                                                     {formatCurrency(trail.quantity * trail.unit_price)}
                                                 </TableCell>
                                                 <TableCell>
