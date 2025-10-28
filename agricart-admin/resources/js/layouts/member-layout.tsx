@@ -8,9 +8,9 @@ interface MemberLayoutProps {
 
 export default function MemberLayout({ children, breadcrumbs = [] }: PropsWithChildren<MemberLayoutProps>) {
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-background">
             <MemberHeader />
-            <main className="flex-1 space-y-4 p-4 pt-6">
+            <main className="flex-1 space-y-4 pt-6">
                 {children}
             </main>
         </div>
