@@ -806,14 +806,14 @@ function OrderTable({ orders }: { orders: Order[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Order ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
-            <th className="text-right py-3 px-4 font-semibold text-foreground">Total Amount</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Delivery Status</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Created</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Admin</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Logistic</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Order ID</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Customer</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Total Amount</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Delivery Status</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Admin</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Logistic</th>
           </tr>
         </thead>
         <tbody>

@@ -268,16 +268,16 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Timestamp</TableHead>
-                                            <TableHead>Order ID</TableHead>
-                                            <TableHead>Member</TableHead>
-                                            <TableHead>Product</TableHead>
-                                            <TableHead>Category</TableHead>
-                                            <TableHead>Quantity Sold</TableHead>
-                                            <TableHead>Stock After Sale</TableHead>
-                                            <TableHead className="text-right">Unit Price</TableHead>
-                                            <TableHead className="text-right">Total Amount</TableHead>
-                                            <TableHead>Order Status</TableHead>
+                                            <TableHead className="text-center">Timestamp</TableHead>
+                                            <TableHead className="text-center">Order ID</TableHead>
+                                            <TableHead className="text-center">Member</TableHead>
+                                            <TableHead className="text-center">Product</TableHead>
+                                            <TableHead className="text-center">Category</TableHead>
+                                            <TableHead className="text-center">Quantity Sold</TableHead>
+                                            <TableHead className="text-center">Stock After Sale</TableHead>
+                                            <TableHead className="text-center text-right">Unit Price</TableHead>
+                                            <TableHead className="text-center text-right">Total Amount</TableHead>
+                                            <TableHead className="text-center">Order Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

@@ -296,56 +296,56 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>
-                          <button onClick={() => handleSort('id')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Sale ID
                             {getSortIcon('id')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('customer')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Customer
                             {getSortIcon('customer')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-right">
-                          <button onClick={() => handleSort('total_amount')} className="flex items-center justify-end hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Total Amount
                             {getSortIcon('total_amount')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-right">
-                          <button onClick={() => handleSort('coop_share')} className="flex items-center justify-end hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Co-op Share
                             {getSortIcon('coop_share')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-right">
-                          <button onClick={() => handleSort('member_share')} className="flex items-center justify-end hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Revenue
                             {getSortIcon('member_share')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-right">
-                          <button onClick={() => handleSort('cogs')} className="flex items-center justify-end hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             COGS
                             {getSortIcon('cogs')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-right">
-                          <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-end hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Gross Profit
                             {getSortIcon('gross_profit')}
                           </button>
                         </TableHead>
-                        <TableHead>
-                          <button onClick={() => handleSort('created_at')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Date
                             {getSortIcon('created_at')}
                           </button>
                         </TableHead>
-                        <TableHead>Processed By</TableHead>
-                        <TableHead>Logistic</TableHead>
+                        <TableHead className="text-center">Processed By</TableHead>
+                        <TableHead className="text-center">Logistic</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -393,16 +393,16 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Total Amount</TableHead>
-                        <TableHead>Subtotal</TableHead>
-                        <TableHead>Co-op Share</TableHead>
-                        <TableHead>Revenue</TableHead>
-                        <TableHead>COGS</TableHead>
-                        <TableHead>Gross Profit</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead className="text-center">Order ID</TableHead>
+                        <TableHead className="text-center">Customer</TableHead>
+                        <TableHead className="text-center">Total Amount</TableHead>
+                        <TableHead className="text-center">Subtotal</TableHead>
+                        <TableHead className="text-center">Co-op Share</TableHead>
+                        <TableHead className="text-center">Revenue</TableHead>
+                        <TableHead className="text-center">COGS</TableHead>
+                        <TableHead className="text-center">Gross Profit</TableHead>
+                        <TableHead className="text-center">Date</TableHead>
+                        <TableHead className="text-center">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -451,20 +451,20 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>
-                          <button onClick={() => handleSort('member')} className="flex items-center hover:text-foreground transition-colors">
+                        <TableHead className="text-center">
+                          <button onClick={() => handleSort('member')} className="flex items-center justify-center hover:text-foreground transition-colors">
                             Member
                             {getSortIcon('member')}
                           </button>
                         </TableHead>
-                        <TableHead>Total Orders</TableHead>
-                        <TableHead>Total Revenue</TableHead>
-                        <TableHead>Co-op Share</TableHead>
-                        <TableHead>Revenue</TableHead>
-                        <TableHead>COGS</TableHead>
-                        <TableHead>Gross Profit</TableHead>
-                        <TableHead>Quantity Sold</TableHead>
-                        <TableHead>Average Revenue</TableHead>
+                        <TableHead className="text-center">Total Orders</TableHead>
+                        <TableHead className="text-center">Total Revenue</TableHead>
+                        <TableHead className="text-center">Co-op Share</TableHead>
+                        <TableHead className="text-center">Revenue</TableHead>
+                        <TableHead className="text-center">COGS</TableHead>
+                        <TableHead className="text-center">Gross Profit</TableHead>
+                        <TableHead className="text-center">Quantity Sold</TableHead>
+                        <TableHead className="text-center">Average Revenue</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

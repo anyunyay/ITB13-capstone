@@ -238,17 +238,17 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Rank</TableHead>
-                    <TableHead>Member</TableHead>
-                    <TableHead>Total Orders</TableHead>
-                    <TableHead className="text-right">Total Revenue</TableHead>
-                    <TableHead className="text-right">Co-op Share</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
-                    <TableHead className="text-right">COGS</TableHead>
-                    <TableHead className="text-right">Gross Profit</TableHead>
-                    <TableHead>Quantity Sold</TableHead>
-                    <TableHead className="text-right">Average Revenue</TableHead>
-                    <TableHead>Performance</TableHead>
+                    <TableHead className="text-center">Rank</TableHead>
+                    <TableHead className="text-center">Member</TableHead>
+                    <TableHead className="text-center">Total Orders</TableHead>
+                    <TableHead className="text-center text-right">Total Revenue</TableHead>
+                    <TableHead className="text-center text-right">Co-op Share</TableHead>
+                    <TableHead className="text-center text-right">Revenue</TableHead>
+                    <TableHead className="text-center text-right">COGS</TableHead>
+                    <TableHead className="text-center text-right">Gross Profit</TableHead>
+                    <TableHead className="text-center">Quantity Sold</TableHead>
+                    <TableHead className="text-center text-right">Average Revenue</TableHead>
+                    <TableHead className="text-center">Performance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

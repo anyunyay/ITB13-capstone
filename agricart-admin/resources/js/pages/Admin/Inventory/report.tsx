@@ -868,14 +868,14 @@ function StockTable({ stocks }: { stocks: Stock[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Stock ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Product</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Quantity</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Category</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Member</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Created</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Notes</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Stock ID</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Product</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Quantity</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Category</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Member</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Notes</th>
           </tr>
         </thead>
         <tbody>

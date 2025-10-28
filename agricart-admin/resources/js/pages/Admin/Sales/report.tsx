@@ -502,14 +502,14 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-border bg-muted/50">
-                        <th className="text-left py-3 px-4 font-semibold text-foreground">ID</th>
-                        <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
-                        <th className="text-right py-3 px-4 font-semibold text-foreground">Total Amount</th>
-                        <th className="text-right py-3 px-4 font-semibold text-foreground">Co-op Share</th>
-                        <th className="text-right py-3 px-4 font-semibold text-foreground">Revenue</th>
-                        <th className="text-right py-3 px-4 font-semibold text-foreground">COGS</th>
-                        <th className="text-right py-3 px-4 font-semibold text-foreground">Gross Profit</th>
-                        <th className="text-left py-3 px-4 font-semibold text-foreground">Date</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">ID</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Customer</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Total Amount</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Co-op Share</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Revenue</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Date</th>
                       </tr>
                     </thead>
                     <tbody>
