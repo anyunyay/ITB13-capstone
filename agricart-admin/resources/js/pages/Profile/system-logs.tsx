@@ -176,7 +176,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     };
 
     const getLevelIcon = (level: string) => {
-        if (!level) return <Info className="h-4 w-4 text-gray-500" />;
+        if (!level) return <Info className="h-4 w-4 text-muted-foreground" />;
         
         switch (level.toLowerCase()) {
             case 'error':
@@ -186,7 +186,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             case 'info':
                 return <Info className="h-4 w-4 text-blue-500" />;
             default:
-                return <Info className="h-4 w-4 text-gray-500" />;
+                return <Info className="h-4 w-4 text-muted-foreground" />;
         }
     };
 
@@ -392,9 +392,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             case 'product_management':
                 return 'bg-cyan-100 text-cyan-800 border-cyan-200';
             case 'admin_activity':
-                return 'bg-gray-100 text-gray-800 border-gray-200';
+                return 'bg-muted text-foreground border-border';
             default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
+                return 'bg-muted text-foreground border-border';
         }
     };
 
@@ -411,8 +411,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             {/* Header with Actions */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">System Logs</h2>
-                    <p className="text-sm text-gray-600">Monitor system activities and user actions</p>
+                    <h2 className="text-2xl font-bold text-foreground">System Logs</h2>
+                    <p className="text-sm text-muted-foreground">Monitor system activities and user actions</p>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
@@ -442,9 +442,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Total Logs</p>
-                                    <p className="text-3xl font-bold text-gray-900">{summary.total_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500 mt-1">All system activities</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">Total Logs</p>
+                                    <p className="text-3xl font-bold text-foreground">{summary.total_logs.toLocaleString()}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">All system activities</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-blue-100">
                                     <Database className="h-6 w-6 text-blue-600" />
@@ -457,9 +457,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Today's Activity</p>
-                                    <p className="text-3xl font-bold text-gray-900">{summary.today_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500 mt-1">Recent activity</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">Today's Activity</p>
+                                    <p className="text-3xl font-bold text-foreground">{summary.today_logs.toLocaleString()}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Recent activity</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-green-100">
                                     <Activity className="h-6 w-6 text-green-600" />
@@ -472,9 +472,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Errors</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">Errors</p>
                                     <p className="text-3xl font-bold text-red-600">{summary.error_count.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500 mt-1">Issues detected</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Issues detected</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-red-100">
                                     <AlertCircle className="h-6 w-6 text-red-600" />
@@ -487,9 +487,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Active Users</p>
-                                    <p className="text-3xl font-bold text-gray-900">{summary.unique_users.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500 mt-1">Unique users</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">Active Users</p>
+                                    <p className="text-3xl font-bold text-foreground">{summary.unique_users.toLocaleString()}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Unique users</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-purple-100">
                                     <Users className="h-6 w-6 text-purple-600" />
@@ -621,7 +621,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     <Activity className="h-5 w-5" />
                                     System Logs
                                 </CardTitle>
-                                <p className="text-sm text-gray-600 mt-1">
+                                <p className="text-sm text-muted-foreground mt-1">
                                     Showing {logs.data.length} of {logs.total} logs
                                 </p>
                             </div>
@@ -637,9 +637,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             <div className="space-y-3">
                                 {logs.data.length === 0 ? (
                                     <div className="text-center py-12">
-                                        <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No logs found</h3>
-                                        <p className="text-gray-500">Try adjusting your filters or check back later.</p>
+                                        <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-foreground mb-2">No logs found</h3>
+                                        <p className="text-muted-foreground">Try adjusting your filters or check back later.</p>
                                     </div>
                                 ) : (
                                     logs.data.map((log) => (
@@ -658,24 +658,24 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         </span>
                                                     </Badge>
                                                     {log.context.user_type && (
-                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+                                                        <Badge variant="secondary">
                                                             {log.context.user_type}
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <div className="text-right text-sm text-gray-500">
+                                                <div className="text-right text-sm text-muted-foreground">
                                                     <div className="flex items-center gap-1 mb-1">
                                                         <Clock className="h-3 w-3" />
                                                         <span className="font-medium">{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
                                                     </div>
-                                                    <div className="text-xs text-gray-400">
+                                                    <div className="text-xs text-muted-foreground">
                                                         {formatTimestamp(log.context.timestamp || log.created_at)}
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="mb-4">
-                                                <h4 className="font-semibold text-gray-900 text-lg mb-2">
+                                                <h4 className="font-semibold text-foreground text-lg mb-2">
                                                     {log.message || 'No message'}
                                                 </h4>
                                             </div>
@@ -695,7 +695,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                                     <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
                                                                         {detail.label}
                                                                     </div>
-                                                                    <div className="text-sm font-semibold text-gray-900 mt-1">
+                                                                    <div className="text-sm font-semibold text-foreground mt-1">
                                                                         {detail.value}
                                                                     </div>
                                                                 </div>
@@ -706,9 +706,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             ) : formatActionDetails(log).length > 0 ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                                     {formatActionDetails(log).map((detail, index) => (
-                                                        <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                                                        <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
                                                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                            <span className="text-gray-700">{detail}</span>
+                                                            <span className="text-foreground">{detail}</span>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -739,7 +739,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         {/* Pagination */}
                         {logs.last_page > 1 && (
                             <div className="flex items-center justify-between mt-4">
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-muted-foreground">
                                     Showing page {logs.current_page} of {logs.last_page}
                                 </div>
                                 <div className="flex space-x-2">
@@ -792,13 +792,13 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     {/* Basic Information */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-sm font-medium text-gray-500">Level</label>
+                                            <label className="text-sm font-medium text-muted-foreground">Level</label>
                                             <div className="mt-1">
                                                 {getLevelBadge(selectedLog.level)}
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-gray-500">Event Type</label>
+                                            <label className="text-sm font-medium text-muted-foreground">Event Type</label>
                                             <div className="mt-1">
                                                 <Badge 
                                                     variant="outline" 
@@ -809,22 +809,22 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-gray-500">Timestamp</label>
-                                            <p className="mt-1 text-sm text-gray-900">
+                                            <label className="text-sm font-medium text-muted-foreground">Timestamp</label>
+                                                <p className="mt-1 text-sm text-foreground">
                                                 {formatTimestamp(selectedLog.context.timestamp || selectedLog.created_at)}
                                             </p>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-gray-500">User Type</label>
-                                            <p className="mt-1 text-sm text-gray-900">
+                                            <label className="text-sm font-medium text-muted-foreground">User Type</label>
+                                                <p className="mt-1 text-sm text-foreground">
                                                 {selectedLog.context.user_type || 'N/A'}
                                             </p>
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <label className="text-sm font-medium text-gray-500">Message</label>
-                                        <p className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+                                        <label className="text-sm font-medium text-muted-foreground">Message</label>
+                                        <p className="mt-1 text-sm text-foreground bg-muted p-3 rounded-lg">
                                             {selectedLog.message || 'No message'}
                                         </p>
                                     </div>
@@ -845,7 +845,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                                 <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
                                                                     {detail.label}
                                                                 </div>
-                                                                <div className="text-sm font-semibold text-gray-900 mt-1">
+                                                                <div className="text-sm font-semibold text-foreground mt-1">
                                                                     {detail.value}
                                                                 </div>
                                                             </div>
@@ -856,9 +856,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         </div>
                                     ) : (
                                         <div>
-                                            <label className="text-sm font-medium text-gray-500">Context Data</label>
-                                            <div className="mt-1 bg-gray-50 p-4 rounded-lg">
-                                                <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                                            <label className="text-sm font-medium text-muted-foreground">Context Data</label>
+                                                <div className="mt-1 bg-muted p-4 rounded-lg">
+                                                <pre className="text-xs text-foreground whitespace-pre-wrap overflow-x-auto">
                                                     {JSON.stringify(selectedLog.context, null, 2)}
                                                 </pre>
                                             </div>

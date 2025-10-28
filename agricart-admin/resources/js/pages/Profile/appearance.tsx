@@ -162,7 +162,7 @@ export default function AppearancePage() {
                                                     "text-sm",
                                                     isSelected 
                                                         ? "text-white/80" 
-                                                        : "text-gray-600 dark:text-gray-400"
+                                                        : "text-muted-foreground"
                                                 )}>
                                                     {option.description}
                                                 </div>
@@ -177,11 +177,11 @@ export default function AppearancePage() {
                         </div>
 
                         {/* Current Selection Info */}
-                        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="mt-6 p-4 bg-muted rounded-lg">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Monitor className="h-4 w-4" />
                                 <span>
-                                    Current selection: <strong className="text-gray-900 dark:text-gray-100">
+                                    Current selection: <strong className="text-foreground">
                                         {appearanceOptions.find(opt => opt.value === appearance)?.label}
                                     </strong>
                                 </span>

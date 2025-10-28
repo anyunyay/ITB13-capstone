@@ -427,7 +427,7 @@ export default function AddressPage() {
                                     <div className="flex items-center gap-3">
                                         <Button
                                             onClick={() => handleEdit(addresses.find(addr => addr.is_active)!)}
-                                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Edit className="h-4 w-4" />
@@ -435,7 +435,7 @@ export default function AddressPage() {
                                         </Button>
                                         <Button
                                             onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
-                                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                            className="flex items-center gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -517,7 +517,7 @@ export default function AddressPage() {
                                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                                     <Button
                                                         onClick={() => handleEdit(address)}
-                                                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <Edit className="h-4 w-4" />
@@ -525,7 +525,7 @@ export default function AddressPage() {
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleSetActive(address.id)}
-                                                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <CheckCircle className="h-4 w-4" />
@@ -533,7 +533,7 @@ export default function AddressPage() {
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleDelete(address.id)}
-                                                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                                        className="flex items-center gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
