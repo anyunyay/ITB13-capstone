@@ -146,10 +146,20 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
 
     // Calculate summary statistics from comprehensive data
     const totalProducts = comprehensiveStockData.length;
-    const totalQuantity = comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0);
     const totalSold = comprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0);
     const totalAvailable = comprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0);
     const totalRevenue = comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0);
+    
+    // Calculate totals by category
+    const totalKilo = comprehensiveStockData
+        .filter(item => item.category === 'Kilo')
+        .reduce((sum, item) => sum + item.total_quantity, 0);
+    const totalPiece = comprehensiveStockData
+        .filter(item => item.category === 'Pc')
+        .reduce((sum, item) => sum + item.total_quantity, 0);
+    const totalTali = comprehensiveStockData
+        .filter(item => item.category === 'Tali')
+        .reduce((sum, item) => sum + item.total_quantity, 0);
 
     // Transaction helper functions
     const calculateMemberRevenue = (transaction: Transaction): number => {
@@ -233,7 +243,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
                     {showTransactions ? (
                         <>
                             <Card className="">
@@ -315,25 +325,37 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                     <p className="text-xs text-muted-foreground">Different products</p>
                                 </CardContent>
                             </Card>
+                            {/* Total Kilo Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Kilo</CardTitle>
                                     <Package className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-foreground">{totalQuantity}</div>
-                                    <p className="text-xs text-muted-foreground">All stock items</p>
+                                    <div className="text-2xl font-bold text-blue-400">{totalKilo}</div>
+                                    <p className="text-xs text-muted-foreground">Total in kilos</p>
                                 </CardContent>
                             </Card>
-                            {/* Sold Stock Card */}
+                            {/* Total Piece Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Sold Stock</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-blue-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Piece</CardTitle>
+                                    <Package className="h-4 w-4 text-purple-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
-                                    <p className="text-xs text-muted-foreground">Total items sold</p>
+                                    <div className="text-2xl font-bold text-purple-400">{totalPiece}</div>
+                                    <p className="text-xs text-muted-foreground">Total pieces</p>
+                                </CardContent>
+                            </Card>
+                            {/* Total Tali Card */}
+                            <Card className="">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Tali</CardTitle>
+                                    <Package className="h-4 w-4 text-green-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-green-400">{totalTali}</div>
+                                    <p className="text-xs text-muted-foreground">Total in tali</p>
                                 </CardContent>
                             </Card>
                             {/* Available Stock Card */}
@@ -347,39 +369,15 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                     <p className="text-xs text-muted-foreground">Items ready for sale</p>
                                 </CardContent>
                             </Card>
-                            {/* Revenue Card */}
+                            {/* Sold Stock Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-yellow-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">Sold Stock</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-yellow-400">₱{totalRevenue.toLocaleString()}</div>
-                                    <p className="text-xs text-muted-foreground">From sales</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* COGS Card */}
-                            <Card className="">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-orange-400" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold text-orange-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toLocaleString()}</div>
-                                    <p className="text-xs text-muted-foreground">Cost of goods sold</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* Gross Profit Card */}
-                            <Card className="">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-green-400" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold text-green-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toLocaleString()}</div>
-                                    <p className="text-xs text-muted-foreground">Revenue minus COGS</p>
+                                    <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
+                                    <p className="text-xs text-muted-foreground">Total items sold</p>
                                 </CardContent>
                             </Card>
                         </>
@@ -459,47 +457,6 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         <CardContent>
                         {comprehensiveStockData.length > 0 ? (
                             <div className="space-y-4">
-                                {/* Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                    <Card className="bg-muted border-border">
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">Total Products</p>
-                                                    <p className="text-2xl font-bold text-foreground">{comprehensiveStockData.length}</p>
-                                                </div>
-                                                <Package className="h-8 w-8 text-blue-400" />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-muted border-border">
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">Total Quantity</p>
-                                                    <p className="text-2xl font-bold text-foreground">
-                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
-                                                    </p>
-                                                </div>
-                                                <TrendingUp className="h-8 w-8 text-green-400" />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-muted border-border">
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">Total Revenue</p>
-                                                    <p className="text-2xl font-bold text-foreground">
-                                                        ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toLocaleString()}
-                                                    </p>
-                                                </div>
-                                                <Users className="h-8 w-8 text-yellow-400" />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
                                 {/* Stock Details Table */}
                                 <Table>
                                     <TableCaption>Detailed breakdown of all your stock quantities</TableCaption>
@@ -584,6 +541,51 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                 </TableCell>
                                             </TableRow>
                                         ))}
+                                        {/* Totals Row */}
+                                        <TableRow className="bg-muted font-bold">
+                                            <TableCell className="text-foreground">Total</TableCell>
+                                            <TableCell className="text-foreground">-</TableCell>
+                                            <TableCell className="text-foreground">
+                                                <div className="flex items-center gap-2">
+                                                    <Package className="h-4 w-4 text-blue-400" />
+                                                    <span className="font-semibold">
+                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">
+                                                <div className="flex items-center gap-2">
+                                                    <XCircle className="h-4 w-4 text-red-400" />
+                                                    <span className="font-semibold text-red-300">
+                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0)}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">
+                                                <div className="flex items-center gap-2">
+                                                    <CheckCircle className="h-4 w-4 text-green-400" />
+                                                    <span className="font-semibold text-green-300">
+                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0)}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">
+                                                <span className="font-semibold text-yellow-300">
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toLocaleString()}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">
+                                                <span className="font-semibold text-orange-300">
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toLocaleString()}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">
+                                                <span className="font-semibold text-green-300">
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toLocaleString()}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="text-foreground">-</TableCell>
+                                        </TableRow>
                                     </TableBody>
                                 </Table>
                             </div>
