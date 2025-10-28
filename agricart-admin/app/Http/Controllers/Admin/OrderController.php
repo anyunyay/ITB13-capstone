@@ -8,6 +8,7 @@ use App\Models\Sales;
 use App\Models\SalesAudit;
 use App\Models\StockTrail;
 use App\Services\AuditTrailService;
+use App\Traits\HandlesSorting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
@@ -25,17 +26,23 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
+    use HandlesSorting;
     public function index(Request $request)
     {
         $status = $request->get('status', 'all');
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
         
-        // Get all orders for tab counts
-        $allOrders = SalesAudit::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->values(); // Convert to array
+        // Get all orders for tab counts with sorting
+        $allOrdersQuery = SalesAudit::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product']);
+        
+        // Apply sorting using the trait
+        $allOrdersQuery = $this->applySorting($allOrdersQuery, $request, [
+            'column' => 'created_at',
+            'direction' => 'desc'
+        ]);
+        
+        $allOrders = $allOrdersQuery->get()->values(); // Convert to array
         
         // Process orders to check for delayed status and calculate urgent orders
         $processedOrders = $allOrders->map(function ($order) {
@@ -120,6 +127,10 @@ class OrderController extends Controller
             'highlightOrderId' => $highlightOrderId,
             'urgentOrders' => $urgentOrders,
             'showUrgentApproval' => $showUrgentApproval,
+            'filters' => $this->getSortFilters($request, [
+                'column' => 'created_at',
+                'direction' => 'desc'
+            ])
         ]);
     }
 
@@ -738,7 +749,13 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        // Apply sorting using the trait
+        $query = $this->applySorting($query, $request, [
+            'column' => 'created_at',
+            'direction' => 'desc'
+        ]);
+        
+        $orders = $query->get();
 
         // Calculate summary statistics
         $summary = [
@@ -772,7 +789,10 @@ class OrderController extends Controller
                 'search' => $search,
                 'min_amount' => $minAmount,
                 'max_amount' => $maxAmount,
-            ],
+            ] + $this->getSortFilters($request, [
+                'column' => 'created_at',
+                'direction' => 'desc'
+            ]),
         ]);
     }
 

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Sortable;
 
 class Sales extends Model
 {
-    use HasFactory;
+    use HasFactory, Sortable;
 
     protected $fillable = [
         'customer_id',
@@ -163,5 +164,60 @@ class Sales extends Model
             return true;
         }
         return false;
+    }
+
+    /**
+     * Define sortable columns for Sales model.
+     *
+     * @return array
+     */
+    public function getSortableColumns(): array
+    {
+        return [
+            'total_amount',
+            'subtotal',
+            'coop_share',
+            'member_share',
+            'delivered_at',
+            'customer_received',
+            'customer_rate',
+            'customer_confirmed_at',
+            'created_at',
+            'updated_at'
+        ];
+    }
+
+    /**
+     * Define column data types for proper sorting.
+     *
+     * @return array
+     */
+    public function getColumnDataTypes(): array
+    {
+        return [
+            'total_amount' => 'decimal',
+            'subtotal' => 'decimal',
+            'coop_share' => 'decimal',
+            'member_share' => 'decimal',
+            'delivered_at' => 'datetime',
+            'customer_received' => 'string',
+            'customer_rate' => 'integer',
+            'customer_confirmed_at' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime'
+        ];
+    }
+
+    /**
+     * Get default sort configuration for Sales model.
+     *
+     * @return array
+     */
+    public function getDefaultSort(): array
+    {
+        return [
+            'column' => 'created_at',
+            'direction' => 'desc'
+        ];
     }
 }

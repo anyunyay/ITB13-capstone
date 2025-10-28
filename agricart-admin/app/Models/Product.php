@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Sortable;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, Sortable;
 
     protected $fillable = [
         'name',
@@ -155,5 +156,56 @@ class Product extends Model
         }
 
         return $this->image;
+    }
+
+    /**
+     * Define sortable columns for Product model.
+     *
+     * @return array
+     */
+    public function getSortableColumns(): array
+    {
+        return [
+            'name',
+            'price_kilo',
+            'price_pc',
+            'price_tali',
+            'produce_type',
+            'created_at',
+            'updated_at',
+            'archived_at'
+        ];
+    }
+
+    /**
+     * Define column data types for proper sorting.
+     *
+     * @return array
+     */
+    public function getColumnDataTypes(): array
+    {
+        return [
+            'name' => 'string',
+            'price_kilo' => 'decimal',
+            'price_pc' => 'decimal',
+            'price_tali' => 'decimal',
+            'produce_type' => 'string',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'archived_at' => 'datetime'
+        ];
+    }
+
+    /**
+     * Get default sort configuration for Product model.
+     *
+     * @return array
+     */
+    public function getDefaultSort(): array
+    {
+        return [
+            'column' => 'name',
+            'direction' => 'asc'
+        ];
     }
 }

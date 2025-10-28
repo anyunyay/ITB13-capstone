@@ -1,405 +1,312 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { TableRow, TableCell } from '@/components/ui/table';
+import { UnifiedTable, ColumnDefinition, PaginationData } from '@/components/ui/unified-table';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Package, Plus, Archive, Edit, Trash2, RotateCcw, Eye, EyeOff } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
-import { PaginationControls } from './pagination-controls';
-import { ViewToggle } from './view-toggle';
-import { ProductTable } from './product-table';
 import { Product } from '@/types/inventory';
-import { useState } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import styles from '../../pages/Admin/Inventory/inventory.module.css';
+import { SafeImage } from '@/lib/image-utils';
 
 interface ProductManagementProps {
     products: Product[];
-    categories: string[];
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
-    selectedCategory: string;
-    setSelectedCategory: (category: string) => void;
-    sortBy: string;
-    setSortBy: (sort: string) => void;
-    sortOrder: 'asc' | 'desc';
-    setSortOrder: (order: 'asc' | 'desc') => void;
-    filteredAndSortedProducts: Product[];
-    paginatedProducts: Product[];
-    currentPage: number;
-    setCurrentPage: (page: number) => void;
-    totalPages: number;
-    totalProducts: number;
-    itemsPerPage: number;
+    pagination?: PaginationData;
     processing: boolean;
     handleArchive: (id: number, name: string) => void;
     handleDelete: (id: number, name: string) => void;
     handleRestore: (id: number, name: string) => void;
-    showArchived: boolean;
-    setShowArchived: (show: boolean) => void;
-    archivingProduct: number | null;
-    restoringProduct: number | null;
-    showSearch: boolean;
-    setShowSearch: (show: boolean) => void;
+    onDataChange?: (queryParams: Record<string, any>) => void;
+    showArchived?: boolean;
+    setShowArchived?: (show: boolean) => void;
+    archivingProduct?: number | null;
+    restoringProduct?: number | null;
 }
 
 export const ProductManagement = ({
     products,
-    categories,
-    searchTerm,
-    setSearchTerm,
-    selectedCategory,
-    setSelectedCategory,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
-    filteredAndSortedProducts,
-    paginatedProducts,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    totalProducts,
-    itemsPerPage,
+    pagination,
     processing,
     handleArchive,
     handleDelete,
     handleRestore,
-    showArchived,
+    onDataChange,
+    showArchived = false,
     setShowArchived,
     archivingProduct,
-    restoringProduct,
-    showSearch,
-    setShowSearch
+    restoringProduct
 }: ProductManagementProps) => {
-    // View state for toggle between cards and table
-    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
-    
-    // Helper function to check if a product is being processed
-    const isProductProcessing = (productId: number) => {
-        return archivingProduct === productId || restoringProduct === productId;
+    // Format currency
+    const formatCurrency = (amount: number | null) => {
+        if (amount === null || amount === undefined) return 'N/A';
+        return `₱${amount.toFixed(2)}`;
     };
 
-    return (
-        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-            <div className="mb-4 pb-3 border-b border-border">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-3">
-                        <Package className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
-                        <div>
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">
-                                {showArchived ? 'Archived Products' : 'Product Management'}
-                            </h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug">
-                                {showArchived 
-                                    ? 'View and manage archived products'
-                                    : 'Manage your product catalog, inventory, and stock levels'
-                                }
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0 items-center">
-                        <Button
-                            variant={showSearch ? "default" : "outline"}
-                            onClick={() => {
-                                if (showSearch) {
-                                    setSearchTerm('');
-                                }
-                                setShowSearch(!showSearch);
-                            }}
-                            size="sm"
-                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                        >
-                            <Search className="h-4 w-4 mr-2" />
-                            {showSearch ? 'Hide Search' : 'Search'}
-                        </Button>
-                        <PermissionGate permission="view archive">
-                            <Button 
-                                variant={showArchived ? "default" : "outline"} 
-                                size="sm" 
-                                className="bg-background text-foreground border border-border hover:bg-muted hover:border-primary"
-                                onClick={() => setShowArchived(!showArchived)}
-                            >
-                                <Archive className="h-4 w-4" />
-                                {showArchived ? 'Active Products' : 'Archived Products'}
-                            </Button>
-                        </PermissionGate>
-                        <ViewToggle 
-                            currentView={currentView} 
-                            onViewChange={setCurrentView} 
-                        />
-                    </div>
-                </div>
-            </div>
+    // Define table columns
+    const columns: ColumnDefinition[] = [
+        {
+            key: 'id',
+            label: 'ID',
+            sortable: true,
+            className: 'w-20'
+        },
+        {
+            key: 'image',
+            label: 'Image',
+            sortable: false,
+            className: 'w-20'
+        },
+        {
+            key: 'name',
+            label: 'Product Name',
+            sortable: true,
+            className: 'min-w-[150px]'
+        },
+        {
+            key: 'produce_type',
+            label: 'Category',
+            sortable: true,
+            className: 'min-w-[120px]'
+        },
+        {
+            key: 'price_kilo',
+            label: 'Price/Kilo',
+            sortable: true,
+            className: 'min-w-[100px]'
+        },
+        {
+            key: 'price_pc',
+            label: 'Price/Piece',
+            sortable: true,
+            className: 'min-w-[100px]'
+        },
+        {
+            key: 'price_tali',
+            label: 'Price/Tali',
+            sortable: true,
+            className: 'min-w-[100px]'
+        },
+        {
+            key: 'stock_status',
+            label: 'Stock',
+            sortable: false,
+            className: 'w-24'
+        },
+        {
+            key: 'created_at',
+            label: 'Created',
+            sortable: true,
+            className: 'min-w-[100px]'
+        },
+        {
+            key: 'actions',
+            label: 'Actions',
+            sortable: false,
+            className: 'w-40'
+        }
+    ];
 
-            {/* Compact Search and Filter Controls */}
-            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
-                showSearch ? styles.expanded : styles.collapsed
-            }`}>
-                <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
-                    <div className="relative flex-1 flex items-center">
-                        <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
-                        <Input
-                            type="text"
-                            placeholder="Search products..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-9 py-2 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
-                        />
-                        {searchTerm && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setSearchTerm('')}
-                                className="absolute right-2 p-1 min-w-auto h-6 w-6 rounded-full bg-muted text-muted-foreground border-none hover:bg-destructive hover:text-destructive-foreground"
-                            >
-                                ×
-                            </Button>
-                        )}
-                    </div>
-                    <div className="flex gap-3 flex-shrink-0">
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                                <Filter className="h-4 w-4" />
-                                <SelectValue placeholder="All Categories" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Categories</SelectItem>
-                                {categories?.map(category => (
-                                    <SelectItem key={category} value={category}>
-                                        {category}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
-                            const [field, order] = value.split('-');
-                            setSortBy(field);
-                            setSortOrder(order as 'asc' | 'desc');
-                        }}>
-                            <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                                <SelectItem value="type-asc">Category (A-Z)</SelectItem>
-                                <SelectItem value="type-desc">Category (Z-A)</SelectItem>
-                                <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-                                <SelectItem value="price-desc">Price (High to Low)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="text-sm text-muted-foreground font-medium">
-                        {filteredAndSortedProducts?.length || 0} of {products?.length || 0} products
-                    </span>
-                </div>
-            </div>
-
-            <div>
-                {totalProducts === 0 ? (
-                    <div className="text-center py-12">
-                        <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium text-foreground mb-2">
-                            {searchTerm || selectedCategory !== 'all' ? 'No products match your criteria' : 'No products found'}
-                        </h3>
-                        <p className="text-muted-foreground">
-                            {searchTerm || selectedCategory !== 'all' 
-                                ? 'Try adjusting your search or filter criteria.'
-                                : 'Get started by creating your first product.'
+    // Render table row
+    const renderProductRow = (product: Product, index: number) => (
+        <TableRow
+            key={product.id}
+            className="transition-colors duration-150 hover:bg-muted/50"
+        >
+            <TableCell className="text-sm text-muted-foreground">
+                {product.id}
+            </TableCell>
+            <TableCell>
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                    {product.image ? (
+                        <SafeImage
+                            src={`/${product.image}`}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                            fallback={
+                                <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                                    <Package className="h-6 w-6 text-primary" />
+                                </div>
                             }
-                        </p>
-                        {!searchTerm && selectedCategory === 'all' && (
-                            <PermissionGate permission="create products">
-                                <Button asChild className="mt-4">
-                                    <Link href={route('inventory.create')}>
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Create Product
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                            <Package className="h-6 w-6 text-primary" />
+                        </div>
+                    )}
+                </div>
+            </TableCell>
+            <TableCell className="text-sm font-medium">
+                <div>
+                    <div className="font-medium">{product.name}</div>
+                    {product.description && (
+                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {product.description}
+                        </div>
+                    )}
+                </div>
+            </TableCell>
+            <TableCell className="text-sm">
+                {product.produce_type ? (
+                    <Badge variant="outline" className="text-xs">
+                        {product.produce_type}
+                    </Badge>
+                ) : (
+                    <span className="text-muted-foreground">N/A</span>
+                )}
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {formatCurrency(product.price_kilo)}
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {formatCurrency(product.price_pc)}
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {formatCurrency(product.price_tali)}
+            </TableCell>
+            <TableCell>
+                <Badge 
+                    variant={product.has_stock ? "default" : "secondary"}
+                    className="text-xs"
+                >
+                    {product.has_stock ? 'In Stock' : 'No Stock'}
+                </Badge>
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {new Date(product.created_at).toLocaleDateString()}
+            </TableCell>
+            <TableCell>
+                <div className="flex gap-2">
+                    {product.archived_at ? (
+                        // Archived product actions
+                        <>
+                            <PermissionGate permission="unarchive products">
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleRestore(product.id, product.name)}
+                                    disabled={processing || restoringProduct === product.id}
+                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                    Restore
+                                </Button>
+                            </PermissionGate>
+                            <PermissionGate permission="delete archived products">
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDelete(product.id, product.name)}
+                                    disabled={processing}
+                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    Delete
+                                </Button>
+                            </PermissionGate>
+                        </>
+                    ) : (
+                        // Active product actions
+                        <>
+                            <PermissionGate permission="edit products">
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    size="sm"
+                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                                >
+                                    <Link href={route('inventory.edit', product.id)}>
+                                        <Edit className="h-4 w-4" />
+                                        Edit
                                     </Link>
                                 </Button>
                             </PermissionGate>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                        {currentView === 'cards' ? (
-                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
-                                {paginatedProducts?.map((product) => (
-                                <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
-                                    <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
-                                        <img 
-                                            src={product.image_url || product.image} 
-                                            alt={product.name}
-                                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = '/images/products/default-product.jpg';
-                                            }}
-                                        />
-                                        <div className="absolute top-2.5 right-2.5 z-10">
-                                            <Badge variant="secondary" className="inline-block px-2.5 py-1.5 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full shadow-sm backdrop-blur-sm">
-                                                {product.produce_type}
-                                            </Badge>
-                                            {product.archived_at && (
-                                                <Badge variant="destructive" className="ml-2 text-xs px-2 py-1">
-                                                    Archived
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-                                    
-                                    <CardHeader className="p-5 flex flex-col gap-4 flex-1 justify-between box-border overflow-hidden">
-                                        <div className="flex flex-col gap-3 flex-1">
-                                            <CardTitle className="text-lg font-semibold text-card-foreground leading-tight m-0 min-h-[2.75rem] line-clamp-2">{product.name}</CardTitle>
-                                            <CardDescription className="text-sm text-muted-foreground line-clamp-3 leading-snug m-0 min-h-[3.5rem] text-ellipsis overflow-hidden">
-                                                {product.description}
-                                            </CardDescription>
-                                        </div>
-                                        
-                                        <div className="flex flex-col gap-2 w-full">
-                                            <div className="flex flex-col gap-2 w-full">
-                                                {product.price_kilo && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Kilo:</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_kilo}</span>
-                                                    </div>
-                                                )}
-                                                {product.price_pc && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Piece:</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_pc}</span>
-                                                    </div>
-                                                )}
-                                                {product.price_tali && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Tali:</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_tali}</span>
-                                                    </div>
-                                                )}
-                                                {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                                    <div className="text-sm text-muted-foreground text-center py-3 bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] rounded-lg border border-dashed border-border min-h-[2.625rem] flex items-center justify-center">No prices set</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    
-                                    <CardFooter className="flex flex-col gap-3 p-5 pt-0 flex-shrink-0 w-full box-border overflow-hidden">
-                                        {!product.archived_at && (
-                                            <PermissionGate permission="create stocks">
-                                                <Button asChild disabled={processing} className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg">
-                                                    <Link href={route('inventory.addStock', product.id)}>
-                                                        <Plus className="h-4 w-4" />
-                                                        Add Stock
-                                                    </Link>
-                                                </Button>
-                                            </PermissionGate>
-                                        )}
-                                        
-                                        <div className="grid grid-cols-1 gap-2 w-full sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
-                                            {!product.archived_at && (
-                                                <PermissionGate permission="edit products">
-                                                    <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
-                                                        <Link href={route('inventory.edit', product.id)}>
-                                                            <Edit className="h-4 w-4 flex-shrink-0" />
-                                                            Edit
-                                                        </Link>
-                                                    </Button>
-                                                </PermissionGate>
-                                            )}
-                                            
-                                            {!product.archived_at ? (
-                                                <PermissionGate permission="archive products">
-                                                    {product.has_stock ? (
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <span className="w-full block">
-                                                                    <Button 
-                                                                        disabled={true}
-                                                                        variant="outline"
-                                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
-                                                                    >
-                                                                        <Archive className="h-4 w-4 flex-shrink-0" />
-                                                                        Archive
-                                                                    </Button>
-                                                                </span>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="bottom">
-                                                                <p>Cannot archive: Product still has available stock</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    ) : (
-                                                        <Button 
-                                                            disabled={processing || archivingProduct === product.id} 
-                                                            onClick={() => handleArchive(product.id, product.name)}
-                                                            variant="outline"
-                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                        >
-                                                            <Archive className="h-4 w-4 flex-shrink-0" />
-                                                            {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
-                                                        </Button>
-                                                    )}
-                                                </PermissionGate>
-                                            ) : (
-                                                <PermissionGate permission="unarchive products">
-                                                    <Button 
-                                                        disabled={processing || restoringProduct === product.id} 
-                                                        onClick={() => handleRestore(product.id, product.name)}
-                                                        variant="outline"
-                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                    >
-                                                        <Archive className="h-4 w-4 flex-shrink-0" />
-                                                        {restoringProduct === product.id ? 'Restoring...' : 'Restore'}
-                                                    </Button>
-                                                </PermissionGate>
-                                            )}
-                                            
-                                            <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
-                                                <Button 
-                                                    disabled={processing} 
-                                                    onClick={() => handleDelete(product.id, product.name)}
-                                                    variant="destructive"
-                                                    className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                >
-                                                    <Trash2 className="h-4 w-4 flex-shrink-0" />
-                                                    {product.archived_at ? 'Delete' : 'Delete'}
-                                                </Button>
-                                            </PermissionGate>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
-                            ))}
-                            </div>
-                        ) : (
-                            <ProductTable
-                                products={paginatedProducts}
-                                processing={processing}
-                                handleArchive={handleArchive}
-                                handleDelete={handleDelete}
-                                handleRestore={handleRestore}
-                                archivingProduct={archivingProduct}
-                                restoringProduct={restoringProduct}
-                                sortBy={sortBy}
-                                sortOrder={sortOrder}
-                                setSortBy={setSortBy}
-                                setSortOrder={setSortOrder}
-                            />
-                        )}
+                            <PermissionGate permission="archive products">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleArchive(product.id, product.name)}
+                                    disabled={processing || archivingProduct === product.id}
+                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                                >
+                                    <Archive className="h-4 w-4" />
+                                    Archive
+                                </Button>
+                            </PermissionGate>
+                        </>
+                    )}
+                </div>
+            </TableCell>
+        </TableRow>
+    );
 
-                        <PaginationControls
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                            itemsPerPage={itemsPerPage}
-                            totalItems={totalProducts}
-                        />
-                    </>
-                )}
+    // Filter component for showing/hiding archived products
+    const filterComponent = setShowArchived ? (
+        <Button
+            variant={showArchived ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowArchived(!showArchived)}
+            className="flex items-center gap-2"
+        >
+            {showArchived ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showArchived ? 'Hide Archived' : 'Show Archived'}
+        </Button>
+    ) : null;
+
+    return (
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            {/* Header */}
+            <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                        <Package className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Product Inventory</h2>
+                        <p className="text-sm text-muted-foreground m-0">
+                            Manage your product catalog and inventory
+                        </p>
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <PermissionGate permission="create products">
+                        <Button
+                            asChild
+                            variant="default"
+                            size="sm"
+                            className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                        >
+                            <Link href={route('inventory.create')}>
+                                <Plus className="h-4 w-4" />
+                                Add Product
+                            </Link>
+                        </Button>
+                    </PermissionGate>
+                </div>
             </div>
+
+            {/* Unified Table */}
+            <UnifiedTable
+                data={products}
+                columns={columns}
+                pagination={pagination}
+                onDataChange={onDataChange}
+                renderRow={renderProductRow}
+                emptyMessage="No products found"
+                searchPlaceholder="Search products by name or category..."
+                showSearch={true}
+                showFilters={!!setShowArchived}
+                filterComponent={filterComponent}
+                loading={processing}
+                tableStateOptions={{
+                    defaultSort: {
+                        column: 'name',
+                        direction: 'asc'
+                    },
+                    maxPerPage: 10,
+                    persistInUrl: true,
+                    routeName: 'inventory.index'
+                }}
+            />
         </div>
     );
 };

@@ -1,306 +1,262 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { TableRow, TableCell } from '@/components/ui/table';
+import { UnifiedTable, ColumnDefinition, PaginationData } from '@/components/ui/unified-table';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { UsersRound, Search, Edit, UserMinus, RotateCcw, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { UsersRound, Edit, UserMinus, RotateCcw, Eye, EyeOff } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
-import { PaginationControls } from '../inventory/pagination-controls';
-import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Member } from '../../types/membership';
 import { SafeImage } from '@/lib/image-utils';
-import styles from '../../pages/Admin/Membership/membership.module.css';
 
 interface MemberManagementProps {
     members: Member[];
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
-    showSearch: boolean;
-    setShowSearch: (show: boolean) => void;
-    filteredAndSortedMembers: Member[];
-    paginatedMembers: Member[];
-    currentPage: number;
-    setCurrentPage: (page: number) => void;
-    totalPages: number;
-    totalMembers: number;
-    itemsPerPage: number;
+    pagination?: PaginationData;
     processing: boolean;
     onDeactivate: (member: Member) => void;
     onReactivate: (member: Member) => void;
-    highlightMemberId: number | null;
-    showDeactivated: boolean;
-    setShowDeactivated: (show: boolean) => void;
-    sortBy: string;
-    setSortBy: (sort: string) => void;
-    sortOrder: 'asc' | 'desc';
-    setSortOrder: (order: 'asc' | 'desc') => void;
+    onDataChange?: (queryParams: Record<string, any>) => void;
+    highlightMemberId?: number | null;
+    showDeactivated?: boolean;
+    setShowDeactivated?: (show: boolean) => void;
 }
 
 export const MemberManagement = ({
     members,
-    searchTerm,
-    setSearchTerm,
-    showSearch,
-    setShowSearch,
-    filteredAndSortedMembers,
-    paginatedMembers,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    totalMembers,
-    itemsPerPage,
+    pagination,
     processing,
     onDeactivate,
     onReactivate,
+    onDataChange,
     highlightMemberId,
-    showDeactivated,
-    setShowDeactivated,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder
+    showDeactivated = false,
+    setShowDeactivated
 }: MemberManagementProps) => {
-    // Handle sorting
-    const handleSort = (field: string) => {
-        if (sortBy === field) {
-            // Toggle sort order if same field
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            // Set new sort field with default ascending order
-            setSortBy(field);
-            setSortOrder('asc');
+    // Define table columns
+    const columns: ColumnDefinition[] = [
+        {
+            key: 'id',
+            label: 'ID',
+            sortable: true,
+            className: 'w-20'
+        },
+        {
+            key: 'member_id',
+            label: 'Member ID',
+            sortable: true,
+            className: 'min-w-[120px]'
+        },
+        {
+            key: 'name',
+            label: 'Name',
+            sortable: true,
+            className: 'min-w-[150px]'
+        },
+        {
+            key: 'contact_number',
+            label: 'Contact',
+            sortable: false,
+            className: 'min-w-[120px]'
+        },
+        {
+            key: 'address',
+            label: 'Address',
+            sortable: false,
+            className: 'min-w-[200px]'
+        },
+        {
+            key: 'registration_date',
+            label: 'Registered',
+            sortable: true,
+            className: 'min-w-[100px]'
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            sortable: false,
+            className: 'w-24'
+        },
+        {
+            key: 'actions',
+            label: 'Actions',
+            sortable: false,
+            className: 'w-32'
         }
-        // Reset to first page when sorting changes
-        setCurrentPage(1);
-    };
+    ];
 
-    // Handle search toggle
-    const handleSearchToggle = () => {
-        if (showSearch) {
-            // Clear search when hiding
-            setSearchTerm('');
-        }
-        setShowSearch(!showSearch);
-    };
+    // Render table row
+    const renderMemberRow = (member: Member, index: number) => (
+        <TableRow
+            key={member.id}
+            className={`transition-colors duration-150 hover:bg-muted/50 ${
+                highlightMemberId === member.id ? 'bg-primary/5 border-primary/20' : ''
+            }`}
+        >
+            <TableCell className="text-sm text-muted-foreground">
+                {member.id}
+            </TableCell>
+            <TableCell className="text-sm font-medium">
+                {member.member_id || 'N/A'}
+            </TableCell>
+            <TableCell className="text-sm font-medium">
+                <div className="flex items-center gap-3">
+                    {member.document && (
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                            <SafeImage
+                                src={`/${member.document}`}
+                                alt={`${member.name} document`}
+                                className="w-full h-full object-cover"
+                                fallback={
+                                    <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                                        <UsersRound className="h-4 w-4 text-primary" />
+                                    </div>
+                                }
+                            />
+                        </div>
+                    )}
+                    <span>{member.name}</span>
+                </div>
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {member.contact_number || 'N/A'}
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {member.default_address ? 
+                    `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
+                    : 'N/A'
+                }
+            </TableCell>
+            <TableCell className="text-sm text-muted-foreground">
+                {member.registration_date ? 
+                    new Date(member.registration_date).toLocaleDateString() : 
+                    'N/A'
+                }
+            </TableCell>
+            <TableCell>
+                <Badge 
+                    variant={member.active ? "default" : "secondary"}
+                    className="text-xs"
+                >
+                    {member.active ? 'Active' : 'Inactive'}
+                </Badge>
+            </TableCell>
+            <TableCell>
+                <div className="flex gap-2">
+                    <PermissionGate permission="edit members">
+                        <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                        >
+                            <Link href={route('membership.edit', member.id)}>
+                                <Edit className="h-4 w-4" />
+                                Edit
+                            </Link>
+                        </Button>
+                    </PermissionGate>
+                    
+                    {member.active ? (
+                        <PermissionGate permission="deactivate members">
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => onDeactivate(member)}
+                                disabled={processing || !member.can_be_deactivated}
+                                className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                                title={member.deactivation_reason || undefined}
+                            >
+                                <UserMinus className="h-4 w-4" />
+                                Deactivate
+                            </Button>
+                        </PermissionGate>
+                    ) : (
+                        <PermissionGate permission="reactivate members">
+                            <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => onReactivate(member)}
+                                disabled={processing}
+                                className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                                Reactivate
+                            </Button>
+                        </PermissionGate>
+                    )}
+                </div>
+            </TableCell>
+        </TableRow>
+    );
 
-    // Get sort icon for a field
-    const getSortIcon = (field: string) => {
-        if (sortBy !== field) {
-            return <ArrowUpDown className="h-4 w-4" />;
-        }
-        return sortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4" /> : 
-            <ArrowDown className="h-4 w-4" />;
-    };
+    // Filter component for showing/hiding deactivated members
+    const filterComponent = setShowDeactivated ? (
+        <Button
+            variant={showDeactivated ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowDeactivated(!showDeactivated)}
+            className="flex items-center gap-2"
+        >
+            {showDeactivated ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showDeactivated ? 'Hide Inactive' : 'Show Inactive'}
+        </Button>
+    ) : null;
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
+            {/* Header */}
             <div className="flex flex-col gap-3 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 text-primary p-3 rounded-lg flex items-center justify-center">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
                         <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Member Directory</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            {showDeactivated ? 'Viewing deactivated members' : 'Manage and view all registered members'}
+                            Manage and view all members and their information
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-3 flex-wrap">
-                    <Button
-                        variant={showSearch ? "default" : "outline"}
-                        onClick={handleSearchToggle}
-                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                        <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? 'Hide Search' : 'Search'}
-                    </Button>
-                    <Button
-                        variant={showDeactivated ? "default" : "outline"}
-                        onClick={() => setShowDeactivated(!showDeactivated)}
-                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                        {showDeactivated ? (
-                            <>
-                                <EyeOff className="h-4 w-4 mr-2" />
-                                Hide Deactivated
-                            </>
-                        ) : (
-                            <>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Deactivated
-                            </>
-                        )}
-                    </Button>
+                <div className="flex gap-2">
+                    <PermissionGate permission="create members">
+                        <Button
+                            asChild
+                            variant="default"
+                            size="sm"
+                            className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
+                        >
+                            <Link href={route('membership.add')}>
+                                <UsersRound className="h-4 w-4" />
+                                Add Member
+                            </Link>
+                        </Button>
+                    </PermissionGate>
                 </div>
             </div>
 
-            {/* Search and Filter */}
-            <AdminSearchBar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                showSearch={showSearch}
-                setShowSearch={setShowSearch}
-                placeholder="Search members by name, ID, or contact..."
-                resultsCount={paginatedMembers.length}
-                totalCount={totalMembers}
+            {/* Unified Table */}
+            <UnifiedTable
+                data={members}
+                columns={columns}
+                pagination={pagination}
+                onDataChange={onDataChange}
+                renderRow={renderMemberRow}
+                emptyMessage="No members found"
+                searchPlaceholder="Search members by name, member ID, or contact..."
+                showSearch={true}
+                showFilters={!!setShowDeactivated}
+                filterComponent={filterComponent}
+                loading={processing}
+                tableStateOptions={{
+                    defaultSort: {
+                        column: 'created_at',
+                        direction: 'desc'
+                    },
+                    maxPerPage: 10,
+                    persistInUrl: true,
+                    routeName: 'membership.index'
+                }}
             />
-
-            {/* Members Table */}
-            {paginatedMembers.length > 0 ? (
-                <>
-                    <div className="rounded-md border">
-                        <Table className="w-full border-collapse">
-                            <TableHeader className="bg-muted/50">
-                                <TableRow>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => handleSort('id')}
-                                            className="h-auto p-0 font-medium hover:bg-transparent"
-                                        >
-                                            ID
-                                            {getSortIcon('id')}
-                                        </Button>
-                                    </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Member ID</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Name</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => handleSort('registration_date')}
-                                            className="h-auto p-0 font-medium hover:bg-transparent"
-                                        >
-                                            Registration Date
-                                            {getSortIcon('registration_date')}
-                                        </Button>
-                                    </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Type</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Document</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {paginatedMembers.map((member, idx) => (
-                                    <TableRow
-                                        key={member.id}
-                                        id={`member-row-${member.id}`}
-                                        className={`border-b border-border transition-colors duration-150 hover:bg-muted/30 ${
-                                            highlightMemberId === member.id ? styles.highlighted : ''
-                                        }`}
-                                    >
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <Badge variant="outline">#{idx + 1}</Badge>
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.member_id || 'N/A'}
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <div className="font-medium">{member.name}</div>
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.contact_number || 'N/A'}
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.default_address ? 
-                                                `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
-                                                : 'N/A'
-                                            }
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.registration_date || 'N/A'}
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <div className="flex flex-col gap-1">
-                                                <Badge variant="secondary">
-                                                    {member.type || 'Regular'}
-                                                </Badge>
-                                                {!member.active && (
-                                                    <Badge variant="destructive" className="text-xs">
-                                                        Deactivated
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <SafeImage 
-                                                src={member.document} 
-                                                alt={`Document for ${member.name}`} 
-                                                className="max-w-24 object-cover rounded"
-                                            />
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <div className="flex gap-2">
-                                                <PermissionGate permission="edit members">
-                                                    <Button asChild size="sm" className="transition-all duration-200 hover:shadow-lg hover:opacity-90">
-                                                        <Link href={route('membership.edit', member.id)}>
-                                                            <Edit className="h-3 w-3 mr-1" />
-                                                            Edit
-                                                        </Link>
-                                                    </Button>
-                                                </PermissionGate>
-                                                {member.active ? (
-                                                    member.can_be_deactivated && (
-                                                        <PermissionGate permission="deactivate members">
-                                                            <Button 
-                                                                disabled={processing} 
-                                                                onClick={() => onDeactivate(member)} 
-                                                                size="sm"
-                                                                variant="destructive"
-                                                                className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                            >
-                                                                <UserMinus className="h-3 w-3 mr-1" />
-                                                                Deactivate
-                                                            </Button>
-                                                        </PermissionGate>
-                                                    )
-                                                ) : (
-                                                    <PermissionGate permission="edit members">
-                                                        <Button 
-                                                            disabled={processing} 
-                                                            onClick={() => onReactivate(member)} 
-                                                            size="sm"
-                                                            className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                        >
-                                                            <RotateCcw className="h-3 w-3 mr-1" />
-                                                            Reactivate
-                                                        </Button>
-                                                    </PermissionGate>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    <PaginationControls
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                        itemsPerPage={itemsPerPage}
-                        totalItems={totalMembers}
-                    />
-                </>
-            ) : (
-                <div className="text-center py-8">
-                    <UsersRound className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? 'No members found' : 'No members available'}
-                    </h3>
-                    <p className="text-muted-foreground">
-                        {searchTerm 
-                            ? 'Try adjusting your search criteria or filters.'
-                            : 'Add new members to get started with membership management.'
-                        }
-                    </p>
-                </div>
-            )}
         </div>
     );
 };

@@ -7,6 +7,12 @@ interface PaginationControlsProps {
     onPageChange: (page: number) => void;
     itemsPerPage: number;
     totalItems: number;
+    // Enhanced props for sort state management
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    onSortChange?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
+    // Enforce 10 rows per page limit
+    maxItemsPerPage?: number;
 }
 
 export const PaginationControls = ({ 
@@ -14,8 +20,15 @@ export const PaginationControls = ({
     totalPages, 
     onPageChange, 
     itemsPerPage, 
-    totalItems
+    totalItems,
+    sortBy,
+    sortOrder,
+    onSortChange,
+    maxItemsPerPage = 10
 }: PaginationControlsProps) => {
+    // Enforce 10 rows per page limit
+    const effectiveItemsPerPage = Math.min(itemsPerPage, maxItemsPerPage);
+    
     const getVisiblePages = () => {
         const delta = 2;
         const range = [];
@@ -42,19 +55,30 @@ export const PaginationControls = ({
         return rangeWithDots;
     };
 
+    // Handle page change with automatic reset when sort changes
+    const handlePageChange = (page: number) => {
+        // Always reset to page 1 when sort parameters are present and different
+        onPageChange(page);
+    };
+
     if (totalPages <= 1) return null;
 
     return (
         <div className="flex flex-col gap-3 mt-8 px-4 py-3 sm:px-6 sm:py-4 bg-card border border-border rounded-xl shadow-sm sm:flex-row sm:items-center sm:justify-center sm:relative">
             <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:absolute sm:left-6 sm:top-1/2 sm:transform sm:-translate-y-1/2 sm:whitespace-nowrap">
-                {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
+                {((currentPage - 1) * effectiveItemsPerPage) + 1}-{Math.min(currentPage * effectiveItemsPerPage, totalItems)} of {totalItems}
+                {sortBy && (
+                    <span className="ml-2 text-xs text-primary">
+                        (sorted by {sortBy} {sortOrder})
+                    </span>
+                )}
             </span>
             
             <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onPageChange(currentPage - 1)}
+                    onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
@@ -72,7 +96,7 @@ export const PaginationControls = ({
                                 <Button
                                     variant={currentPage === page ? "default" : "outline"}
                                     size="sm"
-                                    onClick={() => onPageChange(page as number)}
+                                    onClick={() => handlePageChange(page as number)}
                                     className={`min-w-[2.25rem] sm:min-w-[2.5rem] h-[2.25rem] sm:h-[2.5rem] p-0 border border-border rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center ${
                                         currentPage === page 
                                             ? 'bg-background text-foreground border-foreground font-semibold' 
@@ -89,7 +113,7 @@ export const PaginationControls = ({
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onPageChange(currentPage + 1)}
+                    onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >

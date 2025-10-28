@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\User;
+use App\Traits\HandlesSorting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class StaffController extends Controller
 {
+    use HandlesSorting;
     /**
      * Display a listing of staff members.
      */
@@ -34,20 +36,15 @@ class StaffController extends Controller
             });
         }
 
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        $allowedSortFields = ['id', 'name', 'email', 'created_at'];
-        if (in_array($sortBy, $allowedSortFields)) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
+        // Apply sorting using the trait
+        $query = $this->applySorting($query, $request, [
+            'column' => 'created_at',
+            'direction' => 'desc'
+        ]);
 
-        // Pagination
+        // Pagination with sort metadata
         $perPage = $request->get('per_page', 10);
-        $staff = $query->paginate($perPage);
+        $staff = $this->getPaginatedResults($query, $request, $perPage);
 
         // Calculate stats
         $totalStaff = User::where('type', 'staff')->count();
@@ -69,12 +66,14 @@ class StaffController extends Controller
         return Inertia::render('Admin/Staff/index', [
             'staff' => $staff,
             'staffStats' => $staffStats,
-            'filters' => [
+            'filters' => array_merge([
                 'search' => $request->get('search', ''),
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
                 'per_page' => $perPage,
-            ],
+            ], $this->getSortFilters($request, [
+                'column' => 'created_at',
+                'direction' => 'desc'
+            ])),
+            'sortableLinks' => $this->createSortableLinks($staff, $request),
         ]);
     }
 

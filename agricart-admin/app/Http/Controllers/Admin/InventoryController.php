@@ -9,6 +9,7 @@ use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
 use App\Models\StockTrail;
 use App\Helpers\SystemLogger;
+use App\Traits\HandlesSorting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -16,14 +17,36 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class InventoryController extends Controller
 {
-    public function index()
+    use HandlesSorting;
+    public function index(Request $request)
     { 
-        $products = Product::active()->get()->map(function ($product) {
+        // Apply sorting to products query
+        $productsQuery = Product::active();
+        $productsQuery = $this->applySorting($productsQuery, $request, [
+            'column' => 'name',
+            'direction' => 'asc'
+        ]);
+        $products = $productsQuery->get()->map(function ($product) {
             $product->has_stock = $product->hasAvailableStock();
             return $product;
         });
-        $archivedProducts = Product::archived()->get();
-        $stocks = Stock::active()->with(['product', 'member'])->get();
+
+        // Apply sorting to archived products
+        $archivedProductsQuery = Product::archived();
+        $archivedProductsQuery = $this->applySorting($archivedProductsQuery, $request, [
+            'column' => 'archived_at',
+            'direction' => 'desc'
+        ]);
+        $archivedProducts = $archivedProductsQuery->get();
+
+        // Apply sorting to stocks
+        $stocksQuery = Stock::active()->with(['product', 'member']);
+        $stocksQuery = $this->applySorting($stocksQuery, $request, [
+            'column' => 'created_at',
+            'direction' => 'desc'
+        ]);
+        $stocks = $stocksQuery->get();
+
         $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();
         $soldStocks = Stock::sold()->with(['product', 'member'])->orderBy('updated_at', 'desc')->limit(50)->get();
         $stockTrails = StockTrail::with(['product', 'stock', 'member', 'performedByUser'])
@@ -33,7 +56,13 @@ class InventoryController extends Controller
         $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
         // Pass empty array for auditTrails to maintain compatibility with frontend
         $auditTrails = [];
-        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
+        
+        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories') + [
+            'filters' => $this->getSortFilters($request, [
+                'column' => 'name',
+                'direction' => 'asc'
+            ])
+        ]);
     }
 
     public function create()
