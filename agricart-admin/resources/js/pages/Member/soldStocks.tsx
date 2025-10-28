@@ -55,19 +55,19 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
     }, [auth]);
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
                 <Head title="Sold Stocks" />
                 <div className="mb-6">
-                    <Button asChild variant="outline" className="mb-4 border-gray-600 text-gray-300 hover:bg-gray-700">
+                    <Button asChild variant="outline" className="mb-4">
                         <Link href={route('member.dashboard')}>
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Dashboard
                         </Link>
                     </Button>
-                    <h1 className="text-3xl font-bold text-white">Sold Stocks</h1>
-                    <p className="text-gray-400 mt-2">View all your successfully sold stocks</p>
+                    <h1 className="text-3xl font-bold text-foreground">Sold Stocks</h1>
+                    <p className="text-muted-foreground mt-2">View all your successfully sold stocks</p>
                 </div>
 
                 {salesData.salesBreakdown.length > 0 ? (
@@ -120,40 +120,40 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                         </Card>
 
                         {/* Sales Breakdown Table */}
-                        <Card className="bg-gray-800 border-gray-700">
+                        <Card>
                             <CardHeader>
-                                <CardTitle className="text-white">Sales Breakdown</CardTitle>
-                                <CardDescription className="text-gray-400">Detailed view of all your sales by product</CardDescription>
+                                <CardTitle className="text-foreground">Sales Breakdown</CardTitle>
+                                <CardDescription className="text-muted-foreground">Detailed view of all your sales by product</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <Table>
-                                    <TableCaption className="text-gray-400">List of all your sales by product</TableCaption>
+                                    <TableCaption className="text-muted-foreground">List of all your sales by product</TableCaption>
                                     <TableHeader>
-                                        <TableRow className="border-gray-700">
-                                            <TableHead className="text-center text-gray-300">Product</TableHead>
-                                            <TableHead className="text-center text-gray-300">Total Quantity</TableHead>
-                                            <TableHead className="text-center text-gray-300">Category</TableHead>
-                                            <TableHead className="text-center text-gray-300">Price/Unit</TableHead>
-                                            <TableHead className="text-center text-gray-300">Total Revenue</TableHead>
-                                            <TableHead className="text-center text-gray-300">COGS</TableHead>
-                                            <TableHead className="text-center text-gray-300">Gross Profit</TableHead>
-                                            <TableHead className="text-center text-gray-300">Customers</TableHead>
-                                            <TableHead className="text-center text-gray-300">Sales Count</TableHead>
+                                        <TableRow>
+                                            <TableHead className="text-center text-foreground/80">Product</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Total Quantity</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Category</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Price/Unit</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Total Revenue</TableHead>
+                                            <TableHead className="text-center text-foreground/80">COGS</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Gross Profit</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Customers</TableHead>
+                                            <TableHead className="text-center text-foreground/80">Sales Count</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {salesData.salesBreakdown.map((sale, index) => (
-                                            <TableRow key={index} className="border-gray-700 hover:bg-gray-700">
-                                                <TableCell className="text-center font-medium text-white">
+                                            <TableRow key={index} className="hover:bg-muted">
+                                                <TableCell className="text-center font-medium text-foreground">
                                                     {sale.product_name}
                                                 </TableCell>
-                                                <TableCell className="text-center text-gray-300">
+                                                <TableCell className="text-center text-foreground/80">
                                                     {sale.total_quantity}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <Badge variant="secondary" className="bg-gray-600 text-white">{sale.category}</Badge>
+                                                    <Badge variant="secondary">{sale.category}</Badge>
                                                 </TableCell>
-                                                <TableCell className="text-center text-gray-300">
+                                                <TableCell className="text-center text-foreground/80">
                                                     ₱{sale.price_per_unit}
                                                 </TableCell>
                                                 <TableCell className="text-center text-green-400 font-medium">
@@ -165,7 +165,7 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                                 <TableCell className="text-center text-purple-400 font-medium">
                                                     ₱{sale.total_gross_profit.toLocaleString()}
                                                 </TableCell>
-                                                <TableCell className="text-center text-gray-300">
+                                                <TableCell className="text-center text-foreground/80">
                                                     <div className="text-xs">
                                                         {sale.customers.map((customer, idx) => (
                                                             <div key={idx} className="text-blue-400">
@@ -174,7 +174,7 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                                         ))}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-center text-gray-300">
+                                                <TableCell className="text-center text-foreground/80">
                                                     {sale.sales_count}
                                                 </TableCell>
                                             </TableRow>
@@ -185,14 +185,14 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                         </Card>
                     </div>
                 ) : (
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardContent className="text-center py-12">
-                            <TrendingUp className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                            <h3 className="text-lg font-medium text-white mb-2">No Sales Recorded</h3>
-                            <p className="text-gray-400 mb-4">
+                            <TrendingUp className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                            <h3 className="text-lg font-medium text-foreground mb-2">No Sales Recorded</h3>
+                            <p className="text-muted-foreground mb-4">
                                 You haven't made any sales yet.
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                                 Sales will appear here once your stocks are sold to customers.
                             </p>
                         </CardContent>

@@ -49,7 +49,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
     // Remove total value calculation since we no longer have a single price field
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
                 <Head title="Available Stocks" />
@@ -57,58 +57,58 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
-                        <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                        <Button asChild variant="outline" size="sm">
                             <Link href={route('member.dashboard')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Dashboard
                             </Link>
                         </Button>
                     </div>
-                    <h1 className="text-3xl font-bold text-white">Available Stocks</h1>
-                    <p className="text-gray-400 mt-2">Your stocks ready for sale</p>
+                    <h1 className="text-3xl font-bold text-foreground">Available Stocks</h1>
+                    <p className="text-muted-foreground mt-2">Your stocks ready for sale</p>
                 </div>
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Total Stocks</CardTitle>
-                            <Package className="h-4 w-4 text-gray-400" />
+                            <CardTitle className="text-sm font-medium text-foreground">Total Stocks</CardTitle>
+                            <Package className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{availableStocks.length}</div>
-                            <p className="text-xs text-gray-400">Available items</p>
+                            <div className="text-2xl font-bold text-foreground">{availableStocks.length}</div>
+                            <p className="text-xs text-muted-foreground">Available items</p>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Total Quantity</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
                             <TrendingUp className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{totalQuantity}</div>
-                            <p className="text-xs text-gray-400">Units available</p>
+                            <div className="text-2xl font-bold text-foreground">{totalQuantity}</div>
+                            <p className="text-xs text-muted-foreground">Units available</p>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-white">Categories</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Categories</CardTitle>
                             <Package className="h-4 w-4 text-purple-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-2xl font-bold text-foreground">
                                 {new Set(availableStocks.map(s => s.category)).size}
                             </div>
-                            <p className="text-xs text-gray-400">Different types</p>
+                            <p className="text-xs text-muted-foreground">Different types</p>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Stocks Table */}
-                <Card className="bg-gray-800 border-gray-700">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-white">Available Stock Details</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Available Stock Details</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Detailed view of all your available stocks ready for sale
                         </CardDescription>
                     </CardHeader>
@@ -117,43 +117,43 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                             <Table>
                                 <TableCaption>A list of your available stocks</TableCaption>
                                 <TableHeader>
-                                    <TableRow className="border-gray-700">
-                                        <TableHead className="text-gray-300">Product</TableHead>
-                                        <TableHead className="text-gray-300">Type</TableHead>
-                                        <TableHead className="text-gray-300">Quantity</TableHead>
-                                        <TableHead className="text-gray-300">Category</TableHead>
-                                        <TableHead className="text-gray-300">Total Value</TableHead>
-                                        <TableHead className="text-gray-300">Status</TableHead>
+                                    <TableRow>
+                                        <TableHead className="text-foreground/80">Product</TableHead>
+                                        <TableHead className="text-foreground/80">Type</TableHead>
+                                        <TableHead className="text-foreground/80">Quantity</TableHead>
+                                        <TableHead className="text-foreground/80">Category</TableHead>
+                                        <TableHead className="text-foreground/80">Total Value</TableHead>
+                                        <TableHead className="text-foreground/80">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {availableStocks.map((stock) => (
-                                        <TableRow key={stock.id} className="border-gray-700 hover:bg-gray-700">
-                                            <TableCell className="font-medium text-white">
+                                        <TableRow key={stock.id} className="hover:bg-muted">
+                                            <TableCell className="font-medium text-foreground">
                                                 {stock.product.name}
                                             </TableCell>
-                                            <TableCell className="text-gray-300">
+                                            <TableCell className="text-foreground/80">
                                                 {stock.product.produce_type}
                                             </TableCell>
-                                            <TableCell className="text-gray-300">
+                                            <TableCell className="text-foreground/80">
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-green-400">{stock.quantity}</span>
-                                                    <span className="text-xs text-gray-500">Available</span>
+                                                    <span className="text-xs text-muted-foreground">Available</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-gray-300">
-                                                <Badge variant="secondary" className="bg-gray-600 text-white">
+                                            <TableCell className="text-foreground/80">
+                                                <Badge variant="secondary">
                                                     {stock.category}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-gray-300">
+                                            <TableCell className="text-foreground/80">
                                                 {stock.category === 'Kilo' && stock.product.price_kilo && `₱${(stock.quantity * stock.product.price_kilo).toLocaleString()}`}
                                                 {stock.category === 'Pc' && stock.product.price_pc && `₱${(stock.quantity * stock.product.price_pc).toLocaleString()}`}
                                                 {stock.category === 'Tali' && stock.product.price_tali && `₱${(stock.quantity * stock.product.price_tali).toLocaleString()}`}
                                                 {(!stock.product.price_kilo && !stock.product.price_pc && !stock.product.price_tali) && 'N/A'}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="secondary" className="bg-green-600 text-white">
+                                                <Badge variant="default">
                                                     Available
                                                 </Badge>
                                             </TableCell>
@@ -162,11 +162,11 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                 </TableBody>
                             </Table>
                         ) : (
-                            <div className="text-center py-12 text-gray-400">
-                                <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
+                            <div className="text-center py-12 text-muted-foreground">
+                                <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                                 <h3 className="text-lg font-medium mb-2">No Available Stocks</h3>
                                 <p className="text-sm">You don't have any stocks available for sale at the moment.</p>
-                                <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
+                                <Button asChild className="mt-4">
                                     <Link href={route('member.dashboard')}>Back to Dashboard</Link>
                                 </Button>
                             </div>

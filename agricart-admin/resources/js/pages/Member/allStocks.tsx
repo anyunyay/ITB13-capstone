@@ -185,7 +185,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     };
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
                 <Head title="All Stocks" />
@@ -193,7 +193,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
-                        <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                        <Button asChild variant="outline" size="sm">
                             <Link href={route('member.dashboard')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back to Dashboard
@@ -203,8 +203,8 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         {/* Toggle Switch */}
                         <div className="flex items-center space-x-3">
                             <div className="flex items-center space-x-2">
-                                <BarChart3 className="h-4 w-4 text-gray-400" />
-                                <Label htmlFor="view-toggle" className="text-sm text-gray-300">
+                                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                                <Label htmlFor="view-toggle" className="text-sm text-foreground">
                                     Stock Overview
                                 </Label>
                             </div>
@@ -212,20 +212,19 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 id="view-toggle"
                                 checked={showTransactions}
                                 onCheckedChange={setShowTransactions}
-                                className="data-[state=checked]:bg-blue-600"
                             />
                             <div className="flex items-center space-x-2">
-                                <History className="h-4 w-4 text-gray-400" />
-                                <Label htmlFor="view-toggle" className="text-sm text-gray-300">
+                                <History className="h-4 w-4 text-muted-foreground" />
+                                <Label htmlFor="view-toggle" className="text-sm text-foreground">
                                     Show Transactions
                                 </Label>
                             </div>
                         </div>
                     </div>
-                    <h1 className="text-3xl font-bold text-white">
+                    <h1 className="text-3xl font-bold text-foreground">
                         {showTransactions ? 'Transaction History' : 'All Stocks'}
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-muted-foreground mt-2">
                         {showTransactions 
                             ? 'View all transactions related to your stocks' 
                             : 'Complete overview of all your stock assignments'
@@ -237,150 +236,150 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
                     {showTransactions ? (
                         <>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Total Transactions</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Transactions</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{summary?.total_transactions || 0}</div>
-                                    <p className="text-xs text-gray-400">All time</p>
+                                    <div className="text-2xl font-bold text-foreground">{summary?.total_transactions || 0}</div>
+                                    <p className="text-xs text-muted-foreground">All time</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Total Quantity</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
                                     <Package className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{summary?.total_quantity || 0}</div>
-                                    <p className="text-xs text-gray-400">Items sold</p>
+                                    <div className="text-2xl font-bold text-foreground">{summary?.total_quantity || 0}</div>
+                                    <p className="text-xs text-muted-foreground">Items sold</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Total Revenue</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-yellow-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_revenue || 0)}</div>
-                                    <p className="text-xs text-gray-400">Gross sales</p>
+                                    <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_revenue || 0)}</div>
+                                    <p className="text-xs text-muted-foreground">Gross sales</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Member Revenue</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Member Revenue</CardTitle>
                                     <Users className="h-4 w-4 text-purple-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_member_share || 0)}</div>
-                                    <p className="text-xs text-gray-400">Your product revenue</p>
+                                    <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_member_share || 0)}</div>
+                                    <p className="text-xs text-muted-foreground">Your product revenue</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">COGS</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-orange-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-orange-400">{formatCurrency(summary?.total_cogs || 0)}</div>
-                                    <p className="text-xs text-gray-400">Cost of goods sold</p>
+                                    <p className="text-xs text-muted-foreground">Cost of goods sold</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-gray-300">Gross Profit</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{formatCurrency(summary?.total_gross_profit || 0)}</div>
-                                    <p className="text-xs text-gray-400">Revenue minus COGS</p>
+                                    <p className="text-xs text-muted-foreground">Revenue minus COGS</p>
                                 </CardContent>
                             </Card>
 
                         </>
                     ) : (
                         <>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Total Products</CardTitle>
-                                    <Package className="h-4 w-4 text-gray-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Products</CardTitle>
+                                    <Package className="h-4 w-4 text-muted-foreground" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{totalProducts}</div>
-                                    <p className="text-xs text-gray-400">Different products</p>
+                                    <div className="text-2xl font-bold text-foreground">{totalProducts}</div>
+                                    <p className="text-xs text-muted-foreground">Different products</p>
                                 </CardContent>
                             </Card>
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Total Quantity</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
                                     <Package className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-white">{totalQuantity}</div>
-                                    <p className="text-xs text-gray-400">All stock items</p>
+                                    <div className="text-2xl font-bold text-foreground">{totalQuantity}</div>
+                                    <p className="text-xs text-muted-foreground">All stock items</p>
                                 </CardContent>
                             </Card>
                             {/* Sold Stock Card */}
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Sold Stock</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Sold Stock</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
-                                    <p className="text-xs text-gray-400">Total items sold</p>
+                                    <p className="text-xs text-muted-foreground">Total items sold</p>
                                 </CardContent>
                             </Card>
                             {/* Available Stock Card */}
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Available Stock</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Available Stock</CardTitle>
                                     <Package className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{totalAvailable}</div>
-                                    <p className="text-xs text-gray-400">Items ready for sale</p>
+                                    <p className="text-xs text-muted-foreground">Items ready for sale</p>
                                 </CardContent>
                             </Card>
                             {/* Revenue Card */}
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-yellow-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-yellow-400">₱{totalRevenue.toLocaleString()}</div>
-                                    <p className="text-xs text-gray-400">From sales</p>
+                                    <p className="text-xs text-muted-foreground">From sales</p>
                                 </CardContent>
                             </Card>
 
                             {/* COGS Card */}
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">COGS</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-orange-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-orange-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toLocaleString()}</div>
-                                    <p className="text-xs text-gray-400">Cost of goods sold</p>
+                                    <p className="text-xs text-muted-foreground">Cost of goods sold</p>
                                 </CardContent>
                             </Card>
 
                             {/* Gross Profit Card */}
-                            <Card className="bg-gray-800 border-gray-700">
+                            <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-white">Gross Profit</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toLocaleString()}</div>
-                                    <p className="text-xs text-gray-400">Revenue minus COGS</p>
+                                    <p className="text-xs text-muted-foreground">Revenue minus COGS</p>
                                 </CardContent>
                             </Card>
                         </>
@@ -390,37 +389,37 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 {/* Main Content Area */}
                 {showTransactions ? (
                     /* Transaction View */
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="">
                         <CardHeader>
-                            <CardTitle className="text-white">Transaction History</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-foreground">Transaction History</CardTitle>
+                            <CardDescription className="text-muted-foreground">
                                 Showing {transactions?.meta?.from || 0}-{transactions?.meta?.to || 0} of {transactions?.meta?.total || 0} transactions
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             {!transactions?.data || transactions.data.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-300 mb-2">No transactions found</h3>
-                                    <p className="text-gray-400">No transactions match your current filters.</p>
+                                    <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
+                                    <p className="text-muted-foreground">No transactions match your current filters.</p>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-gray-700">
-                                                <TableHead className="text-gray-300">Product</TableHead>
-                                                <TableHead className="text-gray-300">Category</TableHead>
-                                                <TableHead className="text-gray-300">Quantity</TableHead>
-                                                <TableHead className="text-gray-300">Subtotal</TableHead>
-                                                <TableHead className="text-gray-300">Buyer</TableHead>
-                                                <TableHead className="text-gray-300">Date</TableHead>
+                                            <TableRow className="">
+                                                <TableHead className="text-foreground">Product</TableHead>
+                                                <TableHead className="text-foreground">Category</TableHead>
+                                                <TableHead className="text-foreground">Quantity</TableHead>
+                                                <TableHead className="text-foreground">Subtotal</TableHead>
+                                                <TableHead className="text-foreground">Buyer</TableHead>
+                                                <TableHead className="text-foreground">Date</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {transactions.data?.map((transaction) => (
-                                                <TableRow key={transaction.id} className="border-gray-700 hover:bg-gray-700/50">
-                                                    <TableCell className="text-white font-medium">
+                                                <TableRow key={transaction.id} className=" hover:bg-muted/50">
+                                                    <TableCell className="text-foreground font-medium">
                                                         {transaction.product_name}
                                                     </TableCell>
                                                     <TableCell>
@@ -428,16 +427,16 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                             {transaction.category}
                                                         </Badge>
                                                     </TableCell>
-                                                    <TableCell className="text-white">
+                                                    <TableCell className="text-foreground">
                                                         {transaction.quantity}
                                                     </TableCell>
-                                                    <TableCell className="text-white font-medium">
+                                                    <TableCell className="text-foreground font-medium">
                                                         {formatCurrency(calculateMemberRevenue(transaction))}
                                                     </TableCell>
-                                                    <TableCell className="text-white">
+                                                    <TableCell className="text-foreground">
                                                         {transaction.sale.customer.name}
                                                     </TableCell>
-                                                    <TableCell className="text-gray-300">
+                                                    <TableCell className="text-foreground">
                                                         {formatDateTime(transaction.created_at)}
                                                     </TableCell>
                                                 </TableRow>
@@ -450,10 +449,10 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     </Card>
                 ) : (
                     /* Stock Overview */
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card className="">
                         <CardHeader>
-                            <CardTitle className="text-white">Stock Quantity Overview</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-foreground">Stock Quantity Overview</CardTitle>
+                            <CardDescription className="text-muted-foreground">
                                 Complete breakdown of your stock quantities: Total, Sold, and Available (Balance)
                             </CardDescription>
                         </CardHeader>
@@ -462,23 +461,23 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <div className="space-y-4">
                                 {/* Summary Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                    <Card className="bg-gray-700 border-gray-600">
+                                    <Card className="bg-muted border-border">
                                         <CardContent className="p-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Total Products</p>
-                                                    <p className="text-2xl font-bold text-white">{comprehensiveStockData.length}</p>
+                                                    <p className="text-sm text-muted-foreground">Total Products</p>
+                                                    <p className="text-2xl font-bold text-foreground">{comprehensiveStockData.length}</p>
                                                 </div>
                                                 <Package className="h-8 w-8 text-blue-400" />
                                             </div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-gray-700 border-gray-600">
+                                    <Card className="bg-muted border-border">
                                         <CardContent className="p-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Total Quantity</p>
-                                                    <p className="text-2xl font-bold text-white">
+                                                    <p className="text-sm text-muted-foreground">Total Quantity</p>
+                                                    <p className="text-2xl font-bold text-foreground">
                                                         {comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
                                                     </p>
                                                 </div>
@@ -486,12 +485,12 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                             </div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-gray-700 border-gray-600">
+                                    <Card className="bg-muted border-border">
                                         <CardContent className="p-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm text-gray-400">Total Revenue</p>
-                                                    <p className="text-2xl font-bold text-white">
+                                                    <p className="text-sm text-muted-foreground">Total Revenue</p>
+                                                    <p className="text-2xl font-bold text-foreground">
                                                         ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toLocaleString()}
                                                     </p>
                                                 </div>
@@ -505,79 +504,79 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 <Table>
                                     <TableCaption>Detailed breakdown of all your stock quantities</TableCaption>
                                     <TableHeader>
-                                        <TableRow className="border-gray-700">
-                                            <TableHead className="text-gray-300">Product Name</TableHead>
-                                            <TableHead className="text-gray-300">Category</TableHead>
-                                            <TableHead className="text-gray-300">Total Stock</TableHead>
-                                            <TableHead className="text-gray-300">Sold Quantity</TableHead>
-                                            <TableHead className="text-gray-300">Available (Balance)</TableHead>
-                                            <TableHead className="text-gray-300">Total Revenue</TableHead>
-                                            <TableHead className="text-gray-300">COGS</TableHead>
-                                            <TableHead className="text-gray-300">Gross Profit</TableHead>
-                                            <TableHead className="text-gray-300">Status</TableHead>
+                                        <TableRow className="">
+                                            <TableHead className="text-foreground">Product Name</TableHead>
+                                            <TableHead className="text-foreground">Category</TableHead>
+                                            <TableHead className="text-foreground">Total Stock</TableHead>
+                                            <TableHead className="text-foreground">Sold Quantity</TableHead>
+                                            <TableHead className="text-foreground">Available (Balance)</TableHead>
+                                            <TableHead className="text-foreground">Total Revenue</TableHead>
+                                            <TableHead className="text-foreground">COGS</TableHead>
+                                            <TableHead className="text-foreground">Gross Profit</TableHead>
+                                            <TableHead className="text-foreground">Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {comprehensiveStockData.map((item, index) => (
-                                            <TableRow key={`${item.product_id}-${item.category}`} className="border-gray-700 hover:bg-gray-700">
-                                                <TableCell className="font-medium text-white">
+                                            <TableRow key={`${item.product_id}-${item.category}`} className=" hover:bg-muted">
+                                                <TableCell className="font-medium text-foreground">
                                                     {item.product_name}
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
-                                                    <Badge variant="secondary" className="bg-gray-600 text-white">
+                                                <TableCell className="text-foreground">
+                                                    <Badge variant="secondary" className="bg-muted text-foreground">
                                                         {item.category}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <Package className="h-4 w-4 text-blue-400" />
                                                         <span className="font-semibold">{item.total_quantity}</span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <XCircle className="h-4 w-4 text-red-400" />
                                                         <span className="font-semibold text-red-300">{item.sold_quantity}</span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <CheckCircle className="h-4 w-4 text-green-400" />
                                                         <span className={`font-semibold ${
-                                                            item.balance_quantity > 0 ? 'text-green-300' : 'text-gray-400'
+                                                            item.balance_quantity > 0 ? 'text-green-300' : 'text-muted-foreground'
                                                         }`}>
                                                             {item.balance_quantity}
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <span className="font-semibold text-yellow-300">
                                                         ₱{item.total_revenue.toLocaleString()}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <span className="font-semibold text-orange-300">
                                                         ₱{(item.total_cogs || 0).toLocaleString()}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground">
                                                     <span className="font-semibold text-green-300">
                                                         ₱{(item.total_gross_profit || 0).toLocaleString()}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>
                                                     {item.balance_quantity > 0 ? (
-                                                        <Badge className="bg-green-600 text-white">
+                                                        <Badge className="bg-green-600 text-foreground">
                                                             <CheckCircle className="h-3 w-3 mr-1" />
                                                             Available
                                                         </Badge>
                                                     ) : item.sold_quantity > 0 ? (
-                                                        <Badge className="bg-red-600 text-white">
+                                                        <Badge className="bg-red-600 text-foreground">
                                                             <XCircle className="h-3 w-3 mr-1" />
                                                             Sold Out
                                                         </Badge>
                                                     ) : (
-                                                        <Badge className="bg-gray-600 text-white">
+                                                        <Badge className="bg-muted text-foreground">
                                                             <AlertCircle className="h-3 w-3 mr-1" />
                                                             No Stock
                                                         </Badge>
@@ -589,7 +588,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 </Table>
                             </div>
                         ) : (
-                            <div className="text-center py-12 text-gray-400">
+                            <div className="text-center py-12 text-muted-foreground">
                                 <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
                                 <h3 className="text-lg font-medium mb-2">No Stocks Found</h3>
                                 <p className="text-sm">You don't have any stocks at the moment.</p>

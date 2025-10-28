@@ -136,7 +136,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-background">
       <MemberHeader />
       <div className="p-6 pt-25">
         <Head title="Revenue Report" />
@@ -144,7 +144,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+            <Button asChild variant="outline" size="sm">
               <Link href={route('member.dashboard')}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
@@ -153,15 +153,15 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Revenue Report</h1>
-              <p className="text-gray-400 mt-2">Track your sales performance and revenue</p>
+              <h1 className="text-3xl font-bold text-foreground">Revenue Report</h1>
+              <p className="text-muted-foreground mt-2">Track your sales performance and revenue</p>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => exportReport('csv')} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+              <Button onClick={() => exportReport('csv')} variant="outline">
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
-              <Button onClick={() => exportReport('pdf')} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+              <Button onClick={() => exportReport('pdf')} variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
                 Export PDF
               </Button>
@@ -170,34 +170,32 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
         </div>
 
         {/* Filters */}
-        <Card className="bg-gray-800 border-gray-700 mb-6">
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-white">Filters</CardTitle>
+            <CardTitle className="text-foreground">Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="start_date" className="text-gray-300">Start Date</Label>
+                <Label htmlFor="start_date">Start Date</Label>
                 <Input
                   id="start_date"
                   type="date"
                   value={localFilters.start_date || ''}
                   onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
               <div>
-                <Label htmlFor="end_date" className="text-gray-300">End Date</Label>
+                <Label htmlFor="end_date">End Date</Label>
                 <Input
                   id="end_date"
                   type="date"
                   value={localFilters.end_date || ''}
                   onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={applyFilters} className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button onClick={applyFilters} className="w-full">
                   Apply Filters
                 </Button>
               </div>
@@ -207,79 +205,79 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
               <DollarSign className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-400">₱{Number(summary.total_revenue).toFixed(2)}</div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 From {summary.total_orders} orders
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Total Orders</CardTitle>
               <ShoppingCart className="h-4 w-4 text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{summary.total_orders}</div>
-              <p className="text-xs text-gray-400">
+              <div className="text-2xl font-bold text-foreground">{summary.total_orders}</div>
+              <p className="text-xs text-muted-foreground">
                 Completed orders
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Average Order Value</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Average Order Value</CardTitle>
               <TrendingUp className="h-4 w-4 text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">₱{Number(summary.average_order_value).toFixed(2)}</div>
-              <p className="text-xs text-gray-400">
+              <div className="text-2xl font-bold text-foreground">₱{Number(summary.average_order_value).toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">
                 Per order
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Quantity Sold</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Quantity Sold</CardTitle>
               <Package className="h-4 w-4 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{summary.total_quantity_sold}</div>
-              <p className="text-xs text-gray-400">
+              <div className="text-2xl font-bold text-foreground">{summary.total_quantity_sold}</div>
+              <p className="text-xs text-muted-foreground">
                 Total units sold
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">COGS</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
               <TrendingUp className="h-4 w-4 text-orange-400" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-400">₱{Number(summary.total_cogs || 0).toFixed(2)}</div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Cost of goods sold
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Gross Profit</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-400">₱{Number(summary.total_gross_profit || 0).toFixed(2)}</div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Revenue minus COGS
               </p>
             </CardContent>
@@ -288,9 +286,9 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
 
         {/* Product Sales Performance */}
         {salesData.productSales.length > 0 && (
-          <Card className="bg-gray-800 border-gray-700 mb-8">
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-white">Product Sales Performance ({salesData.productSales.length} products)</CardTitle>
+              <CardTitle className="text-foreground">Product Sales Performance ({salesData.productSales.length} products)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -304,43 +302,43 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
 
         {/* Order Details */}
         {salesData.orderDetails.length > 0 && (
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Order Details ({salesData.orderDetails.length} orders)</CardTitle>
+              <CardTitle className="text-foreground">Order Details ({salesData.orderDetails.length} orders)</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-700 border-b border-gray-600">
-                      <th className="px-3 py-2 text-left font-medium text-gray-300 text-xs uppercase tracking-wider">Order ID</th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-300 text-xs uppercase tracking-wider">Customer</th>
-                      <th className="px-3 py-2 text-center font-medium text-gray-300 text-xs uppercase tracking-wider">Amount</th>
-                      <th className="px-3 py-2 text-center font-medium text-gray-300 text-xs uppercase tracking-wider">Quantity</th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-300 text-xs uppercase tracking-wider">Date</th>
+                    <tr className="bg-muted border-b border-border">
+                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Order ID</th>
+                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Customer</th>
+                      <th className="px-3 py-2 text-center font-medium text-foreground/80 text-xs uppercase tracking-wider">Amount</th>
+                      <th className="px-3 py-2 text-center font-medium text-foreground/80 text-xs uppercase tracking-wider">Quantity</th>
+                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-gray-800 divide-y divide-gray-600">
+                  <tbody className="divide-y divide-border">
                     {salesData.orderDetails.map((order) => (
-                      <tr key={order.order_id} className="hover:bg-gray-700 transition-colors">
-                        <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-gray-300">#{order.order_id}</td>
+                      <tr key={order.order_id} className="hover:bg-muted transition-colors">
+                        <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-foreground/80">#{order.order_id}</td>
                         <td className="px-3 py-2 max-w-xs">
-                          <div className="text-sm font-medium text-white truncate" title={order.customer_name}>
+                          <div className="text-sm font-medium text-foreground truncate" title={order.customer_name}>
                             {order.customer_name}
                           </div>
-                          <div className="text-xs text-gray-400 truncate">{order.customer_email}</div>
+                          <div className="text-xs text-muted-foreground truncate">{order.customer_email}</div>
                         </td>
                         <td className="px-3 py-2 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900 text-green-300">
                             ₱{Number(order.total_amount).toFixed(2)}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-center text-white">
+                        <td className="px-3 py-2 text-center text-foreground">
                           {order.total_quantity}
                         </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-300">
+                        <td className="px-3 py-2 whitespace-nowrap text-xs text-foreground/80">
                           {dayjs(order.created_at).format('MMM DD, YYYY')}
-                          <div className="text-xs text-gray-400">{dayjs(order.created_at).format('HH:mm')}</div>
+                          <div className="text-xs text-muted-foreground">{dayjs(order.created_at).format('HH:mm')}</div>
                         </td>
                       </tr>
                     ))}
@@ -353,15 +351,15 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
 
         {/* Empty State */}
         {salesData.orderDetails.length === 0 && (
-          <Card className="bg-gray-800 border-gray-700">
+          <Card>
             <CardContent className="p-12 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mb-3">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <p className="text-gray-400">No sales data found for the selected filters.</p>
+                <p className="text-muted-foreground">No sales data found for the selected filters.</p>
               </div>
             </CardContent>
           </Card>
@@ -375,16 +373,16 @@ function ProductSaleCard({ product, index }: { product: ProductSale; index: numb
   const averageRevenue = product.sales_count > 0 ? product.total_revenue / product.sales_count : 0;
 
   return (
-    <Card className="bg-gray-700 border-gray-600">
+    <Card className="bg-muted border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Badge variant={index < 3 ? "default" : "secondary"} className="bg-blue-600 text-white">
+            <Badge variant={index < 3 ? "default" : "secondary"}>
               #{index + 1}
             </Badge>
             <div>
-              <CardTitle className="text-lg text-white">{product.product_name}</CardTitle>
-              <p className="text-sm text-gray-400">{product.category}</p>
+              <CardTitle className="text-lg text-foreground">{product.product_name}</CardTitle>
+              <p className="text-sm text-muted-foreground">{product.category}</p>
             </div>
           </div>
           <div className="text-right">
@@ -397,46 +395,46 @@ function ProductSaleCard({ product, index }: { product: ProductSale; index: numb
             <div className="text-sm text-green-400">
               Gross Profit: ₱{Number(product.total_gross_profit || 0).toFixed(2)}
             </div>
-            <p className="text-sm text-gray-400">{product.sales_count} sales</p>
+            <p className="text-sm text-muted-foreground">{product.sales_count} sales</p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <h4 className="font-semibold mb-2 text-white">Performance Metrics</h4>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Performance Metrics</h4>
+            <p className="text-sm text-foreground">
               <span className="font-medium">Total Sales:</span> {product.sales_count}
             </p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-foreground">
               <span className="font-medium">Total Revenue:</span> ₱{Number(product.total_revenue).toFixed(2)}
             </p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-foreground">
               <span className="font-medium">Average Revenue:</span> ₱{Number(averageRevenue).toFixed(2)}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 text-white">Quantity & Pricing</h4>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Quantity & Pricing</h4>
+            <p className="text-sm text-foreground">
               <span className="font-medium">Total Quantity:</span> {product.total_quantity}
             </p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-foreground">
               <span className="font-medium">Price Per Unit:</span> ₱{Number(product.price_per_unit).toFixed(2)}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 text-white">Customers</h4>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Customers</h4>
+            <p className="text-sm text-foreground">
               <span className="font-medium">Unique Customers:</span> {product.customers.length}
             </p>
-            <div className="text-xs text-gray-400 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               {product.customers.slice(0, 3).join(', ')}
               {product.customers.length > 3 && ` +${product.customers.length - 3} more`}
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 text-white">Financial Analysis</h4>
-            <p className="text-sm text-gray-300">
+            <h4 className="font-semibold mb-2 text-foreground">Financial Analysis</h4>
+            <p className="text-sm text-foreground">
               <span className="font-medium">Total Revenue:</span> ₱{Number(product.total_revenue).toFixed(2)}
             </p>
             <p className="text-sm text-orange-300">

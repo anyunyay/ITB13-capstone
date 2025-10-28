@@ -162,11 +162,11 @@ export default function MemberTransactions({ transactions, availableProducts, su
 
     if (!auth?.user) {
         return (
-            <div className="min-h-screen bg-gray-900">
+            <div className="min-h-screen bg-background">
                 <MemberHeader />
                 <div className="p-6 pt-25">
                     <div className="text-center py-12">
-                        <div className="text-white text-xl">Loading...</div>
+                        <div className="text-foreground text-xl">Loading...</div>
                     </div>
                 </div>
             </div>
@@ -176,11 +176,11 @@ export default function MemberTransactions({ transactions, availableProducts, su
     // Handle case where transactions data is not available
     if (!transactions) {
         return (
-            <div className="min-h-screen bg-gray-900">
+            <div className="min-h-screen bg-background">
                 <MemberHeader />
                 <div className="p-6 pt-25">
                     <div className="text-center py-12">
-                        <div className="text-white text-xl">Loading transactions...</div>
+                        <div className="text-foreground text-xl">Loading transactions...</div>
                     </div>
                 </div>
             </div>
@@ -188,7 +188,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
     }
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-15">
                 <Head title="Member Transactions" />
@@ -197,10 +197,10 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-white">Transaction History</h1>
-                            <p className="text-gray-400 mt-2">View all your stock transactions and earnings</p>
+                            <h1 className="text-3xl font-bold text-foreground">Transaction History</h1>
+                            <p className="text-muted-foreground mt-2">View all your stock transactions and earnings</p>
                         </div>
-                        <Button asChild variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                        <Button asChild variant="outline">
                             <a href={route('member.dashboard')}>
                                 <Package className="h-4 w-4 mr-2" />
                                 Back to Dashboard
@@ -211,56 +211,56 @@ export default function MemberTransactions({ transactions, availableProducts, su
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Total Transactions</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Total Transactions</CardTitle>
                             <TrendingUp className="h-4 w-4 text-blue-400" />
                         </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-white">{summary?.total_transactions || 0}</div>
-                            <p className="text-xs text-gray-400">All time</p>
+                        <div className="text-2xl font-bold text-foreground">{summary?.total_transactions || 0}</div>
+                            <p className="text-xs text-muted-foreground">All time</p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Total Quantity</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
                             <Package className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{summary?.total_quantity || 0}</div>
-                            <p className="text-xs text-gray-400">Items sold</p>
+                            <div className="text-2xl font-bold text-foreground">{summary?.total_quantity || 0}</div>
+                            <p className="text-xs text-muted-foreground">Items sold</p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Total Revenue</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
                             <DollarSign className="h-4 w-4 text-yellow-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_revenue || 0)}</div>
-                            <p className="text-xs text-gray-400">Gross sales</p>
+                            <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_revenue || 0)}</div>
+                            <p className="text-xs text-muted-foreground">Gross sales</p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gray-800 border-gray-700">
+                    <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-gray-300">Member Revenue</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">Member Revenue</CardTitle>
                             <Users className="h-4 w-4 text-purple-400" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-white">{formatCurrency(summary?.total_member_share || 0)}</div>
-                            <p className="text-xs text-gray-400">Your product revenue</p>
+                            <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_member_share || 0)}</div>
+                            <p className="text-xs text-muted-foreground">Your product revenue</p>
                         </CardContent>
                     </Card>
 
                 </div>
 
                 {/* Filters */}
-                <Card className="bg-gray-800 border-gray-700 mb-6">
+                <Card className="mb-6">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center">
+                        <CardTitle className="text-foreground flex items-center">
                             <Filter className="h-5 w-5 mr-2" />
                             Filters & Search
                         </CardTitle>
@@ -268,23 +268,23 @@ export default function MemberTransactions({ transactions, availableProducts, su
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div>
-                                <Label htmlFor="search" className="text-gray-300">Search</Label>
+                                <Label htmlFor="search">Search</Label>
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="search"
                                         placeholder="Product or customer..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10 bg-gray-700 border-gray-600 text-white"
+                                        className="pl-10"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <Label htmlFor="product" className="text-gray-300">Product</Label>
+                                <Label htmlFor="product">Product</Label>
                                 <Select value={productFilter} onValueChange={setProductFilter}>
-                                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                    <SelectTrigger>
                                         <SelectValue placeholder="All products" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -299,31 +299,29 @@ export default function MemberTransactions({ transactions, availableProducts, su
                             </div>
 
                             <div>
-                                <Label htmlFor="dateFrom" className="text-gray-300">From Date</Label>
+                                <Label htmlFor="dateFrom">From Date</Label>
                                 <Input
                                     id="dateFrom"
                                     type="date"
                                     value={dateFrom}
                                     onChange={(e) => setDateFrom(e.target.value)}
-                                    className="bg-gray-700 border-gray-600 text-white"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="dateTo" className="text-gray-300">To Date</Label>
+                                <Label htmlFor="dateTo">To Date</Label>
                                 <Input
                                     id="dateTo"
                                     type="date"
                                     value={dateTo}
                                     onChange={(e) => setDateTo(e.target.value)}
-                                    className="bg-gray-700 border-gray-600 text-white"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="perPage" className="text-gray-300">Per Page</Label>
+                                <Label htmlFor="perPage">Per Page</Label>
                                 <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
-                                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                    <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -337,11 +335,11 @@ export default function MemberTransactions({ transactions, availableProducts, su
                         </div>
 
                         <div className="flex gap-2 mt-4">
-                            <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
+                            <Button onClick={handleSearch}>
                                 <Search className="h-4 w-4 mr-2" />
                                 Apply Filters
                             </Button>
-                            <Button onClick={clearFilters} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                            <Button onClick={clearFilters} variant="outline">
                                 Clear Filters
                             </Button>
                         </div>
@@ -349,54 +347,54 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 </Card>
 
                 {/* Transactions Table */}
-                <Card className="bg-gray-800 border-gray-700">
+                <Card>
                     <CardHeader>
-                        <CardTitle className="text-white">Transaction History</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Transaction History</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Showing {transactions.meta?.from || 0}-{transactions.meta?.to || 0} of {transactions.meta?.total || 0} transactions
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {!transactions.data || transactions.data.length === 0 ? (
                             <div className="text-center py-12">
-                                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-300 mb-2">No transactions found</h3>
-                                <p className="text-gray-400">No transactions match your current filters.</p>
+                                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
+                                <p className="text-muted-foreground">No transactions match your current filters.</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-gray-700">
-                                            <TableHead className="text-gray-300">Product</TableHead>
-                                            <TableHead className="text-gray-300">Category</TableHead>
-                                            <TableHead className="text-gray-300">Quantity</TableHead>
-                                            <TableHead className="text-gray-300">Subtotal</TableHead>
-                                            <TableHead className="text-gray-300">Buyer</TableHead>
-                                            <TableHead className="text-gray-300">Date</TableHead>
+                                        <TableRow>
+                                            <TableHead className="text-foreground/80">Product</TableHead>
+                                            <TableHead className="text-foreground/80">Category</TableHead>
+                                            <TableHead className="text-foreground/80">Quantity</TableHead>
+                                            <TableHead className="text-foreground/80">Subtotal</TableHead>
+                                            <TableHead className="text-foreground/80">Buyer</TableHead>
+                                            <TableHead className="text-foreground/80">Date</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {transactions.data?.map((transaction) => (
-                                            <TableRow key={transaction.id} className="border-gray-700 hover:bg-gray-700/50">
-                                                <TableCell className="text-white font-medium">
+                                            <TableRow key={transaction.id} className="hover:bg-muted/50">
+                                                <TableCell className="text-foreground font-medium">
                                                     {transaction.product_name}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                                    <Badge variant="secondary">
                                                         {transaction.category}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="text-white">
+                                                <TableCell className="text-foreground">
                                                     {transaction.quantity}
                                                 </TableCell>
-                                                <TableCell className="text-white font-medium">
+                                                <TableCell className="text-foreground font-medium">
                                                     {formatCurrency(calculateMemberRevenue(transaction))}
                                                 </TableCell>
-                                                <TableCell className="text-white">
+                                                <TableCell className="text-foreground">
                                                     {transaction.sale.customer.name}
                                                 </TableCell>
-                                                <TableCell className="text-gray-300">
+                                                <TableCell className="text-foreground/80">
                                                     {formatDateTime(transaction.created_at)}
                                                 </TableCell>
                                             </TableRow>
@@ -409,7 +407,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                         {/* Pagination */}
                         {transactions.meta?.last_page && transactions.meta.last_page > 1 && (
                             <div className="flex items-center justify-between mt-6">
-                                <div className="text-sm text-gray-400">
+                                <div className="text-sm text-muted-foreground">
                                     Showing {transactions.meta?.from || 0} to {transactions.meta?.to || 0} of {transactions.meta?.total || 0} results
                                 </div>
                                 <div className="flex gap-2">
@@ -424,11 +422,6 @@ export default function MemberTransactions({ transactions, availableProducts, su
                                                 }
                                             }}
                                             disabled={!link.url}
-                                            className={
-                                                link.active
-                                                    ? "bg-blue-600 hover:bg-blue-700"
-                                                    : "border-gray-600 text-gray-300 hover:bg-gray-700"
-                                            }
                                         >
                                             <span dangerouslySetInnerHTML={{ __html: link.label }} />
                                         </Button>
