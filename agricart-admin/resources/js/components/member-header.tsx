@@ -14,13 +14,13 @@ export function MemberHeader() {
 
 
     return (
-        <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 px-6 py-4 z-50">
+        <header className="fixed top-0 left-0 right-0 bg-card border-b border-border px-6 py-4 z-50 shadow-sm">
             <div className="flex items-center justify-between max-w-full">
                 {/* Logo and Navigation */}
                 <div className="flex items-center space-x-8">
                     <div className="flex items-center space-x-2">
-                        <Package className="h-8 w-8 text-green-500" />
-                        <span className="text-xl font-bold text-white">Agricart</span>
+                        <Package className="h-8 w-8 text-primary" />
+                        <span className="text-xl font-bold text-foreground">Agricart</span>
                     </div>
                 </div>
 
