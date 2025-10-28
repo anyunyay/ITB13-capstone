@@ -18,7 +18,10 @@ class InventoryController extends Controller
 {
     public function index()
     { 
-        $products = Product::active()->get();
+        $products = Product::active()->get()->map(function ($product) {
+            $product->has_stock = $product->hasAvailableStock();
+            return $product;
+        });
         $archivedProducts = Product::archived()->get();
         $stocks = Stock::active()->with(['product', 'member'])->get();
         $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();

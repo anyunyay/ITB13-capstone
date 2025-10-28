@@ -3,6 +3,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
@@ -313,15 +314,35 @@ export const ProductManagement = ({
                                             
                                             {!product.archived_at ? (
                                                 <PermissionGate permission="archive products">
-                                                    <Button 
-                                                        disabled={processing || archivingProduct === product.id} 
-                                                        onClick={() => handleArchive(product.id, product.name)}
-                                                        variant="outline"
-                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                    >
-                                                        <Archive className="h-4 w-4 flex-shrink-0" />
-                                                        {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
-                                                    </Button>
+                                                    {product.has_stock ? (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className="w-full block">
+                                                                    <Button 
+                                                                        disabled={true}
+                                                                        variant="outline"
+                                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
+                                                                    >
+                                                                        <Archive className="h-4 w-4 flex-shrink-0" />
+                                                                        Archive
+                                                                    </Button>
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent side="bottom">
+                                                                <p>Cannot archive: Product still has available stock</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Button 
+                                                            disabled={processing || archivingProduct === product.id} 
+                                                            onClick={() => handleArchive(product.id, product.name)}
+                                                            variant="outline"
+                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
+                                                        >
+                                                            <Archive className="h-4 w-4 flex-shrink-0" />
+                                                            {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
+                                                        </Button>
+                                                    )}
                                                 </PermissionGate>
                                             ) : (
                                                 <PermissionGate permission="unarchive products">

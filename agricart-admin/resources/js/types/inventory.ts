@@ -9,6 +9,7 @@ export interface Product {
     image: string;
     image_url: string;
     archived_at?: string;
+    has_stock?: boolean;
 }
 
 export interface Stock {

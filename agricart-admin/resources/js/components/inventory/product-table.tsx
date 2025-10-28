@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
@@ -194,16 +195,37 @@ export const ProductTable = ({
                                     
                                     {!product.archived_at ? (
                                         <PermissionGate permission="archive products">
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm"
-                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
-                                                disabled={processing || archivingProduct === product.id}
-                                                onClick={() => handleArchive(product.id, product.name)}
-                                            >
-                                                <Archive className="h-3 w-3 mr-1" />
-                                                {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
-                                            </Button>
+                                            {product.has_stock ? (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="inline-block">
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm"
+                                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out whitespace-nowrap opacity-60 cursor-not-allowed"
+                                                                disabled={true}
+                                                            >
+                                                                <Archive className="h-3 w-3 mr-1" />
+                                                                Archive
+                                                            </Button>
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Cannot archive: Product still has available stock</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            ) : (
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm"
+                                                    className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-sm whitespace-nowrap"
+                                                    disabled={processing || archivingProduct === product.id}
+                                                    onClick={() => handleArchive(product.id, product.name)}
+                                                >
+                                                    <Archive className="h-3 w-3 mr-1" />
+                                                    {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
+                                                </Button>
+                                            )}
                                         </PermissionGate>
                                     ) : (
                                         <PermissionGate permission="unarchive products">
