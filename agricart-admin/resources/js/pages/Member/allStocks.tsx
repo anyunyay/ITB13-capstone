@@ -187,6 +187,8 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         return new Intl.NumberFormat('en-PH', {
             style: 'currency',
             currency: 'PHP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
         }).format(amount);
     };
 
@@ -409,7 +411,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                 <TableHead className="text-foreground">Product</TableHead>
                                                 <TableHead className="text-foreground">Category</TableHead>
                                                 <TableHead className="text-foreground">Quantity</TableHead>
-                                                <TableHead className="text-foreground">Subtotal</TableHead>
+                                                <TableHead className="text-foreground text-right">Subtotal</TableHead>
                                                 <TableHead className="text-foreground">Buyer</TableHead>
                                                 <TableHead className="text-foreground">Date</TableHead>
                                             </TableRow>
@@ -428,7 +430,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                     <TableCell className="text-foreground">
                                                         {transaction.quantity}
                                                     </TableCell>
-                                                    <TableCell className="text-foreground font-medium">
+                                                    <TableCell className="text-foreground font-medium text-right">
                                                         {formatCurrency(calculateMemberRevenue(transaction))}
                                                     </TableCell>
                                                     <TableCell className="text-foreground">
@@ -467,9 +469,9 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                             <TableHead className="text-foreground">Total Stock</TableHead>
                                             <TableHead className="text-foreground">Sold Quantity</TableHead>
                                             <TableHead className="text-foreground">Available (Balance)</TableHead>
-                                            <TableHead className="text-foreground">Total Revenue</TableHead>
-                                            <TableHead className="text-foreground">COGS</TableHead>
-                                            <TableHead className="text-foreground">Gross Profit</TableHead>
+                                            <TableHead className="text-foreground text-right">Total Revenue</TableHead>
+                                            <TableHead className="text-foreground text-right">COGS</TableHead>
+                                            <TableHead className="text-foreground text-right">Gross Profit</TableHead>
                                             <TableHead className="text-foreground">Status</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -506,19 +508,19 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-foreground">
+                                                <TableCell className="text-foreground text-right">
                                                     <span className="font-semibold text-yellow-300">
-                                                        ₱{item.total_revenue.toLocaleString()}
+                                                        ₱{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-foreground">
+                                                <TableCell className="text-foreground text-right">
                                                     <span className="font-semibold text-orange-300">
-                                                        ₱{(item.total_cogs || 0).toLocaleString()}
+                                                        ₱{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
-                                                <TableCell className="text-foreground">
+                                                <TableCell className="text-foreground text-right">
                                                     <span className="font-semibold text-green-300">
-                                                        ₱{(item.total_gross_profit || 0).toLocaleString()}
+                                                        ₱{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>
@@ -569,19 +571,19 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                     </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-foreground">
+                                            <TableCell className="text-foreground text-right">
                                                 <span className="font-semibold text-yellow-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toLocaleString()}
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-foreground">
+                                            <TableCell className="text-foreground text-right">
                                                 <span className="font-semibold text-orange-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toLocaleString()}
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="text-foreground">
+                                            <TableCell className="text-foreground text-right">
                                                 <span className="font-semibold text-green-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toLocaleString()}
+                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-foreground">-</TableCell>
