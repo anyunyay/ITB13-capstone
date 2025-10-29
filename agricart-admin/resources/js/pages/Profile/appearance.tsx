@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
-import { Sun, Moon, Monitor, Palette, Check } from 'lucide-react';
+import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useAppearance } from '@/hooks/use-appearance';
+import { useLanguage } from '@/hooks/use-language';
+import { __ } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -46,23 +49,11 @@ const appearanceOptions: { value: Appearance; label: string; description: string
 export default function AppearancePage() {
     const { user } = usePage<PageProps>().props;
     const { appearance, updateAppearance } = useAppearance();
+    const { language, updateLanguage, isLoading: languageLoading } = useLanguage();
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            appearancePage: `${baseRoute}/profile/appearance`,
-        };
-    };
 
-    const routes = getProfileRoutes();
 
     const handleAppearanceChange = async (newAppearance: Appearance) => {
         try {
@@ -83,6 +74,17 @@ export default function AppearancePage() {
             setMessage({ type: 'error', text: 'Failed to update appearance settings. Please try again.' });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleLanguageChange = async (newLanguage: 'en' | 'fil') => {
+        try {
+            setMessage(null);
+            await updateLanguage(newLanguage);
+            setMessage({ type: 'success', text: __('appearance.language_updated', language) });
+        } catch (error) {
+            console.error('Failed to update language:', error);
+            setMessage({ type: 'error', text: __('appearance.language_update_failed', language) });
         }
     };
 
@@ -183,6 +185,72 @@ export default function AppearancePage() {
                                 <span>
                                     Current selection: <strong className="text-foreground">
                                         {appearanceOptions.find(opt => opt.value === appearance)?.label}
+                                    </strong>
+                                </span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Language Settings Card */}
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <Languages className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-green-600 dark:text-green-400">
+                                    {__('appearance.language_preferences', language)}
+                                </CardTitle>
+                                <CardDescription>
+                                    {__('appearance.language_description', language)}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium text-foreground">
+                                Select Language
+                            </label>
+                            <Select
+                                value={language}
+                                onValueChange={handleLanguageChange}
+                                disabled={languageLoading}
+                            >
+                                <SelectTrigger className={cn(
+                                    "w-full",
+                                    "border-green-200 dark:border-green-800",
+                                    "focus:border-green-600 focus:ring-green-600/20",
+                                    "hover:border-green-300 dark:hover:border-green-700"
+                                )}>
+                                    <SelectValue placeholder="Select a language" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="en">
+                                        <div className="flex items-center gap-2">
+                                            <span>🇺🇸</span>
+                                            <span>{__('appearance.english', language)}</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="fil">
+                                        <div className="flex items-center gap-2">
+                                            <span>🇵🇭</span>
+                                            <span>{__('appearance.tagalog', language)}</span>
+                                        </div>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Current Language Info */}
+                        <div className="mt-6 p-4 bg-muted rounded-lg">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Languages className="h-4 w-4" />
+                                <span>
+                                    {__('appearance.current_language', language)}: <strong className="text-foreground">
+                                        {language === 'en' ? __('appearance.english', language) : __('appearance.tagalog', language)}
                                     </strong>
                                 </span>
                             </div>

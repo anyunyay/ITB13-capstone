@@ -64,6 +64,20 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
 
+        // Share current language for all users (authenticated and non-authenticated)
+        if ($request->user()) {
+            $user = $request->user();
+            // Share user's language preference (default to English for non-members)
+            if ($user->type === 'member') {
+                $shared['currentLanguage'] = $user->language ?? 'en';
+            } else {
+                $shared['currentLanguage'] = $user->language ?? session('locale', 'en');
+            }
+        } else {
+            // For non-authenticated users, use session or default to English
+            $shared['currentLanguage'] = session('locale', 'en');
+        }
+
         // Share notifications for authenticated users based on their type
         if ($request->user()) {
             $user = $request->user();
