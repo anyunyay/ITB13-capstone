@@ -425,11 +425,11 @@ Route::prefix('api/lockout')->name('api.lockout.')->middleware(['login.rate.limi
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'update'])->name('user.appearance.update');
     Route::get('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'show'])->name('user.appearance.show');
+    
+    // Language switching routes (for authenticated users)
+    Route::post('/language/switch', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
+    Route::get('/language/current', [\App\Http\Controllers\LanguageController::class, 'current'])->name('language.current');
 });
-
-// Language switching routes
-Route::post('/language/switch', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
-Route::get('/language/current', [\App\Http\Controllers\LanguageController::class, 'current'])->name('language.current');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

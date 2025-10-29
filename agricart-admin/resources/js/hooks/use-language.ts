@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 
 type Language = 'en' | 'fil';
 
@@ -31,29 +31,39 @@ export function useLanguage(): LanguageHook {
 
         setIsLoading(true);
         
-        try {
-            const response = await fetch('/language/switch', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({ language: newLanguage }),
-            });
-
-            if (response.ok) {
-                setLanguage(newLanguage);
-                // Reload the page to apply the new language
-                window.location.reload();
-            } else {
-                throw new Error('Failed to update language');
-            }
-        } catch (error) {
-            console.error('Failed to update language:', error);
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
+        return new Promise<void>((resolve, reject) => {
+            router.post('/language/switch', 
+                { language: newLanguage },
+                {
+                    onSuccess: (page) => {
+                        console.log('Language switch successful:', page);
+                        setLanguage(newLanguage);
+                        // Reload the page to apply the new language
+                        window.location.reload();
+                        resolve();
+                    },
+                    onError: (errors) => {
+                        console.error('Language switch failed with errors:', errors);
+                        setIsLoading(false);
+                        
+                        // Extract error message
+                        let errorMessage = 'Failed to update language preference. Please try again.';
+                        if (errors.language) {
+                            errorMessage = Array.isArray(errors.language) ? errors.language[0] : errors.language;
+                        } else if (errors.message) {
+                            errorMessage = errors.message;
+                        }
+                        
+                        reject(new Error(errorMessage));
+                    },
+                    onFinish: () => {
+                        console.log('Language switch request finished');
+                    },
+                    preserveScroll: true,
+                    preserveState: true,
+                }
+            );
+        });
     };
 
     return {

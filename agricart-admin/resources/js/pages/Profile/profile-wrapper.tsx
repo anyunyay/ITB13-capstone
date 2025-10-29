@@ -5,6 +5,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
 import MemberLayout from '@/layouts/member-layout';
 import ProfileLayout from '@/layouts/profile/profile-layout';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { PropsWithChildren } from 'react';
 
 interface ProfileWrapperProps {
@@ -16,9 +17,10 @@ interface ProfileWrapperProps {
 export default function ProfileWrapper({ children, breadcrumbs = [], title }: ProfileWrapperProps) {
     const page = usePage<SharedData>();
     const user = page.props.auth?.user;
+    const { auto } = useTranslation();
 
     if (!user) {
-        return <div>Loading...</div>;
+        return <div>{auto('Loading...')}</div>;
     }
 
     // Render ProfileLayout content
