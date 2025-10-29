@@ -452,11 +452,11 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     const validateDates = () => {
         if (timePeriod === 'specific') {
             if (!startDate || !endDate) {
-                setDateValidationError('Please select both start and end dates for specific time period');
+                setDateValidationError(t('admin.select_both_dates'));
                 return false;
             }
             if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
-                setDateValidationError('Start date must be before end date');
+                setDateValidationError(t('admin.start_date_cannot_after_end'));
                 return false;
             }
             // Clear error if dates are valid
@@ -709,9 +709,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     <TrendingUp className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Price Trend Analysis</h1>
+                                    <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.price_trend_analysis')}</h1>
                                     <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                                        Visualize product price fluctuations with advanced filtering options
+                                        {t('admin.visualize_product_price_fluctuations')}
                                     </p>
                                 </div>
                             </div>
@@ -720,9 +720,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                            <CardTitle>Filters</CardTitle>
+                            <CardTitle>{t('admin.filters')}</CardTitle>
                                 <div className="flex items-center space-x-6">
-                                    <Label className="text-base font-semibold">Time Period</Label>
+                                    <Label className="text-base font-semibold">{t('admin.time_period')}</Label>
                                     <div className="flex space-x-4">
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -734,7 +734,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="specific">Specific Date</Label>
+                                            <Label htmlFor="specific">{t('admin.specific_date')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -746,7 +746,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="monthly">Monthly</Label>
+                                            <Label htmlFor="monthly">{t('admin.monthly')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -758,7 +758,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="yearly">Yearly</Label>
+                                            <Label htmlFor="yearly">{t('admin.yearly')}</Label>
                                         </div>
                                     </div>
                                 </div>
@@ -767,26 +767,26 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                                 <div>
-                                    <Label>Category</Label>
+                                    <Label>{t('admin.category')}</Label>
                                     <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                                         <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="All categories" />
+                                            <SelectValue placeholder={t('admin.all_categories')} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All categories</SelectItem>
-                                            <SelectItem value="fruit">Fruit</SelectItem>
-                                            <SelectItem value="vegetable">Vegetable</SelectItem>
+                                            <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
+                                            <SelectItem value="fruit">{t('admin.fruit')}</SelectItem>
+                                            <SelectItem value="vegetable">{t('admin.vegetable')}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div>
-                                    <Label>Products (Max 3)</Label>
+                                    <Label>{t('admin.products_max_3')}</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button variant="outline" className="w-full justify-start">
                                                 {selectedProducts.length === 0 
-                                                    ? "Select products" 
-                                                    : `${selectedProducts.length} product(s) selected`
+                                                    ? t('admin.select_products_placeholder')
+                                                    : `${selectedProducts.length} ${t('admin.products_selected')}`
                                                 }
                                             </Button>
                                         </PopoverTrigger>
@@ -795,13 +795,13 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 {(() => {
                                                     const groupedProducts = getGroupedProducts(availableProducts);
                                                     const groupTitles = {
-                                                        'per_kilo_only': 'Per Kilo Only',
-                                                        'per_tali_only': 'Per Tali Only', 
-                                                        'per_pc_only': 'Per Piece Only',
-                                                        'per_kilo_tali': 'Per Kilo & Tali',
-                                                        'per_kilo_pc': 'Per Kilo & Piece',
-                                                        'per_tali_pc': 'Per Tali & Piece',
-                                                        'all_units': 'All Pricing Units'
+                                                        'per_kilo_only': t('admin.per_kilo_only'),
+                                                        'per_tali_only': t('admin.per_tali_only'), 
+                                                        'per_pc_only': t('admin.per_pc_only'),
+                                                        'per_kilo_tali': t('admin.per_kilo_tali'),
+                                                        'per_kilo_pc': t('admin.per_kilo_pc'),
+                                                        'per_tali_pc': t('admin.per_tali_pc'),
+                                                        'all_units': t('admin.all_pricing_units')
                                                     };
                                                     
                                                     // Count total products to determine layout
@@ -849,14 +849,14 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     </Popover>
                                     {selectedProducts.length >= 3 && (
                                         <p className="text-sm text-amber-600 mt-1">
-                                            Maximum 3 products selected. This may result in not being able to show data properly.
+                                            {t('admin.maximum_products_warning')}
                                         </p>
                                     )}
                                 </div>
                                 {timePeriod === 'specific' && (
                                     <>
                                 <div>
-                                    <Label>Start Date</Label>
+                                    <Label>{t('admin.start_date')}</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button
@@ -864,7 +864,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 className="w-full justify-start text-left font-normal"
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                                {startDate ? format(startDate, "PPP") : t('admin.pick_date')}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
@@ -883,7 +883,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     </Popover>
                                 </div>
                                 <div>
-                                    <Label>End Date</Label>
+                                    <Label>{t('admin.end_date')}</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button
@@ -891,7 +891,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 className="w-full justify-start text-left font-normal"
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                                {endDate ? format(endDate, "PPP") : t('admin.pick_date')}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
@@ -920,38 +920,38 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                 {timePeriod === 'monthly' && (
                                     <>
                                         <div>
-                                            <Label>Select Month</Label>
+                                            <Label>{t('admin.select_month')}</Label>
                                             <Select 
                                                 value={selectedMonth?.toString() || ""} 
                                                 onValueChange={(value) => setSelectedMonth(parseInt(value))}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select month" />
+                                                    <SelectValue placeholder={t('admin.select_month')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="0">January</SelectItem>
-                                                    <SelectItem value="1">February</SelectItem>
-                                                    <SelectItem value="2">March</SelectItem>
-                                                    <SelectItem value="3">April</SelectItem>
-                                                    <SelectItem value="4">May</SelectItem>
-                                                    <SelectItem value="5">June</SelectItem>
-                                                    <SelectItem value="6">July</SelectItem>
-                                                    <SelectItem value="7">August</SelectItem>
-                                                    <SelectItem value="8">September</SelectItem>
-                                                    <SelectItem value="9">October</SelectItem>
-                                                    <SelectItem value="10">November</SelectItem>
-                                                    <SelectItem value="11">December</SelectItem>
+                                                    <SelectItem value="0">{t('admin.january')}</SelectItem>
+                                                    <SelectItem value="1">{t('admin.february')}</SelectItem>
+                                                    <SelectItem value="2">{t('admin.march')}</SelectItem>
+                                                    <SelectItem value="3">{t('admin.april')}</SelectItem>
+                                                    <SelectItem value="4">{t('admin.may')}</SelectItem>
+                                                    <SelectItem value="5">{t('admin.june')}</SelectItem>
+                                                    <SelectItem value="6">{t('admin.july')}</SelectItem>
+                                                    <SelectItem value="7">{t('admin.august')}</SelectItem>
+                                                    <SelectItem value="8">{t('admin.september')}</SelectItem>
+                                                    <SelectItem value="9">{t('admin.october')}</SelectItem>
+                                                    <SelectItem value="10">{t('admin.november')}</SelectItem>
+                                                    <SelectItem value="11">{t('admin.december')}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div>
-                                            <Label>Select Year</Label>
+                                            <Label>{t('admin.select_year')}</Label>
                                             <Select 
                                                 value={selectedYear?.toString() || ""} 
                                                 onValueChange={(value) => setSelectedYear(parseInt(value))}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select year" />
+                                                    <SelectValue placeholder={t('admin.select_year')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
@@ -967,13 +967,13 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                 
                                 {timePeriod === 'yearly' && (
                                     <div>
-                                        <Label>Select Year</Label>
+                                        <Label>{t('admin.select_year')}</Label>
                                         <Select 
                                             value={selectedYear?.toString() || ""} 
                                             onValueChange={(value) => setSelectedYear(parseInt(value))}
                                         >
                                             <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select year" />
+                                                <SelectValue placeholder={t('admin.select_year')} />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
@@ -992,7 +992,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                            <CardTitle>Price Trend</CardTitle>
+                            <CardTitle>{t('admin.price_trend')}</CardTitle>
                                 <div className="flex items-center space-x-6">
                                     <div className="flex items-center space-x-4">
                                         <div className="flex items-center space-x-2">
@@ -1002,7 +1002,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_kilo')}
                                                 disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_kilo')}
                                             />
-                                            <Label htmlFor="per_kilo" className="text-sm">Per Kilo</Label>
+                                            <Label htmlFor="per_kilo" className="text-sm">{t('admin.per_kilo')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <Switch
@@ -1011,7 +1011,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_tali')}
                                                 disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_tali')}
                                             />
-                                            <Label htmlFor="per_tali" className="text-sm">Per Tali</Label>
+                                            <Label htmlFor="per_tali" className="text-sm">{t('admin.per_tali')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <Switch
@@ -1020,40 +1020,40 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onCheckedChange={() => handlePriceCategoryToggle('per_pc')}
                                                 disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_pc')}
                                             />
-                                            <Label htmlFor="per_pc" className="text-sm">Per Piece</Label>
+                                            <Label htmlFor="per_pc" className="text-sm">{t('admin.per_pc')}</Label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             {selectedProducts.length === 0 && (
-                                <p className="text-sm text-red-500 mt-2">Please select at least one product to view the chart</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_product_chart')}</p>
                             )}
                             {timePeriod === 'monthly' && (selectedMonth === undefined || selectedYear === undefined) && (
-                                <p className="text-sm text-red-500 mt-2">Please select both month and year to view the chart</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_month_year_chart')}</p>
                             )}
                             {timePeriod === 'yearly' && selectedYear === undefined && (
-                                <p className="text-sm text-red-500 mt-2">Please select a year to view the chart</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_year_chart')}</p>
                             )}
                             {timePeriod === 'specific' && startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate)) && (
-                                <p className="text-sm text-red-500 mt-2">Start date cannot be after end date</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.start_date_cannot_after_end')}</p>
                             )}
                             {timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && (
-                                <p className="text-sm text-red-500 mt-2">Selected month cannot be in the future</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.selected_month_cannot_future')}</p>
                             )}
                             {timePeriod === 'yearly' && selectedYear !== undefined && selectedYear > dayjs().year() && (
-                                <p className="text-sm text-red-500 mt-2">Selected year cannot be in the future</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.selected_year_cannot_future')}</p>
                             )}
                             {timePeriod === 'specific' && startDate && dayjs(startDate).isBefore(dayjs('2020-01-01')) && (
-                                <p className="text-sm text-red-500 mt-2">Start date cannot be before 2020</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.start_date_cannot_before_2020')}</p>
                             )}
                             {timePeriod === 'specific' && endDate && dayjs(endDate).isBefore(dayjs('2020-01-01')) && (
-                                <p className="text-sm text-red-500 mt-2">End date cannot be before 2020</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.end_date_cannot_before_2020')}</p>
                             )}
                             {timePeriod === 'monthly' && selectedYear !== undefined && selectedYear < 2020 && (
-                                <p className="text-sm text-red-500 mt-2">Selected year cannot be before 2020</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.selected_year_cannot_before_2020')}</p>
                             )}
                             {timePeriod === 'yearly' && selectedYear !== undefined && selectedYear < 2020 && (
-                                <p className="text-sm text-red-500 mt-2">Selected year cannot be before 2020</p>
+                                <p className="text-sm text-red-500 mt-2">{t('admin.selected_year_cannot_before_2020')}</p>
                             )}
                         </CardHeader>
                         <CardContent>
@@ -1136,7 +1136,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                      if (active && payload && payload.length) {
                                                          return (
                                                              <div className="bg-white p-3 border border-gray-200 rounded shadow-lg animate-in fade-in-0 zoom-in-95 duration-200">
-                                                                 <p className="font-semibold text-gray-800">{`Date: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
+                                                                 <p className="font-semibold text-gray-800">{`${t('admin.date')}: ${label ? dayjs(label).format('MMMM D, YYYY') : 'Unknown'}`}</p>
                                                                  {payload.map((entry, index) => {
                                                                      if (entry.value && entry.dataKey) {
                                                                          // Parse the product key to show product and category separately
@@ -1242,7 +1242,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                      </ResponsiveContainer>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-gray-500">
-                                            <p>No data available. Please select products and price categories to view the chart.</p>
+                                            <p>{t('admin.no_data_select_products_categories')}</p>
                                     </div>
                                     );
                                 })()}
