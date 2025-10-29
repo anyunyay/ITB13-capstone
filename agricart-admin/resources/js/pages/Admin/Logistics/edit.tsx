@@ -53,7 +53,7 @@ interface Props {
 }
 
 export default function Edit({ logistic }: Props) {
-
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     React.useEffect(() => {
@@ -86,10 +86,10 @@ export default function Edit({ logistic }: Props) {
     return (
         <PermissionGuard 
             permission="edit logistics"
-            pageTitle="Edit Logistics Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Update Logistic" />
+                <Head title={t('admin.update_logistic')} />
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                     <div className="max-w-4xl mx-auto w-full">
                     <form onSubmit={handleUpdate} className='space-y-4'>

@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
   id: number;
@@ -92,6 +93,7 @@ interface ReportPageProps {
 }
 
 export default function InventoryReport({ stocks, summary, members, productTypes, filters }: ReportPageProps) {
+  const t = useTranslation();
   // Ensure member_ids is always an array
   const normalizedFilters: ReportFilters = {
     ...filters,
@@ -298,7 +300,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
 
   return (
     <AppSidebarLayout>
-      <Head title="Inventory Report" />
+      <Head title={t('admin.inventory_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}

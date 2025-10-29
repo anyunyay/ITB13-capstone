@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { SafeImage } from '@/lib/image-utils';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Member {
   id: number;
@@ -48,6 +49,7 @@ interface ReportPageProps {
 }
 
 export default function MembershipReport({ members, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
@@ -171,10 +173,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   return (
     <PermissionGuard 
       permission="generate membership report"
-      pageTitle="Membership Report Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title="Membership Report" />
+        <Head title={t('admin.membership_report')} />
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
             {/* Header */}

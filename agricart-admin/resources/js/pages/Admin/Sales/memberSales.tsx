@@ -10,6 +10,7 @@ import { PermissionGuard } from '@/components/permission-guard';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { DollarSign, ShoppingCart, TrendingUp, Users, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface MemberSale {
   member_id: number;
@@ -34,6 +35,7 @@ interface MemberSalesPageProps {
 }
 
 export default function MemberSales({ memberSales, filters }: MemberSalesPageProps) {
+  const t = useTranslation();
   const { can } = usePermissions();
   const [localFilters, setLocalFilters] = useState(filters);
 
@@ -96,10 +98,10 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
   return (
     <PermissionGuard 
       permissions={['view sales']}
-      pageTitle="Member Sales Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title="Member Sales" />
+        <Head title={t('admin.member_sales')} />
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>

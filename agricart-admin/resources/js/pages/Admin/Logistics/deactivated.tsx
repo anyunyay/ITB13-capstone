@@ -26,6 +26,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Logistic } from '@/types/logistics';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps extends SharedData {
     flash: {
@@ -36,6 +37,7 @@ interface PageProps extends SharedData {
 }
 
 export default function Deactivated() {
+    const t = useTranslation();
     const { deactivatedLogistics, flash, auth } = usePage<PageProps>().props;
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
@@ -70,10 +72,10 @@ export default function Deactivated() {
     return (
         <PermissionGuard 
             permissions={['view logistics', 'edit logistics']}
-            pageTitle="Logistics Management Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Deactivated Logistics" />
+                <Head title={t('admin.deactivated_logistics')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Flash Messages */}

@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -51,6 +52,7 @@ interface PageProps {
 }
 
 export default function RemovedStockIndex() {
+    const t = useTranslation();
     const { stocks = [], flash, auth } = usePage<PageProps & SharedData>().props;
     const { post, processing } = useForm();
 
@@ -70,9 +72,9 @@ export default function RemovedStockIndex() {
 
     return (
         <AppLayout>
-            <Head title="Removed Stock" />
+            <Head title={t('admin.removed_stock')} />
             <div className="m-4">
-                <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
+                <Link href={route('inventory.index')}><Button>{t('admin.back_to_inventory')}</Button></Link>
 
                 {flash.message && (
                     <Alert className="mt-4">

@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Logistic {
   id: number;
@@ -48,6 +49,7 @@ interface ReportPageProps {
 }
 
 export default function LogisticReport({ logistics, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   // Ensure filters are properly normalized
   const normalizedFilters: ReportFilters = {
     ...filters,

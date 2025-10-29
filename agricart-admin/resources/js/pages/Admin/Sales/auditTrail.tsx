@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Filter, Search } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface AuditTrail {
     id: number;
@@ -65,6 +66,7 @@ interface PageProps {
 }
 
 export default function AuditTrail({ auditTrails, members, summary, filters }: PageProps) {
+    const t = useTranslation();
     const [localFilters, setLocalFilters] = useState<Filters>(filters);
 
     const handleFilterChange = (key: keyof Filters, value: string) => {
@@ -122,10 +124,10 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
     return (
         <PermissionGuard 
             permissions={['view sales']}
-            pageTitle="Audit Trail Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Stock Audit Trail" />
+                <Head title={t('admin.stock_audit_trail')} />
                 
                 <div className="space-y-6">
                     {/* Header */}

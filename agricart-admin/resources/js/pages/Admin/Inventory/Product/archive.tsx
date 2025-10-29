@@ -24,6 +24,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -43,6 +44,7 @@ interface PageProps extends SharedData {
 }
 
 export default function Archive() {
+    const t = useTranslation();
     const { archivedProducts, flash, auth } = usePage<PageProps>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
@@ -66,9 +68,9 @@ export default function Archive() {
 
     return (
         <AppLayout>
-            <Head title="Archived Inventory" />
+            <Head title={t('admin.archived_inventory')} />
             <div className="m-4">
-                <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
+                <Link href={route('inventory.index')}><Button>{t('admin.back_to_inventory')}</Button></Link>
 
                 <div className='m-4'>
                     <div>

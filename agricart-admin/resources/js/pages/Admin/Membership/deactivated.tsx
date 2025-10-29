@@ -25,6 +25,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Member {
     id: number;
@@ -55,7 +56,7 @@ interface PageProps {
 }
 
 export default function Deactivated() {
-
+    const t = useTranslation();
     const { deactivatedMembers, flash, auth } = usePage<PageProps & SharedData>().props;
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -90,10 +91,10 @@ export default function Deactivated() {
     return (
         <PermissionGuard 
             permissions={['view membership', 'edit members']}
-            pageTitle="Membership Management Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Deactivated Members" />
+                <Head title={t('admin.deactivated_members')} />
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold">Deactivated Members</h1>

@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -54,6 +54,7 @@ interface PageProps {
 }
 
 export default function EditStock({ product, stock, members }: Props) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -76,7 +77,7 @@ export default function EditStock({ product, stock, members }: Props) {
 
     return (
         <AppLayout>
-            <Head title="Edit Stock" />
+            <Head title={t('admin.edit_stock')} />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>
                     {/* Display Error */}

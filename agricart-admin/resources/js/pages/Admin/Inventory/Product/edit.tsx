@@ -8,6 +8,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { OctagonAlert } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export default function Edit({product}: Props) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export default function Edit({product}: Props) {
 
     return (
         <AppLayout>
-            <Head title="Update Product"/>
+            <Head title={t('admin.update_product')}/>
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}

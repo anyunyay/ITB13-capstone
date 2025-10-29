@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -68,14 +69,14 @@ export default function soldIndex() {
 
     return (
         <AppLayout>
-            <Head title="Sold Stock" />
+            <Head title={t('admin.sold_stock')} />
             <div className="m-4">
-                <Link href={route('inventory.index')}><Button>Back to Inventory</Button></Link>
+                <Link href={route('inventory.index')}><Button>{t('admin.back_to_inventory')}</Button></Link>
 
                 {stocks.length > 0 ? (
                     <div className='w-full pt-8'>
                         <Table>
-                            <TableCaption>List of sold stocks</TableCaption>
+                            <TableCaption>{t('admin.list_of_sold_stocks')}</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="text-center">Stock ID</TableHead>

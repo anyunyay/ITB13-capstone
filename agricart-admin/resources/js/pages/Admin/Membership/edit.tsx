@@ -15,6 +15,7 @@ import { PermissionGuard } from '@/components/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
+import { useTranslation } from '@/hooks/use-translation';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -58,6 +59,7 @@ interface Props {
 }
 
 export default function Edit({member}: Props) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
@@ -135,10 +137,10 @@ export default function Edit({member}: Props) {
     return (
         <PermissionGuard 
             permission="edit members"
-            pageTitle="Edit Member Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Update Member"/>
+                <Head title={t('admin.update_member')}/>
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                 <form onSubmit={handleUpdate} className='space-y-4'>
                     {/* Display Error */}
