@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Logistic {
   id: number;
@@ -30,26 +31,27 @@ export const OrderReady = ({
   onMarkReady,
   onConfirmMarkReady
 }: OrderReadyProps) => {
+  const t = useTranslation();
   if (!logistic) return null;
 
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-foreground">Order Ready</CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground">{t('admin.order_ready')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {deliveryStatus === 'pending' && (
             <>
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm font-medium text-yellow-800">
-                  Order is approved and ready to be prepared for pickup
+                  {t('admin.order_approved_ready_prepare')}
                 </p>
                 <p className="text-sm text-yellow-600">
-                  Mark the order as ready when it has been prepared and is waiting for pickup.
+                  {t('admin.mark_order_ready_when_prepared')}
                 </p>
                 <p className="text-xs text-yellow-500 mt-2">
-                  Assigned to: {logistic.name}
+                  {t('admin.assigned_to')}: {logistic.name}
                   {logistic.contact_number && ` (${logistic.contact_number})`}
                 </p>
               </div>
@@ -59,7 +61,7 @@ export const OrderReady = ({
                 variant="default"
                 onClick={onMarkReady}
               >
-                Mark Order as Ready
+                {t('admin.mark_order_as_ready')}
               </Button>
             </>
           )}
@@ -68,18 +70,18 @@ export const OrderReady = ({
             <>
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm font-medium text-green-800">
-                  ✓ Order is ready for pickup
+                  ✓ {t('admin.order_ready_for_pickup')}
                 </p>
                 <p className="text-sm text-green-600">
-                  The order has been prepared and is ready for the logistic provider to collect.
+                  {t('admin.order_prepared_ready_collect')}
                 </p>
                 {deliveryReadyTime && (
                   <p className="text-xs text-green-500 mt-2">
-                    Ready since: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
+                    {t('admin.ready_since')}: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                   </p>
                 )}
                 <p className="text-xs text-green-500 mt-1">
-                  Assigned to: {logistic.name}
+                  {t('admin.assigned_to')}: {logistic.name}
                   {logistic.contact_number && ` (${logistic.contact_number})`}
                 </p>
               </div>
@@ -89,7 +91,7 @@ export const OrderReady = ({
                 variant="outline"
                 disabled
               >
-                ✓ Ready to Pick Up
+                ✓ {t('admin.ready_to_pick_up')}
               </Button>
             </>
           )}
@@ -98,18 +100,18 @@ export const OrderReady = ({
             <>
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm font-medium text-green-800">
-                  ✓ Order has been processed
+                  ✓ {t('admin.order_has_been_processed')}
                 </p>
                 <p className="text-sm text-green-600">
-                  This order has moved beyond the ready stage.
+                  {t('admin.order_moved_beyond_ready')}
                 </p>
                 {deliveryReadyTime && (
                   <p className="text-xs text-green-500 mt-2">
-                    Was ready: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
+                    {t('admin.was_ready')}: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                   </p>
                 )}
                 <p className="text-xs text-green-500 mt-1">
-                  Assigned to: {logistic.name}
+                  {t('admin.assigned_to')}: {logistic.name}
                   {logistic.contact_number && ` (${logistic.contact_number})`}
                 </p>
               </div>
@@ -119,7 +121,7 @@ export const OrderReady = ({
                 variant="outline"
                 disabled
               >
-                ✓ Ready to Pick Up
+                ✓ {t('admin.ready_to_pick_up')}
               </Button>
             </>
           )}
@@ -130,27 +132,27 @@ export const OrderReady = ({
       <Dialog open={markReadyDialogOpen} onOpenChange={setMarkReadyDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mark Order as Ready</DialogTitle>
+            <DialogTitle>{t('admin.mark_order_as_ready')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to mark this order as ready for pickup? This will notify the logistic provider that the order is prepared and ready for collection.
+              {t('admin.confirm_mark_order_ready')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Order #{orderId}</strong> will be marked as ready for pickup.
+                <strong>{t('admin.order_number', { id: orderId })}</strong> {t('admin.will_be_marked_ready_pickup')}.
               </p>
               <p className="text-sm text-blue-600 mt-1">
-                The logistic provider ({logistic?.name}) will be notified that the order is ready for collection.
+                {t('admin.logistic_provider_will_be_notified', { name: logistic?.name })}
               </p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMarkReadyDialogOpen(false)}>
-              Cancel
+              {t('ui.cancel')}
             </Button>
             <Button onClick={onConfirmMarkReady}>
-              Mark as Ready
+              {t('admin.mark_as_ready')}
             </Button>
           </DialogFooter>
         </DialogContent>

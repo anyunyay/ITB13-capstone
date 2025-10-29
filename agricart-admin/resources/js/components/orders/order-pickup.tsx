@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Logistic {
   id: number;
@@ -41,12 +42,13 @@ export const OrderPickup = ({
   pickedUpForm,
   onMarkPickedUp
 }: OrderPickupProps) => {
+  const t = useTranslation();
   if (!logistic || deliveryStatus === 'pending') return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-foreground">Order Picked Up</CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground">{t('admin.order_picked_up')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className={`p-4 rounded-lg ${
@@ -57,18 +59,18 @@ export const OrderPickup = ({
           {deliveryStatus === 'ready_to_pickup' && (
             <>
               <p className="text-sm font-medium text-green-800">
-                ✓ Order is ready for pickup
+                ✓ {t('admin.order_ready_for_pickup')}
               </p>
               <p className="text-sm text-green-600">
-                The order has been prepared and is ready for the logistic provider to collect.
+                {t('admin.order_prepared_ready_collect')}
               </p>
               {deliveryReadyTime && (
                 <p className="text-xs text-green-500 mt-2">
-                  Ready since: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
+                  {t('admin.ready_since')}: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                 </p>
               )}
               <p className="text-xs text-green-500 mt-1">
-                Assigned to: {logistic.name}
+                {t('admin.assigned_to')}: {logistic.name}
                 {logistic.contact_number && ` (${logistic.contact_number})`}
               </p>
             </>
@@ -76,23 +78,23 @@ export const OrderPickup = ({
           {deliveryStatus === 'out_for_delivery' && (
             <>
               <p className="text-sm font-medium text-blue-800">
-                ✓ Order is out for delivery
+                ✓ {t('admin.order_out_for_delivery')}
               </p>
               <p className="text-sm text-blue-600">
-                The order has been picked up and is currently being delivered to the customer.
+                {t('admin.order_picked_up_delivering')}
               </p>
               {deliveryPackedTime && (
                 <p className="text-xs text-blue-500 mt-2">
-                  Picked up: {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
+                  {t('admin.picked_up_time')}: {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
                 </p>
               )}
               {deliveryReadyTime && (
                 <p className="text-xs text-blue-500 mt-1">
-                  Was ready: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
+                  {t('admin.was_ready')}: {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                 </p>
               )}
               <p className="text-xs text-blue-500 mt-1">
-                Assigned to: {logistic.name}
+                {t('admin.assigned_to')}: {logistic.name}
                 {logistic.contact_number && ` (${logistic.contact_number})`}
               </p>
             </>
@@ -100,23 +102,23 @@ export const OrderPickup = ({
           {deliveryStatus === 'delivered' && (
             <>
               <p className="text-sm font-medium text-green-800">
-                ✓ Order has been delivered
+                ✓ {t('admin.order_delivered')}
               </p>
               <p className="text-sm text-green-600">
-                The order has been successfully delivered to the customer.
+                {t('admin.order_successfully_delivered')}
               </p>
               {deliveredTime && (
                 <p className="text-xs text-green-500 mt-2">
-                  Delivered: {format(new Date(deliveredTime), 'MMM dd, yyyy HH:mm')}
+                  {t('admin.delivered_time')}: {format(new Date(deliveredTime), 'MMM dd, yyyy HH:mm')}
                 </p>
               )}
               {deliveryPackedTime && (
                 <p className="text-xs text-green-500 mt-1">
-                  Picked up: {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
+                  {t('admin.picked_up_time')}: {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
                 </p>
               )}
               <p className="text-xs text-green-500 mt-1">
-                Assigned to: {logistic.name}
+                {t('admin.assigned_to')}: {logistic.name}
                 {logistic.contact_number && ` (${logistic.contact_number})`}
               </p>
             </>
@@ -127,30 +129,30 @@ export const OrderPickup = ({
           <Dialog open={pickedUpDialogOpen} onOpenChange={setPickedUpDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full" variant="default">
-                Mark Order as Picked Up
+                {t('admin.mark_order_as_picked_up')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Mark Order as Picked Up</DialogTitle>
+                <DialogTitle>{t('admin.mark_order_as_picked_up')}</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to mark this order as picked up? This will automatically set the delivery status to "Out for Delivery" and notify the customer that their order is in transit.
+                  {t('admin.confirm_mark_order_picked_up')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">
-                    Type "Confirm Pick Up" to finalize this action *
+                    {t('admin.type_confirm_pickup_to_finalize')}
                   </label>
                   <Input
                     type="text"
                     value={pickupConfirmationText}
                     onChange={(e) => setPickupConfirmationText(e.target.value)}
-                    placeholder="Confirm Pick Up"
+                    placeholder={t('admin.confirm_pick_up')}
                     className="mt-2"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    This action cannot be undone. The order will be marked as picked up and delivery status will be set to "Out for Delivery".
+                    {t('admin.mark_picked_up_warning')}
                   </p>
                 </div>
               </div>
@@ -162,13 +164,13 @@ export const OrderPickup = ({
                     setPickupConfirmationText('');
                   }}
                 >
-                  Cancel
+                  {t('ui.cancel')}
                 </Button>
                 <Button 
                   onClick={onMarkPickedUp} 
-                  disabled={pickedUpForm.processing || pickupConfirmationText !== 'Confirm Pick Up'}
+                  disabled={pickedUpForm.processing || pickupConfirmationText !== t('admin.confirm_pick_up')}
                 >
-                  {pickedUpForm.processing ? 'Marking...' : 'Mark as Picked Up'}
+                  {pickedUpForm.processing ? t('admin.marking') : t('admin.mark_order_as_picked_up')}
                 </Button>
               </DialogFooter>
             </DialogContent>

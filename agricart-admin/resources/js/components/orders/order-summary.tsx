@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface DeliveryTimeline {
   ready_duration?: number;
@@ -54,20 +55,21 @@ export const OrderSummary = ({
   getStatusBadge,
   getDeliveryStatusBadge
 }: OrderSummaryProps) => {
+  const t = useTranslation();
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-foreground">Order Summary</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">{t('admin.order_summary')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-muted-foreground">Status</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('admin.status')}</span>
             {getStatusBadge(status)}
           </div>
           {status === 'approved' && deliveryStatus && (
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground">Delivery Status</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.delivery_status')}</span>
               <div className="flex items-center gap-2">
                 {getDeliveryStatusBadge(deliveryStatus)}
                 {deliveryStatus === 'out_for_delivery' && (
@@ -83,7 +85,7 @@ export const OrderSummary = ({
             <>
               {deliveryReadyTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Ready At</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.ready_at')}</span>
                   <span className="text-sm text-primary">
                     {format(new Date(deliveryReadyTime), 'MMM dd, yyyy HH:mm')}
                   </span>
@@ -91,7 +93,7 @@ export const OrderSummary = ({
               )}
               {deliveryPackedTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Packed At</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.packed_at')}</span>
                   <span className="text-sm text-secondary">
                     {format(new Date(deliveryPackedTime), 'MMM dd, yyyy HH:mm')}
                   </span>
@@ -99,7 +101,7 @@ export const OrderSummary = ({
               )}
               {deliveredTime && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Delivered At</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.delivered_at')}</span>
                   <span className="text-sm text-primary">
                     {format(new Date(deliveredTime), 'MMM dd, yyyy HH:mm')}
                   </span>
@@ -107,7 +109,7 @@ export const OrderSummary = ({
               )}
               {deliveryTimeline.ready_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Ready Duration</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.ready_duration')}</span>
                   <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.ready_duration / 60)}h {deliveryTimeline.ready_duration % 60}m
                   </span>
@@ -115,7 +117,7 @@ export const OrderSummary = ({
               )}
               {deliveryTimeline.packing_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Packing Duration</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.packing_duration')}</span>
                   <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.packing_duration / 60)}h {deliveryTimeline.packing_duration % 60}m
                   </span>
@@ -123,7 +125,7 @@ export const OrderSummary = ({
               )}
               {deliveryTimeline.delivery_duration && (
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Delivery Duration</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t('admin.delivery_duration')}</span>
                   <span className="text-sm text-foreground">
                     {Math.floor(deliveryTimeline.delivery_duration / 60)}h {deliveryTimeline.delivery_duration % 60}m
                   </span>
@@ -141,35 +143,35 @@ export const OrderSummary = ({
           )}
           <div className="border-t border-border pt-3 mt-4">
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Items</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.items')}</span>
               <span className="text-sm text-foreground font-medium">{auditTrailLength}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.subtotal')}</span>
               <span className="text-sm text-foreground">₱{Number(subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Co-op Share (10%)</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.coop_share_percent')}</span>
               <span className="text-sm font-medium text-primary">₱{Number(coopShare || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Revenue (100%)</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.revenue_percent')}</span>
               <span className="text-sm font-medium text-secondary">₱{Number(memberShare || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-semibold border-t border-border pt-2 mt-2">
-              <span className="text-sm font-semibold text-foreground">Total Amount</span>
+              <span className="text-sm font-semibold text-foreground">{t('admin.total_amount')}</span>
               <span className="text-sm font-semibold text-foreground">₱{totalAmount.toFixed(2)}</span>
             </div>
           </div>
           {admin && (
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Processed by</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.processed_by')}</span>
               <span className="text-sm text-foreground">{admin.name}</span>
             </div>
           )}
           {logistic && (
             <div className="flex justify-between">
-              <span className="text-sm font-medium text-muted-foreground">Assigned to</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('admin.assigned_to')}</span>
               <span className="text-sm text-foreground">{logistic.name}</span>
             </div>
           )}
