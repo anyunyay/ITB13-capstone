@@ -303,11 +303,45 @@ class StaffController extends Controller
      */
     public function generateReport(Request $request)
     {
-        // Get all staff members with their permissions
-        $staff = User::where('type', 'staff')
-            ->with('permissions')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $status = $request->get('status', 'all');
+        $search = $request->get('search');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
+
+        $query = User::where('type', 'staff')->with('permissions');
+
+        // Filter by date range (based on staff creation date)
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Filter by status
+        if ($status !== 'all') {
+            if ($status === 'active') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($status === 'inactive') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        // Search functionality
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%")
+                  ->orWhereHas('permissions', function($permQuery) use ($search) {
+                      $permQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $staff = $query->orderBy('created_at', 'desc')->get();
 
         // Calculate summary statistics
         $summary = [
@@ -319,20 +353,23 @@ class StaffController extends Controller
             })->count(),
         ];
 
-        // Check if format is specified for export
-        if ($request->filled('format')) {
-            $display = $request->get('display', false);
-            if ($request->format === 'pdf') {
-                return $this->exportToPdf($staff, $summary, $display);
-            } elseif ($request->format === 'csv') {
-                return $this->exportToCsv($staff, $summary, $display);
-            }
+        // If export is requested
+        if ($format === 'csv') {
+            return $this->exportToCsv($staff, $summary, $display);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($staff, $summary, $display);
         }
 
         // Return Inertia page for report view
         return Inertia::render('Admin/Staff/report', [
             'staff' => $staff,
             'summary' => $summary,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => $status,
+                'search' => $search,
+            ],
         ]);
     }
 
