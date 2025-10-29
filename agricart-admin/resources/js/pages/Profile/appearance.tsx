@@ -7,9 +7,8 @@ import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLanguage } from '@/hooks/use-language';
-import { __ } from '@/lib/i18n';
+import { __ } from '@/lib/translations';
 import { cn } from '@/lib/utils';
-import { debugLanguageSwitch } from '@/utils/debugLanguage';
 
 interface User {
     id: number;
@@ -81,8 +80,6 @@ export default function AppearancePage() {
     const handleLanguageChange = async (newLanguage: 'en' | 'fil') => {
         try {
             setMessage(null);
-            console.log('🔄 Starting language change to:', newLanguage);
-            debugLanguageSwitch(); // Debug current state
             await updateLanguage(newLanguage);
             setMessage({ type: 'success', text: __('appearance.language_updated', language) });
         } catch (error) {
@@ -93,7 +90,7 @@ export default function AppearancePage() {
 
     return (
         <ProfileWrapper 
-            title={__('appearance.title', 'Appearance Settings')}
+            title="Appearance Settings"
         >
             <div className="space-y-6">
                 {/* Success/Error Message */}
@@ -120,10 +117,10 @@ export default function AppearancePage() {
                             </div>
                             <div>
                                 <CardTitle className="text-green-600 dark:text-green-400">
-                                    {__('appearance.theme_preferences', 'Theme Preferences')}
+                                    Theme Preferences
                                 </CardTitle>
                                 <CardDescription>
-                                    {__('appearance.theme_description', 'Choose how you want the application to look. Your preference will be saved and applied across all devices.')}
+                                    Choose how you want the application to look. Your preference will be saved and applied across all devices.
                                 </CardDescription>
                             </div>
                         </div>
