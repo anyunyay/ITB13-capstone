@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usePage, router } from '@inertiajs/react';
+import { useLanguageChangeHandler } from '@/utils/languageChangeHandler';
 
 type Language = 'en' | 'fil';
 
@@ -16,6 +17,7 @@ interface PageProps {
 
 export function useLanguage(): LanguageHook {
     const { currentLanguage } = usePage<PageProps>().props;
+    const languageHandler = useLanguageChangeHandler();
     const [language, setLanguage] = useState<Language>((currentLanguage as Language) || 'en');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -26,44 +28,36 @@ export function useLanguage(): LanguageHook {
         }
     }, [currentLanguage]);
 
+    // Listen for language changes from the global handler
+    useEffect(() => {
+        const removeListener = languageHandler.addListener((newLanguage: string) => {
+            setLanguage(newLanguage as Language);
+        });
+        
+        return removeListener;
+    }, [languageHandler]);
+
     const updateLanguage = async (newLanguage: Language) => {
         if (newLanguage === language) return;
 
         setIsLoading(true);
         
-        return new Promise<void>((resolve, reject) => {
-            router.post('/language/switch', 
-                { language: newLanguage },
-                {
-                    onSuccess: (page) => {
-                        console.log('Language switch successful:', page);
-                        setLanguage(newLanguage);
-                        // Reload the page to apply the new language
-                        window.location.reload();
-                        resolve();
-                    },
-                    onError: (errors) => {
-                        console.error('Language switch failed with errors:', errors);
-                        setIsLoading(false);
-                        
-                        // Extract error message
-                        let errorMessage = 'Failed to update language preference. Please try again.';
-                        if (errors.language) {
-                            errorMessage = Array.isArray(errors.language) ? errors.language[0] : errors.language;
-                        } else if (errors.message) {
-                            errorMessage = errors.message;
-                        }
-                        
-                        reject(new Error(errorMessage));
-                    },
-                    onFinish: () => {
-                        console.log('Language switch request finished');
-                    },
-                    preserveScroll: true,
-                    preserveState: true,
+        try {
+            await languageHandler.changeLanguage(newLanguage, {
+                immediate: false, // Use page reload for full translation update
+                onSuccess: () => {
+                    setLanguage(newLanguage);
+                },
+                onError: (error: any) => {
+                    setIsLoading(false);
+                    throw error;
                 }
-            );
-        });
+            });
+        } catch (error) {
+            setIsLoading(false);
+            console.error('Language switch failed:', error);
+            throw new Error('Failed to update language preference. Please try again.');
+        }
     };
 
     return {

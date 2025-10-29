@@ -3,6 +3,7 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { initializeLanguageHandler } from '@/utils/languageChangeHandler';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -37,6 +38,10 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
+
+        // Initialize language handler with current language from props
+        const initialLanguage = props.initialPage?.props?.currentLanguage || 'en';
+        initializeLanguageHandler(initialLanguage);
 
         root.render(<App {...props} />);
     },
