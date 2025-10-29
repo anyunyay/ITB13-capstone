@@ -1,14 +1,18 @@
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon, DollarSign, TrendingUp } from 'lucide-react';
 import dayjs from 'dayjs';
+import { format } from 'date-fns';
 import { useState } from 'react';
-import { DollarSign, ShoppingCart, TrendingUp, Package, ArrowLeft, FileText, Download } from 'lucide-react';
-import { Link } from '@inertiajs/react';
-import { MemberHeader } from '@/components/member-header';
+import { ViewToggle } from '@/components/inventory/view-toggle';
 
 interface ProductSale {
   product_id: number;
@@ -23,6 +27,16 @@ interface ProductSale {
   customers: string[];
 }
 
+interface OrderProduct {
+  product_name: string;
+  quantity: number;
+  category: string;
+  price_per_unit: number;
+  total_price: number;
+  cogs: number;
+  gross_profit: number;
+}
+
 interface OrderDetail {
   order_id: number;
   customer_name: string;
@@ -32,15 +46,7 @@ interface OrderDetail {
   total_cogs: number;
   total_gross_profit: number;
   created_at: string;
-  products: {
-    product_name: string;
-    quantity: number;
-    category: string;
-    price_per_unit: number;
-    total_price: number;
-    cogs: number;
-    gross_profit: number;
-  }[];
+  products: OrderProduct[];
 }
 
 interface SalesData {
@@ -80,17 +86,58 @@ interface ReportPageProps {
 
 export default function MemberRevenueReport({ salesData, summary, filters }: ReportPageProps) {
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
+  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  
+  // Date picker states
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    localFilters.start_date ? new Date(localFilters.start_date) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    localFilters.end_date ? new Date(localFilters.end_date) : undefined
+  );
 
-  const handleFilterChange = (key: keyof ReportFilters, value: string) => {
-    setLocalFilters(prev => ({ ...prev, [key]: value }));
+  // Date handling functions
+  const handleStartDateChange = (date: Date | undefined) => {
+    setStartDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      start_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setEndDate(date);
+    setLocalFilters(prev => ({
+      ...prev,
+      end_date: date ? format(date, 'yyyy-MM-dd') : ''
+    }));
+  };
+
+  const getDateRangeDisplay = () => {
+    if (!startDate && !endDate) return 'No date range selected';
+    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
+    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+  };
+
+  const getDurationDisplay = () => {
+    if (!startDate || !endDate) return '';
+    const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
+    if (diffInDays === 1) return '1 day';
+    if (diffInDays === 7) return '1 week';
+    if (diffInDays === 30) return '1 month';
+    if (diffInDays < 7) return `${diffInDays} days`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
+    return `${Math.round(diffInDays / 30)} months`;
   };
 
   const applyFilters = () => {
-    const params = new URLSearchParams();
-    if (localFilters.start_date) params.append('start_date', localFilters.start_date);
-    if (localFilters.end_date) params.append('end_date', localFilters.end_date);
+    const params: Record<string, any> = {};
+    if (localFilters.start_date) params.start_date = localFilters.start_date;
+    if (localFilters.end_date) params.end_date = localFilters.end_date;
     
-    router.get(route('member.revenueReport'), Object.fromEntries(params));
+    router.get(route('member.revenueReport'), params);
   };
 
   const exportReport = (format: 'csv' | 'pdf') => {
@@ -135,317 +182,569 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <MemberHeader />
-      <div className="p-6 pt-25">
-        <Head title="Revenue Report" />
-        
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button asChild variant="outline" size="sm">
-              <Link href={route('member.dashboard')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Link>
-            </Button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Revenue Report</h1>
-              <p className="text-muted-foreground mt-2">Track your sales performance and revenue</p>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => exportReport('csv')} variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
-              <Button onClick={() => exportReport('pdf')} variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Export PDF
-              </Button>
-            </div>
-          </div>
-        </div>
+  const clearFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setLocalFilters({
+      start_date: '',
+      end_date: ''
+    });
+  };
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-foreground">Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="start_date">Start Date</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={localFilters.start_date || ''}
-                  onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                />
+  const hasActiveFilters = () => {
+    return localFilters.start_date || localFilters.end_date;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  return (
+    <AppSidebarLayout>
+      <Head title="Revenue Report" />
+      <div className="min-h-screen bg-background">
+        <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
+                  <TrendingUp className="h-8 w-8" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">Revenue Report</h1>
+                  <p className="text-muted-foreground mt-1">
+                    Generate comprehensive revenue reports and analytics
+                  </p>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="end_date">End Date</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={localFilters.end_date || ''}
-                  onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button onClick={applyFilters} className="w-full">
-                  Apply Filters
+              <div className="flex gap-2 items-center">
+                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Export CSV
+                </Button>
+                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Export PDF
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-green-400" />
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600">{formatCurrency(summary.total_revenue)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Gross revenue earned</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">{summary.total_orders}</div>
+                <p className="text-xs text-muted-foreground mt-1">Completed orders</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Units Sold</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-secondary">{summary.total_quantity_sold}</div>
+                <p className="text-xs text-muted-foreground mt-1">Total quantity sold</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Gross Profit</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600">{formatCurrency(summary.total_gross_profit)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Revenue minus COGS</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Avg Order Value</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600">{formatCurrency(summary.average_order_value)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Average per order</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total COGS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-600">{formatCurrency(summary.total_cogs)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Cost of goods sold</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Products Sold</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-accent">{summary.total_products}</div>
+                <p className="text-xs text-muted-foreground mt-1">Unique products</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Profit Margin</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-indigo-600">
+                  {summary.total_revenue > 0 ? `${((summary.total_gross_profit / summary.total_revenue) * 100).toFixed(1)}%` : '0%'}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Gross profit margin</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Advanced Filters - Collapsible */}
+          <Card className="shadow-sm">
+            <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-xl">Date Range Filter</CardTitle>
+                      {hasActiveFilters() && (
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                          Active
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {hasActiveFilters() && (
+                        <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                          <X className="h-4 w-4" />
+                          Clear Filters
+                        </Button>
+                      )}
+                      <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent>
+                  {/* Date Range Summary */}
+                  {(startDate || endDate) && (
+                    <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                          {getDurationDisplay() && (
+                            <p className="text-xs text-primary/70 mt-1">
+                              Duration: {getDurationDisplay()}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setStartDate(undefined);
+                            setEndDate(undefined);
+                            setLocalFilters(prev => ({
+                              ...prev,
+                              start_date: '',
+                              end_date: ''
+                            }));
+                          }}
+                          className="text-xs"
+                        >
+                          <X className="h-3 w-3 mr-1" />
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Filter Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Start Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={handleStartDateChange}
+                            initialFocus
+                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">End Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={endDate}
+                            onSelect={handleEndDateChange}
+                            initialFocus
+                            disabled={(date) => 
+                              date > new Date() || 
+                              date < new Date("1900-01-01") || 
+                              (startDate ? date < startDate : false)
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button onClick={applyFilters} className="bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
+                      Apply Filters
+                    </Button>
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+
+          {/* Product Sales Breakdown */}
+          <Card className="shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Product Sales Breakdown ({salesData.productSales.length} products)</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-muted-foreground">
+                    {salesData.productSales.length > 0 ? `Showing ${salesData.productSales.length} products` : 'No products found'}
+                  </div>
+                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-400">₱{Number(summary.total_revenue).toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                From {summary.total_orders} orders
-              </p>
+              {salesData.productSales.length > 0 ? (
+                <>
+                  {currentView === 'cards' ? (
+                    <div className="space-y-4">
+                      {salesData.productSales.map((product) => (
+                        <ProductCard key={product.product_id} product={product} />
+                      ))}
+                    </div>
+                  ) : (
+                    <ProductTable products={salesData.productSales} />
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                      <TrendingUp className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">No sales data found</h3>
+                    <p className="text-muted-foreground max-w-md">
+                      {hasActiveFilters() 
+                        ? 'No sales match your current filter criteria. Try adjusting your date range to see more results.'
+                        : 'No sales data available for the selected time period.'
+                      }
+                    </p>
+                    {hasActiveFilters() && (
+                      <Button onClick={clearFilters} variant="outline" className="mt-4">
+                        Clear Filters
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">Total Orders</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-blue-400" />
+          {/* Order Details */}
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-xl">Order Details ({salesData.orderDetails.length} orders)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">{summary.total_orders}</div>
-              <p className="text-xs text-muted-foreground">
-                Completed orders
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">Average Order Value</CardTitle>
-              <TrendingUp className="h-4 w-4 text-yellow-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">₱{Number(summary.average_order_value).toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                Per order
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">Quantity Sold</CardTitle>
-              <Package className="h-4 w-4 text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{summary.total_quantity_sold}</div>
-              <p className="text-xs text-muted-foreground">
-                Total units sold
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
-              <TrendingUp className="h-4 w-4 text-orange-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-400">₱{Number(summary.total_cogs || 0).toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                Cost of goods sold
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-400">₱{Number(summary.total_gross_profit || 0).toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                Revenue minus COGS
-              </p>
+              {salesData.orderDetails.length > 0 ? (
+                <OrderDetailsTable orders={salesData.orderDetails} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No order details available</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Product Sales Performance */}
-        {salesData.productSales.length > 0 && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-foreground">Product Sales Performance ({salesData.productSales.length} products)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {salesData.productSales.map((product, index) => (
-                  <ProductSaleCard key={product.product_id} product={product} index={index} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Order Details */}
-        {salesData.orderDetails.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-foreground">Order Details ({salesData.orderDetails.length} orders)</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="bg-muted border-b border-border">
-                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Order ID</th>
-                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Customer</th>
-                      <th className="px-3 py-2 text-center font-medium text-foreground/80 text-xs uppercase tracking-wider">Amount</th>
-                      <th className="px-3 py-2 text-center font-medium text-foreground/80 text-xs uppercase tracking-wider">Quantity</th>
-                      <th className="px-3 py-2 text-left font-medium text-foreground/80 text-xs uppercase tracking-wider">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {salesData.orderDetails.map((order) => (
-                      <tr key={order.order_id} className="hover:bg-muted transition-colors">
-                        <td className="px-3 py-2 whitespace-nowrap text-xs font-mono text-foreground/80">#{order.order_id}</td>
-                        <td className="px-3 py-2 max-w-xs">
-                          <div className="text-sm font-medium text-foreground truncate" title={order.customer_name}>
-                            {order.customer_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate">{order.customer_email}</div>
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900 text-green-300">
-                            ₱{Number(order.total_amount).toFixed(2)}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-center text-foreground">
-                          {order.total_quantity}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-xs text-foreground/80">
-                          {dayjs(order.created_at).format('MMM DD, YYYY')}
-                          <div className="text-xs text-muted-foreground">{dayjs(order.created_at).format('HH:mm')}</div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Empty State */}
-        {salesData.orderDetails.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
-                  <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <p className="text-muted-foreground">No sales data found for the selected filters.</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
+    </AppSidebarLayout>
+  );
+}
+
+function ProductCard({ product }: { product: ProductSale }) {
+  const formatCurrency = (amount: number) => {
+    return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const profitMargin = product.total_revenue > 0 ? ((product.total_gross_profit / product.total_revenue) * 100).toFixed(1) : '0';
+
+  return (
+    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
+              <DollarSign className="h-4 w-4" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-foreground">{product.product_name}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Category: {product.category}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+              {formatCurrency(product.total_revenue)}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              Sales Metrics
+            </h4>
+            <div className="space-y-2">
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Quantity Sold:</span> 
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  {product.total_quantity} units
+                </Badge>
+              </p>
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Price per Unit:</span> 
+                <span className="text-muted-foreground">{formatCurrency(product.price_per_unit)}</span>
+              </p>
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Sales Count:</span> 
+                <span className="text-muted-foreground">{product.sales_count} orders</span>
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 bg-secondary rounded-full"></div>
+              Financial Breakdown
+            </h4>
+            <div className="space-y-2">
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Revenue:</span> 
+                <span className="text-green-600 font-semibold">{formatCurrency(product.total_revenue)}</span>
+              </p>
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">COGS:</span> 
+                <span className="text-orange-600">{formatCurrency(product.total_cogs)}</span>
+              </p>
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Gross Profit:</span> 
+                <span className="text-blue-600 font-semibold">{formatCurrency(product.total_gross_profit)}</span>
+              </p>
+              <p className="text-sm flex items-center justify-between">
+                <span className="font-medium text-foreground">Profit Margin:</span> 
+                <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                  {profitMargin}%
+                </Badge>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {product.customers.length > 0 && (
+          <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg">
+            <h5 className="font-semibold text-sm mb-2 text-foreground flex items-center gap-2">
+              <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+              Customers ({product.customers.length})
+            </h5>
+            <div className="flex flex-wrap gap-1">
+              {product.customers.slice(0, 3).map((customer, index) => (
+                <Badge key={index} variant="outline" className="text-xs bg-secondary/10 text-secondary border-secondary/20">
+                  {customer}
+                </Badge>
+              ))}
+              {product.customers.length > 3 && (
+                <Badge variant="outline" className="text-xs bg-muted/10 text-muted-foreground border-muted/20">
+                  +{product.customers.length - 3} more
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProductTable({ products }: { products: ProductSale[] }) {
+  const formatCurrency = (amount: number) => {
+    return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Product</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Category</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Qty Sold</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Price/Unit</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Revenue</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Margin</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product, index) => (
+            <tr key={product.product_id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
+              <td className="py-3 px-4">
+                <div>
+                  <div className="font-medium text-foreground">{product.product_name}</div>
+                  <div className="text-sm text-muted-foreground">{product.sales_count} orders</div>
+                </div>
+              </td>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
+                  {product.category}
+                </Badge>
+              </td>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  {product.total_quantity}
+                </Badge>
+              </td>
+              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
+                {formatCurrency(product.price_per_unit)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm font-semibold text-green-600">
+                {formatCurrency(product.total_revenue)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm text-orange-600">
+                {formatCurrency(product.total_cogs)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm font-semibold text-blue-600">
+                {formatCurrency(product.total_gross_profit)}
+              </td>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                  {product.total_revenue > 0 ? ((product.total_gross_profit / product.total_revenue) * 100).toFixed(1) : '0'}%
+                </Badge>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function ProductSaleCard({ product, index }: { product: ProductSale; index: number }) {
-  const averageRevenue = product.sales_count > 0 ? product.total_revenue / product.sales_count : 0;
+function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
+  const formatCurrency = (amount: number) => {
+    return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   return (
-    <Card className="bg-muted border-border">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Badge variant={index < 3 ? "default" : "secondary"}>
-              #{index + 1}
-            </Badge>
-            <div>
-              <CardTitle className="text-lg text-foreground">{product.product_name}</CardTitle>
-              <p className="text-sm text-muted-foreground">{product.category}</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-400">
-              ₱{Number(product.total_revenue).toFixed(2)}
-            </div>
-            <div className="text-sm text-orange-400">
-              COGS: ₱{Number(product.total_cogs || 0).toFixed(2)}
-            </div>
-            <div className="text-sm text-green-400">
-              Gross Profit: ₱{Number(product.total_gross_profit || 0).toFixed(2)}
-            </div>
-            <p className="text-sm text-muted-foreground">{product.sales_count} sales</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <h4 className="font-semibold mb-2 text-foreground">Performance Metrics</h4>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Total Sales:</span> {product.sales_count}
-            </p>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Total Revenue:</span> ₱{Number(product.total_revenue).toFixed(2)}
-            </p>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Average Revenue:</span> ₱{Number(averageRevenue).toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2 text-foreground">Quantity & Pricing</h4>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Total Quantity:</span> {product.total_quantity}
-            </p>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Price Per Unit:</span> ₱{Number(product.price_per_unit).toFixed(2)}
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2 text-foreground">Customers</h4>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Unique Customers:</span> {product.customers.length}
-            </p>
-            <div className="text-xs text-muted-foreground mt-1">
-              {product.customers.slice(0, 3).join(', ')}
-              {product.customers.length > 3 && ` +${product.customers.length - 3} more`}
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2 text-foreground">Financial Analysis</h4>
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Total Revenue:</span> ₱{Number(product.total_revenue).toFixed(2)}
-            </p>
-            <p className="text-sm text-orange-300">
-              <span className="font-medium">COGS:</span> ₱{Number(product.total_cogs || 0).toFixed(2)}
-            </p>
-            <p className="text-sm text-green-300">
-              <span className="font-medium">Gross Profit:</span> ₱{Number(product.total_gross_profit || 0).toFixed(2)}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Order ID</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Products</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Total Qty</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Order Total</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((order, index) => (
+            <tr key={order.order_id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  #{order.order_id}
+                </Badge>
+              </td>
+              <td className="py-3 px-4">
+                <div>
+                  <div className="font-medium text-foreground">{order.customer_name}</div>
+                  <div className="text-sm text-muted-foreground">{order.customer_email}</div>
+                </div>
+              </td>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
+                  {order.products.length} items
+                </Badge>
+              </td>
+              <td className="py-3 px-4 text-center">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                  {order.total_quantity}
+                </Badge>
+              </td>
+              <td className="py-3 px-4 text-center text-sm font-semibold text-green-600">
+                {formatCurrency(order.total_amount)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm text-orange-600">
+                {formatCurrency(order.total_cogs)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm font-semibold text-blue-600">
+                {formatCurrency(order.total_gross_profit)}
+              </td>
+              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
+                {dayjs(order.created_at).format('MMM DD, YYYY')}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
