@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { router } from '@inertiajs/react';
 import { AlertTriangle, Clock } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface UrgentApprovalPopupProps {
   isOpen: boolean;

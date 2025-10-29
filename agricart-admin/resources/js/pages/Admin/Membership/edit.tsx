@@ -147,12 +147,12 @@ export default function Edit({member}: Props) {
                     {Object.keys(errors).length > 0 && (
                         <Alert variant="destructive">
                             <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>Error!</AlertTitle>
+                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
                                 <ul className="list-disc pl-4">
                                     {Object.entries(errors).map(([key, value]) => (
                                         <li key={key} className="text-sm">
-                                            {typeof value === 'string' ? value : Array.isArray(value) ? value[0] : 'An error occurred'}
+                                            {typeof value === 'string' ? value : Array.isArray(value) ? value[0] : t('admin.an_error_occurred')}
                                         </li>
                                     ))}
                                 </ul>
@@ -161,32 +161,32 @@ export default function Edit({member}: Props) {
                     )}
 
                     <div className='gap-1.5'>
-                        <Label htmlFor="member_id">Member ID</Label>
+                        <Label htmlFor="member_id">{t('admin.member_id')}</Label>
                         <Input 
                             placeholder="2411001" 
-                            value={data.member_id || 'Not assigned'} 
+                            value={data.member_id || t('admin.not_assigned')} 
                             disabled
                             className="bg-gray-50 text-gray-500"
                         />
                         <p className="text-xs text-muted-foreground">
-                            Unique identifier for the member (auto-generated)
+                            {t('admin.member_id_description')}
                         </p>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="member name">Name</Label>
-                        <Input placeholder="Member Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
+                        <Label htmlFor="member name">{t('admin.name')}</Label>
+                        <Input placeholder={t('admin.member_name_placeholder')} value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                         {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="member contact_number">Contact Number</Label>
+                        <Label htmlFor="member contact_number">{t('admin.contact_number')}</Label>
                         <Input 
                             type="tel" 
-                            placeholder="+63 9XX XXX XXXX (Philippine format only)" 
+                            placeholder={t('admin.philippine_format_only')} 
                             value={data.contact_number} 
                             onChange={(e) => setData('contact_number', e.target.value)}
                         />
                         <p className="text-xs text-muted-foreground">
-                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                            {t('admin.format_hint')}
                         </p>
                         {errors.contact_number && <p className="text-sm text-red-500 mt-1">{errors.contact_number}</p>}
                     </div>
@@ -291,7 +291,7 @@ export default function Edit({member}: Props) {
                                                 <PopoverTrigger asChild>
                                                     <Button id="date-picker" variant="ghost" className="absolute top-1/2 right-2 size-6 -translate-y-1/2" >
                                                         <CalendarIcon className="size-3.5" />
-                                                        <span className="sr-only">Select date</span>
+                                                        <span className="sr-only">{t('admin.select_date')}</span>
                                                     </Button>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
@@ -322,7 +322,7 @@ export default function Edit({member}: Props) {
                         </div>
                     </div>
                     <FileUpload
-                        label="Document Upload"
+                        label={t('admin.document_upload')}
                         currentFile={member.document}
                         onFileChange={handleFileUpload}
                         onFileRemove={handleFileRemove}
@@ -337,9 +337,9 @@ export default function Edit({member}: Props) {
                     {isUpdateDisabled && (
                         <Alert variant="destructive" className="mt-4">
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>File Upload Required</AlertTitle>
+                            <AlertTitle>{t('admin.file_upload_required')}</AlertTitle>
                             <AlertDescription>
-                                Please upload a new document before updating. The current document is marked for deletion and must be replaced.
+                                {t('admin.file_upload_required_description')}
                             </AlertDescription>
                         </Alert>
                     )}
@@ -349,7 +349,7 @@ export default function Edit({member}: Props) {
                         type="submit"
                         className={isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}
                     >
-                        Update Member Details
+                        {t('admin.update_member_details')}
                     </Button>
                 </form>
             </div>

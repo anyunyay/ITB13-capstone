@@ -78,7 +78,7 @@ export default function RemovedStockIndex() {
 
                 {flash.message && (
                     <Alert className="mt-4">
-                        <AlertTitle>Success</AlertTitle>
+                            <AlertTitle>{t('admin.success')}</AlertTitle>
                         <AlertDescription>{flash.message}</AlertDescription>
                     </Alert>
                 )}
@@ -86,16 +86,16 @@ export default function RemovedStockIndex() {
                 {stocks.length > 0 ? (
                     <div className='w-full pt-8'>
                         <Table>
-                            <TableCaption>List of recently removed stocks</TableCaption>
+                            <TableCaption>{t('admin.list_recently_removed_stocks')}</TableCaption>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-center">Stock ID</TableHead>
-                                    <TableHead className="text-center">Product Name</TableHead>
-                                    <TableHead className="text-center">Quantity</TableHead>
-                                    <TableHead className="text-center">Category</TableHead>
-                                    <TableHead className="text-center">Removal Notes</TableHead>
-                                    <TableHead className="text-center">Removed At</TableHead>
-                                    <TableHead className="text-center">Actions</TableHead>
+                                    <TableHead className="text-center">{t('admin.stock_id')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.product_name')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.quantity')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.category')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.removal_notes')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.removed_at')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -110,7 +110,7 @@ export default function RemovedStockIndex() {
                                         }</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
                                         <TableCell className="text-center max-w-xs truncate" title={stock.notes}>
-                                            {stock.notes || 'No notes'}
+                                            {stock.notes || t('admin.no_notes')}
                                         </TableCell>
                                         <TableCell className="text-center">
                                             {new Date(stock.removed_at).toLocaleString()}
@@ -122,7 +122,7 @@ export default function RemovedStockIndex() {
                                                 variant="outline"
                                                 size="sm"
                                             >
-                                                Restore
+                                                {t('admin.restore')}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -133,9 +133,9 @@ export default function RemovedStockIndex() {
                 ) : (
                     <div className="w-full pt-8 flex justify-center">
                         <Alert>
-                            <AlertTitle>No Removed Stock Data</AlertTitle>
+                            <AlertTitle>{t('admin.no_removed_stock_data')}</AlertTitle>
                             <AlertDescription>
-                                There are currently no removed stock records to display.
+                                {t('admin.no_removed_stock_records')}
                             </AlertDescription>
                         </Alert>
                     </div>

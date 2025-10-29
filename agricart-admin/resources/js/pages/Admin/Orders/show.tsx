@@ -151,13 +151,13 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
 
   // Common rejection reasons
   const rejectionReasons = [
-    'Out of stock',
-    'Insufficient stock',
-    'Invalid order details',
-    'Payment issues',
-    'Delivery area not covered',
-    'Customer request',
-    'Other'
+    t('admin.rejection_reason_out_of_stock'),
+    t('admin.rejection_reason_insufficient_stock'),
+    t('admin.rejection_reason_invalid_order_details'),
+    t('admin.rejection_reason_payment_issues'),
+    t('admin.rejection_reason_delivery_area_not_covered'),
+    t('admin.rejection_reason_customer_request'),
+    t('admin.rejection_reason_other')
   ];
 
   const approveForm = useForm({
@@ -220,13 +220,13 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('admin.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Ready to Pick Up</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default">Out for Delivery</Badge>;
+        return <Badge variant="default">{t('admin.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline">Delivered</Badge>;
+        return <Badge variant="outline">{t('admin.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -353,7 +353,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               {/* Order Items */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-foreground">Order Items</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground">{t('admin.order_items')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <OrderItemsTable

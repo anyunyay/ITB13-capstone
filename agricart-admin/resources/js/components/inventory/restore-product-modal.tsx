@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Archive, CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface RestoreProductModalProps {
     isOpen: boolean;
@@ -24,23 +25,24 @@ export const RestoreProductModal = ({
     onSubmit,
     processing
 }: RestoreProductModalProps) => {
+    const t = useTranslation();
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Archive className="h-5 w-5" />
-                        Restore Product
+                        {t('admin.restore_product')}
                     </DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to restore "{productName}"? This will move it back to active products.
+                        {t('admin.confirm_restore_product', { name: productName })}
                     </DialogDescription>
                 </DialogHeader>
                 
                 <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
                     <CheckCircle className="h-4 w-4 text-primary" />
                     <p className="text-sm text-primary">
-                        This product will be moved back to active products and will be available for stock management.
+                        {t('admin.restore_product_warning')}
                     </p>
                 </div>
                 
@@ -50,14 +52,14 @@ export const RestoreProductModal = ({
                         onClick={onClose}
                         disabled={processing}
                     >
-                        Cancel
+                        {t('ui.cancel')}
                     </Button>
                     <Button
                         variant="default"
                         onClick={onSubmit}
                         disabled={processing}
                     >
-                        {processing ? 'Restoring...' : 'Restore Product'}
+                        {processing ? t('admin.restoring') : t('admin.restore_product')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

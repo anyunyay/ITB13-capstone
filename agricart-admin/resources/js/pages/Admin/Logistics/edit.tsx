@@ -12,6 +12,7 @@ import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { SharedData } from '@/types';
+import { useTranslation } from '@/hooks/use-translation';
 
 function formatDate(date: Date | undefined) {
     if (!date) {
@@ -125,7 +126,7 @@ export default function Edit({ logistic }: Props) {
                         </div>
                         <div className='flex flex-col gap-1.5'>
                             <Label htmlFor="logistic email">Email</Label>
-                            <Input type="email" placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                            <Input type="email" placeholder={t('admin.email_address')} value={data.email} onChange={(e) => setData('email', e.target.value)} />
                             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                         </div>
                         <div className='flex flex-col gap-1.5'>

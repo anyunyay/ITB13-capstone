@@ -225,7 +225,7 @@ export default function Index() {
                                 <div className="space-y-2">
                                     <Label htmlFor="password" className="flex items-center gap-2">
                                         <Lock className="h-4 w-4" />
-                                        Password
+                                        {t('admin.password')}
                                         {validation.password.isValid ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : data.password ? (
@@ -234,7 +234,7 @@ export default function Index() {
                                     </Label>
                                     <PasswordInput
                                         id="password"
-                                        placeholder="Create a secure password"
+                                        placeholder={t('admin.create_secure_password')}
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
                                         className={validation.password.isValid ? 'border-green-500' : errors.password ? 'border-red-500' : ''}
@@ -248,7 +248,7 @@ export default function Index() {
                                                     <AlertCircle className="h-3 w-3 text-red-500" />
                                                 )}
                                                 <span className={validation.password.checks.minLength ? 'text-green-600' : 'text-red-600'}>
-                                                    At least 8 characters
+                                                    {t('admin.at_least_8_characters')}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2 text-xs">
@@ -258,7 +258,7 @@ export default function Index() {
                                                     <AlertCircle className="h-3 w-3 text-red-500" />
                                                 )}
                                                 <span className={validation.password.checks.hasUpperCase ? 'text-green-600' : 'text-red-600'}>
-                                                    One uppercase letter
+                                                    {t('admin.one_uppercase_letter')}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2 text-xs">
@@ -268,7 +268,7 @@ export default function Index() {
                                                     <AlertCircle className="h-3 w-3 text-red-500" />
                                                 )}
                                                 <span className={validation.password.checks.hasLowerCase ? 'text-green-600' : 'text-red-600'}>
-                                                    One lowercase letter
+                                                    {t('admin.one_lowercase_letter')}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2 text-xs">
@@ -278,7 +278,7 @@ export default function Index() {
                                                     <AlertCircle className="h-3 w-3 text-red-500" />
                                                 )}
                                                 <span className={validation.password.checks.hasNumber ? 'text-green-600' : 'text-red-600'}>
-                                                    One number
+                                                    {t('admin.one_number')}
                                                 </span>
                                             </div>
                                         </div>
@@ -291,7 +291,7 @@ export default function Index() {
                                 <div className="space-y-2">
                                     <Label htmlFor="contact_number" className="flex items-center gap-2">
                                         <Phone className="h-4 w-4" />
-                                        Contact Number
+                                        {t('admin.contact_number')}
                                         {validation.phone ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : data.contact_number ? (
@@ -301,13 +301,13 @@ export default function Index() {
                                     <Input
                                         id="contact_number"
                                         type="tel"
-                                        placeholder="+63 9XX XXX XXXX or 09XXXXXXXXX"
+                                        placeholder={t('admin.philippine_format_only')}
                                         value={data.contact_number}
                                         onChange={(e) => setData('contact_number', e.target.value)}
                                         className={validation.phone ? 'border-green-500' : errors.contact_number ? 'border-red-500' : ''}
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Philippine format only: +639XXXXXXXXX or 09XXXXXXXXX
+                                        {t('admin.format_hint')}
                                     </p>
                                     {errors.contact_number && (
                                         <p className="text-sm text-red-500">{errors.contact_number}</p>
@@ -321,17 +321,17 @@ export default function Index() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <MapPin className="h-5 w-5" />
-                                    Address Information
+                                    {t('admin.address_information')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Enter the member's complete address details
+                                    {t('admin.enter_member_address_details')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="street" className="flex items-center gap-2">
-                                            Street Address
+                                            {t('admin.street')}
                                             {validation.street ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500" />
                                             ) : (
@@ -340,7 +340,7 @@ export default function Index() {
                                         </Label>
                                         <Input
                                             id="street"
-                                            placeholder="Enter street address"
+                                            placeholder={t('admin.street')}
                                             value={data.street}
                                             onChange={(e) => setData('street', e.target.value)}
                                             className={validation.street ? 'border-green-500' : errors.street ? 'border-red-500' : ''}
@@ -351,7 +351,7 @@ export default function Index() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="barangay" className="flex items-center gap-2">
-                                            Barangay
+                                            {t('admin.barangay')}
                                             {validation.barangay ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500" />
                                             ) : (
@@ -360,7 +360,7 @@ export default function Index() {
                                         </Label>
                                         <Input
                                             id="barangay"
-                                            placeholder="Enter barangay"
+                                            placeholder={t('admin.barangay')}
                                             value={data.barangay}
                                             onChange={(e) => setData('barangay', e.target.value)}
                                             className={validation.barangay ? 'border-green-500' : errors.barangay ? 'border-red-500' : ''}
@@ -371,7 +371,7 @@ export default function Index() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="city" className="flex items-center gap-2">
-                                            City
+                                            {t('admin.city')}
                                             {validation.city ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500" />
                                             ) : (
@@ -380,7 +380,7 @@ export default function Index() {
                                         </Label>
                                         <Input
                                             id="city"
-                                            placeholder="Enter city"
+                                            placeholder={t('admin.city')}
                                             value={data.city}
                                             onChange={(e) => setData('city', e.target.value)}
                                             className={validation.city ? 'border-green-500' : errors.city ? 'border-red-500' : ''}
@@ -391,7 +391,7 @@ export default function Index() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="province" className="flex items-center gap-2">
-                                            Province
+                                            {t('admin.province')}
                                             {validation.province ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500" />
                                             ) : (
@@ -400,7 +400,7 @@ export default function Index() {
                                         </Label>
                                         <Input
                                             id="province"
-                                            placeholder="Enter province"
+                                            placeholder={t('admin.province')}
                                             value={data.province}
                                             onChange={(e) => setData('province', e.target.value)}
                                             className={validation.province ? 'border-green-500' : errors.province ? 'border-red-500' : ''}
@@ -418,20 +418,20 @@ export default function Index() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <CalendarIcon className="h-5 w-5" />
-                                    Registration Details
+                                    {t('admin.registration_details')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Set the registration date and upload required documents
+                                    {t('admin.set_registration_date_upload_documents')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="registration_date">Registration Date</Label>
+                                    <Label htmlFor="registration_date">{t('admin.registration_date_label')}</Label>
                                     <div className="relative">
                                         <Input
                                             id="registration_date"
                                             value={value}
-                                            placeholder="Select registration date"
+                                            placeholder={t('admin.select_registration_date')}
                                             className="bg-background pr-10"
                                             onChange={(e) => {
                                                 setValue(e.target.value);
@@ -459,7 +459,7 @@ export default function Index() {
                                                     className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
                                                 >
                                                     <CalendarIcon className="size-3.5" />
-                                                    <span className="sr-only">Select date</span>
+                                                    <span className="sr-only">{t('admin.select_date')}</span>
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
@@ -488,7 +488,7 @@ export default function Index() {
                                 <div className="space-y-2">
                                     <Label className="flex items-center gap-2">
                                         <FileText className="h-4 w-4" />
-                                        Document Upload
+                                        {t('admin.document_upload')}
                                         {data.document ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : (
@@ -500,7 +500,7 @@ export default function Index() {
                                         accept=".jpg,.jpeg,.png,.pdf"
                                     />
                                     <p className="text-xs text-muted-foreground">
-                                        Upload a valid ID or document (JPG, PNG, or PDF, max 2MB)
+                                        {t('admin.upload_valid_id_document')}
                                     </p>
                                     {errors.document && (
                                         <p className="text-sm text-red-500">{errors.document}</p>
@@ -513,7 +513,7 @@ export default function Index() {
                         <div className="flex items-center justify-between pt-4 border-t">
                             <div className="flex items-center gap-2">
                                 <Badge variant={isFormValid ? "default" : "secondary"}>
-                                    {isFormValid ? "Ready to Submit" : "Incomplete Form"}
+                                    {isFormValid ? t('admin.ready_to_submit') : t('admin.incomplete_form')}
                                 </Badge>
                                 {isFormValid && (
                                     <CheckCircle className="h-4 w-4 text-green-500" />
@@ -522,7 +522,7 @@ export default function Index() {
                             <div className="flex gap-2">
                                 <Button variant="outline" asChild>
                                     <Link href={route('membership.index')}>
-                                        Cancel
+                                        {t('ui.cancel')}
                                     </Link>
                                 </Button>
                                 <Button 
@@ -533,10 +533,10 @@ export default function Index() {
                                     {processing ? (
                                         <>
                                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Creating...
+                                            {t('admin.creating')}
                                         </>
                                     ) : (
-                                        "Create Member"
+                                        t('admin.create_member')
                                     )}
                                 </Button>
                             </div>
