@@ -88,9 +88,9 @@ export default function Deactivated() {
                                     <div className="flex items-center gap-2">
                                         <RotateCcw className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
-                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Deactivated Logistics</h1>
+                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.deactivated_logistics_title')}</h1>
                                             <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                                                View and manage deactivated logistics partners
+                                                {t('admin.logistic_management_description')}
                                             </p>
                                         </div>
                                     </div>
@@ -99,7 +99,7 @@ export default function Deactivated() {
                                     <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('logistics.index')}>
                                             <RotateCcw className="h-4 w-4 mr-2" />
-                                            Back to Active Logistics
+                                            {t('admin.back_to_active_logistics')}
                                         </Link>
                                     </Button>
                                 </div>

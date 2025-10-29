@@ -79,11 +79,11 @@ export default function soldIndex() {
                             <TableCaption>{t('admin.list_of_sold_stocks')}</TableCaption>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-center">Stock ID</TableHead>
-                                    <TableHead className="text-center">Product Name</TableHead>
-                                    <TableHead className="text-center">Category</TableHead>
-                                    <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="text-center">Sold At</TableHead>
+                                    <TableHead className="text-center">{t('admin.stock_id')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.product_name')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.category')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.status')}</TableHead>
+                                    <TableHead className="text-center">{t('admin.sold_at')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -93,7 +93,7 @@ export default function soldIndex() {
                                         <TableCell className="text-center">{stock.product?.name}</TableCell>
                                         <TableCell className="text-center">{stock.category}</TableCell>
                                         <TableCell className="text-center">
-                                            Sold
+                                            {t('admin.sold_status')}
                                         </TableCell>
                                         <TableCell className="text-center">
                                             {new Date(stock.updated_at).toLocaleString()}
@@ -106,9 +106,9 @@ export default function soldIndex() {
                 ) : (
                     <div className="w-full pt-8 flex justify-center">
                         <Alert>
-                            <AlertTitle>No Sold Stock Data</AlertTitle>
+                            <AlertTitle>{t('admin.no_sold_stock_data')}</AlertTitle>
                             <AlertDescription>
-                                There are currently no sold stock records to display.
+                                {t('admin.no_sold_stock_records')}
                             </AlertDescription>
                         </Alert>
                     </div>

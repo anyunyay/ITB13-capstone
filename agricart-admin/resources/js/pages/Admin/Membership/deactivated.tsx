@@ -97,9 +97,9 @@ export default function Deactivated() {
                 <Head title={t('admin.deactivated_members')} />
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Deactivated Members</h1>
+                    <h1 className="text-3xl font-bold">{t('admin.deactivated_members_title')}</h1>
                     <div className="flex gap-2">
-                        <Link href={route('membership.index')}><Button variant="outline">Back to Active Members</Button></Link>
+                        <Link href={route('membership.index')}><Button variant="outline">{t('admin.back_to_active_members')}</Button></Link>
                     </div>
                 </div>
 
@@ -108,14 +108,14 @@ export default function Deactivated() {
                         {flash.message && (
                             <Alert>
                                 <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>Notification!</AlertTitle>
+                                <AlertTitle>{t('admin.notifications')}!</AlertTitle>
                                 <AlertDescription>{flash.message}</AlertDescription>
                             </Alert>
                         )}
                         {flash.error && (
                             <Alert className="border-red-300">
                                 <BellDot className='h-4 w-4 text-red-500' />
-                                <AlertTitle>Error!</AlertTitle>
+                                <AlertTitle>{t('admin.error_title')}</AlertTitle>
                                 <AlertDescription>{flash.error}</AlertDescription>
                             </Alert>
                         )}
@@ -125,17 +125,17 @@ export default function Deactivated() {
             {deactivatedMembers.length > 0 && (
                 <div className='w-full pt-8'>
                     <Table>
-                        <TableCaption>Total list of deactivated members</TableCaption>
+                        <TableCaption>{t('admin.total_list_deactivated_members')}</TableCaption>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-center">ID</TableHead>
-                                <TableHead className="text-center">Member ID</TableHead>
-                                <TableHead className="text-center">Name</TableHead>
-                                <TableHead className="text-center">Contact Number</TableHead>
-                                <TableHead className="text-center">Address</TableHead>
-                                <TableHead className="text-center">Registration Date</TableHead>
-                                <TableHead className="text-center">Document</TableHead>
-                                <TableHead className="text-center">Actions</TableHead>
+                                <TableHead className="text-center">{t('admin.id')}</TableHead>
+                                <TableHead className="text-center">{t('admin.member_id')}</TableHead>
+                                <TableHead className="text-center">{t('admin.name')}</TableHead>
+                                <TableHead className="text-center">{t('admin.contact_number')}</TableHead>
+                                <TableHead className="text-center">{t('admin.address')}</TableHead>
+                                <TableHead className="text-center">{t('admin.registration_date')}</TableHead>
+                                <TableHead className="text-center">{t('admin.document')}</TableHead>
+                                <TableHead className="text-center">{t('admin.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -167,7 +167,7 @@ export default function Deactivated() {
                                                 className='bg-green-600 hover:bg-green-700 text-white'
                                             >
                                                 <RotateCcw className="h-4 w-4 mr-1" />
-                                                Reactivate
+                                                {t('admin.reactivate')}
                                             </Button>
                                         </PermissionGate>
                                     </TableCell>
@@ -180,7 +180,7 @@ export default function Deactivated() {
 
             {deactivatedMembers.length === 0 && (
                 <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg">No deactivated members found.</p>
+                    <p className="text-gray-500 text-lg">{t('admin.no_deactivated_members_found')}</p>
                 </div>
             )}
 
@@ -190,27 +190,27 @@ export default function Deactivated() {
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-green-500" />
-                            Confirm Reactivation
+                            {t('admin.confirm_reactivation')}
                         </DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to reactivate this member?
+                            {t('admin.confirm_reactivate_member')}
                         </DialogDescription>
                     </DialogHeader>
                     
                     {selectedMember && (
                         <div className="space-y-3">
                             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <h4 className="font-medium text-green-800 mb-1">Member Details:</h4>
+                                <h4 className="font-medium text-green-800 mb-1">{t('admin.member_details')}:</h4>
                                 <p className="text-green-700">{selectedMember.name}</p>
-                                <p className="text-sm text-green-600">Member ID: {selectedMember.member_id}</p>
+                                <p className="text-sm text-green-600">{t('admin.member_id')}: {selectedMember.member_id}</p>
                             </div>
                             
                             <div className="text-sm text-gray-600">
-                                <p><strong>This action will:</strong></p>
+                                <p><strong>{t('admin.this_action_will')}:</strong></p>
                                 <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>Reactivate the member account</li>
-                                    <li>Allow them to access the system again</li>
-                                    <li>Move them back to the active members list</li>
+                                    <li>{t('admin.reactivate_member_account')}</li>
+                                    <li>{t('admin.allow_system_access')}</li>
+                                    <li>{t('admin.move_to_active_list')}</li>
                                 </ul>
                             </div>
                         </div>
@@ -218,14 +218,14 @@ export default function Deactivated() {
                     
                     <DialogFooter>
                         <Button variant="outline" onClick={handleCancelReactivation}>
-                            Cancel
+                            {t('ui.cancel')}
                         </Button>
                         <Button 
                             className="bg-green-600 hover:bg-green-700 text-white" 
                             onClick={handleConfirmReactivation}
                             disabled={processing}
                         >
-                            {processing ? 'Reactivating...' : 'Reactivate'}
+                            {processing ? t('admin.reactivating') : t('admin.reactivate')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -81,12 +81,12 @@ export default function Edit({product}: Props) {
                     {Object.keys(errors).length > 0 && (
                         <Alert variant="destructive">
                             <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>Error!</AlertTitle>
+                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
                                 <ul className="list-disc pl-4">
                                     {Object.entries(errors).map(([key, value]) => (
                                         <li key={key} className="text-sm">
-                                            {typeof value === 'string' ? value : Array.isArray(value) ? value[0] : 'An error occurred'}
+                                            {typeof value === 'string' ? value : Array.isArray(value) ? value[0] : t('admin.an_error_occurred')}
                                         </li>
                                     ))}
                                 </ul>
@@ -95,29 +95,29 @@ export default function Edit({product}: Props) {
                     )}
 
                     <div className='gap-1.5'>
-                        <Label htmlFor="product name">Name</Label>
-                        <Input placeholder="Product Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
+                        <Label htmlFor="product name">{t('admin.product_name_label')}</Label>
+                        <Input placeholder={t('admin.product_name_placeholder')} value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                     </div>
                     
                     <div className='gap-1.5'>
-                        <p className="text-sm text-gray-600 mb-2">* At least one price must be provided</p>
-                        <Label htmlFor="product price_kilo">Price per Kilo</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
+                        <p className="text-sm text-gray-600 mb-2">{t('admin.at_least_one_price_required')}</p>
+                        <Label htmlFor="product price_kilo">{t('admin.price_per_kilo')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_kilo')} value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price_pc">Price per Piece</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Piece" value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
+                        <Label htmlFor="product price_pc">{t('admin.price_per_piece')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_piece')} value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price_tali">Price per Tali</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Tali" value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
+                        <Label htmlFor="product price_tali">{t('admin.price_per_tali')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_tali')} value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product description">Description</Label>
-                        <Textarea placeholder="Product Description" value={data.description} onChange={(e) => setData('description', e.target.value)}/>
+                        <Label htmlFor="product description">{t('ui.description')}</Label>
+                        <Textarea placeholder={t('ui.description')} value={data.description} onChange={(e) => setData('description', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product produce_type">Produce Type</Label>
+                        <Label htmlFor="product produce_type">{t('admin.produce_type')}</Label>
                         <select
                             id="produce_type"
                             name="produce_type"
@@ -125,17 +125,17 @@ export default function Edit({product}: Props) {
                             onChange={e => setData('produce_type', e.target.value)}
                             className="block w-full border rounded px-3 py-2"
                         >
-                            <option value="fruit">Fruit</option>
-                            <option value="vegetable">Vegetable</option>
+                            <option value="fruit">{t('admin.fruit')}</option>
+                            <option value="vegetable">{t('admin.vegetable')}</option>
                         </select>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product image">Product Image</Label>
+                        <Label htmlFor="product image">{t('admin.image_upload')}</Label>
                         
                         {/* Show current image only if no new image is selected */}
                         {!selectedImage && product.image_url && (
                             <div className="mb-4">
-                                <Label className="text-sm text-gray-600 mb-2 block">Current Image:</Label>
+                                <Label className="text-sm text-gray-600 mb-2 block">{t('admin.current_image')}:</Label>
                                 <img 
                                   src={product.image_url} 
                                   alt={product.name} 
@@ -151,21 +151,21 @@ export default function Edit({product}: Props) {
                         {/* Show new image preview if selected */}
                         {selectedImage && imagePreview && (
                             <div className="mb-4">
-                                <Label className="text-sm text-gray-600 mb-2 block">New Image Preview:</Label>
+                                <Label className="text-sm text-gray-600 mb-2 block">{t('admin.new_image_preview')}:</Label>
                                 <img 
                                   src={imagePreview} 
                                   alt="New image preview" 
                                   className="w-32 h-32 object-cover rounded-lg border"
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Current image will be replaced with this new image
+                                    {t('admin.current_image_will_be_replaced')}
                                 </p>
                             </div>
                         )}
                         
                         <Input onChange={handleFileUpload} id='image' name='image' type='file' accept="image/*"/>
                     </div>
-                    <Button disabled={processing} type="submit">Update Product</Button>
+                    <Button disabled={processing} type="submit">{t('admin.update_product_button')}</Button>
                 </form>
             </div>
         </AppLayout>

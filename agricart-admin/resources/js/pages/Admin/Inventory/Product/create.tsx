@@ -50,7 +50,7 @@ export default function Create() {
                     {Object.keys(errors).length > 0 &&(
                         <Alert>
                             <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>Error!</AlertTitle>
+                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
                                 <ul>
                                     {Object.entries(errors).map(([key, message]) => (
@@ -62,29 +62,29 @@ export default function Create() {
                     )}
 
                     <div className='gap-1.5'>
-                        <Label htmlFor="product name">Name</Label>
-                        <Input placeholder="Product Name" value={data.name} onChange={(e) => setData('name', e.target.value)}/>
+                        <Label htmlFor="product name">{t('admin.product_name_label')}</Label>
+                        <Input placeholder={t('admin.product_name_placeholder')} value={data.name} onChange={(e) => setData('name', e.target.value)}/>
                     </div>
                     
                     <div className='gap-1.5'>
-                        <p className="text-sm text-gray-600 mb-2">* At least one price must be provided</p>
-                        <Label htmlFor="product price_kilo">Price per Kilo</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Kilo" value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
+                        <p className="text-sm text-gray-600 mb-2">{t('admin.at_least_one_price_required')}</p>
+                        <Label htmlFor="product price_kilo">{t('admin.price_per_kilo')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_kilo')} value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price_pc">Price per Piece</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Piece" value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
+                        <Label htmlFor="product price_pc">{t('admin.price_per_piece')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_piece')} value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product price_tali">Price per Tali</Label>
-                        <Input type="number" min="0" step="0.01" placeholder="Price per Tali" value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
+                        <Label htmlFor="product price_tali">{t('admin.price_per_tali')}</Label>
+                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_tali')} value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product description">Description</Label>
-                        <Textarea placeholder="Product Description" value={data.description} onChange={(e) => setData('description', e.target.value)}/>
+                        <Label htmlFor="product description">{t('ui.description')}</Label>
+                        <Textarea placeholder={t('ui.description')} value={data.description} onChange={(e) => setData('description', e.target.value)}/>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product produce_type">Produce Type</Label>
+                        <Label htmlFor="product produce_type">{t('admin.produce_type')}</Label>
                         <select
                             id="produce_type"
                             name="produce_type"
@@ -92,15 +92,15 @@ export default function Create() {
                             onChange={e => setData('produce_type', e.target.value)}
                             className="block w-full border rounded px-3 py-2"
                         >
-                            <option value="fruit">Fruit</option>
-                            <option value="vegetable">Vegetable</option>
+                            <option value="fruit">{t('admin.fruit')}</option>
+                            <option value="vegetable">{t('admin.vegetable')}</option>
                         </select>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="product image">Image Upload</Label>
+                        <Label htmlFor="product image">{t('admin.image_upload')}</Label>
                         <Input onChange={handleFileUpload} id='image' name='image' type='file' autoFocus tabIndex={4}/>
                     </div>
-                    <Button disabled={processing} type="submit">Create Product</Button>
+                    <Button disabled={processing} type="submit">{t('admin.create_product')}</Button>
                 </form>
             </div>
         </AppLayout>

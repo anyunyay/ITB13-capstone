@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
 import { Calendar } from "@/components/ui/calendar"
+import { useTranslation } from '@/hooks/use-translation';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -163,12 +164,12 @@ export default function Index() {
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={route('membership.index')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Members
+                                {t('admin.back_to_members')}
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-3xl font-bold">Add New Member</h1>
-                            <p className="text-muted-foreground">Create a new member account with complete information</p>
+                            <h1 className="text-3xl font-bold">{t('admin.add_new_member')}</h1>
+                            <p className="text-muted-foreground">{t('admin.create_member_account')}</p>
                         </div>
                     </div>
 
@@ -176,7 +177,7 @@ export default function Index() {
                     {Object.keys(errors).length > 0 && (
                         <Alert variant="destructive">
                             <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Please fix the following errors:</AlertTitle>
+                            <AlertTitle>{t('admin.fix_errors')}:</AlertTitle>
                             <AlertDescription>
                                 <ul className="list-disc list-inside space-y-1">
                                     {Object.entries(errors).map(([key, message]) => (
@@ -193,16 +194,16 @@ export default function Index() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <User className="h-5 w-5" />
-                                    Basic Information
+                                    {t('admin.basic_information')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Enter the member's basic account details
+                                    {t('admin.enter_member_basic_details')}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name" className="flex items-center gap-2">
-                                        Full Name
+                                        {t('admin.full_name')}
                                         {validation.name ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : (
@@ -211,7 +212,7 @@ export default function Index() {
                                     </Label>
                                     <Input
                                         id="name"
-                                        placeholder="Enter full name"
+                                        placeholder={t('admin.enter_full_name')}
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
                                         className={validation.name ? 'border-green-500' : errors.name ? 'border-red-500' : ''}

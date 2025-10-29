@@ -84,7 +84,7 @@ export default function EditStock({ product, stock, members }: Props) {
                     {Object.keys(errors).length > 0 && (
                         <Alert>
                             <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>Error!</AlertTitle>
+                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
                                 <ul>
                                     {Object.entries(errors).map(([key, message]) => (
@@ -95,19 +95,19 @@ export default function EditStock({ product, stock, members }: Props) {
                         </Alert>
                     )}
                     <div className='gap-1.5'>
-                        <Label htmlFor='product'>Product</Label>
+                        <Label htmlFor='product'>{t('admin.product_label')}</Label>
                         <div>
                             <Label>{product.name}</Label>
                         </div>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="member_id">Assign to Member</Label>
+                        <Label htmlFor="member_id">{t('admin.assign_to_member')}</Label>
                         <Select
                             value={data.member_id}
                             onValueChange={value => setData('member_id', value)}
                         >
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select a member" />
+                                <SelectValue placeholder={t('admin.select_a_member')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {members.map((member: Member) => (
@@ -120,13 +120,13 @@ export default function EditStock({ product, stock, members }: Props) {
                     </div>
 
                     <div className='gap-1.5'>
-                        <Label htmlFor="category">Category</Label>
+                        <Label htmlFor="category">{t('admin.category')}</Label>
                         <Select
                             value={data.category}
                             onValueChange={value => setData('category', value)}
                         >
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue placeholder={t('admin.select_a_category')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {availableCategories.map((category) => (
@@ -140,7 +140,7 @@ export default function EditStock({ product, stock, members }: Props) {
 
                     {data.category === "Kilo" && (
                         <div className='gap-1.5'>
-                            <Label htmlFor="quantity">Quantity</Label>
+                            <Label htmlFor="quantity">{t('admin.quantity')}</Label>
                             <Input
                                 id="quantity"
                                 type="number"
@@ -154,7 +154,7 @@ export default function EditStock({ product, stock, members }: Props) {
 
                     {data.category !== "Kilo" && (
                         <div className='gap-1.5'>
-                            <Label htmlFor="quantity">Quantity</Label>
+                            <Label htmlFor="quantity">{t('admin.quantity')}</Label>
                             <Input
                                 id="quantity"
                                 type="number"
@@ -164,7 +164,7 @@ export default function EditStock({ product, stock, members }: Props) {
                             />
                         </div>
                     )}
-                    <Button disabled={processing} type="submit">Update Stock</Button>
+                    <Button disabled={processing} type="submit">{t('admin.update_stock')}</Button>
                 </form>
             </div>
         </AppLayout>

@@ -101,7 +101,7 @@ export default function Index() {
                                     <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('logistics.index')}>
                                             <IdCard className="h-4 w-4 mr-2" />
-                                            Back to Logistics
+                                            {t('admin.back')} {t('admin.logistics')}
                                         </Link>
                                     </Button>
                                 </div>
@@ -116,9 +116,9 @@ export default function Index() {
                                         <IdCard className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Logistics Partner Information</h2>
+                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.logistic_management')}</h2>
                                         <p className="text-sm text-muted-foreground m-0">
-                                            Enter the details for the new logistics partner
+                                            {t('admin.register_new_logistic_partner')}
                                         </p>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@ export default function Index() {
                     {Object.keys(errors).length > 0 && (
                         <Alert>
                             <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>Error!</AlertTitle>
+                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
                                 <ul>
                                     {Object.entries(errors).map(([key, message]) => (
@@ -142,9 +142,9 @@ export default function Index() {
                     )}
 
                     <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic name">Name</Label>
+                        <Label htmlFor="logistic name">{t('admin.logistic_name_label')}</Label>
                         <Input 
-                            placeholder="Logistic Name" 
+                            placeholder={t('admin.logistic_name_label')} 
                             value={data.name} 
                             onChange={(e) => {
                                 // Only allow alphabetic characters and spaces
@@ -154,61 +154,61 @@ export default function Index() {
                         />
                     </div>
                     <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic email">Email</Label>
-                        <Input placeholder="Email Address" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                        <Label htmlFor="logistic email">{t('admin.logistic_email_label')}</Label>
+                        <Input placeholder={t('admin.email_address')} value={data.email} onChange={(e) => setData('email', e.target.value)} />
                     </div>
                     <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic password">Password</Label>
+                        <Label htmlFor="logistic password">{t('admin.password')}</Label>
                         <PasswordInput 
-                            placeholder="Password (minimum 8 characters)" 
+                            placeholder={t('admin.password')} 
                             value={data.password} 
                             onChange={(e) => setData('password', e.target.value)} 
                         />
                     </div>
                     <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic contact_number">Contact Number</Label>
+                        <Label htmlFor="logistic contact_number">{t('admin.logistic_contact_number_label')}</Label>
                         <Input 
                             type="tel"
-                            placeholder="+63 9XX XXX XXXX (Philippine format only)" 
+                            placeholder={t('admin.philippine_format_only')} 
                             value={data.contact_number} 
                             onChange={(e) => setData('contact_number', e.target.value)} 
                         />
                         <p className="text-xs text-muted-foreground">
-                            Format: +639XXXXXXXXX or 09XXXXXXXXX
+                            {t('admin.format_hint')}
                         </p>
                     </div>
                     {/* Address Fields */}
                     <div className="space-y-4">
-                        <Label className="text-base font-medium">Address Information</Label>
+                        <Label className="text-base font-medium">{t('admin.address_information')}</Label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="street">Street Address</Label>
+                                <Label htmlFor="street">{t('admin.street')}</Label>
                                 <Input 
-                                    placeholder="Enter street address" 
+                                    placeholder={t('admin.street')} 
                                     value={data.street} 
                                     onChange={(e) => setData('street', e.target.value)} 
                                 />
                             </div>
                             <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="barangay">Barangay</Label>
+                                <Label htmlFor="barangay">{t('admin.barangay')}</Label>
                                 <Input 
-                                    placeholder="Enter barangay" 
+                                    placeholder={t('admin.barangay')} 
                                     value={data.barangay} 
                                     onChange={(e) => setData('barangay', e.target.value)} 
                                 />
                             </div>
                             <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="city">City</Label>
+                                <Label htmlFor="city">{t('admin.city')}</Label>
                                 <Input 
-                                    placeholder="Enter city" 
+                                    placeholder={t('admin.city')} 
                                     value={data.city} 
                                     onChange={(e) => setData('city', e.target.value)} 
                                 />
                             </div>
                             <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="province">Province</Label>
+                                <Label htmlFor="province">{t('admin.province')}</Label>
                                 <Input 
-                                    placeholder="Enter province" 
+                                    placeholder={t('admin.province')} 
                                     value={data.province} 
                                     onChange={(e) => setData('province', e.target.value)} 
                                 />
@@ -216,7 +216,7 @@ export default function Index() {
                         </div>
                     </div>
                     <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="registration date">Registration Date</Label>
+                        <Label htmlFor="registration date">{t('admin.registration_date_label')}</Label>
                         <div className="flex flex-col gap-2">
                             <div className="relative flex gap-2">
                                 <Input
@@ -279,7 +279,7 @@ export default function Index() {
                                         className="bg-primary text-primary-foreground border-0 px-5 py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md"
                                     >
                                         <IdCard className="h-4 w-4 mr-2" />
-                                        {processing ? 'Adding...' : 'Add Logistics Partner'}
+                                        {processing ? t('admin.adding') : t('admin.add_logistics_partner')}
                                     </Button>
                                 </div>
                             </form>
