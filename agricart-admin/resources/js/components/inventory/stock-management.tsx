@@ -12,6 +12,7 @@ import { PaginationControls } from './pagination-controls';
 import { Stock, RemovedStock, SoldStock } from '@/types/inventory';
 import { useState } from 'react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface StockManagementProps {
     stocks: Stock[];
@@ -62,6 +63,7 @@ export const StockManagement = ({
     stockSortOrder,
     setStockSortOrder
 }: StockManagementProps) => {
+    const t = useTranslation();
     const [currentView, setCurrentView] = useState<'stocks' | 'trail' | 'sold'>('stocks');
 
     const handleStockSort = (field: string) => {
@@ -91,14 +93,14 @@ export const StockManagement = ({
             if (dataType === 'trail') {
                 return (
                     <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Date</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Category</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Member</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Action</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Total Amount</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Notes</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.date')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.category')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.notes')}</TableHead>
                     </TableRow>
                 );
             }
@@ -106,11 +108,11 @@ export const StockManagement = ({
             if (dataType === 'sold') {
                 return (
                     <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Stock ID</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Product Name</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Quantity Sold</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Assigned To</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Total Amount</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.stock_id')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product_name')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-borderINESS whitespace-nowrap">{t('admin.quantity_sold')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
                     </TableRow>
                 );
             }
@@ -120,31 +122,31 @@ export const StockManagement = ({
                 <TableRow>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                         <button onClick={() => handleStockSort('id')} className="flex items-center hover:text-foreground transition-colors">
-                            Stock ID
+                            {t('admin.stock_id')}
                             {getStockSortIcon('id')}
                         </button>
                     </TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                        <button onClick={() => handleStockSort('product')} className="flex items-center hover:text-foreground transition-colors">
-                            Product Name
+                        <button onClick={() => handleStockSort('product')} className="flex items-center hover:text-foreground alternate-colors">
+                            {t('admin.product_name')}
                             {getStockSortIcon('product')}
                         </button>
                     </TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                         <button onClick={() => handleStockSort('quantity')} className="flex items-center hover:text-foreground transition-colors">
-                            Quantity
+                            {t('admin.quantity')}
                             {getStockSortIcon('quantity')}
                         </button>
                     </TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                         <button onClick={() => handleStockSort('category')} className="flex items-center hover:text-foreground transition-colors">
-                            Category
+                            {t('admin.category')}
                             {getStockSortIcon('category')}
                         </button>
                     </TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Assigned To</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Status</TableHead>
-                    {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Actions</TableHead>}
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                    {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>}
                 </TableRow>
             );
         };
@@ -237,7 +239,7 @@ export const StockManagement = ({
                             </div>
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            {item.member?.name || 'Unassigned'}
+                            {item.member?.name || t('admin.unassigned')}
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="font-semibold">
@@ -297,8 +299,8 @@ export const StockManagement = ({
                                         : "bg-destructive/10 text-destructive"
                             }
                         >
-                            {item.quantity > 10 ? 'Available' : 
-                             item.quantity > 0 ? 'Low Stock' : 'Out of Stock'}
+                            {item.quantity > 10 ? t('admin.available') : 
+                             item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
                         </Badge>
                     </TableCell>
                     {dataType === 'stocks' && (
@@ -308,7 +310,7 @@ export const StockManagement = ({
                                     <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                         <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
                                             <Edit className="h-3 w-3 mr-1" />
-                                            Edit
+                                            {t('ui.edit')}
                                         </Link>
                                     </Button>
                                 </PermissionGate>
@@ -321,7 +323,7 @@ export const StockManagement = ({
                                         className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
                                     >
                                         <Trash2 className="h-3 w-3 mr-1" />
-                                        Remove
+                                        {t('admin.remove')}
                                     </Button>
                                 </PermissionGate>
                             </div>
@@ -356,14 +358,14 @@ export const StockManagement = ({
             <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                    {dataType === 'trail' ? 'No stock trail data available' :
-                     dataType === 'sold' ? 'No sold stocks available' :
-                     'No stocks available'}
+                    {dataType === 'trail' ? t('admin.no_stock_trail_data_available') :
+                     dataType === 'sold' ? t('admin.no_sold_stocks_available') :
+                     t('admin.no_stocks_available')}
                 </h3>
                 <p className="text-muted-foreground">
-                    {dataType === 'trail' ? 'Stock changes and removals will appear here once they occur.' :
-                     dataType === 'sold' ? 'Sold stock items will appear here once sales are completed.' :
-                     'Add stock to products to see them listed here.'}
+                    {dataType === 'trail' ? t('admin.stock_changes_appear_here') :
+                     dataType === 'sold' ? t('admin.sold_stock_items_appear_here') :
+                     t('admin.add_stock_to_products_see_here')}
                 </p>
             </div>
         );
@@ -422,12 +424,12 @@ export const StockManagement = ({
 
     const getActionLabel = (actionType: string) => {
         const labels: { [key: string]: string } = {
-            'created': 'Added',
-            'updated': 'Updated',
-            'removed': 'Removed',
-            'restored': 'Restored',
-            'sale': 'Sale',
-            'reversal': 'Reversal'
+            'created': t('admin.action_added'),
+            'updated': t('admin.action_updated'),
+            'removed': t('admin.action_removed'),
+            'restored': t('admin.action_restored'),
+            'sale': t('admin.action_sale'),
+            'reversal': t('admin.action_reversal')
         };
         return labels[actionType] || actionType.charAt(0).toUpperCase() + actionType.slice(1);
     };
@@ -441,9 +443,9 @@ export const StockManagement = ({
                         <ShoppingCart className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Stock Management</h2>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.stock_management')}</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            Monitor stock levels, track inventory movements, and manage stock operations
+                            {t('admin.monitor_stock_levels')}
                         </p>
                     </div>
                 </div>
@@ -460,7 +462,7 @@ export const StockManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showStockSearch ? 'Hide Search' : 'Search'}
+                        {showStockSearch ? t('admin.hide_search') : t('admin.search')}
                     </Button>
                     <Button 
                         disabled={processing} 
@@ -469,7 +471,7 @@ export const StockManagement = ({
                         onClick={() => setCurrentView('stocks')}
                     >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        Current Stocks
+                        {t('admin.current_stocks')}
                     </Button>
                     <PermissionGate permission="view stock trail">
                         <Button 
@@ -479,7 +481,7 @@ export const StockManagement = ({
                             onClick={() => setCurrentView('trail')}
                         >
                             <History className="h-4 w-4 mr-2" />
-                            Stock Trail
+                            {t('admin.stock_trail')}
                         </Button>
                     </PermissionGate>
                     <PermissionGate permission="view sold stock">
@@ -490,7 +492,7 @@ export const StockManagement = ({
                             onClick={() => setCurrentView('sold')}
                         >
                             <Eye className="h-4 w-4 mr-2" />
-                            Sold History
+                            {t('admin.sold_history')}
                         </Button>
                     </PermissionGate>
                 </div>
@@ -505,7 +507,7 @@ export const StockManagement = ({
                         <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
                         <Input
                             type="text"
-                            placeholder="Search stocks by product name, type, category, or stock ID..."
+                            placeholder={t('admin.search_stocks_by_product_name')}
                             value={stockSearchTerm}
                             onChange={(e) => setStockSearchTerm(e.target.value)}
                             className="w-full pl-9 pr-9 py-2 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -525,10 +527,10 @@ export const StockManagement = ({
                         <Select value={selectedStockCategory} onValueChange={setSelectedStockCategory}>
                             <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                                 <Filter className="h-4 w-4" />
-                                <SelectValue placeholder="All Categories" />
+                                <SelectValue placeholder={t('admin.all_categories')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Categories</SelectItem>
+                                <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
                                 <SelectItem value="Kilo">Kilo</SelectItem>
                                 <SelectItem value="Pc">Piece</SelectItem>
                                 <SelectItem value="Tali">Tali</SelectItem>
@@ -540,7 +542,7 @@ export const StockManagement = ({
                             setStockSortOrder(order as 'asc' | 'desc');
                         }}>
                             <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                                <SelectValue placeholder="Sort by" />
+                                <SelectValue placeholder={t('admin.sort_by')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="id-asc">Stock ID (Low to High)</SelectItem>
@@ -558,8 +560,8 @@ export const StockManagement = ({
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                     <span className="text-sm text-muted-foreground font-medium">
                         {stockSearchTerm || selectedStockCategory !== 'all' 
-                            ? 'Filtered results' 
-                            : 'Ready to search stocks'}
+                            ? t('admin.filtered_results') 
+                            : t('admin.ready_to_search_stocks')}
                     </span>
                     {(stockSearchTerm || selectedStockCategory !== 'all') && (
                         <button
@@ -571,7 +573,7 @@ export const StockManagement = ({
                             className="text-sm text-primary hover:text-primary/80 transition-colors"
                             type="button"
                         >
-                            Clear filters
+                            {t('admin.clear_filters')}
                         </button>
                     )}
                 </div>
@@ -581,37 +583,37 @@ export const StockManagement = ({
                 {currentView === 'stocks' ? (
                     <Tabs defaultValue="all" className="w-full">
                         <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger value="all">Current Stocks</TabsTrigger>
-                            <TabsTrigger value="available">Available</TabsTrigger>
-                            <TabsTrigger value="low">Low Stock</TabsTrigger>
-                            <TabsTrigger value="out">Sold Out</TabsTrigger>
-                            <TabsTrigger value="sold">Sold Items</TabsTrigger>
+                            <TabsTrigger value="all">{t('admin.current_stocks')}</TabsTrigger>
+                            <TabsTrigger value="available">{t('admin.available')}</TabsTrigger>
+                            <TabsTrigger value="low">{t('admin.low_stock')}</TabsTrigger>
+                            <TabsTrigger value="out">{t('admin.out_of_stock')}</TabsTrigger>
+                            <TabsTrigger value="sold">{t('admin.sold_items')}</TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="all">
-                            {renderUnifiedTable(getFilteredStocks('all'), 'stocks', 'Current Stocks')}
+                            {renderUnifiedTable(getFilteredStocks('all'), 'stocks', t('admin.current_stocks'))}
                         </TabsContent>
                         
                         <TabsContent value="available">
-                            {renderUnifiedTable(getFilteredStocks('available'), 'stocks', 'Available Stocks')}
+                            {renderUnifiedTable(getFilteredStocks('available'), 'stocks', t('admin.available_stocks'))}
                         </TabsContent>
                         
                         <TabsContent value="low">
-                            {renderUnifiedTable(getFilteredStocks('low'), 'stocks', 'Low Stock Items')}
+                            {renderUnifiedTable(getFilteredStocks('low'), 'stocks', t('admin.low_stock_items'))}
                         </TabsContent>
                         
                         <TabsContent value="out">
-                            {renderUnifiedTable(getFilteredStocks('out'), 'stocks', 'Sold Out Items')}
+                            {renderUnifiedTable(getFilteredStocks('out'), 'stocks', t('admin.out_of_stock_items'))}
                         </TabsContent>
                         
                         <TabsContent value="sold">
-                            {renderUnifiedTable(soldStocks, 'sold', 'Sold Items')}
+                            {renderUnifiedTable(soldStocks, 'sold', t('admin.sold_items'))}
                         </TabsContent>
                     </Tabs>
                 ) : (
                     <div>
-                        {currentView === 'trail' && renderUnifiedTable(getCombinedTrailData(), 'trail', 'Stock Trail')}
-                        {currentView === 'sold' && renderUnifiedTable(soldStocks, 'sold', 'Sold History')}
+                        {currentView === 'trail' && renderUnifiedTable(getCombinedTrailData(), 'trail', t('admin.stock_trail'))}
+                        {currentView === 'sold' && renderUnifiedTable(soldStocks, 'sold', t('admin.sold_history'))}
                     </div>
                 )}
             </div>

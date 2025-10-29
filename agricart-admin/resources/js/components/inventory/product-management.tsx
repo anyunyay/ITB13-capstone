@@ -15,6 +15,7 @@ import { Product } from '@/types/inventory';
 import { useState } from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ProductManagementProps {
     products: Product[];
@@ -75,6 +76,7 @@ export const ProductManagement = ({
     showSearch,
     setShowSearch
 }: ProductManagementProps) => {
+    const t = useTranslation();
     // View state for toggle between cards and table
     const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
     
@@ -91,12 +93,12 @@ export const ProductManagement = ({
                         <Package className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
                         <div>
                             <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">
-                                {showArchived ? 'Archived Products' : 'Product Management'}
+                                {showArchived ? t('admin.archived_products') : t('admin.product_management')}
                             </h2>
                             <p className="text-sm text-muted-foreground m-0 leading-snug">
                                 {showArchived 
-                                    ? 'View and manage archived products'
-                                    : 'Manage your product catalog, inventory, and stock levels'
+                                    ? t('admin.view_and_manage_archived_products')
+                                    : t('admin.manage_your_product_catalog')
                                 }
                             </p>
                         </div>
@@ -114,7 +116,7 @@ export const ProductManagement = ({
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                         >
                             <Search className="h-4 w-4 mr-2" />
-                            {showSearch ? 'Hide Search' : 'Search'}
+                            {showSearch ? t('admin.hide_search') : t('admin.search')}
                         </Button>
                         <PermissionGate permission="view archive">
                             <Button 
@@ -124,7 +126,7 @@ export const ProductManagement = ({
                                 onClick={() => setShowArchived(!showArchived)}
                             >
                                 <Archive className="h-4 w-4" />
-                                {showArchived ? 'Active Products' : 'Archived Products'}
+                                {showArchived ? t('admin.active_products') : t('admin.archived_products')}
                             </Button>
                         </PermissionGate>
                         <ViewToggle 
@@ -144,7 +146,7 @@ export const ProductManagement = ({
                         <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
                         <Input
                             type="text"
-                            placeholder="Search products..."
+                            placeholder={t('admin.search_products')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-9 pr-9 py-2 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -164,10 +166,10 @@ export const ProductManagement = ({
                         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                             <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                                 <Filter className="h-4 w-4" />
-                                <SelectValue placeholder="All Categories" />
+                                <SelectValue placeholder={t('admin.all_categories')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Categories</SelectItem>
+                                <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
                                 {categories?.map(category => (
                                     <SelectItem key={category} value={category}>
                                         {category}
@@ -181,7 +183,7 @@ export const ProductManagement = ({
                             setSortOrder(order as 'asc' | 'desc');
                         }}>
                             <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                                <SelectValue placeholder="Sort by" />
+                                <SelectValue placeholder={t('admin.sort_by')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="name-asc">Name (A-Z)</SelectItem>
@@ -196,7 +198,7 @@ export const ProductManagement = ({
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                     <span className="text-sm text-muted-foreground font-medium">
-                        {filteredAndSortedProducts?.length || 0} of {products?.length || 0} products
+                        {filteredAndSortedProducts?.length || 0} {t('admin.of')} {products?.length || 0} {t('admin.products')}
                     </span>
                 </div>
             </div>
@@ -206,12 +208,12 @@ export const ProductManagement = ({
                     <div className="text-center py-12">
                         <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                         <h3 className="text-lg font-medium text-foreground mb-2">
-                            {searchTerm || selectedCategory !== 'all' ? 'No products match your criteria' : 'No products found'}
+                            {searchTerm || selectedCategory !== 'all' ? t('admin.no_products_match_criteria') : t('admin.no_products_found')}
                         </h3>
                         <p className="text-muted-foreground">
                             {searchTerm || selectedCategory !== 'all' 
-                                ? 'Try adjusting your search or filter criteria.'
-                                : 'Get started by creating your first product.'
+                                ? t('admin.try_adjusting_search_filters')
+                                : t('admin.get_started_creating_product')
                             }
                         </p>
                         {!searchTerm && selectedCategory === 'all' && (
@@ -219,7 +221,7 @@ export const ProductManagement = ({
                                 <Button asChild className="mt-4">
                                     <Link href={route('inventory.create')}>
                                         <Plus className="h-4 w-4 mr-2" />
-                                        Create Product
+                                        {t('admin.create_product')}
                                     </Link>
                                 </Button>
                             </PermissionGate>

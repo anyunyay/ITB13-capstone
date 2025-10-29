@@ -8,6 +8,7 @@ import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, Eye, ArrowUpDown
 import { PermissionGate } from '@/components/permission-gate';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ProductTableProps {
     products: Product[];
@@ -36,6 +37,7 @@ export const ProductTable = ({
     setSortBy,
     setSortOrder
 }: ProductTableProps) => {
+    const t = useTranslation();
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -55,18 +57,18 @@ export const ProductTable = ({
     };
     const getStatusBadge = (archived_at: string | null) => {
         if (archived_at) {
-            return <Badge variant="destructive" className={styles.statusArchived}>Archived</Badge>;
+            return <Badge variant="destructive" className={styles.statusArchived}>{t('admin.archived')}</Badge>;
         }
-        return <Badge variant="default" className={styles.statusActive}>Active</Badge>;
+        return <Badge variant="default" className={styles.statusActive}>{t('admin.active')}</Badge>;
     };
 
     if (products.length === 0) {
         return (
             <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No products found</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_products_found')}</h3>
                 <p className="text-muted-foreground">
-                    No products match your current filters.
+                    {t('admin.no_products_match_filters')}
                 </p>
             </div>
         );
@@ -83,7 +85,7 @@ export const ProductTable = ({
                                 className="flex items-center gap-2 hover:text-foreground transition-colors"
                             >
                                 <Package className="h-4 w-4" />
-                                Product
+                                {t('admin.product')}
                                 {getSortIcon('name')}
                             </button>
                         </TableHead>
@@ -93,7 +95,7 @@ export const ProductTable = ({
                                 className="flex items-center gap-2 hover:text-foreground transition-colors"
                             >
                                 <Tag className="h-4 w-4" />
-                                Category
+                                {t('admin.category')}
                                 {getSortIcon('type')}
                             </button>
                         </TableHead>
@@ -103,12 +105,12 @@ export const ProductTable = ({
                                 className="flex items-center gap-2 hover:text-foreground transition-colors"
                             >
                                 <DollarSign className="h-4 w-4" />
-                                Prices
+                                {t('admin.prices')}
                                 {getSortIcon('price')}
                             </button>
                         </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Status</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">Actions</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -145,24 +147,24 @@ export const ProductTable = ({
                                 <div className="space-y-1">
                                     {product.price_kilo && (
                                         <div className="text-sm">
-                                            <span className="text-muted-foreground">Kilo: </span>
+                                            <span className="text-muted-foreground">{t('admin.price_per_kilo')}: </span>
                                             <span className="font-medium">₱{product.price_kilo}</span>
                                         </div>
                                     )}
                                     {product.price_pc && (
                                         <div className="text-sm">
-                                            <span className="text-muted-foreground">Piece: </span>
+                                            <span className="text-muted-foreground">{t('admin.price_per_piece')}: </span>
                                             <span className="font-medium">₱{product.price_pc}</span>
                                         </div>
                                     )}
                                     {product.price_tali && (
                                         <div className="text-sm">
-                                            <span className="text-muted-foreground">Tali: </span>
+                                            <span className="text-muted-foreground">{t('admin.price_per_tali')}: </span>
                                             <span className="font-medium">₱{product.price_tali}</span>
                                         </div>
                                     )}
                                     {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                        <span className="text-sm text-muted-foreground">No prices set</span>
+                                        <span className="text-sm text-muted-foreground">{t('admin.no_prices_set')}</span>
                                     )}
                                 </div>
                             </TableCell>
@@ -176,7 +178,7 @@ export const ProductTable = ({
                                             <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                                 <Link href={route('inventory.addStock', product.id)}>
                                                     <Plus className="h-3 w-3 mr-1" />
-                                                    Stock
+                                                    {t('admin.add_stock')}
                                                 </Link>
                                             </Button>
                                         </PermissionGate>
@@ -187,7 +189,7 @@ export const ProductTable = ({
                                             <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
                                                 <Link href={route('inventory.edit', product.id)}>
                                                     <Edit className="h-3 w-3 mr-1" />
-                                                    Edit
+                                                    {t('ui.edit')}
                                                 </Link>
                                             </Button>
                                         </PermissionGate>
@@ -206,12 +208,12 @@ export const ProductTable = ({
                                                                 disabled={true}
                                                             >
                                                                 <Archive className="h-3 w-3 mr-1" />
-                                                                Archive
+                                                                {t('admin.archive_product')}
                                                             </Button>
                                                         </span>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
-                                                        <p>Cannot archive: Product still has available stock</p>
+                                                        <p>{t('admin.cannot_archive_product_has_stock')}</p>
                                                     </TooltipContent>
                                                 </Tooltip>
                                             ) : (
@@ -223,7 +225,7 @@ export const ProductTable = ({
                                                     onClick={() => handleArchive(product.id, product.name)}
                                                 >
                                                     <Archive className="h-3 w-3 mr-1" />
-                                                    {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
+                                                    {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
                                                 </Button>
                                             )}
                                         </PermissionGate>
@@ -237,7 +239,7 @@ export const ProductTable = ({
                                                 onClick={() => handleRestore(product.id, product.name)}
                                             >
                                                 <Archive className="h-3 w-3 mr-1" />
-                                                {restoringProduct === product.id ? 'Restoring...' : 'Restore'}
+                                                {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
                                             </Button>
                                         </PermissionGate>
                                     )}
@@ -251,7 +253,7 @@ export const ProductTable = ({
                                             onClick={() => handleDelete(product.id, product.name)}
                                         >
                                             <Trash2 className="h-3 w-3 mr-1" />
-                                            Delete
+                                            {t('ui.delete')}
                                         </Button>
                                     </PermissionGate>
                                 </div>
