@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MemberController extends Controller
 {
@@ -703,8 +704,7 @@ class MemberController extends Controller
             'member' => Auth::user()
         ])->render();
 
-        $pdf = app('dompdf.wrapper');
-        $pdf->loadHTML($html);
+        $pdf = Pdf::loadHTML($html);
         
         $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
