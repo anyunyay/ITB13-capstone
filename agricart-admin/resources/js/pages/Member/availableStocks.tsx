@@ -9,6 +9,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Package, ArrowLeft, TrendingUp } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member-header';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -38,6 +39,7 @@ interface PageProps {
 
 export default function AvailableStocks({ availableStocks }: PageProps) {
     const { auth } = usePage<SharedData>().props;
+    const t = useTranslation();
 
     useEffect(() => {
         if (!auth?.user) {
@@ -52,7 +54,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
         <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
-                <Head title="Available Stocks" />
+                <Head title={t('member.available_stocks_page')} />
                 
                 {/* Header */}
                 <div className="mb-8">
@@ -60,94 +62,94 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                         <Button asChild variant="outline" size="sm">
                             <Link href={route('member.dashboard')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Dashboard
+                                {t('member.back_to_dashboard')}
                             </Link>
                         </Button>
                     </div>
-                    <h1 className="text-3xl font-bold text-foreground">Available Stocks</h1>
-                    <p className="text-muted-foreground mt-2">Your stocks ready for sale</p>
+                    <h1 className="text-3xl font-bold text-foreground">{t('member.available_stocks_page')}</h1>
+                    <p className="text-muted-foreground mt-2">{t('member.stocks_ready_for_sale')}</p>
                 </div>
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Total Stocks</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_stocks')}</CardTitle>
                             <Package className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{availableStocks.length}</div>
-                            <p className="text-xs text-muted-foreground">Available items</p>
+                            <p className="text-xs text-muted-foreground">{t('member.available_items')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_quantity')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{totalQuantity}</div>
-                            <p className="text-xs text-muted-foreground">Units available</p>
+                            <p className="text-xs text-muted-foreground">{t('member.units_available')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Categories</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.categories')}</CardTitle>
                             <Package className="h-4 w-4 text-purple-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">
                                 {new Set(availableStocks.map(s => s.category)).size}
                             </div>
-                            <p className="text-xs text-muted-foreground">Different types</p>
+                            <p className="text-xs text-muted-foreground">{t('member.different_types')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Products</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_products')}</CardTitle>
                             <Package className="h-4 w-4 text-blue-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">
                                 {new Set(availableStocks.map(s => s.product_id)).size}
                             </div>
-                            <p className="text-xs text-muted-foreground">Unique items</p>
+                            <p className="text-xs text-muted-foreground">{t('member.unique_items')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Avg Quantity</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.avg_quantity')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-yellow-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">
                                 {availableStocks.length > 0 ? Math.round(totalQuantity / availableStocks.length) : 0}
                             </div>
-                            <p className="text-xs text-muted-foreground">Per stock item</p>
+                            <p className="text-xs text-muted-foreground">{t('member.per_stock_item')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Kilo Items</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.kilo_items')}</CardTitle>
                             <Package className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">
                                 {availableStocks.filter(s => s.category === 'Kilo').length}
                             </div>
-                            <p className="text-xs text-muted-foreground">By weight</p>
+                            <p className="text-xs text-muted-foreground">{t('member.by_weight')}</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Piece Items</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.piece_items')}</CardTitle>
                             <Package className="h-4 w-4 text-orange-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">
                                 {availableStocks.filter(s => s.category === 'Pc').length}
                             </div>
-                            <p className="text-xs text-muted-foreground">By piece</p>
+                            <p className="text-xs text-muted-foreground">{t('member.by_piece')}</p>
                         </CardContent>
                     </Card>
                 </div>
@@ -155,23 +157,23 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                 {/* Stocks Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-foreground">Available Stock Details</CardTitle>
+                        <CardTitle className="text-foreground">{t('member.available_stock_details')}</CardTitle>
                         <CardDescription className="text-muted-foreground">
-                            Detailed view of all your available stocks ready for sale
+                            {t('member.detailed_view')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {availableStocks.length > 0 ? (
                             <Table>
-                                <TableCaption>A list of your available stocks</TableCaption>
+                                <TableCaption>{t('member.list_of_available_stocks')}</TableCaption>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-foreground/80">Product</TableHead>
-                                        <TableHead className="text-foreground/80">Type</TableHead>
-                                        <TableHead className="text-foreground/80">Quantity</TableHead>
-                                        <TableHead className="text-foreground/80">Category</TableHead>
-                                        <TableHead className="text-foreground/80">Total Value</TableHead>
-                                        <TableHead className="text-foreground/80">Status</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.product')}</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.type')}</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.quantity')}</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.category')}</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.total_value')}</TableHead>
+                                        <TableHead className="text-foreground/80">{t('member.status')}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -202,7 +204,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="default">
-                                                    Available
+                                                    {t('member.available')}
                                                 </Badge>
                                             </TableCell>
                                         </TableRow>
@@ -212,10 +214,10 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">
                                 <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                                <h3 className="text-lg font-medium mb-2">No Available Stocks</h3>
-                                <p className="text-sm">You don't have any stocks available for sale at the moment.</p>
+                                <h3 className="text-lg font-medium mb-2">{t('member.no_available_stocks')}</h3>
+                                <p className="text-sm">{t('member.no_available_stocks_message')}</p>
                                 <Button asChild className="mt-4">
-                                    <Link href={route('member.dashboard')}>Back to Dashboard</Link>
+                                    <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
                                 </Button>
                             </div>
                         )}

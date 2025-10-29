@@ -12,6 +12,7 @@ import { Package, ArrowLeft, TrendingUp, Users, CheckCircle, XCircle, AlertCircl
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member-header';
 import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -136,6 +137,7 @@ interface PageProps {
 
 export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, transactions, summary }: PageProps) {
     const { auth } = usePage<SharedData>().props;
+    const t = useTranslation();
     const [showTransactions, setShowTransactions] = useState(false);
 
     useEffect(() => {
@@ -200,7 +202,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
-                <Head title="All Stocks" />
+                <Head title={t('member.all_stocks')} />
                 
                 {/* Header */}
                 <div className="mb-8">
@@ -208,7 +210,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         <Button asChild variant="outline" size="sm">
                             <Link href={route('member.dashboard')}>
                                 <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Dashboard
+                                {t('member.back_to_dashboard')}
                             </Link>
                         </Button>
                         
@@ -217,7 +219,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <div className="flex items-center space-x-2">
                                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
                                 <Label htmlFor="view-toggle" className="text-sm text-foreground">
-                                    Stock Overview
+                                    {t('member.stock_overview')}
                                 </Label>
                             </div>
                             <Switch
@@ -228,18 +230,18 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <div className="flex items-center space-x-2">
                                 <History className="h-4 w-4 text-muted-foreground" />
                                 <Label htmlFor="view-toggle" className="text-sm text-foreground">
-                                    Show Transactions
+                                    {t('member.show_transactions')}
                                 </Label>
                             </div>
                         </div>
                     </div>
                     <h1 className="text-3xl font-bold text-foreground">
-                        {showTransactions ? 'Transaction History' : 'All Stocks'}
+                        {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
                     </h1>
                     <p className="text-muted-foreground mt-2">
                         {showTransactions 
-                            ? 'View all transactions related to your stocks' 
-                            : 'Complete overview of all your stock assignments'
+                            ? t('member.transaction_history_description')
+                            : t('member.all_stocks_description')
                         }
                     </p>
                 </div>
@@ -250,67 +252,67 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         <>
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Transactions</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_transactions')}</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-foreground">{summary?.total_transactions || 0}</div>
-                                    <p className="text-xs text-muted-foreground">All time</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.all_time')}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_quantity')}</CardTitle>
                                     <Package className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-foreground">{summary?.total_quantity || 0}</div>
-                                    <p className="text-xs text-muted-foreground">Items sold</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.items_sold_label')}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_revenue')}</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-yellow-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_revenue || 0)}</div>
-                                    <p className="text-xs text-muted-foreground">Gross sales</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.gross_sales')}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Member Revenue</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.member_revenue')}</CardTitle>
                                     <Users className="h-4 w-4 text-purple-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_member_share || 0)}</div>
-                                    <p className="text-xs text-muted-foreground">Your product revenue</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.your_product_revenue')}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.cogs')}</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-orange-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-orange-400">{formatCurrency(summary?.total_cogs || 0)}</div>
-                                    <p className="text-xs text-muted-foreground">Cost of goods sold</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.cost_of_goods_sold_label')}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.gross_profit')}</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{formatCurrency(summary?.total_gross_profit || 0)}</div>
-                                    <p className="text-xs text-muted-foreground">Revenue minus COGS</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.revenue_minus_cogs')}</p>
                                 </CardContent>
                             </Card>
 
@@ -319,67 +321,67 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         <>
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Products</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_products')}</CardTitle>
                                     <Package className="h-4 w-4 text-muted-foreground" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-foreground">{totalProducts}</div>
-                                    <p className="text-xs text-muted-foreground">Different products</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.different_products')}</p>
                                 </CardContent>
                             </Card>
                             {/* Total Kilo Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Kilo</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_kilo')}</CardTitle>
                                     <Package className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-blue-400">{totalKilo}</div>
-                                    <p className="text-xs text-muted-foreground">Total in kilos</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.total_in_kilos')}</p>
                                 </CardContent>
                             </Card>
                             {/* Total Piece Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Piece</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_piece')}</CardTitle>
                                     <Package className="h-4 w-4 text-purple-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-purple-400">{totalPiece}</div>
-                                    <p className="text-xs text-muted-foreground">Total pieces</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.total_pieces')}</p>
                                 </CardContent>
                             </Card>
                             {/* Total Tali Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Total Tali</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_tali')}</CardTitle>
                                     <Package className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{totalTali}</div>
-                                    <p className="text-xs text-muted-foreground">Total in tali</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.total_in_tali')}</p>
                                 </CardContent>
                             </Card>
                             {/* Available Stock Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Available Stock</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.available_stock')}</CardTitle>
                                     <Package className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{totalAvailable}</div>
-                                    <p className="text-xs text-muted-foreground">Items ready for sale</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.items_ready_for_sale')}</p>
                                 </CardContent>
                             </Card>
                             {/* Sold Stock Card */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">Sold Stock</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_stock')}</CardTitle>
                                     <TrendingUp className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
-                                    <p className="text-xs text-muted-foreground">Total items sold</p>
+                                    <p className="text-xs text-muted-foreground">{t('member.items_sold')}</p>
                                 </CardContent>
                             </Card>
                         </>
@@ -391,29 +393,33 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     /* Transaction View */
                     <Card className="">
                         <CardHeader>
-                            <CardTitle className="text-foreground">Transaction History</CardTitle>
+                            <CardTitle className="text-foreground">{t('member.transaction_history_table')}</CardTitle>
                             <CardDescription className="text-muted-foreground">
-                                Showing {transactions?.meta?.from || 0}-{transactions?.meta?.to || 0} of {transactions?.meta?.total || 0} transactions
+                                {t('member.showing_transactions', { 
+                                    from: transactions?.meta?.from || 0, 
+                                    to: transactions?.meta?.to || 0, 
+                                    total: transactions?.meta?.total || 0 
+                                })}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             {!transactions?.data || transactions.data.length === 0 ? (
                                 <div className="text-center py-12">
                                     <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
-                                    <p className="text-muted-foreground">No transactions match your current filters.</p>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">{t('member.no_transactions_found')}</h3>
+                                    <p className="text-muted-foreground">{t('member.no_transactions_match_filters')}</p>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="">
-                                                <TableHead className="text-foreground">Product</TableHead>
-                                                <TableHead className="text-foreground">Category</TableHead>
-                                                <TableHead className="text-foreground">Quantity</TableHead>
-                                                <TableHead className="text-foreground text-right">Subtotal</TableHead>
-                                                <TableHead className="text-foreground">Buyer</TableHead>
-                                                <TableHead className="text-foreground">Date</TableHead>
+                                                <TableHead className="text-foreground">{t('member.product')}</TableHead>
+                                                <TableHead className="text-foreground">{t('member.category')}</TableHead>
+                                                <TableHead className="text-foreground">{t('member.quantity')}</TableHead>
+                                                <TableHead className="text-foreground text-right">{t('member.subtotal')}</TableHead>
+                                                <TableHead className="text-foreground">{t('member.buyer')}</TableHead>
+                                                <TableHead className="text-foreground">{t('member.date')}</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -451,9 +457,9 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     /* Stock Overview */
                     <Card className="">
                         <CardHeader>
-                            <CardTitle className="text-foreground">Stock Quantity Overview</CardTitle>
+                            <CardTitle className="text-foreground">{t('member.stock_quantity_overview')}</CardTitle>
                             <CardDescription className="text-muted-foreground">
-                                Complete breakdown of your stock quantities: Total, Sold, and Available (Balance)
+                                {t('member.complete_breakdown')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -461,18 +467,18 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <div className="space-y-4">
                                 {/* Stock Details Table */}
                                 <Table>
-                                    <TableCaption>Detailed breakdown of all your stock quantities</TableCaption>
+                                    <TableCaption>{t('member.detailed_breakdown')}</TableCaption>
                                     <TableHeader>
                                         <TableRow className="">
-                                            <TableHead className="text-foreground">Product Name</TableHead>
-                                            <TableHead className="text-foreground">Category</TableHead>
-                                            <TableHead className="text-foreground">Total Stock</TableHead>
-                                            <TableHead className="text-foreground">Sold Quantity</TableHead>
-                                            <TableHead className="text-foreground">Available (Balance)</TableHead>
-                                            <TableHead className="text-foreground text-right">Total Revenue</TableHead>
-                                            <TableHead className="text-foreground text-right">COGS</TableHead>
-                                            <TableHead className="text-foreground text-right">Gross Profit</TableHead>
-                                            <TableHead className="text-foreground">Status</TableHead>
+                                            <TableHead className="text-foreground">{t('member.product_name')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.category')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.total_stock_label')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.sold_quantity')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.available_balance')}</TableHead>
+                                            <TableHead className="text-foreground text-right">{t('member.total_revenue')}</TableHead>
+                                            <TableHead className="text-foreground text-right">{t('member.cogs')}</TableHead>
+                                            <TableHead className="text-foreground text-right">{t('member.gross_profit')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.status')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -527,17 +533,17 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                     {item.balance_quantity > 0 ? (
                                                         <Badge className="bg-green-600 text-foreground">
                                                             <CheckCircle className="h-3 w-3 mr-1" />
-                                                            Available
+                                                            {t('member.available')}
                                                         </Badge>
                                                     ) : item.sold_quantity > 0 ? (
                                                         <Badge className="bg-red-600 text-foreground">
                                                             <XCircle className="h-3 w-3 mr-1" />
-                                                            Sold Out
+                                                            {t('member.sold_out')}
                                                         </Badge>
                                                     ) : (
                                                         <Badge className="bg-muted text-foreground">
                                                             <AlertCircle className="h-3 w-3 mr-1" />
-                                                            No Stock
+                                                            {t('member.no_stock')}
                                                         </Badge>
                                                     )}
                                                 </TableCell>
@@ -545,7 +551,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         ))}
                                         {/* Totals Row */}
                                         <TableRow className="bg-muted font-bold">
-                                            <TableCell className="text-foreground">Total</TableCell>
+                                            <TableCell className="text-foreground">{t('member.total_label')}</TableCell>
                                             <TableCell className="text-foreground">-</TableCell>
                                             <TableCell className="text-foreground">
                                                 <div className="flex items-center gap-2">
@@ -594,10 +600,10 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">
                                 <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
-                                <h3 className="text-lg font-medium mb-2">No Stocks Found</h3>
-                                <p className="text-sm">You don't have any stocks at the moment.</p>
+                                <h3 className="text-lg font-medium mb-2">{t('member.no_stocks_found')}</h3>
+                                <p className="text-sm">{t('member.no_stocks_message')}</p>
                                 <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
-                                    <Link href={route('member.dashboard')}>Back to Dashboard</Link>
+                                    <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
                                 </Button>
                             </div>
                         )}

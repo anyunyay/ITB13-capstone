@@ -9,6 +9,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { TrendingUp, ArrowLeft, DollarSign } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member-header';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -47,6 +48,7 @@ interface PageProps {
 
 export default function MemberSoldStocks({ salesData }: PageProps) {
     const { auth } = usePage<SharedData>().props;
+    const t = useTranslation();
 
     useEffect(() => {
         if (!auth?.user) {
@@ -58,16 +60,16 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
         <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
-                <Head title="Sold Stocks" />
+                <Head title={t('member.sold_stocks_page')} />
                 <div className="mb-6">
                     <Button asChild variant="outline" className="mb-4">
                         <Link href={route('member.dashboard')}>
                             <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back to Dashboard
+                            {t('member.back_to_dashboard')}
                         </Link>
                     </Button>
-                    <h1 className="text-3xl font-bold text-foreground">Sold Stocks</h1>
-                    <p className="text-muted-foreground mt-2">View all your successfully sold stocks</p>
+                    <h1 className="text-3xl font-bold text-foreground">{t('member.sold_stocks_page')}</h1>
+                    <p className="text-muted-foreground mt-2">{t('member.view_successfully_sold')}</p>
                 </div>
 
                 {salesData.salesBreakdown.length > 0 ? (
@@ -77,10 +79,10 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                             <CardHeader>
                                 <CardTitle className="flex items-center">
                                     <TrendingUp className="h-5 w-5 mr-2" />
-                                    Sales Summary
+                                    {t('member.sales_summary')}
                                 </CardTitle>
                                 <CardDescription>
-                                    You have sold {salesData.totalQuantitySold} units across {salesData.salesBreakdown.length} products
+                                    {t('member.sold_breakdown', { quantity: salesData.totalQuantitySold, products: salesData.salesBreakdown.length })}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -89,43 +91,43 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalQuantitySold}
                                         </div>
-                                        <div className="text-sm text-blue-100">Units Sold</div>
+                                        <div className="text-sm text-blue-100">{t('member.units_sold')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-green-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalSales}
                                         </div>
-                                        <div className="text-sm text-green-100">Total Sales</div>
+                                        <div className="text-sm text-green-100">{t('member.total_sales')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-yellow-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             ₱{salesData.totalRevenue.toLocaleString()}
                                         </div>
-                                        <div className="text-sm text-yellow-100">Total Revenue</div>
+                                        <div className="text-sm text-yellow-100">{t('member.total_revenue_label')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-orange-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             ₱{salesData.totalCogs.toLocaleString()}
                                         </div>
-                                        <div className="text-sm text-orange-100">COGS</div>
+                                        <div className="text-sm text-orange-100">{t('member.cogs_label')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-purple-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             ₱{salesData.totalGrossProfit.toLocaleString()}
                                         </div>
-                                        <div className="text-sm text-purple-100">Gross Profit</div>
+                                        <div className="text-sm text-purple-100">{t('member.gross_profit_label')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-cyan-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             ₱{salesData.totalQuantitySold > 0 ? Math.round(salesData.totalRevenue / salesData.totalQuantitySold) : 0}
                                         </div>
-                                        <div className="text-sm text-cyan-100">Avg Price/Unit</div>
+                                        <div className="text-sm text-cyan-100">{t('member.avg_price_per_unit')}</div>
                                     </div>
                                     <div className="text-center p-4 bg-teal-600 rounded-lg">
                                         <div className="text-2xl font-bold text-white">
                                             {salesData.totalRevenue > 0 ? Math.round((salesData.totalGrossProfit / salesData.totalRevenue) * 100) : 0}%
                                         </div>
-                                        <div className="text-sm text-teal-100">Profit Margin</div>
+                                        <div className="text-sm text-teal-100">{t('member.profit_margin')}</div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -134,23 +136,23 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                         {/* Sales Breakdown Table */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-foreground">Sales Breakdown</CardTitle>
-                                <CardDescription className="text-muted-foreground">Detailed view of all your sales by product</CardDescription>
+                                <CardTitle className="text-foreground">{t('member.sales_breakdown')}</CardTitle>
+                                <CardDescription className="text-muted-foreground">{t('member.detailed_view_by_product')}</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <Table>
-                                    <TableCaption className="text-muted-foreground">List of all your sales by product</TableCaption>
+                                    <TableCaption className="text-muted-foreground">{t('member.list_of_sales')}</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-center text-foreground/80">Product</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Total Quantity</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Category</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Price/Unit</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Total Revenue</TableHead>
-                                            <TableHead className="text-center text-foreground/80">COGS</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Gross Profit</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Customers</TableHead>
-                                            <TableHead className="text-center text-foreground/80">Sales Count</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.product')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.total_quantity_sold')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.category')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.price_per_unit')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.total_revenue_label')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.cogs_label')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.gross_profit_label')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.customers')}</TableHead>
+                                            <TableHead className="text-center text-foreground/80">{t('member.sales_count')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -200,12 +202,12 @@ export default function MemberSoldStocks({ salesData }: PageProps) {
                     <Card>
                         <CardContent className="text-center py-12">
                             <TrendingUp className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                            <h3 className="text-lg font-medium text-foreground mb-2">No Sales Recorded</h3>
+                            <h3 className="text-lg font-medium text-foreground mb-2">{t('member.no_sales_recorded')}</h3>
                             <p className="text-muted-foreground mb-4">
-                                You haven't made any sales yet.
+                                {t('member.no_sales_recorded_message')}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                Sales will appear here once your stocks are sold to customers.
+                                {t('member.sales_will_appear')}
                             </p>
                         </CardContent>
                     </Card>
