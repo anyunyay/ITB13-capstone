@@ -14,30 +14,51 @@ class LanguageController extends Controller
      */
     public function switch(Request $request)
     {
-        $request->validate([
-            'language' => 'required|in:en,fil'
-        ]);
+        try {
+            $request->validate([
+                'language' => 'required|in:en,fil'
+            ]);
 
-        $language = $request->input('language');
-        
-        // Set the application locale
-        App::setLocale($language);
-        
-        // Store in session for non-authenticated users
-        Session::put('locale', $language);
-        
-        // Store in user preferences if authenticated
-        if (Auth::check()) {
-            $user = Auth::user();
-            $user->language = $language;
-            $user->save();
+            $language = $request->input('language');
+            
+            // Set the application locale
+            App::setLocale($language);
+            
+            // Store in session for all users
+            Session::put('locale', $language);
+            
+            // Store in user preferences if authenticated
+            if (Auth::check()) {
+                $user = Auth::user();
+                $user->language = $language;
+                $user->save();
+            }
+
+            // Return success response
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('appearance.language_updated'),
+                    'language' => $language
+                ]);
+            }
+
+            // For non-JSON requests, redirect back with success message
+            return back()->with('success', __('appearance.language_updated'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Language switch error: ' . $e->getMessage());
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('appearance.language_update_failed'),
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return back()->withErrors(['language' => __('appearance.language_update_failed')]);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => __('appearance.language_updated'),
-            'language' => $language
-        ]);
     }
 
     /**
