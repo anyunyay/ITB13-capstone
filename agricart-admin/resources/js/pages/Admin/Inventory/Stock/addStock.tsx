@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useTranslation } from '@/hooks/use-translation';
 
 
 interface Product {
@@ -54,6 +55,7 @@ interface PageProps {
 }
 
 export default function AddStock({product}: Props) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -76,7 +78,7 @@ export default function AddStock({product}: Props) {
 
     return (
         <AppLayout>
-            <Head title="Add Stock to Product" />
+            <Head title={t('admin.add_stock_to_product')} />
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit} className='space-y-4'>
 
@@ -168,7 +170,7 @@ export default function AddStock({product}: Props) {
                         </div>
                     )}
 
-                    <Button disabled={processing} type="submit">Add Stock</Button>
+                    <Button disabled={processing} type="submit">{t('admin.add_stock_to_product')}</Button>
                 </form>
             </div>
         </AppLayout>

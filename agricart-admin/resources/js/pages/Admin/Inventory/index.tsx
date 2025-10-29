@@ -19,6 +19,7 @@ import { ArchiveProductModal } from '@/components/inventory/archive-product-moda
 import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
 import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
 import { Product, Stock, RemovedStock, SoldStock } from '@/types/inventory';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps extends SharedData {
     products: Product[];
@@ -36,6 +37,7 @@ interface PageProps extends SharedData {
 }
 
 export default function InventoryIndex() {
+    const t = useTranslation();
     const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], stockTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
 
@@ -326,10 +328,10 @@ export default function InventoryIndex() {
     return (
         <PermissionGuard
             permissions={['view inventory', 'create products', 'edit products', 'view archive', 'view stocks', 'create stocks', 'edit stocks', 'view sold stock', 'view stock trail']}
-            pageTitle="Inventory Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Inventory Management" />
+                <Head title={t('admin.inventory_management')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
                         <DashboardHeader stockStats={stockStats} />
@@ -340,7 +342,7 @@ export default function InventoryIndex() {
                             {errors.archive && (
                                 <Alert className="border-destructive/50 bg-destructive/10">
                                     <AlertTriangle className='h-4 w-4 text-destructive' />
-                                    <AlertTitle>Error!</AlertTitle>
+                                    <AlertTitle>{t('admin.error')}</AlertTitle>
                                     <AlertDescription>{errors.archive}</AlertDescription>
                                 </Alert>
                             )}
@@ -351,11 +353,11 @@ export default function InventoryIndex() {
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="products" className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />
-                                    Product Management
+                                    {t('admin.products_tab')}
                                 </TabsTrigger>
                                 <TabsTrigger value="stocks" className="flex items-center gap-2">
                                     <Warehouse className="h-4 w-4" />
-                                    Stock Management
+                                    {t('admin.stocks_tab')}
                                 </TabsTrigger>
                             </TabsList>
 

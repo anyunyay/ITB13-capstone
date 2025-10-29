@@ -8,8 +8,10 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { OctagonAlert, Terminal } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function Create() {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -40,7 +42,7 @@ export default function Create() {
 
     return (
         <AppLayout>
-            <Head title="Create a New Product"/>
+            <Head title={t('admin.create_new_product')}/>
             <div className='w-8/12 p-4'>
                 <form onSubmit={handleSubmit}  className='space-y-4'>
 

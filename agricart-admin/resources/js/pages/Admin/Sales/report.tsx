@@ -12,6 +12,7 @@ import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, Do
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Sale {
   id: number;
@@ -77,6 +78,7 @@ interface ReportPageProps {
 }
 
 export default function SalesReport({ sales, memberSales, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   
@@ -200,7 +202,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
 
   return (
     <AppLayout>
-      <Head title="Sales Report" />
+      <Head title={t('admin.sales_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}

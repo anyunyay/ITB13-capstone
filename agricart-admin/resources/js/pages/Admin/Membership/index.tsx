@@ -12,6 +12,7 @@ import { DeactivationModal } from '@/components/membership/deactivation-modal';
 import { PasswordApprovalModal } from '@/components/membership/password-approval-modal';
 import { PasswordRejectionModal } from '@/components/membership/password-rejection-modal';
 import { Member, PasswordChangeRequest, MemberStats } from '../../../types/membership';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps {
     flash: {
@@ -24,6 +25,7 @@ interface PageProps {
 }
 
 export default function Index() {
+    const t = useTranslation();
     const { members, flash, auth, pendingPasswordRequests } = usePage<PageProps & SharedData>().props;
     
     // State management
@@ -245,10 +247,10 @@ export default function Index() {
     return (
         <PermissionGuard 
             permissions={['view membership']}
-            pageTitle="Membership Management Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Membership Management" />
+                <Head title={t('admin.member_management')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col px-4 py-4 sm:px-6 lg:px-8">
                         <DashboardHeader memberStats={memberStats} />

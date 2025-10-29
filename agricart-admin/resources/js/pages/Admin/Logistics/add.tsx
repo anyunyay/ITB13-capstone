@@ -16,6 +16,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
+import { useTranslation } from '@/hooks/use-translation';
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -36,6 +37,7 @@ function isValidDate(date: Date | undefined) {
 }
 
 export default function Index() {
+    const t = useTranslation();
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
 
@@ -75,10 +77,10 @@ export default function Index() {
     return (
         <PermissionGuard 
             permission="create logistics"
-            pageTitle="Create Logistics Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Add Logistics Partner" />
+                <Head title={t('admin.add_logistics_partner')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Header Section */}
@@ -88,9 +90,9 @@ export default function Index() {
                                     <div className="flex items-center gap-2">
                                         <IdCard className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                                         <div>
-                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Add Logistics Partner</h1>
+                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.add_logistics_partner')}</h1>
                                             <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                                                Register a new logistics partner to handle deliveries
+                                                {t('admin.logistic_management_description')}
                                             </p>
                                         </div>
                                     </div>

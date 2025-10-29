@@ -8,6 +8,7 @@ import PasswordInput from '@/components/ui/password-input';
 import { ArrowLeft, Save } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Permission {
   id: number;
@@ -36,6 +37,7 @@ interface Props {
 }
 
 export default function StaffEdit({ staff, availablePermissions }: Props) {
+  const t = useTranslation();
   const { data, setData, put, processing, errors } = useForm({
     name: staff.name,
     email: staff.email,
@@ -52,8 +54,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
   // Define permission groups with their detailed permissions
   const permissionGroups = [
     {
-      name: 'Inventory Management',
-      description: 'Full access to inventory management including products, archive, stocks, and tracking',
+      name: t('admin.inventory_management_permissions'),
+      description: t('admin.inventory_permissions_description'),
       permissions: [
         'view inventory',
         'create products',
@@ -70,8 +72,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Order Management',
-      description: 'Access to order management and processing',
+      name: t('admin.order_management_permissions'),
+      description: t('admin.order_permissions_description'),
       permissions: [
         'view orders',
         'manage orders',
@@ -86,8 +88,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Sales Management',
-      description: 'Access to sales data and reporting',
+      name: t('admin.sales_management_permissions'),
+      description: t('admin.sales_permissions_description'),
       permissions: [
         'view sales',
         'view member sales',
@@ -96,8 +98,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Logistics Management',
-      description: 'Access to logistics management and operations',
+      name: t('admin.logistics_management_permissions'),
+      description: t('admin.logistics_permissions_description'),
       permissions: [
         'view logistics',
         'create logistics',
@@ -108,8 +110,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Trend Analysis',
-      description: 'Access to trend analysis and reporting',
+      name: t('admin.trend_analysis_permissions'),
+      description: t('admin.trend_permissions_description'),
       permissions: [
         'view trend analysis',
         'generate trend report'
@@ -164,10 +166,10 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
   return (
     <PermissionGuard 
       permission="edit staffs"
-      pageTitle="Edit Staff Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title={`Edit Staff Member - ${staff.name}`} />
+        <Head title={t('admin.edit_staff_member')} />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
@@ -178,9 +180,9 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edit Staff Member</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('admin.edit_staff_member')}</h1>
             <p className="text-muted-foreground">
-              Update staff member information and permissions
+              {t('admin.update_staff_description')}
             </p>
           </div>
         </div>

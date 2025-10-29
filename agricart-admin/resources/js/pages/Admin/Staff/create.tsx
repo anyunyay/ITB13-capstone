@@ -8,6 +8,7 @@ import PasswordInput from '@/components/ui/password-input';
 import { ArrowLeft, Save } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Permission {
   id: number;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function StaffCreate({ availablePermissions }: Props) {
+  const t = useTranslation();
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
@@ -34,8 +36,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
   // Define permission groups with their detailed permissions
   const permissionGroups = [
     {
-      name: 'Inventory Management',
-      description: 'Full access to inventory management including products, archive, stocks, and tracking',
+      name: t('admin.inventory_management_permissions'),
+      description: t('admin.inventory_permissions_description'),
       permissions: [
         'view inventory',
         'create products',
@@ -52,8 +54,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Order Management',
-      description: 'Access to order management and processing',
+      name: t('admin.order_management_permissions'),
+      description: t('admin.order_permissions_description'),
       permissions: [
         'view orders',
         'manage orders',
@@ -68,8 +70,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Sales Management',
-      description: 'Access to sales data and reporting',
+      name: t('admin.sales_management_permissions'),
+      description: t('admin.sales_permissions_description'),
       permissions: [
         'view sales',
         'view member sales',
@@ -78,8 +80,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Logistics Management',
-      description: 'Access to logistics management and operations',
+      name: t('admin.logistics_management_permissions'),
+      description: t('admin.logistics_permissions_description'),
       permissions: [
         'view logistics',
         'create logistics',
@@ -90,8 +92,8 @@ export default function StaffCreate({ availablePermissions }: Props) {
       ]
     },
     {
-      name: 'Trend Analysis',
-      description: 'Access to trend analysis and reporting',
+      name: t('admin.trend_analysis_permissions'),
+      description: t('admin.trend_permissions_description'),
       permissions: [
         'view trend analysis',
         'generate trend report'
@@ -146,39 +148,39 @@ export default function StaffCreate({ availablePermissions }: Props) {
   return (
     <PermissionGuard 
       permission="create staffs"
-      pageTitle="Create Staff Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title="Add Staff Member" />
+        <Head title={t('admin.add_staff_member')} />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Staff
+              {t('admin.back_to_staff')}
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Add Staff Member</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('admin.add_staff_member')}</h1>
             <p className="text-muted-foreground">
-              Create a new staff member and assign their permissions
+              {t('admin.create_staff_description')}
             </p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+            <CardTitle>{t('admin.staff')} {t('admin.profile_information')}</CardTitle>
             <CardDescription>
-              Enter the staff member's basic information
+              {t('admin.create_staff_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('admin.name')}</Label>
                   <Input
                     id="name"
                     type="text"
@@ -196,7 +198,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('admin.email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -210,7 +212,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t('admin.password')}</Label>
                   <PasswordInput
                     id="password"
                     value={data.password}
@@ -223,7 +225,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact_number">Contact Number</Label>
+                  <Label htmlFor="contact_number">{t('admin.contact_number')}</Label>
                   <Input
                     id="contact_number"
                     type="tel"
@@ -244,15 +246,15 @@ export default function StaffCreate({ availablePermissions }: Props) {
               {/* Address Section */}
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base font-medium">Address Information</Label>
+                  <Label className="text-base font-medium">{t('admin.address_information')}</Label>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Enter the staff member's address.
+                    {t('admin.enter_staff_address')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="street">Street Address</Label>
+                    <Label htmlFor="street">{t('admin.street')}</Label>
                     <Input
                       id="street"
                       type="text"
@@ -267,7 +269,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="barangay">Barangay</Label>
+                    <Label htmlFor="barangay">{t('admin.barangay')}</Label>
                     <Input
                       id="barangay"
                       type="text"
@@ -282,7 +284,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
+                    <Label htmlFor="city">{t('admin.city')}</Label>
                     <Input
                       id="city"
                       type="text"
@@ -297,7 +299,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="province">Province</Label>
+                    <Label htmlFor="province">{t('admin.province')}</Label>
                     <Input
                       id="province"
                       type="text"
@@ -317,9 +319,9 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 {/* Access Permission Groups */}
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">Access Permissions</Label>
+                    <Label className="text-base font-medium">{t('admin.permissions')}</Label>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Select the main access areas this staff member should have.
+                      {t('admin.select_access_areas')}
                     </p>
                   </div>
 
@@ -413,11 +415,11 @@ export default function StaffCreate({ availablePermissions }: Props) {
 
               <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" asChild>
-                  <Link href="/admin/staff">Cancel</Link>
+                  <Link href="/admin/staff">{t('admin.cancel')}</Link>
                 </Button>
                 <Button type="submit" disabled={processing}>
                   <Save className="mr-2 h-4 w-4" />
-                  {processing ? 'Creating...' : 'Create Staff Member'}
+                  {processing ? t('admin.creating') : t('admin.add_staff_member')}
                 </Button>
               </div>
             </form>

@@ -12,6 +12,7 @@ import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Calendar, DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Sale {
   id: number;
@@ -71,6 +72,7 @@ interface SalesPageProps {
 }
 
 export default function SalesIndex({ sales, pendingOrders, summary, memberSales, filters }: SalesPageProps) {
+  const t = useTranslation();
   const { can } = usePermissions();
   
   // Sorting state
@@ -132,10 +134,10 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
   return (
     <PermissionGuard 
       permissions={['view sales', 'generate sales report']}
-      pageTitle="Sales Management Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title="Sales Management" />
+        <Head title={t('admin.sales_management')} />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
             {/* Dashboard Header */}

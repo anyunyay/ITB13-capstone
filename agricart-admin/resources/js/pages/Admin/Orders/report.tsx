@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
   id: number;
@@ -92,6 +93,7 @@ interface ReportPageProps {
 }
 
 export default function OrderReport({ orders, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -262,7 +264,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
 
   return (
     <AppSidebarLayout>
-      <Head title="Order Report" />
+      <Head title={t('admin.order_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
@@ -273,20 +275,20 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                   <BarChart3 className="h-8 w-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Order Report</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('admin.order_report')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Generate comprehensive order reports and analytics
+                    {t('admin.order_report_description')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  {t('admin.export_csv')}
                 </Button>
                 <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  {t('admin.export_pdf')}
                 </Button>
               </div>
             </div>

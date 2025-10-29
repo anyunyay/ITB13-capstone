@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useTranslation } from '@/hooks/use-translation';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -39,6 +40,7 @@ interface PageProps {
 }
 
 export default function TrendsIndex({ products, dateRange }: PageProps) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -695,9 +697,9 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     }, [series, chartData]);
 
     return (
-        <PermissionGuard permissions={['view inventory']} pageTitle="Trend Analysis Access Denied">
+        <PermissionGuard permissions={['view inventory']} pageTitle={t('admin.access_denied')}>
             <AppLayout>
-                <Head title="Trend Analysis" />
+                <Head title={t('admin.trends_management')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Dashboard Header */}

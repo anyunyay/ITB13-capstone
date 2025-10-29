@@ -73,6 +73,7 @@ const validateRequired = (value: string) => {
 };
 
 export default function Index() {
+    const t = useTranslation();
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
 
@@ -152,10 +153,10 @@ export default function Index() {
     return (
         <PermissionGuard 
             permission="create members"
-            pageTitle="Create Member Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Add Member" />
+                <Head title={t('admin.add_member')} />
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="flex items-center gap-2 mb-6">

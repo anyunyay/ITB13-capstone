@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { useTranslation } from '@/hooks/use-translation';
 
 type ProfileForm = {
     name: string;
@@ -18,6 +19,7 @@ type ProfileForm = {
 };
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+    const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
@@ -40,15 +42,15 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     return (
         <AppLayout>
-            <Head title="Profile settings" />
+            <Head title={t('admin.profile_settings')} />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name and email address" />
+                    <HeadingSmall title={t('admin.profile_information')} description={t('admin.update_name_email')} />
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="name">{t('admin.name')}</Label>
 
                             <Input
                                 id="name"
@@ -60,14 +62,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 }}
                                 required
                                 autoComplete="name"
-                                placeholder="Full name"
+                                placeholder={t('admin.full_name')}
                             />
 
                             <InputError className="mt-2" message={errors.name} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
+                            <Label htmlFor="email">{t('admin.email_address')}</Label>
 
                             <Input
                                 id="email"
@@ -77,7 +79,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
                                 autoComplete="username"
-                                placeholder="Email address"
+                                placeholder={t('admin.email_address')}
                             />
 
                             <InputError className="mt-2" message={errors.email} />
@@ -86,27 +88,27 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
                             <div>
                                 <p className="-mt-4 text-sm text-muted-foreground">
-                                    Your email address is unverified.{' '}
+                                    {t('admin.email_unverified')}{' '}
                                     <Link
                                         href={route('verification.send')}
                                         method="post"
                                         as="button"
                                         className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                     >
-                                        Click here to resend the verification email.
+                                        {t('admin.resend_verification')}
                                     </Link>
                                 </p>
 
                                 {status === 'verification-link-sent' && (
                                     <div className="mt-2 text-sm font-medium text-green-600">
-                                        A new verification link has been sent to your email address.
+                                        {t('admin.verification_sent')}
                                     </div>
                                 )}
                             </div>
                         )}
 
                         <div className="flex items-center gap-2">
-                            <Button disabled={processing}>Save</Button>
+                            <Button disabled={processing}>{t('admin.save')}</Button>
 
                             <Transition
                                 show={recentlySuccessful}

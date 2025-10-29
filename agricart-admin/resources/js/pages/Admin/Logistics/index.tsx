@@ -12,6 +12,7 @@ import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps extends SharedData {
     logistics: Logistic[];
@@ -22,6 +23,7 @@ interface PageProps extends SharedData {
 }
 
 export default function Index() {
+    const t = useTranslation();
     const { logistics = [], flash, auth } = usePage<PageProps>().props;
     
     // State management
@@ -156,10 +158,10 @@ export default function Index() {
     return (
         <PermissionGuard 
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
-            pageTitle="Logistics Management Access Denied"
+            pageTitle={t('admin.access_denied')}
         >
             <AppLayout>
-                <Head title="Logistics Management" />
+                <Head title={t('admin.logistic_management')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Flash Messages */}

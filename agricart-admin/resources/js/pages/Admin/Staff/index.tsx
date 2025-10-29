@@ -10,6 +10,7 @@ import { StaffManagement } from '@/components/staff/staff-management';
 import { Staff, StaffStats, StaffFilters, StaffPagination } from '@/types/staff';
 import { useState, useMemo } from 'react';
 import { route } from 'ziggy-js';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Props {
   staff: StaffPagination;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function StaffIndex({ staff, staffStats, filters }: Props) {
+  const t = useTranslation();
   const { props } = usePage<SharedData>();
   const { createStaffs, editStaffs, deleteStaffs } = props.permissions || {};
 
@@ -182,10 +184,10 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
   return (
     <PermissionGuard 
       permissions={['view staffs', 'create staffs', 'edit staffs', 'delete staffs']}
-      pageTitle="Staff Management Access Denied"
+      pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title="Staff Management" />
+        <Head title={t('admin.staff_management')} />
         
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
@@ -198,9 +200,9 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
                       <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Staff Management</h1>
+                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.staff_management')}</h1>
                       <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                        Manage staff members and their permissions with comprehensive oversight
+                        {t('admin.staff_management_description')}
                       </p>
                     </div>
                   </div>
