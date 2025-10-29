@@ -7,8 +7,10 @@ import { DashboardHeader } from '@/components/orders/dashboard-header';
 import { OrderManagement } from '@/components/orders/order-management';
 import { Order, OrdersPageProps } from '@/types/orders';
 import animations from './orders-animations.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function OrdersIndex({ orders, allOrders, currentStatus, highlightOrderId, urgentOrders = [], showUrgentApproval = false }: OrdersPageProps) {
+  const t = useTranslation();
   // Ensure urgentOrders is always an array
   const safeUrgentOrders = Array.isArray(urgentOrders) ? urgentOrders : [];
 
@@ -103,10 +105,10 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   return (
     <PermissionGuard 
       permissions={['view orders', 'manage orders', 'generate order report']}
-      pageTitle="Order Management Access Denied"
+      pageTitle={t('admin.order_management_access_denied')}
     >
       <AppLayout>
-        <Head title="Order Management" />
+        <Head title={t('admin.order_management')} />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
             <DashboardHeader orderStats={orderStats} />

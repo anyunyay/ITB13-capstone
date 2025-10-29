@@ -19,6 +19,7 @@ import { ReceiptPreview } from '@/components/orders/receipt-preview';
 import { LogisticAssignment } from '@/components/orders/logistic-assignment';
 import { OrderReady } from '@/components/orders/order-ready';
 import { OrderPickup } from '@/components/orders/order-pickup';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderItem {
   id: number;
@@ -118,6 +119,7 @@ interface OrderShowProps {
 }
 
 export default function OrderShow({ order, logistics, highlight = false, isUrgent = false, canApprove = true, orderAge = 0 }: OrderShowProps) {
+  const t = useTranslation();
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [assignLogisticDialogOpen, setAssignLogisticDialogOpen] = useState(false);
@@ -199,17 +201,17 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('admin.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default">Approved</Badge>;
+        return <Badge variant="default">{t('admin.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t('admin.rejected')}</Badge>;
       case 'expired':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.expired')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Delayed</Badge>;
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -309,29 +311,29 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
 
   return (
     <AppLayout>
-      <Head title={`Order #${order.id}`} />
+      <Head title={t('admin.order_id', { id: order.id })} />
       <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-primary rounded-lg shadow-lg bg-primary/5' : ''}`}>
         <div className="flex flex-col gap-2 mb-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Order #{order.id}</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t('admin.order_id', { id: order.id })}</h1>
             <p className="text-muted-foreground">
-              Placed on {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+              {t('admin.placed_on', { date: format(new Date(order.created_at), 'MMM dd, yyyy HH:mm') })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {getStatusBadge(order.status)}
             {isUrgent && (
               <Badge variant="destructive" className="animate-pulse">
-                {order.is_urgent ? 'Urgent (Manual)' : `Urgent - ${24 - orderAge}h left`}
+                {order.is_urgent ? t('admin.urgent_manual') : t('admin.urgent_time_left', { hours: 24 - orderAge })}
               </Badge>
             )}
             {!canApprove && order.status === 'pending' && (
               <Badge variant="destructive">
-                Approval Time Expired
+                {t('admin.approval_time_expired')}
               </Badge>
             )}
             <Link href={route('admin.orders.index')}>
-              <Button variant="outline" className="whitespace-nowrap">Back to Orders</Button>
+              <Button variant="outline" className="whitespace-nowrap">{t('admin.back_to_orders')}</Button>
             </Link>
           </div>
         </div>

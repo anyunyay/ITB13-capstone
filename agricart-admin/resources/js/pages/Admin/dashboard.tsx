@@ -19,6 +19,7 @@ import {
     Star
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/permission-guard';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface DashboardProps {
     ordersStats: {
@@ -104,6 +105,8 @@ export default function Dashboard({
     memberPerformance,
     logisticsPerformance
 }: DashboardProps) {
+    const t = useTranslation();
+    
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-PH', {
             style: 'currency',
@@ -113,12 +116,12 @@ export default function Dashboard({
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
-            pending: { variant: 'secondary' as const, label: 'Pending' },
-            approved: { variant: 'default' as const, label: 'Approved' },
-            rejected: { variant: 'destructive' as const, label: 'Rejected' },
-            delayed: { variant: 'destructive' as const, label: 'Delayed' },
-            delivered: { variant: 'default' as const, label: 'Delivered' },
-            out_for_delivery: { variant: 'default' as const, label: 'Out for Delivery' }
+            pending: { variant: 'secondary' as const, label: t('admin.pending') },
+            approved: { variant: 'default' as const, label: t('admin.approved') },
+            rejected: { variant: 'destructive' as const, label: t('admin.rejected') },
+            delayed: { variant: 'destructive' as const, label: t('admin.delayed') },
+            delivered: { variant: 'default' as const, label: t('admin.delivered') },
+            out_for_delivery: { variant: 'default' as const, label: t('admin.out_for_delivery') }
         };
         
         const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'outline' as const, label: status };
@@ -128,10 +131,10 @@ export default function Dashboard({
     return (
         <PermissionGuard 
             permissions={['view inventory', 'view orders', 'view logistics', 'view staffs', 'view members']}
-            pageTitle="Dashboard Access Denied"
+            pageTitle={t('admin.dashboard_access_denied')}
         >
             <AppSidebarLayout>
-                <Head title="Admin Dashboard" />
+                <Head title={t('admin.dashboard_title')} />
                 <div className="min-h-screen bg-background">
                     <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                         {/* Dashboard Header */}
@@ -143,9 +146,9 @@ export default function Dashboard({
                                             <BarChart3 className="h-6 w-6" />
                                         </div>
                                         <div>
-                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Admin Dashboard</h1>
+                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.dashboard_title')}</h1>
                                             <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                                                Overview of all system activities and performance metrics
+                                                {t('admin.dashboard_description')}
                                             </p>
                                         </div>
                                     </div>
@@ -154,13 +157,13 @@ export default function Dashboard({
                                     <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('admin.orders.index')}>
                                             <ShoppingCart className="h-4 w-4 mr-2 inline" />
-                                            View Orders
+                                            {t('admin.view_orders')}
                                         </Link>
                                     </Button>
                                     <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('inventory.index')}>
                                             <Package className="h-4 w-4 mr-2 inline" />
-                                            Manage Inventory
+                                            {t('admin.manage_inventory')}
                                         </Link>
                                     </Button>
                                 </div>
@@ -172,13 +175,13 @@ export default function Dashboard({
                         {/* Orders Today */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Orders Today</CardTitle>
+                                <CardTitle className="text-sm font-medium">{t('admin.orders_today')}</CardTitle>
                                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{ordersStats.today.orders}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    {formatCurrency(ordersStats.today.revenue)} revenue
+                                    {formatCurrency(ordersStats.today.revenue)} {t('admin.revenue')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -186,13 +189,13 @@ export default function Dashboard({
                         {/* Total Products */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                                <CardTitle className="text-sm font-medium">{t('admin.total_products')}</CardTitle>
                                 <Package className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{inventoryStats.totalProducts}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    {inventoryStats.activeProducts} active, {inventoryStats.archivedProducts} archived
+                                    {inventoryStats.activeProducts} {t('admin.active')}, {inventoryStats.archivedProducts} {t('admin.archived')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -200,7 +203,7 @@ export default function Dashboard({
                         {/* Total Users */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                                <CardTitle className="text-sm font-medium">{t('admin.total_users')}</CardTitle>
                                 <Users className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
@@ -208,7 +211,7 @@ export default function Dashboard({
                                     {Object.values(userStats.userCounts).reduce((a, b) => a + b, 0)}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
-                                    {userStats.newUsersThisMonth} new this month
+                                    {userStats.newUsersThisMonth} {t('admin.new_this_month')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -216,13 +219,13 @@ export default function Dashboard({
                         {/* Total Revenue */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                                <CardTitle className="text-sm font-medium">{t('admin.total_revenue')}</CardTitle>
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{formatCurrency(salesStats.totalSales)}</div>
                                 <p className="text-xs text-muted-foreground">
-                                    {salesStats.totalOrders} total orders
+                                    {salesStats.totalOrders} {t('admin.total_orders')}
                                 </p>
                             </CardContent>
                         </Card>
@@ -233,18 +236,18 @@ export default function Dashboard({
                         {/* Urgent Orders */}
                         <Card className="border-red-200 bg-red-50">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-red-800">Urgent Orders</CardTitle>
+                                <CardTitle className="text-sm font-medium text-red-800">{t('admin.urgent_orders')}</CardTitle>
                                 <AlertTriangle className="h-4 w-4 text-red-600" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-red-800">{ordersStats.urgentOrders}</div>
                                 <p className="text-xs text-red-600">
-                                    Need immediate attention
+                                    {t('admin.need_immediate_attention')}
                                 </p>
                                 {ordersStats.urgentOrders > 0 && (
                                     <Link href={route('admin.orders.index', { urgent_approval: true })}>
                                         <Button size="sm" className="mt-2 bg-red-600 hover:bg-red-700">
-                                            View Urgent Orders
+                                            {t('admin.view_urgent_orders')}
                                         </Button>
                                     </Link>
                                 )}
@@ -254,18 +257,18 @@ export default function Dashboard({
                         {/* Low Stock Alerts */}
                         <Card className="border-orange-200 bg-orange-50">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-orange-800">Low Stock</CardTitle>
+                                <CardTitle className="text-sm font-medium text-orange-800">{t('admin.low_stock')}</CardTitle>
                                 <Package className="h-4 w-4 text-orange-600" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-orange-800">{lowStockAlerts.length}</div>
                                 <p className="text-xs text-orange-600">
-                                    Products need restocking
+                                    {t('admin.products_need_restocking')}
                                 </p>
                                 {lowStockAlerts.length > 0 && (
                                     <Link href={route('inventory.index')}>
                                         <Button size="sm" className="mt-2 bg-orange-600 hover:bg-orange-700">
-                                            Manage Stock
+                                            {t('admin.manage_stock')}
                                         </Button>
                                     </Link>
                                 )}
@@ -275,18 +278,18 @@ export default function Dashboard({
                         {/* Delayed Orders */}
                         <Card className="border-yellow-200 bg-yellow-50">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-yellow-800">Delayed Orders</CardTitle>
+                                <CardTitle className="text-sm font-medium text-yellow-800">{t('admin.delayed_orders')}</CardTitle>
                                 <Clock className="h-4 w-4 text-yellow-600" />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold text-yellow-800">{ordersStats.delayedOrders}</div>
                                 <p className="text-xs text-yellow-600">
-                                    Over 24 hours pending
+                                    {t('admin.over_24_hours_pending')}
                                 </p>
                                 {ordersStats.delayedOrders > 0 && (
                                     <Link href={route('admin.orders.index', { status: 'delayed' })}>
                                         <Button size="sm" className="mt-2 bg-yellow-600 hover:bg-yellow-700">
-                                            View Delayed
+                                            {t('admin.view_delayed')}
                                         </Button>
                                     </Link>
                                 )}
@@ -297,10 +300,10 @@ export default function Dashboard({
                     {/* Main Content Tabs */}
                     <Tabs defaultValue="overview" className="w-full">
                         <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="overview">Overview</TabsTrigger>
-                            <TabsTrigger value="performance">Performance</TabsTrigger>
-                            <TabsTrigger value="inventory">Inventory</TabsTrigger>
-                            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+                            <TabsTrigger value="overview">{t('admin.overview_tab')}</TabsTrigger>
+                            <TabsTrigger value="performance">{t('admin.performance_tab')}</TabsTrigger>
+                            <TabsTrigger value="inventory">{t('admin.inventory_tab')}</TabsTrigger>
+                            <TabsTrigger value="activity">{t('admin.activity_tab')}</TabsTrigger>
                         </TabsList>
 
                         {/* Overview Tab */}
@@ -309,7 +312,7 @@ export default function Dashboard({
                                 {/* Order Status Breakdown */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Order Status Breakdown</CardTitle>
+                                        <CardTitle>{t('admin.order_status_breakdown')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2">
@@ -328,7 +331,7 @@ export default function Dashboard({
                                 {/* User Distribution */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>User Distribution</CardTitle>
+                                        <CardTitle>{t('admin.user_distribution')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2">
@@ -349,7 +352,7 @@ export default function Dashboard({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <TrendingUp className="h-5 w-5" />
-                                            Order Growth
+                                            {t('admin.order_growth')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -357,7 +360,7 @@ export default function Dashboard({
                                             {ordersStats.orderGrowth > 0 ? '+' : ''}{ordersStats.orderGrowth}%
                                         </div>
                                         <p className="text-sm text-muted-foreground">
-                                            vs last month ({ordersStats.month.orders} vs {ordersStats.lastMonth.orders})
+                                            {t('admin.vs_last_month')} ({ordersStats.month.orders} vs {ordersStats.lastMonth.orders})
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -366,7 +369,7 @@ export default function Dashboard({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <DollarSign className="h-5 w-5" />
-                                            Revenue Growth
+                                            {t('admin.revenue_growth')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -374,7 +377,7 @@ export default function Dashboard({
                                             {ordersStats.revenueGrowth > 0 ? '+' : ''}{ordersStats.revenueGrowth}%
                                         </div>
                                         <p className="text-sm text-muted-foreground">
-                                            vs last month ({formatCurrency(ordersStats.month.revenue)} vs {formatCurrency(ordersStats.lastMonth.revenue)})
+                                            {t('admin.vs_last_month')} ({formatCurrency(ordersStats.month.revenue)} vs {formatCurrency(ordersStats.lastMonth.revenue)})
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -389,7 +392,7 @@ export default function Dashboard({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <Star className="h-5 w-5" />
-                                            Top Selling Products
+                                            {t('admin.top_selling_products')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -399,10 +402,10 @@ export default function Dashboard({
                                                     <div>
                                                         <div className="font-medium">{product.name}</div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {product.produce_type} • {product.order_count} orders
+                                                            {product.produce_type} • {product.order_count} {t('admin.orders')}
                                                         </div>
                                                     </div>
-                                                    <Badge variant="outline">{product.total_quantity} sold</Badge>
+                                                    <Badge variant="outline">{product.total_quantity} {t('admin.sold')}</Badge>
                                                 </div>
                                             ))}
                                         </div>
@@ -414,7 +417,7 @@ export default function Dashboard({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <UserCheck className="h-5 w-5" />
-                                            Top Members
+                                            {t('admin.top_members')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -424,13 +427,13 @@ export default function Dashboard({
                                                     <div>
                                                         <div className="font-medium">{member.name}</div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {member.sold_stocks}/{member.total_stocks} stocks sold
+                                                            {member.sold_stocks}/{member.total_stocks} {t('admin.stocks_sold')}
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
                                                         <div className="font-medium">{formatCurrency(member.total_earnings)}</div>
                                                         <div className="text-sm text-muted-foreground">
-                                                            {formatCurrency(member.available_earnings)} available
+                                                            {formatCurrency(member.available_earnings)} {t('admin.available')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -445,7 +448,7 @@ export default function Dashboard({
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <Truck className="h-5 w-5" />
-                                        Logistics Performance
+                                        {t('admin.logistics_performance')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -454,7 +457,7 @@ export default function Dashboard({
                                             <div key={logistic.id} className="border rounded-lg p-4">
                                                 <div className="font-medium">{logistic.name}</div>
                                                 <div className="text-sm text-muted-foreground mt-1">
-                                                    {logistic.delivered_orders}/{logistic.total_orders} delivered
+                                                    {logistic.delivered_orders}/{logistic.total_orders} {t('admin.delivered')}
                                                 </div>
                                                 <div className="text-lg font-bold text-green-600 mt-2">
                                                     {logistic.delivery_rate}%
@@ -472,24 +475,24 @@ export default function Dashboard({
                                 {/* Stock Overview */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Stock Overview</CardTitle>
+                                        <CardTitle>{t('admin.stock_overview')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-3">
                                             <div className="flex justify-between">
-                                                <span>Total Stock</span>
+                                                <span>{t('admin.total_stock')}</span>
                                                 <span className="font-medium">{inventoryStats.totalStock}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span>Available Stock</span>
+                                                <span>{t('admin.available_stock')}</span>
                                                 <span className="font-medium text-green-600">{inventoryStats.availableStock}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span>Sold Stock</span>
+                                                <span>{t('admin.sold_stock')}</span>
                                                 <span className="font-medium text-blue-600">{inventoryStats.soldStock}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span>Completely Sold</span>
+                                                <span>{t('admin.completely_sold_stock')}</span>
                                                 <span className="font-medium text-purple-600">{inventoryStats.completelySoldStock}</span>
                                             </div>
                                         </div>
@@ -499,7 +502,7 @@ export default function Dashboard({
                                 {/* Products by Category */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Products by Category</CardTitle>
+                                        <CardTitle>{t('admin.products_by_category')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2">
@@ -507,8 +510,8 @@ export default function Dashboard({
                                                 <div key={category.category} className="flex items-center justify-between">
                                                     <span className="capitalize">{category.category}</span>
                                                     <div className="text-right">
-                                                        <div className="font-medium">{category.count} products</div>
-                                                        <div className="text-sm text-muted-foreground">{category.total_quantity} total stock</div>
+                                                        <div className="font-medium">{category.count} {t('admin.products')}</div>
+                                                        <div className="text-sm text-muted-foreground">{category.total_quantity} {t('admin.total_stock')}</div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -523,7 +526,7 @@ export default function Dashboard({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2 text-orange-600">
                                             <AlertTriangle className="h-5 w-5" />
-                                            Low Stock Alerts
+                                            {t('admin.low_stock_products')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
@@ -551,7 +554,7 @@ export default function Dashboard({
                                 {/* Recent Orders */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Recent Orders</CardTitle>
+                                        <CardTitle>{t('admin.pending_orders')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-3">
@@ -578,7 +581,7 @@ export default function Dashboard({
                                 {/* Recent Activity */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Recent Activity</CardTitle>
+                                        <CardTitle>{t('admin.recent_activity')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-3">
