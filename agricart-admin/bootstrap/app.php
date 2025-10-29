@@ -7,7 +7,6 @@ use App\Http\Middleware\CheckSingleSession;
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\CheckPasswordChangeRequired;
 use App\Http\Middleware\LoginRateLimit;
-use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,7 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
-            SetLocale::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

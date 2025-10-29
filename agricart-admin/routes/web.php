@@ -35,7 +35,6 @@ use App\Http\Controllers\Security\EmailChangeController;
 use App\Http\Controllers\Security\PhoneChangeController;
 use App\Http\Controllers\Security\PasswordChangeController;
 use App\Http\Controllers\Security\CredentialsController;
-use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -426,10 +425,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'update'])->name('user.appearance.update');
     Route::get('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'show'])->name('user.appearance.show');
 });
-
-// Language switching routes
-Route::post('/language/switch', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
-Route::get('/language/current', [\App\Http\Controllers\LanguageController::class, 'current'])->name('language.current');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
