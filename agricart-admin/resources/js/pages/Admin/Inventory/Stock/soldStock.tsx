@@ -55,7 +55,7 @@ interface PageProps {
 }
 
 export default function soldIndex() {
-
+    const t = useTranslation();
     const { stocks = [], flash, auth } = usePage<PageProps & SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {

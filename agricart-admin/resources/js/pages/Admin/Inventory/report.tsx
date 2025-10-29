@@ -134,21 +134,21 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   };
 
   const getDateRangeDisplay = () => {
-    if (!startDate && !endDate) return 'No date range selected';
-    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
-    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    if (!startDate && !endDate) return t('admin.no_date_range_selected');
+    if (startDate && !endDate) return t('admin.from_date', { date: format(startDate, 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date', { date: format(endDate, 'MMM dd, yyyy') });
+    return t('admin.date_range_display', { start: format(startDate!, 'MMM dd, yyyy'), end: format(endDate!, 'MMM dd, yyyy') });
   };
 
   const getDurationDisplay = () => {
     if (!startDate || !endDate) return '';
     const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
-    if (diffInDays === 1) return '1 day';
-    if (diffInDays === 7) return '1 week';
-    if (diffInDays === 30) return '1 month';
-    if (diffInDays < 7) return `${diffInDays} days`;
-    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
-    return `${Math.round(diffInDays / 30)} months`;
+    if (diffInDays === 1) return t('admin.duration_one_day');
+    if (diffInDays === 7) return t('admin.duration_one_week');
+    if (diffInDays === 30) return t('admin.duration_one_month');
+    if (diffInDays < 7) return t('admin.duration_days', { days: diffInDays });
+    if (diffInDays < 30) return t('admin.duration_weeks', { weeks: Math.round(diffInDays / 7) });
+    return t('admin.duration_months', { months: Math.round(diffInDays / 30) });
   };
 
   const handleMemberToggle = (memberId: string) => {
@@ -267,11 +267,11 @@ export default function InventoryReport({ stocks, summary, members, productTypes
 
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
-      return <Badge variant="destructive">Removed</Badge>;
+      return <Badge variant="destructive">{t('admin.removed')}</Badge>;
     } else if (stock.quantity == 0) {
-      return <Badge variant="default">Sold</Badge>;
+      return <Badge variant="default">{t('admin.sold')}</Badge>;
     } else {
-      return <Badge variant="outline">Available</Badge>;
+      return <Badge variant="outline">{t('admin.available')}</Badge>;
     }
   };
 
@@ -311,20 +311,20 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                   <BarChart3 className="h-8 w-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Inventory Report</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('admin.inventory_report')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Generate comprehensive inventory reports and analytics
+                    {t('admin.inventory_report_description')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-              Export CSV
+                  {t('admin.export_csv')}
             </Button>
                 <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-              Export PDF
+                  {t('admin.export_pdf')}
             </Button>
           </div>
         </div>
@@ -334,81 +334,81 @@ export default function InventoryReport({ stocks, summary, members, productTypes
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Stocks</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_stocks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-foreground">{summary.total_stocks}</div>
-                <p className="text-xs text-muted-foreground mt-1">All inventory items</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.all_inventory_items')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Quantity</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_quantity')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-primary">{summary.total_quantity}</div>
-                <p className="text-xs text-muted-foreground mt-1">Available + Sold units</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.available_plus_sold_units')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Available Stocks</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.available_stocks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-primary">{summary.available_stocks}</div>
-                <p className="text-xs text-muted-foreground mt-1">{summary.available_quantity} units available</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.units_available_count', { count: summary.available_quantity })}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Sold Stocks</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.sold_stocks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-secondary">{summary.sold_stocks}</div>
-                <p className="text-xs text-muted-foreground mt-1">{summary.sold_quantity} units sold</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.units_sold_count', { count: summary.sold_quantity })}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Completely Sold</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.completely_sold')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-accent">{summary.completely_sold_stocks}</div>
-                <p className="text-xs text-muted-foreground mt-1">Fully depleted items</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.fully_depleted_items')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Removed Stocks</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.removed_stocks')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-destructive">{summary.removed_stocks}</div>
-                <p className="text-xs text-muted-foreground mt-1">Removed items</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.removed_items')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_products')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-accent">{summary.total_products}</div>
-                <p className="text-xs text-muted-foreground mt-1">Unique products</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.unique_products')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_members')}</CardTitle>
           </CardHeader>
           <CardContent>
                 <div className="text-3xl font-bold text-muted-foreground">{summary.total_members}</div>
-                <p className="text-xs text-muted-foreground mt-1">Active members</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.active_members')}</p>
               </CardContent>
             </Card>
           </div>
@@ -421,10 +421,10 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                      <CardTitle className="text-xl">{t('admin.advanced_filters')}</CardTitle>
                       {hasActiveFilters() && (
                         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          Active
+                          {t('admin.active')}
                         </Badge>
                       )}
                     </div>
@@ -432,7 +432,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                           <X className="h-4 w-4" />
-                          Clear Filters
+                          {t('admin.clear_filters')}
                         </Button>
                       )}
                       <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -447,7 +447,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                        placeholder="Search products, members, or descriptions..."
+                        placeholder={t('admin.search_inventory_report_placeholder')}
                         value={localFilters.search || ''}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -460,11 +460,11 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                     <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <div className="flex items-center justify-between">
               <div>
-                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <h4 className="font-semibold text-primary mb-1">{t('admin.selected_date_range')}</h4>
                           <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                           {getDurationDisplay() && (
                             <p className="text-xs text-primary/70 mt-1">
-                              Duration: {getDurationDisplay()}
+                              {t('admin.duration')}: {getDurationDisplay()}
                             </p>
                           )}
                         </div>
@@ -483,7 +483,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                           className="text-xs"
                         >
                           <X className="h-3 w-3 mr-1" />
-                          Clear
+                          {t('ui.clear')}
                         </Button>
                       </div>
                     </div>
@@ -492,7 +492,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                   {/* Filter Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Start Date</Label>
+                      <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -500,7 +500,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                            {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -515,7 +515,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                       </Popover>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">End Date</Label>
+                      <Label className="text-sm font-medium">{t('admin.end_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -523,7 +523,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                            {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -542,37 +542,37 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                       </Popover>
               </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="text-sm font-medium">Category</Label>
+                      <Label htmlFor="category" className="text-sm font-medium">{t('admin.category')}</Label>
                 <Select value={localFilters.category} onValueChange={(value) => handleFilterChange('category', value)}>
                         <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="Kilo">Kilo</SelectItem>
-                    <SelectItem value="Pc">Pc</SelectItem>
-                    <SelectItem value="Tali">Tali</SelectItem>
+                    <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
+                    <SelectItem value="Kilo">{t('admin.category_kilo')}</SelectItem>
+                    <SelectItem value="Pc">{t('admin.category_pc')}</SelectItem>
+                    <SelectItem value="Tali">{t('admin.category_tali')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
                     <div className="space-y-2">
-                      <Label htmlFor="status" className="text-sm font-medium">Status</Label>
+                      <Label htmlFor="status" className="text-sm font-medium">{t('admin.status')}</Label>
                 <Select value={localFilters.status} onValueChange={(value) => handleFilterChange('status', value)}>
                         <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="available">Available</SelectItem>
-                    <SelectItem value="sold">Sold</SelectItem>
-                    <SelectItem value="partial">Partial</SelectItem>
-                    <SelectItem value="removed">Removed</SelectItem>
+                    <SelectItem value="all">{t('admin.all_status')}</SelectItem>
+                    <SelectItem value="available">{t('admin.available')}</SelectItem>
+                    <SelectItem value="sold">{t('admin.sold')}</SelectItem>
+                    <SelectItem value="partial">{t('admin.partial')}</SelectItem>
+                    <SelectItem value="removed">{t('admin.removed')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium">Members</Label>
+                        <Label className="text-sm font-medium">{t('admin.members')}</Label>
                         <div className="flex gap-2">
                           <Button
                             type="button"
@@ -581,7 +581,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             onClick={selectAllMembers}
                             className="text-xs px-2 py-1 h-6"
                           >
-                            Select All (Max 5)
+                            {t('admin.select_all_max_five')}
                           </Button>
                           <Button
                             type="button"
@@ -590,7 +590,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             onClick={deselectAllMembers}
                             className="text-xs px-2 py-1 h-6"
                           >
-                            Clear
+                            {t('ui.clear')}
                 </Button>
               </div>
             </div>
@@ -628,23 +628,23 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             })}
                             {localFilters.member_ids.length >= 5 && (
                               <p className="text-xs text-muted-foreground mt-2 text-center">
-                                Maximum 5 members selected
+                                {t('admin.maximum_five_members_selected')}
                               </p>
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm text-muted-foreground">No members available</p>
+                          <p className="text-sm text-muted-foreground">{t('admin.no_members_available')}</p>
                         )}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="product_type" className="text-sm font-medium">Product Type</Label>
+                      <Label htmlFor="product_type" className="text-sm font-medium">{t('admin.product_type')}</Label>
                       <Select value={localFilters.product_type} onValueChange={(value) => handleFilterChange('product_type', value)}>
                         <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="all">{t('admin.all_types')}</SelectItem>
                           {productTypes.map((type) => (
                             <SelectItem key={type} value={type}>
                               {type}
@@ -654,22 +654,22 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="min_quantity" className="text-sm font-medium">Min Quantity</Label>
+                      <Label htmlFor="min_quantity" className="text-sm font-medium">{t('admin.min_quantity')}</Label>
                       <Input
                         id="min_quantity"
                         type="number"
-                        placeholder="Minimum"
+                        placeholder={t('admin.minimum')}
                         value={localFilters.min_quantity || ''}
                         onChange={(e) => handleFilterChange('min_quantity', e.target.value)}
                         className="border-border rounded-lg bg-background text-foreground focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="max_quantity" className="text-sm font-medium">Max Quantity</Label>
+                      <Label htmlFor="max_quantity" className="text-sm font-medium">{t('admin.max_quantity')}</Label>
                       <Input
                         id="max_quantity"
                         type="number"
-                        placeholder="Maximum"
+                        placeholder={t('admin.maximum')}
                         value={localFilters.max_quantity || ''}
                         onChange={(e) => handleFilterChange('max_quantity', e.target.value)}
                         className="border-border rounded-lg bg-background text-foreground focus:border-primary"
@@ -679,7 +679,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
 
                   <div className="flex justify-end">
                     <Button onClick={applyFilters} className="bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
-                      Apply Filters
+                      {t('admin.apply_filters')}
                     </Button>
                   </div>
             </CardContent>
@@ -691,10 +691,10 @@ export default function InventoryReport({ stocks, summary, members, productTypes
           <Card className="shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Stock Report ({stocks.length} items)</CardTitle>
+                <CardTitle className="text-xl">{t('admin.stock_report')} ({stocks.length} {t('admin.items')})</CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground">
-                    {stocks.length > 0 ? `Showing ${stocks.length} stock items` : 'No items found'}
+                    {stocks.length > 0 ? t('admin.showing_stock_items_count', { count: stocks.length }) : t('admin.no_items_found')}
                   </div>
                   <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                 </div>
@@ -719,16 +719,16 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                       <BarChart3 className="w-8 h-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-medium text-foreground mb-2">No stocks found</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_stocks_found')}</h3>
                     <p className="text-muted-foreground max-w-md">
                       {hasActiveFilters() 
-                        ? 'No stocks match your current filter criteria. Try adjusting your filters to see more results.'
-                        : 'No stock data available for the selected time period.'
+                        ? t('admin.no_stocks_match_filters')
+                        : t('admin.no_stock_data_for_period')
                       }
                     </p>
                     {hasActiveFilters() && (
                       <Button onClick={clearFilters} variant="outline" className="mt-4">
-                        Clear Filters
+                        {t('admin.clear_filters')}
                       </Button>
                     )}
                   </div>
@@ -743,13 +743,14 @@ export default function InventoryReport({ stocks, summary, members, productTypes
 }
 
 function StockCard({ stock }: { stock: Stock }) {
+  const t = useTranslation();
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
-      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">Removed</Badge>;
+      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">{t('admin.removed')}</Badge>;
     } else if (stock.quantity == 0) {
-      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">Sold</Badge>;
+      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">{t('admin.sold')}</Badge>;
     } else {
-      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Available</Badge>;
+      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">{t('admin.available')}</Badge>;
     }
   };
 
@@ -762,9 +763,9 @@ function StockCard({ stock }: { stock: Stock }) {
               <BarChart3 className="h-4 w-4" />
             </div>
           <div>
-              <CardTitle className="text-lg text-foreground">Stock #{stock.id}</CardTitle>
+              <CardTitle className="text-lg text-foreground">{t('admin.stock_id_label', { id: stock.id })}</CardTitle>
             <p className="text-sm text-muted-foreground">
-                Created {dayjs(stock.created_at).format('MMM DD, YYYY HH:mm')}
+                {t('admin.created_on', { date: dayjs(stock.created_at).format('MMM DD, YYYY HH:mm') })}
             </p>
             </div>
           </div>
@@ -778,21 +779,21 @@ function StockCard({ stock }: { stock: Stock }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Product Information
+              {t('admin.product_information')}
             </h4>
             <div className="space-y-2">
             <p className="text-sm">
-                <span className="font-medium text-foreground">Name:</span> 
+                <span className="font-medium text-foreground">{t('admin.name')}:</span> 
                 <span className="text-muted-foreground ml-2">{stock.product.name}</span>
             </p>
             <p className="text-sm">
-                <span className="font-medium text-foreground">Type:</span> 
+                <span className="font-medium text-foreground">{t('admin.type')}:</span> 
                 <span className="text-muted-foreground ml-2">{stock.product.produce_type}</span>
               </p>
               <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">Category:</span> 
+                <span className="font-medium text-foreground">{t('admin.category')}:</span> 
                 <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
-                {stock.category}
+                {stock.category === 'Kilo' ? t('admin.category_kilo') : stock.category === 'Pc' ? t('admin.category_pc') : t('admin.category_tali')}
                 </Badge>
             </p>
             </div>
@@ -801,26 +802,26 @@ function StockCard({ stock }: { stock: Stock }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              Stock Details
+              {t('admin.stock_details')}
             </h4>
             <div className="space-y-2">
               <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">Quantity:</span> 
+                <span className="font-medium text-foreground">{t('admin.quantity')}:</span> 
                 <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
-                  {stock.quantity} units
+                  {t('admin.quantity_units', { quantity: stock.quantity })}
                 </Badge>
             </p>
             <p className="text-sm">
-                <span className="font-medium text-foreground">Member:</span> 
+                <span className="font-medium text-foreground">{t('admin.member')}:</span> 
                 <span className="text-muted-foreground ml-2">{stock.member.name}</span>
             </p>
             <p className="text-sm">
-                <span className="font-medium text-foreground">Email:</span> 
+                <span className="font-medium text-foreground">{t('admin.email')}:</span> 
                 <span className="text-muted-foreground ml-2">{stock.member.email}</span>
             </p>
             {stock.member.contact_number && (
               <p className="text-sm">
-                  <span className="font-medium text-foreground">Contact:</span> 
+                  <span className="font-medium text-foreground">{t('admin.contact_number')}:</span> 
                   <span className="text-muted-foreground ml-2">{stock.member.contact_number}</span>
               </p>
             )}
@@ -832,7 +833,7 @@ function StockCard({ stock }: { stock: Stock }) {
           <div className="mt-6 p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
             <h5 className="font-semibold text-sm mb-2 text-destructive flex items-center gap-2">
               <div className="w-2 h-2 bg-destructive rounded-full"></div>
-              Removed
+              {t('admin.removed')}
             </h5>
             <p className="text-sm text-destructive">
               {dayjs(stock.removed_at).format('MMM DD, YYYY HH:mm')}
@@ -844,7 +845,7 @@ function StockCard({ stock }: { stock: Stock }) {
           <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg">
             <h5 className="font-semibold text-sm mb-2 text-foreground flex items-center gap-2">
               <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-              Notes
+              {t('admin.notes')}
             </h5>
             <p className="text-sm text-muted-foreground">{stock.notes}</p>
           </div>
@@ -855,13 +856,14 @@ function StockCard({ stock }: { stock: Stock }) {
 }
 
 function StockTable({ stocks }: { stocks: Stock[] }) {
+  const t = useTranslation();
   const getStatusBadge = (stock: Stock) => {
     if (stock.removed_at) {
-      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">Removed</Badge>;
+      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">{t('admin.removed')}</Badge>;
     } else if (stock.quantity == 0) {
-      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">Sold</Badge>;
+      return <Badge variant="default" className="bg-secondary/10 text-secondary border-secondary/20">{t('admin.sold')}</Badge>;
     } else {
-      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Available</Badge>;
+      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">{t('admin.available')}</Badge>;
     }
   };
 
@@ -870,14 +872,14 @@ function StockTable({ stocks }: { stocks: Stock[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Stock ID</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Product</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Quantity</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Category</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Member</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Notes</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.stock_id')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.product')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.quantity')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.category')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.member')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.status')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.created')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.notes')}</th>
           </tr>
         </thead>
         <tbody>
@@ -896,12 +898,12 @@ function StockTable({ stocks }: { stocks: Stock[] }) {
               </td>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                  {stock.quantity} units
+                  {t('admin.quantity_units', { quantity: stock.quantity })}
                 </Badge>
               </td>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
-                  {stock.category}
+                  {stock.category === 'Kilo' ? t('admin.category_kilo') : stock.category === 'Pc' ? t('admin.category_pc') : t('admin.category_tali')}
                 </Badge>
               </td>
               <td className="py-3 px-4">

@@ -234,7 +234,7 @@ export default function InventoryIndex() {
         if (!selectedProduct) return;
 
         router.delete(route('inventory.destroy', selectedProduct.id), {
-            data: { reason: data.reason || 'Deleted by admin' },
+            data: { reason: data.reason || t('admin.deleted_by_admin') },
             onSuccess: () => {
                 reset();
                 setDeleteModalOpen(false);

@@ -128,21 +128,21 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   };
 
   const getDateRangeDisplay = () => {
-    if (!startDate && !endDate) return 'No date range selected';
-    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
-    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    if (!startDate && !endDate) return t('admin.no_date_range_selected');
+    if (startDate && !endDate) return t('admin.from_date', { date: format(startDate, 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date', { date: format(endDate, 'MMM dd, yyyy') });
+    return t('admin.date_range_display', { start: format(startDate!, 'MMM dd, yyyy'), end: format(endDate!, 'MMM dd, yyyy') });
   };
 
   const getDurationDisplay = () => {
     if (!startDate || !endDate) return '';
     const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
-    if (diffInDays === 1) return '1 day';
-    if (diffInDays === 7) return '1 week';
-    if (diffInDays === 30) return '1 month';
-    if (diffInDays < 7) return `${diffInDays} days`;
-    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
-    return `${Math.round(diffInDays / 30)} months`;
+    if (diffInDays === 1) return t('admin.duration_one_day');
+    if (diffInDays === 7) return t('admin.duration_one_week');
+    if (diffInDays === 30) return t('admin.duration_one_month');
+    if (diffInDays < 7) return t('admin.duration_days', { days: diffInDays });
+    if (diffInDays < 30) return t('admin.duration_weeks', { weeks: Math.round(diffInDays / 7) });
+    return t('admin.duration_months', { months: Math.round(diffInDays / 30) });
   };
 
   const applyFilters = () => {
@@ -213,15 +213,15 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Approved</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>;
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.rejected')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">Delayed</Badge>;
+        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">{t('admin.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">Cancelled</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">{t('admin.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -230,13 +230,13 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">Ready for Pickup</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">{t('admin.ready_for_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">Out for Delivery</Badge>;
+        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">{t('admin.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Delivered</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">{t('admin.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -308,52 +308,52 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_revenue')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600">₱{Number(summary.total_revenue).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Gross revenue</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.gross_revenue')}</p>
               </CardContent>
             </Card>
             
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders_label')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-yellow-600">{summary.pending_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Awaiting approval</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.awaiting_approval')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Approved Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.approved_orders_label')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600">{summary.approved_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Approved orders</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.approved_orders_desc')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Rejected Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.rejected_orders_label')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-red-600">{summary.rejected_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Rejected orders</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.rejected_orders_desc')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Delivered Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders_label')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-blue-600">{summary.delivered_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Successfully delivered</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.successfully_delivered')}</p>
               </CardContent>
             </Card>
           </div>
@@ -366,10 +366,10 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                      <CardTitle className="text-xl">{t('admin.advanced_filters')}</CardTitle>
                       {hasActiveFilters() && (
                         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          Active
+                          {t('admin.active')}
                         </Badge>
                       )}
                     </div>
@@ -377,7 +377,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                           <X className="h-4 w-4" />
-                          Clear Filters
+                          {t('admin.clear_filters')}
                         </Button>
                       )}
                       <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -392,7 +392,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
-                        placeholder="Search orders, customers, or admin notes..."
+                        placeholder={t('admin.search_orders_placeholder')}
                         value={localFilters.search || ''}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -405,11 +405,11 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                     <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <h4 className="font-semibold text-primary mb-1">{t('admin.selected_date_range')}</h4>
                           <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                           {getDurationDisplay() && (
                             <p className="text-xs text-primary/70 mt-1">
-                              Duration: {getDurationDisplay()}
+                              {t('admin.duration')}: {getDurationDisplay()}
                             </p>
                           )}
                         </div>
@@ -428,7 +428,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                           className="text-xs"
                         >
                           <X className="h-3 w-3 mr-1" />
-                          Clear
+                          {t('ui.clear')}
                         </Button>
                       </div>
                     </div>
@@ -437,7 +437,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                   {/* Filter Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Start Date</Label>
+                      <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -445,7 +445,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                            {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -460,7 +460,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                       </Popover>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">End Date</Label>
+                      <Label className="text-sm font-medium">{t('admin.end_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -468,7 +468,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                            {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -487,53 +487,53 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                       </Popover>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="status" className="text-sm font-medium">Status</Label>
+                      <Label htmlFor="status" className="text-sm font-medium">{t('admin.status')}</Label>
                       <Select value={localFilters.status} onValueChange={(value) => handleFilterChange('status', value)}>
                         <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="rejected">Rejected</SelectItem>
-                          <SelectItem value="delayed">Delayed</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="all">{t('admin.all_status')}</SelectItem>
+                          <SelectItem value="pending">{t('admin.pending')}</SelectItem>
+                          <SelectItem value="approved">{t('admin.approved')}</SelectItem>
+                          <SelectItem value="rejected">{t('admin.rejected')}</SelectItem>
+                          <SelectItem value="delayed">{t('admin.delayed')}</SelectItem>
+                          <SelectItem value="cancelled">{t('admin.cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="delivery_status" className="text-sm font-medium">Delivery Status</Label>
+                      <Label htmlFor="delivery_status" className="text-sm font-medium">{t('admin.delivery_status')}</Label>
                       <Select value={localFilters.delivery_status} onValueChange={(value) => handleFilterChange('delivery_status', value)}>
                         <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Delivery Status</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="ready_to_pickup">Ready for Pickup</SelectItem>
-                          <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                          <SelectItem value="delivered">Delivered</SelectItem>
+                          <SelectItem value="all">{t('admin.all_delivery_status')}</SelectItem>
+                          <SelectItem value="pending">{t('admin.pending')}</SelectItem>
+                          <SelectItem value="ready_to_pickup">{t('admin.ready_for_pickup')}</SelectItem>
+                          <SelectItem value="out_for_delivery">{t('admin.out_for_delivery')}</SelectItem>
+                          <SelectItem value="delivered">{t('admin.delivered')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="min_amount" className="text-sm font-medium">Min Amount</Label>
+                      <Label htmlFor="min_amount" className="text-sm font-medium">{t('admin.min_amount')}</Label>
                       <Input
                         id="min_amount"
                         type="number"
-                        placeholder="Minimum amount"
+                        placeholder={t('admin.minimum_amount')}
                         value={localFilters.min_amount || ''}
                         onChange={(e) => handleFilterChange('min_amount', e.target.value)}
                         className="border-border rounded-lg bg-background text-foreground focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="max_amount" className="text-sm font-medium">Max Amount</Label>
+                      <Label htmlFor="max_amount" className="text-sm font-medium">{t('admin.max_amount')}</Label>
                       <Input
                         id="max_amount"
                         type="number"
-                        placeholder="Maximum amount"
+                        placeholder={t('admin.maximum_amount')}
                         value={localFilters.max_amount || ''}
                         onChange={(e) => handleFilterChange('max_amount', e.target.value)}
                         className="border-border rounded-lg bg-background text-foreground focus:border-primary"
@@ -555,10 +555,10 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
           <Card className="shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Order Report ({orders.length} orders)</CardTitle>
+                <CardTitle className="text-xl">{t('admin.order_report')} ({orders.length} {t('admin.orders').toLowerCase()})</CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground">
-                    {orders.length > 0 ? `Showing ${orders.length} orders` : 'No orders found'}
+                    {orders.length > 0 ? t('admin.showing_orders_count', { count: orders.length }) : t('admin.no_orders_found')}
                   </div>
                   <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                 </div>
@@ -607,18 +607,19 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
 }
 
 function OrderCard({ order }: { order: Order }) {
+  const t = useTranslation();
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Approved</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>;
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.rejected')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">Delayed</Badge>;
+        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">{t('admin.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">Cancelled</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">{t('admin.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -627,13 +628,13 @@ function OrderCard({ order }: { order: Order }) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">Ready for Pickup</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">{t('admin.ready_for_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">Out for Delivery</Badge>;
+        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">{t('admin.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Delivered</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">{t('admin.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -648,7 +649,7 @@ function OrderCard({ order }: { order: Order }) {
               <BarChart3 className="h-4 w-4" />
             </div>
             <div>
-              <CardTitle className="text-lg text-foreground">Order #{order.id}</CardTitle>
+              <CardTitle className="text-lg text-foreground">{t('admin.order_number', { id: order.id })}</CardTitle>
               <p className="text-sm text-muted-foreground">
                 {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
               </p>
@@ -665,20 +666,20 @@ function OrderCard({ order }: { order: Order }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Customer Information
+              {t('admin.customer_information')}
             </h4>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium text-foreground">Name:</span> 
+                <span className="font-medium text-foreground">{t('admin.name')}:</span> 
                 <span className="text-muted-foreground ml-2">{order.customer.name}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Email:</span> 
+                <span className="font-medium text-foreground">{t('admin.email')}:</span> 
                 <span className="text-muted-foreground ml-2">{order.customer.email}</span>
               </p>
               {order.customer.contact_number && (
                 <p className="text-sm">
-                  <span className="font-medium text-foreground">Contact:</span> 
+                  <span className="font-medium text-foreground">{t('admin.contact_number')}:</span> 
                   <span className="text-muted-foreground ml-2">{order.customer.contact_number}</span>
                 </p>
               )}
@@ -688,11 +689,11 @@ function OrderCard({ order }: { order: Order }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              Order Summary
+              {t('admin.order_summary')}
             </h4>
             <div className="space-y-2">
               <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">Total Amount:</span> 
+                <span className="font-medium text-foreground">{t('admin.total_amount')}:</span> 
                 <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-200">
                   ₱{Number(order.total_amount).toFixed(2)}
                 </Badge>
@@ -771,18 +772,19 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 function OrderTable({ orders }: { orders: Order[] }) {
+  const t = useTranslation();
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Approved</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>;
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.rejected')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">Delayed</Badge>;
+        return <Badge variant="destructive" className="bg-orange-100 text-orange-800 border-orange-200">{t('admin.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">Cancelled</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">{t('admin.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -791,13 +793,13 @@ function OrderTable({ orders }: { orders: Order[] }) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">{t('admin.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">Ready for Pickup</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">{t('admin.ready_for_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">Out for Delivery</Badge>;
+        return <Badge variant="default" className="bg-purple-100 text-purple-800 border-purple-200">{t('admin.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Delivered</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">{t('admin.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -808,14 +810,14 @@ function OrderTable({ orders }: { orders: Order[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Order ID</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Customer</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Total Amount</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Delivery Status</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Admin</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Logistic</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.order_id_header')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.customer')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.total_amount')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.status')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.delivery_status')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.created')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.admin')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.logistic')}</th>
           </tr>
         </thead>
         <tbody>

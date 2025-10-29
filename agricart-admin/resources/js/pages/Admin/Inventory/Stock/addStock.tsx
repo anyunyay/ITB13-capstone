@@ -136,7 +136,7 @@ export default function AddStock({product}: Props) {
                             <SelectContent>
                                 {availableCategories.map((category) => (
                                     <SelectItem key={category} value={category}>
-                                        {category}
+                                        {category === 'Kilo' ? t('admin.category_kilo') : category === 'Pc' ? t('admin.category_pc') : t('admin.category_tali')}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

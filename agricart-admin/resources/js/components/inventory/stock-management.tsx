@@ -231,10 +231,10 @@ export const StockManagement = ({
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                             <div className="font-semibold">
                                 {item.category === 'Kilo'
-                                    ? `${item.sold_quantity || 0} kg sold`
+                                    ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                     : item.category
-                                    ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} sold`
-                                    : `${item.sold_quantity || 0} sold`
+                                    ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                    : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                 }
                             </div>
                         </TableCell>
@@ -264,10 +264,10 @@ export const StockManagement = ({
                             {dataType === 'stocks' && item.quantity === 0 ? (
                                 <div>
                                     {item.category === 'Kilo'
-                                        ? `${item.sold_quantity || 0} kg sold`
+                                        ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                         : item.category
-                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} sold`
-                                        : `${item.sold_quantity || 0} sold`
+                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                        : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                     }
                                 </div>
                             ) : (
@@ -286,7 +286,7 @@ export const StockManagement = ({
                         <Badge variant="secondary">{item.category || '-'}</Badge>
                     </TableCell>
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        {item.member?.name || 'Unassigned'}
+                        {item.member?.name || t('admin.unassigned')}
                     </TableCell>
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
                         <Badge 
@@ -532,7 +532,7 @@ export const StockManagement = ({
                             <SelectContent>
                                 <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
                                 <SelectItem value="Kilo">Kilo</SelectItem>
-                                <SelectItem value="Pc">Piece</SelectItem>
+                                <SelectItem value="Pc">{t('admin.category_pc')}</SelectItem>
                                 <SelectItem value="Tali">Tali</SelectItem>
                             </SelectContent>
                         </Select>
@@ -545,14 +545,14 @@ export const StockManagement = ({
                                 <SelectValue placeholder={t('admin.sort_by')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="id-asc">Stock ID (Low to High)</SelectItem>
-                                <SelectItem value="id-desc">Stock ID (High to Low)</SelectItem>
-                                <SelectItem value="quantity-asc">Quantity (Low to High)</SelectItem>
-                                <SelectItem value="quantity-desc">Quantity (High to Low)</SelectItem>
-                                <SelectItem value="product-asc">Product Name (A-Z)</SelectItem>
-                                <SelectItem value="product-desc">Product Name (Z-A)</SelectItem>
-                                <SelectItem value="category-asc">Category (A-Z)</SelectItem>
-                                <SelectItem value="category-desc">Category (Z-A)</SelectItem>
+                                <SelectItem value="id-asc">{t('admin.sort_stock_id_asc')}</SelectItem>
+                                <SelectItem value="id-desc">{t('admin.sort_stock_id_desc')}</SelectItem>
+                                <SelectItem value="quantity-asc">{t('admin.sort_quantity_asc')}</SelectItem>
+                                <SelectItem value="quantity-desc">{t('admin.sort_quantity_desc')}</SelectItem>
+                                <SelectItem value="product-asc">{t('admin.sort_product_asc')}</SelectItem>
+                                <SelectItem value="product-desc">{t('admin.sort_product_desc')}</SelectItem>
+                                <SelectItem value="category-asc">{t('admin.sort_category_asc')}</SelectItem>
+                                <SelectItem value="category-desc">{t('admin.sort_category_desc')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

@@ -289,8 +289,8 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   };
 
   const handleMarkPickedUp = () => {
-    if (pickupConfirmationText !== 'Confirm Pick Up') {
-      alert('Please type "Confirm Pick Up" exactly to confirm.');
+    if (pickupConfirmationText !== t('admin.confirm_pick_up')) {
+      alert(t('admin.please_type_confirm_pickup_exactly'));
       return;
     }
 
@@ -489,27 +489,27 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
       <Dialog open={deliveryProofModalOpen} onOpenChange={setDeliveryProofModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Delivery Proof - Order #{currentOrder.id}</DialogTitle>
+            <DialogTitle>{t('admin.delivery_proof_order', { id: currentOrder.id })}</DialogTitle>
             <DialogDescription>
-              Proof of delivery uploaded by {currentOrder.logistic?.name || 'logistic provider'}
+              {t('admin.proof_of_delivery_uploaded_by', { name: currentOrder.logistic?.name || t('admin.logistic_provider') })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex justify-center">
               <img
                 src={currentOrder.delivery_proof_image}
-                alt="Delivery proof"
+                alt={t('admin.delivery_proof')}
                 className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm border"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = '/images/products/default-product.jpg';
-                  target.alt = 'Delivery proof not available';
+                  target.alt = t('admin.delivery_proof_not_available');
                 }}
               />
             </div>
             {currentOrder.delivered_time && (
               <div className="text-center text-sm text-gray-500">
-                Delivered on {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                {t('admin.delivered_on', { date: format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm') })}
               </div>
             )}
           </div>
@@ -523,10 +523,10 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 link.click();
               }}
             >
-              📥 Download Image
+              📥 {t('admin.download_image')}
             </Button>
             <Button variant="outline" onClick={() => setDeliveryProofModalOpen(false)}>
-              Close
+              {t('ui.close')}
             </Button>
           </DialogFooter>
         </DialogContent>

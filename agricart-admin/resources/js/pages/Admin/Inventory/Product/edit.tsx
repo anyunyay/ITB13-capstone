@@ -154,7 +154,7 @@ export default function Edit({product}: Props) {
                                 <Label className="text-sm text-gray-600 mb-2 block">{t('admin.new_image_preview')}:</Label>
                                 <img 
                                   src={imagePreview} 
-                                  alt="New image preview" 
+                                  alt={t('admin.new_image_preview')} 
                                   className="w-32 h-32 object-cover rounded-lg border"
                                 />
                                 <p className="text-xs text-gray-500 mt-1">

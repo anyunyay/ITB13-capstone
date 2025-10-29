@@ -55,13 +55,13 @@ export default function Archive() {
     const { processing, post, delete: destroy } = useForm();
 
     const handleRestore = (id: number, name: string) => {
-        if (confirm(`Restore archived product - ${name}?`)) {
+        if (confirm(t('admin.confirm_restore_archived_product', { name }))) {
             post(route('inventory.archived.restore', id));
         }
     };
 
     const handleForceDelete = (id: number, name: string) => {
-        if (confirm(`Permanently delete archived product - ${name}? This cannot be undone.`)) {
+        if (confirm(t('admin.confirm_permanently_delete_archived_product', { name }))) {
             destroy(route('inventory.archived.forceDelete', id));
         }
     };
@@ -96,19 +96,19 @@ export default function Archive() {
                                 <CardTitle>{product.name}</CardTitle>
                                 <CardDescription>
                                     <div className="text-sm">
-                                        {product.price_kilo && <div>Kilo: P{product.price_kilo}</div>}
-                                        {product.price_pc && <div>Pc: P{product.price_pc}</div>}
-                                        {product.price_tali && <div>Tali: P{product.price_tali}</div>}
-                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>No prices set</div>}
+                                        {product.price_kilo && <div>{t('admin.price_per_kilo')}: P{product.price_kilo}</div>}
+                                        {product.price_pc && <div>{t('admin.price_per_piece')}: P{product.price_pc}</div>}
+                                        {product.price_tali && <div>{t('admin.price_per_tali')}: P{product.price_tali}</div>}
+                                        {!product.price_kilo && !product.price_pc && !product.price_tali && <div>{t('admin.no_prices_set')}</div>}
                                     </div>
                                 </CardDescription>
                                 <div className="text-xs text-gray-500 mb-1">{product.produce_type}</div>
                                 <CardAction>
                                     <Button disabled={processing} onClick={() => handleRestore(product.id, product.name)}>
-                                        Restore
+                                        {t('admin.restore_product')}
                                     </Button>
                                     <Button variant="destructive" disabled={processing} onClick={() => handleForceDelete(product.id, product.name)}>
-                                        Delete
+                                        {t('ui.delete')}
                                     </Button>
                                 </CardAction>
                             </CardHeader>

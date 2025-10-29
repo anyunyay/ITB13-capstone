@@ -49,7 +49,7 @@ export const PaginationControls = ({
     return (
         <div className="flex flex-col gap-3 mt-8 px-4 py-3 sm:px-6 sm:py-4 bg-card border border-border rounded-xl shadow-sm sm:flex-row sm:items-center sm:justify-center sm:relative">
             <span className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:absolute sm:left-6 sm:top-1/2 sm:transform sm:-translate-y-1/2 sm:whitespace-nowrap">
-                {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
+                {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('admin.of')} {totalItems}
             </span>
             
             <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">

@@ -186,12 +186,12 @@ export const ProductManagement = ({
                                 <SelectValue placeholder={t('admin.sort_by')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                                <SelectItem value="type-asc">Category (A-Z)</SelectItem>
-                                <SelectItem value="type-desc">Category (Z-A)</SelectItem>
-                                <SelectItem value="price-asc">Price (Low to High)</SelectItem>
-                                <SelectItem value="price-desc">Price (High to Low)</SelectItem>
+                                <SelectItem value="name-asc">{t('admin.sort_name_asc')}</SelectItem>
+                                <SelectItem value="name-desc">{t('admin.sort_name_desc')}</SelectItem>
+                                <SelectItem value="type-asc">{t('admin.sort_category_asc')}</SelectItem>
+                                <SelectItem value="type-desc">{t('admin.sort_category_desc')}</SelectItem>
+                                <SelectItem value="price-asc">{t('admin.sort_price_asc')}</SelectItem>
+                                <SelectItem value="price-desc">{t('admin.sort_price_desc')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -249,7 +249,7 @@ export const ProductManagement = ({
                                             </Badge>
                                             {product.archived_at && (
                                                 <Badge variant="destructive" className="ml-2 text-xs px-2 py-1">
-                                                    Archived
+                                                    {t('admin.archived')}
                                                 </Badge>
                                             )}
                                         </div>
@@ -267,24 +267,24 @@ export const ProductManagement = ({
                                             <div className="flex flex-col gap-2 w-full">
                                                 {product.price_kilo && (
                                                     <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Kilo:</span> 
+                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_kilo')}</span> 
                                                         <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_kilo}</span>
                                                     </div>
                                                 )}
                                                 {product.price_pc && (
                                                     <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Piece:</span> 
+                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_piece')}</span> 
                                                         <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_pc}</span>
                                                     </div>
                                                 )}
                                                 {product.price_tali && (
                                                     <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">Tali:</span> 
+                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_tali')}</span> 
                                                         <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_tali}</span>
                                                     </div>
                                                 )}
                                                 {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                                    <div className="text-sm text-muted-foreground text-center py-3 bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] rounded-lg border border-dashed border-border min-h-[2.625rem] flex items-center justify-center">No prices set</div>
+                                                    <div className="text-sm text-muted-foreground text-center py-3 bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] rounded-lg border border-dashed border-border min-h-[2.625rem] flex items-center justify-center">{t('admin.no_prices_set')}</div>
                                                 )}
                                             </div>
                                         </div>
@@ -296,7 +296,7 @@ export const ProductManagement = ({
                                                 <Button asChild disabled={processing} className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg">
                                                     <Link href={route('inventory.addStock', product.id)}>
                                                         <Plus className="h-4 w-4" />
-                                                        Add Stock
+                                                        {t('admin.add_stock')}
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>
@@ -308,7 +308,7 @@ export const ProductManagement = ({
                                                     <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
                                                         <Link href={route('inventory.edit', product.id)}>
                                                             <Edit className="h-4 w-4 flex-shrink-0" />
-                                                            Edit
+                                                            {t('ui.edit')}
                                                         </Link>
                                                     </Button>
                                                 </PermissionGate>
@@ -326,12 +326,12 @@ export const ProductManagement = ({
                                                                         className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
                                                                     >
                                                                         <Archive className="h-4 w-4 flex-shrink-0" />
-                                                                        Archive
+                                                                        {t('admin.archive_product')}
                                                                     </Button>
                                                                 </span>
                                                             </TooltipTrigger>
                                                             <TooltipContent side="bottom">
-                                                                <p>Cannot archive: Product still has available stock</p>
+                                                                <p>{t('admin.cannot_archive_product_has_stock')}</p>
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     ) : (
@@ -342,7 +342,7 @@ export const ProductManagement = ({
                                                             className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
                                                         >
                                                             <Archive className="h-4 w-4 flex-shrink-0" />
-                                                            {archivingProduct === product.id ? 'Archiving...' : 'Archive'}
+                                                            {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
                                                         </Button>
                                                     )}
                                                 </PermissionGate>
@@ -355,7 +355,7 @@ export const ProductManagement = ({
                                                         className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
                                                     >
                                                         <Archive className="h-4 w-4 flex-shrink-0" />
-                                                        {restoringProduct === product.id ? 'Restoring...' : 'Restore'}
+                                                        {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
                                                     </Button>
                                                 </PermissionGate>
                                             )}
@@ -368,7 +368,7 @@ export const ProductManagement = ({
                                                     className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
                                                 >
                                                     <Trash2 className="h-4 w-4 flex-shrink-0" />
-                                                    {product.archived_at ? 'Delete' : 'Delete'}
+                                                    {t('ui.delete')}
                                                 </Button>
                                             </PermissionGate>
                                         </div>
