@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
-import { Sun, Moon, Monitor, Palette, Check } from 'lucide-react';
+import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useAppearance } from '@/hooks/use-appearance';
+import { useLanguage } from '@/hooks/use-language';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -46,6 +48,7 @@ const appearanceOptions: { value: Appearance; label: string; description: string
 export default function AppearancePage() {
     const { user } = usePage<PageProps>().props;
     const { appearance, updateAppearance } = useAppearance();
+    const { language, updateLanguage, isLoading: isLanguageLoading } = useLanguage();
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -81,6 +84,28 @@ export default function AppearancePage() {
         } catch (error) {
             console.error('Failed to update appearance:', error);
             setMessage({ type: 'error', text: 'Failed to update appearance settings. Please try again.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleLanguageChange = async (newLanguage: 'en' | 'tl') => {
+        try {
+            setIsLoading(true);
+            setMessage(null);
+            
+            // Update language using the hook
+            await updateLanguage(newLanguage);
+            
+            // Show success message
+            setMessage({ type: 'success', text: 'Language preference updated successfully!' });
+            
+            // Clear message after 3 seconds
+            setTimeout(() => setMessage(null), 3000);
+            
+        } catch (error) {
+            console.error('Failed to update language:', error);
+            setMessage({ type: 'error', text: 'Failed to update language preference. Please try again.' });
         } finally {
             setIsLoading(false);
         }
@@ -189,7 +214,58 @@ export default function AppearancePage() {
                         </div>
                     </CardContent>
                 </Card>
-            </div>
-        </ProfileWrapper>
+
+            {/* Language Settings Card */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                            <Languages className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-green-600 dark:text-green-400">
+                                Language Preferences
+                            </CardTitle>
+                            <CardDescription>
+                                Choose your preferred language. Your selection will be saved and applied across all devices.
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <label htmlFor="language-select" className="text-sm font-medium">
+                            Select Language
+                        </label>
+                        <Select
+                            value={language}
+                            onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
+                            disabled={isLoading || isLanguageLoading}
+                        >
+                            <SelectTrigger id="language-select" className="w-full">
+                                <SelectValue placeholder="Select a language" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="tl">Tagalog</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Current Selection Info */}
+                    <div className="mt-6 p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Languages className="h-4 w-4" />
+                            <span>
+                                Current selection: <strong className="text-foreground">
+                                    {language === 'en' ? 'English' : 'Tagalog'}
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </ProfileWrapper>
     );
 }

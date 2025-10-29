@@ -426,5 +426,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/appearance', [\App\Http\Controllers\Api\UserAppearanceController::class, 'show'])->name('user.appearance.show');
 });
 
+// User language API routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::patch('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'update'])->name('user.language.update');
+    Route::get('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'show'])->name('user.language.show');
+});
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -70,6 +70,11 @@ class HandleInertiaRequests extends Middleware
             
             // Share user's appearance settings (using built-in cookie-based approach)
             $shared['userTheme'] = $user->appearance ?? 'system';
+            
+            // Share user's language preference and current locale
+            $shared['userLanguage'] = $user->language ?? 'en';
+            $shared['locale'] = app()->getLocale();
+            
             $notificationTypes = [];
             
             switch ($user->type) {
