@@ -105,16 +105,16 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold">Member Sales Performance</h1>
+              <h1 className="text-3xl font-bold">{t('admin.member_sales_page_title')}</h1>
             </div>
             <div className="flex gap-2">
               <PermissionGate permission="generate sales report">
                 <div className="flex gap-1">
                   <Button onClick={() => exportReport('csv')} variant="outline" size="sm">
-                    Export CSV
+                    {t('admin.export_csv')}
                   </Button>
                   <Button onClick={() => exportReport('pdf')} variant="outline" size="sm">
-                    Export PDF
+                    {t('admin.export_pdf')}
                   </Button>
                 </div>
               </PermissionGate>
@@ -125,104 +125,104 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.total_revenue_label')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">₱{Number(totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  From all members
+                  {t('admin.across_all_members')}
                 </p>
               </CardContent>
             </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.coop_share_percent')}</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">₱{Number(totalCoopShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
-                    Added on top of product prices
+                    {t('admin.added_on_top_product_prices')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenue (100%)</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.revenue_100_percent')}</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600">₱{Number(totalMemberShare).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
-                    Full product revenue to members
+                    {t('admin.full_product_revenue_to_members')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">COGS</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.cogs')}</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-orange-600">₱{Number(totalCogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
-                    Cost of Goods Sold
+                    {t('admin.cost_of_goods_sold')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Gross Profit</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.gross_profit')}</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">₱{Number(totalGrossProfit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
-                    Revenue - COGS
+                    {t('admin.revenue_minus_cogs')}
                   </p>
                 </CardContent>
               </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.total_orders_label')}</CardTitle>
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalOrders}</div>
                 <p className="text-xs text-muted-foreground">
-                  Across all members
+                  {t('admin.across_all_members')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.average_revenue')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">₱{Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  Per member
+                  {t('admin.per_member')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Members</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.active_members')}</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{memberSales.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  With sales activity
+                  {t('admin.with_sales_activity')}
                 </p>
               </CardContent>
             </Card>
@@ -231,26 +231,26 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
           {/* Member Sales Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Member Sales Breakdown</CardTitle>
+              <CardTitle>{t('admin.member_sales_breakdown')}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Detailed performance metrics for each member
+                {t('admin.detailed_performance_metrics')}
               </p>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-center">Rank</TableHead>
-                    <TableHead className="text-center">Member</TableHead>
-                    <TableHead className="text-center">Total Orders</TableHead>
-                    <TableHead className="text-center text-right">Total Revenue</TableHead>
-                    <TableHead className="text-center text-right">Co-op Share</TableHead>
-                    <TableHead className="text-center text-right">Revenue</TableHead>
-                    <TableHead className="text-center text-right">COGS</TableHead>
-                    <TableHead className="text-center text-right">Gross Profit</TableHead>
-                    <TableHead className="text-center">Quantity Sold</TableHead>
-                    <TableHead className="text-center text-right">Average Revenue</TableHead>
-                    <TableHead className="text-center">Performance</TableHead>
+                    <TableHead className="text-center">{t('admin.rank')}</TableHead>
+                    <TableHead className="text-center">{t('admin.member')}</TableHead>
+                    <TableHead className="text-center">{t('admin.total_orders')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.total_revenue')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.coop_share')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.revenue_column')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.cogs')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.gross_profit')}</TableHead>
+                    <TableHead className="text-center">{t('admin.quantity_sold')}</TableHead>
+                    <TableHead className="text-center text-right">{t('admin.average_revenue')}</TableHead>
+                    <TableHead className="text-center">{t('admin.performance')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -316,7 +316,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   {memberSales.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={11} className="text-center text-muted-foreground">
-                        No member sales data found.
+                        {t('admin.no_member_sales_data_found')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -330,7 +330,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Top Performers</CardTitle>
+                  <CardTitle>{t('admin.top_performers')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -353,7 +353,7 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Revenue Distribution</CardTitle>
+                  <CardTitle>{t('admin.revenue_distribution')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">

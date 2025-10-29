@@ -133,15 +133,15 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                     {/* Header */}
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Stock Audit Trail</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">{t('admin.stock_audit_trail_page_title')}</h1>
                             <p className="text-gray-600 mt-1">
-                                Track stock changes and member product sales across all orders
+                                {t('admin.stock_audit_trail_description')}
                             </p>
                         </div>
                         <div className="flex gap-2">
                             <Button onClick={exportToCsv} variant="outline">
                                 <Download className="w-4 h-4 mr-2" />
-                                Export CSV
+                                {t('admin.export_csv')}
                             </Button>
                         </div>
                     </div>
@@ -150,7 +150,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">Total Entries</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-600">{t('admin.total_entries')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{summary.total_entries}</div>
@@ -158,7 +158,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">Quantity Sold</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-600">{t('admin.quantity_sold')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{summary.total_quantity_sold.toFixed(2)}</div>
@@ -166,7 +166,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">Unique Members</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-600">{t('admin.unique_members')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{summary.unique_members}</div>
@@ -174,7 +174,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">Unique Orders</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-600">{t('admin.unique_orders')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{summary.unique_orders}</div>
@@ -182,7 +182,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                         </Card>
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
+                                <CardTitle className="text-sm font-medium text-gray-600">{t('admin.total_revenue')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{formatCurrency(summary.total_revenue)}</div>
@@ -191,17 +191,17 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                     </div>
 
                     {/* Filters */}
-                    <Card>
+                        <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Filter className="w-5 h-5" />
-                                Filters
+                                {t('admin.filters_label')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
                                 <div>
-                                    <Label htmlFor="start_date">Start Date</Label>
+                                    <Label htmlFor="start_date">{t('admin.start_date')}</Label>
                                     <Input
                                         id="start_date"
                                         type="date"
@@ -210,7 +210,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="end_date">End Date</Label>
+                                    <Label htmlFor="end_date">{t('admin.end_date')}</Label>
                                     <Input
                                         id="end_date"
                                         type="date"
@@ -219,16 +219,16 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="member_id">Member</Label>
+                                    <Label htmlFor="member_id">{t('admin.member')}</Label>
                                     <Select
                                         value={localFilters.member_id || ''}
                                         onValueChange={(value) => handleFilterChange('member_id', value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="All Members" />
+                                            <SelectValue placeholder={t('admin.all_members')} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">All Members</SelectItem>
+                                            <SelectItem value="">{t('admin.all_members')}</SelectItem>
                                             {members.map((member) => (
                                                 <SelectItem key={member.id} value={member.id.toString()}>
                                                     {member.name}
@@ -238,11 +238,11 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                     </Select>
                                 </div>
                                 <div>
-                                    <Label htmlFor="order_id">Order ID</Label>
+                                    <Label htmlFor="order_id">{t('admin.order_id')}</Label>
                                     <Input
                                         id="order_id"
                                         type="number"
-                                        placeholder="Order ID"
+                                        placeholder={t('admin.order_id')}
                                         value={localFilters.order_id || ''}
                                         onChange={(e) => handleFilterChange('order_id', e.target.value)}
                                     />
@@ -250,10 +250,10 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                 <div className="flex items-end gap-2">
                                     <Button onClick={applyFilters} className="flex-1">
                                         <Search className="w-4 h-4 mr-2" />
-                                        Apply
+                                        {t('admin.apply_button')}
                                     </Button>
                                     <Button onClick={clearFilters} variant="outline">
-                                        Clear
+                                        {t('admin.clear_button')}
                                     </Button>
                                 </div>
                             </div>
@@ -263,23 +263,23 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                     {/* Audit Trail Table */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Audit Trail Entries ({auditTrails.length})</CardTitle>
+                            <CardTitle>{t('admin.audit_trail_entries', { count: auditTrails.length })}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-center">Timestamp</TableHead>
-                                            <TableHead className="text-center">Order ID</TableHead>
-                                            <TableHead className="text-center">Member</TableHead>
-                                            <TableHead className="text-center">Product</TableHead>
-                                            <TableHead className="text-center">Category</TableHead>
-                                            <TableHead className="text-center">Quantity Sold</TableHead>
-                                            <TableHead className="text-center">Stock After Sale</TableHead>
-                                            <TableHead className="text-center text-right">Unit Price</TableHead>
-                                            <TableHead className="text-center text-right">Total Amount</TableHead>
-                                            <TableHead className="text-center">Order Status</TableHead>
+                                            <TableHead className="text-center">{t('admin.timestamp')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.order_id')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.member')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.product')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.category')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.quantity_sold')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.stock_after_sale')}</TableHead>
+                                            <TableHead className="text-center text-right">{t('admin.unit_price')}</TableHead>
+                                            <TableHead className="text-center text-right">{t('admin.total_amount')}</TableHead>
+                                            <TableHead className="text-center">{t('admin.order_status')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -298,14 +298,14 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                                 </TableCell>
                                                 <TableCell>
                                                     <div>
-                                                        <div className="font-medium">{trail.member?.name || 'N/A'}</div>
-                                                        <div className="text-sm text-gray-500">ID: {trail.member_id}</div>
+                                                        <div className="font-medium">{trail.member?.name || t('admin.not_available')}</div>
+                                                        <div className="text-sm text-gray-500">{t('admin.id_prefix')} {trail.member_id}</div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div>
                                                         <div className="font-medium">{trail.product_name}</div>
-                                                        <div className="text-sm text-gray-500">Stock ID: {trail.stock_id}</div>
+                                                        <div className="text-sm text-gray-500">{t('admin.stock_id_prefix')} {trail.stock_id}</div>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
@@ -324,7 +324,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                                                     {formatCurrency(trail.quantity * trail.unit_price)}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {getStatusBadge(trail.order?.status || 'N/A')}
+                                                    {getStatusBadge(trail.order?.status || t('admin.not_available'))}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -334,7 +334,7 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                             
                             {auditTrails.length === 0 && (
                                 <div className="text-center py-8 text-gray-500">
-                                    No audit trail entries found for the selected filters.
+                                    {t('admin.no_audit_trail_entries')}
                                 </div>
                             )}
                         </CardContent>

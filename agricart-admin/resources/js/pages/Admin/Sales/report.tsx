@@ -213,20 +213,20 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <BarChart3 className="h-8 w-8" />
               </div>
               <div>
-                  <h1 className="text-3xl font-bold text-foreground">Sales Report</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('admin.sales_report_page_title')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Generate comprehensive sales reports and analytics
+                    {t('admin.generate_comprehensive_sales_reports')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  {t('admin.export_csv')}
                 </Button>
                 <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  {t('admin.export_pdf')}
                 </Button>
               </div>
             </div>
@@ -236,14 +236,14 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  Total Revenue
+                  {t('admin.total_revenue_label')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_revenue).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">From {summary.total_orders} orders</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.from_orders', { orders: summary.total_orders })}</p>
               </CardContent>
             </Card>
 
@@ -251,12 +251,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Co-op Share
+                  {t('admin.coop_share_percent')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_coop_share).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">10% added on prices</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.coop_share_10_percent')}</p>
           </CardContent>
         </Card>
 
@@ -264,12 +264,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  Revenue (100%)
+                  {t('admin.revenue_100_percent')}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold text-blue-600">₱{Number(summary.total_member_share).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Full product revenue</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.full_product_revenue')}</p>
             </CardContent>
           </Card>
 
@@ -277,12 +277,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <ShoppingCart className="h-4 w-4" />
-                  Total Orders
+                  {t('admin.total_orders_label')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">{summary.total_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Unique customers</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.unique_customers')}</p>
               </CardContent>
             </Card>
 
@@ -290,12 +290,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  COGS
+                  {t('admin.cogs')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">₱{Number(summary.total_cogs).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Cost of Goods Sold</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.cost_of_goods_sold')}</p>
               </CardContent>
             </Card>
 
@@ -303,32 +303,32 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  Gross Profit
+                  {t('admin.gross_profit')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_gross_profit).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Revenue - COGS</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.revenue_minus_cogs')}</p>
               </CardContent>
             </Card>
 
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Average Order Value</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.average_order_value_label')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">₱{Number(summary.average_order_value).toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Per order</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.per_order')}</p>
               </CardContent>
             </Card>
 
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Customers</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_customers')}</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="text-2xl font-bold text-secondary">{summary.total_customers}</div>
-                <p className="text-xs text-muted-foreground mt-1">Unique buyers</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('admin.unique_buyers')}</p>
             </CardContent>
           </Card>
         </div>
@@ -341,7 +341,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                      <CardTitle className="text-xl">{t('admin.advanced_filters')}</CardTitle>
                       {hasActiveFilters() && (
                         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                           Active
@@ -367,7 +367,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
-                        placeholder="Search by customer name, email, or sale ID..."
+                        placeholder={t('admin.search_by_customer_sale_id')}
                         value={localFilters.search || ''}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -496,7 +496,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
         {/* Sales Table */}
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Sales Report ({sales.length} transactions)</CardTitle>
+                          <CardTitle className="text-xl">{t('admin.sales_report_transactions', { count: sales.length })}</CardTitle>
           </CardHeader>
           <CardContent>
               {sales.length > 0 ? (
@@ -504,14 +504,14 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-border bg-muted/50">
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">ID</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Customer</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Total Amount</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Co-op Share</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Revenue</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">Date</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.id_column')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.customer')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.total_amount')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.coop_share')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.revenue_column')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.cogs')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.gross_profit')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.date')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -590,7 +590,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
         {memberSales.length > 0 && (
             <Card className="shadow-sm">
             <CardHeader>
-                <CardTitle className="text-xl">Member Sales Performance ({memberSales.length} members)</CardTitle>
+                <CardTitle className="text-xl">{t('admin.member_sales_performance_count', { count: memberSales.length })}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -608,6 +608,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
 }
 
 function MemberSaleCard({ member, index }: { member: MemberSale; index: number }) {
+  const t = useTranslation();
   const averageRevenue = member.total_orders > 0 ? member.total_revenue / member.total_orders : 0;
 
   return (
@@ -636,19 +637,19 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Performance Metrics
+{t('admin.performance_metrics')}
             </h4>
             <div className="space-y-2 text-sm">
               <p>
-                <span className="font-medium text-foreground">Total Orders:</span> 
+                <span className="font-medium text-foreground">{t('admin.total_orders')}:</span> 
                 <span className="text-muted-foreground ml-2">{member.total_orders}</span>
               </p>
               <p>
-                <span className="font-medium text-foreground">Total Revenue:</span> 
+                <span className="font-medium text-foreground">{t('admin.total_revenue')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(member.total_revenue).toFixed(2)}</span>
               </p>
               <p>
-                <span className="font-medium text-foreground">Average Revenue:</span> 
+                <span className="font-medium text-foreground">{t('admin.average_revenue')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(averageRevenue).toFixed(2)}</span>
               </p>
             </div>
@@ -656,19 +657,19 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              Financial Analysis
+{t('admin.financial_analysis')}
             </h4>
             <div className="space-y-2 text-sm">
               <p>
-                <span className="font-medium text-foreground">Revenue (100%):</span> 
+                <span className="font-medium text-foreground">{t('admin.revenue_100_percent')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(member.total_member_share || 0).toFixed(2)}</span>
               </p>
               <p>
-                <span className="font-medium text-orange-600">COGS:</span> 
+                <span className="font-medium text-orange-600">{t('admin.cogs')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(member.total_cogs || 0).toFixed(2)}</span>
               </p>
               <p>
-                <span className="font-medium text-green-600">Gross Profit:</span> 
+                <span className="font-medium text-green-600">{t('admin.gross_profit')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(member.total_gross_profit || 0).toFixed(2)}</span>
               </p>
             </div>
@@ -676,15 +677,15 @@ function MemberSaleCard({ member, index }: { member: MemberSale; index: number }
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-accent rounded-full"></div>
-              Additional Info
+{t('admin.additional_info')}
             </h4>
             <div className="space-y-2 text-sm">
               <p>
-                <span className="font-medium text-foreground">Total Quantity:</span> 
+                <span className="font-medium text-foreground">{t('admin.total_quantity_column')}:</span> 
                 <span className="text-muted-foreground ml-2">{member.total_quantity_sold}</span>
               </p>
               <p>
-                <span className="font-medium text-green-600">Co-op Share:</span> 
+                <span className="font-medium text-green-600">{t('admin.coop_share')}:</span> 
                 <span className="text-muted-foreground ml-2">₱{Number(member.total_coop_share || 0).toFixed(2)}</span>
               </p>
             </div>

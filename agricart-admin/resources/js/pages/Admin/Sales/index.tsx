@@ -149,9 +149,9 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       <DollarSign className="h-6 w-6" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">Sales Management</h1>
+                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.sales_management_page_title')}</h1>
                       <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                        Comprehensive sales analytics and revenue tracking
+                        {t('admin.sales_management_description')}
                       </p>
                     </div>
                   </div>
@@ -160,14 +160,14 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                   <PermissionGate permission="view sales">
                     <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                       <Link href={route('admin.sales.memberSales')}>
-                        Member Sales
+                        {t('admin.member_sales_link')}
                       </Link>
                     </Button>
                   </PermissionGate>
                   <PermissionGate permission="generate sales report">
                     <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                       <Link href={route('admin.sales.report')}>
-                        View Report
+                        {t('admin.view_report')}
                       </Link>
                     </Button>
                   </PermissionGate>
@@ -179,104 +179,104 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.total_revenue_label')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">₱{Number(summary.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  From {summary.total_orders} orders
+                  {t('admin.from_orders', { orders: summary.total_orders })}
                 </p>
               </CardContent>
             </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Co-op Share (10%)</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.coop_share_percent')}</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <p className="text-xs text-muted-foreground">
-                    Added on top of product prices
+                    {t('admin.added_on_top_product_prices')}
                   </p>
                 </CardContent>
               </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue (100%)</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.revenue_100_percent')}</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">₱{Number(summary.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  Full product revenue to members
+                  {t('admin.full_product_revenue_to_members')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">COGS</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.cogs')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">₱{Number(summary.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  Cost of Goods Sold
+                  {t('admin.cost_of_goods_sold')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Gross Profit</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.gross_profit')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  Revenue - COGS
+                  {t('admin.revenue_minus_cogs')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.total_orders_label')}</CardTitle>
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{summary.total_orders}</div>
                 <p className="text-xs text-muted-foreground">
-                  Approved orders
+                  {t('admin.orders_label')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.average_order_value_label')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">₱{Number(summary.average_order_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 <p className="text-xs text-muted-foreground">
-                  Per order
+                  {t('admin.per_order')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.total_customers')}</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{summary.total_customers}</div>
                 <p className="text-xs text-muted-foreground">
-                  Unique customers
+                  {t('admin.unique_customers')}
                 </p>
               </CardContent>
             </Card>
@@ -284,15 +284,15 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
 
           <Tabs defaultValue="sales" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="sales">All Sales</TabsTrigger>
-              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-              <TabsTrigger value="members">Member Sales</TabsTrigger>
+              <TabsTrigger value="sales">{t('admin.all_sales')}</TabsTrigger>
+              <TabsTrigger value="pending">{t('admin.pending_orders_label')}</TabsTrigger>
+              <TabsTrigger value="members">{t('admin.member_sales_tab')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="sales" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>{t('admin.recent_sales')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -300,54 +300,54 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       <TableRow>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Sale ID
+                            {t('admin.sale_id')}
                             {getSortIcon('id')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Customer
+                            {t('admin.customer')}
                             {getSortIcon('customer')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Total Amount
+                            {t('admin.total_amount')}
                             {getSortIcon('total_amount')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Co-op Share
+                            {t('admin.coop_share')}
                             {getSortIcon('coop_share')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Revenue
+                            {t('admin.revenue_column')}
                             {getSortIcon('member_share')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            COGS
+                            {t('admin.cogs')}
                             {getSortIcon('cogs')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Gross Profit
+                            {t('admin.gross_profit')}
                             {getSortIcon('gross_profit')}
                           </button>
                         </TableHead>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Date
+                            {t('admin.date')}
                             {getSortIcon('created_at')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-center">Processed By</TableHead>
-                        <TableHead className="text-center">Logistic</TableHead>
+                        <TableHead className="text-center">{t('admin.processed_by')}</TableHead>
+                        <TableHead className="text-center">{t('admin.logistic')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -366,14 +366,14 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell className="text-orange-600 font-medium text-right">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
-                          <TableCell>{sale.admin?.name || 'N/A'}</TableCell>
-                          <TableCell>{sale.logistic?.name || 'N/A'}</TableCell>
+                          <TableCell>{sale.admin?.name || t('admin.not_available')}</TableCell>
+                          <TableCell>{sale.logistic?.name || t('admin.not_available')}</TableCell>
                         </TableRow>
                       ))}
                       {sortedSales.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={10} className="text-center text-muted-foreground">
-                            No sales found.
+                            {t('admin.no_sales_found')}
                           </TableCell>
                         </TableRow>
                       )}
@@ -386,25 +386,25 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
             <TabsContent value="pending" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Pending Orders</CardTitle>
+                  <CardTitle>{t('admin.pending_orders_label')}</CardTitle>
                   <CardDescription>
-                    Orders awaiting approval or processing
+                    {t('admin.awaiting_approval_or_processing')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-center">Order ID</TableHead>
-                        <TableHead className="text-center">Customer</TableHead>
-                        <TableHead className="text-center">Total Amount</TableHead>
-                        <TableHead className="text-center">Subtotal</TableHead>
-                        <TableHead className="text-center">Co-op Share</TableHead>
-                        <TableHead className="text-center">Revenue</TableHead>
-                        <TableHead className="text-center">COGS</TableHead>
-                        <TableHead className="text-center">Gross Profit</TableHead>
-                        <TableHead className="text-center">Date</TableHead>
-                        <TableHead className="text-center">Status</TableHead>
+                        <TableHead className="text-center">{t('admin.order_id')}</TableHead>
+                        <TableHead className="text-center">{t('admin.customer')}</TableHead>
+                        <TableHead className="text-center">{t('admin.total_amount')}</TableHead>
+                        <TableHead className="text-center">{t('admin.subtotal')}</TableHead>
+                        <TableHead className="text-center">{t('admin.coop_share')}</TableHead>
+                        <TableHead className="text-center">{t('admin.revenue_column')}</TableHead>
+                        <TableHead className="text-center">{t('admin.cogs')}</TableHead>
+                        <TableHead className="text-center">{t('admin.gross_profit')}</TableHead>
+                        <TableHead className="text-center">{t('admin.date')}</TableHead>
+                        <TableHead className="text-center">{t('admin.status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -434,7 +434,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       {pendingOrders.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={10} className="text-center text-muted-foreground">
-                            No pending orders found.
+                            {t('admin.no_pending_orders_found')}
                           </TableCell>
                         </TableRow>
                       )}
@@ -447,7 +447,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
             <TabsContent value="members" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Member Sales Performance</CardTitle>
+                  <CardTitle>{t('admin.member_sales_page_title')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -455,18 +455,18 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       <TableRow>
                         <TableHead className="text-center">
                           <button onClick={() => handleSort('member')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            Member
+                            {t('admin.member')}
                             {getSortIcon('member')}
                           </button>
                         </TableHead>
-                        <TableHead className="text-center">Total Orders</TableHead>
-                        <TableHead className="text-center">Total Revenue</TableHead>
-                        <TableHead className="text-center">Co-op Share</TableHead>
-                        <TableHead className="text-center">Revenue</TableHead>
-                        <TableHead className="text-center">COGS</TableHead>
-                        <TableHead className="text-center">Gross Profit</TableHead>
-                        <TableHead className="text-center">Quantity Sold</TableHead>
-                        <TableHead className="text-center">Average Revenue</TableHead>
+                        <TableHead className="text-center">{t('admin.total_orders')}</TableHead>
+                        <TableHead className="text-center">{t('admin.total_revenue')}</TableHead>
+                        <TableHead className="text-center">{t('admin.coop_share')}</TableHead>
+                        <TableHead className="text-center">{t('admin.revenue_column')}</TableHead>
+                        <TableHead className="text-center">{t('admin.cogs')}</TableHead>
+                        <TableHead className="text-center">{t('admin.gross_profit')}</TableHead>
+                        <TableHead className="text-center">{t('admin.quantity_sold')}</TableHead>
+                        <TableHead className="text-center">{t('admin.average_revenue')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -491,7 +491,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       {memberSales.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={9} className="text-center text-muted-foreground">
-                            No member sales data found.
+                            {t('admin.no_member_sales_data_found')}
                           </TableCell>
                         </TableRow>
                       )}
