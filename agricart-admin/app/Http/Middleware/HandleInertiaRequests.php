@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 use Spatie\Permission\Models\Permission;
+use App\Services\TranslationService;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -62,6 +63,10 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            
+            // Share translations for guests (will be overridden for authenticated users)
+            'translations' => TranslationService::getAllTranslations(app()->getLocale()),
+            'locale' => app()->getLocale(),
         ];
 
         // Share notifications for authenticated users based on their type
@@ -72,8 +77,12 @@ class HandleInertiaRequests extends Middleware
             $shared['userTheme'] = $user->appearance ?? 'system';
             
             // Share user's language preference and current locale
+            $currentLocale = app()->getLocale();
             $shared['userLanguage'] = $user->language ?? 'en';
-            $shared['locale'] = app()->getLocale();
+            $shared['locale'] = $currentLocale;
+            
+            // Share all translations for the current locale
+            $shared['translations'] = TranslationService::getAllTranslations($currentLocale);
             
             $notificationTypes = [];
             

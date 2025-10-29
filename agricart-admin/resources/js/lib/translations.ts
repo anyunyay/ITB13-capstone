@@ -1,3 +1,12 @@
+/**
+ * Legacy translation system - DEPRECATED
+ * 
+ * Use useTranslation() hook from @/hooks/use-translation instead.
+ * This file is kept for backward compatibility only.
+ * 
+ * The new system automatically loads all Laravel translations via Inertia props.
+ * Usage: const t = useTranslation(); t('customer.orders') or t('ui.save')
+ */
 // Translation helper for appearance settings
 export const translations = {
     en: {

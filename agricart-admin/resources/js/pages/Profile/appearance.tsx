@@ -7,6 +7,7 @@ import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLanguage } from '@/hooks/use-language';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -24,33 +25,35 @@ interface PageProps {
 
 type Appearance = 'light' | 'dark' | 'system';
 
-const appearanceOptions: { value: Appearance; label: string; description: string; icon: any }[] = [
-    {
-        value: 'light',
-        label: 'Light',
-        description: 'Always use light mode',
-        icon: Sun,
-    },
-    {
-        value: 'dark',
-        label: 'Dark',
-        description: 'Always use dark mode',
-        icon: Moon,
-    },
-    {
-        value: 'system',
-        label: 'System',
-        description: 'Use your system preference',
-        icon: Monitor,
-    },
-];
-
 export default function AppearancePage() {
     const { user } = usePage<PageProps>().props;
     const { appearance, updateAppearance } = useAppearance();
     const { language, updateLanguage, isLoading: isLanguageLoading } = useLanguage();
+    const t = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Get translated appearance options
+    const appearanceOptions: { value: Appearance; label: string; description: string; icon: any }[] = [
+        {
+            value: 'light',
+            label: t('appearance.theme.light'),
+            description: t('appearance.theme.light_description'),
+            icon: Sun,
+        },
+        {
+            value: 'dark',
+            label: t('appearance.theme.dark'),
+            description: t('appearance.theme.dark_description'),
+            icon: Moon,
+        },
+        {
+            value: 'system',
+            label: t('appearance.theme.system'),
+            description: t('appearance.theme.system_description'),
+            icon: Monitor,
+        },
+    ];
 
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -76,14 +79,14 @@ export default function AppearancePage() {
             updateAppearance(newAppearance);
             
             // Show success message
-            setMessage({ type: 'success', text: 'Appearance settings updated successfully!' });
+            setMessage({ type: 'success', text: t('appearance.messages.appearance_success') });
             
             // Clear message after 3 seconds
             setTimeout(() => setMessage(null), 3000);
             
         } catch (error) {
             console.error('Failed to update appearance:', error);
-            setMessage({ type: 'error', text: 'Failed to update appearance settings. Please try again.' });
+            setMessage({ type: 'error', text: t('appearance.messages.appearance_error') });
         } finally {
             setIsLoading(false);
         }
@@ -98,14 +101,14 @@ export default function AppearancePage() {
             await updateLanguage(newLanguage);
             
             // Show success message
-            setMessage({ type: 'success', text: 'Language preference updated successfully!' });
+            setMessage({ type: 'success', text: t('appearance.messages.language_success') });
             
             // Clear message after 3 seconds
             setTimeout(() => setMessage(null), 3000);
             
         } catch (error) {
             console.error('Failed to update language:', error);
-            setMessage({ type: 'error', text: 'Failed to update language preference. Please try again.' });
+            setMessage({ type: 'error', text: t('appearance.messages.language_error') });
         } finally {
             setIsLoading(false);
         }
@@ -113,7 +116,7 @@ export default function AppearancePage() {
 
     return (
         <ProfileWrapper 
-            title="Appearance Settings"
+            title={t('appearance.title')}
         >
             <div className="space-y-6">
                 {/* Success/Error Message */}
@@ -140,10 +143,10 @@ export default function AppearancePage() {
                             </div>
                             <div>
                                 <CardTitle className="text-green-600 dark:text-green-400">
-                                    Theme Preferences
+                                    {t('appearance.theme.title')}
                                 </CardTitle>
                                 <CardDescription>
-                                    Choose how you want the application to look. Your preference will be saved and applied across all devices.
+                                    {t('appearance.theme.description')}
                                 </CardDescription>
                             </div>
                         </div>
@@ -206,7 +209,7 @@ export default function AppearancePage() {
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Monitor className="h-4 w-4" />
                                 <span>
-                                    Current selection: <strong className="text-foreground">
+                                    {t('appearance.theme.current_selection')}: <strong className="text-foreground">
                                         {appearanceOptions.find(opt => opt.value === appearance)?.label}
                                     </strong>
                                 </span>
@@ -224,10 +227,10 @@ export default function AppearancePage() {
                         </div>
                         <div>
                             <CardTitle className="text-green-600 dark:text-green-400">
-                                Language Preferences
+                                {t('appearance.language.title')}
                             </CardTitle>
                             <CardDescription>
-                                Choose your preferred language. Your selection will be saved and applied across all devices.
+                                {t('appearance.language.description')}
                             </CardDescription>
                         </div>
                     </div>
@@ -235,7 +238,7 @@ export default function AppearancePage() {
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <label htmlFor="language-select" className="text-sm font-medium">
-                            Select Language
+                            {t('appearance.language.select_language')}
                         </label>
                         <Select
                             value={language}
@@ -243,11 +246,11 @@ export default function AppearancePage() {
                             disabled={isLoading || isLanguageLoading}
                         >
                             <SelectTrigger id="language-select" className="w-full">
-                                <SelectValue placeholder="Select a language" />
+                                <SelectValue placeholder={t('appearance.language.select_language')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="tl">Tagalog</SelectItem>
+                                <SelectItem value="en">{t('appearance.language.english')}</SelectItem>
+                                <SelectItem value="tl">{t('appearance.language.tagalog')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -257,8 +260,8 @@ export default function AppearancePage() {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Languages className="h-4 w-4" />
                             <span>
-                                Current selection: <strong className="text-foreground">
-                                    {language === 'en' ? 'English' : 'Tagalog'}
+                                {t('appearance.language.current_selection')}: <strong className="text-foreground">
+                                    {language === 'en' ? t('appearance.language.english') : t('appearance.language.tagalog')}
                                 </strong>
                             </span>
                         </div>
