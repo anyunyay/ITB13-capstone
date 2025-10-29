@@ -11,11 +11,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\VerifyEmailNotification;
 use App\Models\UserAddress;
-use App\Traits\Sortable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasRoles, Sortable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -443,60 +442,5 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->assignedOrders()
             ->whereIn('delivery_status', ['pending', 'out_for_delivery'])
             ->exists();
-    }
-
-    /**
-     * Define sortable columns for User model.
-     *
-     * @return array
-     */
-    public function getSortableColumns(): array
-    {
-        return [
-            'name',
-            'email',
-            'contact_number',
-            'member_id',
-            'type',
-            'active',
-            'registration_date',
-            'created_at',
-            'updated_at',
-            'email_verified_at'
-        ];
-    }
-
-    /**
-     * Define column data types for proper sorting.
-     *
-     * @return array
-     */
-    public function getColumnDataTypes(): array
-    {
-        return [
-            'name' => 'string',
-            'email' => 'string',
-            'contact_number' => 'string',
-            'member_id' => 'string',
-            'type' => 'string',
-            'active' => 'string',
-            'registration_date' => 'datetime',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'email_verified_at' => 'datetime'
-        ];
-    }
-
-    /**
-     * Get default sort configuration for User model.
-     *
-     * @return array
-     */
-    public function getDefaultSort(): array
-    {
-        return [
-            'column' => 'created_at',
-            'direction' => 'desc'
-        ];
     }
 } 

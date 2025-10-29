@@ -5,11 +5,10 @@ namespace App\Models;
 use App\Helpers\SystemLogger;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\Sortable;
 
 class Stock extends Model
 {
-    use HasFactory, Sortable;
+    use HasFactory;
 
     protected $fillable = [
         'quantity', 
@@ -212,54 +211,5 @@ class Stock extends Model
             'removed_at' => null,
             'notes' => null,
         ]);
-    }
-
-    /**
-     * Define sortable columns for Stock model.
-     *
-     * @return array
-     */
-    public function getSortableColumns(): array
-    {
-        return [
-            'quantity',
-            'sold_quantity',
-            'initial_quantity',
-            'category',
-            'removed_at',
-            'created_at',
-            'updated_at'
-        ];
-    }
-
-    /**
-     * Define column data types for proper sorting.
-     *
-     * @return array
-     */
-    public function getColumnDataTypes(): array
-    {
-        return [
-            'quantity' => 'decimal',
-            'sold_quantity' => 'decimal',
-            'initial_quantity' => 'decimal',
-            'category' => 'string',
-            'removed_at' => 'datetime',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime'
-        ];
-    }
-
-    /**
-     * Get default sort configuration for Stock model.
-     *
-     * @return array
-     */
-    public function getDefaultSort(): array
-    {
-        return [
-            'column' => 'created_at',
-            'direction' => 'desc'
-        ];
     }
 }

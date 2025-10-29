@@ -7,12 +7,6 @@ interface PaginationControlsProps {
     onPageChange: (page: number) => void;
     itemsPerPage: number;
     totalItems: number;
-    // Enhanced props for sort state management
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    onSortChange?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
-    // Enforce 10 rows per page limit
-    maxItemsPerPage?: number;
 }
 
 export const PaginationControls = ({ 
@@ -20,15 +14,8 @@ export const PaginationControls = ({
     totalPages, 
     onPageChange, 
     itemsPerPage, 
-    totalItems,
-    sortBy,
-    sortOrder,
-    onSortChange,
-    maxItemsPerPage = 10
+    totalItems
 }: PaginationControlsProps) => {
-    // Enforce 10 rows per page limit
-    const effectiveItemsPerPage = Math.min(itemsPerPage, maxItemsPerPage);
-    
     const getVisiblePages = () => {
         const delta = 2;
         const range = [];
@@ -53,11 +40,6 @@ export const PaginationControls = ({
         }
 
         return rangeWithDots;
-    };
-
-    // Handle page change with automatic reset when sort changes
-    const handlePageChange = (page: number) => {
-        onPageChange(page);
     };
 
     if (totalPages <= 1) return null;

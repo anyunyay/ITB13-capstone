@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\PasswordChangeRequest;
 use App\Notifications\MembershipUpdateNotification;
 use App\Helpers\SystemLogger;
-use App\Traits\HandlesSorting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Response;
@@ -15,19 +14,11 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class MembershipController extends Controller
 {
-    use HandlesSorting;
-    public function index(Request $request)
+    public function index()
     {
-        $query = User::where('type', 'member')
-            ->with('defaultAddress');
-
-        // Apply sorting using the trait
-        $query = $this->applySorting($query, $request, [
-            'column' => 'created_at',
-            'direction' => 'desc'
-        ]);
-
-        $members = $query->get()
+        $members = User::where('type', 'member')
+            ->with('defaultAddress')
+            ->get()
             ->map(function ($member) {
                 return [
                     'id' => $member->id,
@@ -59,11 +50,7 @@ class MembershipController extends Controller
         
         return Inertia::render('Admin/Membership/index', [
             'members' => $members,
-            'pendingPasswordRequests' => $pendingPasswordRequests,
-            'filters' => $this->getSortFilters($request, [
-                'column' => 'created_at',
-                'direction' => 'desc'
-            ])
+            'pendingPasswordRequests' => $pendingPasswordRequests
         ]);
     }
 
