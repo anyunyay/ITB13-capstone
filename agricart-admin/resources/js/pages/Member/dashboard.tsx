@@ -113,10 +113,12 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                             <h1 className="text-3xl font-bold text-foreground">{t('member.welcome', { name: auth?.user?.name })}</h1>
                             <p className="text-muted-foreground mt-2">{t('member.track_stocks_and_activity')}</p>
                         </div>
+                        {/* Member-specific revenue report: member sees only their own revenue */}
                         <Button asChild variant="outline">
                             <Link href={route('member.revenueReport')}>
                                 <FileText className="h-4 w-4 mr-2" />
-                                {t('member.revenue_report')}
+                                {/* Make this label explicit for members */}
+                                Your Revenue Report
                             </Link>
                         </Button>
                     </div>

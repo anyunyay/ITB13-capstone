@@ -1,4 +1,4 @@
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import { MemberHeader } from '@/components/member-header';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,6 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
-import { t } from '@/lib/translations';
 
 interface ProductSale {
   product_id: number;
@@ -203,9 +202,10 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
   };
 
   return (
-    <AppSidebarLayout>
-      <Head title={t('member.revenue_report')} />
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
+      <MemberHeader />
+      <div className="p-6 pt-25">
+        <Head title={t('member.revenue_report')} />
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
@@ -217,18 +217,18 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                 <div>
                   <h1 className="text-3xl font-bold text-foreground">{t('member.revenue_report')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    {t('admin.generate_comprehensive_sales_reports')}
+                    {t('member.track_stocks_and_activity')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  {t('admin.export_csv')}
+                  {t('member.export_csv')}
                 </Button>
                 <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  {t('admin.export_pdf')}
+                  {t('member.export_pdf')}
                 </Button>
               </div>
             </div>
@@ -513,7 +513,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
           </Card>
         </div>
       </div>
-    </AppSidebarLayout>
+    </div>
   );
 }
 
@@ -689,6 +689,7 @@ function ProductTable({ products }: { products: ProductSale[] }) {
 }
 
 function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
+  const t = useTranslation();
   const formatCurrency = (amount: number) => {
     return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
@@ -705,7 +706,7 @@ function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
             <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.order_total')}</th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.cogs')}</th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.gross_profit')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.date')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.date')}</th>
           </tr>
         </thead>
         <tbody>
