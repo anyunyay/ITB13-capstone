@@ -108,7 +108,7 @@ export default function Deactivated() {
                         {flash.message && (
                             <Alert>
                                 <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>{t('admin.notifications')}!</AlertTitle>
+                                <AlertTitle>{t('admin.notifications')}</AlertTitle>
                                 <AlertDescription>{flash.message}</AlertDescription>
                             </Alert>
                         )}

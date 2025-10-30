@@ -181,7 +181,7 @@ export default function Index() {
                             <AlertDescription>
                                 <ul className="list-disc list-inside space-y-1">
                                     {Object.entries(errors).map(([key, message]) => (
-                                        <li key={key}>{message as string}</li>
+                                        <li key={key}>{typeof message === 'string' ? message : t('admin.an_error_occurred')}</li>
                                     ))}
                                 </ul>
                             </AlertDescription>

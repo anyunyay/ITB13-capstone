@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useForm, usePage, router } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Address {
     id: number;
@@ -43,6 +44,8 @@ interface PageProps {
 export default function AddressPage() {
     const { user, addresses = [], flash, autoOpenAddForm = false, mainAddressHasOngoingOrders = false } = usePage<PageProps>().props;
     
+    const t = useTranslation();
+
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
         const userType = user.type;
@@ -272,7 +275,7 @@ export default function AddressPage() {
 
     return (
         <ProfileWrapper 
-            title="Address Management"
+            title={t('ui.address_management')}
         >
             <div className="space-y-6">
                 {/* Flash Messages */}
@@ -310,7 +313,7 @@ export default function AddressPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-1">
                         <p className="text-sm text-muted-foreground">
-                            Manage your delivery addresses. Existing addresses are preserved unless you explicitly set a new one as default.
+                            {t('ui.manage_delivery_addresses')}
                         </p>
                     </div>
                     <Button 
@@ -318,7 +321,7 @@ export default function AddressPage() {
                         className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
                         <PlusCircle className="h-4 w-4" />
-                        Add New Address
+                        {t('ui.add_new_address')}
                     </Button>
                 </div>
 
@@ -335,7 +338,7 @@ export default function AddressPage() {
                                         </div>
                                         <div className="space-y-1">
                                             <h3 className="text-xl font-bold text-card-foreground">
-                                                {isActiveAddressSameAsMain() ? 'Currently Active Address' : 'Main Address (Registration)'}
+                                                {isActiveAddressSameAsMain() ? t('ui.currently_active_address') : t('ui.main_address_registration')}
                                             </h3>
                                             <div className="flex items-center gap-2">
                                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -344,7 +347,7 @@ export default function AddressPage() {
                                                         : 'bg-primary/10 text-primary'
                                                 }`}>
                                                     <CheckCircle className="h-3 w-3 mr-1" />
-                                                    {isActiveAddressSameAsMain() ? 'Active' : 'Main Address'}
+                                                    {isActiveAddressSameAsMain() ? t('ui.active') : t('ui.main_address')}
                                                 </span>
                                             </div>
                                         </div>
@@ -356,12 +359,12 @@ export default function AddressPage() {
                                             disabled={mainAddressHasOngoingOrders}
                                         >
                                             <Edit className="h-4 w-4" />
-                                            Edit
+                                            {t('ui.edit')}
                                         </Button>
                                         {isActiveAddressSameAsMain() && (
                                             <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
                                                 <CheckCircle className="h-3 w-3 mr-1" />
-                                                Currently Active
+                                                {t('ui.currently_active')}
                                             </div>
                                         )}
                                     </div>
@@ -375,7 +378,7 @@ export default function AddressPage() {
                                                 <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Address Details</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t('ui.address_details')}</p>
                                                 {user.address && <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{user.address}</p>}
                                                 {(user.barangay || user.city) && (
                                                     <p className="text-slate-600 dark:text-slate-400">
@@ -389,13 +392,13 @@ export default function AddressPage() {
                                     
                                     {!isActiveAddressSameAsMain() && (
                                         <div className="text-sm text-green-600 dark:text-green-400 bg-green-50/80 dark:bg-green-900/20 p-3 rounded-lg border border-green-200/50 dark:border-green-800/30">
-                                            This is your main address from registration. You can edit it or add additional addresses below.
+                                            {t('ui.main_address_registration_message')}
                                         </div>
                                     )}
                                     {mainAddressHasOngoingOrders && (
                                         <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
                                             <AlertCircle className="h-4 w-4" />
-                                            This address has ongoing orders - editing is restricted
+                                            {t('ui.main_address_ongoing_orders_message')}
                                         </div>
                                     )}
                                 </div>
@@ -414,12 +417,12 @@ export default function AddressPage() {
                                         </div>
                                         <div className="space-y-1">
                                             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                                                Currently Active Address
+                                                {t('ui.currently_active_address')}
                                             </h3>
                                             <div className="flex items-center gap-2">
                                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                                                     <CheckCircle className="h-3 w-3 mr-1" />
-                                                    Active
+                                                    {t('ui.active')}
                                                 </span>
                                             </div>
                                         </div>
@@ -431,7 +434,7 @@ export default function AddressPage() {
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Edit className="h-4 w-4" />
-                                            Edit
+                                            {t('ui.edit')}
                                         </Button>
                                         <Button
                                             onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
@@ -439,11 +442,11 @@ export default function AddressPage() {
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
                                             <Trash2 className="h-4 w-4" />
-                                            Delete
+                                            {t('ui.delete')}
                                         </Button>
                                         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                                             <CheckCircle className="h-3 w-3 mr-1" />
-                                            Currently Active
+                                            {t('ui.currently_active')}
                                         </div>
                                     </div>
                                 </div>
@@ -456,7 +459,7 @@ export default function AddressPage() {
                                                 <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Address Details</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t('ui.address_details')}</p>
                                                 <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{addresses.find(addr => addr.is_active)!.street}</p>
                                                 <p className="text-slate-600 dark:text-slate-400">{addresses.find(addr => addr.is_active)!.barangay}, {addresses.find(addr => addr.is_active)!.city}</p>
                                                 <p className="text-slate-600 dark:text-slate-400">{addresses.find(addr => addr.is_active)!.province}</p>
@@ -465,13 +468,13 @@ export default function AddressPage() {
                                     </div>
                                     
                                     <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200/50 dark:border-blue-800/30">
-                                        This address is used for checkout and other operations
+                                        {t('ui.checkout_and_other_operations')}
                                     </div>
                                     
                                     {addresses.find(addr => addr.is_active)?.has_ongoing_orders && (
                                         <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
                                             <AlertCircle className="h-4 w-4" />
-                                            This address has ongoing orders - editing/deleting is restricted
+                                            {t('ui.ongoing_orders_restricted_message')}
                                         </div>
                                     )}
                                 </div>
@@ -487,7 +490,7 @@ export default function AddressPage() {
                                     <Home className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                                 </div>
                                 <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300">
-                                    Other Addresses
+                                    {t('ui.other_addresses')}
                                 </h3>
                             </div>
                             <div className="grid gap-6">
@@ -501,7 +504,7 @@ export default function AddressPage() {
                                                             <MapPin className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                                         </div>
                                                         <div className="flex-1">
-                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Saved Address</p>
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t('ui.saved_address')}</p>
                                                             <p className="font-medium text-slate-800 dark:text-slate-200 text-lg leading-relaxed">{address.street}</p>
                                                             <p className="text-slate-600 dark:text-slate-400">{address.barangay}, {address.city}</p>
                                                             <p className="text-slate-600 dark:text-slate-400">{address.province}</p>
@@ -510,7 +513,7 @@ export default function AddressPage() {
                                                     {address.has_ongoing_orders && (
                                                         <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/30 flex items-center gap-2">
                                                             <AlertCircle className="h-4 w-4" />
-                                                            This address has ongoing orders - editing/deleting is restricted
+                                                            {t('ui.ongoing_orders_restricted_message')}
                                                         </div>
                                                     )}
                                                 </div>
@@ -521,7 +524,7 @@ export default function AddressPage() {
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <Edit className="h-4 w-4" />
-                                                        Edit
+                                                        {t('ui.edit')}
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleSetActive(address.id)}
@@ -529,7 +532,7 @@ export default function AddressPage() {
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <CheckCircle className="h-4 w-4" />
-                                                        Set as Active
+                                                        {t('ui.set_as_active')}
                                                     </Button>
                                                     <Button
                                                         onClick={() => handleDelete(address.id)}
@@ -537,7 +540,7 @@ export default function AddressPage() {
                                                         disabled={address.has_ongoing_orders}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
-                                                        Delete
+                                                        {t('ui.delete')}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -554,22 +557,16 @@ export default function AddressPage() {
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>
-                            {editingAddress ? (editingAddress.id === 0 ? 'Edit Main Address' : 'Edit Address') : 'Add New Address'}
+                            {editingAddress ? (editingAddress.id === 0 ? t('ui.edit_main_address') : t('ui.edit_address')) : t('ui.add_new_address')}
                         </DialogTitle>
                         <DialogDescription>
-                            {editingAddress ? 
-                                (editingAddress.id === 0 ? 
-                                    'Update your main address that is automatically used for checkout' : 
-                                    'Update your address information'
-                                ) : 
-                                'Add a new address for deliveries'
-                            }
+                            {editingAddress ? (editingAddress.id === 0 ? t('ui.update_main_address_desc') : t('ui.update_address_info')) : t('ui.add_address_for_deliveries')}
                         </DialogDescription>
                     </DialogHeader>
                     
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="street">Address Line</Label>
+                            <Label htmlFor="street">{t('ui.address_line')}</Label>
                             <Input
                                 id="street"
                                 type="text"
@@ -578,17 +575,17 @@ export default function AddressPage() {
                                 value={data.street}
                                 onChange={(e) => setData('street', e.target.value)}
                                 disabled={processing}
-                                placeholder="House number, street name"
+                                placeholder={t('ui.house_number_street_name')}
                             />
                             {errors.street && <p className="text-sm text-red-500">{errors.street}</p>}
                             <p className="text-xs text-muted-foreground">
-                                Note: Identical addresses will not be saved to prevent duplicates
+                                {t('ui.identical_addresses_message')}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="province">Province</Label>
+                                <Label htmlFor="province">{t('ui.province')}</Label>
                                 <Select 
                                     value={data.province} 
                                     onValueChange={(value) => setData('province', value)}
@@ -597,11 +594,11 @@ export default function AddressPage() {
                                     onOpenChange={(open) => setOpenDropdown(open ? 'province' : null)}
                                 >
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select province" />
+                                        <SelectValue placeholder={t('ui.select_province')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Laguna" className="text-green-600 font-medium">
-                                            Laguna ✓
+                                            {t('ui.laguna')} ✓
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -609,7 +606,7 @@ export default function AddressPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="city">City</Label>
+                                <Label htmlFor="city">{t('ui.city')}</Label>
                                 <Select 
                                     value={data.city} 
                                     onValueChange={(value) => setData('city', value)}
@@ -618,11 +615,11 @@ export default function AddressPage() {
                                     onOpenChange={(open) => setOpenDropdown(open ? 'city' : null)}
                                 >
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select city" />
+                                        <SelectValue placeholder={t('ui.select_city')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Cabuyao" className="text-green-600 font-medium">
-                                            Cabuyao ✓
+                                            {t('ui.cabuyao')} ✓
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -631,7 +628,7 @@ export default function AddressPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="barangay">Barangay</Label>
+                            <Label htmlFor="barangay">{t('ui.barangay')}</Label>
                             <Select 
                                 value={data.barangay} 
                                 onValueChange={(value) => setData('barangay', value)}
@@ -640,7 +637,7 @@ export default function AddressPage() {
                                 onOpenChange={(open) => setOpenDropdown(open ? 'barangay' : null)}
                             >
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select barangay" />
+                                    <SelectValue placeholder={t('ui.select_barangay')} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {cabuyaoBarangays.map((barangay) => (
@@ -657,7 +654,7 @@ export default function AddressPage() {
                             </Select>
                             {errors.barangay && <p className="text-sm text-red-500">{errors.barangay}</p>}
                             <p className="text-xs text-muted-foreground">
-                                Only Barangay Sala is currently available
+                                {t('ui.only_sala_available')}
                             </p>
                         </div>
 
@@ -673,7 +670,7 @@ export default function AddressPage() {
                                     className="rounded border-input bg-background text-primary focus:ring-ring focus:ring-2"
                                 />
                                 <Label htmlFor="is_active" className="text-sm font-medium">
-                                    Set as active address (used for checkout)
+                                    {t('ui.set_as_active_address')}
                                 </Label>
                             </div>
                         )}
@@ -689,10 +686,10 @@ export default function AddressPage() {
                                     reset();
                                 }}
                             >
-                                Cancel
+                                {t('ui.cancel')}
                             </Button>
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Saving...' : editingAddress ? (editingAddress.id === 0 ? 'Update Main Address' : 'Update Address') : 'Add Address'}
+                                {processing ? t('ui.saving') : editingAddress ? (editingAddress.id === 0 ? t('ui.update_main_address') : t('ui.update_address')) : t('ui.add_address')}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -705,38 +702,38 @@ export default function AddressPage() {
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <AlertCircle className="h-5 w-5 text-amber-500" />
-                            Confirm Address Change
+                            {t('ui.confirm_address_change')}
                         </DialogTitle>
                         <DialogDescription>
-                            Please review the impact of this address change before proceeding.
+                            {t('ui.review_address_change_impact')}
                         </DialogDescription>
                     </DialogHeader>
                     
                     {confirmationData && (
                         <Card className="border border-amber-200 dark:border-amber-800/30 bg-amber-50 dark:bg-amber-950/20">
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">Impact of This Change</CardTitle>
+                                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">{t('ui.impact_of_this_change')}</CardTitle>
                             </CardHeader>
                             <CardContent className="pt-0 space-y-3">
                                 <div className="flex items-start gap-3">
                                     <ShoppingCart className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-foreground">Checkout & Orders</p>
-                                        <p className="text-xs text-muted-foreground">This address will be used for all future orders and checkout processes</p>
+                                        <p className="text-sm font-medium text-foreground">{t('ui.checkout_orders')}</p>
+                                        <p className="text-xs text-muted-foreground">{t('ui.checkout_orders_message')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <Package className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-foreground">Delivery Address</p>
-                                        <p className="text-xs text-muted-foreground">All deliveries will be sent to this new address</p>
+                                        <p className="text-sm font-medium text-foreground">{t('ui.delivery_address')}</p>
+                                        <p className="text-xs text-muted-foreground">{t('ui.delivery_address_message')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-1" />
                                     <div>
-                                        <p className="text-sm font-medium text-foreground">Address History</p>
-                                        <p className="text-xs text-muted-foreground">Your current address will be saved in your address list for future use</p>
+                                        <p className="text-sm font-medium text-foreground">{t('ui.address_history')}</p>
+                                        <p className="text-xs text-muted-foreground">{t('ui.address_history_message')}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -751,7 +748,7 @@ export default function AddressPage() {
                                 setConfirmationData(null);
                             }}
                         >
-                            Cancel
+                            {t('ui.cancel')}
                         </Button>
                         <Button
                             onClick={() => {
@@ -761,7 +758,7 @@ export default function AddressPage() {
                             }}
                             className="bg-blue-600 hover:bg-blue-700"
                         >
-                            Confirm Address Change
+                            {t('ui.confirm_address_change')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

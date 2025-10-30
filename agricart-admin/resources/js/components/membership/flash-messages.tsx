@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BellDot } from 'lucide-react';
 import { PasswordChangeRequest } from '../../types/membership';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface FlashMessagesProps {
     flash: {
@@ -18,12 +19,13 @@ export const FlashMessages = ({
     onNavigateToMember,
     onDismissNewRequest
 }: FlashMessagesProps) => {
+    const t = useTranslation();
     return (
         <div className="space-y-4">
             {flash.message && (
                 <Alert>
                     <BellDot className='h-4 w-4 text-blue-500' />
-                    <AlertTitle>Notification!</AlertTitle>
+                    <AlertTitle>{t('admin.notification')}</AlertTitle>
                     <AlertDescription>{flash.message}</AlertDescription>
                 </Alert>
             )}
@@ -31,7 +33,7 @@ export const FlashMessages = ({
             {flash.error && (
                 <Alert className="border-red-300">
                     <BellDot className='h-4 w-4 text-red-500' />
-                    <AlertTitle>Error!</AlertTitle>
+                    <AlertTitle>{t('admin.error_title')}</AlertTitle>
                     <AlertDescription>{flash.error}</AlertDescription>
                 </Alert>
             )}
@@ -47,9 +49,9 @@ export const FlashMessages = ({
                 >
                     <Alert className="cursor-pointer border-green-300">
                         <BellDot className='h-4 w-4 text-green-600' />
-                        <AlertTitle>New Password Change Request</AlertTitle>
+                        <AlertTitle>{t('admin.new_password_change_request')}</AlertTitle>
                         <AlertDescription>
-                            {newRequest.member.name} just submitted a password change request. Click to view member.
+                            {t('admin.new_password_request_message', {name: newRequest.member.name})}
                         </AlertDescription>
                     </Alert>
                 </button>

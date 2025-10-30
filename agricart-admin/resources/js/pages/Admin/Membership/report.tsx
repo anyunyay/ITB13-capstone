@@ -187,20 +187,18 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     <Users className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-foreground">Membership Report</h1>
-                    <p className="text-muted-foreground mt-1">
-                      Generate comprehensive membership reports and analytics
-                    </p>
+                    <h1 className="text-3xl font-bold text-foreground">{t('admin.membership_report')}</h1>
+                    <p className="text-muted-foreground mt-1">{t('admin.membership_report_description')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
                   <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
-                    Export CSV
+                    {t('admin.export_csv')}
                   </Button>
                   <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Export PDF
+                    {t('admin.export_pdf')}
                   </Button>
                 </div>
               </div>
@@ -212,12 +210,12 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Total Members
+                    {t('admin.total_members')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-foreground">{summary.total_members}</div>
-                  <p className="text-xs text-muted-foreground mt-1">All registered members</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.all_registered_members')}</p>
                 </CardContent>
               </Card>
 
@@ -225,12 +223,12 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <UserCheck className="h-4 w-4" />
-                    Active Members
+                    {t('admin.active_members')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">{summary.active_members}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Verified and active</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.verified_and_active')}</p>
                 </CardContent>
               </Card>
 
@@ -238,12 +236,12 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Pending Verification
+                    {t('admin.pending_verification')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-yellow-600">{summary.pending_verification}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Awaiting verification</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.awaiting_verification')}</p>
                 </CardContent>
               </Card>
 
@@ -251,12 +249,12 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <UserPlus className="h-4 w-4" />
-                    Recent (30 days)
+                    {t('admin.recent_registrations_30d')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600">{summary.recent_registrations}</div>
-                  <p className="text-xs text-muted-foreground mt-1">New registrations</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.new_registrations')}</p>
                 </CardContent>
               </Card>
             </div>
@@ -269,10 +267,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Filter className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                        <CardTitle className="text-xl">{t('admin.advanced_filters')}</CardTitle>
                         {hasActiveFilters() && (
                           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                            Active
+                            {t('admin.active')}
                           </Badge>
                         )}
                       </div>
@@ -280,7 +278,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                         {hasActiveFilters() && (
                           <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                             <X className="h-4 w-4" />
-                            Clear Filters
+                            {t('admin.clear_filters')}
                           </Button>
                         )}
                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -308,11 +306,11 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                            <h4 className="font-semibold text-primary mb-1">{t('admin.selected_date_range')}</h4>
                             <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                             {getDurationDisplay() && (
                               <p className="text-xs text-primary/70 mt-1">
-                                Duration: {getDurationDisplay()}
+                                {t('admin.duration')}: {getDurationDisplay()}
                               </p>
                             )}
                           </div>
@@ -340,7 +338,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                     {/* Filter Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Start Date</Label>
+                        <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -348,7 +346,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                               className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                              {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -363,7 +361,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                         </Popover>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">End Date</Label>
+                        <Label className="text-sm font-medium">{t('admin.end_date')}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -371,7 +369,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                               className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                              {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -391,7 +389,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       </div>
                       <div className="flex items-end">
                         <Button onClick={applyFilters} className="w-full bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
-                          Apply Filters
+                          {t('admin.apply_filters')}
                         </Button>
                       </div>
                     </div>
@@ -404,10 +402,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
             <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">Members Report ({members.length} members)</CardTitle>
+                  <CardTitle className="text-xl">{t('admin.members_report', {count: members.length})}</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-muted-foreground">
-                      {members.length > 0 ? `Showing ${members.length} members` : 'No members found'}
+                      {members.length > 0 ? t('admin.showing_members', {count: members.length}) : t('admin.no_members_found')}
                     </div>
                     <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                   </div>
@@ -432,16 +430,15 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                         <Users className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="text-lg font-medium text-foreground mb-2">No members found</h3>
+                      <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_members_found')}</h3>
                       <p className="text-muted-foreground max-w-md">
                         {hasActiveFilters() 
-                          ? 'No members match your current filter criteria. Try adjusting your filters to see more results.'
-                          : 'No membership data available for the selected time period.'
-                        }
+                          ? t('admin.no_members_match_filter')
+                          : t('admin.no_membership_data_period')}
                       </p>
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" className="mt-4">
-                          Clear Filters
+                          {t('admin.clear_filters')}
                         </Button>
                       )}
                     </div>
@@ -463,10 +460,10 @@ function MemberCard({ member }: { member: Member }) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">Member #{member.id}</CardTitle>
+            <CardTitle className="text-lg">{t('admin.member_with_id', {id: member.id})}</CardTitle>
             {member.member_id && (
               <p className="text-sm text-blue-600 font-mono font-semibold">
-                ID: {member.member_id}
+                {t('admin.member_id')}: <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
               </p>
             )}
             <p className="text-sm text-gray-500">
@@ -478,36 +475,36 @@ function MemberCard({ member }: { member: Member }) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
-            <h4 className="font-semibold mb-2">Member Information</h4>
+            <h4 className="font-semibold mb-2">{t('admin.member_information')}</h4>
             {member.member_id && (
               <p className="text-sm">
-                <span className="font-medium">Member ID:</span> <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
+                {t('admin.member_id')}: <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
               </p>
             )}
             <p className="text-sm">
-              <span className="font-medium">Name:</span> {member.name}
+              {t('admin.name')}: {member.name}
             </p>
             {member.contact_number && (
               <p className="text-sm">
-                <span className="font-medium">Contact:</span> {member.contact_number}
+                {t('admin.contact_number')}: {member.contact_number}
               </p>
             )}
             {member.address && (
               <p className="text-sm">
-                <span className="font-medium">Address:</span> {member.address}
+                {t('admin.address')}: {member.address}
               </p>
             )}
           </div>
           <div>
-            <h4 className="font-semibold mb-2">Registration Details</h4>
+            <h4 className="font-semibold mb-2">{t('admin.registration_details')}</h4>
             <p className="text-sm">
-              <span className="font-medium">Registration Date:</span> {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : 'N/A'}
+              {t('admin.registration_date_label')}: {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : t('admin.not_assigned')}
             </p>
           </div>
         </div>
         
         <div className="mt-4">
-          <h4 className="font-semibold mb-2">Document</h4>
+          <h4 className="font-semibold mb-2">{t('admin.document')}</h4>
           <div className="flex justify-center">
             <SafeImage 
               src={member.document} 
@@ -566,11 +563,11 @@ function MemberTable({ members }: { members: Member[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Member ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Name</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Contact</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Address</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Registration Date</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.member_id')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.name')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.contact_number')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.registration_date_label')}</th>
           </tr>
         </thead>
         <tbody>
@@ -580,7 +577,7 @@ function MemberTable({ members }: { members: Member[] }) {
                 {member.member_id ? (
                   <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
                 ) : (
-                  <span className="text-muted-foreground">N/A</span>
+                  <span className="text-muted-foreground">{t('admin.not_assigned')}</span>
                 )}
               </td>
               <td className="py-3 px-4">
@@ -588,16 +585,16 @@ function MemberTable({ members }: { members: Member[] }) {
               </td>
               <td className="py-3 px-4">
                 <div className="text-sm text-muted-foreground">
-                  {member.contact_number || 'N/A'}
+                  {member.contact_number || t('admin.not_assigned')}
                 </div>
               </td>
               <td className="py-3 px-4">
                 <div className="text-sm text-muted-foreground max-w-xs truncate">
-                  {member.address || 'N/A'}
+                  {member.address || t('admin.not_assigned')}
                 </div>
               </td>
               <td className="py-3 px-4 text-sm text-muted-foreground">
-                {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : 'N/A'}
+                {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : t('admin.not_assigned')}
               </td>
             </tr>
           ))}

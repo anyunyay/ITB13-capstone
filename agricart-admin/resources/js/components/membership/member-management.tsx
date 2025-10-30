@@ -11,6 +11,7 @@ import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Member } from '../../types/membership';
 import { SafeImage } from '@/lib/image-utils';
 import styles from '../../pages/Admin/Membership/membership.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface MemberManagementProps {
     members: Member[];
@@ -61,6 +62,7 @@ export const MemberManagement = ({
     sortOrder,
     setSortOrder
 }: MemberManagementProps) => {
+    const t = useTranslation();
     // Handle sorting
     const handleSort = (field: string) => {
         if (sortBy === field) {
@@ -102,9 +104,9 @@ export const MemberManagement = ({
                         <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Member Directory</h2>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.member_directory')}</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            {showDeactivated ? 'Viewing deactivated members' : 'Manage and view all registered members'}
+                            {showDeactivated ? t('admin.viewing_deactivated_members') : t('admin.manage_and_view_all_members')}
                         </p>
                     </div>
                 </div>
@@ -115,7 +117,7 @@ export const MemberManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? 'Hide Search' : 'Search'}
+                        {showSearch ? t('admin.hide_search') : t('admin.search')}
                     </Button>
                     <Button
                         variant={showDeactivated ? "default" : "outline"}
@@ -124,13 +126,11 @@ export const MemberManagement = ({
                     >
                         {showDeactivated ? (
                             <>
-                                <EyeOff className="h-4 w-4 mr-2" />
-                                Hide Deactivated
+                                <EyeOff className="h-4 w-4 mr-2" />{t('admin.hide_deactivated')}
                             </>
                         ) : (
                             <>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Deactivated
+                                <Eye className="h-4 w-4 mr-2" />{t('admin.show_deactivated')}
                             </>
                         )}
                     </Button>
@@ -143,7 +143,7 @@ export const MemberManagement = ({
                 setSearchTerm={setSearchTerm}
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
-                placeholder="Search members by name, ID, or contact..."
+                placeholder={t('admin.search_members')}
                 resultsCount={paginatedMembers.length}
                 totalCount={totalMembers}
             />
@@ -161,27 +161,27 @@ export const MemberManagement = ({
                                             onClick={() => handleSort('id')}
                                             className="h-auto p-0 font-medium hover:bg-transparent"
                                         >
-                                            ID
+                                            {t('admin.id_column')}
                                             {getSortIcon('id')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Member ID</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Name</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.member_id')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.name')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact_number')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleSort('registration_date')}
                                             className="h-auto p-0 font-medium hover:bg-transparent"
                                         >
-                                            Registration Date
+                                            {t('admin.registration_date_label')}
                                             {getSortIcon('registration_date')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Type</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Document</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.type')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.document_upload_label')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -197,31 +197,28 @@ export const MemberManagement = ({
                                             <Badge variant="outline">#{idx + 1}</Badge>
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.member_id || 'N/A'}
+                                            {member.member_id || t('admin.not_assigned')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <div className="font-medium">{member.name}</div>
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.contact_number || 'N/A'}
+                                            {member.contact_number || t('admin.not_available')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.default_address ? 
-                                                `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
-                                                : 'N/A'
-                                            }
+                                            {member.default_address ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` : t('admin.not_available')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.registration_date || 'N/A'}
+                                            {member.registration_date || t('admin.not_available')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <div className="flex flex-col gap-1">
                                                 <Badge variant="secondary">
-                                                    {member.type || 'Regular'}
+                                                    {member.type || t('admin.regular')}
                                                 </Badge>
                                                 {!member.active && (
                                                     <Badge variant="destructive" className="text-xs">
-                                                        Deactivated
+                                                        {t('admin.deactivated')}
                                                     </Badge>
                                                 )}
                                             </div>
@@ -239,7 +236,7 @@ export const MemberManagement = ({
                                                     <Button asChild size="sm" className="transition-all duration-200 hover:shadow-lg hover:opacity-90">
                                                         <Link href={route('membership.edit', member.id)}>
                                                             <Edit className="h-3 w-3 mr-1" />
-                                                            Edit
+                                                            {t('admin.edit')}
                                                         </Link>
                                                     </Button>
                                                 </PermissionGate>
@@ -253,8 +250,7 @@ export const MemberManagement = ({
                                                                 variant="destructive"
                                                                 className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                             >
-                                                                <UserMinus className="h-3 w-3 mr-1" />
-                                                                Deactivate
+                                                                <UserMinus className="h-3 w-3 mr-1" />{t('admin.deactivate')}
                                                             </Button>
                                                         </PermissionGate>
                                                     )
@@ -266,8 +262,7 @@ export const MemberManagement = ({
                                                             size="sm"
                                                             className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                         >
-                                                            <RotateCcw className="h-3 w-3 mr-1" />
-                                                            Reactivate
+                                                            <RotateCcw className="h-3 w-3 mr-1" />{t('admin.reactivate')}
                                                         </Button>
                                                     </PermissionGate>
                                                 )}
@@ -291,13 +286,10 @@ export const MemberManagement = ({
                 <div className="text-center py-8">
                     <UsersRound className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
                     <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? 'No members found' : 'No members available'}
+                        {searchTerm ? t('admin.no_members_found') : t('admin.no_members_available')}
                     </h3>
                     <p className="text-muted-foreground">
-                        {searchTerm 
-                            ? 'Try adjusting your search criteria or filters.'
-                            : 'Add new members to get started with membership management.'
-                        }
+                        {searchTerm ? t('admin.try_adjusting_search_filters') : t('admin.add_new_members_get_started')}
                     </p>
                 </div>
             )}

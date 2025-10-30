@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
 import { PasswordChangeRequest } from '../../types/membership';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PasswordRequestsProps {
     pendingPasswordRequests: PasswordChangeRequest[];
@@ -15,6 +16,8 @@ export const PasswordRequests = ({
     onApprove,
     onReject
 }: PasswordRequestsProps) => {
+    const t = useTranslation();
+
     if (!pendingPasswordRequests || pendingPasswordRequests.length === 0) {
         return null;
     }
@@ -27,10 +30,8 @@ export const PasswordRequests = ({
                         <Clock className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Pending Password Change Requests</h2>
-                        <p className="text-sm text-muted-foreground m-0">
-                            Review and approve member password change requests
-                        </p>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.pending_password_change_requests')}</h2>
+                        <p className="text-sm text-muted-foreground m-0">{t('admin.review_and_approve_password_requests')}</p>
                     </div>
                 </div>
             </div>
@@ -43,16 +44,10 @@ export const PasswordRequests = ({
                                 <div className="font-semibold text-foreground mb-1">
                                     {request.member.name}
                                 </div>
-                                <div className="text-sm text-muted-foreground mb-1">
-                                    Member ID: {request.member.member_id}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                    Requested: {new Date(request.requested_at).toLocaleString()}
-                                </div>
+                                <div className="text-sm text-muted-foreground mb-1">{t('admin.member_id')}: {request.member.member_id}</div>
+                                <div className="text-xs text-muted-foreground">{t('admin.requested_at', {date: new Date(request.requested_at).toLocaleString()})}</div>
                                 {request.admin_notes && (
-                                    <div className="text-xs text-muted-foreground">
-                                        Notes: {request.admin_notes}
-                                    </div>
+                                    <div className="text-xs text-muted-foreground">{t('admin.notes')}: {request.admin_notes}</div>
                                 )}
                             </div>
                             <div className="flex gap-2">
@@ -62,7 +57,7 @@ export const PasswordRequests = ({
                                     className="bg-green-600 text-white border-0 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-lg"
                                 >
                                     <CheckCircle className="h-4 w-4" />
-                                    Approve
+                                    {t('admin.approve')}
                                 </Button>
                                 <Button
                                     onClick={() => onReject(request)}
@@ -70,7 +65,7 @@ export const PasswordRequests = ({
                                     className="bg-destructive text-destructive-foreground border-0 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:bg-destructive/90 hover:-translate-y-0.5 hover:shadow-lg"
                                 >
                                     <XCircle className="h-4 w-4" />
-                                    Reject
+                                    {t('admin.reject')}
                                 </Button>
                             </div>
                         </div>

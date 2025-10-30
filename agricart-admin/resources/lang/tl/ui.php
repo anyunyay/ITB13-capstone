@@ -22,7 +22,7 @@ return [
     'loading' => 'Naglo-load...',
     'saving' => 'Nagse-save...',
     'deleting' => 'Nagta-tanggal...',
-    
+
     // Common status
     'active' => 'Aktibo',
     'inactive' => 'Hindi aktibo',
@@ -31,7 +31,7 @@ return [
     'cancelled' => 'Nakansela',
     'enabled' => 'Naka-enable',
     'disabled' => 'Naka-disable',
-    
+
     // Common messages
     'success' => 'Matagumpay',
     'error' => 'May error',
@@ -41,7 +41,7 @@ return [
     'no_results' => 'Walang nakita na resulta',
     'are_you_sure' => 'Sigurado ka ba?',
     'this_action_cannot_be_undone' => 'Hindi na mababalik ang aksyon na ito.',
-    
+
     // Common fields
     'name' => 'Pangalan',
     'email' => 'Email',
@@ -55,11 +55,29 @@ return [
     'actions' => 'Mga aksyon',
     'select' => 'Pumili',
     'all' => 'Lahat',
-    
+
     // Common validation
     'required' => 'Kailangan ang field na ito.',
     'invalid' => 'Hindi wasto ang halaga.',
     'min_length' => 'Minimum na haba ay :min na karakter.',
     'max_length' => 'Maximum na haba ay :max na karakter.',
-];
 
+    // FAQ/Help/Profile UI
+    'access_denied' => 'Access Denied',
+    'customer_only_page' => 'Ang pahinang ito ay para lamang sa mga customer.',
+    'help_and_support' => 'Tulong at Suporta',
+    'frequently_asked_questions' => 'Mga Madalas Itanong',
+    'support_center' => 'Sentro ng Suporta',
+    'find_answers_to_common_questions' => 'Humanap ng sagot sa mga karaniwang tanong tungkol sa aming serbisyo',
+    'search_faqs' => 'Maghanap sa FAQs...',
+    'select_category' => 'Pumili ng kategorya',
+    'no_faqs_found' => 'Walang nahanap na FAQ',
+    'try_adjust_your_search' => 'Subukang ayusin ang iyong paghahanap o piliin ang tamang kategorya.',
+    'other_ways_to_reach_us' => 'Iba pang Paraan ng Pagkontak',
+    'contact_support' => 'Kontakin ang Suporta',
+    'get_in_touch_with_support' => 'Makipag-ugnayan sa aming support team para sa personalized na tulong',
+    'email_support' => 'Email Suporta',
+    'phone_support' => 'Telepono Suporta',
+    'respond_within_24h' => "Sasagot kami sa loob ng 24 oras",
+    'support_hours' => 'Lunes-Biyernes 9AM-6PM',
+];

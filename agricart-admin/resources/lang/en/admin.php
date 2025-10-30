@@ -22,13 +22,13 @@ return [
     'trends' => 'Trends',
     'welcome' => 'Welcome',
     'log_in' => 'Log in',
-    
+
     // Dashboard
     'dashboard_title' => 'Admin Dashboard',
     'dashboard_description' => 'Overview of all system activities and performance metrics',
     'view_orders' => 'View Orders',
     'manage_inventory' => 'Manage Inventory',
-    
+
     // Metrics
     'orders_today' => 'Orders Today',
     'total_products' => 'Total Products',
@@ -60,7 +60,7 @@ return [
     'archived' => 'archived',
     'new_this_month' => 'new this month',
     'total_orders' => 'total orders',
-    
+
     // Alerts
     'urgent_orders' => 'Urgent Orders',
     'low_stock' => 'Low Stock',
@@ -71,13 +71,13 @@ return [
     'view_urgent_orders' => 'View Urgent Orders',
     'manage_stock' => 'Manage Stock',
     'view_delayed' => 'View Delayed',
-    
+
     // Tabs
     'overview_tab' => 'Overview',
     'performance_tab' => 'Performance',
     'inventory_tab' => 'Inventory',
     'activity_tab' => 'Recent Activity',
-    
+
     // Status
     'status' => 'Status',
     'pending' => 'Pending',
@@ -91,14 +91,14 @@ return [
     'active' => 'Active',
     'inactive' => 'Inactive',
     'deactivated' => 'Deactivated',
-    
+
     // Breakdowns & Statistics
     'order_status_breakdown' => 'Order Status Breakdown',
     'user_distribution' => 'User Distribution',
     'order_growth' => 'Order Growth',
     'revenue_growth' => 'Revenue Growth',
     'vs_last_month' => 'vs last month',
-    
+
     // Performance
     'top_selling_products' => 'Top Selling Products',
     'top_members' => 'Top Members',
@@ -108,7 +108,7 @@ return [
     'stocks_sold' => 'stocks sold',
     'available' => 'available',
     'delivered' => 'delivered',
-    
+
     // Inventory
     'inventory_management' => 'Inventory Management',
     'inventory_description' => 'Manage products and stock levels',
@@ -170,13 +170,13 @@ return [
     'sold_items' => 'Sold Items',
     'out_of_stock_items' => 'Sold Out Items',
     'remove' => 'Remove',
-    
+
     // Recent Activity
     'recent_activity' => 'Recent Activity',
     'pending_orders' => 'Pending Orders',
     'no_activity' => 'No recent activity',
     'no_pending_orders' => 'No pending orders',
-    
+
     // Orders
     'order_management' => 'Order Management',
     'order_management_description' => 'Monitor and manage customer orders, track delivery status, and process order requests efficiently',
@@ -195,7 +195,7 @@ return [
     'order_report_description' => 'Generate comprehensive order reports and analytics',
     'export_csv' => 'Export CSV',
     'export_pdf' => 'Export PDF',
-    
+
     // Staff
     'staff_management' => 'Staff Management',
     'staff_management_description' => 'Manage staff members and their permissions',
@@ -207,7 +207,7 @@ return [
     'no_staff_found' => 'No staff found',
     'deactivate_staff' => 'Deactivate Staff',
     'activate_staff' => 'Activate Staff',
-    
+
     // Membership
     'member_management' => 'Member Management',
     'member_management_description' => 'Manage farmers and members',
@@ -225,7 +225,7 @@ return [
     'activate_member' => 'Activate Member',
     'show_deactivated' => 'Show Deactivated',
     'hide_deactivated' => 'Hide Deactivated',
-    
+
     // Logistics
     'logistic_management' => 'Logistic Management',
     'logistic_management_description' => 'Manage delivery personnel and logistics',
@@ -238,7 +238,7 @@ return [
     'no_logistics_found' => 'No logistics found',
     'deactivate_logistic' => 'Deactivate Logistic',
     'activate_logistic' => 'Activate Logistic',
-    
+
     // Sales
     'sales_management' => 'Sales Management',
     'sales_management_description' => 'Comprehensive sales analytics and revenue tracking',
@@ -351,7 +351,7 @@ return [
     'filters_label' => 'Filters',
     'apply_button' => 'Apply',
     'sales_report_description' => 'Generate comprehensive sales reports and analytics',
-    
+
     // Trends
     'trends_management' => 'Price Trends',
     'trends_description' => 'Analyze product price trends over time',
@@ -416,13 +416,13 @@ return [
     'all_pricing_units' => 'All Pricing Units',
     'select_both_dates' => 'Please select both start and end dates for specific time period',
     'date' => 'Date',
-    
+
     // Settings
     'settings' => 'Settings',
     'profile_settings' => 'Profile Settings',
     'password_settings' => 'Password Settings',
     'change_password' => 'Change Password',
-    
+
     // Common Actions
     'view' => 'View',
     'edit' => 'Edit',
@@ -443,12 +443,12 @@ return [
     'submit' => 'Submit',
     'reset' => 'Reset',
     'clear' => 'Clear',
-    
+
     // Access
     'access_denied' => 'Access Denied',
     'dashboard_access_denied' => 'Dashboard Access Denied',
     'order_management_access_denied' => 'Order Management Access Denied',
-    
+
     // Common Patterns
     'order' => 'Order',
     'order_number' => 'Order #:id',
@@ -463,7 +463,7 @@ return [
     'select_all' => 'Select All',
     'deselect_all' => 'Deselect All',
     'error' => 'Error',
-    
+
     // Report pages
     'staff_report' => 'Staff Report',
     'staff_report_description' => 'Generate comprehensive staff reports and analytics',
@@ -477,7 +477,7 @@ return [
     'member_sales_description' => 'View member sales data and performance',
     'stock_audit_trail' => 'Stock Audit Trail',
     'stock_audit_trail_description' => 'View stock history and audit trails',
-    
+
     // Create/Edit pages
     'add_staff_member' => 'Add Staff Member',
     'edit_staff_member' => 'Edit Staff Member',
@@ -494,7 +494,7 @@ return [
     'archived_inventory' => 'Archived Inventory',
     'deactivated_logistics' => 'Deactivated Logistics',
     'deactivated_members' => 'Deactivated Members',
-    
+
     // Form labels
     'name' => 'Name',
     'email_address' => 'Email Address',
@@ -515,7 +515,7 @@ return [
     'stock_id' => 'Stock ID',
     'product_name' => 'Product Name',
     'sold_at' => 'Sold At',
-    
+
     // Settings
     'profile_information' => 'Profile Information',
     'update_name_email' => 'Update your name and email address',
@@ -525,7 +525,7 @@ return [
     'update_password_label' => 'Update your password',
     'order_receipt_preview' => 'Order Receipt Preview',
     'order_not_found' => 'Order Not Found',
-    
+
     // Permission Groups
     'inventory_management_permissions' => 'Inventory Management',
     'inventory_permissions_description' => 'Full access to inventory management including products, archive, stocks, and tracking',
@@ -537,7 +537,7 @@ return [
     'logistics_permissions_description' => 'Access to logistics management and operations',
     'trend_analysis_permissions' => 'Trend Analysis',
     'trend_permissions_description' => 'Access to trend analysis and reporting',
-    
+
     // Additional common strings
     'from' => 'From',
     'to' => 'To',
@@ -556,7 +556,7 @@ return [
     'creating' => 'Creating...',
     'saved' => 'Saved',
     'add_stock_to_product' => 'Add Stock to Product',
-    
+
     // Product Form Fields
     'product_name_label' => 'Name',
     'product_name_placeholder' => 'Product Name',
@@ -575,19 +575,19 @@ return [
     'current_image' => 'Current Image',
     'new_image_preview' => 'New Image Preview',
     'current_image_will_be_replaced' => 'Current image will be replaced with this new image',
-    
+
     // Stock Form Fields
     'product_label' => 'Product',
     'assign_to_member' => 'Assign to Member',
     'select_a_member' => 'Select a member',
     'select_a_category' => 'Select a category',
     'update_stock' => 'Update Stock',
-    
+
     // Table Headers and Messages
     'sold_status' => 'Sold',
     'no_sold_stock_data' => 'No Sold Stock Data',
     'no_sold_stock_records' => 'There are currently no sold stock records to display.',
-    
+
     // Membership/Logistics Form Fields
     'logistic_name_label' => 'Name',
     'logistic_email_label' => 'Email',
@@ -596,7 +596,7 @@ return [
     'format_hint' => 'Format: +639XXXXXXXXX or 09XXXXXXXXX',
     'registration_date_label' => 'Registration Date',
     'document_upload_label' => 'Document Upload',
-    
+
     // Deactivated Pages
     'deactivated_members_title' => 'Deactivated Members',
     'back_to_active_members' => 'Back to Active Members',
@@ -679,7 +679,7 @@ return [
     'no_removed_stock_data' => 'No Removed Stock Data',
     'no_removed_stock_records' => 'There are currently no removed stock records to display',
     'success' => 'Success',
-    
+
     // Rejection Reasons
     'rejection_reason_out_of_stock' => 'Out of stock',
     'rejection_reason_insufficient_stock' => 'Insufficient stock',
@@ -688,7 +688,7 @@ return [
     'rejection_reason_delivery_area_not_covered' => 'Delivery area not covered',
     'rejection_reason_customer_request' => 'Customer request',
     'rejection_reason_other' => 'Other',
-    
+
     // Order Actions
     'order_items' => 'Order Items',
     'ready_to_pickup' => 'Ready to Pick Up',
@@ -713,7 +713,7 @@ return [
     'order_is_delayed' => 'This order is delayed.',
     'order_delayed_description' => 'It has exceeded the standard 24-hour processing time but can still be approved or rejected.',
     'insufficient_stock_warning' => '⚠️ Insufficient Stock Warning:',
-    
+
     // Urgent Approval Popup
     'urgent_order_approval_required' => 'Urgent Order Approval Required',
     'orders_need_immediate_attention' => 'You have orders that need immediate attention.',
@@ -724,7 +724,7 @@ return [
     'go_to_orders' => 'Go to Orders',
     'order' => 'order',
     'orders' => 'orders',
-    
+
     // Product Modals
     'delete_product' => 'Delete Product',
     'confirm_delete_product' => 'Are you sure you want to permanently delete ":name"? This action cannot be undone.',
@@ -742,7 +742,7 @@ return [
     'confirm_restore_product' => 'Are you sure you want to restore ":name"? This will move it back to active products.',
     'restore_product_warning' => 'This product will be moved back to active products and will be available for stock management.',
     'restoring' => 'Restoring...',
-    
+
     // Order Summary & Details
     'order_summary' => 'Order Summary',
     'delivery_status' => 'Delivery Status',
@@ -759,11 +759,11 @@ return [
     'coop_share_percent' => 'Co-op Share (10%)',
     'revenue_percent' => 'Revenue (100%)',
     'processed_by' => 'Processed by',
-    
+
     // Customer Information
     'customer_information' => 'Customer Information',
     'delivery_address' => 'Delivery Address',
-    
+
     // Order Ready
     'order_ready' => 'Order Ready',
     'order_approved_ready_prepare' => 'Order is approved and ready to be prepared for pickup',
@@ -780,7 +780,7 @@ return [
     'will_be_marked_ready_pickup' => 'will be marked as ready for pickup',
     'mark_as_ready' => 'Mark as Ready',
     'logistic_provider_will_be_notified' => 'The logistic provider (:name) will be notified that the order is ready for collection.',
-    
+
     // Order Pickup
     'order_picked_up' => 'Order Picked Up',
     'order_out_for_delivery' => 'Order is out for delivery',
@@ -794,7 +794,7 @@ return [
     'type_confirm_pickup_to_finalize' => 'Type "Confirm Pick Up" to finalize this action *',
     'mark_picked_up_warning' => 'This action cannot be undone. The order will be marked as picked up and delivery status will be set to "Out for Delivery".',
     'marking' => 'Marking...',
-    
+
     // Logistic Assignment
     'logistic_assignment' => 'Logistic Assignment',
     'select_logistic_provider' => 'Select Logistic Provider *',
@@ -804,7 +804,7 @@ return [
     'order_approved_ready_delivery' => 'This order has been approved and is ready for delivery. Please select a logistic provider to handle the delivery.',
     'assigning' => 'Assigning...',
     'contact' => 'Contact',
-    
+
     // Remove Stock Modal
     'remove_stock' => 'Remove Stock',
     'remove_stock_description' => 'Remove stock that is no longer available for sale. This action will record the removal in the stock trail with your reason.',
@@ -829,7 +829,7 @@ return [
     'specify_reason_for_removal' => 'Please specify the reason for removal',
     'important_notice' => 'Important Notice',
     'remove_stock_warning' => 'This action will permanently remove the selected stock from inventory. The removal will be recorded in the stock trail with your provided reason.',
-    
+
     // Order Pages Additional Strings
     'please_type_confirm_pickup_exactly' => 'Please type "Confirm Pick Up" exactly to confirm.',
     'delivery_proof_order' => 'Delivery Proof - Order #:id',
@@ -918,7 +918,7 @@ return [
     'more_items' => '+:count more',
     'download_image' => 'Download Image',
     'removing' => 'Removing...',
-    
+
     // Inventory Report Additional Strings
     'stock_report' => 'Stock Report',
     'search_inventory_report_placeholder' => 'Search products, members, or descriptions...',
@@ -943,19 +943,41 @@ return [
     'no_items_found' => 'No items found',
     'no_stock_data_for_period' => 'No stock data available for the selected time period.',
     'no_members_available' => 'No members available',
-    'select_all_max_five' => 'Select All (Max 5)',
-    'maximum_five_members_selected' => 'Maximum 5 members selected',
-    'stock_details' => 'Stock Details',
-    'created_on' => 'Created on :date',
-    'quantity_units' => ':quantity units',
-    'deleted_by_admin' => 'Deleted by admin',
-    'type' => 'Type',
-    'sold' => 'Sold',
-    'partial' => 'Partial',
+    'add_new_members_get_started' => 'Add new members to get started with membership management.',
+    'try_adjusting_search_filters' => 'Try adjusting your search criteria or filters.',
+    'member_id_placeholder' => 'Enter member ID...',
+    'member_information' => 'Member Information',
+    'registration_details' => 'Registration Details',
+    'document' => 'Document',
+    'regular' => 'Regular',
+    'member_with_id' => 'Member #:id',
+    'all_registered_members' => 'All registered members',
+    'verified_and_active' => 'Verified and active',
+    'pending_verification' => 'Pending Verification',
+    'awaiting_verification' => 'Awaiting verification',
+    'recent_registrations_30d' => 'Recent (30 days)',
+    'new_registrations' => 'New registrations',
+    'members_report' => 'Members Report (:count members)',
+    'showing_members' => 'Showing :count members',
+    'no_members_match_filter' => 'No members match your current filter criteria. Try adjusting your filters to see more results.',
+    'no_membership_data_period' => 'No membership data available for the selected time period.',
+    'notification' => 'Notification!',
+    'new_password_change_request' => 'New Password Change Request',
+    'new_password_request_message' => ':name just submitted a password change request. Click to view member.',
+    'reject_password_change' => 'Reject Password Change',
+    'confirm_reject_password_change' => 'Are you sure you want to reject this password change request?',
+    'requested_at' => 'Requested: :date',
+    'reject_password_change_request' => 'Reject the password change request',
+    'prevent_member_password_change' => 'Prevent the member from changing their password',
+    'mark_request_as_rejected' => 'Mark the request as rejected',
+    'approve' => 'Approve',
+    'reject' => 'Reject',
+    'notes' => 'Notes',
+    'review_and_approve_password_requests' => 'Review and approve member password change requests',
     'confirm_restore_archived_product' => 'Restore archived product - :name?',
     'confirm_permanently_delete_archived_product' => 'Permanently delete archived product - :name? This cannot be undone.',
     'product_information' => 'Product Information',
-    
+
     // Sorting Options
     'sort_name_asc' => 'Name (A-Z)',
     'sort_name_desc' => 'Name (Z-A)',
@@ -969,19 +991,19 @@ return [
     'sort_quantity_desc' => 'Quantity (High to Low)',
     'sort_product_asc' => 'Product Name (A-Z)',
     'sort_product_desc' => 'Product Name (Z-A)',
-    
+
     // Product Card Labels
     'label_kilo' => 'Kilo:',
     'label_piece' => 'Piece:',
     'label_tali' => 'Tali:',
-    
+
     // Product Actions
     'archiving' => 'Archiving...',
     'restoring' => 'Restoring...',
     'deleting' => 'Deleting...',
     'apply_filters' => 'Apply Filters',
     'no_stocks_match_filters' => 'No stocks match your filters',
-    
+
     // Missing Sales translations
     'not_available' => 'N/A',
     'stock_id_prefix' => 'Stock ID:',
@@ -993,4 +1015,10 @@ return [
     'members_count' => ':count members',
     'orders_suffix' => 'orders',
     'total_quantity_column' => 'Total Quantity',
+
+    // Membership Management
+    'member_directory' => 'Member Directory',
+    'manage_and_view_all_members' => 'Manage and view all members',
+    'member_id' => 'Member ID',
+    'type' => 'Type',
 ];

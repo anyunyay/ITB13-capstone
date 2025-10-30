@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { usePage } from '@inertiajs/react';
 import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface FAQ {
     id: number;
@@ -24,52 +25,19 @@ interface PageProps {
     [key: string]: any;
 }
 
+const t = useTranslation();
+
 const faqs: FAQ[] = [
-    {
-        id: 1,
-        question: "How do I place an order?",
-        answer: "To place an order, browse our products, add items to your cart, and proceed to checkout. You'll need to provide your delivery address and payment information.",
-        category: "Ordering"
-    },
-    {
-        id: 2,
-        question: "What payment methods do you accept?",
-        answer: "We only accept cash on delivery (COD).",
-        category: "Payment"
-    },
-    {
-        id: 3,
-        question: "How long does delivery take?",
-        answer: "Delivery typically takes 1-3 business days within Sala.",
-        category: "Delivery"
-    },
-    {
-        id: 4,
-        question: "Can I track my order?",
-        answer: "Yes! You can track your order status in the 'Order History' section.",
-        category: "Tracking"
-    },
-    {
-        id: 5,
-        question: "How do I update my account information?",
-        answer: "You can update your account information in the Profile section of your account dashboard.",
-        category: "Account"
-    },
-    {
-        id: 6,
-        question: "Are there any delivery fees?",
-        answer: "Yes — delivery fees are 10% of the order total.",
-        category: "Pricing"
-    },
-    {
-        id: 7,
-        question: "How do I contact customer support?",
-        answer: "You can contact us through the support form below, email us at support@agricart.com, or call our hotline at (02) 1234-5678.",
-        category: "Account"
-    }
+    { id: 1, question: t('ui.faq_place_order'), answer: t('ui.faq_place_order_answer'), category: t('ui.faq_category_ordering') },
+    { id: 2, question: t('ui.faq_payment_methods'), answer: t('ui.faq_payment_methods_answer'), category: t('ui.faq_category_payment') },
+    { id: 3, question: t('ui.faq_delivery_time'), answer: t('ui.faq_delivery_time_answer'), category: t('ui.faq_category_delivery') },
+    { id: 4, question: t('ui.faq_track_order'), answer: t('ui.faq_track_order_answer'), category: t('ui.faq_category_tracking') },
+    { id: 5, question: t('ui.faq_update_account'), answer: t('ui.faq_update_account_answer'), category: t('ui.faq_category_account') },
+    { id: 6, question: t('ui.faq_delivery_fees'), answer: t('ui.faq_delivery_fees_answer'), category: t('ui.faq_category_pricing') },
+    { id: 7, question: t('ui.faq_contact_support'), answer: t('ui.faq_contact_support_answer'), category: t('ui.faq_category_account') }
 ];
 
-const categories = ["All", "Ordering", "Payment", "Delivery", "Tracking", "Returns", "Account", "Pricing"];
+const categories = [t('ui.all'), t('ui.faq_category_ordering'), t('ui.faq_category_payment'), t('ui.faq_category_delivery'), t('ui.faq_category_tracking'), t('ui.faq_category_returns'), t('ui.faq_category_account'), t('ui.faq_category_pricing')];
 
 export default function HelpPage() {
     const { user } = usePage<PageProps>().props;
@@ -77,11 +45,11 @@ export default function HelpPage() {
     // Only allow Customer users to access the Help page
     if (user.type !== 'customer') {
         return (
-            <ProfileWrapper title="Access Denied">
+            <ProfileWrapper title={t('ui.access_denied')}>
                 <div className="flex items-center justify-center min-h-[400px]">
                     <div className="text-center">
-                        <h2 className="text-2xl font-bold text-card-foreground mb-2">Access Denied</h2>
-                        <p className="text-muted-foreground">This page is only available for Customer users.</p>
+                        <h2 className="text-2xl font-bold text-card-foreground mb-2">{t('ui.access_denied')}</h2>
+                        <p className="text-muted-foreground">{t('ui.customer_only_page')}</p>
                     </div>
                 </div>
             </ProfileWrapper>
@@ -125,7 +93,7 @@ export default function HelpPage() {
 
     return (
         <ProfileWrapper 
-            title="Help & Support"
+            title={t('ui.help_and_support')}
         >
             <div className="space-y-6">
                 {/* FAQ Section */}
@@ -138,16 +106,16 @@ export default function HelpPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <h1 className="text-2xl font-bold text-card-foreground">
-                                        Frequently Asked Questions
+                                        {t('ui.frequently_asked_questions')}
                                     </h1>
                                     <div className="flex items-center gap-2">
                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
                                             <HelpCircle className="h-3 w-3 mr-1" />
-                                            Support Center
+                                            {t('ui.support_center')}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Find answers to common questions about our services
+                                        {t('ui.find_answers_to_common_questions')}
                                     </p>
                                 </div>
                             </div>
@@ -159,7 +127,7 @@ export default function HelpPage() {
                             <div className="relative flex-1">
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                                 <Input
-                                    placeholder="Search FAQs..."
+                                    placeholder={t('ui.search_faqs')}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-12 border-2 border-border/50 focus:border-secondary focus:ring-4 focus:ring-secondary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
@@ -167,7 +135,7 @@ export default function HelpPage() {
                             </div>
                             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                 <SelectTrigger className="w-full sm:w-48 border-2 border-border/50 focus:border-secondary focus:ring-4 focus:ring-secondary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm">
-                                    <SelectValue />
+                                    <SelectValue placeholder={t('ui.select_category')} />
                                 </SelectTrigger>
                                 <SelectContent className="bg-card/95 backdrop-blur-sm border border-border/50">
                                     {categories.map((category) => (
@@ -218,8 +186,8 @@ export default function HelpPage() {
                                 <div className="p-4 rounded-full bg-muted/80 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                                     <HelpCircle className="h-10 w-10 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-card-foreground mb-2">No FAQs found</h3>
-                                <p className="text-muted-foreground">Try adjusting your search terms or category filter.</p>
+                                <h3 className="text-lg font-semibold text-card-foreground mb-2">{t('ui.no_faqs_found')}</h3>
+                                <p className="text-muted-foreground">{t('ui.try_adjust_your_search')}</p>
                             </div>
                         )}
                     </CardContent>
@@ -236,16 +204,16 @@ export default function HelpPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <h2 className="text-xl font-bold text-card-foreground">
-                                        Other Ways to Reach Us
+                                        {t('ui.other_ways_to_reach_us')}
                                     </h2>
                                     <div className="flex items-center gap-2">
                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                                             <Phone className="h-3 w-3 mr-1" />
-                                            Contact Support
+                                            {t('ui.contact_support')}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Get in touch with our support team for personalized assistance
+                                        {t('ui.get_in_touch_with_support')}
                                     </p>
                                 </div>
                             </div>
@@ -259,9 +227,9 @@ export default function HelpPage() {
                                         <Mail className="h-5 w-5 text-secondary" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm text-muted-foreground mb-1">Email Support</p>
+                                        <p className="text-sm text-muted-foreground mb-1">{t('ui.email_support')}</p>
                                         <p className="font-semibold text-card-foreground">support@agricart.com</p>
-                                        <p className="text-xs text-muted-foreground mt-1">We'll respond within 24 hours</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{t('ui.respond_within_24h')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -271,9 +239,9 @@ export default function HelpPage() {
                                         <Phone className="h-5 w-5 text-primary" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm text-muted-foreground mb-1">Phone Support</p>
+                                        <p className="text-sm text-muted-foreground mb-1">{t('ui.phone_support')}</p>
                                         <p className="font-semibold text-card-foreground">(02) 1234-5678</p>
-                                        <p className="text-xs text-muted-foreground mt-1">Mon-Fri 9AM-6PM</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{t('ui.support_hours')}</p>
                                     </div>
                                 </div>
                             </div>

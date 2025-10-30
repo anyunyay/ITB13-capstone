@@ -22,13 +22,13 @@ return [
     'trends' => 'Mga Trends',
     'welcome' => 'Maligayang Pagdating',
     'log_in' => 'Mag-log in',
-    
+
     // Dashboard
     'dashboard_title' => 'Admin Dashboard',
     'dashboard_description' => 'Pangkalahatang tanaw ng lahat ng system activities at performance metrics',
     'view_orders' => 'Tingnan ang mga Order',
     'manage_inventory' => 'Pamahalaan ang Inventory',
-    
+
     // Metrics
     'orders_today' => 'Mga Order Ngayon',
     'total_products' => 'Kabuuang Produkto',
@@ -60,7 +60,7 @@ return [
     'archived' => 'na-archive',
     'new_this_month' => 'bagong user ngayong buwan',
     'total_orders' => 'kabuuang order',
-    
+
     // Alerts
     'urgent_orders' => 'Mga Urgent Order',
     'low_stock' => 'Mababang Stock',
@@ -71,13 +71,13 @@ return [
     'view_urgent_orders' => 'Tingnan ang mga Urgent Order',
     'manage_stock' => 'Pamahalaan ang Stock',
     'view_delayed' => 'Tingnan ang Na-delay',
-    
+
     // Tabs
     'overview_tab' => 'Pangkalahatang Tanaw',
     'performance_tab' => 'Performance',
     'inventory_tab' => 'Inventory',
     'activity_tab' => 'Kamakailang Aktibidad',
-    
+
     // Status
     'status' => 'Status',
     'pending' => 'Naghihintay',
@@ -91,14 +91,14 @@ return [
     'active' => 'Aktibo',
     'inactive' => 'Hindi Aktibo',
     'deactivated' => 'Na-deactivate',
-    
+
     // Breakdowns & Statistics
     'order_status_breakdown' => 'Order Status Breakdown',
     'user_distribution' => 'Distribusyon ng Users',
     'order_growth' => 'Pagtaas ng Order',
     'revenue_growth' => 'Pagtaas ng Kita',
     'vs_last_month' => 'kumpara sa nakaraang buwan',
-    
+
     // Performance
     'top_selling_products' => 'Mga Pinakamabentang Produkto',
     'top_members' => 'Mga Top Members',
@@ -108,7 +108,7 @@ return [
     'stocks_sold' => 'stocks na nabenta',
     'available' => 'available',
     'delivered' => 'nai-deliver',
-    
+
     // Inventory
     'inventory_management' => 'Pamamahala ng Inventory',
     'inventory_description' => 'Pamahalaan ang mga produkto at stock levels',
@@ -121,7 +121,7 @@ return [
     'completely_sold_stock' => 'Lahat na Nabenta',
     'low_stock_products' => 'Mga Mababang Stock na Produkto',
     'out_of_stock_products' => 'Mga Walang Stock na Produkto',
-       'products_by_category' => 'Mga Produkto ayon sa Category',
+    'products_by_category' => 'Mga Produkto ayon sa Category',
     'quantity' => 'Dami',
     'category' => 'Category',
     'count' => 'Bilang',
@@ -170,13 +170,13 @@ return [
     'sold_items' => 'Mga Naibentang Item',
     'out_of_stock_items' => 'Mga Naubos na Stock',
     'remove' => 'Tanggalin',
-    
+
     // Recent Activity
     'recent_activity' => 'Kamakailang Aktibidad',
     'pending_orders' => 'Mga Pending na Order',
     'no_activity' => 'Walang kamakailang aktibidad',
     'no_pending_orders' => 'Walang pending na order',
-    
+
     // Orders
     'order_management' => 'Pamamahala ng Order',
     'order_management_description' => 'Subaybayan at pamahalaan ang mga customer order, track ang delivery status, at i-process ang mga order requests nang mahusay',
@@ -195,7 +195,7 @@ return [
     'order_report_description' => 'Gumawa ng comprehensive order reports at analytics',
     'export_csv' => 'I-export ang CSV',
     'export_pdf' => 'I-export ang PDF',
-    
+
     // Staff
     'staff_management' => 'Pamamahala ng Staff',
     'staff_management_description' => 'Pamahalaan ang mga staff members at kanilang permissions',
@@ -207,7 +207,7 @@ return [
     'no_staff_found' => 'Walang nahanap na staff',
     'deactivate_staff' => 'I-deactivate ang Staff',
     'activate_staff' => 'I-activate ang Staff',
-    
+
     // Membership
     'member_management' => 'Pamamahala ng Miyembro',
     'member_management_description' => 'Pamahalaan ang mga farmers at members',
@@ -225,7 +225,7 @@ return [
     'activate_member' => 'I-activate ang Miyembro',
     'show_deactivated' => 'Ipakita ang Na-deactivate',
     'hide_deactivated' => 'Itago ang Na-deactivate',
-    
+
     // Logistics
     'logistic_management' => 'Pamamahala ng Logistic',
     'logistic_management_description' => 'Pamahalaan ang delivery personnel at logistics',
@@ -238,7 +238,7 @@ return [
     'no_logistics_found' => 'Walang nahanap na logistics',
     'deactivate_logistic' => 'I-deactivate ang Logistic',
     'activate_logistic' => 'I-activate ang Logistic',
-    
+
     // Sales
     'sales_management' => 'Pamamahala ng Benta',
     'sales_management_description' => 'Comprehensive sales analytics at pagsubaybay ng kita',
@@ -351,7 +351,7 @@ return [
     'filters_label' => 'Mga Filters',
     'apply_button' => 'I-apply',
     'sales_report_description' => 'Gumawa ng comprehensive sales reports at analytics',
-    
+
     // Trends
     'trends_management' => 'Mga Price Trends',
     'trends_description' => 'Suriin ang product price trends sa paglipas ng panahon',
@@ -416,13 +416,13 @@ return [
     'all_pricing_units' => 'Lahat ng Pricing Units',
     'select_both_dates' => 'Mangyaring pumili ng parehong start at end dates para sa specific time period',
     'date' => 'Petsa',
-    
+
     // Settings
     'settings' => 'Mga Setting',
     'profile_settings' => 'Profile Settings',
     'password_settings' => 'Password Settings',
     'change_password' => 'Palitan ang Password',
-    
+
     // Common Actions
     'view' => 'Tingnan',
     'edit' => 'I-edit',
@@ -443,12 +443,12 @@ return [
     'submit' => 'I-submit',
     'reset' => 'I-reset',
     'clear' => 'I-clear',
-    
+
     // Access
     'access_denied' => 'Access Denied',
     'dashboard_access_denied' => 'Dashboard Access Denied',
     'order_management_access_denied' => 'Order Management Access Denied',
-    
+
     // Common Patterns
     'order' => 'Order',
     'order_number' => 'Order #:number',
@@ -463,7 +463,7 @@ return [
     'select_all' => 'Piliin ang Lahat',
     'deselect_all' => 'Tanggalin ang Lahat',
     'error' => 'Error',
-    
+
     // Report pages
     'staff_report' => 'Staff Report',
     'staff_report_description' => 'Gumawa ng comprehensive staff reports at analytics',
@@ -477,7 +477,7 @@ return [
     'member_sales_description' => 'Tingnan ang member sales data at performance',
     'stock_audit_trail' => 'Stock Audit Trail',
     'stock_audit_trail_description' => 'Tingnan ang stock history at audit trails',
-    
+
     // Create/Edit pages
     'add_staff_member' => 'Magdagdag ng Staff Member',
     'edit_staff_member' => 'I-edit ang Staff Member',
@@ -494,7 +494,7 @@ return [
     'archived_inventory' => 'Na-archive na Inventory',
     'deactivated_logistics' => 'Mga Na-deactivate na Logistics',
     'deactivated_members' => 'Mga Na-deactivate na Miyembro',
-    
+
     // Form labels
     'email_address' => 'Email Address',
     'contact_number' => 'Contact Number',
@@ -516,7 +516,7 @@ return [
     'sold_at' => 'Nabenta Noong',
     'create_staff_description' => 'Gumawa ng bagong staff member at mag-assign ng permissions',
     'update_staff_description' => 'I-update ang staff member at permissions',
-    
+
     // Settings
     'profile_information' => 'Impormasyon ng Profile',
     'update_name_email' => 'I-update ang iyong pangalan at email address',
@@ -526,7 +526,7 @@ return [
     'update_password_label' => 'I-update ang iyong password',
     'order_receipt_preview' => 'Preview ng Order Receipt',
     'order_not_found' => 'Hindi Nahanap ang Order',
-    
+
     // Permission Groups
     'inventory_management_permissions' => 'Pamamahala ng Inventory',
     'inventory_permissions_description' => 'Buong access sa inventory management kasama ang products, archive, stocks, at tracking',
@@ -538,7 +538,7 @@ return [
     'logistics_permissions_description' => 'Access sa logistics management at operations',
     'trend_analysis_permissions' => 'Analysis ng Trends',
     'trend_permissions_description' => 'Access sa рандом analysis at reporting',
-    
+
     // Additional common strings
     'from' => 'Mula',
     'to' => 'Hanggang',
@@ -557,7 +557,7 @@ return [
     'creating' => 'Ginagawa...',
     'saved' => 'Na-save',
     'add_stock_to_product' => 'Magdagdag ng Stock sa Produkto',
-    
+
     // Product Form Fields
     'product_name_label' => 'Pangalan',
     'product_name_placeholder' => 'Pangalan ng Produkto',
@@ -577,20 +577,20 @@ return [
     'current_image' => 'Kasalukuyang Larawan',
     'new_image_preview' => 'Preview ng Bagong Larawan',
     'current_image_will_be_replaced' => 'Ang kasalukuyang larawan ay papalitan ng bagong larawan na ito',
-    
+
     // Stock Form Fields
     'product_label' => 'Produkto',
     'assign_to_member' => 'Mag-assign sa Miyembro',
     'select_a_member' => 'Pumili ng miyembro',
     'select_a_category' => 'Pumili ng kategorya',
     'update_stock' => 'I-update ang Stock',
-    
+
     // Table Headers
     'stock_id' => 'Stock ID',
     'sold_status' => 'Nabenta',
     'no_sold_stock_data' => 'Walang Data ng Nabentang Stock',
     'no_sold_stock_records' => 'Wala pang mga record ng nabentang stock na ipapakita.',
-    
+
     // Membership/Logistics Form Fields
     'logistic_name_label' => 'Pangalan',
     'logistic_email_label' => 'Email',
@@ -599,7 +599,7 @@ return [
     'format_hint' => 'Format: +639XXXXXXXXX o 09XXXXXXXXX',
     'registration_date_label' => 'Petsa ng Rehistro',
     'document_upload_label' => 'Upload ng Dokumento',
-    
+
     // Deactivated Pages
     'deactivated_members_title' => 'Mga Na-deactivate na Miyembro',
     'back_to_active_m shareholders' => 'Bumalik sa Aktibong Miyembro',
@@ -682,7 +682,7 @@ return [
     'no_removed_stock_data' => 'Walang Data ng Tinanggal na Stock',
     'no_removed_stock_records' => 'Wala pang mga record ng tinanggal na stock na ipapakita',
     'success' => 'Tagumpay',
-    
+
     // Rejection Reasons
     'rejection_reason_out_of_stock' => 'Walang stock',
     'rejection_reason_insufficient_stock' => 'Hindi sapat na stock',
@@ -691,7 +691,7 @@ return [
     'rejection_reason_delivery_area_not_covered' => 'Hindi sakop ang lugar ng delivery',
     'rejection_reason_customer_request' => 'Kahilingan ng customer',
     'rejection_reason_other' => 'Iba pa',
-    
+
     // Order Actions
     'order_items' => 'Mga Item ng Order',
     'ready_to_pickup' => 'Handa na para sa Pick Up',
@@ -716,7 +716,7 @@ return [
     'order_is_delayed' => 'Na-delay ang order na ito.',
     'order_delayed_description' => 'Na-exceed na nito ang standard na 24-oras na processing time pero maaari pa rin itong i-apruba o i-reject.',
     'insufficient_stock_warning' => '⚠️ Babala sa Hindi Sapat na Stock:',
-    
+
     // Urgent Approval Popup
     'urgent_order_approval_required' => 'Kailangan ang Agarang Pag-apruba ng Order',
     'orders_need_immediate_attention' => 'May mga order ka na nangangailangan ng agad na atensyon.',
@@ -727,7 +727,7 @@ return [
     'go_to_orders' => 'Pumunta sa Mga Order',
     'order' => 'order',
     'orders' => 'mga order',
-    
+
     // Product Modals
     'delete_product' => 'Tanggalin ang Produkto',
     'confirm_delete_product' => 'Sigurado ka bang gusto mong permanenteng tanggalin ang ":name"? Hindi maibabalik ang aksyon na ito.',
@@ -745,7 +745,7 @@ return [
     'confirm_restore_product' => 'Sigurado ka bang gusto mong i-restore ang ":name"? Ililipat ito pabalik sa aktibong produkto.',
     'restore_product_warning' => 'Ang produkto na ito ay ililipat pabalik sa aktibong produkto at magiging available para sa stock management.',
     'restoring' => 'Nagre-restore...',
-    
+
     // Order Summary & Details
     'order_summary' => 'Buod ng Order',
     'delivery_status' => 'Status ng Delivery',
@@ -762,11 +762,11 @@ return [
     'coop_share_percent' => 'Bahagi ng Co-op (10%)',
     'revenue_percent' => 'Kita (100%)',
     'processed_by' => 'Napro-proseso ni',
-    
+
     // Customer Information
     'customer_information' => 'Impormasyon ng Customer',
     'delivery_address' => 'Address ng Delivery',
-    
+
     // Order Ready
     'order_ready' => 'Handa na ang Order',
     'order_approved_ready_prepare' => 'Na-apruba ang order at handa na para ihanda para sa pickup',
@@ -782,7 +782,7 @@ return [
     'order_number' => 'Order #:id',
     'will_be_marked_ready_pickup' => 'ay mamarkahan bilang handa para sa pickup',
     'logistic_provider_will_be_notified' => 'Aabisuhan ang logistic provider (:name) na handa na ang order para sa collection.',
-    
+
     // Order Pickup
     'order_picked_up' => 'Na-pick Up ang Order',
     'order_out_for_delivery' => 'Na-pick up ang order at inilalabas na para i-deliver',
@@ -796,7 +796,7 @@ return [
     'type_confirm_pickup_to_finalize' => 'I-type ang "Kumpirmahin ang Pick Up" upang tapusin ang aksyon na ito *',
     'mark_picked_up_warning' => 'Hindi maibabalik ang aksyon na ito. Mamarkahan ang order bilang na-pick up at itatakda ang delivery status sa "Out for Delivery".',
     'marking' => 'Minamarkahan...',
-    
+
     // Logistic Assignment
     'logistic_assignment' => 'Assignment ng Logistic',
     'select_logistic_provider' => 'Pumili ng Logistic Provider *',
@@ -806,7 +806,7 @@ return [
     'order_approved_ready_delivery' => 'Na-apruba na ang order na ito at handa na para sa delivery. Pakisuyo na pumili ng logistic provider para sa delivery.',
     'assigning' => 'Nag-a-assign...',
     'contact' => 'Kontak',
-    
+
     // Remove Stock Modal
     'remove_stock' => 'Tanggalin ang Stock',
     'remove_stock_description' => 'Tanggalin ang stock na hindi na available para sa pagbebenta. Maire-record ang pagtanggal sa stock trail kasama ang inyong dahilan.',
@@ -830,7 +830,7 @@ return [
     'specify_reason_for_removal' => 'Pakisuyo na tukuyin ang dahilan para sa pagtanggal',
     'important_notice' => 'Mahalagang Paalala',
     'remove_stock_warning' => 'Permanenteng tatanggalin ng aksyon na ito ang napiling stock mula sa inventory. Maire-record ang pagtanggal sa stock trail kasama ang inyong ibinigay na dahilan.',
-    
+
     // Order Pages Additional Strings
     'please_type_confirm_pickup_exactly' => 'Mangyaring i-type ang "Confirm Pick Up" nang eksakto upang kumpirmahin.',
     'delivery_proof_order' => 'Delivery Proof - Order #:id',
@@ -919,7 +919,7 @@ return [
     'more_items' => '+:count pa',
     'download_image' => 'I-download ang Image',
     'removing' => 'Tinatanggal...',
-    
+
     // Inventory Report Additional Strings
     'stock_report' => 'Stock Report',
     'search_inventory_report_placeholder' => 'Maghanap ng products, members, o descriptions...',
@@ -943,20 +943,42 @@ return [
     'showing_stock_items_count' => 'Nagpapakita ng :count stock items',
     'no_items_found' => 'Walang nahanap na items',
     'no_stock_data_for_period' => 'Walang stock data available para sa napiling time period.',
-    'no_members_available' => 'Walang available na members',
-    'select_all_max_five' => 'Piliin Lahat (Max 5)',
-    'maximum_five_members_selected' => 'Maximum 5 members napili',
-    'stock_details' => 'Stock Details',
-    'created_on' => 'Ginawa noong :date',
-    'quantity_units' => ':quantity units',
-    'deleted_by_admin' => 'Tinanggal ng admin',
-    'type' => 'Type',
-    'sold' => 'Naibenta',
-    'partial' => 'Bahagyang',
+    'no_members_available' => 'Walang available na miyembro',
+    'add_new_members_get_started' => 'Magdagdag ng bagong miyembro upang masimulan ang pamamahala ng membership.',
+    'try_adjusting_search_filters' => 'Subukang ayusin ang iyong mga criteria o filter.',
+    'member_id_placeholder' => 'Ilagay ang member ID...',
+    'member_information' => 'Impormasyon ng Miyembro',
+    'registration_details' => 'Detalye ng Pagrehistro',
+    'document' => 'Dokumento',
+    'regular' => 'Regular',
+    'member_with_id' => 'Miyembro #:id',
+    'all_registered_members' => 'Lahat ng registered na miyembro',
+    'verified_and_active' => 'Na-verify at aktibo',
+    'pending_verification' => 'Naghihintay ng Pag-verify',
+    'awaiting_verification' => 'Naghihintay ng beripikasyon',
+    'recent_registrations_30d' => 'Bago (30 araw)',
+    'new_registrations' => 'Mga bagong rehistro',
+    'members_report' => 'Ulat ng mga Miyembro (:count miyembro)',
+    'showing_members' => 'Ipinapakita ang :count miyembro',
+    'no_members_match_filter' => 'Walang miyembro na tumutugma sa iyong kasalukuyang filter. Subukang ayusin ang iyong mga filter upang makakita ng mas maraming resulta.',
+    'no_membership_data_period' => 'Walang datos ng membership para sa napiling panahon.',
+    'notification' => 'Abiso!',
+    'new_password_change_request' => 'Bagong Kahilingan ng Pagpalit ng Password',
+    'new_password_request_message' => ':name ay nagpadala ng kahilingan para sa pagbabago ng password. I-click upang makita ang miyembro.',
+    'reject_password_change' => 'Tanggihan ang Pagpalit ng Password',
+    'confirm_reject_password_change' => 'Sigurado ka bang gusto mong tanggihan ang kahilingan sa pagbabago ng password na ito?',
+    'requested_at' => 'Hiniling noong: :date',
+    'reject_password_change_request' => 'Tanggihan ang kahilingan sa pagpalit ng password',
+    'prevent_member_password_change' => 'Pigilan ang miyembro sa pagbabago ng kanilang password',
+    'mark_request_as_rejected' => 'Markahan ang kahilingan bilang tinanggihan',
+    'approve' => 'Aprubahan',
+    'reject' => 'Tanggihan',
+    'notes' => 'Mga Tala',
+    'review_and_approve_password_requests' => 'Suriin at aprubahan ang mga kahilingan sa pagbabago ng password ng miyembro',
     'confirm_restore_archived_product' => 'I-restore ang archived product - :name?',
     'confirm_permanently_delete_archived_product' => 'Permanenteng tanggalin ang archived product - :name? Hindi ito maibabalik.',
     'product_information' => 'Impormasyon ng Produkto',
-    
+
     // Sorting Options
     'sort_name_asc' => 'Pangalan (A-Z)',
     'sort_name_desc' => 'Pangalan (Z-A)',
@@ -970,19 +992,19 @@ return [
     'sort_quantity_desc' => 'Dami (Mataas hanggang Mababa)',
     'sort_product_asc' => 'Pangalan ng Produkto (A-Z)',
     'sort_product_desc' => 'Pangalan ng Produkto (Z-A)',
-    
+
     // Product Card Labels
     'label_kilo' => 'Kilo:',
     'label_piece' => 'Piraso:',
     'label_tali' => 'Tali:',
-    
+
     // Product Actions
     'archiving' => 'Nag-a-archive...',
     'restoring' => 'Nagre-restore...',
     'deleting' => 'Nagtatanggal...',
     'apply_filters' => 'Mag-apply ng Filter',
     'no_stocks_match_filters' => 'Walang stock na tumutugma sa iyong mga filter',
-    
+
     // Missing Sales translations
     'not_available' => 'N/A',
     'stock_id_prefix' => 'Stock ID:',
@@ -995,4 +1017,10 @@ return [
     'orders_suffix' => 'mga order',
     'total_quantity_column' => 'Kabuuang Dami',
     'delayed_orders_label' => 'Mga Na-delay na Order',
+
+    // Membership Management
+    'member_directory' => 'Direktoryo ng Miyembro',
+    'manage_and_view_all_members' => 'Pamahalaan at tingnan lahat ng miyembro',
+    'member_id' => 'ID ng Miyembro',
+    'type' => 'Uri',
 ];

@@ -23,7 +23,7 @@ return [
     'loading' => 'Loading...',
     'saving' => 'Saving...',
     'deleting' => 'Deleting...',
-    
+
     // Common status
     'active' => 'Active',
     'inactive' => 'Inactive',
@@ -32,7 +32,7 @@ return [
     'cancelled' => 'Cancelled',
     'enabled' => 'Enabled',
     'disabled' => 'Disabled',
-    
+
     // Common messages
     'success' => 'Success',
     'error' => 'Error',
@@ -42,7 +42,7 @@ return [
     'no_results' => 'No results found',
     'are_you_sure' => 'Are you sure?',
     'this_action_cannot_be_undone' => 'This action cannot be undone.',
-    
+
     // Common fields
     'name' => 'Name',
     'email' => 'Email',
@@ -56,11 +56,29 @@ return [
     'actions' => 'Actions',
     'select' => 'Select',
     'all' => 'All',
-    
+
     // Common validation
     'required' => 'This field is required.',
     'invalid' => 'Invalid value.',
     'min_length' => 'Minimum length is :min characters.',
     'max_length' => 'Maximum length is :max characters.',
-];
 
+    // FAQ/Help/Profile UI
+    'access_denied' => 'Access Denied',
+    'customer_only_page' => 'This page is only available for Customer users.',
+    'help_and_support' => 'Help & Support',
+    'frequently_asked_questions' => 'Frequently Asked Questions',
+    'support_center' => 'Support Center',
+    'find_answers_to_common_questions' => 'Find answers to common questions about our services',
+    'search_faqs' => 'Search FAQs...',
+    'select_category' => 'Select category',
+    'no_faqs_found' => 'No FAQs found',
+    'try_adjust_your_search' => 'Try adjusting your search terms or category filter.',
+    'other_ways_to_reach_us' => 'Other Ways to Reach Us',
+    'contact_support' => 'Contact Support',
+    'get_in_touch_with_support' => 'Get in touch with our support team for personalized assistance',
+    'email_support' => 'Email Support',
+    'phone_support' => 'Phone Support',
+    'respond_within_24h' => "We'll respond within 24 hours",
+    'support_hours' => 'Mon-Fri 9AM-6PM',
+];

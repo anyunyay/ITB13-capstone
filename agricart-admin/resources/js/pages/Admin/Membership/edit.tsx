@@ -163,7 +163,7 @@ export default function Edit({member}: Props) {
                     <div className='gap-1.5'>
                         <Label htmlFor="member_id">{t('admin.member_id')}</Label>
                         <Input 
-                            placeholder="2411001" 
+                            placeholder={t('admin.member_id_placeholder')} 
                             value={data.member_id || t('admin.not_assigned')} 
                             disabled
                             className="bg-gray-50 text-gray-500"
