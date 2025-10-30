@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Package, DollarSign, Hash } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderItem {
     id: number;
@@ -40,13 +41,15 @@ interface OrderItemsTableProps {
 }
 
 export const OrderItemsTable = ({ items, showStock = false, compact = false }: OrderItemsTableProps) => {
+    const t = useTranslation();
+
     if (!items || items.length === 0) {
         return (
             <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No items found</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_items_found')}</h3>
                 <p className="text-muted-foreground">
-                    This order doesn't contain any items.
+                    {t('admin.no_orders_match_filters')}
                 </p>
             </div>
         );
@@ -75,33 +78,33 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                         <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
-                                Product
+                                {t('admin.product')}
                             </div>
                         </TableHead>
-                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quantity</TableHead>
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('admin.quantity')}</TableHead>
                         <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
-                                Unit Price
-                            </div>
-                        </TableHead>
-                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                            <div className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4" />
-                                Subtotal
+                                {t('admin.unit_price')}
                             </div>
                         </TableHead>
                         <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                             <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4" />
-                                Co-op Share
+                                {t('admin.subtotal')}
+                            </div>
+                        </TableHead>
+                        <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                {t('admin.co_op_share')}
                             </div>
                         </TableHead>
                         {showStock && (
                             <TableHead className="p-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                 <div className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />
-                                    Available Stock
+                                    {t('admin.available_stock')}
                                 </div>
                             </TableHead>
                         )}
@@ -198,16 +201,16 @@ export const OrderItemsTable = ({ items, showStock = false, compact = false }: O
                             <div className="flex justify-end">
                                 <div className="w-full max-w-md space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-medium text-muted-foreground">Subtotal</span>
+                                        <span className="text-sm font-medium text-muted-foreground">{t('admin.subtotal_label')}</span>
                                         <span className="text-sm font-medium text-foreground">₱{totalSubtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-medium text-muted-foreground">Co-op Share (10%)</span>
+                                        <span className="text-sm font-medium text-muted-foreground">{t('admin.co_op_share')}</span>
                                         <span className="text-sm font-medium text-primary">₱{totalCoopShare.toFixed(2)}</span>
                                     </div>
                                     <div className="border-t border-border pt-3 mt-3">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-base font-semibold text-foreground">Total Amount</span>
+                                            <span className="text-base font-semibold text-foreground">{t('admin.total_amount')}</span>
                                             <span className="text-base font-semibold text-primary">₱{totalAmount.toFixed(2)}</span>
                                         </div>
                                     </div>

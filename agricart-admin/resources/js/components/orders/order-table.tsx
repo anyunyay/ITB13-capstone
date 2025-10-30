@@ -8,6 +8,7 @@ import { Eye, Package, User, MapPin, Phone, Mail, Calendar, DollarSign, Truck, A
 import { PermissionGate } from '@/components/permission-gate';
 import { Order } from '@/types/orders';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderTableProps {
     orders: Order[];
@@ -30,6 +31,7 @@ export const OrderTable = ({
     sortOrder: externalSortOrder,
     onSortChange
 }: OrderTableProps) => {
+    const t = useTranslation();
     // Internal sorting state if not provided externally
     const [internalSortBy, setInternalSortBy] = useState('id');
     const [internalSortOrder, setInternalSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -90,17 +92,17 @@ export const OrderTable = ({
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
-                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">{t('admin.pending')}</Badge>;
             case 'approved':
-                return <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>;
+                return <Badge variant="default" className="bg-green-100 text-green-800">{t('admin.approved')}</Badge>;
             case 'rejected':
-                return <Badge variant="destructive" className="bg-red-100 text-red-800">Rejected</Badge>;
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">{t('admin.rejected')}</Badge>;
             case 'expired':
-                return <Badge variant="outline" className="bg-gray-100 text-gray-600">Expired</Badge>;
+                return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.expired')}</Badge>;
             case 'delayed':
-                return <Badge variant="destructive" className="bg-red-100 text-red-800">Delayed</Badge>;
+                return <Badge variant="destructive" className="bg-red-100 text-red-800">{t('admin.delayed')}</Badge>;
             case 'cancelled':
-                return <Badge variant="outline" className="bg-gray-100 text-gray-600">Cancelled</Badge>;
+                return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.cancelled')}</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -109,11 +111,13 @@ export const OrderTable = ({
     const getDeliveryStatusBadge = (status: string) => {
         switch (status) {
             case 'pending':
-                return <Badge variant="secondary">Pending</Badge>;
+                return <Badge variant="secondary">{t('admin.pending')}</Badge>;
+            case 'ready_to_pickup':
+                return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.ready_to_pickup')}</Badge>;
             case 'out_for_delivery':
-                return <Badge variant="default">Out for Delivery</Badge>;
+                return <Badge variant="default">{t('admin.out_for_delivery')}</Badge>;
             case 'delivered':
-                return <Badge variant="outline">Delivered</Badge>;
+                return <Badge variant="outline">{t('admin.delivered')}</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -131,9 +135,9 @@ export const OrderTable = ({
         return (
             <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
                 <p className="text-muted-foreground">
-                    No orders match your current filters.
+                    {t('admin.no_orders_match_filters')}
                 </p>
             </div>
         );
@@ -150,21 +154,21 @@ export const OrderTable = ({
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <Package className="h-4 w-4" />
-                                Order ID
+                                {t('admin.order_id_header')}
                                 {getSortIcon('id')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('created_at')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <Calendar className="h-4 w-4" />
-                                Date
+                                {t('admin.date')}
                                 {getSortIcon('created_at')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <User className="h-4 w-4" />
-                                Customer
+                                {t('admin.customer')}
                                 {getSortIcon('customer')}
                             </button>
                         </TableHead>
@@ -172,58 +176,64 @@ export const OrderTable = ({
                             <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 <div className="flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
-                                    Email
+                                    {t('admin.email')}
                                 </div>
                             </TableHead>
                         )}
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
-                                Total Amount
+                                {t('admin.total_amount')}
                                 {getSortIcon('total_amount')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('subtotal')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
-                                Subtotal
+                                {t('admin.subtotal')}
                                 {getSortIcon('subtotal')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
-                                Co-op Share
+                                {t('admin.co_op_share')}
                                 {getSortIcon('coop_share')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <button onClick={() => handleSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
                                 <DollarSign className="h-4 w-4" />
-                                Revenue
+                                {t('admin.revenue')}
                                 {getSortIcon('member_share')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             <div className="flex items-center gap-2">
                                 <Package className="h-4 w-4" />
-                                Items
+                                {t('admin.items_header')}
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Status</TableHead>
+                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            {t('admin.status_header')}
+                        </TableHead>
                         {!compact && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Delivery Status</TableHead>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                {t('admin.delivery_status_header')}
+                            </TableHead>
                         )}
                         {!compact && (
                             <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 <div className="flex items-center gap-2">
                                     <Truck className="h-4 w-4" />
-                                    Logistic
+                                    {t('admin.logistic')}
                                 </div>
                             </TableHead>
                         )}
                         {showActions && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">Actions</TableHead>
+                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                {t('admin.actions_header')}
+                            </TableHead>
                         )}
                     </TableRow>
                 </TableHeader>

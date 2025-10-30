@@ -174,5 +174,6 @@ return [
     'loading' => 'Loading...',
     'loading_dashboard' => 'Loading dashboard...',
     'loading_transactions' => 'Loading transactions...',
+    
 ];
 

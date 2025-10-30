@@ -8,6 +8,7 @@ import { SearchFilter } from './search-filter';
 import { ViewToggle } from './view-toggle';
 import { Order } from '@/types/orders';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderManagementProps {
     orders: Order[];
@@ -63,16 +64,18 @@ export const OrderManagement = ({
     const rejectedOrders = allOrders.filter(order => order.status === 'rejected');
     const delayedOrders = allOrders.filter(order => order.status === 'delayed');
 
+    const t = useTranslation();
+
     const renderOrders = (ordersToRender: Order[]) => {
         if (ordersToRender.length === 0) {
             return (
                 <div className="text-center py-12">
                     <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
                     <p className="text-muted-foreground">
                         {currentStatus === 'all' 
-                            ? 'No orders match your current filters.'
-                            : `No ${currentStatus} orders found.`
+                            ? t('admin.no_orders_match_filters')
+                            : t('admin.no_orders_found')
                         }
                     </p>
                 </div>
@@ -121,10 +124,8 @@ export const OrderManagement = ({
                         <Package className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground mb-1">Order Management</h2>
-                        <p className="text-sm text-muted-foreground">
-                            Monitor and manage customer orders, track delivery status, and process order requests
-                        </p>
+                        <h2 className="text-2xl font-semibold text-foreground mb-1">{t('admin.order_management')}</h2>
+                        <p className="text-sm text-muted-foreground">{t('admin.order_management_description')}</p>
                     </div>
                 </div>
                 <div className="flex gap-3 flex-wrap items-center">
@@ -139,7 +140,7 @@ export const OrderManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? 'Hide Search' : 'Search'}
+                        {showSearch ? t('admin.hide_search') : t('admin.search')}
                     </Button>
                     <ViewToggle 
                         currentView={currentView} 
@@ -163,21 +164,11 @@ export const OrderManagement = ({
 
                 <Tabs value={currentStatus} onValueChange={onStatusChange} className="w-full">
                     <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="all">
-                            All Orders ({allOrders.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="pending">
-                            Pending ({pendingOrders.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="approved">
-                            Approved ({approvedOrders.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="rejected">
-                            Rejected ({rejectedOrders.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="delayed">
-                            Delayed ({delayedOrders.length})
-                        </TabsTrigger>
+                        <TabsTrigger value="all">{t('admin.all_orders_label')} ({allOrders.length})</TabsTrigger>
+                        <TabsTrigger value="pending">{t('admin.pending_orders_label')} ({pendingOrders.length})</TabsTrigger>
+                        <TabsTrigger value="approved">{t('admin.approved_orders_label')} ({approvedOrders.length})</TabsTrigger>
+                        <TabsTrigger value="rejected">{t('admin.rejected_orders_label')} ({rejectedOrders.length})</TabsTrigger>
+                        <TabsTrigger value="delayed">{t('admin.delayed_orders_label')} ({delayedOrders.length})</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="all" className="mt-2">
