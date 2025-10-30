@@ -282,3 +282,49 @@ export const getDisplayEmail = (email: string, userType?: string): string => {
     const isAdminOrStaff = userType === 'admin' || userType === 'staff';
     return isAdminOrStaff ? (email || '') : maskEmail(email || '');
 };
+
+/**
+ * Utility function to generate role-based profile routes
+ * Returns appropriate route paths based on user type
+ * 
+ * @param userType - The type of user (admin, staff, customer, logistic, member)
+ * @returns Object containing profile route paths for the user type
+ */
+export const getProfileRoutes = (userType: string) => {
+    const baseRoute = userType === 'customer' ? '/customer' : 
+                     userType === 'admin' || userType === 'staff' ? '/admin' :
+                     userType === 'logistic' ? '/logistic' :
+                     userType === 'member' ? '/member' : '/customer';
+    
+    return {
+        profile: `${baseRoute}/profile`,
+        profileInfo: `${baseRoute}/profile/info`,
+        password: `${baseRoute}/profile/password`,
+        appearance: `${baseRoute}/profile/appearance`,
+        help: `${baseRoute}/profile/help`,
+        logout: `${baseRoute}/profile/logout`,
+        logoutPage: `${baseRoute}/profile/logout`,
+        addresses: `${baseRoute}/profile/addresses`,
+        systemLogs: userType === 'admin' || userType === 'staff' ? '/admin/system-logs' : null,
+    };
+};
+
+/**
+ * Utility function to check if a user has access to specific features
+ * 
+ * @param userType - The type of user
+ * @param feature - The feature to check access for
+ * @returns Boolean indicating if user has access
+ */
+export const hasFeatureAccess = (userType: string, feature: string): boolean => {
+    const accessMap: Record<string, string[]> = {
+        'system_logs': ['admin', 'staff'],
+        'address_management': ['customer'],
+        'help_center': ['customer', 'admin', 'staff', 'logistic', 'member'],
+        'password_change': ['admin', 'staff', 'customer', 'logistic', 'member'],
+        'appearance_settings': ['admin', 'staff', 'customer', 'logistic', 'member'],
+        'logout': ['admin', 'staff', 'customer', 'logistic', 'member'],
+    };
+    
+    return accessMap[feature]?.includes(userType) ?? false;
+};

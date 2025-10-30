@@ -7,6 +7,7 @@ import { usePage } from '@inertiajs/react';
 import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useTranslation } from '@/hooks/use-translation';
+import { getProfileRoutes } from '@/lib/utils';
 
 interface FAQ {
     id: number;
@@ -41,34 +42,46 @@ export default function HelpPage() {
 
     const categories = [t('ui.all'), t('ui.faq_category_ordering'), t('ui.faq_category_payment'), t('ui.faq_category_delivery'), t('ui.faq_category_tracking'), t('ui.faq_category_returns'), t('ui.faq_category_account'), t('ui.faq_category_pricing')];
     
-    // Only allow Customer users to access the Help page
-    if (user.type !== 'customer') {
-        return (
-            <ProfileWrapper title={t('ui.access_denied')}>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-card-foreground mb-2">{t('ui.access_denied')}</h2>
-                        <p className="text-muted-foreground">{t('ui.customer_only_page')}</p>
-                    </div>
-                </div>
-            </ProfileWrapper>
-        );
-    }
-    
-    // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            helpPage: `${baseRoute}/profile/help`,
-        };
+    // Customize content based on user type
+    const getUserSpecificContent = () => {
+        switch (user.type) {
+            case 'admin':
+            case 'staff':
+                return {
+                    title: t('ui.admin_help_center'),
+                    description: t('ui.admin_help_description'),
+                    contactEmail: 'admin-support@agricart.com',
+                    contactPhone: '(02) 1234-5679'
+                };
+            case 'logistic':
+                return {
+                    title: t('ui.logistics_help_center'),
+                    description: t('ui.logistics_help_description'),
+                    contactEmail: 'logistics-support@agricart.com',
+                    contactPhone: '(02) 1234-5680'
+                };
+            case 'member':
+                return {
+                    title: t('ui.member_help_center'),
+                    description: t('ui.member_help_description'),
+                    contactEmail: 'member-support@agricart.com',
+                    contactPhone: '(02) 1234-5681'
+                };
+            case 'customer':
+            default:
+                return {
+                    title: t('ui.help_and_support'),
+                    description: t('ui.find_answers_to_common_questions'),
+                    contactEmail: 'support@agricart.com',
+                    contactPhone: '(02) 1234-5678'
+                };
+        }
     };
 
-    const routes = getProfileRoutes();
+    const userContent = getUserSpecificContent();
+    
+    // Generate dynamic routes based on user type
+    const routes = getProfileRoutes(user.type);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
@@ -105,7 +118,7 @@ export default function HelpPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <h1 className="text-2xl font-bold text-card-foreground">
-                                        {t('ui.frequently_asked_questions')}
+                                        {userContent.title}
                                     </h1>
                                     <div className="flex items-center gap-2">
                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
@@ -114,7 +127,7 @@ export default function HelpPage() {
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        {t('ui.find_answers_to_common_questions')}
+                                        {userContent.description}
                                     </p>
                                 </div>
                             </div>
@@ -227,7 +240,7 @@ export default function HelpPage() {
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm text-muted-foreground mb-1">{t('ui.email_support')}</p>
-                                        <p className="font-semibold text-card-foreground">support@agricart.com</p>
+                                        <p className="font-semibold text-card-foreground">{userContent.contactEmail}</p>
                                         <p className="text-xs text-muted-foreground mt-1">{t('ui.respond_within_24h')}</p>
                                     </div>
                                 </div>
@@ -239,7 +252,7 @@ export default function HelpPage() {
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm text-muted-foreground mb-1">{t('ui.phone_support')}</p>
-                                        <p className="font-semibold text-card-foreground">(02) 1234-5678</p>
+                                        <p className="font-semibold text-card-foreground">{userContent.contactPhone}</p>
                                         <p className="text-xs text-muted-foreground mt-1">{t('ui.support_hours')}</p>
                                     </div>
                                 </div>

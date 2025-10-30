@@ -8,6 +8,7 @@ import ProfileWrapper from './profile-wrapper';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLanguage } from '@/hooks/use-language';
 import { useTranslation } from '@/hooks/use-translation';
+import { getProfileRoutes } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -56,19 +57,7 @@ export default function AppearancePage() {
     ];
 
     // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            appearancePage: `${baseRoute}/profile/appearance`,
-        };
-    };
-
-    const routes = getProfileRoutes();
+    const routes = getProfileRoutes(user.type);
 
     const handleAppearanceChange = async (newAppearance: Appearance) => {
         try {

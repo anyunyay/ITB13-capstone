@@ -6,7 +6,7 @@ import { User, Edit, Mail, Phone, Calendar, Shield, MapPin, FileText, Settings, 
 import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileEditModal from '@/components/ProfileEditModal';
-import { getDisplayEmail } from '@/lib/utils';
+import { getDisplayEmail, getProfileRoutes, hasFeatureAccess } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -66,20 +66,7 @@ export default function ProfilePage() {
     const t = useTranslation();
 
     // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            profile: `${baseRoute}/profile`,
-            profileInfo: `${baseRoute}/profile/info`,
-        };
-    };
-
-    const routes = getProfileRoutes();
+    const routes = getProfileRoutes(user?.type || 'customer');
 
     // Check if user is admin or staff (should see full phone number)
     const isAdminOrStaff = user?.type === 'admin' || user?.type === 'staff';
@@ -272,96 +259,129 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
 
-                {/* Navigation Links for Admin/Staff */}
-                {(user?.type === 'admin' || user?.type === 'staff') && (
+                {/* Role-based Navigation Links */}
+                {user?.type && (
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-3">
                                 <div className="p-2 rounded-lg bg-primary/10">
                                     <Settings className="h-5 w-5 text-primary" />
                                 </div>
-                                {t('ui.admin_tools')}
+                                {user.type === 'admin' || user.type === 'staff' ? t('ui.admin_tools') :
+                                 user.type === 'customer' ? t('ui.account_tools') :
+                                 user.type === 'logistic' ? t('ui.logistics_tools') :
+                                 user.type === 'member' ? t('ui.member_tools') : t('ui.profile_tools')}
                             </CardTitle>
                             <CardDescription>
-                                {t('ui.access_admin_features')}
+                                {user.type === 'admin' || user.type === 'staff' ? t('ui.access_admin_features') :
+                                 user.type === 'customer' ? t('ui.manage_account_settings') :
+                                 user.type === 'logistic' ? t('ui.access_logistics_features') :
+                                 user.type === 'member' ? t('ui.access_member_features') : t('ui.manage_profile_settings')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {/* System Logs */}
-                                <Button
-                                    variant="outline"
-                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
-                                    onClick={() => router.visit(route('admin.system-logs'))}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Database className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">{t('ui.system_logs')}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground text-left">
-                                        {t('ui.view_analyze_system_logs')}
-                                    </p>
-                                </Button>
+                                {/* System Logs - Admin/Staff only */}
+                                {hasFeatureAccess(user.type, 'system_logs') && routes.systemLogs && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.systemLogs!)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Database className="h-5 w-5 text-primary" />
+                                            <span className="font-medium">{t('ui.system_logs')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.view_analyze_system_logs')}
+                                        </p>
+                                    </Button>
+                                )}
 
-                                {/* Password Change */}
-                                <Button
-                                    variant="outline"
-                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
-                                    onClick={() => router.visit(route('admin.profile.password'))}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Key className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">{t('ui.change_password')}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground text-left">
-                                        {t('ui.update_password_security')}
-                                    </p>
-                                </Button>
+                                {/* Address Management - Customer only */}
+                                {hasFeatureAccess(user.type, 'address_management') && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.addresses)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <MapPin className="h-5 w-5 text-primary" />
+                                            <span className="font-medium">{t('ui.address_management')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.manage_delivery_addresses')}
+                                        </p>
+                                    </Button>
+                                )}
 
-                                {/* Appearance Settings */}
-                                <Button
-                                    variant="outline"
-                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
-                                    onClick={() => router.visit(route('admin.profile.appearance'))}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Palette className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">{t('ui.appearance')}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground text-left">
-                                        {t('ui.customize_interface_theme')}
-                                    </p>
-                                </Button>
+                                {/* Password Change - All users */}
+                                {hasFeatureAccess(user.type, 'password_change') && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.password)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Key className="h-5 w-5 text-primary" />
+                                            <span className="font-medium">{t('ui.change_password')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.update_password_security')}
+                                        </p>
+                                    </Button>
+                                )}
 
-                                {/* Help & Support */}
-                                <Button
-                                    variant="outline"
-                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
-                                    onClick={() => router.visit(route('admin.profile.help'))}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <HelpCircle className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">{t('ui.help_and_support')}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground text-left">
-                                        {t('ui.get_help_documentation')}
-                                    </p>
-                                </Button>
+                                {/* Appearance Settings - All users */}
+                                {hasFeatureAccess(user.type, 'appearance_settings') && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.appearance)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Palette className="h-5 w-5 text-primary" />
+                                            <span className="font-medium">{t('ui.appearance')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.customize_interface_theme')}
+                                        </p>
+                                    </Button>
+                                )}
 
-                                {/* Logout */}
-                                <Button
-                                    variant="outline"
-                                    className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-destructive/5 hover:border-destructive/20 transition-all duration-200"
-                                    onClick={() => router.visit(route('admin.profile.logout.page'))}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <LogOut className="h-5 w-5 text-destructive" />
-                                        <span className="font-medium">{t('ui.logout')}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground text-left">
-                                        {t('ui.sign_out_securely')}
-                                    </p>
-                                </Button>
+                                {/* Help & Support - All users */}
+                                {hasFeatureAccess(user.type, 'help_center') && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.help)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <HelpCircle className="h-5 w-5 text-primary" />
+                                            <span className="font-medium">{t('ui.help_and_support')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.get_help_documentation')}
+                                        </p>
+                                    </Button>
+                                )}
+
+                                {/* Logout - All users */}
+                                {hasFeatureAccess(user.type, 'logout') && (
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-destructive/5 hover:border-destructive/20 transition-all duration-200"
+                                        onClick={() => router.visit(routes.logoutPage)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <LogOut className="h-5 w-5 text-destructive" />
+                                            <span className="font-medium">{t('ui.logout')}</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground text-left">
+                                            {t('ui.sign_out_securely')}
+                                        </p>
+                                    </Button>
+                                )}
                             </div>
                         </CardContent>
                     </Card>

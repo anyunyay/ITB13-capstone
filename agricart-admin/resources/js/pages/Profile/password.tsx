@@ -8,6 +8,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useTranslation } from '@/hooks/use-translation';
+import { getProfileRoutes } from '@/lib/utils';
 
 interface PageProps {
     user: {
@@ -24,20 +25,11 @@ export default function PasswordPage() {
     const t = useTranslation();
     
     // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            changePassword: `${baseRoute}/profile/change-password`,
-            passwordPage: `${baseRoute}/profile/password`,
-        };
+    const profileRoutes = getProfileRoutes(user.type);
+    const routes = {
+        changePassword: `${profileRoutes.password.replace('/password', '/change-password')}`,
+        passwordPage: profileRoutes.password,
     };
-
-    const routes = getProfileRoutes();
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);

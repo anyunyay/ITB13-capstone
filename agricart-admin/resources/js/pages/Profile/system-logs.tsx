@@ -96,6 +96,21 @@ interface SystemLogsProps {
 
 const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary }) => {
     const t = useTranslation();
+    const user = auth.user;
+
+    // Check if user has access to system logs
+    if (user.type !== 'admin' && user.type !== 'staff') {
+        return (
+            <ProfileWrapper title={t('ui.access_denied')}>
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-card-foreground mb-2">{t('ui.access_denied')}</h2>
+                        <p className="text-muted-foreground">{t('ui.admin_staff_only_page')}</p>
+                    </div>
+                </div>
+            </ProfileWrapper>
+        );
+    }
     const [search, setSearch] = useState(filters.search || '');
     const [level, setLevel] = useState(filters.level || 'all');
     const [eventType, setEventType] = useState(filters.event_type || 'all');

@@ -9,6 +9,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { useTranslation } from '@/hooks/use-translation';
+import { getProfileRoutes } from '@/lib/utils';
 
 interface Address {
     id: number;
@@ -47,24 +48,15 @@ export default function AddressPage() {
     const t = useTranslation();
 
     // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            mainAddress: `${baseRoute}/profile/main-address`,
-            addresses: `${baseRoute}/profile/addresses`,
-            addressesStore: `${baseRoute}/profile/addresses`,
-            addressesUpdate: `${baseRoute}/profile/addresses`,
-            addressesDestroy: `${baseRoute}/profile/addresses`,
-            addressesSetActive: `${baseRoute}/profile/addresses`,
-        };
+    const profileRoutes = getProfileRoutes(user.type);
+    const routes = {
+        mainAddress: `${profileRoutes.addresses.replace('/addresses', '/main-address')}`,
+        addresses: profileRoutes.addresses,
+        addressesStore: profileRoutes.addresses,
+        addressesUpdate: profileRoutes.addresses,
+        addressesDestroy: profileRoutes.addresses,
+        addressesSetActive: profileRoutes.addresses,
     };
-
-    const routes = getProfileRoutes();
     const [isDialogOpen, setIsDialogOpen] = useState(autoOpenAddForm);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);

@@ -6,6 +6,7 @@ import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { clearSessionData } from '@/lib/csrf-cleanup';
 import { useTranslation } from '@/hooks/use-translation';
+import { getProfileRoutes } from '@/lib/utils';
 
 interface PageProps {
     user: {
@@ -22,21 +23,12 @@ export default function LogoutPage() {
     const t = useTranslation();
     
     // Generate dynamic routes based on user type
-    const getProfileRoutes = () => {
-        const userType = user.type;
-        const baseRoute = userType === 'customer' ? '/customer' : 
-                         userType === 'admin' || userType === 'staff' ? '/admin' :
-                         userType === 'logistic' ? '/logistic' :
-                         userType === 'member' ? '/member' : '/customer';
-        
-        return {
-            logout: `${baseRoute}/profile/logout`,
-            logoutAll: `${baseRoute}/profile/logout-all`,
-            logoutPage: `${baseRoute}/profile/logout`,
-        };
+    const profileRoutes = getProfileRoutes(user.type);
+    const routes = {
+        logout: profileRoutes.logout,
+        logoutAll: `${profileRoutes.logout}-all`,
+        logoutPage: profileRoutes.logoutPage,
     };
-
-    const routes = getProfileRoutes();
 
     const { post: logout, processing: logoutProcessing } = useForm();
     const { post: logoutAll, processing: logoutAllProcessing } = useForm();
