@@ -159,7 +159,7 @@ export const StaffManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? t('staff.hide_search') : t('staff.search')}
+                        {showSearch ? t('ui.hide_search') : t('ui.search')}
                     </Button>
                 </div>
             </div>
@@ -332,7 +332,7 @@ export const StaffManagement = ({
                                                 >
                                                     <Link href={route('staff.edit', staffMember.id)}>
                                                         <Edit className="h-4 w-4" />
-                                                        {t('staff.edit')}
+                                                        {t('ui.edit')}
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>
@@ -345,7 +345,7 @@ export const StaffManagement = ({
                                                     className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                    {t('staff.delete')}
+                                                    {t('ui.delete')}
                                                 </Button>
                                             </PermissionGate>
                                         </div>

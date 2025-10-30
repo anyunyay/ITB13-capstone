@@ -230,5 +230,7 @@ return [
     'quantity_sold' => 'Dami na Nabenta',
     'profit_margin' => 'Profit Margin',
     'more' => 'pa',
+    'export_csv' => 'I-export ang CSV',
+    'export_pdf' => 'I-export ang PDF',
     
 ];

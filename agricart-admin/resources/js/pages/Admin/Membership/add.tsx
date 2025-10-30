@@ -533,7 +533,7 @@ export default function Index() {
                                     {processing ? (
                                         <>
                                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            {t('admin.creating')}
+                                            {t('ui.creating')}
                                         </>
                                     ) : (
                                         t('admin.create_member')

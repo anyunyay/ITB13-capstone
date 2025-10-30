@@ -344,7 +344,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                             className="text-xs"
                           >
                             <X className="h-3 w-3 mr-1" />
-                            {t('admin.clear')}
+                            {t('ui.clear')}
                           </Button>
                         </div>
                       </div>

@@ -446,11 +446,11 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
 
               <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" asChild>
-                  <Link href="/admin/staff">{t('staff.cancel')}</Link>
+                  <Link href="/admin/staff">{t('ui.cancel')}</Link>
                 </Button>
                 <Button type="submit" disabled={processing}>
                   <Save className="mr-2 h-4 w-4" />
-                  {processing ? t('staff.updating') : t('staff.edit_staff_member')}
+                  {processing ? t('ui.updating') : t('staff.edit_staff_member')}
                 </Button>
               </div>
             </form>

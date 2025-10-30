@@ -62,7 +62,7 @@ export const DeactivationModal = ({
                 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>
-                        {t('admin.cancel')}
+                        {t('ui.cancel')}
                     </Button>
                     <Button 
                         variant="destructive" 

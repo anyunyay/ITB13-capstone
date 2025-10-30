@@ -101,7 +101,7 @@ export default function Index() {
                                     <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                                         <Link href={route('logistics.index')}>
                                             <IdCard className="h-4 w-4 mr-2" />
-                                            {t('admin.back')} {t('admin.logistics')}
+                                            {t('ui.back')} {t('admin.logistics')}
                                         </Link>
                                     </Button>
                                 </div>

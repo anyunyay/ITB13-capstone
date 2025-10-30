@@ -61,8 +61,8 @@ export const PaginationControls = ({
                     className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
                     <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">{t('admin.previous')}</span>
-                    <span className="sm:hidden">{t('admin.prev')}</span>
+                    <span className="hidden sm:inline">{t('ui.previous')}</span>
+                    <span className="sm:hidden">{t('ui.prev')}</span>
                 </Button>
                 
                 <div className="flex items-center gap-1">
@@ -95,8 +95,8 @@ export const PaginationControls = ({
                     disabled={currentPage === totalPages}
                     className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 border border-border rounded-lg bg-background text-foreground text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer min-h-[2.25rem] sm:min-h-[2.5rem] hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
-                    <span className="hidden sm:inline">{t('admin.next')}</span>
-                    <span className="sm:hidden">{t('admin.next')}</span>
+                    <span className="hidden sm:inline">{t('ui.next')}</span>
+                    <span className="sm:hidden">{t('ui.next')}</span>
                     <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
             </div>

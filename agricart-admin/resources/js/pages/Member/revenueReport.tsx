@@ -625,6 +625,7 @@ function ProductCard({ product }: { product: ProductSale }) {
 }
 
 function ProductTable({ products }: { products: ProductSale[] }) {
+  const t = useTranslation();
   const formatCurrency = (amount: number) => {
     return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };

@@ -23,6 +23,10 @@ return [
     'loading' => 'Naglo-load...',
     'saving' => 'Nise-save...',
     'deleting' => 'Tinatanggal...',
+    'updating' => 'Ina-update...',
+    'creating' => 'Ginagawa...',
+    'hide_search' => 'Itago ang Search',
+    'prev' => 'Nauna',
 
     // Common status
     'active' => 'Aktibo',

@@ -108,7 +108,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         )}
 
                         <div className="flex items-center gap-2">
-                            <Button disabled={processing}>{t('admin.save')}</Button>
+                            <Button disabled={processing}>{t('ui.save')}</Button>
 
                             <Transition
                                 show={recentlySuccessful}

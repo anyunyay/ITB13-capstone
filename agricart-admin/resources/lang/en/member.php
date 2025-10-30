@@ -230,6 +230,8 @@ return [
     'quantity_sold' => 'Quantity Sold',
     'profit_margin' => 'Profit Margin',
     'more' => 'more',
+    'export_csv' => 'Export CSV',
+    'export_pdf' => 'Export PDF',
     
 ];
 

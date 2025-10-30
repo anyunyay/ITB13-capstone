@@ -586,7 +586,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   setConfirmationText('');
                 }}
               >
-                {t('logistic.cancel')}
+                {t('ui.cancel')}
               </Button>
               <Button 
                 onClick={handleDeliveryConfirmation}

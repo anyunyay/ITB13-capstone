@@ -23,6 +23,10 @@ return [
     'loading' => 'Loading...',
     'saving' => 'Saving...',
     'deleting' => 'Deleting...',
+    'updating' => 'Updating...',
+    'creating' => 'Creating...',
+    'hide_search' => 'Hide Search',
+    'prev' => 'Prev',
 
     // Common status
     'active' => 'Active',

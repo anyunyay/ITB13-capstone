@@ -62,7 +62,7 @@ export const ReactivationModal = ({
                 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>
-                        {t('admin.cancel')}
+                        {t('ui.cancel')}
                     </Button>
                     <Button 
                         className="bg-green-600 hover:bg-green-700 text-white" 

@@ -105,7 +105,7 @@ export const LogisticManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? t('admin.hide_search') : t('admin.search')}
+                        {showSearch ? t('ui.hide_search') : t('ui.search')}
                     </Button>
                     <Button
                         variant={showDeactivated ? "default" : "outline"}
@@ -219,7 +219,7 @@ export const LogisticManagement = ({
                                                 >
                                                     <Link href={route('logistics.edit', logistic.id)}>
                                                         <Edit className="h-4 w-4" />
-                                                        {t('admin.edit')}
+                                                        {t('ui.edit')}
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>

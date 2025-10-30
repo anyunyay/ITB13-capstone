@@ -83,7 +83,7 @@ export const DeleteProductModal = ({
                         onClick={onSubmit}
                         disabled={processing}
                     >
-                        {processing ? t('admin.deleting') : t('admin.delete_product')}
+                        {processing ? t('ui.deleting') : t('admin.delete_product')}
                     </Button>
                 </DialogFooter>
             </DialogContent>

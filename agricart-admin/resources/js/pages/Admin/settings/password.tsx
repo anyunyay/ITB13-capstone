@@ -108,7 +108,7 @@ export default function Password() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Button disabled={processing}>{t('admin.save')} {t('admin.password')}</Button>
+                            <Button disabled={processing}>{t('ui.save')} {t('admin.password')}</Button>
 
                             <Transition
                                 show={recentlySuccessful}

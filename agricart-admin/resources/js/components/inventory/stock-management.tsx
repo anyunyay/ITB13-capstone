@@ -462,7 +462,7 @@ export const StockManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showStockSearch ? t('admin.hide_search') : t('admin.search')}
+                        {showStockSearch ? t('ui.hide_search') : t('ui.search')}
                     </Button>
                     <Button 
                         disabled={processing} 
