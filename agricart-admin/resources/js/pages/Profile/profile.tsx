@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileEditModal from '@/components/ProfileEditModal';
 import { getDisplayEmail } from '@/lib/utils';
 import { router } from '@inertiajs/react';
+import { useTranslation } from '@/hooks/use-translation';
 
 // Utility function to mask phone numbers for security (show only last 3 digits)
 const maskPhone = (phone: string): string => {
@@ -62,6 +63,7 @@ interface PageProps {
 export default function ProfilePage() {
     const { user } = usePage<PageProps>().props;
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const t = useTranslation();
 
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -100,22 +102,22 @@ export default function ProfilePage() {
     const getUserTypeLabel = (type: string) => {
         switch (type) {
             case 'admin':
-                return 'Administrator';
+                return t('admin.administrator');
             case 'staff':
-                return 'Staff Member';
+                return t('staff.staff_member');
             case 'customer':
-                return 'Customer';
+                return t('customer.customer');
             case 'logistic':
-                return 'Logistics';
+                return t('logistic.logistics');
             case 'member':
-                return 'Member';
+                return t('member.member');
             default:
-                return 'User';
+                return t('ui.user');
         }
     };
 
     const formatDate = (dateString?: string) => {
-        if (!dateString) return 'Not available';
+        if (!dateString) return t('ui.not_available');
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -136,12 +138,12 @@ export default function ProfilePage() {
             return parts.join(', ');
         }
         
-        return 'No address provided';
+        return t('ui.no_address_provided');
     };
 
     return (
         <ProfileWrapper 
-            title="Profile Information"
+            title={t('ui.profile_information')}
         >
             <div className="space-y-6">
                 {/* Main Profile Header */}
@@ -175,7 +177,7 @@ export default function ProfilePage() {
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Member since {formatDate(user?.created_at)}
+                                        {t('ui.member_since')} {formatDate(user?.created_at)}
                                     </p>
                                 </div>
                             </div>
@@ -185,7 +187,7 @@ export default function ProfilePage() {
                                     className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                 >
                                     <Edit className="h-4 w-4" />
-                                    Edit Profile
+                                    {t('ui.edit_profile')}
                                 </Button>
                             </div>
                         </div>
@@ -198,7 +200,7 @@ export default function ProfilePage() {
                                     <div className="p-2 rounded-lg bg-secondary/10">
                                         <Mail className="h-5 w-5 text-secondary" />
                                     </div>
-                                    Contact Information
+                                    {t('ui.contact_information')}
                                 </h3>
                                 <div className="space-y-4">
                                     {user?.type !== 'member' && (
@@ -208,7 +210,7 @@ export default function ProfilePage() {
                                                     <Mail className="h-4 w-4 text-muted-foreground" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="text-sm text-muted-foreground mb-1">Email Address</p>
+                                                    <p className="text-sm text-muted-foreground mb-1">{t('ui.email')} {t('ui.address')}</p>
                                                     <p className="font-medium text-card-foreground text-lg">{displayEmail}</p>
                                                 </div>
                                             </div>
@@ -220,8 +222,8 @@ export default function ProfilePage() {
                                                 <Phone className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-muted-foreground mb-1">Contact Number</p>
-                                                <p className="font-medium text-card-foreground text-lg">{displayPhone || 'Not provided'}</p>
+                                                <p className="text-sm text-muted-foreground mb-1">{t('ui.phone')} Number</p>
+                                                <p className="font-medium text-card-foreground text-lg">{displayPhone || t('ui.not_provided')}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -234,7 +236,7 @@ export default function ProfilePage() {
                                     <div className="p-2 rounded-lg bg-primary/10">
                                         <Shield className="h-5 w-5 text-primary" />
                                     </div>
-                                    Account Information
+                                    {t('ui.account_information')}
                                 </h3>
                                 <div className="space-y-4">
                                     {/* Current Address */}
@@ -244,7 +246,7 @@ export default function ProfilePage() {
                                                 <MapPin className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-muted-foreground mb-2">Current Address</p>
+                                                <p className="text-sm text-muted-foreground mb-2">{t('ui.current_address')}</p>
                                                 <p className="font-medium text-card-foreground leading-relaxed text-lg">
                                                     {getCurrentAddress()}
                                                 </p>
@@ -259,7 +261,7 @@ export default function ProfilePage() {
                                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-sm text-muted-foreground mb-1">Account Created</p>
+                                                <p className="text-sm text-muted-foreground mb-1">{t('ui.account_created')}</p>
                                                 <p className="font-medium text-card-foreground text-lg">{formatDate(user?.created_at)}</p>
                                             </div>
                                         </div>
@@ -278,10 +280,10 @@ export default function ProfilePage() {
                                 <div className="p-2 rounded-lg bg-primary/10">
                                     <Settings className="h-5 w-5 text-primary" />
                                 </div>
-                                Admin Tools
+                                {t('ui.admin_tools')}
                             </CardTitle>
                             <CardDescription>
-                                Access administrative features and system management tools
+                                {t('ui.access_admin_features')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -294,10 +296,10 @@ export default function ProfilePage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <Database className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">System Logs</span>
+                                        <span className="font-medium">{t('ui.system_logs')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground text-left">
-                                        View and analyze system activity logs, user actions, and security events
+                                        {t('ui.view_analyze_system_logs')}
                                     </p>
                                 </Button>
 
@@ -309,10 +311,10 @@ export default function ProfilePage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <Key className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">Change Password</span>
+                                        <span className="font-medium">{t('ui.change_password')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground text-left">
-                                        Update your account password for enhanced security
+                                        {t('ui.update_password_security')}
                                     </p>
                                 </Button>
 
@@ -324,10 +326,10 @@ export default function ProfilePage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <Palette className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">Appearance</span>
+                                        <span className="font-medium">{t('ui.appearance')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground text-left">
-                                        Customize your interface theme and display preferences
+                                        {t('ui.customize_interface_theme')}
                                     </p>
                                 </Button>
 
@@ -339,10 +341,10 @@ export default function ProfilePage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <HelpCircle className="h-5 w-5 text-primary" />
-                                        <span className="font-medium">Help & Support</span>
+                                        <span className="font-medium">{t('ui.help_and_support')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground text-left">
-                                        Get help, documentation, and contact support
+                                        {t('ui.get_help_documentation')}
                                     </p>
                                 </Button>
 
@@ -354,10 +356,10 @@ export default function ProfilePage() {
                                 >
                                     <div className="flex items-center gap-3">
                                         <LogOut className="h-5 w-5 text-destructive" />
-                                        <span className="font-medium">Logout</span>
+                                        <span className="font-medium">{t('ui.logout')}</span>
                                     </div>
                                     <p className="text-sm text-muted-foreground text-left">
-                                        Sign out of your account securely
+                                        {t('ui.sign_out_securely')}
                                     </p>
                                 </Button>
                             </div>

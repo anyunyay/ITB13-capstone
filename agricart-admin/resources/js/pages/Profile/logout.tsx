@@ -5,6 +5,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { clearSessionData } from '@/lib/csrf-cleanup';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps {
     user: {
@@ -18,6 +19,7 @@ interface PageProps {
 
 export default function LogoutPage() {
     const { user } = usePage<PageProps>().props;
+    const t = useTranslation();
     
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -40,32 +42,32 @@ export default function LogoutPage() {
     const { post: logoutAll, processing: logoutAllProcessing } = useForm();
 
     const handleLogout = () => {
-        if (confirm('Are you sure you want to log out?')) {
+        if (confirm(t('ui.confirm_logout'))) {
             // Clear all session data including CSRF tokens before logout
             clearSessionData();
             
             logout(routes.logout, {
                 onSuccess: () => {
-                    alert('You have been logged out successfully.');
+                    alert(t('ui.logout_success'));
                 },
                 onError: () => {
-                    alert('Failed to log out. Please try again.');
+                    alert(t('ui.logout_failed'));
                 },
             });
         }
     };
 
     const handleLogoutAllDevices = () => {
-        if (confirm('This will log you out from all devices. Are you sure you want to continue?')) {
+        if (confirm(t('ui.confirm_logout_all_devices'))) {
             // Clear all session data including CSRF tokens before logout
             clearSessionData();
             
             logoutAll(routes.logoutAll, {
                 onSuccess: () => {
-                    alert('You have been logged out from all devices.');
+                    alert(t('ui.logout_all_success'));
                 },
                 onError: () => {
-                    alert('Failed to log out from all devices. Please try again.');
+                    alert(t('ui.logout_all_failed'));
                 },
             });
         }
@@ -73,32 +75,32 @@ export default function LogoutPage() {
 
     return (
         <ProfileWrapper 
-            title="Logout"
+            title={t('ui.logout')}
         >
 
             <Card className="bg-card border-border">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-card-foreground">
                         <LogOut className="h-5 w-5" />
-                        Account Security
+                        {t('ui.account_security')}
                     </CardTitle>
                     <CardDescription className="text-muted-foreground">
-                        Manage your account session and security settings
+                        {t('ui.manage_session_security')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <Alert>
                         <CheckCircle className="h-4 w-4" />
                         <AlertDescription>
-                            You are currently logged in as <strong>{user?.name}</strong> ({user?.email})
+                            {t('ui.currently_logged_in_as')} <strong>{user?.name}</strong> ({user?.email})
                         </AlertDescription>
                     </Alert>
 
                     <div className="space-y-4">
                         <div className="p-4 border border-border rounded-lg bg-card">
-                            <h3 className="font-semibold mb-2 text-card-foreground">Logout from this device</h3>
+                            <h3 className="font-semibold mb-2 text-card-foreground">{t('ui.logout_from_this_device')}</h3>
                             <p className="text-sm text-muted-foreground mb-4">
-                                This will log you out from this browser/device only. You'll remain logged in on other devices.
+                                {t('ui.logout_this_device_desc')}
                             </p>
                             <Button 
                                 onClick={handleLogout} 
@@ -106,17 +108,17 @@ export default function LogoutPage() {
                                 className="flex items-center gap-2"
                             >
                                 <LogOut className="h-4 w-4" />
-                                {logoutProcessing ? 'Logging out...' : 'Logout'}
+                                {logoutProcessing ? t('ui.logging_out') : t('ui.logout')}
                             </Button>
                         </div>
 
                         <div className="p-4 border border-orange-200 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
                             <h3 className="font-semibold mb-2 flex items-center gap-2 text-orange-800 dark:text-orange-200">
                                 <AlertTriangle className="h-4 w-4 text-orange-600" />
-                                Logout from all devices
+                                {t('ui.logout_from_all_devices')}
                             </h3>
                             <p className="text-sm text-muted-foreground mb-4">
-                                This will log you out from all devices and browsers. You'll need to log in again on any device you want to use.
+                                {t('ui.logout_all_devices_desc')}
                             </p>
                             <Button 
                                 onClick={handleLogoutAllDevices} 
@@ -125,18 +127,18 @@ export default function LogoutPage() {
                                 className="flex items-center gap-2"
                             >
                                 <LogOut className="h-4 w-4" />
-                                {logoutAllProcessing ? 'Logging out...' : 'Logout from All Devices'}
+                                {logoutAllProcessing ? t('ui.logging_out') : t('ui.logout_from_all_devices_btn')}
                             </Button>
                         </div>
                     </div>
 
                     <div className="pt-4 border-t border-border">
-                        <h3 className="font-semibold mb-2 text-card-foreground">Security Tips</h3>
+                        <h3 className="font-semibold mb-2 text-card-foreground">{t('ui.security_tips')}</h3>
                         <ul className="text-sm text-muted-foreground space-y-1">
-                            <li>• Always log out when using shared or public computers</li>
-                            <li>• Use strong, unique passwords for your account</li>
-                            <li>• Enable two-factor authentication if available</li>
-                            <li>• Regularly review your account activity</li>
+                            <li>{t('ui.always_logout_shared_computers')}</li>
+                            <li>{t('ui.use_strong_passwords')}</li>
+                            <li>{t('ui.enable_two_factor')}</li>
+                            <li>{t('ui.review_account_activity')}</li>
                         </ul>
                     </div>
                 </CardContent>

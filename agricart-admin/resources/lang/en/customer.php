@@ -10,6 +10,7 @@ return [
     'address' => 'Address',
     'notifications' => 'Notifications',
     'logout' => 'Logout',
+    'customer' => 'Customer',
     'search' => 'Search',
     'view_all' => 'View All',
     'add_to_cart' => 'Add to Cart',

@@ -18,6 +18,7 @@ return [
     'profile' => 'Profile',
     'logout' => 'Logout',
     'statistics' => 'Mga Estadistika',
+    'administrator' => 'Administrator',
     'overview' => 'Pangkalahatang Tanaw',
     'trends' => 'Mga Trends',
     'welcome' => 'Maligayang Pagdating',

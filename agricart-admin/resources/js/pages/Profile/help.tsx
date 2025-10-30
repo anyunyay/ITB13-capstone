@@ -25,22 +25,21 @@ interface PageProps {
     [key: string]: any;
 }
 
-const t = useTranslation();
-
-const faqs: FAQ[] = [
-    { id: 1, question: t('ui.faq_place_order'), answer: t('ui.faq_place_order_answer'), category: t('ui.faq_category_ordering') },
-    { id: 2, question: t('ui.faq_payment_methods'), answer: t('ui.faq_payment_methods_answer'), category: t('ui.faq_category_payment') },
-    { id: 3, question: t('ui.faq_delivery_time'), answer: t('ui.faq_delivery_time_answer'), category: t('ui.faq_category_delivery') },
-    { id: 4, question: t('ui.faq_track_order'), answer: t('ui.faq_track_order_answer'), category: t('ui.faq_category_tracking') },
-    { id: 5, question: t('ui.faq_update_account'), answer: t('ui.faq_update_account_answer'), category: t('ui.faq_category_account') },
-    { id: 6, question: t('ui.faq_delivery_fees'), answer: t('ui.faq_delivery_fees_answer'), category: t('ui.faq_category_pricing') },
-    { id: 7, question: t('ui.faq_contact_support'), answer: t('ui.faq_contact_support_answer'), category: t('ui.faq_category_account') }
-];
-
-const categories = [t('ui.all'), t('ui.faq_category_ordering'), t('ui.faq_category_payment'), t('ui.faq_category_delivery'), t('ui.faq_category_tracking'), t('ui.faq_category_returns'), t('ui.faq_category_account'), t('ui.faq_category_pricing')];
-
 export default function HelpPage() {
     const { user } = usePage<PageProps>().props;
+    const t = useTranslation();
+
+    const faqs: FAQ[] = [
+        { id: 1, question: t('ui.faq_place_order'), answer: t('ui.faq_place_order_answer'), category: t('ui.faq_category_ordering') },
+        { id: 2, question: t('ui.faq_payment_methods'), answer: t('ui.faq_payment_methods_answer'), category: t('ui.faq_category_payment') },
+        { id: 3, question: t('ui.faq_delivery_time'), answer: t('ui.faq_delivery_time_answer'), category: t('ui.faq_category_delivery') },
+        { id: 4, question: t('ui.faq_track_order'), answer: t('ui.faq_track_order_answer'), category: t('ui.faq_category_tracking') },
+        { id: 5, question: t('ui.faq_update_account'), answer: t('ui.faq_update_account_answer'), category: t('ui.faq_category_account') },
+        { id: 6, question: t('ui.faq_delivery_fees'), answer: t('ui.faq_delivery_fees_answer'), category: t('ui.faq_category_pricing') },
+        { id: 7, question: t('ui.faq_contact_support'), answer: t('ui.faq_contact_support_answer'), category: t('ui.faq_category_account') }
+    ];
+
+    const categories = [t('ui.all'), t('ui.faq_category_ordering'), t('ui.faq_category_payment'), t('ui.faq_category_delivery'), t('ui.faq_category_tracking'), t('ui.faq_category_returns'), t('ui.faq_category_account'), t('ui.faq_category_pricing')];
     
     // Only allow Customer users to access the Help page
     if (user.type !== 'customer') {

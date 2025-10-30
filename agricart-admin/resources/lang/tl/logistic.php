@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'notifications' => 'Mga Notification',
     'logout' => 'Logout',
+    'logistics' => 'Logistics',
     
     // Dashboard
     'welcome_back' => 'Maligayang pagbalik!',

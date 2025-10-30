@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { useForm, usePage } from '@inertiajs/react';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps {
     user: {
@@ -20,6 +21,7 @@ interface PageProps {
 
 export default function PasswordPage() {
     const { user } = usePage<PageProps>().props;
+    const t = useTranslation();
     
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -63,20 +65,20 @@ export default function PasswordPage() {
     };
 
     const getStrengthText = (score: number) => {
-        if (score <= 2) return 'Weak';
-        if (score <= 3) return 'Medium';
-        return 'Strong';
+        if (score <= 2) return t('ui.weak');
+        if (score <= 3) return t('ui.medium');
+        return t('ui.strong');
     };
 
     const passwordStrength = getPasswordStrength(data.password);
     const strengthPercentage = (passwordStrength / 5) * 100;
 
     const requirements = [
-        { text: 'At least 8 characters', met: data.password.length >= 8 },
-        { text: 'Contains uppercase letter', met: /[A-Z]/.test(data.password) },
-        { text: 'Contains lowercase letter', met: /[a-z]/.test(data.password) },
-        { text: 'Contains number', met: /[0-9]/.test(data.password) },
-        { text: 'Contains special character', met: /[^A-Za-z0-9]/.test(data.password) },
+        { text: t('ui.at_least_8_characters'), met: data.password.length >= 8 },
+        { text: t('ui.contains_uppercase_letter'), met: /[A-Z]/.test(data.password) },
+        { text: t('ui.contains_lowercase_letter'), met: /[a-z]/.test(data.password) },
+        { text: t('ui.contains_number'), met: /[0-9]/.test(data.password) },
+        { text: t('ui.contains_special_character'), met: /[^A-Za-z0-9]/.test(data.password) },
     ];
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -84,17 +86,17 @@ export default function PasswordPage() {
         post(routes.changePassword, {
             onSuccess: () => {
                 reset();
-                alert('Password changed successfully!');
+                alert(t('ui.password_changed_successfully'));
             },
             onError: () => {
-                alert('Failed to change password. Please check your current password and try again.');
+                alert(t('ui.password_change_failed'));
             },
         });
     };
 
     return (
         <ProfileWrapper 
-            title="Change Password"
+            title={t('ui.change_password')}
         >
             <div className="space-y-6">
                 <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
@@ -106,16 +108,16 @@ export default function PasswordPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <h1 className="text-2xl font-bold text-card-foreground">
-                                        Security Settings
+                                        {t('ui.security_settings')}
                                     </h1>
                                     <div className="flex items-center gap-2">
                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
                                             <Lock className="h-3 w-3 mr-1" />
-                                            Password Protection
+                                            {t('ui.password_protection')}
                                         </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Update your password to keep your account secure
+                                        {t('ui.update_password_secure')}
                                     </p>
                                 </div>
                             </div>
@@ -130,19 +132,19 @@ export default function PasswordPage() {
                                     <div className="p-2 rounded-lg bg-secondary/10">
                                         <Lock className="h-5 w-5 text-secondary" />
                                     </div>
-                                    Current Password
+                                    {t('ui.current_password')}
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="current_password" className="text-sm font-medium text-card-foreground">Current Password</Label>
+                                            <Label htmlFor="current_password" className="text-sm font-medium text-card-foreground">{t('ui.current_password')}</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="current_password"
                                                     type={showCurrentPassword ? 'text' : 'password'}
                                                     value={data.current_password}
                                                     onChange={(e) => setData('current_password', e.target.value)}
-                                                    placeholder="Enter your current password"
+                                                    placeholder={t('ui.enter_current_password')}
                                                     required
                                                     className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
@@ -172,20 +174,20 @@ export default function PasswordPage() {
                                     <div className="p-2 rounded-lg bg-primary/10">
                                         <Lock className="h-5 w-5 text-primary" />
                                     </div>
-                                    New Password
+                                    {t('ui.new_password')}
                                 </h3>
                                 <div className="space-y-4">
                                     {/* New Password Field */}
                                     <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="password" className="text-sm font-medium text-card-foreground">New Password</Label>
+                                            <Label htmlFor="password" className="text-sm font-medium text-card-foreground">{t('ui.new_password')}</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="password"
                                                     type={showNewPassword ? 'text' : 'password'}
                                                     value={data.password}
                                                     onChange={(e) => setData('password', e.target.value)}
-                                                    placeholder="Enter your new password"
+                                                    placeholder={t('ui.enter_new_password')}
                                                     required
                                                     className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
@@ -212,7 +214,7 @@ export default function PasswordPage() {
                                         <div className="p-5 bg-muted/80 rounded-xl border border-border/50">
                                             <div className="space-y-4">
                                                 <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-medium text-card-foreground">Password Strength</Label>
+                                                    <Label className="text-sm font-medium text-card-foreground">{t('ui.password_strength')}</Label>
                                                     <span className={`text-sm font-medium ${
                                                         passwordStrength <= 2 ? 'text-destructive' : 
                                                         passwordStrength <= 3 ? 'text-yellow-500 dark:text-yellow-400' : 'text-green-500 dark:text-green-400'
@@ -248,14 +250,14 @@ export default function PasswordPage() {
                                     {/* Confirm Password Field */}
                                     <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
                                         <div className="space-y-3">
-                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-card-foreground">Confirm New Password</Label>
+                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-card-foreground">{t('ui.confirm_new_password')}</Label>
                                             <div className="relative">
                                                 <Input
                                                     id="password_confirmation"
                                                     type={showConfirmPassword ? 'text' : 'password'}
                                                     value={data.password_confirmation}
                                                     onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                    placeholder="Confirm your new password"
+                                                    placeholder={t('ui.confirm_your_new_password')}
                                                     required
                                                     className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
                                                 />
@@ -288,7 +290,7 @@ export default function PasswordPage() {
                                 className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                                 <Lock className="h-4 w-4" />
-                                {processing ? 'Changing Password...' : 'Change Password'}
+                                {processing ? t('ui.changing_password') : t('ui.change_password')}
                             </Button>
                             </div>
                         </form>

@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'logout' => 'Logout',
     'statistics' => 'Statistics',
+    'staff_member' => 'Staff Member',
     'overview' => 'Overview',
     
     // Staff Management

@@ -18,6 +18,7 @@ return [
     'profile' => 'Profile',
     'logout' => 'Logout',
     'statistics' => 'Statistics',
+    'administrator' => 'Administrator',
     'overview' => 'Overview',
     'trends' => 'Trends',
     'welcome' => 'Welcome',

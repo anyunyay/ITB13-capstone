@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'notifications' => 'Mga Notification',
     'logout' => 'Logout',
+    'member' => 'Member',
     'add_stock' => 'Magdagdag ng Stock',
     'manage_stock' => 'Pamahalaan ang Stock',
     'view_earnings' => 'Tingnan ang mga Kita',

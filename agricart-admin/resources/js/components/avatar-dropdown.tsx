@@ -60,7 +60,7 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                             <DropdownMenuItem asChild>
                                 <Link className="block w-full" href="/admin/system-logs" as="button" prefetch onClick={cleanup}>
                                     <Database className="mr-2 h-4 w-4" />
-                                    System Logs
+                                    {t('ui.system_logs')}
                                 </Link>
                             </DropdownMenuItem>
                         )}
@@ -68,27 +68,27 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                             <DropdownMenuItem asChild>
                                 <Link className="block w-full" href={routes.addresses} as="button" prefetch onClick={cleanup}>
                                     <MapPin className="mr-2 h-4 w-4" />
-                                    Add/Edit Address
+                                    {t('ui.add_edit_address')}
                                 </Link>
                             </DropdownMenuItem>
                         )}
                         <DropdownMenuItem asChild>
                             <Link className="block w-full" href={routes.password} as="button" prefetch onClick={cleanup}>
                                 <Lock className="mr-2 h-4 w-4" />
-                                Change Password
+                                {t('ui.change_password')}
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link className="block w-full" href={routes.appearance} as="button" prefetch onClick={cleanup}>
                                 <Palette className="mr-2 h-4 w-4" />
-                                Appearance
+                                {t('ui.appearance')}
                             </Link>
                         </DropdownMenuItem>
                         {user.type === 'customer' && (
                             <DropdownMenuItem asChild>
                                 <Link className="block w-full" href={routes.help} as="button" prefetch onClick={cleanup}>
                                     <HelpCircle className="mr-2 h-4 w-4" />
-                                    Help
+                                    {t('ui.help')}
                                 </Link>
                             </DropdownMenuItem>
                         )}

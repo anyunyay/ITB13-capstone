@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'notifications' => 'Notifications',
     'logout' => 'Logout',
+    'member' => 'Member',
     'add_stock' => 'Add Stock',
     'manage_stock' => 'Manage Stock',
     'view_earnings' => 'View Earnings',

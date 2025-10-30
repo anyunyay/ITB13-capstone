@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'logout' => 'Logout',
     'statistics' => 'Mga Estadistika',
+    'staff_member' => 'Staff Member',
     'overview' => 'Pangkalahatang Tanaw',
     
     // Staff Management

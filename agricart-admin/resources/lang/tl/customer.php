@@ -10,6 +10,7 @@ return [
     'address' => 'Address',
     'notifications' => 'Mga Notification',
     'logout' => 'Logout',
+    'customer' => 'Customer',
     'search' => 'Maghanap',
     'view_all' => 'Tingnan Lahat',
     'add_to_cart' => 'Idagdag sa Cart',

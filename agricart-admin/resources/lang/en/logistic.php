@@ -9,6 +9,7 @@ return [
     'profile' => 'Profile',
     'notifications' => 'Notifications',
     'logout' => 'Logout',
+    'logistics' => 'Logistics',
     
     // Dashboard
     'welcome_back' => 'Welcome back!',
