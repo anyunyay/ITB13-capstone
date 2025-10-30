@@ -418,7 +418,7 @@ export default function ProductPage() {
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Produce</span>
+            <span>{t('ui.back_to_produce')}</span>
           </Button>
         </div>
 

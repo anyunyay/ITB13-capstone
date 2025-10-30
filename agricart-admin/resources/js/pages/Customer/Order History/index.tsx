@@ -15,6 +15,7 @@ import { CalendarIcon, Download, FileText, X, Package, CheckCircle } from 'lucid
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import OrderReceivedConfirmationModal from '@/components/OrderReceivedConfirmationModal';
 import StarRating from '@/components/StarRating';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderItem {
   id: number;
@@ -68,6 +69,7 @@ interface HistoryProps {
 }
 
 export default function History({ orders, currentStatus, currentDeliveryStatus, counts }: HistoryProps) {
+  const t = useTranslation();
   const page = usePage<{ notifications?: Array<any> }>();
   const notifications = page.props.notifications || [];
   const [startDate, setStartDate] = useState<Date>();
@@ -172,15 +174,15 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending Approval</Badge>;
+        return <Badge variant="secondary">{t('ui.pending_approval')}</Badge>;
       case 'approved':
-        return <Badge variant="default">Approved</Badge>;
+        return <Badge variant="default">{t('ui.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t('ui.rejected')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive">Delayed</Badge>;
+        return <Badge variant="destructive">{t('ui.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline">Cancelled</Badge>;
+        return <Badge variant="outline">{t('ui.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -206,13 +208,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('ui.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Ready to Pick Up</Badge>;
+        return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{t('ui.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default">Out for Delivery</Badge>;
+        return <Badge variant="default">{t('ui.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline">Delivered</Badge>;
+        return <Badge variant="outline">{t('ui.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -239,7 +241,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-20">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Order History</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('ui.order_history')}</h1>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
@@ -249,9 +251,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             </PopoverTrigger>
             <PopoverContent className="w-80" align="end">
               <div className="space-y-4">
-                <h3 className="font-semibold">Generate Order Report</h3>
+                <h3 className="font-semibold">{t('ui.generate_order_report')}</h3>
                 <div className="space-y-2">
-                  <Label htmlFor="start-date">Start Date</Label>
+                  <Label htmlFor="start-date">{t('ui.start_date')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -259,7 +261,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? format(startDate, "PPP") : "Pick a date"}
+                        {startDate ? format(startDate, "PPP") : t('ui.pick_a_date')}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -273,7 +275,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date">End Date</Label>
+                  <Label htmlFor="end-date">{t('ui.end_date')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -281,7 +283,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? format(endDate, "PPP") : "Pick a date"}
+                        {endDate ? format(endDate, "PPP") : t('ui.pick_a_date')}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -340,10 +342,10 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
         <Tabs value={currentDeliveryStatus} onValueChange={handleDeliveryStatusFilter} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-            <TabsTrigger value="all" className="text-xs sm:text-sm py-2 px-2">All ({counts.all})</TabsTrigger>
-            <TabsTrigger value="pending" className="text-xs sm:text-sm py-2 px-2">Pending ({counts.pending})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery" className="text-xs sm:text-sm py-2 px-2">Out for Delivery ({counts.approved})</TabsTrigger>
-            <TabsTrigger value="delivered" className="text-xs sm:text-sm py-2 px-2">Delivered ({counts.delivered})</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm py-2 px-2">{t('ui.all')} ({counts.all})</TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm py-2 px-2">{t('ui.pending')} ({counts.pending})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" className="text-xs sm:text-sm py-2 px-2">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
+            <TabsTrigger value="delivered" className="text-xs sm:text-sm py-2 px-2">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={currentDeliveryStatus} className="mt-6">
@@ -351,8 +353,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               <Card className="p-6 text-center text-muted-foreground bg-muted">
                 <div className="flex flex-col items-center gap-2">
                   <Package className="h-12 w-12 text-muted-foreground" />
-                  <p className="text-lg font-medium">No orders found</p>
-                  <p className="text-sm text-muted-foreground">Try adjusting your filters or check back later</p>
+                  <p className="text-lg font-medium">{t('ui.no_orders_found')}</p>
+                  <p className="text-sm text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
                 </div>
               </Card>
             ) : (
@@ -378,31 +380,31 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     {/* Delivery Status Tracker */}
                     {order.status === 'approved' && order.delivery_status && (
                       <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
-                        <h5 className="font-semibold text-sm mb-3 text-primary">Delivery Status</h5>
+                        <h5 className="font-semibold text-sm mb-3 text-primary">{t('ui.delivery_status')}</h5>
                         <div className="flex items-center justify-between">
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                               {(order.delivery_status || 'pending') === 'pending' ? '1' : '✓'}
                             </div>
-                            <span className="ml-2 text-sm font-medium">Preparing</span>
+                            <span className="ml-2 text-sm font-medium">{t('ui.preparing')}</span>
                           </div>
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
                               {(order.delivery_status || 'pending') === 'ready_to_pickup' ? '2' : '✓'}
                             </div>
-                            <span className="ml-2 text-sm font-medium">Ready</span>
+                            <span className="ml-2 text-sm font-medium">{t('ui.ready')}</span>
                           </div>
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : (order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                               {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
                             </div>
-                            <span className="ml-2 text-sm font-medium">Out for Delivery</span>
+                            <span className="ml-2 text-sm font-medium">{t('ui.out_for_delivery')}</span>
                           </div>
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'delivered' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-green-600 text-white' : 'bg-muted'}`}>
                               {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '4'}
                             </div>
-                            <span className="ml-2 text-sm font-medium">Delivered</span>
+                            <span className="ml-2 text-sm font-medium">{t('ui.delivered')}</span>
                           </div>
                         </div>
                         <div className="mt-3">
@@ -423,9 +425,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-500 rounded">
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                           <div className="flex-1">
-                            <h5 className="font-semibold text-sm mb-2 text-red-800 dark:text-red-200">Order Delayed</h5>
+                            <h5 className="font-semibold text-sm mb-2 text-red-800 dark:text-red-200">{t('ui.order_delayed')}</h5>
                             <p className="text-sm text-red-900 dark:text-red-100 mb-2">
-                              Your order has exceeded the standard 24-hour approval time. We apologize for the delay.
+                              {t('ui.order_delay_message')}
                             </p>
                             <p className="text-sm text-red-900 dark:text-red-100">
                               If you have any concerns, please contact us at: <strong>sample@email.com</strong>
@@ -487,12 +489,12 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <Table className="w-full border border-border rounded-lg min-w-[800px]">
                         <TableHeader className="bg-muted">
                           <TableRow className="border-border">
-                            <TableHead className="text-muted-foreground font-semibold min-w-[150px]">Product Name</TableHead>
-                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">Quantity</TableHead>
-                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[80px]">Price</TableHead>
-                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">Subtotal</TableHead>
-                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[120px]">Delivery Fee</TableHead>
-                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">Total</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold min-w-[150px]">{t('ui.product_name')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.quantity')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.price')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.subtotal')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[120px]">{t('ui.delivery_fee')}</TableHead>
+                            <TableHead className="text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.total')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody className="bg-card">
@@ -520,7 +522,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                               <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                                 <div className="flex flex-col items-center gap-2">
                                   <Package className="h-8 w-8 text-muted-foreground" />
-                                  <span>No items found</span>
+                                  <span>{t('ui.no_items_found')}</span>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -571,7 +573,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         <Card className="p-6 text-center text-muted-foreground bg-muted">
                           <div className="flex flex-col items-center gap-2">
                             <Package className="h-8 w-8 text-muted-foreground" />
-                            <span>No items found</span>
+                            <span>{t('ui.no_items_found')}</span>
                           </div>
                         </Card>
                       )}

@@ -506,7 +506,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                 <OrderDetailsTable orders={salesData.orderDetails} />
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">No order details available</p>
+                  <p className="text-muted-foreground">{t('member.no_order_details_available')}</p>
                 </div>
               )}
             </CardContent>

@@ -116,11 +116,11 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('ui.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default">Approved</Badge>;
+        return <Badge variant="default">{t('ui.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t('ui.rejected')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -129,11 +129,11 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('ui.pending')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default">Out for Delivery</Badge>;
+        return <Badge variant="default">{t('ui.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline">Delivered</Badge>;
+        return <Badge variant="outline">{t('ui.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -144,7 +144,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
       <Head title="My Orders Report" />
       <div className="max-w-4xl mx-auto p-4 mt-20">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-foreground">My Orders Report</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('ui.my_orders_report')}</h1>
           <div className="flex gap-2">
             <Button onClick={() => exportReport('csv')} variant="outline">
               <Download className="h-4 w-4 mr-2" />
@@ -160,12 +160,12 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Filters</CardTitle>
+            <CardTitle>{t('ui.filters')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <Label htmlFor="start_date">Start Date</Label>
+                <Label htmlFor="start_date">{t('ui.start_date')}</Label>
                 <Input
                   id="start_date"
                   type="date"
@@ -174,7 +174,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                 />
               </div>
               <div>
-                <Label htmlFor="end_date">End Date</Label>
+                <Label htmlFor="end_date">{t('ui.end_date')}</Label>
                 <Input
                   id="end_date"
                   type="date"
@@ -189,30 +189,30 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="all">{t('ui.all_statuses')}</SelectItem>
+                    <SelectItem value="pending">{t('ui.pending')}</SelectItem>
+                    <SelectItem value="approved">{t('ui.approved')}</SelectItem>
+                    <SelectItem value="rejected">{t('ui.rejected')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="delivery_status">Delivery Status</Label>
+                <Label htmlFor="delivery_status">{t('ui.delivery_status')}</Label>
                 <Select value={localFilters.delivery_status} onValueChange={(value) => handleFilterChange('delivery_status', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Delivery Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="all">{t('ui.all_delivery_statuses')}</SelectItem>
+                    <SelectItem value="pending">{t('ui.pending')}</SelectItem>
+                    <SelectItem value="out_for_delivery">{t('ui.out_for_delivery')}</SelectItem>
+                    <SelectItem value="delivered">{t('ui.delivered')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="mt-4">
-              <Button onClick={applyFilters}>Apply Filters</Button>
+              <Button onClick={applyFilters}>{t('ui.apply_filters')}</Button>
             </div>
           </CardContent>
         </Card>

@@ -113,13 +113,13 @@ export default function CustomerProducts() {
         <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Login Required</DialogTitle>
+              <DialogTitle>{t('ui.login_required')}</DialogTitle>
               <DialogDescription>
-                You must be logged in to add products to your cart.
+                {t('ui.must_be_logged_in')}
               </DialogDescription>
               <div className="flex gap-4 mt-4">
-                <Button className="w-full" onClick={() => router.visit('/login')}>Go to Login</Button>
-                <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>Cancel</Button>
+                <Button className="w-full" onClick={() => router.visit('/login')}>{t('ui.go_to_login')}</Button>
+                <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>{t('ui.cancel')}</Button>
               </div>
             </DialogHeader>
           </DialogContent>
