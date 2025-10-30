@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
+import { t } from '@/lib/translations';
 
 interface ProductSale {
   product_id: number;
@@ -203,7 +204,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
 
   return (
     <AppSidebarLayout>
-      <Head title="Revenue Report" />
+      <Head title={t('member.revenue_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
@@ -214,20 +215,20 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                   <TrendingUp className="h-8 w-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Revenue Report</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('member.revenue_report')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Generate comprehensive revenue reports and analytics
+                    {t('admin.generate_comprehensive_sales_reports')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  {t('admin.export_csv')}
                 </Button>
                 <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  {t('admin.export_pdf')}
                 </Button>
               </div>
             </div>
@@ -237,83 +238,83 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.total_revenue')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600">{formatCurrency(summary.total_revenue)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Gross revenue earned</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.gross_revenue_earned')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.total_orders')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-primary">{summary.total_orders}</div>
-                <p className="text-xs text-muted-foreground mt-1">Completed orders</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.completed_orders')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Units Sold</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.units_sold')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-secondary">{summary.total_quantity_sold}</div>
-                <p className="text-xs text-muted-foreground mt-1">Total quantity sold</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.total_quantity_sold')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Gross Profit</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.gross_profit')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-blue-600">{formatCurrency(summary.total_gross_profit)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Revenue minus COGS</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.revenue_minus_cogs')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Avg Order Value</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.avg_order_value')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-purple-600">{formatCurrency(summary.average_order_value)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Average per order</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.average_per_order')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total COGS</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.total_cogs')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-orange-600">{formatCurrency(summary.total_cogs)}</div>
-                <p className="text-xs text-muted-foreground mt-1">Cost of goods sold</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.cost_of_goods_sold')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Products Sold</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.products_sold')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-accent">{summary.total_products}</div>
-                <p className="text-xs text-muted-foreground mt-1">Unique products</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.unique_products')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Profit Margin</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('member.profit_margin')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-indigo-600">
                   {summary.total_revenue > 0 ? `${((summary.total_gross_profit / summary.total_revenue) * 100).toFixed(1)}%` : '0%'}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Gross profit margin</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('member.gross_profit_margin')}</p>
               </CardContent>
             </Card>
           </div>
@@ -326,10 +327,10 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-xl">Date Range Filter</CardTitle>
+                      <CardTitle className="text-xl">{t('member.date_range_filter')}</CardTitle>
                       {hasActiveFilters() && (
                         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          Active
+                          {t('member.active')}
                         </Badge>
                       )}
                     </div>
@@ -337,7 +338,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                           <X className="h-4 w-4" />
-                          Clear Filters
+                          {t('member.clear_filters')}
                         </Button>
                       )}
                       <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -352,7 +353,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                     <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <h4 className="font-semibold text-primary mb-1">{t('member.selected_date_range')}</h4>
                           <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                           {getDurationDisplay() && (
                             <p className="text-xs text-primary/70 mt-1">
@@ -384,7 +385,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                   {/* Filter Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Start Date</Label>
+                      <Label className="text-sm font-medium">{t('member.start_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -392,7 +393,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                            {startDate ? format(startDate, "MMM dd, yyyy") : t('member.pick_start_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -407,7 +408,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                       </Popover>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">End Date</Label>
+                      <Label className="text-sm font-medium">{t('member.end_date')}</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -415,7 +416,7 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                            {endDate ? format(endDate, "MMM dd, yyyy") : t('member.pick_end_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -477,16 +478,16 @@ export default function MemberRevenueReport({ salesData, summary, filters }: Rep
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                       <TrendingUp className="w-8 h-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-medium text-foreground mb-2">No sales data found</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-2">{t('member.no_sales_data_found')}</h3>
                     <p className="text-muted-foreground max-w-md">
                       {hasActiveFilters() 
-                        ? 'No sales match your current filter criteria. Try adjusting your date range to see more results.'
-                        : 'No sales data available for the selected time period.'
+                        ? t('admin.no_sales_match_filters')
+                        : t('admin.no_sales_data_period')
                       }
                     </p>
                     {hasActiveFilters() && (
                       <Button onClick={clearFilters} variant="outline" className="mt-4">
-                        Clear Filters
+                        {t('member.clear_filters')}
                       </Button>
                     )}
                   </div>
@@ -633,14 +634,14 @@ function ProductTable({ products }: { products: ProductSale[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Product</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Category</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Qty Sold</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Price/Unit</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Revenue</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Margin</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('member.product')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.category')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.qty_sold')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.price_unit')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.revenue')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.cogs')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.gross_profit')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.margin')}</th>
           </tr>
         </thead>
         <tbody>
@@ -697,14 +698,14 @@ function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Order ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Products</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Total Qty</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Order Total</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">COGS</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Gross Profit</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Date</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.order_id')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('member.customer')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.products')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.total_qty')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.order_total')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.cogs')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.gross_profit')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.date')}</th>
           </tr>
         </thead>
         <tbody>

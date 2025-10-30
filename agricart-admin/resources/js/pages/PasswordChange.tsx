@@ -6,8 +6,10 @@ import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock, AlertTriangle } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function PasswordChange() {
+  const t = useTranslation();
   const { data, setData, post, processing, errors } = useForm({
     current_password: '',
     password: '',
@@ -43,15 +45,15 @@ export default function PasswordChange() {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader>
-            <CardTitle className="text-white">Change Your Password</CardTitle>
+            <CardTitle className="text-white">{t('admin.change_password')}</CardTitle>
             <CardDescription className="text-gray-300">
-              Enter your current password and choose a new secure password.
+              {t('member.enter_new_password')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="current_password" className="text-gray-200">Current Password</Label>
+                <Label htmlFor="current_password" className="text-gray-200">{t('admin.current_password')}</Label>
                 <PasswordInput
                   id="current_password"
                   value={data.current_password}
@@ -66,7 +68,7 @@ export default function PasswordChange() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-200">New Password</Label>
+                <Label htmlFor="password" className="text-gray-200">{t('admin.new_password')}</Label>
                 <PasswordInput
                   id="password"
                   value={data.password}
@@ -81,7 +83,7 @@ export default function PasswordChange() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password_confirmation" className="text-gray-200">Confirm New Password</Label>
+                <Label htmlFor="password_confirmation" className="text-gray-200">{t('admin.confirm_password')}</Label>
                 <PasswordInput
                   id="password_confirmation"
                   value={data.password_confirmation}
@@ -100,7 +102,7 @@ export default function PasswordChange() {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0" 
                 disabled={processing}
               >
-                {processing ? 'Changing Password...' : 'Change Password'}
+                {processing ? t('ui.saving') : t('admin.change_password')}
               </Button>
             </form>
           </CardContent>
