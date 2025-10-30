@@ -10,6 +10,7 @@ return [
     'notifications' => 'Notifications',
     'logout' => 'Logout',
     'logistics' => 'Logistics',
+    'logistic' => 'Logistic',
     
     // Dashboard
     'welcome_back' => 'Welcome back!',

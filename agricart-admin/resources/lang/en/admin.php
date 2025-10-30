@@ -19,6 +19,7 @@ return [
     'logout' => 'Logout',
     'statistics' => 'Statistics',
     'administrator' => 'Administrator',
+    'admin' => 'Admin',
     'overview' => 'Overview',
     'trends' => 'Trends',
     'welcome' => 'Welcome',

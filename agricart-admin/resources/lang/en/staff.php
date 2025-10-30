@@ -10,6 +10,7 @@ return [
     'logout' => 'Logout',
     'statistics' => 'Statistics',
     'staff_member' => 'Staff Member',
+    'staff' => 'Staff',
     'overview' => 'Overview',
     
     // Staff Management

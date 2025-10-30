@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import ProfileWrapper from './profile-wrapper';
+import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,19 +12,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 // import { ScrollArea } from '@/components/ui/scroll-area'; // Component not available
-import { 
-    Search, 
-    Filter, 
-    Download, 
-    RefreshCw, 
-    Eye, 
-    AlertTriangle, 
-    CheckCircle, 
-    Info, 
-    Shield, 
-    User, 
-    ShoppingCart, 
-    Package, 
+import {
+    Search,
+    Filter,
+    Download,
+    RefreshCw,
+    Eye,
+    AlertTriangle,
+    CheckCircle,
+    Info,
+    Shield,
+    User,
+    ShoppingCart,
+    Package,
     Truck,
     Settings,
     Database,
@@ -94,6 +95,7 @@ interface SystemLogsProps {
 }
 
 const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary }) => {
+    const t = useTranslation();
     const [search, setSearch] = useState(filters.search || '');
     const [level, setLevel] = useState(filters.level || 'all');
     const [eventType, setEventType] = useState(filters.event_type || 'all');
@@ -106,39 +108,39 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [showDetails, setShowDetails] = useState(false);
 
     const eventTypes = [
-        { value: 'all', label: 'All Events' },
-        { value: 'authentication', label: 'Authentication' },
-        { value: 'security_event', label: 'Security Events' },
-        { value: 'checkout', label: 'Checkout' },
-        { value: 'order_status_change', label: 'Order Status' },
-        { value: 'stock_update', label: 'Stock Updates' },
-        { value: 'user_management', label: 'User Management' },
-        { value: 'product_management', label: 'Product Management' },
-        { value: 'member_activity', label: 'Member Activity' },
-        { value: 'admin_activity', label: 'Admin Activity' },
-        { value: 'customer_activity', label: 'Customer Activity' },
-        { value: 'logistic_activity', label: 'Logistic Activity' },
-        { value: 'delivery_status_change', label: 'Delivery Status' },
-        { value: 'report_generation', label: 'Report Generation' },
-        { value: 'data_export', label: 'Data Export' },
-        { value: 'maintenance', label: 'Maintenance' },
-        { value: 'critical_error', label: 'Critical Errors' }
+        { value: 'all', label: t('ui.all_events') },
+        { value: 'authentication', label: t('ui.authentication') },
+        { value: 'security_event', label: t('ui.security_events') },
+        { value: 'checkout', label: t('ui.checkout') },
+        { value: 'order_status_change', label: t('ui.order_status') },
+        { value: 'stock_update', label: t('ui.stock_updates') },
+        { value: 'user_management', label: t('ui.user_management') },
+        { value: 'product_management', label: t('ui.product_management') },
+        { value: 'member_activity', label: t('ui.member_activity') },
+        { value: 'admin_activity', label: t('ui.admin_activity') },
+        { value: 'customer_activity', label: t('ui.customer_activity') },
+        { value: 'logistic_activity', label: t('ui.logistic_activity') },
+        { value: 'delivery_status_change', label: t('ui.delivery_status') },
+        { value: 'report_generation', label: t('ui.report_generation') },
+        { value: 'data_export', label: t('ui.data_export') },
+        { value: 'maintenance', label: t('ui.maintenance') },
+        { value: 'critical_error', label: t('ui.critical_errors') }
     ];
 
     const userTypes = [
-        { value: 'all', label: 'All Users' },
-        { value: 'admin', label: 'Admin' },
-        { value: 'staff', label: 'Staff' },
-        { value: 'customer', label: 'Customer' },
-        { value: 'member', label: 'Member' },
-        { value: 'logistic', label: 'Logistic' }
+        { value: 'all', label: t('ui.all_users') },
+        { value: 'admin', label: t('admin.admin') },
+        { value: 'staff', label: t('staff.staff') },
+        { value: 'customer', label: t('customer.customer') },
+        { value: 'member', label: t('member.member') },
+        { value: 'logistic', label: t('logistic.logistic') }
     ];
 
     const levels = [
-        { value: 'all', label: 'All Levels' },
-        { value: 'info', label: 'Info' },
-        { value: 'warning', label: 'Warning' },
-        { value: 'error', label: 'Error' }
+        { value: 'all', label: t('ui.all_levels') },
+        { value: 'info', label: t('ui.info') },
+        { value: 'warning', label: t('ui.warning') },
+        { value: 'error', label: t('ui.error') }
     ];
 
     const handleFilter = () => {
@@ -177,7 +179,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
     const getLevelIcon = (level: string) => {
         if (!level) return <Info className="h-4 w-4 text-muted-foreground" />;
-        
+
         switch (level.toLowerCase()) {
             case 'error':
                 return <AlertTriangle className="h-4 w-4 text-red-500" />;
@@ -192,7 +194,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
     const getLevelBadge = (level: string) => {
         if (!level) return <Badge variant="default">UNKNOWN</Badge>;
-        
+
         const variants = {
             error: 'destructive',
             warning: 'secondary',
@@ -208,7 +210,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
     const getEventTypeIcon = (eventType: string) => {
         if (!eventType) return <Database className="h-4 w-4" />;
-        
+
         switch (eventType) {
             case 'authentication':
                 return <Shield className="h-4 w-4" />;
@@ -274,7 +276,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
     const formatActionDetails = (log: LogEntry) => {
         const details = [];
-        
+
         if (log.context.user_id) {
             details.push(`User ID: ${log.context.user_id}`);
         }
@@ -299,13 +301,13 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         if (log.context.status) {
             details.push(`Status: ${log.context.status}`);
         }
-        
+
         return details;
     };
 
     const formatAdminActivityDetails = (log: LogEntry) => {
         const details = [];
-        
+
         // Action
         if (log.context.action) {
             details.push({
@@ -314,7 +316,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Settings className="h-4 w-4" />
             });
         }
-        
+
         // Admin ID
         if (log.context.admin_id) {
             details.push({
@@ -323,7 +325,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <User className="h-4 w-4" />
             });
         }
-        
+
         // User Type
         if (log.context.user_type) {
             details.push({
@@ -332,7 +334,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Users className="h-4 w-4" />
             });
         }
-        
+
         // Event Type
         if (log.context.event_type) {
             details.push({
@@ -341,7 +343,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Activity className="h-4 w-4" />
             });
         }
-        
+
         // IP Address
         if (log.context.ip_address) {
             details.push({
@@ -350,7 +352,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Shield className="h-4 w-4" />
             });
         }
-        
+
         // Filters Applied
         if (log.context.filters_applied) {
             const filters = Object.entries(log.context.filters_applied)
@@ -362,7 +364,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Filter className="h-4 w-4" />
             });
         }
-        
+
         // Total Logs Viewed
         if (log.context.total_logs_viewed !== undefined) {
             details.push({
@@ -371,7 +373,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 icon: <Database className="h-4 w-4" />
             });
         }
-        
+
         return details;
     };
 
@@ -401,18 +403,18 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     return (
         <ProfileWrapper
             breadcrumbs={[
-                { title: 'Profile', href: route('admin.profile.info') },
-                { title: 'System Logs', href: route('admin.system-logs') }
+                { title: t('ui.profile'), href: route('admin.profile.info') },
+                { title: t('ui.system_logs'), href: route('admin.system-logs') }
             ]}
-            title="System Logs"
+            title={t('ui.system_logs')}
         >
-            <Head title="System Logs" />
+            <Head title={t('ui.system_logs')} />
 
             {/* Header with Actions */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-foreground">System Logs</h2>
-                    <p className="text-sm text-muted-foreground">Monitor system activities and user actions</p>
+                    <h2 className="text-2xl font-bold text-foreground">{t('ui.system_logs')}</h2>
+                    <p className="text-sm text-muted-foreground">{t('ui.monitor_system_activities')}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                     <Button
@@ -422,7 +424,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         disabled={isLoading}
                     >
                         <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                        Refresh
+                        {t('ui.refresh')}
                     </Button>
                     <Button
                         variant="outline"
@@ -430,7 +432,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         onClick={handleExport}
                     >
                         <Download className="h-4 w-4 mr-2" />
-                        Export
+                        {t('ui.export')}
                     </Button>
                 </div>
             </div>
@@ -442,9 +444,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">Total Logs</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.total_logs')}</p>
                                     <p className="text-3xl font-bold text-foreground">{summary.total_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">All system activities</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.all_system_activities')}</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-blue-100">
                                     <Database className="h-6 w-6 text-blue-600" />
@@ -457,9 +459,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">Today's Activity</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.todays_activity')}</p>
                                     <p className="text-3xl font-bold text-foreground">{summary.today_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Recent activity</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.recent_activity')}</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-green-100">
                                     <Activity className="h-6 w-6 text-green-600" />
@@ -472,9 +474,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">Errors</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.errors')}</p>
                                     <p className="text-3xl font-bold text-red-600">{summary.error_count.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Issues detected</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.issues_detected')}</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-red-100">
                                     <AlertCircle className="h-6 w-6 text-red-600" />
@@ -487,9 +489,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">Active Users</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.active_users')}</p>
                                     <p className="text-3xl font-bold text-foreground">{summary.unique_users.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Unique users</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.unique_users')}</p>
                                 </div>
                                 <div className="p-3 rounded-full bg-purple-100">
                                     <Users className="h-6 w-6 text-purple-600" />
@@ -510,17 +512,17 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
-                                <Label htmlFor="search">Search</Label>
+                                <Label htmlFor="search">{t('ui.search')}</Label>
                                 <Input
                                     id="search"
-                                    placeholder="Search logs..."
+                                    placeholder={t('ui.search_logs')}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="level">Log Level</Label>
+                                <Label htmlFor="level">{t('ui.log_level')}</Label>
                                 <Select value={level} onValueChange={setLevel}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -536,7 +538,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
 
                             <div>
-                                <Label htmlFor="event_type">Event Type</Label>
+                                <Label htmlFor="event_type">{t('ui.event_type')}</Label>
                                 <Select value={eventType} onValueChange={setEventType}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -552,7 +554,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
 
                             <div>
-                                <Label htmlFor="user_type">User Type</Label>
+                                <Label htmlFor="user_type">{t('ui.user_type')}</Label>
                                 <Select value={userType} onValueChange={setUserType}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -568,7 +570,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
 
                             <div>
-                                <Label htmlFor="date_from">From Date</Label>
+                                <Label htmlFor="date_from">{t('ui.from_date')}</Label>
                                 <Input
                                     id="date_from"
                                     type="date"
@@ -578,7 +580,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
 
                             <div>
-                                <Label htmlFor="date_to">To Date</Label>
+                                <Label htmlFor="date_to">{t('ui.to_date')}</Label>
                                 <Input
                                     id="date_to"
                                     type="date"
@@ -588,7 +590,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
 
                             <div>
-                                <Label htmlFor="per_page">Per Page</Label>
+                                <Label htmlFor="per_page">{t('ui.per_page')}</Label>
                                 <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -605,7 +607,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             <div className="flex items-end">
                                 <Button onClick={handleFilter} className="w-full">
                                     <Search className="h-4 w-4 mr-2" />
-                                    Apply Filters
+                                    {t('ui.apply_filters')}
                                 </Button>
                             </div>
                         </div>
@@ -648,11 +650,11 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 <div className="flex items-center space-x-3">
                                                     {getLevelIcon(log.level)}
                                                     {getLevelBadge(log.level)}
-                                                    <Badge 
-                                                        variant="outline" 
+                                                    <Badge
+                                                        variant="outline"
                                                         className={`flex items-center gap-2 ${getEventTypeColor(log.context.event_type || '')}`}
                                                     >
-                                                        {getEventTypeIcon(log.context.event_type)}
+                                                        {getEventTypeIcon(log.context.event_type || '')}
                                                         <span className="font-medium">
                                                             {log.context.event_type?.replace('_', ' ') || 'Unknown Event'}
                                                         </span>
@@ -800,8 +802,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">Event Type</label>
                                             <div className="mt-1">
-                                                <Badge 
-                                                    variant="outline" 
+                                                <Badge
+                                                    variant="outline"
                                                     className={`${getEventTypeColor(selectedLog.context.event_type || '')}`}
                                                 >
                                                     {selectedLog.context.event_type?.replace('_', ' ') || 'Unknown Event'}
@@ -810,18 +812,18 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">Timestamp</label>
-                                                <p className="mt-1 text-sm text-foreground">
+                                            <p className="mt-1 text-sm text-foreground">
                                                 {formatTimestamp(selectedLog.context.timestamp || selectedLog.created_at)}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">User Type</label>
-                                                <p className="mt-1 text-sm text-foreground">
+                                            <p className="mt-1 text-sm text-foreground">
                                                 {selectedLog.context.user_type || 'N/A'}
                                             </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div>
                                         <label className="text-sm font-medium text-muted-foreground">Message</label>
                                         <p className="mt-1 text-sm text-foreground bg-muted p-3 rounded-lg">
@@ -857,7 +859,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     ) : (
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">Context Data</label>
-                                                <div className="mt-1 bg-muted p-4 rounded-lg">
+                                            <div className="mt-1 bg-muted p-4 rounded-lg">
                                                 <pre className="text-xs text-foreground whitespace-pre-wrap overflow-x-auto">
                                                     {JSON.stringify(selectedLog.context, null, 2)}
                                                 </pre>

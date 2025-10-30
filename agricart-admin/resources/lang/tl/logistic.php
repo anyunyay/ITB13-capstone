@@ -10,6 +10,7 @@ return [
     'notifications' => 'Mga Notification',
     'logout' => 'Logout',
     'logistics' => 'Logistics',
+    'logistic' => 'Logistic',
     
     // Dashboard
     'welcome_back' => 'Maligayang pagbalik!',
