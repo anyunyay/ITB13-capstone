@@ -5,6 +5,7 @@ import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings, MapPin, Lock, Palette, HelpCircle, User as UserIcon, Database } from 'lucide-react';
 import { clearSessionData } from '@/lib/csrf-cleanup';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface AvatarDropdownProps {
     user: User;
@@ -12,6 +13,7 @@ interface AvatarDropdownProps {
 
 export function AvatarDropdown({ user }: AvatarDropdownProps) {
     const cleanup = useMobileNavigation();
+    const t = useTranslation();
 
     // Generate dynamic routes based on user type
     const getProfileRoutes = () => {
@@ -51,7 +53,7 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                         <DropdownMenuItem asChild>
                             <Link className="block w-full" href={routes.profile} as="button" prefetch onClick={cleanup}>
                                 <UserIcon className="mr-2 h-4 w-4" />
-                                Profile
+                                {t('admin.profile')}
                             </Link>
                         </DropdownMenuItem>
                         {(user.type === 'admin' || user.type === 'staff') && (
@@ -95,7 +97,7 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
             <DropdownMenuItem asChild>
                 <Link className="block w-full" method="post" href={route('logout')} as="button" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log Out
+                    {t('admin.logout')}
                 </Link>
             </DropdownMenuItem>
         </>

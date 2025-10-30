@@ -1148,4 +1148,5 @@ return [
     'name' => 'Pangalan',
     'status' => 'Status',
     'not_available' => 'N/A',
+    'confirm_delete_staff' => 'Sigurado ka bang gusto mong tanggalin ang staff member na ito?',
 ];

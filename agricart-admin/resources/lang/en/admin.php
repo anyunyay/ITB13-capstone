@@ -1146,4 +1146,5 @@ return [
     'name' => 'Name',
     'status' => 'Status',
     'not_available' => 'N/A',
+    'confirm_delete_staff' => 'Are you sure you want to delete this staff member?',
 ];

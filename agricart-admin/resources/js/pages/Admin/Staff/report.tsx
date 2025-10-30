@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Permission {
   id: number;
@@ -51,6 +52,7 @@ interface ReportPageProps {
 }
 
 export default function StaffReport({ staff, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -184,7 +186,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
 
   return (
     <AppSidebarLayout>
-      <Head title="Staff Report" />
+      <Head title={t('staff.staff_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
@@ -195,20 +197,20 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                   <Users className="h-8 w-8" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Staff Report</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('staff.staff_report')}</h1>
                   <p className="text-muted-foreground mt-1">
-                    Generate comprehensive staff reports and analytics
+                    {t('staff.staff_report_description')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 items-center">
                 <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  {t('staff.export_csv')}
                 </Button>
                 <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  {t('staff.export_pdf')}
                 </Button>
               </div>
             </div>
@@ -218,41 +220,41 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Staff</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.total_staff')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-foreground">{summary.total_staff}</div>
-                <p className="text-xs text-muted-foreground mt-1">All staff members</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('staff.all_staff_members')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Active Staff</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.active_staff')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-primary">{summary.active_staff}</div>
-                <p className="text-xs text-muted-foreground mt-1">Verified accounts</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('staff.verified_accounts')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">With Permissions</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.with_permissions')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-secondary">{summary.staff_with_permissions}</div>
-                <p className="text-xs text-muted-foreground mt-1">Have assigned permissions</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('staff.have_assigned_permissions')}</p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Permissions</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.total_permissions')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-accent">{summary.total_permissions}</div>
-                <p className="text-xs text-muted-foreground mt-1">Available permissions</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('staff.available_permissions')}</p>
               </CardContent>
             </Card>
           </div>
@@ -265,10 +267,10 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Filter className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                      <CardTitle className="text-xl">{t('staff.advanced_filters')}</CardTitle>
                       {hasActiveFilters() && (
                         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                          Active
+                          {t('staff.active')}
                         </Badge>
                       )}
                     </div>
@@ -276,7 +278,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                           <X className="h-4 w-4" />
-                          Clear Filters
+                          {t('staff.clear_filters_button')}
                         </Button>
                       )}
                       <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -291,7 +293,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
-                        placeholder="Search staff by name, email, or permissions..."
+                        placeholder={t('staff.search_staff_permissions')}
                         value={localFilters.search || ''}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                         className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"

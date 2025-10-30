@@ -169,36 +169,36 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       pageTitle={t('admin.access_denied')}
     >
       <AppLayout>
-        <Head title={t('admin.edit_staff_member')} />
+        <Head title={t('staff.edit_staff_member')} />
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Staff
+              {t('staff.back_to_staff')}
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('admin.edit_staff_member')}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('staff.edit_staff_member')}</h1>
             <p className="text-muted-foreground">
-              {t('admin.update_staff_description')}
+              {t('staff.update_staff_description')}
             </p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+            <CardTitle>{t('staff.staff_information')}</CardTitle>
             <CardDescription>
-              Update the staff member's information and permissions
+              {t('staff.update_staff_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('staff.name')}</Label>
                   <Input
                     id="name"
                     type="text"
@@ -216,7 +216,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('staff.email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -230,7 +230,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact_number">Contact Number</Label>
+                  <Label htmlFor="contact_number">{t('staff.contact_number')}</Label>
                   <Input
                     id="contact_number"
                     type="tel"
@@ -248,7 +248,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password (leave blank to keep current)</Label>
+                  <Label htmlFor="password">{t('staff.password')} (leave blank to keep current)</Label>
                   <PasswordInput
                     id="password"
                     value={data.password}
@@ -261,7 +261,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password_confirmation">Confirm Password</Label>
+                  <Label htmlFor="password_confirmation">Confirm {t('staff.password')}</Label>
                   <PasswordInput
                     id="password_confirmation"
                     value={data.password_confirmation}
@@ -277,15 +277,15 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
               {/* Address Section */}
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base font-medium">Address Information</Label>
+                  <Label className="text-base font-medium">{t('staff.address_information')}</Label>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Update the staff member's address.
+                    {t('staff.update_staff_address')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="street">Street Address</Label>
+                    <Label htmlFor="street">{t('staff.street')}</Label>
                     <Input
                       id="street"
                       type="text"
@@ -300,7 +300,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="barangay">Barangay</Label>
+                    <Label htmlFor="barangay">{t('staff.barangay')}</Label>
                     <Input
                       id="barangay"
                       type="text"
@@ -315,7 +315,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
+                    <Label htmlFor="city">{t('staff.city')}</Label>
                     <Input
                       id="city"
                       type="text"
@@ -330,7 +330,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="province">Province</Label>
+                    <Label htmlFor="province">{t('staff.province')}</Label>
                     <Input
                       id="province"
                       type="text"
@@ -350,9 +350,9 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                 {/* Access Permission Groups */}
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">Access Permissions</Label>
+                    <Label className="text-base font-medium">{t('staff.permissions')}</Label>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Select the main access areas this staff member should have.
+                      {t('staff.select_access_areas')}
                     </p>
                   </div>
 
@@ -446,11 +446,11 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
 
               <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" asChild>
-                  <Link href="/admin/staff">Cancel</Link>
+                  <Link href="/admin/staff">{t('staff.cancel')}</Link>
                 </Button>
                 <Button type="submit" disabled={processing}>
                   <Save className="mr-2 h-4 w-4" />
-                  {processing ? 'Updating...' : 'Update Staff Member'}
+                  {processing ? t('staff.updating') : t('staff.edit_staff_member')}
                 </Button>
               </div>
             </form>

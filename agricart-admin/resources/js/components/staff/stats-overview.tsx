@@ -1,11 +1,14 @@
 import { UsersRound, UserPlus, UserMinus, Shield, Clock } from 'lucide-react';
 import { StaffStats } from '../../types/staff';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface StatsOverviewProps {
     staffStats: StaffStats;
 }
 
 export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
+    const t = useTranslation();
+    
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
             <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
@@ -14,7 +17,7 @@ export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{staffStats.totalStaff}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Total Staff</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('staff.total_staff')}</div>
                 </div>
             </div>
             
@@ -24,7 +27,7 @@ export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{staffStats.activeStaff}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Active Staff</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('staff.active_staff')}</div>
                 </div>
             </div>
             
@@ -34,7 +37,7 @@ export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{staffStats.inactiveStaff}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Inactive Staff</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('staff.inactive_staff')}</div>
                 </div>
             </div>
             
@@ -44,7 +47,7 @@ export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{staffStats.totalPermissions}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Total Permissions</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('staff.total_permissions')}</div>
                 </div>
             </div>
             
@@ -54,7 +57,7 @@ export const StatsOverview = ({ staffStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{staffStats.recentStaff}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Recent Additions</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('staff.recent_additions')}</div>
                 </div>
             </div>
         </div>

@@ -167,7 +167,7 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
 
   // Handle staff deletion
   const handleDeleteStaff = (staffMember: Staff) => {
-    if (confirm('Are you sure you want to delete this staff member?')) {
+    if (confirm(t('admin.confirm_delete_staff'))) {
       setProcessing(true);
       router.delete(route('staff.destroy', staffMember.id), {
         onSuccess: () => {
@@ -200,9 +200,9 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
                       <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.staff_management')}</h1>
+                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('staff.staff_management')}</h1>
                       <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                        {t('admin.staff_management_description')}
+                        {t('staff.staff_management_description')}
                       </p>
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
                     <Button asChild className="bg-primary text-primary-foreground border-0 px-5 py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md">
                       <Link href="/admin/staff/add">
                         <UsersRound className="mr-2 h-4 w-4" />
-                        Add Staff
+                        {t('staff.add_staff_member')}
                       </Link>
                     </Button>
                   )}
@@ -220,7 +220,7 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
                     <Button variant="outline" asChild className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
                       <Link href={route('admin.staff.report')}>
                         <BarChart3 className="h-4 w-4 mr-2" />
-                        Generate Report
+                        {t('staff.generate_report')}
                       </Link>
                     </Button>
                   </PermissionGate>

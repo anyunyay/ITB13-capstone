@@ -158,29 +158,29 @@ export default function StaffCreate({ availablePermissions }: Props) {
           <Button variant="outline" size="sm" asChild>
             <Link href="/admin/staff">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('admin.back_to_staff')}
+              {t('staff.back_to_staff')}
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('admin.add_staff_member')}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('staff.add_staff_member')}</h1>
             <p className="text-muted-foreground">
-              {t('admin.create_staff_description')}
+              {t('staff.create_staff_description')}
             </p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('admin.staff')} {t('admin.profile_information')}</CardTitle>
+            <CardTitle>{t('staff.staff_information')}</CardTitle>
             <CardDescription>
-              {t('admin.create_staff_description')}
+              {t('staff.create_staff_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t('admin.name')}</Label>
+                  <Label htmlFor="name">{t('staff.name')}</Label>
                   <Input
                     id="name"
                     type="text"
@@ -198,7 +198,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t('admin.email')}</Label>
+                  <Label htmlFor="email">{t('staff.email')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -212,7 +212,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">{t('admin.password')}</Label>
+                  <Label htmlFor="password">{t('staff.password')}</Label>
                   <PasswordInput
                     id="password"
                     value={data.password}
@@ -225,7 +225,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact_number">{t('admin.contact_number')}</Label>
+                  <Label htmlFor="contact_number">{t('staff.contact_number')}</Label>
                   <Input
                     id="contact_number"
                     type="tel"
@@ -246,15 +246,15 @@ export default function StaffCreate({ availablePermissions }: Props) {
               {/* Address Section */}
               <div className="space-y-4">
                 <div>
-                  <Label className="text-base font-medium">{t('admin.address_information')}</Label>
+                  <Label className="text-base font-medium">{t('staff.address_information')}</Label>
                   <p className="text-sm text-muted-foreground mb-4">
-                    {t('admin.enter_staff_address')}
+                    {t('staff.enter_staff_address')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="space-y-2">
-                    <Label htmlFor="street">{t('admin.street')}</Label>
+                    <Label htmlFor="street">{t('staff.street')}</Label>
                     <Input
                       id="street"
                       type="text"
@@ -269,7 +269,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="barangay">{t('admin.barangay')}</Label>
+                    <Label htmlFor="barangay">{t('staff.barangay')}</Label>
                     <Input
                       id="barangay"
                       type="text"
@@ -284,7 +284,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="city">{t('admin.city')}</Label>
+                    <Label htmlFor="city">{t('staff.city')}</Label>
                     <Input
                       id="city"
                       type="text"
@@ -299,7 +299,7 @@ export default function StaffCreate({ availablePermissions }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="province">{t('admin.province')}</Label>
+                    <Label htmlFor="province">{t('staff.province')}</Label>
                     <Input
                       id="province"
                       type="text"
@@ -319,9 +319,9 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 {/* Access Permission Groups */}
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">{t('admin.permissions')}</Label>
+                    <Label className="text-base font-medium">{t('staff.permissions')}</Label>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {t('admin.select_access_areas')}
+                      {t('staff.select_access_areas')}
                     </p>
                   </div>
 
@@ -415,11 +415,11 @@ export default function StaffCreate({ availablePermissions }: Props) {
 
               <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" asChild>
-                  <Link href="/admin/staff">{t('admin.cancel')}</Link>
+                  <Link href="/admin/staff">{t('staff.cancel')}</Link>
                 </Button>
                 <Button type="submit" disabled={processing}>
                   <Save className="mr-2 h-4 w-4" />
-                  {processing ? t('admin.creating') : t('admin.add_staff_member')}
+                  {processing ? t('staff.creating') : t('staff.add_staff_member')}
                 </Button>
               </div>
             </form>

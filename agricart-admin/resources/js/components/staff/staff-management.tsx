@@ -9,6 +9,7 @@ import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown,
 import { PermissionGate } from '@/components/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
+import { useTranslation } from '@/hooks/use-translation';
 import styles from './staff-highlights.module.css';
 
 interface StaffManagementProps {
@@ -58,6 +59,7 @@ export const StaffManagement = ({
     showSearch,
     setShowSearch
 }: StaffManagementProps) => {
+    const t = useTranslation();
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -139,9 +141,9 @@ export const StaffManagement = ({
                         <UsersRound className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Staff Directory</h2>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('staff.staff_directory')}</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            Manage and view all staff members and their permissions
+                            {t('staff.staff_management_description')}
                         </p>
                     </div>
                 </div>
@@ -157,7 +159,7 @@ export const StaffManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? 'Hide Search' : 'Search'}
+                        {showSearch ? t('staff.hide_search') : t('staff.search')}
                     </Button>
                 </div>
             </div>
@@ -172,7 +174,7 @@ export const StaffManagement = ({
                             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                                 type="text"
-                                placeholder="Search staff by name, email, or contact..."
+                                placeholder={t('staff.search_staff_placeholder')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20"
@@ -182,16 +184,16 @@ export const StaffManagement = ({
                             <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                                 <SelectTrigger className="w-full md:w-[200px]">
-                                    <SelectValue placeholder="All Categories" />
+                                    <SelectValue placeholder={t('staff.all_categories')} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Categories</SelectItem>
-                                    <SelectItem value="inventory">Inventory Management</SelectItem>
-                                    <SelectItem value="orders">Order Management</SelectItem>
-                                    <SelectItem value="logistics">Logistics Management</SelectItem>
-                                    <SelectItem value="sales">Sales Management</SelectItem>
-                                    <SelectItem value="trends">Trend Analysis</SelectItem>
-                                    <SelectItem value="general">General Staff</SelectItem>
+                                    <SelectItem value="all">{t('staff.all_categories')}</SelectItem>
+                                    <SelectItem value="inventory">{t('staff.inventory_management')}</SelectItem>
+                                    <SelectItem value="orders">{t('staff.order_management')}</SelectItem>
+                                    <SelectItem value="logistics">{t('staff.logistics_management')}</SelectItem>
+                                    <SelectItem value="sales">{t('staff.sales_management')}</SelectItem>
+                                    <SelectItem value="trends">{t('staff.trend_analysis')}</SelectItem>
+                                    <SelectItem value="general">{t('staff.general_staff')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -199,8 +201,11 @@ export const StaffManagement = ({
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                     <span className="text-sm text-muted-foreground font-medium">
-                        Showing {paginatedStaff.length} of {filteredAndSortedStaff.length} staff members
-                        {selectedCategory !== 'all' && ` (${selectedCategory} category)`}
+                        {t('staff.showing_staff', { 
+                            count: paginatedStaff.length, 
+                            total: filteredAndSortedStaff.length 
+                        })}
+                        {selectedCategory !== 'all' && ` ${t('staff.staff_category_filter', { category: selectedCategory })}`}
                     </span>
                     {(searchTerm || selectedCategory !== 'all') && (
                         <button
@@ -210,7 +215,7 @@ export const StaffManagement = ({
                             }}
                             className="text-sm text-primary no-underline transition-colors duration-200 hover:text-primary/80"
                         >
-                            Clear filters
+                            {t('staff.clear_filters')}
                         </button>
                     )}
                 </div>
@@ -227,7 +232,7 @@ export const StaffManagement = ({
                                         onClick={() => handleSort('id')}
                                         className="flex items-center gap-1 hover:text-foreground"
                                     >
-                                        ID {getSortIcon('id')}
+                                        {t('staff.id')} {getSortIcon('id')}
                                     </button>
                                 </th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
@@ -235,22 +240,22 @@ export const StaffManagement = ({
                                         onClick={() => handleSort('name')}
                                         className="flex items-center gap-1 hover:text-foreground"
                                     >
-                                        Name {getSortIcon('name')}
+                                        {t('staff.name')} {getSortIcon('name')}
                                     </button>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Permissions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.email')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.contact')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.address')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.permissions')}</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('created_at')}
                                         className="flex items-center gap-1 hover:text-foreground"
                                     >
-                                        Created {getSortIcon('created_at')}
+                                        {t('staff.created')} {getSortIcon('created_at')}
                                     </button>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -267,12 +272,12 @@ export const StaffManagement = ({
                                     </td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground">{staffMember.email}</td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        {staffMember.contact_number || 'N/A'}
+                                        {staffMember.contact_number || t('admin.na')}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground">
                                         {staffMember.default_address ? 
                                             `${staffMember.default_address.street}, ${staffMember.default_address.barangay}, ${staffMember.default_address.city}, ${staffMember.default_address.province}` 
-                                            : 'N/A'
+                                            : t('admin.na')
                                         }
                                     </td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -289,7 +294,7 @@ export const StaffManagement = ({
                                                     </Badge>
                                                 ))
                                             ) : (
-                                                <span className="text-muted-foreground text-sm">No permissions</span>
+                                                <span className="text-muted-foreground text-sm">{t('staff.no_permissions')}</span>
                                             )}
                                             {staffMember.permissions.length > 3 && (
                                                 <TooltipProvider>
@@ -327,7 +332,7 @@ export const StaffManagement = ({
                                                 >
                                                     <Link href={route('staff.edit', staffMember.id)}>
                                                         <Edit className="h-4 w-4" />
-                                                        Edit
+                                                        {t('staff.edit')}
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>
@@ -340,7 +345,7 @@ export const StaffManagement = ({
                                                     className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                    Delete
+                                                    {t('staff.delete')}
                                                 </Button>
                                             </PermissionGate>
                                         </div>
@@ -354,12 +359,12 @@ export const StaffManagement = ({
                 <div className="text-center py-8">
                     <UsersRound className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                     <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? 'No staff found' : 'No staff available'}
+                        {searchTerm ? t('staff.no_staff_found') : t('staff.no_staff_available')}
                     </h3>
                     <p className="text-muted-foreground">
                         {searchTerm 
-                            ? `No staff members match your search for "${searchTerm}". Try adjusting your search terms.`
-                            : 'No staff members have been added yet.'
+                            ? t('staff.no_staff_match_search', { search: searchTerm })
+                            : t('staff.no_staff_registered')
                         }
                     </p>
                 </div>
