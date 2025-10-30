@@ -114,9 +114,9 @@ export default function Deactivated() {
                                         <RotateCcw className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Deactivated Logistics Partners</h2>
+                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.deactivated_logistics_title')}</h2>
                                         <p className="text-sm text-muted-foreground m-0">
-                                            {deactivatedLogistics.length} deactivated logistics partner{deactivatedLogistics.length !== 1 ? 's' : ''} found
+                                            {deactivatedLogistics.length} {t('admin.deactivated_logistics')} {deactivatedLogistics.length !== 1 ? 's' : ''} found
                                         </p>
                                     </div>
                                 </div>
@@ -128,12 +128,12 @@ export default function Deactivated() {
                                         <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
                                             <tr>
                                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">ID</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Name</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact Number</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Registration Date</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.name')}</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.email')}</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact_number')}</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.registration_date')}</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -145,18 +145,18 @@ export default function Deactivated() {
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
                                                     <td className="px-4 py-3 text-sm text-foreground">
-                                                        {logistic.contact_number || 'N/A'}
+                                                        {logistic.contact_number || t('admin.not_available')}
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-foreground">
                                                         {logistic.default_address ? 
                                                             `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                                            : 'N/A'
+                                                            : t('admin.not_available')
                                                         }
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-foreground">
                                                         {logistic.registration_date ? 
                                                             new Date(logistic.registration_date).toLocaleDateString() 
-                                                            : 'N/A'
+                                                            : t('admin.not_available')
                                                         }
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-foreground">
@@ -168,7 +168,7 @@ export default function Deactivated() {
                                                                     className="bg-green-600 hover:bg-green-700 text-white"
                                                                 >
                                                                     <RotateCcw className="h-4 w-4 mr-1" />
-                                                                    Reactivate
+                                                                    {t('admin.reactivate')}
                                                                 </Button>
                                                             </PermissionGate>
                                                         </div>
@@ -181,9 +181,9 @@ export default function Deactivated() {
                             ) : (
                                 <div className="text-center py-8">
                                     <RotateCcw className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                                    <h3 className="text-lg font-medium text-foreground mb-2">No deactivated logistics found</h3>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_deactivated_logistics_found')}</h3>
                                     <p className="text-muted-foreground">
-                                        There are currently no deactivated logistics partners in the system.
+                                        {t('admin.no_deactivated_logistics')}
                                     </p>
                                 </div>
                             )}

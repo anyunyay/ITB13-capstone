@@ -1,11 +1,14 @@
 import { IdCard, UserPlus, UserMinus, Clock } from 'lucide-react';
 import { LogisticStats } from '../../types/logistics';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface StatsOverviewProps {
     logisticStats: LogisticStats;
 }
 
 export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
+    const t = useTranslation();
+    
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
             <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 transition-all duration-200 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
@@ -14,7 +17,7 @@ export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{logisticStats.totalLogistics}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Total Logistics</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('admin.total_logistics')}</div>
                 </div>
             </div>
             
@@ -24,7 +27,7 @@ export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{logisticStats.activeLogistics}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Active Logistics</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('admin.active_logistics')}</div>
                 </div>
             </div>
             
@@ -34,7 +37,7 @@ export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{logisticStats.deactivatedLogistics}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Deactivated</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('admin.deactivated')}</div>
                 </div>
             </div>
             
@@ -44,7 +47,7 @@ export const StatsOverview = ({ logisticStats }: StatsOverviewProps) => {
                 </div>
                 <div className="flex-1">
                     <div className="text-xl font-bold text-foreground leading-none">{logisticStats.pendingRequests}</div>
-                    <div className="text-sm text-muted-foreground mt-2">Pending Requests</div>
+                    <div className="text-sm text-muted-foreground mt-2">{t('admin.pending_requests')}</div>
                 </div>
             </div>
         </div>

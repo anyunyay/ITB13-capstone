@@ -112,9 +112,9 @@ export default function Edit({ logistic }: Props) {
                         )}
 
                         <div className='flex flex-col gap-1.5'>
-                            <Label htmlFor="logistic name">Name</Label>
+                            <Label htmlFor="logistic name">{t('admin.logistic_name_label')}</Label>
                             <Input 
-                                placeholder="Logistic Name" 
+                                placeholder={t('admin.logistic_name_label')} 
                                 value={data.name} 
                                 onChange={(e) => {
                                     // Only allow alphabetic characters and spaces
@@ -125,20 +125,20 @@ export default function Edit({ logistic }: Props) {
                             {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
                         </div>
                         <div className='flex flex-col gap-1.5'>
-                            <Label htmlFor="logistic email">Email</Label>
+                            <Label htmlFor="logistic email">{t('admin.logistic_email_label')}</Label>
                             <Input type="email" placeholder={t('admin.email_address')} value={data.email} onChange={(e) => setData('email', e.target.value)} />
                             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                         </div>
                         <div className='flex flex-col gap-1.5'>
-                            <Label htmlFor="logistic contact_number">Contact Number</Label>
+                            <Label htmlFor="logistic contact_number">{t('admin.logistic_contact_number_label')}</Label>
                             <Input 
                                 type="tel" 
-                                placeholder="+63 9XX XXX XXXX (Philippine format only)" 
+                                placeholder={t('admin.philippine_format_only')} 
                                 value={data.contact_number} 
                                 onChange={(e) => setData('contact_number', e.target.value)} 
                             />
                             <p className="text-xs text-muted-foreground">
-                                Format: +639XXXXXXXXX or 09XXXXXXXXX
+                                {t('admin.format_hint')}
                             </p>
                             {errors.contact_number && <p className="text-sm text-red-500 mt-1">{errors.contact_number}</p>}
                         </div>

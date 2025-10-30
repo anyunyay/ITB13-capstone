@@ -11,6 +11,7 @@ import { PaginationControls } from '../inventory/pagination-controls';
 import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Logistic } from '../../types/logistics';
 import styles from './logistic-highlights.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface LogisticManagementProps {
     logistics: Logistic[];
@@ -61,6 +62,7 @@ export const LogisticManagement = ({
     sortOrder,
     setSortOrder
 }: LogisticManagementProps) => {
+    const t = useTranslation();
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -85,9 +87,9 @@ export const LogisticManagement = ({
                         <IdCard className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">Logistics Directory</h2>
+                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.logistics_directory')}</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            {showDeactivated ? 'Viewing deactivated logistics' : 'Manage and view all registered logistics partners'}
+                            {showDeactivated ? t('admin.viewing_deactivated_logistics') : t('admin.manage_and_view_all_logistics')}
                         </p>
                     </div>
                 </div>
@@ -103,7 +105,7 @@ export const LogisticManagement = ({
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? 'Hide Search' : 'Search'}
+                        {showSearch ? t('admin.hide_search') : t('admin.search')}
                     </Button>
                     <Button
                         variant={showDeactivated ? "default" : "outline"}
@@ -113,12 +115,12 @@ export const LogisticManagement = ({
                         {showDeactivated ? (
                             <>
                                 <EyeOff className="h-4 w-4 mr-2" />
-                                Hide Deactivated
+                                {t('admin.hide_deactivated')}
                             </>
                         ) : (
                             <>
                                 <Eye className="h-4 w-4 mr-2" />
-                                View Deactivated
+                                {t('admin.view_deactivated')}
                             </>
                         )}
                     </Button>
@@ -131,7 +133,7 @@ export const LogisticManagement = ({
                 setSearchTerm={setSearchTerm}
                 showSearch={showSearch}
                 setShowSearch={setShowSearch}
-                placeholder="Search logistics by ID, name, email, or contact..."
+                placeholder={t('admin.search_logistics_placeholder')}
                 resultsCount={paginatedLogistics.length}
                 totalCount={totalLogistics}
             />
@@ -155,22 +157,22 @@ export const LogisticManagement = ({
                                         onClick={() => handleSort('name')}
                                         className="flex items-center gap-1 hover:text-foreground"
                                     >
-                                        Name {getSortIcon('name')}
+                                        {t('admin.name')} {getSortIcon('name')}
                                     </button>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Email</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Contact</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Address</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.email')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('registration_date')}
                                         className="flex items-center gap-1 hover:text-foreground"
                                     >
-                                        Registration Date {getSortIcon('registration_date')}
+                                        {t('admin.registration_date')} {getSortIcon('registration_date')}
                                     </button>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Status</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">Actions</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.status')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,23 +189,23 @@ export const LogisticManagement = ({
                                     </td>
                                     <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
                                     <td className="px-4 py-3 text-sm text-foreground">
-                                        {logistic.contact_number || 'N/A'}
+                                        {logistic.contact_number || t('admin.not_available')}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-foreground">
                                         {logistic.default_address ? 
                                             `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                            : 'N/A'
+                                            : t('admin.not_available')
                                         }
                                     </td>
                                     <td className="px-4 py-3 text-sm text-foreground">
                                         {logistic.registration_date ? 
                                             new Date(logistic.registration_date).toLocaleDateString() 
-                                            : 'N/A'
+                                            : t('admin.not_available')
                                         }
                                     </td>
                                     <td className="px-4 py-3 text-sm text-foreground">
                                         <Badge variant={logistic.can_be_deactivated ? "default" : "secondary"}>
-                                            {logistic.can_be_deactivated ? "Active" : "Protected"}
+                                            {logistic.can_be_deactivated ? t('admin.active') : t('admin.protected')}
                                         </Badge>
                                     </td>
                                     <td className="px-4 py-3 text-sm text-foreground">
@@ -217,7 +219,7 @@ export const LogisticManagement = ({
                                                 >
                                                     <Link href={route('logistics.edit', logistic.id)}>
                                                         <Edit className="h-4 w-4" />
-                                                        Edit
+                                                        {t('admin.edit')}
                                                     </Link>
                                                 </Button>
                                             </PermissionGate>
@@ -237,7 +239,7 @@ export const LogisticManagement = ({
                                                                         }`}
                                                                     >
                                                                         <UserMinus className="h-4 w-4" />
-                                                                        Deactivate
+                                                                        {t('admin.deactivate')}
                                                                     </Button>
                                                                 </div>
                                                             </TooltipTrigger>
@@ -259,7 +261,7 @@ export const LogisticManagement = ({
                                                         className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                     >
                                                         <RotateCcw className="h-4 w-4" />
-                                                        Reactivate
+                                                        {t('admin.reactivate')}
                                                     </Button>
                                                 </PermissionGate>
                                             )}
@@ -274,14 +276,14 @@ export const LogisticManagement = ({
                 <div className="text-center py-8">
                     <IdCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
                     <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? 'No logistics found' : 'No logistics available'}
+                        {searchTerm ? t('admin.no_logistics_found') : t('admin.no_logistics_available')}
                     </h3>
                     <p className="text-muted-foreground">
                         {searchTerm 
-                            ? `No logistics match your search for "${searchTerm}". Try adjusting your search terms.`
+                            ? t('admin.no_logistics_match_search', { search: searchTerm })
                             : showDeactivated 
-                                ? 'There are no deactivated logistics partners.'
-                                : 'No logistics partners have been registered yet.'
+                                ? t('admin.no_deactivated_logistics')
+                                : t('admin.no_logistics_registered')
                         }
                     </p>
                 </div>

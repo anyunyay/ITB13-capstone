@@ -91,10 +91,13 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   };
 
   const getDateRangeDisplay = () => {
-    if (!startDate && !endDate) return 'No date range selected';
-    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
-    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    if (!startDate && !endDate) return t('admin.no_date_range_selected');
+    if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
+    return t('admin.date_range_format', { 
+      start: format(startDate!, 'MMM dd, yyyy'), 
+      end: format(endDate!, 'MMM dd, yyyy') 
+    });
   };
 
   const getDurationDisplay = () => {
@@ -183,10 +186,10 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   return (
     <PermissionGuard 
       permission="generate logistics report"
-      pageTitle="Logistics Report Access Denied"
+      pageTitle={t('admin.logistics_report_access_denied')}
     >
       <AppSidebarLayout>
-        <Head title="Logistics Report" />
+        <Head title={t('admin.logistics_report')} />
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
             {/* Header */}
@@ -197,20 +200,20 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                     <Users className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-foreground">Logistics Report</h1>
+                    <h1 className="text-3xl font-bold text-foreground">{t('admin.logistics_report')}</h1>
                     <p className="text-muted-foreground mt-1">
-                      Generate comprehensive logistics member reports and analytics
+                      {t('admin.logistics_report_description')}
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
                   <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
-                    Export CSV
+                    {t('admin.export_csv')}
                   </Button>
                   <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Export PDF
+                    {t('admin.export_pdf')}
                   </Button>
                 </div>
               </div>
@@ -222,12 +225,12 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Total Logistics
+                    {t('admin.total_logistics')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-foreground">{summary.total_logistics}</div>
-                  <p className="text-xs text-muted-foreground mt-1">All registered members</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.all_registered_members')}</p>
                 </CardContent>
               </Card>
               
@@ -235,12 +238,12 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <UserCheck className="h-4 w-4" />
-                    Active Logistics
+                    {t('admin.active_logistics')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-primary">{summary.active_logistics}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Verified members</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.verified_members')}</p>
                 </CardContent>
               </Card>
               
@@ -248,12 +251,12 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <UserX className="h-4 w-4" />
-                    Pending Verification
+                    {t('admin.pending_verification')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-destructive">{summary.pending_verification}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Awaiting verification</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.awaiting_verification')}</p>
                 </CardContent>
               </Card>
               
@@ -261,12 +264,12 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <UserPlus className="h-4 w-4" />
-                    Recent Registrations
+                    {t('admin.recent_registrations')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-accent">{summary.recent_registrations}</div>
-                  <p className="text-xs text-muted-foreground mt-1">New this period</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('admin.new_this_period')}</p>
                 </CardContent>
               </Card>
             </div>
@@ -279,10 +282,10 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Filter className="h-5 w-5 text-primary" />
-                        <CardTitle className="text-xl">Advanced Filters</CardTitle>
+                        <CardTitle className="text-xl">{t('admin.advanced_filters')}</CardTitle>
                         {hasActiveFilters() && (
                           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                            Active
+                            {t('admin.active')}
                           </Badge>
                         )}
                       </div>
@@ -290,7 +293,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                         {hasActiveFilters() && (
                           <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                             <X className="h-4 w-4" />
-                            Clear Filters
+                            {t('admin.clear_filters')}
                           </Button>
                         )}
                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -305,7 +308,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
-                          placeholder="Search logistics members by name, email, or contact..."
+                          placeholder={t('admin.search_logistics_members_placeholder')}
                           value={localFilters.search || ''}
                           onChange={(e) => handleFilterChange('search', e.target.value)}
                           className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -318,11 +321,11 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                       <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                            <h4 className="font-semibold text-primary mb-1">{t('admin.selected_date_range')}</h4>
                             <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                             {getDurationDisplay() && (
                               <p className="text-xs text-primary/70 mt-1">
-                                Duration: {getDurationDisplay()}
+                                {t('admin.duration')}: {getDurationDisplay()}
                               </p>
                             )}
                           </div>
@@ -341,7 +344,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                             className="text-xs"
                           >
                             <X className="h-3 w-3 mr-1" />
-                            Clear
+                            {t('admin.clear')}
                           </Button>
                         </div>
                       </div>
@@ -350,7 +353,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                     {/* Filter Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Start Date</Label>
+                        <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -358,7 +361,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                               className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                              {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -373,7 +376,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                         </Popover>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">End Date</Label>
+                        <Label className="text-sm font-medium">{t('admin.end_date')}</Label>
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -381,7 +384,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                               className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                              {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -400,21 +403,21 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                         </Popover>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="verification_status" className="text-sm font-medium">Verification Status</Label>
+                        <Label htmlFor="verification_status" className="text-sm font-medium">{t('admin.verification_status')}</Label>
                         <Select value={localFilters.verification_status} onValueChange={(value) => handleFilterChange('verification_status', value)}>
                           <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="verified">Verified</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="all">{t('admin.all_status')}</SelectItem>
+                            <SelectItem value="verified">{t('admin.verified')}</SelectItem>
+                            <SelectItem value="pending">{t('admin.pending')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex items-end">
                         <Button onClick={applyFilters} className="w-full bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
-                          Apply Filters
+                          {t('admin.apply_filters')}
                         </Button>
                       </div>
                     </div>
@@ -427,10 +430,10 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
             <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">Logistics Members ({logistics.length})</CardTitle>
+                  <CardTitle className="text-xl">{t('admin.logistics_members_count', { count: logistics.length })}</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-muted-foreground">
-                      {logistics.length > 0 ? `Showing ${logistics.length} logistics members` : 'No members found'}
+                      {logistics.length > 0 ? t('admin.showing_logistics_members_count', { count: logistics.length }) : t('admin.no_members_found')}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
@@ -472,16 +475,16 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                       <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                         <Users className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="text-lg font-medium text-foreground mb-2">No logistics members found</h3>
+                      <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_logistics_members_found')}</h3>
                       <p className="text-muted-foreground max-w-md">
                         {hasActiveFilters() 
-                          ? 'No logistics members match your current filter criteria. Try adjusting your filters to see more results.'
-                          : 'No logistics member data available for the selected time period.'
+                          ? t('admin.no_logistics_match_filters')
+                          : t('admin.no_logistics_data_period')
                         }
                       </p>
                       {hasActiveFilters() && (
                         <Button onClick={clearFilters} variant="outline" className="mt-4">
-                          Clear Filters
+                          {t('admin.clear_filters')}
                         </Button>
                       )}
                     </div>
@@ -497,11 +500,13 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
 }
 
 function LogisticCard({ logistic }: { logistic: Logistic }) {
+  const t = useTranslation();
+  
   const getVerificationBadge = (verified: boolean) => {
     if (verified) {
-      return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Verified</Badge>;
+      return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{t('admin.verified')}</Badge>;
     } else {
-      return <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20">Pending</Badge>;
+      return <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20">{t('admin.pending')}</Badge>;
     }
   };
 
@@ -516,7 +521,7 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
             <div>
               <CardTitle className="text-lg text-foreground">{logistic.name}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Member #{logistic.id} • {dayjs(logistic.created_at).format('MMM DD, YYYY HH:mm')}
+                {t('admin.member_id_format', { id: logistic.id })} • {dayjs(logistic.created_at).format('MMM DD, YYYY HH:mm')}
               </p>
             </div>
           </div>
@@ -530,20 +535,20 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Contact Information
+              {t('admin.contact_information')}
             </h4>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium text-foreground">Email:</span> 
+                <span className="font-medium text-foreground">{t('admin.email')}:</span> 
                 <span className="text-muted-foreground ml-2">{logistic.email}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Contact:</span> 
-                <span className="text-muted-foreground ml-2">{logistic.contact_number || 'N/A'}</span>
+                <span className="font-medium text-foreground">{t('admin.contact')}:</span> 
+                <span className="text-muted-foreground ml-2">{logistic.contact_number || t('admin.not_available')}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Address:</span> 
-                <span className="text-muted-foreground ml-2">{logistic.address || 'N/A'}</span>
+                <span className="font-medium text-foreground">{t('admin.address')}:</span> 
+                <span className="text-muted-foreground ml-2">{logistic.address || t('admin.not_available')}</span>
               </p>
             </div>
           </div>
@@ -551,23 +556,23 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              Registration Details
+              {t('admin.registration_details')}
             </h4>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium text-foreground">Registration Date:</span> 
+                <span className="font-medium text-foreground">{t('admin.registration_date')}:</span> 
                 <span className="text-muted-foreground ml-2">
-                  {logistic.registration_date ? dayjs(logistic.registration_date).format('MMM DD, YYYY') : 'N/A'}
+                  {logistic.registration_date ? dayjs(logistic.registration_date).format('MMM DD, YYYY') : t('admin.not_available')}
                 </span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Email Verified:</span> 
+                <span className="font-medium text-foreground">{t('admin.email_verified')}:</span> 
                 <span className="text-muted-foreground ml-2">
-                  {logistic.email_verified_at ? dayjs(logistic.email_verified_at).format('MMM DD, YYYY') : 'Not verified'}
+                  {logistic.email_verified_at ? dayjs(logistic.email_verified_at).format('MMM DD, YYYY') : t('admin.not_verified')}
                 </span>
               </p>
               <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">Member ID:</span> 
+                <span className="font-medium text-foreground">{t('admin.member_id')}:</span> 
                 <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
                   #{logistic.id}
                 </Badge>
@@ -581,11 +586,13 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
 }
 
 function LogisticTable({ logistics }: { logistics: Logistic[] }) {
+  const t = useTranslation();
+  
   const getVerificationBadge = (verified: boolean) => {
     if (verified) {
-      return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">Verified</Badge>;
+      return <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{t('admin.verified')}</Badge>;
     } else {
-      return <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20">Pending</Badge>;
+      return <Badge variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20">{t('admin.pending')}</Badge>;
     }
   };
 
@@ -594,14 +601,14 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Member ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Name</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Email</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Contact</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Address</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Registration Date</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Email Verified</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.member_id')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.name')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.email')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.contact')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.status')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.registration_date')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.email_verified')}</th>
           </tr>
         </thead>
         <tbody>
@@ -619,12 +626,12 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
                 <div className="text-sm text-muted-foreground">{logistic.email}</div>
               </td>
               <td className="py-3 px-4">
-                <div className="text-sm text-muted-foreground">{logistic.contact_number || 'N/A'}</div>
+                <div className="text-sm text-muted-foreground">{logistic.contact_number || t('admin.not_available')}</div>
               </td>
               <td className="py-3 px-4">
                 <div className="max-w-xs">
-                  <p className="text-sm text-muted-foreground truncate" title={logistic.address || 'N/A'}>
-                    {logistic.address || 'N/A'}
+                  <p className="text-sm text-muted-foreground truncate" title={logistic.address || t('admin.not_available')}>
+                    {logistic.address || t('admin.not_available')}
                   </p>
                 </div>
               </td>
@@ -632,10 +639,10 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
                 {getVerificationBadge(!!logistic.email_verified_at)}
               </td>
               <td className="py-3 px-4 text-sm text-muted-foreground">
-                {logistic.registration_date ? dayjs(logistic.registration_date).format('MMM DD, YYYY') : 'N/A'}
+                {logistic.registration_date ? dayjs(logistic.registration_date).format('MMM DD, YYYY') : t('admin.not_available')}
               </td>
               <td className="py-3 px-4 text-sm text-muted-foreground">
-                {logistic.email_verified_at ? dayjs(logistic.email_verified_at).format('MMM DD, YYYY') : 'Not verified'}
+                {logistic.email_verified_at ? dayjs(logistic.email_verified_at).format('MMM DD, YYYY') : t('admin.not_verified')}
               </td>
             </tr>
           ))}
