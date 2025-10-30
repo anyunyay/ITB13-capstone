@@ -20,6 +20,16 @@ return [
     'statistics' => 'Mga Estadistika',
     'administrator' => 'Administrator',
     'admin' => 'Admin',
+
+    // Urgent Orders
+    'urgent_order_approval_required' => 'Kailangan ng Urgent Order Approval',
+    'orders_need_immediate_attention' => 'May mga order kayong kailangang agad na attention.',
+    'urgent_orders_count' => ':count order|:count na mga order',
+    'need_approval_8_hours' => 'kailangan ng approval sa loob ng susunod na 8 oras.',
+    'need_urgent_approval_8h' => 'kailangan ng urgent approval sa loob ng 8 oras.',
+    'orders_must_be_approved_24h' => 'Dapat ma-approve ang mga order sa loob ng 24 oras mula sa placement.',
+    'review_approve_orders_message' => 'Pakisuri at i-approve ang mga order na ito para maiwasan ang automatic expiration.',
+    'go_to_orders' => 'Pumunta sa mga Order',
     'overview' => 'Pangkalahatang Tanaw',
     'trends' => 'Mga Trends',
     'welcome' => 'Maligayang Pagdating',

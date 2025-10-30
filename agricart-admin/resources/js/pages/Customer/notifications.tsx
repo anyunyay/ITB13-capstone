@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { NotificationPage } from '@/components/NotificationPage';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Notification {
   id: string;
@@ -17,9 +18,11 @@ interface NotificationsPageProps {
 }
 
 export default function NotificationsPage({ notifications }: NotificationsPageProps) {
+  const t = useTranslation();
+  
   return (
     <AppHeaderLayout>
-      <Head title="Notifications" />
+      <Head title={t('ui.notifications')} />
       <div className="max-w-4xl mx-auto p-4 mt-20 bg-background">
         <NotificationPage notifications={notifications} userType="customer" />
       </div>

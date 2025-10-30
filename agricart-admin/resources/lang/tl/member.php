@@ -10,6 +10,7 @@ return [
     'notifications' => 'Mga Notification',
     'logout' => 'Logout',
     'member' => 'Member',
+    'dashboard' => 'Member Dashboard',
     'add_stock' => 'Magdagdag ng Stock',
     'manage_stock' => 'Pamahalaan ang Stock',
     'view_earnings' => 'Tingnan ang mga Kita',

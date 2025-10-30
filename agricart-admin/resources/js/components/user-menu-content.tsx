@@ -5,12 +5,14 @@ import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
 import { clearSessionData } from '@/lib/csrf-cleanup';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface UserMenuContentProps {
     user: User;
 }
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
+    const t = useTranslation();
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -32,7 +34,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                 <DropdownMenuItem asChild>
                     <Link className="block w-full" href={route('profile.edit')} as="button" prefetch onClick={cleanup}>
                         <Settings className="mr-2" />
-                        Settings
+                        {t('ui.settings')}
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -40,7 +42,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuItem asChild>
                 <Link className="block w-full" method="post" href={route('logout')} as="button" onClick={handleLogout}>
                     <LogOut className="mr-2" />
-                    Log out
+                    {t('ui.logout')}
                 </Link>
             </DropdownMenuItem>
         </>

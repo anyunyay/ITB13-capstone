@@ -20,6 +20,16 @@ return [
     'statistics' => 'Statistics',
     'administrator' => 'Administrator',
     'admin' => 'Admin',
+
+    // Urgent Orders
+    'urgent_order_approval_required' => 'Urgent Order Approval Required',
+    'orders_need_immediate_attention' => 'You have orders that need immediate attention.',
+    'urgent_orders_count' => ':count order|:count orders',
+    'need_approval_8_hours' => 'need approval within the next 8 hours.',
+    'need_urgent_approval_8h' => 'need urgent approval within 8 hours.',
+    'orders_must_be_approved_24h' => 'Orders must be approved within 24 hours of placement.',
+    'review_approve_orders_message' => 'Please review and approve these orders to avoid automatic expiration.',
+    'go_to_orders' => 'Go to Orders',
     'overview' => 'Overview',
     'trends' => 'Trends',
     'welcome' => 'Welcome',

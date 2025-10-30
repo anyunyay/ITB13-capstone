@@ -10,6 +10,7 @@ return [
     'notifications' => 'Notifications',
     'logout' => 'Logout',
     'member' => 'Member',
+    'dashboard' => 'Member Dashboard',
     'add_stock' => 'Add Stock',
     'manage_stock' => 'Manage Stock',
     'view_earnings' => 'View Earnings',

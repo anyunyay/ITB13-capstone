@@ -93,7 +93,7 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
             <div className="min-h-screen bg-background">
                 <MemberHeader />
                 <div className="p-6 pt-25">
-                    <Head title="Member Dashboard" />
+                    <Head title={t('member.dashboard')} />
                     <div className="text-center py-12">
                         <div className="text-foreground text-xl">{t('member.loading_dashboard')}</div>
                     </div>
@@ -106,7 +106,7 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
         <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-25">
-                <Head title="Member Dashboard" />
+                <Head title={t('member.dashboard')} />
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         <div>

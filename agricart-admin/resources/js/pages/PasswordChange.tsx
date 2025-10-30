@@ -23,23 +23,23 @@ export default function PasswordChange() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <Head title="Change Password Required" />
+      <Head title={t('ui.change_password_required')} />
       
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Lock className="mx-auto h-12 w-12 text-blue-400" />
           <h2 className="mt-6 text-3xl font-extrabold text-white">
-            Password Change Required
+            {t('ui.password_change_required')}
           </h2>
           <p className="mt-2 text-sm text-gray-300">
-            For security reasons, you must change your password before accessing the system.
+            {t('ui.security_password_change_message')}
           </p>
         </div>
 
         <Alert className="bg-amber-900/20 border-amber-700 text-amber-200">
           <AlertTriangle className="h-4 w-4 text-amber-400" />
           <AlertDescription>
-            You are using a temporary password set by the administrator. Please create a new, secure password to continue.
+            {t('ui.temporary_password_message')}
           </AlertDescription>
         </Alert>
 
@@ -59,7 +59,7 @@ export default function PasswordChange() {
                   value={data.current_password}
                   onChange={(e) => setData('current_password', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.current_password ? 'border-red-500' : ''}`}
-                  placeholder="Enter your current password"
+                  placeholder={t('ui.enter_current_password')}
                   required
                 />
                 {errors.current_password && (
@@ -74,7 +74,7 @@ export default function PasswordChange() {
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.password ? 'border-red-500' : ''}`}
-                  placeholder="Enter your new password"
+                  placeholder={t('ui.enter_new_password')}
                   required
                 />
                 {errors.password && (
@@ -89,7 +89,7 @@ export default function PasswordChange() {
                   value={data.password_confirmation}
                   onChange={(e) => setData('password_confirmation', e.target.value)}
                   className={`bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400 ${errors.password_confirmation ? 'border-red-500' : ''}`}
-                  placeholder="Confirm your new password"
+                  placeholder={t('ui.confirm_your_new_password')}
                   required
                 />
                 {errors.password_confirmation && (
@@ -110,7 +110,7 @@ export default function PasswordChange() {
 
         <div className="text-center">
           <p className="text-sm text-gray-400">
-            Need help? Contact your administrator.
+            {t('ui.need_help_contact_admin')}
           </p>
         </div>
       </div>

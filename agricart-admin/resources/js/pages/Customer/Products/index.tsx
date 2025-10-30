@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ProductCarousel } from '../Home/produce';
 import StockManager from '@/lib/stock-manager';
 import SimpleFooter from '@/components/SimpleFooter';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
   id: number;
@@ -36,6 +37,7 @@ interface PageProps {
 }
 
 export default function CustomerProducts() {
+  const t = useTranslation();
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
@@ -75,12 +77,12 @@ export default function CustomerProducts() {
 
   return (
     <AppHeaderLayout>
-      <Head title="Products - Fresh Produce" />
+      <Head title={t('customer.products_fresh_produce')} />
       <div className="min-h-[90vh] py-8 mt-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Fresh Produce from Local Cooperatives
+              {t('customer.fresh_produce_from_cooperatives')}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Discover our wide selection of fresh fruits and vegetables, 

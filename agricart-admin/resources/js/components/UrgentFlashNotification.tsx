@@ -3,6 +3,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { X, Clock } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface UrgentFlashNotificationProps {
   urgentOrderCount: number;
@@ -15,6 +16,7 @@ export function UrgentFlashNotification({
   isVisible, 
   onDismiss 
 }: UrgentFlashNotificationProps) {
+  const t = useTranslation();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function UrgentFlashNotification({
         <Clock className="h-4 w-4 text-amber-600" />
         <AlertDescription className="flex items-center justify-between">
           <div className="text-amber-800">
-            <strong className="font-semibold">{urgentOrderCount} order{urgentOrderCount !== 1 ? 's' : ''}</strong> need{urgentOrderCount === 1 ? 's' : ''} urgent approval within 8 hours.
+            <strong className="font-semibold">{t('admin.urgent_orders_count', { count: urgentOrderCount })}</strong> {t('admin.need_urgent_approval_8h')}
           </div>
           <div className="flex items-center gap-2 ml-4">
             <Button
@@ -52,7 +54,7 @@ export function UrgentFlashNotification({
               onClick={handleGoToOrders}
               className="text-amber-700 border-amber-300 hover:bg-amber-100 bg-white shadow-sm"
             >
-              Go to Orders
+              {t('admin.go_to_orders')}
             </Button>
             <Button
               variant="ghost"

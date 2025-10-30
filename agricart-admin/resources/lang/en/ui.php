@@ -274,4 +274,21 @@ return [
 
     // User Types
     'all_users' => 'All Users',
+
+    // Password Change Page
+    'change_password_required' => 'Change Password Required',
+    'password_change_required' => 'Password Change Required',
+    'security_password_change_message' => 'For security reasons, you must change your password before accessing the system.',
+    'temporary_password_message' => 'You are using a temporary password set by the administrator. Please create a new, secure password to continue.',
+    'need_help_contact_admin' => 'Need help? Contact your administrator.',
+
+    // General UI
+    'notifications' => 'Notifications',
+    'unauthorized' => 'Unauthorized',
+    'not_authorized_message' => 'You are not authorized to access this page.',
+    'no_permission_message' => "You don't have permission to view this page",
+    'go_back' => 'Go Back',
+    'go_to_home' => 'Go to Home',
+    'dismiss' => 'Dismiss',
+    'settings' => 'Settings',
 ];

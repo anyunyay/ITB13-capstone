@@ -14,6 +14,7 @@ interface UrgentApprovalPopupProps {
 }
 
 export function UrgentApprovalPopup({ isOpen, onClose, onGoToOrders, urgentOrderCount }: UrgentApprovalPopupProps) {
+  const t = useTranslation();
   const handleGoToOrders = () => {
     if (onGoToOrders) {
       onGoToOrders();
@@ -29,10 +30,10 @@ export function UrgentApprovalPopup({ isOpen, onClose, onGoToOrders, urgentOrder
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-600" />
-            Urgent Order Approval Required
+            {t('admin.urgent_order_approval_required')}
           </DialogTitle>
           <DialogDescription>
-            You have orders that need immediate attention.
+            {t('admin.orders_need_immediate_attention')}
           </DialogDescription>
         </DialogHeader>
         
@@ -40,23 +41,23 @@ export function UrgentApprovalPopup({ isOpen, onClose, onGoToOrders, urgentOrder
           <Alert className="border-amber-200 bg-amber-50 shadow-sm">
             <Clock className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800">
-              <strong className="font-semibold">{urgentOrderCount} order{urgentOrderCount !== 1 ? 's' : ''}</strong> need{urgentOrderCount === 1 ? 's' : ''} approval within the next 8 hours.
+              <strong className="font-semibold">{t('admin.urgent_orders_count', { count: urgentOrderCount })}</strong> {t('admin.need_approval_8_hours')}
               <br />
-              <span className="text-sm text-amber-700">Orders must be approved within 24 hours of placement.</span>
+              <span className="text-sm text-amber-700">{t('admin.orders_must_be_approved_24h')}</span>
             </AlertDescription>
           </Alert>
           
           <div className="text-sm text-muted-foreground">
-            <p>Please review and approve these orders to avoid automatic expiration.</p>
+            <p>{t('admin.review_approve_orders_message')}</p>
           </div>
         </div>
 
         <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={onClose}>
-            Dismiss
+            {t('ui.dismiss')}
           </Button>
           <Button onClick={handleGoToOrders} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm">
-            Go to Orders
+            {t('admin.go_to_orders')}
           </Button>
         </DialogFooter>
       </DialogContent>

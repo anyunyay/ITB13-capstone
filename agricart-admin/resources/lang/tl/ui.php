@@ -274,4 +274,21 @@ return [
 
     // User Types
     'all_users' => 'Lahat ng User',
+
+    // Password Change Page
+    'change_password_required' => 'Kailangan Palitan ang Password',
+    'password_change_required' => 'Kailangan Palitan ang Password',
+    'security_password_change_message' => 'Para sa security, kailangan ninyong palitan ang password bago ma-access ang system.',
+    'temporary_password_message' => 'Gumagamit kayo ng temporary password na itinakda ng administrator. Gumawa ng bagong, secure na password para magpatuloy.',
+    'need_help_contact_admin' => 'Kailangan ng tulong? Makipag-ugnayan sa inyong administrator.',
+
+    // General UI
+    'notifications' => 'Mga Notification',
+    'unauthorized' => 'Walang Pahintulot',
+    'not_authorized_message' => 'Wala kayong pahintulot na ma-access ang page na ito.',
+    'no_permission_message' => 'Wala kayong permission na makita ang page na ito',
+    'go_back' => 'Bumalik',
+    'go_to_home' => 'Pumunta sa Home',
+    'dismiss' => 'I-dismiss',
+    'settings' => 'Mga Setting',
 ];

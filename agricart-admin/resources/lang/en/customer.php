@@ -11,6 +11,8 @@ return [
     'notifications' => 'Notifications',
     'logout' => 'Logout',
     'customer' => 'Customer',
+    'products_fresh_produce' => 'Products - Fresh Produce',
+    'fresh_produce_from_cooperatives' => 'Fresh Produce from Local Cooperatives',
     'search' => 'Search',
     'view_all' => 'View All',
     'add_to_cart' => 'Add to Cart',

@@ -1,10 +1,14 @@
 import { Head, Link } from '@inertiajs/react';
 import AuthLayout from '@/layouts/auth-layout';
+import { useTranslation } from '@/hooks/use-translation';
 
-export default function Unauthorized({ message = 'You are not authorized to access this page.' }: { message?: string }) {
+export default function Unauthorized({ message }: { message?: string }) {
+    const t = useTranslation();
+    const defaultMessage = message || t('ui.not_authorized_message');
+    
     return (
-        <AuthLayout title="Access Denied" description="You don't have permission to view this page">
-            <Head title="Unauthorized" />
+        <AuthLayout title={t('ui.access_denied')} description={t('ui.no_permission_message')}>
+            <Head title={t('ui.unauthorized')} />
 
             <div className="mx-auto max-w-md text-center">
                 <div className="mb-6">
@@ -13,16 +17,16 @@ export default function Unauthorized({ message = 'You are not authorized to acce
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 2a10 10 0 1010 10A10 10 0 0012 2z" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
-                    <p className="mt-2 text-sm text-gray-600">{message}</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t('ui.access_denied')}</h1>
+                    <p className="mt-2 text-sm text-gray-600">{defaultMessage}</p>
                 </div>
 
                 <div className="flex items-center justify-center gap-3">
                     <button className="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-900" onClick={() => window.history.back()}>
-                        Go Back
+                        {t('ui.go_back')}
                     </button>
                     <Link href={route('home')} className="rounded bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300">
-                        Go to Home
+                        {t('ui.go_to_home')}
                     </Link>
                 </div>
             </div>
