@@ -170,6 +170,16 @@ return [
     'clear_filters' => 'I-clear ang Filters',
     'showing_count' => 'Ipinapakita ang :count na transaksyon',
     
+    // Change Password
+    'change_password' => 'Palitan ang Password',
+    'set_new_password' => 'Itakda ang inyong bagong password para sa inyong member account',
+    'hello_member' => 'Kumusta :name (ID: :id)',
+    'enter_new_password' => 'Pakisuyo na ilagay ang inyong bagong password sa ibaba',
+    'new_password' => 'Bagong Password',
+    'confirm_new_password' => 'Kumpirmahin ang Bagong Password',
+    'enter_new_password_placeholder' => 'Ilagay ang bagong password',
+    'confirm_new_password_placeholder' => 'Kumpirmahin ang bagong password',
+    
     // Common
     'loading' => 'Naglo-load...',
     'loading_dashboard' => 'Naglo-load ng dashboard...',

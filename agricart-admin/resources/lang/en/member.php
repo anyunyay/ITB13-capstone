@@ -170,6 +170,16 @@ return [
     'clear_filters' => 'Clear Filters',
     'showing_count' => 'Showing :count transactions',
     
+    // Change Password
+    'change_password' => 'Change Password',
+    'set_new_password' => 'Set your new password for your member account',
+    'hello_member' => 'Hello :name (ID: :id)',
+    'enter_new_password' => 'Please enter your new password below',
+    'new_password' => 'New Password',
+    'confirm_new_password' => 'Confirm New Password',
+    'enter_new_password_placeholder' => 'Enter new password',
+    'confirm_new_password_placeholder' => 'Confirm new password',
+    
     // Common
     'loading' => 'Loading...',
     'loading_dashboard' => 'Loading dashboard...',

@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Search, Filter, Calendar, Package, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { MemberHeader } from '@/components/member-header';
 import { format } from 'date-fns';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
     id: number;
@@ -72,6 +73,8 @@ interface Summary {
     total_quantity: number;
     total_revenue: number;
     total_member_share: number;
+    total_cogs?: number;
+    total_gross_profit?: number;
 }
 
 interface PageProps {
@@ -89,6 +92,7 @@ interface PageProps {
 
 export default function MemberTransactions({ transactions, availableProducts, summary, filters }: PageProps) {
     const { auth } = usePage<SharedData>().props;
+    const t = useTranslation();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [productFilter, setProductFilter] = useState(filters.product || 'all');
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
@@ -180,7 +184,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 <MemberHeader />
                 <div className="p-6 pt-25">
                     <div className="text-center py-12">
-                        <div className="text-foreground text-xl">Loading transactions...</div>
+                        <div className="text-foreground text-xl">{t('member.loading_transactions')}</div>
                     </div>
                 </div>
             </div>
@@ -191,19 +195,19 @@ export default function MemberTransactions({ transactions, availableProducts, su
         <div className="min-h-screen bg-background">
             <MemberHeader />
             <div className="p-6 pt-15">
-                <Head title="Member Transactions" />
+                <Head title={t('member.transaction_history_page')} />
                 
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-foreground">Transaction History</h1>
-                            <p className="text-muted-foreground mt-2">View all your stock transactions and earnings</p>
+                            <h1 className="text-3xl font-bold text-foreground">{t('member.transaction_history_page')}</h1>
+                            <p className="text-muted-foreground mt-2">{t('member.view_transactions_and_earnings')}</p>
                         </div>
                         <Button asChild variant="outline">
                             <a href={route('member.dashboard')}>
                                 <Package className="h-4 w-4 mr-2" />
-                                Back to Dashboard
+                                {t('member.back_to_dashboard_icon')}
                             </a>
                         </Button>
                     </div>
@@ -213,67 +217,67 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Total Transactions</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_transactions_label')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-blue-400" />
                         </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-foreground">{summary?.total_transactions || 0}</div>
-                            <p className="text-xs text-muted-foreground">All time</p>
+                            <p className="text-xs text-muted-foreground">{t('member.gross_sales')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Total Quantity</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_quantity')}</CardTitle>
                             <Package className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{summary?.total_quantity || 0}</div>
-                            <p className="text-xs text-muted-foreground">Items sold</p>
+                            <p className="text-xs text-muted-foreground">{t('member.items_sold_label')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Total Revenue</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.total_revenue')}</CardTitle>
                             <DollarSign className="h-4 w-4 text-yellow-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_revenue || 0)}</div>
-                            <p className="text-xs text-muted-foreground">Gross sales</p>
+                            <p className="text-xs text-muted-foreground">{t('member.gross_sales')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Member Revenue</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.member_revenue_label')}</CardTitle>
                             <Users className="h-4 w-4 text-purple-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_member_share || 0)}</div>
-                            <p className="text-xs text-muted-foreground">Your product revenue</p>
+                            <p className="text-xs text-muted-foreground">{t('member.your_product_revenue')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">COGS</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.cogs')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-orange-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_cogs || 0)}</div>
-                            <p className="text-xs text-muted-foreground">Cost of goods sold</p>
+                            <p className="text-xs text-muted-foreground">{t('member.cost_of_goods_sold_label')}</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-foreground">Gross Profit</CardTitle>
+                            <CardTitle className="text-sm font-medium text-foreground">{t('member.gross_profit')}</CardTitle>
                             <TrendingUp className="h-4 w-4 text-green-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-foreground">{formatCurrency(summary?.total_gross_profit || 0)}</div>
-                            <p className="text-xs text-muted-foreground">Revenue minus COGS</p>
+                            <p className="text-xs text-muted-foreground">{t('member.revenue_minus_cogs')}</p>
                         </CardContent>
                     </Card>
 
@@ -284,18 +288,18 @@ export default function MemberTransactions({ transactions, availableProducts, su
                     <CardHeader>
                         <CardTitle className="text-foreground flex items-center">
                             <Filter className="h-5 w-5 mr-2" />
-                            Filters & Search
+                            {t('member.filters_and_search')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div>
-                                <Label htmlFor="search">Search</Label>
+                                <Label htmlFor="search">{t('ui.search')}</Label>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="search"
-                                        placeholder="Product or customer..."
+                                        placeholder={t('member.search_placeholder')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className="pl-10"
@@ -304,13 +308,13 @@ export default function MemberTransactions({ transactions, availableProducts, su
                             </div>
 
                             <div>
-                                <Label htmlFor="product">Product</Label>
+                                <Label htmlFor="product">{t('member.product_filter')}</Label>
                                 <Select value={productFilter} onValueChange={setProductFilter}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="All products" />
+                                        <SelectValue placeholder={t('member.all_products')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">All products</SelectItem>
+                                        <SelectItem value="all">{t('member.all_products')}</SelectItem>
                                         {availableProducts?.map((product) => (
                                             <SelectItem key={product.id} value={product.id.toString()}>
                                                 {product.name}
@@ -321,7 +325,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                             </div>
 
                             <div>
-                                <Label htmlFor="dateFrom">From Date</Label>
+                                <Label htmlFor="dateFrom">{t('member.from_date')}</Label>
                                 <Input
                                     id="dateFrom"
                                     type="date"
@@ -331,7 +335,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                             </div>
 
                             <div>
-                                <Label htmlFor="dateTo">To Date</Label>
+                                <Label htmlFor="dateTo">{t('member.to_date')}</Label>
                                 <Input
                                     id="dateTo"
                                     type="date"
@@ -341,7 +345,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
                             </div>
 
                             <div>
-                                <Label htmlFor="perPage">Per Page</Label>
+                                <Label htmlFor="perPage">{t('member.per_page')}</Label>
                                 <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -359,10 +363,10 @@ export default function MemberTransactions({ transactions, availableProducts, su
                         <div className="flex gap-2 mt-4">
                             <Button onClick={handleSearch}>
                                 <Search className="h-4 w-4 mr-2" />
-                                Apply Filters
+                                {t('member.apply_filters')}
                             </Button>
                             <Button onClick={clearFilters} variant="outline">
-                                Clear Filters
+                                {t('member.clear_filters')}
                             </Button>
                         </div>
                     </CardContent>
@@ -371,29 +375,29 @@ export default function MemberTransactions({ transactions, availableProducts, su
                 {/* Transactions Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-foreground">Transaction History</CardTitle>
+                        <CardTitle className="text-foreground">{t('member.transaction_history')}</CardTitle>
                         <CardDescription className="text-muted-foreground">
-                            Showing {transactions.meta?.from || 0}-{transactions.meta?.to || 0} of {transactions.meta?.total || 0} transactions
+                            {t('member.showing_count', { count: transactions.meta?.total || 0 })}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {!transactions.data || transactions.data.length === 0 ? (
                             <div className="text-center py-12">
                                 <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
-                                <p className="text-muted-foreground">No transactions match your current filters.</p>
+                                <h3 className="text-lg font-medium text-foreground mb-2">{t('member.no_transactions_found')}</h3>
+                                <p className="text-muted-foreground">{t('member.no_transactions_match_filters')}</p>
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-foreground/80">Product</TableHead>
-                                            <TableHead className="text-foreground/80">Category</TableHead>
-                                            <TableHead className="text-foreground/80">Quantity</TableHead>
-                                            <TableHead className="text-foreground/80">Subtotal</TableHead>
-                                            <TableHead className="text-foreground/80">Buyer</TableHead>
-                                            <TableHead className="text-foreground/80">Date</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.product')}</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.category')}</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.quantity')}</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.subtotal')}</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.buyer')}</TableHead>
+                                            <TableHead className="text-foreground/80">{t('member.date')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

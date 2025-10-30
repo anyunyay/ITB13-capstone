@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ProductSale {
   product_id: number;
@@ -85,6 +86,7 @@ interface ReportPageProps {
 }
 
 export default function MemberRevenueReport({ salesData, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);

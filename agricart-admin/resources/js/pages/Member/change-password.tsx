@@ -10,6 +10,7 @@ import PasswordInput from '@/components/ui/password-input';
 import PasswordValidation from '@/components/ui/password-validation';
 import PasswordError from '@/components/ui/password-error';
 import AuthLayout from '@/layouts/auth-layout';
+import { useTranslation } from '@/hooks/use-translation';
 
 type ChangePasswordForm = {
     password: string;
@@ -30,6 +31,7 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
         password: '',
         password_confirmation: '',
     });
+    const t = useTranslation();
 
     // State to track if user is typing in password fields
     const [isTypingPassword, setIsTypingPassword] = useState(false);
@@ -48,32 +50,31 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
 
     return (
         <AuthLayout 
-            title="Change Password" 
-            description="Set your new password for your member account"
+            title={t('member.change_password')} 
+            description={t('member.set_new_password')}
         >
-            <Head title="Change Password" />
+            <Head title={t('member.change_password')} />
 
             <div className="mb-6 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                     <Lock className="h-8 w-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('member.change_password')}</h2>
                 <p className="text-sm text-gray-600">
-                    Hello {member.name} (ID: {member.member_id})
+                    {t('member.hello_member', { name: member.name, id: member.member_id })}
                 </p>
                 <p className="text-sm text-gray-500">
-                    Please enter your new password below
+                    {t('member.enter_new_password')}
                 </p>
             </div>
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="password">New Password</Label>
+                        <Label htmlFor="password">{t('member.new_password')}</Label>
                         <PasswordInput
                             id="password"
                             required
-                            autoFocus
                             tabIndex={1}
                             autoComplete="new-password"
                             value={data.password}
@@ -82,7 +83,7 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
                                 setIsTypingPassword(true);
                             }}
                             disabled={processing}
-                            placeholder="Enter new password"
+                            placeholder={t('member.enter_new_password_placeholder')}
                             className="border-gray-300 focus:border-green-500 focus:ring-green-500"
                         />
                         <PasswordError 
@@ -93,7 +94,7 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm New Password</Label>
+                        <Label htmlFor="password_confirmation">{t('member.confirm_new_password')}</Label>
                         <PasswordInput
                             id="password_confirmation"
                             required
@@ -105,7 +106,7 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
                                 setIsTypingPasswordConfirmation(true);
                             }}
                             disabled={processing}
-                            placeholder="Confirm new password"
+                            placeholder={t('member.confirm_new_password_placeholder')}
                             className="border-gray-300 focus:border-green-500 focus:ring-green-500"
                         />
                         <PasswordError 
@@ -116,7 +117,7 @@ export default function ChangePassword({ requestId, member }: ChangePasswordProp
 
                     <Button type="submit" className="mt-4 w-full bg-green-600 hover:bg-green-700" tabIndex={3} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Change Password
+                        {t('member.change_password')}
                     </Button>
                 </div>
 
