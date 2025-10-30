@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LogisticHeader } from '@/components/logistic-header';
 import { format } from 'date-fns';
 import { CheckCircle, Eye } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
   id: number;
@@ -44,16 +45,18 @@ interface AssignedOrdersProps {
 }
 
 export default function AssignedOrders({ orders, currentStatus }: AssignedOrdersProps) {
+  const t = useTranslation();
+  
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">Ready to Pick Up</Badge>;
+        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-blue-600 text-white">Out for Delivery</Badge>;
+        return <Badge className="bg-blue-600 text-white">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-green-600 text-green-600">Delivered</Badge>;
+        return <Badge variant="outline" className="border-green-600 text-green-600">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -62,11 +65,11 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   const formatQuantity = (quantity: number, category: string) => {
     switch (category.toLowerCase()) {
       case 'kilo':
-        return `${quantity} kg`;
+        return `${quantity} ${t('logistic.kg')}`;
       case 'pc':
-        return `${quantity} pc`;
+        return `${quantity} ${t('logistic.pc')}`;
       case 'tali':
-        return `${quantity} tali`;
+        return `${quantity} ${t('logistic.tali')}`;
       default:
         return `${quantity} ${category}`;
     }
@@ -89,36 +92,36 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   return (
     <div className="min-h-screen bg-background">
       <LogisticHeader />
-      <Head title="Assigned Orders" />
+      <Head title={t('logistic.assigned_orders')} />
       
       <div className="p-6 pt-25 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Assigned Orders</h1>
-            <p className="text-muted-foreground">Manage your assigned orders and update delivery status</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('logistic.assigned_orders')}</h1>
+            <p className="text-muted-foreground">{t('logistic.manage_assigned_orders')}</p>
           </div>
           <Button 
             variant="outline" 
             onClick={() => window.history.back()}
           >
-            Back to Dashboard
+            {t('logistic.back_to_dashboard')}
           </Button>
         </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">All Orders ({orders.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({pendingOrders.length})</TabsTrigger>
-            <TabsTrigger value="ready_to_pickup">Ready to Pickup ({readyToPickupOrders.length})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery">Out for Delivery ({outForDeliveryOrders.length})</TabsTrigger>
-            <TabsTrigger value="delivered">Delivered ({deliveredOrders.length})</TabsTrigger>
+            <TabsTrigger value="all">{t('logistic.all_orders')} ({orders.length})</TabsTrigger>
+            <TabsTrigger value="pending">{t('logistic.pending')} ({pendingOrders.length})</TabsTrigger>
+            <TabsTrigger value="ready_to_pickup">{t('logistic.ready_to_pickup')} ({readyToPickupOrders.length})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery">{t('logistic.out_for_delivery')} ({outForDeliveryOrders.length})</TabsTrigger>
+            <TabsTrigger value="delivered">{t('logistic.delivered')} ({deliveredOrders.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
             {orders.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No orders assigned to you yet.</p>
+                  <p className="text-muted-foreground">{t('logistic.no_orders_assigned_yet')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -129,6 +132,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
+                    t={t}
                   />
                 ))}
               </div>
@@ -139,7 +143,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             {pendingOrders.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No pending orders.</p>
+                  <p className="text-muted-foreground">{t('logistic.no_pending_orders')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -150,6 +154,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
+                    t={t}
                   />
                 ))}
               </div>
@@ -160,7 +165,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             {readyToPickupOrders.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No orders ready for pickup.</p>
+                  <p className="text-muted-foreground">{t('logistic.no_orders_ready_pickup')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -171,6 +176,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
+                    t={t}
                   />
                 ))}
               </div>
@@ -181,7 +187,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             {outForDeliveryOrders.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No orders out for delivery.</p>
+                  <p className="text-muted-foreground">{t('logistic.no_orders_out_delivery')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -192,6 +198,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
+                    t={t}
                   />
                 ))}
               </div>
@@ -202,7 +209,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             {deliveredOrders.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
-                  <p className="text-muted-foreground">No delivered orders.</p>
+                  <p className="text-muted-foreground">{t('logistic.no_delivered_orders')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -213,6 +220,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
                     order={order} 
                     getDeliveryStatusBadge={getDeliveryStatusBadge}
                     formatQuantity={formatQuantity}
+                    t={t}
                   />
                 ))}
               </div>
@@ -225,10 +233,11 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   );
 }
 
-function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: { 
+function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, t }: { 
   order: Order; 
   getDeliveryStatusBadge: (status: string) => React.ReactElement;
   formatQuantity: (quantity: number, category: string) => string;
+  t: (key: string, params?: any) => string;
 }) {
   // Backend now provides aggregated quantities
   
@@ -238,7 +247,7 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-foreground">Order #{order.id}</h3>
+              <h3 className="font-semibold text-foreground">{t('logistic.order_number', { id: order.id })}</h3>
               {getDeliveryStatusBadge(order.delivery_status)}
             </div>
             <Link href={route('logistic.orders.show', order.id)}>
@@ -247,7 +256,7 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: {
                 size="sm"
               >
                 <Eye className="h-4 w-4 mr-1" />
-                View Details
+                {t('logistic.view_details')}
               </Button>
             </Link>
           </div>
@@ -255,21 +264,21 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Customer:</span> {order.customer.name}
+                <span className="font-medium text-foreground">{t('logistic.customer')}:</span> {order.customer.name}
               </p>
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Email:</span> {order.customer.email}
+                <span className="font-medium text-foreground">{t('logistic.email')}:</span> {order.customer.email}
               </p>
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Date:</span> {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
+                <span className="font-medium text-foreground">{t('logistic.date')}:</span> {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
               </p>
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Total:</span> ₱{order.total_amount.toFixed(2)}
+                <span className="font-medium text-foreground">{t('logistic.total')}:</span> ₱{order.total_amount.toFixed(2)}
               </p>
             </div>
             
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Products in Order:</p>
+              <p className="text-sm font-medium text-foreground">{t('logistic.products_in_order')}:</p>
               <div className="space-y-1">
                 {order.audit_trail.slice(0, 3).map((item, index) => (
                   <div key={`${item.product.name}-${item.category}-${index}`} className="text-sm text-muted-foreground">
@@ -278,7 +287,7 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity }: {
                 ))}
                 {order.audit_trail.length > 3 && (
                   <div className="text-sm text-muted-foreground/70">
-                    +{order.audit_trail.length - 3} more item(s)
+                    {t('logistic.more_items', { count: order.audit_trail.length - 3 })}
                   </div>
                 )}
               </div>

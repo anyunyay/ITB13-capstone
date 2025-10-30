@@ -680,6 +680,20 @@ return [
     'no_removed_stock_records' => 'There are currently no removed stock records to display',
     'success' => 'Success',
 
+    // Additional missing keys for logistics
+    'select_status' => 'Select status',
+    'all_status' => 'All Status',
+    'no_orders_found_filter' => 'No orders found for the selected filters.',
+    'delivered_orders' => 'Delivered Orders',
+    'not_ready' => 'Not Ready',
+    'picked_up' => 'Picked Up',
+    'not_picked_up' => 'Not Picked Up',
+    'order_summary' => 'Order Summary',
+    'items' => 'Items',
+    'no_items_found' => 'No items found',
+    'you_can_only_mark_delivered_after_ready' => 'You can only mark orders as delivered after they are ready for pickup',
+    'order_delivered' => 'Order Delivered',
+
     // Rejection Reasons
     'rejection_reason_out_of_stock' => 'Out of stock',
     'rejection_reason_insufficient_stock' => 'Insufficient stock',

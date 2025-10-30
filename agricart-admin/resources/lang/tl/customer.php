@@ -16,4 +16,3 @@ return [
     'out_of_stock' => 'Walang Stock',
     'in_stock' => 'May Stock',
 ];
-

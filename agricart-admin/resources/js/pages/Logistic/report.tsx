@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LogisticHeader } from '@/components/logistic-header';
 import dayjs from 'dayjs';
 import { FileText, FileSpreadsheet } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
   id: number;
@@ -60,6 +61,7 @@ interface ReportPageProps {
 }
 
 export default function LogisticReport({ orders, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
 
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
@@ -122,28 +124,28 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   return (
     <div className="min-h-screen bg-background">
       <LogisticHeader />
-      <Head title="Logistic Orders Report" />
+      <Head title={t('logistic.logistics_report')} />
       
       <div className="p-6 pt-25">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Logistic Orders Report</h1>
-            <p className="text-muted-foreground">Generate and export reports for your assigned orders</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
+            <p className="text-muted-foreground">{t('logistic.logistics_report_description')}</p>
           </div>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
               onClick={() => window.history.back()}
             >
-              Back to Dashboard
+              {t('logistic.back_to_dashboard')}
             </Button>
             <Button onClick={() => exportReport('csv')} variant="outline">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Export CSV
+              {t('logistic.export_csv')}
             </Button>
             <Button onClick={() => exportReport('pdf')} variant="outline">
               <FileText className="mr-2 h-4 w-4" />
-              Export PDF
+              {t('logistic.export_pdf')}
             </Button>
           </div>
         </div>
@@ -151,12 +153,12 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-foreground">Filters</CardTitle>
+            <CardTitle className="text-foreground">{t('admin.filters')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <Label htmlFor="start_date">Start Date</Label>
+                <Label htmlFor="start_date">{t('admin.start_date')}</Label>
                 <Input
                   id="start_date"
                   type="date"
@@ -165,7 +167,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 />
               </div>
               <div>
-                <Label htmlFor="end_date">End Date</Label>
+                <Label htmlFor="end_date">{t('admin.end_date')}</Label>
                 <Input
                   id="end_date"
                   type="date"
@@ -174,25 +176,25 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 />
               </div>
               <div>
-                <Label htmlFor="delivery_status">Delivery Status</Label>
+                <Label htmlFor="delivery_status">{t('logistic.delivery_status')}</Label>
                 <Select
                   value={localFilters.delivery_status}
                   onValueChange={(value) => handleFilterChange('delivery_status', value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t('admin.select_status')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="all">{t('admin.all_status')}</SelectItem>
+                    <SelectItem value="pending">{t('logistic.pending')}</SelectItem>
+                    <SelectItem value="out_for_delivery">{t('logistic.out_for_delivery')}</SelectItem>
+                    <SelectItem value="delivered">{t('logistic.delivered')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-end">
                 <Button onClick={applyFilters} className="w-full bg-primary hover:bg-primary/90">
-                  Apply Filters
+                  {t('admin.apply_filters')}
                 </Button>
               </div>
             </div>
@@ -203,7 +205,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">{summary.total_orders}</div>
@@ -211,17 +213,17 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_revenue')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary">
-                PHP {Number(summary.total_revenue).toFixed(2)}
+                ₱{Number(summary.total_revenue).toFixed(2)}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">{summary.pending_orders}</div>
@@ -229,7 +231,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Out for Delivery</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{summary.out_for_delivery_orders}</div>
@@ -237,7 +239,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Delivered Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{summary.delivered_orders}</div>
@@ -245,11 +247,11 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Avg Order Value</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.average_order_value')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-secondary">
-                PHP {Number(summary.average_order_value).toFixed(2)}
+                ₱{Number(summary.average_order_value).toFixed(2)}
               </div>
             </CardContent>
           </Card>
@@ -258,16 +260,16 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         {/* Orders List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-foreground">Orders ({orders.length})</CardTitle>
+            <CardTitle className="text-foreground">{t('logistic.orders')} ({orders.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {orders.map((order) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard key={order.id} order={order} t={t} />
               ))}
               {orders.length === 0 && (
                 <div className="text-center text-muted-foreground py-8">
-                  No orders found for the selected filters.
+                  {t('admin.no_orders_found_filter')}
                 </div>
               )}
             </div>
@@ -278,15 +280,15 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   );
 }
 
-function OrderCard({ order }: { order: Order }) {
+function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) => string }) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-blue-600 text-white">Out for Delivery</Badge>;
+        return <Badge className="bg-blue-600 text-white">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-green-600 text-green-600">Delivered</Badge>;
+        return <Badge variant="outline" className="border-green-600 text-green-600">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -297,22 +299,22 @@ function OrderCard({ order }: { order: Order }) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg text-foreground">Order #{order.id}</CardTitle>
+            <CardTitle className="text-lg text-foreground">{t('logistic.order_number', { id: order.id })}</CardTitle>
             <p className="text-sm text-muted-foreground">
               {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
             </p>
           </div>
           <div className="flex items-center gap-2">
             {getDeliveryStatusBadge(order.delivery_status)}
-            {order.ready_for_pickup ? (
-              <Badge className="bg-green-600 text-white text-xs">✓ Ready</Badge>
+            {(order as any).ready_for_pickup ? (
+              <Badge className="bg-green-600 text-white text-xs">✓ {t('logistic.ready')}</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">Not Ready</Badge>
+              <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">{t('admin.not_ready')}</Badge>
             )}
-            {order.picked_up ? (
-              <Badge className="bg-blue-600 text-white text-xs">✓ Picked Up</Badge>
+            {(order as any).picked_up ? (
+              <Badge className="bg-blue-600 text-white text-xs">✓ {t('admin.picked_up')}</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">Not Picked Up</Badge>
+              <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">{t('admin.not_picked_up')}</Badge>
             )}
           </div>
         </div>
@@ -320,27 +322,27 @@ function OrderCard({ order }: { order: Order }) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h4 className="font-semibold mb-2 text-foreground">Customer Information</h4>
+            <h4 className="font-semibold mb-2 text-foreground">{t('logistic.customer_information')}</h4>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Name:</span> {order.customer.name}
+              <span className="font-medium">{t('admin.name')}:</span> {order.customer.name}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Email:</span> {order.customer.email}
+              <span className="font-medium">{t('logistic.email')}:</span> {order.customer.email}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 text-foreground">Order Summary</h4>
+            <h4 className="font-semibold mb-2 text-foreground">{t('admin.order_summary')}</h4>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Total Amount:</span> PHP {Number(order.total_amount).toFixed(2)}
+              <span className="font-medium">{t('logistic.total_amount')}:</span> ₱{Number(order.total_amount).toFixed(2)}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Items:</span> {order.audit_trail?.length || 0}
+              <span className="font-medium">{t('admin.items')}:</span> {order.audit_trail?.length || 0}
             </p>
           </div>
         </div>
 
         <div className="mt-4">
-          <h4 className="font-semibold mb-2 text-foreground">Order Items</h4>
+          <h4 className="font-semibold mb-2 text-foreground">{t('logistic.order_items')}</h4>
           <div className="space-y-2">
             {(() => {
               // Group items by product ID and combine quantities
@@ -368,7 +370,7 @@ function OrderCard({ order }: { order: Order }) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No items found</p>
+                <p className="text-sm text-muted-foreground">{t('admin.no_items_found')}</p>
               );
             })()}
           </div>

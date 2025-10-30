@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
   id: number;
@@ -52,6 +53,8 @@ interface ShowOrderProps {
 }
 
 export default function ShowOrder({ order }: ShowOrderProps) {
+  const t = useTranslation();
+  
   // Use useState to manage the order state for real-time updates
   const [currentOrder, setCurrentOrder] = useState<Order>(order);
   
@@ -78,11 +81,11 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const formatQuantity = (quantity: number, category: string) => {
     switch (category.toLowerCase()) {
       case 'kilo':
-        return `${quantity} kg`;
+        return `${quantity} ${t('logistic.kg')}`;
       case 'pc':
-        return `${quantity} pc`;
+        return `${quantity} ${t('logistic.pc')}`;
       case 'tali':
-        return `${quantity} tali`;
+        return `${quantity} ${t('logistic.tali')}`;
       default:
         return `${quantity} ${category}`;
     }
@@ -94,13 +97,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">Ready to Pick Up</Badge>;
+        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-blue-600 text-white">Out for Delivery</Badge>;
+        return <Badge className="bg-blue-600 text-white">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-green-600 text-green-600">Delivered</Badge>;
+        return <Badge variant="outline" className="border-green-600 text-green-600">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -135,12 +138,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   // Handle delivery confirmation
   const handleDeliveryConfirmation = () => {
     if (!deliveryImage) {
-      alert('Please upload a delivery proof image.');
+      alert(t('logistic.upload_image_required'));
       return;
     }
 
     if (confirmationText !== 'I Confirm') {
-      alert('Please type "I Confirm" exactly to confirm delivery.');
+      alert(t('logistic.type_confirm_exact'));
       return;
     }
 
@@ -180,19 +183,19 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   return (
     <div className="min-h-screen bg-background">
       <LogisticHeader />
-      <Head title={`Order #${currentOrder.id} Details`} />
+      <Head title={t('logistic.order_number', { id: currentOrder.id }) + ' ' + t('logistic.order_details')} />
       
       <div className="p-6 pt-25 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Order #{currentOrder.id}</h1>
-            <p className="text-muted-foreground">Order details and delivery management</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('logistic.order_number', { id: currentOrder.id })}</h1>
+            <p className="text-muted-foreground">{t('logistic.order_details_management')}</p>
           </div>
           <Button 
             variant="outline" 
             onClick={() => window.history.back()}
           >
-            Back to Orders
+            {t('logistic.back_to_orders')}
           </Button>
         </div>
 
@@ -200,31 +203,31 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           {/* Order Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-foreground">Order Information</CardTitle>
+              <CardTitle className="text-foreground">{t('logistic.order_information')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Order ID</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.order_id')}</p>
                   <p className="text-sm text-foreground">#{currentOrder.id}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Order Date</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.order_date')}</p>
                   <p className="text-sm text-foreground">{format(new Date(currentOrder.created_at), 'MMM dd, yyyy HH:mm')}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.total_amount')}</p>
                   <p className="text-sm text-semibold text-foreground">₱{currentOrder.total_amount.toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Delivery Status</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivery_status')}</p>
                   <div className="flex items-center space-x-2">
                     {getDeliveryStatusBadge(currentOrder.delivery_status)}
                   </div>
                 </div>
                 {currentOrder.delivery_ready_time && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Ready At</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('logistic.ready_at')}</p>
                     <p className="text-sm text-primary">
                       {format(new Date(currentOrder.delivery_ready_time), 'MMM dd, yyyy HH:mm')}
                     </p>
@@ -232,7 +235,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 )}
                 {currentOrder.delivery_packed_time && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Packed At</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('logistic.packed_at')}</p>
                     <p className="text-sm text-blue-600">
                       {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
                     </p>
@@ -240,7 +243,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 )}
                 {currentOrder.delivered_time && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Delivered At</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivered_at')}</p>
                     <p className="text-sm text-green-600">
                       {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
                     </p>
@@ -253,26 +256,26 @@ export default function ShowOrder({ order }: ShowOrderProps) {
           {/* Customer Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-foreground">Customer Information</CardTitle>
+              <CardTitle className="text-foreground">{t('logistic.customer_information')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Customer Name</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('logistic.customer_name')}</p>
                 <p className="text-sm text-foreground">{currentOrder.customer.name}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Email</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('logistic.email')}</p>
                 <p className="text-sm text-foreground">{displayEmail}</p>
               </div>
               {currentOrder.customer.contact_number && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Contact Number</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.contact_number')}</p>
                   <p className="text-sm text-foreground">{currentOrder.customer.contact_number}</p>
                 </div>
               )}
               {currentOrder.delivery_address && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Delivery Address</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivery_address')}</p>
                   <p className="text-sm text-foreground">{currentOrder.delivery_address}</p>
                 </div>
               )}
@@ -287,12 +290,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               {currentOrder.delivery_status === 'delivered' ? (
                 <>
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  Delivery Status (Completed)
+                  {t('logistic.delivery_status_completed')}
                 </>
               ) : (
                 <>
                   <Truck className="h-5 w-5 text-blue-600" />
-                  Delivery Progress
+                  {t('logistic.delivery_progress')}
                 </>
               )}
             </CardTitle>
@@ -307,7 +310,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'pending' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
                     {currentOrder.delivery_status === 'pending' ? '1' : '✓'}
                   </div>
-                  <span className="text-xs mt-1 text-center">Preparing</span>
+                  <span className="text-xs mt-1 text-center">{t('logistic.preparing')}</span>
                 </div>
 
                 {/* Connector Line */}
@@ -318,7 +321,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-600 text-white' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
                     {currentOrder.delivery_status === 'ready_to_pickup' ? '2' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? '✓' : '2'}
                   </div>
-                  <span className="text-xs mt-1 text-center">Ready</span>
+                  <span className="text-xs mt-1 text-center">{t('logistic.ready')}</span>
                 </div>
 
                 {/* Connector Line */}
@@ -329,7 +332,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
                     {currentOrder.delivery_status === 'out_for_delivery' ? '3' : currentOrder.delivery_status === 'delivered' ? '✓' : '3'}
                   </div>
-                  <span className="text-xs mt-1 text-center">Out for Delivery</span>
+                  <span className="text-xs mt-1 text-center">{t('logistic.out_for_delivery')}</span>
                 </div>
 
                 {/* Connector Line */}
@@ -340,7 +343,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
                     {currentOrder.delivery_status === 'delivered' ? '✓' : '4'}
                   </div>
-                  <span className="text-xs mt-1 text-center">Delivered</span>
+                  <span className="text-xs mt-1 text-center">{t('logistic.delivered')}</span>
                 </div>
               </div>
 
@@ -349,25 +352,25 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 {currentOrder.delivery_status === 'pending' && (
                   <p className="text-sm text-yellow-600 flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4" />
-                    This order is pending preparation. You cannot change the delivery status until the admin marks it as ready.
+                    {t('logistic.order_pending_preparation')}
                   </p>
                 )}
                 {currentOrder.delivery_status === 'ready_to_pickup' && (
                   <p className="text-sm text-primary flex items-center gap-1">
                     <CheckCircle className="h-4 w-4" />
-                    Order is ready for pickup. Please collect it before proceeding to delivery.
+                    {t('logistic.order_ready_pickup')}
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (
                   <p className="text-sm text-blue-600 flex items-center gap-1">
                     <Truck className="h-4 w-4" />
-                    Order is out for delivery. You can now mark it as delivered when you complete the delivery.
+                    {t('logistic.order_out_delivery')}
                   </p>
                 )}
                 {currentOrder.delivery_status === 'delivered' && (
                   <p className="text-sm text-green-600 flex items-center gap-1">
                     <CheckCircle className="h-4 w-4" />
-                    This order has been delivered and cannot be modified.
+                    {t('logistic.order_delivered_completed')}
                   </p>
                 )}
               </div>
@@ -384,23 +387,23 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       'Mark this order as delivered'
                     }
                   >
-                    {currentOrder.delivery_status === 'pending' ? 'Waiting for Preparation' : 
-                     currentOrder.delivery_status === 'ready_to_pickup' ? 'Waiting for Pickup Confirmation' : 
-                     'Mark as Delivered'}
+                    {currentOrder.delivery_status === 'pending' ? t('logistic.waiting_for_preparation') : 
+                     currentOrder.delivery_status === 'ready_to_pickup' ? t('logistic.waiting_pickup_confirmation') : 
+                     t('logistic.mark_as_delivered')}
                   </Button>
                   {currentOrder.delivery_status === 'pending' && (
                     <p className="text-xs text-muted-foreground mt-2 text-center">
-                      You can only mark orders as delivered after they are ready for pickup
+                      {t('admin.you_can_only_mark_delivered_after_ready')}
                     </p>
                   )}
                   {currentOrder.delivery_status === 'ready_to_pickup' && (
                     <p className="text-xs text-muted-foreground mt-2 text-center">
-                      Order is ready for pickup. Please confirm pickup before marking as delivered.
+                      {t('logistic.order_ready_pickup_note')}
                     </p>
                   )}
                   {currentOrder.delivery_status === 'out_for_delivery' && (
                     <p className="text-xs text-primary mt-2 text-center">
-                      Order is out for delivery. You can now mark it as delivered.
+                      {t('logistic.order_out_delivery_note')}
                     </p>
                   )}
                 </div>
@@ -411,14 +414,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/30 dark:border-green-600">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Order Delivered</span>
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">{t('admin.order_delivered')}</span>
                   </div>
                   <p className="text-sm text-green-600 dark:text-green-400">
-                    This order has been successfully delivered to the customer.
+                    {t('logistic.order_delivered_note')}
                   </p>
                   {currentOrder.delivery_proof_image && (
                     <div className="mt-3">
-                      <p className="text-sm font-medium text-foreground mb-2">Delivery Proof:</p>
+                      <p className="text-sm font-medium text-foreground mb-2">{t('logistic.delivery_proof')}:</p>
                       <img 
                         src={currentOrder.delivery_proof_image} 
                         alt="Delivery proof" 
@@ -435,7 +438,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         {/* Order Items */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-foreground">Order Items</CardTitle>
+            <CardTitle className="text-foreground">{t('logistic.order_items')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -507,17 +510,17 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-foreground">
                 <Camera className="h-5 w-5 text-primary" />
-                Confirm Delivery
+                {t('logistic.confirm_delivery')}
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                Please upload a photo of the delivered package and confirm the delivery.
+                {t('logistic.upload_photo_confirm')}
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-4">
               {/* Image Upload Section */}
               <div>
-                <Label className="text-sm font-medium text-foreground">Delivery Proof Image *</Label>
+                <Label className="text-sm font-medium text-foreground">{t('logistic.delivery_proof_image')} *</Label>
                 <div className="mt-2">
                   {!imagePreview ? (
                     <div 
@@ -525,14 +528,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">Click to upload delivery proof</p>
-                      <p className="text-xs text-muted-foreground/70 mt-1">PNG, JPG, GIF up to 2MB</p>
+                      <p className="text-sm text-muted-foreground">{t('logistic.click_upload_proof')}</p>
+                      <p className="text-xs text-muted-foreground/70 mt-1">{t('logistic.file_size_limit')}</p>
                     </div>
                   ) : (
                     <div className="relative">
                       <img 
                         src={imagePreview} 
-                        alt="Delivery proof preview" 
+                        alt={t('logistic.delivery_proof_preview')} 
                         className="w-full h-48 object-cover rounded-lg border border-border"
                       />
                       <Button
@@ -558,17 +561,17 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               {/* Confirmation Text Input */}
               <div>
                 <Label className="text-sm font-medium text-foreground">
-                  Type "I Confirm" to finalize delivery *
+                  {t('logistic.type_confirm_finalize')} *
                 </Label>
                 <Input
                   type="text"
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
-                  placeholder="I Confirm"
+                  placeholder={t('logistic.i_confirm')}
                   className="mt-2"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  This action cannot be undone. The order will be marked as delivered and become read-only.
+                  {t('logistic.action_cannot_undone')}
                 </p>
               </div>
             </div>
@@ -583,14 +586,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   setConfirmationText('');
                 }}
               >
-                Cancel
+                {t('logistic.cancel')}
               </Button>
               <Button 
                 onClick={handleDeliveryConfirmation}
                 disabled={!deliveryImage || confirmationText !== 'I Confirm' || deliveryForm.processing}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted"
               >
-                {deliveryForm.processing ? 'Confirming...' : 'Confirm Delivery'}
+                {deliveryForm.processing ? t('logistic.confirming') : t('logistic.confirm_delivery_button')}
               </Button>
             </DialogFooter>
           </DialogContent>
