@@ -30,6 +30,26 @@ return [
     'orders_must_be_approved_24h' => 'Orders must be approved within 24 hours of placement.',
     'review_approve_orders_message' => 'Please review and approve these orders to avoid automatic expiration.',
     'go_to_orders' => 'Go to Orders',
+
+    // Urgency Levels
+    'overdue' => 'Overdue',
+    'critical' => 'Critical',
+    'high' => 'High',
+    'medium' => 'Medium',
+    'unknown' => 'Unknown',
+
+    // Urgent Order Messages
+    'order_exceeded_deadline_message' => 'This order has exceeded the 24-hour approval deadline and should be marked as delayed.',
+    'order_critically_urgent_message' => 'This order is critically urgent with less than 2 hours remaining for approval.',
+    'order_highly_urgent_message' => 'This order is highly urgent with less than 4 hours remaining for approval.',
+    'order_needs_urgent_attention_message' => 'This order needs urgent attention with less than 8 hours remaining for approval.',
+    'order_requires_attention_message' => 'This order requires attention.',
+    'urgent_orders_requiring_attention' => 'Urgent Orders Requiring Immediate Attention',
+    'orders_approaching_deadline_message' => 'The following orders are approaching or have exceeded the 24-hour approval deadline and require immediate action.',
+    'order_number' => 'Order #:id',
+    'customer' => 'Customer',
+    'amount' => 'Amount',
+    'time_left' => ':time left',
     'overview' => 'Overview',
     'trends' => 'Trends',
     'welcome' => 'Welcome',

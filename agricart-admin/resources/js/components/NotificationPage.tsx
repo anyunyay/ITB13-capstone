@@ -20,6 +20,7 @@ import {
   FileText,
   TruckIcon
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Notification {
   id: string;
@@ -37,6 +38,7 @@ interface NotificationPageProps {
 }
 
 export function NotificationPage({ notifications, userType }: NotificationPageProps) {
+  const t = useTranslation();
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
 
   const handleSelectNotification = (id: string) => {
@@ -120,29 +122,29 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
   const getNotificationTitle = (type: string) => {
     switch (type) {
       case 'new_order':
-        return 'New Order';
+        return t('ui.new_order');
       case 'inventory_update':
-        return 'Inventory Update';
+        return t('ui.inventory_update');
       case 'membership_update':
-        return 'Membership Update';
+        return t('ui.membership_update');
       case 'password_change_request':
-        return 'Password Change Request';
+        return t('ui.password_change_request');
       case 'product_sale':
-        return 'Product Sale';
+        return t('ui.product_sale');
       case 'earnings_update':
-        return 'Earnings Update';
+        return t('ui.earnings_update');
       case 'low_stock_alert':
-        return 'Low Stock Alert';
+        return t('ui.low_stock_alert');
       case 'delivery_task':
-        return 'Delivery Task';
+        return t('ui.delivery_task');
       case 'order_confirmation':
-        return 'Order Confirmed';
+        return t('ui.order_confirmed');
       case 'order_status_update':
-        return 'Order Status Update';
+        return t('ui.order_status_update');
       case 'delivery_status_update':
-        return 'Delivery Status Update';
+        return t('ui.delivery_status_update');
       default:
-        return 'Notification';
+        return t('ui.notification');
     }
   };
 
@@ -172,9 +174,9 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Notifications</h1>
+          <h1 className="text-2xl font-bold">{t('ui.notifications')}</h1>
           <p className="text-gray-600">
-            {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All caught up!'}
+            {unreadCount > 0 ? t('ui.unread_notifications_count', { count: unreadCount }) : t('ui.all_caught_up')}
           </p>
         </div>
         
@@ -187,7 +189,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
               disabled={selectedNotifications.length === unreadCount}
             >
               <Check className="h-4 w-4 mr-2" />
-              Select All Unread
+              {t('ui.select_all_unread')}
             </Button>
             <Button
               variant="outline"
@@ -196,7 +198,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
               disabled={selectedNotifications.length === 0}
             >
               <Check className="h-4 w-4 mr-2" />
-              Mark Selected Read
+              {t('ui.mark_selected_read')}
             </Button>
             <Button
               variant="default"
@@ -204,7 +206,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
               onClick={handleMarkAllAsRead}
             >
               <CheckCheck className="h-4 w-4 mr-2" />
-              Mark All Read
+              {t('ui.mark_all_read')}
             </Button>
           </div>
         )}
@@ -214,9 +216,9 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Bell className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No notifications</h3>
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">{t('ui.no_notifications')}</h3>
             <p className="text-gray-500 text-center">
-              You're all caught up! New notifications will appear here.
+              {t('ui.all_caught_up_message')}
             </p>
           </CardContent>
         </Card>
@@ -269,12 +271,12 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                     <div className="flex items-center space-x-2 mb-2">
                       <h3 className="font-semibold text-gray-900">
                         {notification.type === 'order_status_update' && notification.data?.status === 'approved' 
-                          ? 'Order Approved and Processing' 
+                          ? t('ui.order_approved_processing') 
                           : getNotificationTitle(notification.type)}
                       </h3>
                       {!notification.read_at && (
                         <Badge variant="secondary" className="text-xs">
-                          New
+                          {t('ui.new')}
                         </Badge>
                       )}
                     </div>
@@ -327,7 +329,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                             }}
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
-                            View
+                            {t('ui.view')}
                           </Button>
                         )}
                         
@@ -338,7 +340,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                             onClick={() => handleMarkAsRead([notification.id])}
                           >
                             <Check className="h-4 w-4 mr-1" />
-                            Mark Read
+                            {t('ui.mark_read')}
                           </Button>
                         )}
                         

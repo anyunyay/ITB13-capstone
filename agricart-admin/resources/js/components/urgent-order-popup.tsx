@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, AlertTriangle, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface UrgentOrder {
   id: number;
@@ -25,6 +26,7 @@ interface UrgentOrderPopupProps {
 }
 
 export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
+  const t = useTranslation();
   const [showUrgentPopup, setShowUrgentPopup] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ [key: number]: string }>({});
   const page = usePage<SharedData>();
@@ -60,7 +62,7 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
           const minutes = Math.floor((hoursLeft - hours) * 60);
           newTimeLeft[order.id] = `${hours}h ${minutes}m`;
         } else {
-          newTimeLeft[order.id] = 'Overdue';
+          newTimeLeft[order.id] = t('admin.overdue');
         }
       });
       
@@ -141,30 +143,30 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
   const getUrgencyBadge = (urgencyLevel: string) => {
     switch (urgencyLevel) {
       case 'overdue':
-        return <Badge variant="destructive" className="animate-pulse">Overdue</Badge>;
+        return <Badge variant="destructive" className="animate-pulse">{t('admin.overdue')}</Badge>;
       case 'critical':
-        return <Badge variant="destructive" className="bg-red-600 animate-pulse">Critical</Badge>;
+        return <Badge variant="destructive" className="bg-red-600 animate-pulse">{t('admin.critical')}</Badge>;
       case 'high':
-        return <Badge variant="destructive" className="bg-orange-600">High</Badge>;
+        return <Badge variant="destructive" className="bg-orange-600">{t('admin.high')}</Badge>;
       case 'medium':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Medium</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">{t('admin.medium')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('admin.unknown')}</Badge>;
     }
   };
 
   const getUrgencyMessage = (urgencyLevel: string, hoursLeft: number) => {
     switch (urgencyLevel) {
       case 'overdue':
-        return 'This order has exceeded the 24-hour approval deadline and should be marked as delayed.';
+        return t('admin.order_exceeded_deadline_message');
       case 'critical':
-        return 'This order is critically urgent with less than 2 hours remaining for approval.';
+        return t('admin.order_critically_urgent_message');
       case 'high':
-        return 'This order is highly urgent with less than 4 hours remaining for approval.';
+        return t('admin.order_highly_urgent_message');
       case 'medium':
-        return 'This order needs urgent attention with less than 8 hours remaining for approval.';
+        return t('admin.order_needs_urgent_attention_message');
       default:
-        return 'This order requires attention.';
+        return t('admin.order_requires_attention_message');
     }
   };
 
@@ -187,10 +189,10 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-600" />
-            Urgent Orders Requiring Immediate Attention
+            {t('admin.urgent_orders_requiring_attention')}
           </DialogTitle>
           <DialogDescription>
-            The following orders are approaching or have exceeded the 24-hour approval deadline and require immediate action.
+            {t('admin.orders_approaching_deadline_message')}
           </DialogDescription>
         </DialogHeader>
 
@@ -211,14 +213,14 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold">Order #{order.id}</p>
-                        <p className="text-sm text-gray-600">Customer: {order.customer.name}</p>
-                        <p className="text-sm text-gray-600">Amount: ₱{order.total_amount.toFixed(2)}</p>
+                        <p className="font-semibold">{t('admin.order_number', { id: order.id })}</p>
+                        <p className="text-sm text-gray-600">{t('admin.customer')}: {order.customer.name}</p>
+                        <p className="text-sm text-gray-600">{t('admin.amount')}: ₱{order.total_amount.toFixed(2)}</p>
                       </div>
                       <div className="text-right">
                         {getUrgencyBadge(urgencyLevel)}
                         <p className="text-sm font-medium mt-1">
-                          {hoursLeft === 'Overdue' ? 'Overdue' : `${hoursLeft} left`}
+                          {hoursLeft === t('admin.overdue') ? t('admin.overdue') : t('admin.time_left', { time: hoursLeft })}
                         </p>
                       </div>
                     </div>
@@ -235,11 +237,11 @@ export function UrgentOrderPopup({ urgentOrders = [] }: UrgentOrderPopupProps) {
         <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={handleClose}>
             <X className="h-4 w-4 mr-2" />
-            Dismiss
+            {t('ui.dismiss')}
           </Button>
           <Button onClick={handleGoToOrders} className="bg-primary hover:bg-primary/90">
             <Clock className="h-4 w-4 mr-2" />
-            Go to Orders
+            {t('admin.go_to_orders')}
           </Button>
         </DialogFooter>
       </DialogContent>

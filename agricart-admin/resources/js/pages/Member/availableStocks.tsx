@@ -188,7 +188,7 @@ export default function AvailableStocks({ availableStocks }: PageProps) {
                                             <TableCell className="text-foreground/80">
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-green-400">{stock.quantity}</span>
-                                                    <span className="text-xs text-muted-foreground">Available</span>
+                                                    <span className="text-xs text-muted-foreground">{t('ui.available')}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-foreground/80">

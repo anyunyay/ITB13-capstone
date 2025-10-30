@@ -133,7 +133,7 @@ export default function ProductShow({ product, auth }: Props) {
                         className="flex items-center space-x-2"
                     >
                         <ArrowLeft className="h-4 w-4" />
-                        <span>Back to Produce</span>
+                        <span>{t('ui.back_to_produce')}</span>
                     </Button>
                 </div>
 
@@ -162,10 +162,10 @@ export default function ProductShow({ product, auth }: Props) {
                                 <Badge variant="secondary">{product.produce_type}</Badge>
                                 {totalStock > 0 ? (
                                     <Badge className="bg-green-100 text-green-800">
-                                        In Stock
+                                        {t('ui.in_stock')}
                                     </Badge>
                                 ) : (
-                                    <Badge variant="destructive">Out of Stock</Badge>
+                                    <Badge variant="destructive">{t('ui.out_of_stock')}</Badge>
                                 )}
                             </div>
                             <h1 className="text-3xl font-bold text-card-foreground">{product.name}</h1>
@@ -187,14 +187,14 @@ export default function ProductShow({ product, auth }: Props) {
                                 )}
                                 {!product.price_kilo && !product.price_pc && !product.price_tali && (
                                     <p className="text-lg font-semibold text-muted-foreground">
-                                        No prices set
+                                        {t('ui.no_prices_set')}
                                     </p>
                                 )}
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold mb-2">Description</h3>
+                            <h3 className="text-lg font-semibold mb-2">{t('ui.description')}</h3>
                             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
                         </div>
 
@@ -204,7 +204,7 @@ export default function ProductShow({ product, auth }: Props) {
                                 <CardHeader>
                                     <CardTitle className="flex items-center space-x-2">
                                         <Package className="h-5 w-5" />
-                                        <span>Available Stock</span>
+                                        <span>{t('ui.available_stock')}</span>
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -236,7 +236,7 @@ export default function ProductShow({ product, auth }: Props) {
                                         }}
                                     >
                                         <ShoppingBasket className="h-5 w-5" />
-                                        <span>{totalStock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+                                        <span>{totalStock > 0 ? t('ui.add_to_cart') : t('ui.out_of_stock')}</span>
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
@@ -248,7 +248,7 @@ export default function ProductShow({ product, auth }: Props) {
                                         {/* For Displaying Stock */}
                                         {product.stock_by_category ? (
                                             <div className="mt-2 text-sm text-card-foreground">
-                                                <strong>Available Stock:</strong>
+                                                <strong>{t('ui.available_stock')}:</strong>
                                                 {Object.keys(product.stock_by_category).length > 0 ? (
                                                     <ul className="ml-2 list-disc">
                                                         {Object.entries(product.stock_by_category).map(
@@ -262,20 +262,20 @@ export default function ProductShow({ product, auth }: Props) {
                                                         )}
                                                     </ul>
                                                 ) : (
-                                                    <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
+                                                    <div className="text-red-500 font-medium">{t('ui.no_stock_available')}</div>
                                                 )}
                                             </div>
                                         ) : (
                                             <div className="mt-2 text-sm text-card-foreground">
-                                                <strong>Available Stock:</strong>
-                                                <div className="text-red-500 font-medium">NO STOCK AVAILABLE</div>
+                                                <strong>{t('ui.available_stock')}:</strong>
+                                                <div className="text-red-500 font-medium">{t('ui.no_stock_available')}</div>
                                             </div>
                                         )}
 
                                         {/* Category Selection */}
                                         {categories.length > 0 && (
                                             <div className="mt-4">
-                                                <label className="block text-sm font-medium mb-1">Select Category</label>
+                                                <label className="block text-sm font-medium mb-1">{t('ui.select_category')}</label>
                                                 <div className="flex gap-2">
                                                     {categories.map(category => (
                                                         <Button
@@ -298,7 +298,7 @@ export default function ProductShow({ product, auth }: Props) {
                                         {/* Quantity Input */}
                                         {selectedCategory && (
                                             <div className="mt-4">
-                                                <label className="block text-sm font-medium mb-1">Quantity</label>
+                                                <label className="block text-sm font-medium mb-1">{t('ui.quantity')}</label>
                                                 <div className="flex items-center gap-2">
                                                     <Button
                                                         type="button"
@@ -406,7 +406,7 @@ export default function ProductShow({ product, auth }: Props) {
                                                     selectedQuantity > maxQty
                                                 }
                                             >
-                                                {processing || isAddingToCart ? 'Adding...' : 'Add to Cart'}
+                                                {processing || isAddingToCart ? t('ui.adding') : t('ui.add_to_cart')}
                                             </Button>
                                             {message && (
                                                 <div className="mt-2 text-center text-sm text-green-600">{message}</div>
@@ -424,13 +424,13 @@ export default function ProductShow({ product, auth }: Props) {
             <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Login Required</DialogTitle>
+                        <DialogTitle>{t('ui.login_required')}</DialogTitle>
                         <DialogDescription>
-                            You must be logged in to add products to your cart.
+                            {t('ui.must_be_logged_in')}
                         </DialogDescription>
                         <div className="flex gap-4 mt-4">
-                            <Button className="w-full" onClick={() => router.visit('/login')}>Go to Login</Button>
-                            <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>Cancel</Button>
+                            <Button className="w-full" onClick={() => router.visit('/login')}>{t('ui.go_to_login')}</Button>
+                            <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>{t('ui.cancel')}</Button>
                         </div>
                     </DialogHeader>
                 </DialogContent>

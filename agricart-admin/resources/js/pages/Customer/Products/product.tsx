@@ -181,10 +181,10 @@ function ProductCard({ product }: { product: Product }) {
               <Badge variant="secondary">{product.produce_type}</Badge>
               {totalStock > 0 ? (
                 <Badge className="bg-green-100 text-green-800">
-                  In Stock
+                  {t('ui.in_stock')}
                 </Badge>
               ) : (
-                <Badge variant="destructive">Out of Stock</Badge>
+                <Badge variant="destructive">{t('ui.out_of_stock')}</Badge>
               )}
             </div>
             <h1 className="text-3xl font-bold text-card-foreground">{product.name}</h1>
@@ -206,14 +206,14 @@ function ProductCard({ product }: { product: Product }) {
               )}
               {!product.price_kilo && !product.price_pc && !product.price_tali && (
                 <p className="text-lg font-semibold text-muted-foreground">
-                  No prices set
+                  {t('ui.no_prices_set')}
                 </p>
               )}
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-2">Description</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('ui.description')}</h3>
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
 
@@ -223,7 +223,7 @@ function ProductCard({ product }: { product: Product }) {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Package className="h-5 w-5" />
-                  <span>Available Stock</span>
+                  <span>{t('ui.available_stock')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -241,12 +241,12 @@ function ProductCard({ product }: { product: Product }) {
 
           {/* Add to Cart Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Add to Cart</h3>
+            <h3 className="text-lg font-semibold">{t('ui.add_to_cart')}</h3>
             
             {/* Category Selection */}
             {categories.length > 0 && (
               <div>
-                <label className="block text-sm font-medium mb-2">Select Category</label>
+                <label className="block text-sm font-medium mb-2">{t('ui.select_category')}</label>
                 <div className="flex gap-2 flex-wrap">
                   {categories.map(category => (
                     <Button
@@ -269,7 +269,7 @@ function ProductCard({ product }: { product: Product }) {
             {/* Quantity Input */}
             {selectedCategory && (
               <div>
-                <label className="block text-sm font-medium mb-2">Quantity</label>
+                <label className="block text-sm font-medium mb-2">{t('ui.quantity')}</label>
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"
@@ -381,8 +381,8 @@ function ProductCard({ product }: { product: Product }) {
             >
               <ShoppingBasket className="h-5 w-5" />
               <span>
-                {processing || isAddingToCart ? 'Adding...' : 
-                 totalStock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                {processing || isAddingToCart ? t('ui.adding') : 
+                 totalStock === 0 ? t('ui.out_of_stock') : t('ui.add_to_cart')}
               </span>
             </Button>
             

@@ -30,6 +30,26 @@ return [
     'orders_must_be_approved_24h' => 'Dapat ma-approve ang mga order sa loob ng 24 oras mula sa placement.',
     'review_approve_orders_message' => 'Pakisuri at i-approve ang mga order na ito para maiwasan ang automatic expiration.',
     'go_to_orders' => 'Pumunta sa mga Order',
+
+    // Urgency Levels
+    'overdue' => 'Overdue',
+    'critical' => 'Critical',
+    'high' => 'Mataas',
+    'medium' => 'Katamtaman',
+    'unknown' => 'Hindi Alam',
+
+    // Urgent Order Messages
+    'order_exceeded_deadline_message' => 'Ang order na ito ay lumampas na sa 24-oras na deadline para sa approval at dapat markahan bilang delayed.',
+    'order_critically_urgent_message' => 'Ang order na ito ay critically urgent na may kulang sa 2 oras na natitira para sa approval.',
+    'order_highly_urgent_message' => 'Ang order na ito ay highly urgent na may kulang sa 4 na oras na natitira para sa approval.',
+    'order_needs_urgent_attention_message' => 'Ang order na ito ay kailangan ng urgent attention na may kulang sa 8 oras na natitira para sa approval.',
+    'order_requires_attention_message' => 'Ang order na ito ay kailangan ng attention.',
+    'urgent_orders_requiring_attention' => 'Mga Urgent Order na Kailangan ng Immediate Attention',
+    'orders_approaching_deadline_message' => 'Ang mga sumusunod na order ay papalapit na o lumampas na sa 24-oras na approval deadline at kailangan ng immediate action.',
+    'order_number' => 'Order #:id',
+    'customer' => 'Customer',
+    'amount' => 'Halaga',
+    'time_left' => ':time natitira',
     'overview' => 'Pangkalahatang Tanaw',
     'trends' => 'Mga Trends',
     'welcome' => 'Maligayang Pagdating',

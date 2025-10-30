@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertTriangle, CheckCircle, Info } from "lucide-react"
+import { useTranslation } from '@/hooks/use-translation'
 
 interface FlashMessageProps {
     flash?: {
@@ -10,6 +11,8 @@ interface FlashMessageProps {
 }
 
 export function FlashMessage({ flash, className = "" }: FlashMessageProps) {
+    const t = useTranslation();
+    
     if (!flash || !flash.message) {
         return null;
     }
@@ -43,13 +46,13 @@ export function FlashMessage({ flash, className = "" }: FlashMessageProps) {
     const getTitle = () => {
         switch (flash.type) {
             case 'error':
-                return 'Error!';
+                return t('ui.error_title');
             case 'success':
-                return 'Success!';
+                return t('ui.success_title');
             case 'info':
-                return 'Information';
+                return t('ui.information');
             default:
-                return 'Notification';
+                return t('ui.notification');
         }
     };
 

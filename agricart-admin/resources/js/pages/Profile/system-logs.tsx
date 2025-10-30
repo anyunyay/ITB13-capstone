@@ -208,7 +208,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     };
 
     const getLevelBadge = (level: string) => {
-        if (!level) return <Badge variant="default">UNKNOWN</Badge>;
+        if (!level) return <Badge variant="default">{t('ui.unknown')}</Badge>;
 
         const variants = {
             error: 'destructive',
@@ -521,7 +521,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                     <CardHeader>
                         <CardTitle className="flex items-center">
                             <Filter className="h-5 w-5 mr-2" />
-                            Filters
+                            {t('ui.filters')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -636,15 +636,15 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             <div>
                                 <CardTitle className="flex items-center gap-2">
                                     <Activity className="h-5 w-5" />
-                                    System Logs
+                                    {t('ui.system_logs_title')}
                                 </CardTitle>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                    Showing {logs.data.length} of {logs.total} logs
+                                    {t('ui.showing')} {logs.data.length} {t('ui.of')} {logs.total} {t('ui.logs')}
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="text-xs">
-                                    {logs.data.length} entries
+                                    {logs.data.length} {t('ui.entries')}
                                 </Badge>
                             </div>
                         </div>
@@ -655,8 +655,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                 {logs.data.length === 0 ? (
                                     <div className="text-center py-12">
                                         <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                        <h3 className="text-lg font-medium text-foreground mb-2">No logs found</h3>
-                                        <p className="text-muted-foreground">Try adjusting your filters or check back later.</p>
+                                        <h3 className="text-lg font-medium text-foreground mb-2">{t('ui.no_logs_found')}</h3>
+                                        <p className="text-muted-foreground">{t('ui.try_adjusting_filters')}</p>
                                     </div>
                                 ) : (
                                     logs.data.map((log) => (
@@ -702,7 +702,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <Settings className="h-5 w-5 text-blue-600" />
-                                                        <h5 className="font-semibold text-blue-900">Admin Activity Details</h5>
+                                                        <h5 className="font-semibold text-blue-900">{t('ui.admin_activity_details')}</h5>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                         {formatAdminActivityDetails(log).map((detail, index) => (
@@ -743,7 +743,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         className="w-full"
                                                     >
                                                         <Eye className="h-4 w-4 mr-2" />
-                                                        View Full Details
+                                                        {t('ui.view_full_details')}
                                                     </Button>
                                                 </div>
                                             )}
@@ -757,7 +757,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         {logs.last_page > 1 && (
                             <div className="flex items-center justify-between mt-4">
                                 <div className="text-sm text-muted-foreground">
-                                    Showing page {logs.current_page} of {logs.last_page}
+                                    {t('ui.showing_page')} {logs.current_page} {t('ui.of')} {logs.last_page}
                                 </div>
                                 <div className="flex space-x-2">
                                     {logs.current_page > 1 && (
@@ -769,7 +769,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 page: logs.current_page - 1
                                             })}
                                         >
-                                            Previous
+                                            {t('ui.previous')}
                                         </Button>
                                     )}
                                     {logs.current_page < logs.last_page && (
@@ -781,7 +781,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 page: logs.current_page + 1
                                             })}
                                         >
-                                            Next
+                                            {t('ui.next')}
                                         </Button>
                                     )}
                                 </div>
@@ -795,13 +795,13 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
                             <div className="flex items-center justify-between p-6 border-b">
-                                <h3 className="text-lg font-semibold">Log Details</h3>
+                                <h3 className="text-lg font-semibold">{t('ui.log_details')}</h3>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setShowDetails(false)}
                                 >
-                                    Close
+                                    {t('ui.close')}
                                 </Button>
                             </div>
                             <div className="max-h-[70vh] overflow-y-auto">
@@ -809,13 +809,13 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     {/* Basic Information */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-sm font-medium text-muted-foreground">Level</label>
+                                            <label className="text-sm font-medium text-muted-foreground">{t('ui.level')}</label>
                                             <div className="mt-1">
                                                 {getLevelBadge(selectedLog.level)}
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-muted-foreground">Event Type</label>
+                                            <label className="text-sm font-medium text-muted-foreground">{t('ui.event_type')}</label>
                                             <div className="mt-1">
                                                 <Badge
                                                     variant="outline"
@@ -826,13 +826,13 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-muted-foreground">Timestamp</label>
+                                            <label className="text-sm font-medium text-muted-foreground">{t('ui.timestamp')}</label>
                                             <p className="mt-1 text-sm text-foreground">
                                                 {formatTimestamp(selectedLog.context.timestamp || selectedLog.created_at)}
                                             </p>
                                         </div>
                                         <div>
-                                            <label className="text-sm font-medium text-muted-foreground">User Type</label>
+                                            <label className="text-sm font-medium text-muted-foreground">{t('ui.user_type')}</label>
                                             <p className="mt-1 text-sm text-foreground">
                                                 {selectedLog.context.user_type || 'N/A'}
                                             </p>
@@ -840,9 +840,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-muted-foreground">Message</label>
+                                        <label className="text-sm font-medium text-muted-foreground">{t('ui.message')}</label>
                                         <p className="mt-1 text-sm text-foreground bg-muted p-3 rounded-lg">
-                                            {selectedLog.message || 'No message'}
+                                            {selectedLog.message || t('ui.no_message')}
                                         </p>
                                     </div>
 
@@ -851,7 +851,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Settings className="h-5 w-5 text-blue-600" />
-                                                <h5 className="font-semibold text-blue-900">Admin Activity Details</h5>
+                                                <h5 className="font-semibold text-blue-900">{t('ui.admin_activity_details')}</h5>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {formatAdminActivityDetails(selectedLog).map((detail, index) => (
@@ -873,7 +873,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         </div>
                                     ) : (
                                         <div>
-                                            <label className="text-sm font-medium text-muted-foreground">Context Data</label>
+                                            <label className="text-sm font-medium text-muted-foreground">{t('ui.context_data')}</label>
                                             <div className="mt-1 bg-muted p-4 rounded-lg">
                                                 <pre className="text-xs text-foreground whitespace-pre-wrap overflow-x-auto">
                                                     {JSON.stringify(selectedLog.context, null, 2)}

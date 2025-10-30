@@ -104,7 +104,7 @@ export default function CustomerProducts() {
               variant="outline"
               className="px-8 py-3 text-base font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
             >
-              {viewMode === 'carousel' ? 'View All Products' : 'Back to Carousel'}
+              {viewMode === 'carousel' ? t('ui.view_all_products') : t('ui.back_to_carousel')}
             </Button>
           </div>
         </div>
