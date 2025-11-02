@@ -25,10 +25,9 @@ class SalesController extends Controller
             ]);
         }
 
-        // Optimize: Load only essential fields and limit results
+        // Optimize: Load only essential fields for pagination
         $salesRaw = $query->select('id', 'customer_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
             ->orderBy('delivered_at', 'desc')
-            ->limit(25) // Limit to recent sales
             ->get();
 
         // Get pending orders from sales_audit with optimized loading

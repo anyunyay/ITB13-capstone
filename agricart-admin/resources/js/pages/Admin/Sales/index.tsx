@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,9 +10,9 @@ import { format } from 'date-fns';
 import { usePermissions } from '@/hooks/use-permissions';
 import { PermissionGate } from '@/components/permission-gate';
 import { PermissionGuard } from '@/components/permission-guard';
-import { Breadcrumbs } from '@/components/breadcrumbs';
-import { Calendar, DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 interface Sale {
   id: number;
@@ -71,23 +71,18 @@ interface SalesPageProps {
   };
 }
 
-export default function SalesIndex({ sales, pendingOrders, summary, memberSales, filters }: SalesPageProps) {
+export default function SalesIndex({ sales, pendingOrders, summary, memberSales }: SalesPageProps) {
   const t = useTranslation();
-  const { can } = usePermissions();
   
   // Sorting state
   const [sortBy, setSortBy] = useState('id');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
-  // Handle sorting
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('desc');
-    }
-  };
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+
   
   // Helper to get sort icon
   const getSortIcon = (field: string) => {
@@ -130,6 +125,34 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
     }
     return sortOrder === 'asc' ? comparison : -comparison;
   });
+
+  // Paginate sorted sales
+  const totalPages = Math.ceil(sortedSales.length / itemsPerPage);
+  const paginatedSales = sortedSales.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset pagination when sorting changes
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setCurrentPage(1); // Reset to first page when sorting changes
+  };
+
+  // Reset pagination when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sales.length]);
 
   return (
     <PermissionGuard 
@@ -292,7 +315,10 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
             <TabsContent value="sales" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('admin.recent_sales')}</CardTitle>
+                  <CardTitle>{t('admin.all_sales')} ({sortedSales.length} {t('admin.total')})</CardTitle>
+                  <CardDescription>
+                    {t('admin.sales_with_sorting_and_pagination')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -351,7 +377,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sortedSales.map((sale) => (
+                      {paginatedSales.map((sale) => (
                         <TableRow key={sale.id}>
                           <TableCell className="font-medium">#{sale.id}</TableCell>
                           <TableCell>
@@ -370,7 +396,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                           <TableCell>{sale.logistic?.name || t('admin.not_available')}</TableCell>
                         </TableRow>
                       ))}
-                      {sortedSales.length === 0 && (
+                      {paginatedSales.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={10} className="text-center text-muted-foreground">
                             {t('admin.no_sales_found')}
@@ -379,6 +405,17 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
                       )}
                     </TableBody>
                   </Table>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      itemsPerPage={itemsPerPage}
+                      totalItems={sortedSales.length}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -447,7 +484,10 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales,
             <TabsContent value="members" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('admin.member_sales_page_title')}</CardTitle>
+                  <CardTitle>{t('admin.member_sales_page_title')} ({memberSales.length} {t('admin.members')})</CardTitle>
+                  <CardDescription>
+                    {t('admin.member_sales_performance_analytics')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
