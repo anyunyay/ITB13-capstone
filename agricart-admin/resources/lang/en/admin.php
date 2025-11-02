@@ -1235,4 +1235,8 @@ return [
     'notes' => 'Notes',
     'approve' => 'Approve',
     'reject' => 'Reject',
+    
+    // Image fallback messages
+    'image_not_available' => 'Image not available',
+    'no_image' => 'No image',
 ];

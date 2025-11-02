@@ -13,7 +13,6 @@ import { ViewToggle } from './view-toggle';
 import { ProductTable } from './product-table';
 import { Product } from '@/types/inventory';
 import { useState } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -79,10 +78,36 @@ export const ProductManagement = ({
     const t = useTranslation();
     // View state for toggle between cards and table
     const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
-    
+
     // Helper function to check if a product is being processed
     const isProductProcessing = (productId: number) => {
         return archivingProduct === productId || restoringProduct === productId;
+    };
+
+    // Helper function to handle image error with cascading fallback
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
+        const target = e.target as HTMLImageElement;
+        const fallbackPath = '/images/products/fallback-photo.png';
+
+        // If current src is not the fallback, try fallback first
+        if (target.src !== window.location.origin + fallbackPath) {
+            target.src = fallbackPath;
+        } else {
+            // If fallback also failed, hide image and show alt text
+            target.style.display = 'none';
+            const container = target.parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-sm text-center p-4">
+                        <div>
+                            <Package class="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <div class="font-medium">${productName}</div>
+                            <div class="text-xs mt-1">${t('admin.image_not_available')}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
     };
 
     return (
@@ -96,7 +121,7 @@ export const ProductManagement = ({
                                 {showArchived ? t('admin.archived_products') : t('admin.product_management')}
                             </h2>
                             <p className="text-sm text-muted-foreground m-0 leading-snug">
-                                {showArchived 
+                                {showArchived
                                     ? t('admin.view_and_manage_archived_products')
                                     : t('admin.manage_your_product_catalog')
                                 }
@@ -119,9 +144,9 @@ export const ProductManagement = ({
                             {showSearch ? t('ui.hide_search') : t('ui.search')}
                         </Button>
                         <PermissionGate permission="view archive">
-                            <Button 
-                                variant={showArchived ? "default" : "outline"} 
-                                size="sm" 
+                            <Button
+                                variant={showArchived ? "default" : "outline"}
+                                size="sm"
                                 className="bg-background text-foreground border border-border hover:bg-muted hover:border-primary"
                                 onClick={() => setShowArchived(!showArchived)}
                             >
@@ -129,18 +154,17 @@ export const ProductManagement = ({
                                 {showArchived ? t('admin.active_products') : t('admin.archived_products')}
                             </Button>
                         </PermissionGate>
-                        <ViewToggle 
-                            currentView={currentView} 
-                            onViewChange={setCurrentView} 
+                        <ViewToggle
+                            currentView={currentView}
+                            onViewChange={setCurrentView}
                         />
                     </div>
                 </div>
             </div>
 
             {/* Compact Search and Filter Controls */}
-            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
-                showSearch ? styles.expanded : styles.collapsed
-            }`}>
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${showSearch ? styles.expanded : styles.collapsed
+                }`}>
                 <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
                     <div className="relative flex-1 flex items-center">
                         <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
@@ -211,7 +235,7 @@ export const ProductManagement = ({
                             {searchTerm || selectedCategory !== 'all' ? t('admin.no_products_match_criteria') : t('admin.no_products_found')}
                         </h3>
                         <p className="text-muted-foreground">
-                            {searchTerm || selectedCategory !== 'all' 
+                            {searchTerm || selectedCategory !== 'all'
                                 ? t('admin.try_adjusting_search_filters')
                                 : t('admin.get_started_creating_product')
                             }
@@ -232,149 +256,146 @@ export const ProductManagement = ({
                         {currentView === 'cards' ? (
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
                                 {paginatedProducts?.map((product) => (
-                                <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
-                                    <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
-                                        <img 
-                                            src={product.image_url || product.image} 
-                                            alt={product.name}
-                                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = '/images/products/default-product.jpg';
-                                            }}
-                                        />
-                                        <div className="absolute top-2.5 right-2.5 z-10">
-                                            <Badge variant="secondary" className="inline-block px-2.5 py-1.5 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full shadow-sm backdrop-blur-sm">
-                                                {product.produce_type}
-                                            </Badge>
-                                            {product.archived_at && (
-                                                <Badge variant="destructive" className="ml-2 text-xs px-2 py-1">
-                                                    {t('admin.archived')}
+                                    <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
+                                        <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
+                                            <img
+                                                src={product.image_url || product.image || '/images/products/fallback-photo.png'}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                                                onError={(e) => handleImageError(e, product.name)}
+                                            />
+                                            <div className="absolute top-2.5 right-2.5 z-10">
+                                                <Badge variant="secondary" className="inline-block px-2.5 py-1.5 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full shadow-sm backdrop-blur-sm">
+                                                    {product.produce_type}
                                                 </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-                                    
-                                    <CardHeader className="p-5 flex flex-col gap-4 flex-1 justify-between box-border overflow-hidden">
-                                        <div className="flex flex-col gap-3 flex-1">
-                                            <CardTitle className="text-lg font-semibold text-card-foreground leading-tight m-0 min-h-[2.75rem] line-clamp-2">{product.name}</CardTitle>
-                                            <CardDescription className="text-sm text-muted-foreground line-clamp-3 leading-snug m-0 min-h-[3.5rem] text-ellipsis overflow-hidden">
-                                                {product.description}
-                                            </CardDescription>
-                                        </div>
-                                        
-                                        <div className="flex flex-col gap-2 w-full">
-                                            <div className="flex flex-col gap-2 w-full">
-                                                {product.price_kilo && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_kilo')}</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_kilo}</span>
-                                                    </div>
-                                                )}
-                                                {product.price_pc && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_piece')}</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_pc}</span>
-                                                    </div>
-                                                )}
-                                                {product.price_tali && (
-                                                    <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
-                                                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_tali')}</span> 
-                                                        <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_tali}</span>
-                                                    </div>
-                                                )}
-                                                {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                                    <div className="text-sm text-muted-foreground text-center py-3 bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] rounded-lg border border-dashed border-border min-h-[2.625rem] flex items-center justify-center">{t('admin.no_prices_set')}</div>
+                                                {product.archived_at && (
+                                                    <Badge variant="destructive" className="ml-2 text-xs px-2 py-1">
+                                                        {t('admin.archived')}
+                                                    </Badge>
                                                 )}
                                             </div>
                                         </div>
-                                    </CardHeader>
-                                    
-                                    <CardFooter className="flex flex-col gap-3 p-5 pt-0 flex-shrink-0 w-full box-border overflow-hidden">
-                                        {!product.archived_at && (
-                                            <PermissionGate permission="create stocks">
-                                                <Button asChild disabled={processing} className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg">
-                                                    <Link href={route('inventory.addStock', product.id)}>
-                                                        <Plus className="h-4 w-4" />
-                                                        {t('admin.add_stock')}
-                                                    </Link>
-                                                </Button>
-                                            </PermissionGate>
-                                        )}
-                                        
-                                        <div className="grid grid-cols-1 gap-2 w-full sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+
+                                        <CardHeader className="p-5 flex flex-col gap-4 flex-1 justify-between box-border overflow-hidden">
+                                            <div className="flex flex-col gap-3 flex-1">
+                                                <CardTitle className="text-lg font-semibold text-card-foreground leading-tight m-0 min-h-[2.75rem] line-clamp-2">{product.name}</CardTitle>
+                                                <CardDescription className="text-sm text-muted-foreground line-clamp-3 leading-snug m-0 min-h-[3.5rem] text-ellipsis overflow-hidden">
+                                                    {product.description}
+                                                </CardDescription>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 w-full">
+                                                <div className="flex flex-col gap-2 w-full">
+                                                    {product.price_kilo && (
+                                                        <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
+                                                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_kilo')}</span>
+                                                            <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_kilo}</span>
+                                                        </div>
+                                                    )}
+                                                    {product.price_pc && (
+                                                        <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
+                                                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_piece')}</span>
+                                                            <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_pc}</span>
+                                                        </div>
+                                                    )}
+                                                    {product.price_tali && (
+                                                        <div className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
+                                                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center">{t('admin.label_tali')}</span>
+                                                            <span className="text-sm font-bold text-card-foreground flex items-center text-right">₱{product.price_tali}</span>
+                                                        </div>
+                                                    )}
+                                                    {!product.price_kilo && !product.price_pc && !product.price_tali && (
+                                                        <div className="text-sm text-muted-foreground text-center py-3 bg-[color-mix(in_srgb,var(--muted)_10%,transparent)] rounded-lg border border-dashed border-border min-h-[2.625rem] flex items-center justify-center">{t('admin.no_prices_set')}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardFooter className="flex flex-col gap-3 p-5 pt-0 flex-shrink-0 w-full box-border overflow-hidden">
                                             {!product.archived_at && (
-                                                <PermissionGate permission="edit products">
-                                                    <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
-                                                        <Link href={route('inventory.edit', product.id)}>
-                                                            <Edit className="h-4 w-4 flex-shrink-0" />
-                                                            {t('ui.edit')}
+                                                <PermissionGate permission="create stocks">
+                                                    <Button asChild disabled={processing} className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg">
+                                                        <Link href={route('inventory.addStock', product.id)}>
+                                                            <Plus className="h-4 w-4" />
+                                                            {t('admin.add_stock')}
                                                         </Link>
                                                     </Button>
                                                 </PermissionGate>
                                             )}
-                                            
-                                            {!product.archived_at ? (
-                                                <PermissionGate permission="archive products">
-                                                    {product.has_stock ? (
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <span className="w-full block">
-                                                                    <Button 
-                                                                        disabled={true}
-                                                                        variant="outline"
-                                                                        className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
-                                                                    >
-                                                                        <Archive className="h-4 w-4 flex-shrink-0" />
-                                                                        {t('admin.archive_product')}
-                                                                    </Button>
-                                                                </span>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="bottom">
-                                                                <p>{t('admin.cannot_archive_product_has_stock')}</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    ) : (
-                                                        <Button 
-                                                            disabled={processing || archivingProduct === product.id} 
-                                                            onClick={() => handleArchive(product.id, product.name)}
+
+                                            <div className="grid grid-cols-1 gap-2 w-full sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+                                                {!product.archived_at && (
+                                                    <PermissionGate permission="edit products">
+                                                        <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
+                                                            <Link href={route('inventory.edit', product.id)}>
+                                                                <Edit className="h-4 w-4 flex-shrink-0" />
+                                                                {t('ui.edit')}
+                                                            </Link>
+                                                        </Button>
+                                                    </PermissionGate>
+                                                )}
+
+                                                {!product.archived_at ? (
+                                                    <PermissionGate permission="archive products">
+                                                        {product.has_stock ? (
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="w-full block">
+                                                                        <Button
+                                                                            disabled={true}
+                                                                            variant="outline"
+                                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap opacity-60 cursor-not-allowed"
+                                                                        >
+                                                                            <Archive className="h-4 w-4 flex-shrink-0" />
+                                                                            {t('admin.archive_product')}
+                                                                        </Button>
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="bottom">
+                                                                    <p>{t('admin.cannot_archive_product_has_stock')}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        ) : (
+                                                            <Button
+                                                                disabled={processing || archivingProduct === product.id}
+                                                                onClick={() => handleArchive(product.id, product.name)}
+                                                                variant="outline"
+                                                                className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
+                                                            >
+                                                                <Archive className="h-4 w-4 flex-shrink-0" />
+                                                                {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
+                                                            </Button>
+                                                        )}
+                                                    </PermissionGate>
+                                                ) : (
+                                                    <PermissionGate permission="unarchive products">
+                                                        <Button
+                                                            disabled={processing || restoringProduct === product.id}
+                                                            onClick={() => handleRestore(product.id, product.name)}
                                                             variant="outline"
                                                             className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
                                                         >
                                                             <Archive className="h-4 w-4 flex-shrink-0" />
-                                                            {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
+                                                            {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
                                                         </Button>
-                                                    )}
-                                                </PermissionGate>
-                                            ) : (
-                                                <PermissionGate permission="unarchive products">
-                                                    <Button 
-                                                        disabled={processing || restoringProduct === product.id} 
-                                                        onClick={() => handleRestore(product.id, product.name)}
-                                                        variant="outline"
+                                                    </PermissionGate>
+                                                )}
+
+                                                <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
+                                                    <Button
+                                                        disabled={processing}
+                                                        onClick={() => handleDelete(product.id, product.name)}
+                                                        variant="destructive"
                                                         className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
                                                     >
-                                                        <Archive className="h-4 w-4 flex-shrink-0" />
-                                                        {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
+                                                        <Trash2 className="h-4 w-4 flex-shrink-0" />
+                                                        {t('ui.delete')}
                                                     </Button>
                                                 </PermissionGate>
-                                            )}
-                                            
-                                            <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
-                                                <Button 
-                                                    disabled={processing} 
-                                                    onClick={() => handleDelete(product.id, product.name)}
-                                                    variant="destructive"
-                                                    className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                >
-                                                    <Trash2 className="h-4 w-4 flex-shrink-0" />
-                                                    {t('ui.delete')}
-                                                </Button>
-                                            </PermissionGate>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
-                            ))}
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
                             </div>
                         ) : (
                             <ProductTable

@@ -46,6 +46,31 @@ interface PageProps extends SharedData {
 export default function Archive() {
     const t = useTranslation();
     const { archivedProducts, flash, auth } = usePage<PageProps>().props;
+    
+    // Helper function to handle image error with cascading fallback
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
+        const target = e.target as HTMLImageElement;
+        const fallbackPath = '/images/products/fallback-photo.png';
+        
+        // If current src is not the fallback, try fallback first
+        if (target.src !== window.location.origin + fallbackPath) {
+            target.src = fallbackPath;
+        } else {
+            // If fallback also failed, hide image and show alt text
+            target.style.display = 'none';
+            const container = target.parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="w-full h-48 flex items-center justify-center bg-muted text-muted-foreground rounded-t-lg">
+                        <div class="text-center p-4">
+                            <div class="text-lg font-medium mb-2">${productName}</div>
+                            <div class="text-sm">${t('admin.image_not_available')}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    };
     // Check if the user is authenticated || Prevent flash-of-unauthenticated-content
     useEffect(() => {
         if (!auth?.user) {
@@ -83,13 +108,10 @@ export default function Archive() {
                         <Card key={product.id} className='w-70 p-0'>
                             <div>
                                 <img 
-                                    src={product.image_url || product.image} 
+                                    src={product.image_url || product.image || '/images/products/fallback-photo.png'} 
                                     alt={product.name}
                                     className="w-full h-48 object-cover rounded-t-lg"
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = '/images/products/default-product.jpg';
-                                    }}
+                                    onError={(e) => handleImageError(e, product.name)}
                                 />
                             </div>
                             <CardHeader className="px-6">

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PermissionGate } from '@/components/permission-gate';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
@@ -38,6 +38,32 @@ export const ProductTable = ({
     setSortOrder
 }: ProductTableProps) => {
     const t = useTranslation();
+    
+    // Helper function to handle image error with cascading fallback
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
+        const target = e.target as HTMLImageElement;
+        const fallbackPath = '/images/products/fallback-photo.png';
+        
+        // If current src is not the fallback, try fallback first
+        if (target.src !== window.location.origin + fallbackPath) {
+            target.src = fallbackPath;
+        } else {
+            // If fallback also failed, hide image and show alt text
+            target.style.display = 'none';
+            const container = target.parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg border border-border flex items-center justify-center bg-muted text-muted-foreground">
+                        <div class="text-center">
+                            <div class="text-xs font-medium truncate">${productName.substring(0, 8)}</div>
+                            <div class="text-xs opacity-75">${t('admin.no_image')}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    };
+    
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -123,13 +149,10 @@ export const ProductTable = ({
                                 <div className="flex items-center gap-3">
                                     <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
                                         <img 
-                                            src={product.image_url || product.image} 
+                                            src={product.image_url || product.image || '/images/products/fallback-photo.png'} 
                                             alt={product.name}
                                             className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = '/images/products/default-product.jpg';
-                                            }}
+                                            onError={(e) => handleImageError(e, product.name)}
                                         />
                                     </div>
                                     <div className="min-w-0 flex-1">

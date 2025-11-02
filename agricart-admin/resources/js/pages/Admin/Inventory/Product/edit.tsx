@@ -32,6 +32,31 @@ export default function Edit({product}: Props) {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     
+    // Helper function to handle image error with cascading fallback
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
+        const target = e.target as HTMLImageElement;
+        const fallbackPath = '/images/products/fallback-photo.png';
+        
+        // If current src is not the fallback, try fallback first
+        if (target.src !== window.location.origin + fallbackPath) {
+            target.src = fallbackPath;
+        } else {
+            // If fallback also failed, hide image and show alt text
+            target.style.display = 'none';
+            const container = target.parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="w-32 h-32 flex items-center justify-center bg-muted text-muted-foreground rounded-lg border">
+                        <div class="text-center p-2">
+                            <div class="text-sm font-medium mb-1">${productName}</div>
+                            <div class="text-xs">${t('admin.image_not_available')}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    };
+    
     useEffect(() => {
         if (!auth?.user) {
             router.visit('/login');
@@ -137,13 +162,10 @@ export default function Edit({product}: Props) {
                             <div className="mb-4">
                                 <Label className="text-sm text-gray-600 mb-2 block">{t('admin.current_image')}:</Label>
                                 <img 
-                                  src={product.image_url} 
+                                  src={product.image_url || '/images/products/fallback-photo.png'} 
                                   alt={product.name} 
                                   className="w-32 h-32 object-cover rounded-lg border"
-                                  onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.src = '/images/products/default-product.jpg';
-                                  }}
+                                  onError={(e) => handleImageError(e, product.name)}
                                 />
                             </div>
                         )}

@@ -1287,4 +1287,8 @@ return [
     'notes' => 'Notes',
     'approve' => 'I-approve',
     'reject' => 'I-reject',
+    
+    // Image fallback messages
+    'image_not_available' => 'Walang makuhang larawan',
+    'no_image' => 'Walang larawan',
 ];
