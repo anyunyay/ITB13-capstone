@@ -51,22 +51,8 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
         }
     };
 
-    // Group items by product ID and combine quantities
-    const groupedItems = order.audit_trail?.reduce((acc, item) => {
-        const key = `${item.product.id}-${item.category}`;
-        if (!acc[key]) {
-            acc[key] = {
-                id: item.id,
-                product: item.product,
-                category: item.category,
-                quantity: 0
-            };
-        }
-        acc[key].quantity += Number(item.quantity);
-        return acc;
-    }, {} as Record<string, any>) || {};
-
-    const combinedItems = Object.values(groupedItems);
+    // Use the aggregated audit trail data directly (already grouped and processed by backend)
+    const combinedItems = order.audit_trail || [];
 
     return (
         <div className={`bg-card border border-border rounded-lg shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 overflow-hidden flex flex-col h-full ${highlight ? 'border-2 border-primary shadow-lg' : ''} ${isUrgent ? 'border-2 border-orange-500 shadow-lg' : ''}`}>

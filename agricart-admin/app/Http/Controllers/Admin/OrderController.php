@@ -31,7 +31,7 @@ class OrderController extends Controller
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
         
-        // Optimize: Load only recent orders with essential data
+        // Optimize: Load only recent orders with essential data including audit trail for order cards
         $allOrders = SalesAudit::with([
                 'customer' => function($query) {
                     $query->select('id', 'name', 'email', 'contact_number');
@@ -47,6 +47,12 @@ class OrderController extends Controller
                 },
                 'logistic' => function($query) {
                     $query->select('id', 'name', 'contact_number');
+                },
+                'auditTrail.product' => function($query) {
+                    $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+                },
+                'auditTrail.product.stocks' => function($query) {
+                    $query->where('quantity', '>', 0)->whereNull('removed_at');
                 }
             ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent')
@@ -107,7 +113,7 @@ class OrderController extends Controller
                     'name' => $order->logistic->name,
                     'contact_number' => $order->logistic->contact_number,
                 ] : null,
-                'audit_trail' => [], // Load on demand to reduce payload
+                'audit_trail' => $order->getAggregatedAuditTrail(), // Load aggregated audit trail for order cards
                 'is_urgent' => $order->is_urgent,
             ];
         });

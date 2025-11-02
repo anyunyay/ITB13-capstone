@@ -242,22 +242,8 @@ export const OrderTable = ({
                         const urgent = isUrgent(order);
                         const highlighted = isHighlighted(order);
                         
-                        // Group items by product ID and combine quantities
-                        const groupedItems = order.audit_trail?.reduce((acc, item) => {
-                            const key = `${item.product.id}-${item.category}`;
-                            if (!acc[key]) {
-                                acc[key] = {
-                                    id: item.id,
-                                    product: item.product,
-                                    category: item.category,
-                                    quantity: 0
-                                };
-                            }
-                            acc[key].quantity += Number(item.quantity);
-                            return acc;
-                        }, {} as Record<string, any>) || {};
-
-                        const combinedItems = Object.values(groupedItems);
+                        // Use the aggregated audit trail data directly (already grouped and processed by backend)
+                        const combinedItems = order.audit_trail || [];
                         const totalItems = combinedItems.length;
 
                         return (
@@ -317,6 +303,23 @@ export const OrderTable = ({
                                     </div>
                                 </TableCell>
                                 
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                    <div className="text-sm">
+                                        ₱{Number((order as any).subtotal || 0).toFixed(2)}
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                    <div className="text-sm text-primary">
+                                        ₱{Number((order as any).coop_share || 0).toFixed(2)}
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
+                                    <div className="text-sm">
+                                        ₱{Number((order as any).member_share || 0).toFixed(2)}
+                                    </div>
+                                </TableCell>
                                 
                                 <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">

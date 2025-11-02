@@ -6,6 +6,9 @@ export interface Order {
         contact_number?: string;
     };
     total_amount: number;
+    subtotal?: number;
+    coop_share?: number;
+    member_share?: number;
     status: 'pending' | 'approved' | 'rejected' | 'expired' | 'delayed' | 'cancelled';
     delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
     created_at: string;
@@ -23,9 +26,23 @@ export interface Order {
         product: {
             id: number;
             name: string;
+            price_kilo?: number;
+            price_pc?: number;
+            price_tali?: number;
         };
         category: string;
         quantity: number;
+        unit_price?: number;
+        subtotal?: number;
+        coop_share?: number;
+        available_stock?: number;
+        total_amount?: number;
+        stock_preview?: {
+            current_stock: number;
+            quantity_to_deduct: number;
+            remaining_stock: number;
+            sufficient_stock: boolean;
+        };
     }>;
     is_urgent?: boolean;
     delivery_address?: string;
