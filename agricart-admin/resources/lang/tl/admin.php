@@ -306,6 +306,7 @@ return [
     'member_sales_tab' => 'Sales ng mga Miyembro',
     'sales_with_sorting_and_pagination' => 'Sales with sorting and pagination',
     'member_sales_performance_analytics' => 'Member sales performance and analytics',
+    'total' => 'kabuuan',
     'no_sales_found' => 'Walang nahanap na sales.',
     'no_pending_orders_found' => 'Walang nahanap na mga pending order.',
     'no_member_sales_data_found' => 'Walang member sales data.',

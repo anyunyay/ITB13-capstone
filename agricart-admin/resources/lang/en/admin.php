@@ -307,6 +307,7 @@ return [
     'member_sales_tab' => 'Member Sales',
     'sales_with_sorting_and_pagination' => 'Sales with sorting and pagination',
     'member_sales_performance_analytics' => 'Member sales performance and analytics',
+    'total' => 'total',
     'no_sales_found' => 'No sales found.',
     'no_pending_orders_found' => 'No pending orders found.',
     'no_member_sales_data_found' => 'No member sales data found.',
