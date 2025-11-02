@@ -16,8 +16,21 @@ class InventoryStockController extends Controller
 {
     public function index()
     { 
-        $products = Product::active()->get();
-        $stocks = Stock::active()->get(); // Only active (non-removed) stocks
+        // Optimize: Load only essential fields
+        $products = Product::active()
+            ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'produce_type')
+            ->get();
+        $stocks = Stock::active()
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'name', 'produce_type');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'created_at')
+            ->get();
         return Inertia::render('Inventory/index', compact('products', 'stocks'));
     }
 
@@ -92,8 +105,12 @@ class InventoryStockController extends Controller
             ]
         );
 
-        // Notify admin and staff about inventory update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about inventory update (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new InventoryUpdateNotification($stock, 'added', $stock->member));
         }
@@ -170,8 +187,12 @@ class InventoryStockController extends Controller
             ]
         );
 
-        // Notify admin and staff about inventory update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about inventory update (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new InventoryUpdateNotification($stock, 'updated', $stock->member));
         }
@@ -181,7 +202,12 @@ class InventoryStockController extends Controller
 
     public function removeStock(Product $product)
     {
-        $stocks = $product->stocks()->available()->get();
+        // Optimize: Load only essential stock fields
+        $stocks = $product->stocks()
+            ->available()
+            ->with('member:id,name')
+            ->select('id', 'product_id', 'member_id', 'quantity', 'category', 'notes')
+            ->get();
         return Inertia::render('Inventory/Stock/removeStock', [
             'product' => $product,
             'stocks' => $stocks,
@@ -238,8 +264,12 @@ class InventoryStockController extends Controller
             ]
         );
 
-        // Notify admin and staff about inventory update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about inventory update (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new InventoryUpdateNotification($stock, 'removed', $stock->member));
         }
@@ -249,8 +279,19 @@ class InventoryStockController extends Controller
 
     public function removedStocks()
     {
-        $stocks = Stock::removed()->with(['product', 'member'])
-            ->orderBy('removed_at', 'asc')
+        // Optimize: Load only essential fields and limit results
+        $stocks = Stock::removed()
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'name', 'produce_type');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'removed_at', 'notes')
+            ->orderBy('removed_at', 'desc') // Show recent removals first
+            ->limit(100) // Limit to recent removals
             ->get();
         return Inertia::render('Inventory/Stock/removedStock', compact('stocks'));
     }

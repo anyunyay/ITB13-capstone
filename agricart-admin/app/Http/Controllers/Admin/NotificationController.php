@@ -14,6 +14,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        // Optimize: Limit notifications and load only essential data
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\NewOrderNotification',
@@ -22,6 +23,7 @@ class NotificationController extends Controller
                 'App\\Notifications\\PasswordChangeRequestNotification'
             ])
             ->orderBy('created_at', 'desc')
+            ->limit(50) // Limit to recent notifications
             ->get()
             ->map(function ($notification) {
                 return [
@@ -29,9 +31,9 @@ class NotificationController extends Controller
                     'type' => $notification->data['type'] ?? 'unknown',
                     'message' => $notification->data['message'] ?? '',
                     'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
+                    'created_at' => $notification->created_at?->toISOString(),
                     'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
+                    // Reduce data payload by excluding full data object
                 ];
             });
 

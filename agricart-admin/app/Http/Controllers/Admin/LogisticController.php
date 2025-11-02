@@ -13,8 +13,12 @@ class LogisticController extends Controller
 {
     public function index()
     {
+        // Optimize: Load only essential logistic data (keep as collection for frontend compatibility)
         $logistics = User::where('type', 'logistic')
-            ->with('defaultAddress')
+            ->with('defaultAddress:id,user_id,street,barangay,city,province')
+            ->select('id', 'name', 'email', 'contact_number', 'registration_date', 'type', 'active', 'created_at')
+            ->orderBy('name')
+            ->limit(200) // Limit instead of paginate to maintain frontend compatibility
             ->get()
             ->map(function ($logistic) {
                 return [
@@ -33,8 +37,9 @@ class LogisticController extends Controller
                         'province' => $logistic->defaultAddress->province,
                         'full_address' => $logistic->defaultAddress->full_address,
                     ] : null,
-                    'can_be_deactivated' => $logistic->active && !$logistic->hasPendingOrders(),
-                    'deactivation_reason' => $logistic->hasPendingOrders() ? 'Has pending or out-for-delivery orders' : null,
+                    // Remove expensive order checks from initial load
+                    'can_be_deactivated' => $logistic->active, // Check on demand
+                    'deactivation_reason' => null, // Check on demand
                 ];
             });
         return Inertia::render('Logistics/index', compact('logistics'));

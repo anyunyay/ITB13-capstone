@@ -10,9 +10,19 @@ class SoldStockController extends Controller
 {
     public function index()
     {
-        $stocks = Stock::with(['product'])
+        // Optimize: Load only essential fields and limit results
+        $stocks = Stock::with([
+                'product' => function($query) {
+                    $query->select('id', 'name', 'produce_type');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
             ->sold()
-            ->orderBy('created_at', 'desc')
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'created_at', 'updated_at')
+            ->orderBy('updated_at', 'desc') // Show recently sold items first
+            ->limit(200) // Limit to recent sold stocks
             ->get();
         
         return Inertia::render('Inventory/Stock/soldStock', compact('stocks'));

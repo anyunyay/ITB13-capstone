@@ -19,21 +19,94 @@ class InventoryController extends Controller
 {
     public function index()
     { 
-        $products = Product::active()->get()->map(function ($product) {
-            $product->has_stock = $product->hasAvailableStock();
-            return $product;
-        });
-        $archivedProducts = Product::archived()->get();
-        $stocks = Stock::active()->with(['product', 'member'])->get();
-        $removedStocks = Stock::removed()->with(['product', 'member'])->orderBy('removed_at', 'desc')->limit(50)->get();
-        $soldStocks = Stock::sold()->with(['product', 'member'])->orderBy('updated_at', 'desc')->limit(50)->get();
-        $stockTrails = StockTrail::with(['product', 'stock', 'member', 'performedByUser'])
-            ->orderBy('created_at', 'desc')
-            ->limit(200)
+        // Optimize queries with selective loading and limits
+        
+        // Load products with only essential fields, defer expensive stock calculations
+        $products = Product::active()
+            ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($product) {
+                // Only calculate stock status for products that might have stock
+                $product->has_stock = cache()->remember("product_stock_{$product->id}", 300, function () use ($product) {
+                    return $product->hasAvailableStock();
+                });
+                return $product;
+            });
+            
+        $archivedProducts = Product::archived()
+            ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
+            ->orderBy('name')
             ->get();
-        $categories = Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
+            
+        // Optimize stock loading with selective fields and efficient relations
+        $stocks = Stock::active()
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'name', 'produce_type');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'notes', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        // Significantly reduce historical data payload
+        $removedStocks = Stock::removed()
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'removed_at', 'notes')
+            ->orderBy('removed_at', 'desc')
+            ->limit(20) // Reduced from 50
+            ->get();
+            
+        $soldStocks = Stock::sold()
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'updated_at')
+            ->orderBy('updated_at', 'desc')
+            ->limit(20) // Reduced from 50
+            ->get();
+            
+        // Drastically reduce stock trails for initial load
+        $stockTrails = StockTrail::with([
+                'product' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'member' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'performedByUser' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->limit(30) // Reduced from 200
+            ->get();
+            
+        // Cache categories to avoid repeated queries
+        $categories = cache()->remember('product_categories', 3600, function () {
+            return Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
+        });
+        
         // Pass empty array for auditTrails to maintain compatibility with frontend
         $auditTrails = [];
+        
         return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
     }
 
@@ -279,7 +352,15 @@ class InventoryController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Stock::with(['product', 'member']);
+        // Optimize: Load only essential fields for reporting
+        $query = Stock::with([
+            'product' => function($query) {
+                $query->select('id', 'name', 'produce_type');
+            },
+            'member' => function($query) {
+                $query->select('id', 'name');
+            }
+        ])->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'created_at', 'removed_at', 'notes');
 
         // Filter by date range (based on stock creation date)
         if ($startDate) {
@@ -365,9 +446,13 @@ class InventoryController extends Controller
             return $this->exportToPdf($stocks, $summary, $display);
         }
 
-        // Get unique values for filter dropdowns
-        $members = \App\Models\User::where('type', 'member')->select('id', 'name')->get();
-        $productTypes = \App\Models\Product::select('produce_type')->distinct()->pluck('produce_type')->filter();
+        // Get unique values for filter dropdowns (cached for performance)
+        $members = cache()->remember('members_list', 1800, function () {
+            return \App\Models\User::where('type', 'member')->select('id', 'name')->orderBy('name')->get();
+        });
+        $productTypes = cache()->remember('product_types_list', 3600, function () {
+            return \App\Models\Product::select('produce_type')->distinct()->pluck('produce_type')->filter();
+        });
 
         // Return view for display
         return Inertia::render('Admin/Inventory/report', [
@@ -424,10 +509,10 @@ class InventoryController extends Controller
             foreach ($stocks as $stock) {
                 fputcsv($file, [
                     $stock->id,
-                    $stock->product->name ?? 'N/A',
+                    $stock->product?->name ?? 'N/A',
                     $stock->quantity,
                     $stock->category,
-                    $stock->member->name ?? 'N/A',
+                    $stock->member?->name ?? 'N/A',
                     $stock->notes ?? 'N/A'
                 ]);
             }

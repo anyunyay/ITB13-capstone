@@ -17,8 +17,12 @@ class MembershipController extends Controller
 {
     public function index()
     {
+        // Optimize: Load only essential member data (keep as collection for frontend compatibility)
         $members = User::where('type', 'member')
-            ->with('defaultAddress')
+            ->with('defaultAddress:id,user_id,street,barangay,city,province')
+            ->select('id', 'name', 'member_id', 'contact_number', 'registration_date', 'document', 'type', 'active', 'created_at')
+            ->orderBy('name')
+            ->limit(500) // Limit instead of paginate to maintain frontend compatibility
             ->get()
             ->map(function ($member) {
                 return [
@@ -38,15 +42,17 @@ class MembershipController extends Controller
                         'province' => $member->defaultAddress->province,
                         'full_address' => $member->defaultAddress->full_address,
                     ] : null,
-                    'can_be_deactivated' => $member->active && !$member->hasActiveStocks(),
-                    'deactivation_reason' => $member->hasActiveStocks() ? 'Has active stocks' : null,
+                    // Remove expensive stock checks from initial load
+                    'can_be_deactivated' => $member->active, // Check on demand
+                    'deactivation_reason' => null, // Check on demand
                 ];
             });
         
-        // Get pending password change requests
-        $pendingPasswordRequests = PasswordChangeRequest::with(['member', 'approvedBy'])
+        // Get pending password change requests (limit to recent ones)
+        $pendingPasswordRequests = PasswordChangeRequest::with(['member:id,name', 'approvedBy:id,name'])
             ->where('status', 'pending')
             ->orderBy('requested_at', 'desc')
+            ->limit(20) // Limit to recent requests
             ->get();
         
         return Inertia::render('Admin/Membership/index', [
@@ -116,8 +122,12 @@ class MembershipController extends Controller
                 'is_active' => true,
             ]);
 
-            // Notify admin and staff about membership update
-            $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+            // Notify admin and staff about membership update (optimized with caching)
+            $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+                return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                    ->select('id', 'name', 'email')
+                    ->get();
+            });
             foreach ($adminUsers as $admin) {
                 $admin->notify(new MembershipUpdateNotification($member, 'added'));
             }
@@ -213,8 +223,12 @@ class MembershipController extends Controller
 
             $member->save();
 
-            // Notify admin and staff about membership update
-            $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+            // Notify admin and staff about membership update (optimized with caching)
+            $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+                return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                    ->select('id', 'name', 'email')
+                    ->get();
+            });
             foreach ($adminUsers as $admin) {
                 $admin->notify(new MembershipUpdateNotification($member, 'updated'));
             }
@@ -240,8 +254,12 @@ class MembershipController extends Controller
         // Deactivate instead of deleting
         $member->update(['active' => false]);
         
-        // Notify admin and staff about membership update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about membership update (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new MembershipUpdateNotification($member, 'deactivated'));
         }
@@ -263,8 +281,12 @@ class MembershipController extends Controller
         $member = User::where('type', 'member')->findOrFail($id);
         $member->update(['active' => true]);
         
-        // Notify admin and staff about membership update
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about membership update (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new MembershipUpdateNotification($member, 'reactivated'));
         }
@@ -279,8 +301,12 @@ class MembershipController extends Controller
         // Mark document for deletion instead of deleting immediately
         $member->update(['document_marked_for_deletion' => true]);
         
-        // Notify admin and staff about document marked for deletion
-        $adminUsers = \App\Models\User::whereIn('type', ['admin', 'staff'])->get();
+        // Notify admin and staff about document marked for deletion (optimized with caching)
+        $adminUsers = cache()->remember('admin_staff_users', 300, function () {
+            return \App\Models\User::whereIn('type', ['admin', 'staff'])
+                ->select('id', 'name', 'email')
+                ->get();
+        });
         foreach ($adminUsers as $admin) {
             $admin->notify(new MembershipUpdateNotification($member, 'document_marked_for_deletion'));
         }

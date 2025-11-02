@@ -25,10 +25,25 @@ class SalesController extends Controller
             ]);
         }
 
-        $salesRaw = $query->orderBy('delivered_at', 'desc')->get();
+        // Optimize: Load only essential fields and limit results
+        $salesRaw = $query->select('id', 'customer_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
+            ->orderBy('delivered_at', 'desc')
+            ->limit(25) // Limit to recent sales
+            ->get();
 
-        // Get pending orders from sales_audit
-        $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
+        // Get pending orders from sales_audit with optimized loading
+        $salesAuditQuery = SalesAudit::with([
+                'customer' => function($query) {
+                    $query->select('id', 'name', 'email');
+                },
+                'admin' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'logistic' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'status', 'created_at')
             ->where('status', '!=', 'cancelled');
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -38,7 +53,9 @@ class SalesController extends Controller
             ]);
         }
 
-        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
+        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+            ->limit(500) // Limit pending orders
+            ->get();
 
         // Calculate summary statistics from both delivered and pending orders
         $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
@@ -90,7 +107,7 @@ class SalesController extends Controller
                     'contact_number' => $sale->logistic->contact_number,
                 ] : null,
                 'delivered_at' => $sale->delivered_at?->toISOString(),
-                'created_at' => $sale->created_at->toISOString(),
+                'created_at' => $sale->created_at?->toISOString(),
                 'customer_received' => $sale->customer_received,
                 'customer_rate' => $sale->customer_rate,
                 'customer_feedback' => $sale->customer_feedback,
@@ -133,10 +150,24 @@ class SalesController extends Controller
             ]);
         }
 
-        $salesRaw = $query->orderBy('delivered_at', 'desc')->get();
+        // Optimize: Load only essential fields for reporting
+        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
+            ->orderBy('delivered_at', 'desc')
+            ->get();
 
         // Get pending orders from sales_audit for comprehensive reporting
-        $salesAuditQuery = SalesAudit::with(['customer', 'admin', 'logistic'])
+        $salesAuditQuery = SalesAudit::with([
+                'customer' => function($query) {
+                    $query->select('id', 'name', 'email');
+                },
+                'admin' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'logistic' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])
+            ->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'status', 'created_at')
             ->where('status', '!=', 'cancelled');
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -229,9 +260,9 @@ class SalesController extends Controller
                         number_format($cogs, 2),
                         number_format($grossProfit, 2),
                         $sale->delivered_at->format('Y-m-d H:i:s'),
-                        $sale->customer->name ?? 'N/A',
-                        $sale->admin->name ?? 'N/A',
-                        $sale->logistic->name ?? 'N/A'
+                        $sale->customer?->name ?? 'N/A',
+                        $sale->admin?->name ?? 'N/A',
+                        $sale->logistic?->name ?? 'N/A'
                     ]);
                 }
             } else {

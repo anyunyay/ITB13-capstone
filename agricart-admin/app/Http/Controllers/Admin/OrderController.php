@@ -31,9 +31,27 @@ class OrderController extends Controller
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
         
-        // Get all orders for tab counts
-        $allOrders = SalesAudit::with(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product'])
+        // Optimize: Load only recent orders with essential data
+        $allOrders = SalesAudit::with([
+                'customer' => function($query) {
+                    $query->select('id', 'name', 'email', 'contact_number');
+                },
+                'customer.defaultAddress' => function($query) {
+                    $query->select('id', 'user_id', 'street', 'barangay', 'city', 'province');
+                },
+                'address' => function($query) {
+                    $query->select('id', 'street', 'barangay', 'city', 'province');
+                },
+                'admin' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'logistic' => function($query) {
+                    $query->select('id', 'name', 'contact_number');
+                }
+            ])
+            ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent')
             ->orderBy('created_at', 'desc')
+            ->limit(200) // Reduced limit for better performance
             ->get()
             ->values(); // Convert to array
         
@@ -52,19 +70,21 @@ class OrderController extends Controller
                 }
             }
             
-            // Transform the order data to include customer address information
+            // Transform the order data with optimized structure
             return [
                 'id' => $order->id,
                 'customer' => [
-                    'name' => $order->customer->name,
-                    'email' => $order->customer->email,
-                    'contact_number' => $order->customer->contact_number,
-                    'address' => $order->customer->defaultAddress?->street,
-                    'barangay' => $order->customer->defaultAddress?->barangay,
-                    'city' => $order->customer->defaultAddress?->city,
-                    'province' => $order->customer->defaultAddress?->province,
+                    'name' => $order->customer->name ?? 'N/A',
+                    'email' => $order->customer->email ?? 'N/A',
+                    'contact_number' => $order->customer->contact_number ?? 'N/A',
+                    'address' => $order->customer->defaultAddress?->street ?? 'N/A',
+                    'barangay' => $order->customer->defaultAddress?->barangay ?? 'N/A',
+                    'city' => $order->customer->defaultAddress?->city ?? 'N/A',
+                    'province' => $order->customer->defaultAddress?->province ?? 'N/A',
                 ],
-                'delivery_address' => $order->address ? $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : null,
+                'delivery_address' => $order->address ? 
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                    null,
                 'order_address' => $order->address ? [
                     'street' => $order->address->street,
                     'barangay' => $order->address->barangay,
@@ -76,8 +96,8 @@ class OrderController extends Controller
                 'delivery_status' => $order->delivery_status,
                 'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
                 'delivered_time' => $order->delivered_time?->toISOString(),
-                'delivery_timeline' => $order->getDeliveryTimeline(),
-                'created_at' => $order->created_at->toISOString(),
+                'delivery_timeline' => null, // Load on demand to reduce payload
+                'created_at' => $order->created_at?->toISOString(),
                 'admin' => $order->admin ? [
                     'name' => $order->admin->name,
                 ] : null,
@@ -87,7 +107,7 @@ class OrderController extends Controller
                     'name' => $order->logistic->name,
                     'contact_number' => $order->logistic->contact_number,
                 ] : null,
-                'audit_trail' => $order->getAggregatedAuditTrail(),
+                'audit_trail' => [], // Load on demand to reduce payload
                 'is_urgent' => $order->is_urgent,
             ];
         });
@@ -185,7 +205,7 @@ class OrderController extends Controller
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             'delivered_time' => $order->delivered_time?->toISOString(),
             'delivery_timeline' => $order->getDeliveryTimeline(),
-            'created_at' => $order->created_at->toISOString(),
+            'created_at' => $order->created_at?->toISOString(),
             'admin' => $order->admin ? [
                 'name' => $order->admin->name,
             ] : null,
@@ -224,8 +244,8 @@ class OrderController extends Controller
             'total_amount' => $order->total_amount,
             'status' => $order->status,
             'admin_notes' => $order->admin_notes,
-            'created_at' => $order->created_at->toISOString(),
-            'updated_at' => $order->updated_at->toISOString(),
+            'created_at' => $order->created_at?->toISOString(),
+            'updated_at' => $order->updated_at?->toISOString(),
             'admin' => $order->admin ? [
                 'name' => $order->admin->name,
             ] : null,
@@ -821,20 +841,20 @@ class OrderController extends Controller
             foreach ($orders as $order) {
                 fputcsv($file, [
                     $order->id,
-                    $order->customer->name ?? 'N/A',
-                    $order->customer->email ?? 'N/A',
-                    $order->customer->contact_number ?? 'N/A',
+                    $order->customer?->name ?? 'N/A',
+                    $order->customer?->email ?? 'N/A',
+                    $order->customer?->contact_number ?? 'N/A',
                     '₱' . number_format($order->total_amount, 2),
                     '₱' . number_format($order->subtotal ?? 0, 2),
                     '₱' . number_format($order->coop_share ?? 0, 2),
                     '₱' . number_format($order->member_share ?? 0, 2),
                     $order->status,
                     $order->delivery_status ?? 'N/A',
-                    $order->created_at->format('Y-m-d H:i:s'),
-                    $order->admin->name ?? 'N/A',
+                    $order->created_at?->format('Y-m-d H:i:s') ?? 'N/A',
+                    $order->admin?->name ?? 'N/A',
                     $order->admin_notes ?? 'N/A',
-                    $order->logistic->name ?? 'N/A',
-                    $order->logistic->contact_number ?? 'N/A',
+                    $order->logistic?->name ?? 'N/A',
+                    $order->logistic?->contact_number ?? 'N/A',
                     $order->auditTrail->count()
                 ]);
             }
