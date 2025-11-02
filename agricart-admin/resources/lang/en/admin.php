@@ -97,6 +97,7 @@ return [
     'urgent_orders' => 'Urgent Orders',
     'low_stock' => 'Low Stock',
     'delayed_orders' => 'Delayed Orders',
+    'delayed_orders_label' => 'Delayed Orders',
     'need_immediate_attention' => 'Need immediate attention',
     'products_need_restocking' => 'Products need restocking',
     'over_24_hours_pending' => 'Over 24 hours pending',
@@ -679,6 +680,7 @@ return [
     'deactivating' => 'Deactivating...',
     'back' => 'Back',
     'adding' => 'Adding...',
+    'add_logistics_' => 'Add Logistics ',
     'add_logistics_partner' => 'Add Logistics Partner',
     'update_logistic' => 'Update Logistic Details',
     'sold_status' => 'Sold',
@@ -729,6 +731,8 @@ return [
     // Rejection Reasons
     'rejection_reason_out_of_stock' => 'Out of stock',
     'rejection_reason_insufficient_stock' => 'Insufficient stock',
+    'rejection_reason_product_unavailable' => 'Product unavailable',
+    'rejection_reason_delivery_issue' => 'Delivery issue',
     'rejection_reason_invalid_order_details' => 'Invalid order details',
     'rejection_reason_payment_issues' => 'Payment issues',
     'rejection_reason_delivery_area_not_covered' => 'Delivery area not covered',
@@ -826,6 +830,7 @@ return [
     'will_be_marked_ready_pickup' => 'will be marked as ready for pickup',
     'mark_as_ready' => 'Mark as Ready',
     'logistic_provider_will_be_notified' => 'The logistic provider (:name) will be notified that the order is ready for collection.',
+    'logistic__will_be_notified' => 'The logistic  (:name) will be notified that the order is ready for collection.',
 
     // Order Pickup
     'order_picked_up' => 'Order Picked Up',

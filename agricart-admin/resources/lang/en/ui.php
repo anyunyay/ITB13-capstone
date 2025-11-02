@@ -53,7 +53,7 @@ return [
     'password' => 'Password',
     'phone' => 'Phone',
     'address' => 'Address',
-    '不要' => 'Description',
+    'description' => 'Description',
     'status' => 'Status',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',

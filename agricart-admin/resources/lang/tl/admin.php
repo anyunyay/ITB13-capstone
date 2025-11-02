@@ -878,6 +878,7 @@ return [
     'order_number' => 'Order #:id',
     'will_be_marked_ready_pickup' => 'ay mamarkahan bilang handa para sa pickup',
     'logistic__will_be_notified' => 'Aabisuhan ang logistik  (:name) na handa na ang order para sa pagkolekta.',
+    'logistic_provider_will_be_notified' => 'Aabisuhan ang logistik provider (:name) na handa na ang order para sa pagkolekta.',
 
     // Order Pickup
     'order_picked_up' => 'Na-pick Up ang Order',
