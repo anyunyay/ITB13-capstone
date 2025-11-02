@@ -35,6 +35,7 @@ use App\Http\Controllers\Security\EmailChangeController;
 use App\Http\Controllers\Security\PhoneChangeController;
 use App\Http\Controllers\Security\PasswordChangeController;
 use App\Http\Controllers\Security\CredentialsController;
+use App\Http\Controllers\DeliveryProofController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -430,6 +431,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'update'])->name('user.language.update');
     Route::get('/user/language', [\App\Http\Controllers\Api\UserLanguageController::class, 'show'])->name('user.language.show');
+});
+
+// File Management API routes
+Route::prefix('api/files')->name('api.files.')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('/upload', [\App\Http\Controllers\Api\FileManagementController::class, 'upload'])->name('upload');
+    Route::delete('/delete', [\App\Http\Controllers\Api\FileManagementController::class, 'delete'])->name('delete');
+    Route::get('/info', [\App\Http\Controllers\Api\FileManagementController::class, 'info'])->name('info');
+    Route::get('/validation-rules', [\App\Http\Controllers\Api\FileManagementController::class, 'validationRules'])->name('validation-rules');
+});
+
+// Delivery Proof routes
+Route::prefix('api/delivery-proofs')->name('api.delivery-proofs.')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('/', [\App\Http\Controllers\DeliveryProofController::class, 'store'])->name('store');
+    Route::put('/{deliveryProof}', [\App\Http\Controllers\DeliveryProofController::class, 'update'])->name('update');
+    Route::delete('/{deliveryProof}', [\App\Http\Controllers\DeliveryProofController::class, 'destroy'])->name('destroy');
+    Route::get('/sales/{sales}', [\App\Http\Controllers\DeliveryProofController::class, 'show'])->name('show');
 });
 
 require __DIR__ . '/settings.php';

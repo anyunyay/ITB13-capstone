@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasFileUploads;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, HasFileUploads;
 
     protected $fillable = [
         'name',
@@ -144,16 +145,27 @@ class Product extends Model
             return $this->image;
         }
 
-        // If it's a local path, ensure it starts with /
-        if (str_starts_with($this->image, 'images/')) {
-            return '/' . $this->image;
-        }
-
-        // If it doesn't start with /, add it
+        // Ensure path starts with /
         if (!str_starts_with($this->image, '/')) {
             return '/' . $this->image;
         }
 
         return $this->image;
+    }
+
+    /**
+     * Get the file fields that should be cleaned up
+     */
+    protected function getFileFields(): array
+    {
+        return ['image'];
+    }
+
+    /**
+     * Delete the product image file
+     */
+    public function deleteImageFile(): bool
+    {
+        return $this->deleteFile('image');
     }
 }

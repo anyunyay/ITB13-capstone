@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\VerifyEmailNotification;
 use App\Models\UserAddress;
+use App\Traits\HasFileUploads;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasFileUploads;
 
     /**
      * The attributes that are mass assignable.
@@ -66,7 +67,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array
      */
-    protected $appends = ['avatar_url'];
+    protected $appends = ['avatar_url', 'document_url'];
 
     /**
      * The attributes that should be cast.
@@ -351,17 +352,58 @@ class User extends Authenticatable implements MustVerifyEmail
             return $this->avatar;
         }
 
-        // If it's a local path, ensure it starts with /
-        if (str_starts_with($this->avatar, 'images/')) {
-            return '/' . $this->avatar;
-        }
-
-        // If it doesn't start with /, add it
+        // Ensure path starts with /
         if (!str_starts_with($this->avatar, '/')) {
             return '/' . $this->avatar;
         }
 
         return $this->avatar;
+    }
+
+    /**
+     * Get the document URL with proper path handling
+     */
+    public function getDocumentUrlAttribute()
+    {
+        if (!$this->document) {
+            return null;
+        }
+
+        // If it's already a full URL, return as is
+        if (filter_var($this->document, FILTER_VALIDATE_URL)) {
+            return $this->document;
+        }
+
+        // Ensure path starts with /
+        if (!str_starts_with($this->document, '/')) {
+            return '/' . $this->document;
+        }
+
+        return $this->document;
+    }
+
+    /**
+     * Get the file fields that should be cleaned up
+     */
+    protected function getFileFields(): array
+    {
+        return ['avatar', 'document'];
+    }
+
+    /**
+     * Delete the user's avatar file
+     */
+    public function deleteAvatarFile(): bool
+    {
+        return $this->deleteFile('avatar');
+    }
+
+    /**
+     * Delete the user's document file
+     */
+    public function deleteDocumentFile(): bool
+    {
+        return $this->deleteFile('document');
     }
 
     /**

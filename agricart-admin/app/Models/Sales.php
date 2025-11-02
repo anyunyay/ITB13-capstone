@@ -67,6 +67,11 @@ class Sales extends Model
         return $this->belongsTo(SalesAudit::class, 'sales_audit_id');
     }
 
+    public function deliveryProof()
+    {
+        return $this->hasOne(DeliveryProof::class);
+    }
+
     // Scopes for filtering by delivery date
     public function scopeDeliveredToday($query)
     {

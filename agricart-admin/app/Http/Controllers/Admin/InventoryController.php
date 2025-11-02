@@ -9,6 +9,7 @@ use App\Models\ProductPriceHistory;
 use App\Models\PriceTrend;
 use App\Models\StockTrail;
 use App\Helpers\SystemLogger;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Http\Response;
@@ -41,17 +42,22 @@ class InventoryController extends Controller
         return Inertia::render('Inventory/Product/create', []);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, FileUploadService $fileService)
     {
         // Validate the request data
-        $request->validate([
+        $validationRules = [
             'name' => 'required|string|max:255',
             'price_kilo' => 'nullable|numeric|min:0',
             'price_pc' => 'nullable|numeric|min:0',
             'price_tali' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+            'produce_type' => 'required|in:fruit,vegetable',
+        ];
+
+        // Add image validation rules
+        $validationRules['image'] = FileUploadService::getValidationRules('products', true);
+
+        $request->validate($validationRules);
 
         // Custom validation to ensure at least one price is provided
         if (empty($request->input('price_kilo')) && empty($request->input('price_pc')) && empty($request->input('price_tali'))) {
@@ -60,18 +66,24 @@ class InventoryController extends Controller
             ])->withInput();
         }
 
-        if ($request->file('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/products/'), $imageName);
-            
+        try {
+            // Upload image using file service
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $fileService->uploadFile(
+                    $request->file('image'), 
+                    'products', 
+                    $request->input('name')
+                );
+            }
+
             $product = Product::create([
                 'name' => $request->input('name'),
                 'price_kilo' => $request->input('price_kilo'),
                 'price_pc' => $request->input('price_pc'),
                 'price_tali' => $request->input('price_tali'),
                 'description' => $request->input('description'),
-                'image' => 'images/products/' . $imageName,
+                'image' => $imagePath,
                 'produce_type' => $request->input('produce_type'),
             ]);
 
@@ -97,12 +109,17 @@ class InventoryController extends Controller
                 'price_pc' => $request->input('price_pc'),
                 'price_tali' => $request->input('price_tali'),
             ]);
-        }
 
-        return redirect()->route('inventory.index')->with('flash', [
-            'type' => 'success',
-            'message' => 'Inventory item created successfully'
-        ]);
+            return redirect()->route('inventory.index')->with('flash', [
+                'type' => 'success',
+                'message' => 'Inventory item created successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'image' => 'Failed to upload image: ' . $e->getMessage()
+            ])->withInput();
+        }
     }
 
     public function edit(Product $product)
@@ -110,17 +127,22 @@ class InventoryController extends Controller
         return Inertia::render('Inventory/Product/edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product, FileUploadService $fileService)
     {
         // Validate the request data
-        $request->validate([
+        $validationRules = [
             'name' => 'required|string|max:255',
             'price_kilo' => 'nullable|numeric|min:0',
             'price_pc' => 'nullable|numeric|min:0',
             'price_tali' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+            'produce_type' => 'required|in:fruit,vegetable',
+        ];
+
+        // Add image validation rules (optional for updates)
+        $validationRules['image'] = FileUploadService::getValidationRules('products', false);
+
+        $request->validate($validationRules);
 
         // Custom validation to ensure at least one price is provided
         if (empty($request->input('price_kilo')) && empty($request->input('price_pc')) && empty($request->input('price_tali'))) {
@@ -129,8 +151,19 @@ class InventoryController extends Controller
             ])->withInput();
         }
 
-        if ($product) {
+        try {
             $original = $product->only(['price_kilo', 'price_pc', 'price_tali']);
+
+            // Handle image update if new file is uploaded
+            if ($request->hasFile('image')) {
+                $newImagePath = $fileService->updateFile(
+                    $request->file('image'),
+                    'products',
+                    $product->image,
+                    $request->input('name')
+                );
+                $product->image = $newImagePath;
+            }
 
             $product->update([
                 'name' => $request->input('name'),
@@ -176,30 +209,22 @@ class InventoryController extends Controller
                 // Get the very original prices for price trend comparison
                 $veryOriginalPrices = $this->getVeryOriginalPrices($product, $original);
 
-
                 // Handle PriceTrend records
                 $this->handlePriceTrendUpdate($product, $veryOriginalPrices);
             }
-        }
-        
-        if ($request->file('image')) {
-            // Delete the old image file if it exists
-            if ($product->image && file_exists(public_path($product->image))) {
-                unlink(public_path($product->image));
-            }
-            
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/products/'), $imageName);
-            
-            $product->image = 'images/products/' . $imageName;
-        }
 
-        $product->save();
-        return redirect()->route('inventory.index')->with('flash', [
-            'type' => 'success',
-            'message' => 'Product updated successfully'
-        ]);
+            $product->save();
+
+            return redirect()->route('inventory.index')->with('flash', [
+                'type' => 'success',
+                'message' => 'Product updated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'image' => 'Failed to update image: ' . $e->getMessage()
+            ])->withInput();
+        }
     }
 
     public function destroy(Product $product)
@@ -226,10 +251,8 @@ class InventoryController extends Controller
             ]
         );
 
-        // Delete the image file if it exists
-        if ($product->image && file_exists(public_path($product->image))) {
-            unlink(public_path($product->image));
-        }
+        // Delete the image file using the file service
+        $product->deleteImageFile();
         
         $product->delete();
         return redirect()->route('inventory.index')->with('flash', [
