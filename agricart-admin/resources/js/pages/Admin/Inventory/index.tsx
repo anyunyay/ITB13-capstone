@@ -349,7 +349,15 @@ export default function InventoryIndex() {
                         </div>
 
                         {/* Toggle Tabs for Product and Stock Management */}
-                        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'products' | 'stocks')} className="w-full">
+                        <Tabs value={activeTab} onValueChange={(value) => {
+                            setActiveTab(value as 'products' | 'stocks');
+                            // Reset pagination when switching between main tabs
+                            if (value === 'products') {
+                                setCurrentPage(1);
+                            } else if (value === 'stocks') {
+                                setStockCurrentPage(1);
+                            }
+                        }} className="w-full">
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="products" className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />

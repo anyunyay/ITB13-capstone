@@ -468,7 +468,10 @@ export const StockManagement = ({
                         disabled={processing} 
                         variant={currentView === 'stocks' ? "default" : "outline"} 
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                        onClick={() => setCurrentView('stocks')}
+                        onClick={() => {
+                            setCurrentView('stocks');
+                            setStockCurrentPage(1);
+                        }}
                     >
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         {t('admin.current_stocks')}
@@ -478,7 +481,10 @@ export const StockManagement = ({
                             disabled={processing} 
                             variant={currentView === 'trail' ? "default" : "outline"} 
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                            onClick={() => setCurrentView('trail')}
+                            onClick={() => {
+                                setCurrentView('trail');
+                                setStockCurrentPage(1);
+                            }}
                         >
                             <History className="h-4 w-4 mr-2" />
                             {t('admin.stock_trail')}
@@ -489,7 +495,10 @@ export const StockManagement = ({
                             disabled={processing} 
                             variant={currentView === 'sold' ? "default" : "outline"} 
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                            onClick={() => setCurrentView('sold')}
+                            onClick={() => {
+                                setCurrentView('sold');
+                                setStockCurrentPage(1);
+                            }}
                         >
                             <Eye className="h-4 w-4 mr-2" />
                             {t('admin.sold_history')}
@@ -581,7 +590,7 @@ export const StockManagement = ({
 
             <div>
                 {currentView === 'stocks' ? (
-                    <Tabs defaultValue="all" className="w-full">
+                    <Tabs defaultValue="all" className="w-full" onValueChange={() => setStockCurrentPage(1)}>
                         <TabsList className="grid w-full grid-cols-5">
                             <TabsTrigger value="all">{t('admin.current_stocks')}</TabsTrigger>
                             <TabsTrigger value="available">{t('admin.available')}</TabsTrigger>
