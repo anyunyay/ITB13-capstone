@@ -97,7 +97,7 @@ export default function MemberTransactions({ transactions, availableProducts, su
     const [productFilter, setProductFilter] = useState(filters.product || 'all');
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
-    const [perPage, setPerPage] = useState(filters.per_page || 15);
+    const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     useEffect(() => {
         if (!auth?.user) {

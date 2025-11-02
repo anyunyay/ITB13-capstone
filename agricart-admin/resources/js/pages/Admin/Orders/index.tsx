@@ -20,7 +20,10 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const [selectedDeliveryStatus, setSelectedDeliveryStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showSearch, setShowSearch] = useState(false);
-  const itemsPerPage = 12;
+  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+  
+  // Dynamic items per page based on view type
+  const itemsPerPage = currentView === 'cards' ? 8 : 10;
 
   // Handle highlighting effect when coming from notification
   useEffect(() => {
@@ -102,6 +105,11 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     setCurrentPage(1);
   }, [searchTerm, selectedStatus, selectedDeliveryStatus, showSearch]);
 
+  // Reset pagination when view changes (cards vs table)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [currentView]);
+
   return (
     <PermissionGuard 
       permissions={['view orders', 'manage orders', 'generate order report']}
@@ -133,6 +141,8 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               totalPages={totalPages}
               itemsPerPage={itemsPerPage}
               onStatusChange={handleStatusChange}
+              currentView={currentView}
+              setCurrentView={setCurrentView}
             />
           </div>
         </div>

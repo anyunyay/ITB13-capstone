@@ -31,6 +31,8 @@ interface OrderManagementProps {
     totalPages: number;
     itemsPerPage: number;
     onStatusChange: (status: string) => void;
+    currentView: 'cards' | 'table';
+    setCurrentView: (view: 'cards' | 'table') => void;
 }
 
 export const OrderManagement = ({
@@ -53,10 +55,10 @@ export const OrderManagement = ({
     setCurrentPage,
     totalPages,
     itemsPerPage,
-    onStatusChange
+    onStatusChange,
+    currentView,
+    setCurrentView
 }: OrderManagementProps) => {
-    // View state
-    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
     
     // Use allOrders for consistent tab counts
     const pendingOrders = allOrders.filter(order => order.status === 'pending');

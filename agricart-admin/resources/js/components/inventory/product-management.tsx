@@ -44,6 +44,8 @@ interface ProductManagementProps {
     restoringProduct: number | null;
     showSearch: boolean;
     setShowSearch: (show: boolean) => void;
+    currentView: 'cards' | 'table';
+    setCurrentView: (view: 'cards' | 'table') => void;
 }
 
 export const ProductManagement = ({
@@ -73,11 +75,11 @@ export const ProductManagement = ({
     archivingProduct,
     restoringProduct,
     showSearch,
-    setShowSearch
+    setShowSearch,
+    currentView,
+    setCurrentView
 }: ProductManagementProps) => {
     const t = useTranslation();
-    // View state for toggle between cards and table
-    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
 
     // Helper function to check if a product is being processed
     const isProductProcessing = (productId: number) => {

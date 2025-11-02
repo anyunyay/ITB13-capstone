@@ -46,9 +46,12 @@ export default function InventoryIndex() {
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(12); // 12 products per page for better focus
+    const [productView, setProductView] = useState<'cards' | 'table'>('cards');
     const [stockCurrentPage, setStockCurrentPage] = useState(1);
     const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
+    
+    // Dynamic items per page based on view type
+    const itemsPerPage = productView === 'cards' ? 8 : 10;
 
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
@@ -75,6 +78,11 @@ export default function InventoryIndex() {
     useEffect(() => {
         setStockCurrentPage(1);
     }, [stockSearchTerm, selectedStockCategory, stockSortBy, stockSortOrder, setStockCurrentPage]);
+
+    // Reset product pagination when view changes (cards vs table)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [productView]);
 
 
     // Form for archive and delete operations
@@ -398,6 +406,8 @@ export default function InventoryIndex() {
                                     restoringProduct={restoringProduct || null}
                                     showSearch={showSearch}
                                     setShowSearch={setShowSearch}
+                                    currentView={productView}
+                                    setCurrentView={setProductView}
                                 />
                             </TabsContent>
 
