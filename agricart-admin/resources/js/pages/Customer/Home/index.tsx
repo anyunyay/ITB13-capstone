@@ -163,14 +163,14 @@ export default function CustomerHome({ products }: PageProps) {
         </AspectRatio>
       </section>
 
-      {/* Scroll container with snap behavior - starts after Hero */}
-      <div className="min-h-screen relative z-10 snap-y overflow-visible">
+      {/* Main scroll container with proper snap behavior */}
+      <div className="h-screen overflow-y-auto snap-y snap-proximity relative z-10">
         {/* Spacer section to account for fixed Hero */}
         <section className="h-screen snap-start"></section>
 
         {/* Split Layout Section - Cooperatives of Farmers */}
-        <section id="explore" className="min-h-screen bg-muted relative z-10 flex items-center snap-start py-8 sm:py-12 lg:py-0">
-          <div className="max-w-[95vw] sm:max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start">
+          <div className="max-w-[95vw] sm:max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-0">
             <div className="grid grid-cols-1 gap-8 sm:gap-12 items-center lg:grid-cols-2">
               {/* Left Side - Content */}
               <motion.div
@@ -274,8 +274,8 @@ export default function CustomerHome({ products }: PageProps) {
         </section>
 
         {/* Product Carousel Section */}
-        <section id="produce" className="min-h-screen bg-background overflow-hidden relative z-10 flex items-center snap-start py-8 sm:py-12 lg:py-0">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
+        <section id="produce" className="h-screen bg-background relative z-10 flex items-center snap-start">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 overflow-visible">
             <motion.h2
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
               initial={{ opacity: 0, y: 30 }}
@@ -410,16 +410,16 @@ export default function CustomerHome({ products }: PageProps) {
             </div>
           </div>
         </section>
-      </div>
 
-      {/* Testimonial Section with Parallax - Outside scroll-snap container for free scrolling */}
-      <section className="relative z-10 snap-start">
-        <TestimonialSlider
-          testimonials={testimonialData}
-          parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
-          autoplayInterval={6500}
-        />
-      </section>
+        {/* Testimonial Section with Parallax */}
+        <section className="h-screen relative z-10 snap-start">
+          <TestimonialSlider
+            testimonials={testimonialData}
+            parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+            autoplayInterval={6500}
+          />
+        </section>
+      </div>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
