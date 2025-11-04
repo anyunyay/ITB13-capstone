@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -175,7 +175,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       permission="generate membership report"
       pageTitle={t('admin.access_denied')}
     >
-      <AppLayout>
+      <AppSidebarLayout>
         <Head title={t('admin.membership_report')} />
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
@@ -448,12 +448,13 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
             </Card>
           </div>
         </div>
-      </AppLayout>
+      </AppSidebarLayout>
     </PermissionGuard>
   );
 }
 
 function MemberCard({ member }: { member: Member }) {
+  const t = useTranslation();
 
   return (
     <Card>
@@ -544,6 +545,7 @@ function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'tab
 
 // MemberTable Component
 function MemberTable({ members }: { members: Member[] }) {
+  const t = useTranslation();
   const getVerificationBadge = (verified: boolean) => {
     return verified ? (
       <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
