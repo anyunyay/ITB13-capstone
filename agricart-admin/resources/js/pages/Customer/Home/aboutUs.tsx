@@ -139,8 +139,8 @@ export default function AboutUs({ }: PageProps) {
               {/* Gradient overlay for better text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
 
-              {/* Text overlay - positioned above gradient */}
-              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-30 pb-30">
+              {/* Text overlay - positioned above gradient - Responsive */}
+              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-4 pb-8 sm:pl-8 sm:pb-12 md:pl-16 md:pb-20 lg:pl-30 lg:pb-30">
                 <motion.div
                   className="text-left"
                   initial={{ opacity: 0, y: 50 }}
@@ -148,7 +148,7 @@ export default function AboutUs({ }: PageProps) {
                   transition={{ duration: 1, ease: "easeOut" }}
                 >
                   <motion.h2
-                    className="text-7xl font-light"
+                    className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-light"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -156,7 +156,7 @@ export default function AboutUs({ }: PageProps) {
                     Many Roots,
                   </motion.h2>
                   <motion.h1
-                    className="text-[164px] leading-none font-bold text-primary"
+                    className="text-4xl sm:text-6xl md:text-8xl lg:text-[164px] leading-none font-bold text-primary"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -164,7 +164,7 @@ export default function AboutUs({ }: PageProps) {
                     One Bloom.
                   </motion.h1>
                   <motion.p
-                    className="text-2xl font-light mb-15 max-w-4xl mx-auto leading-relaxed"
+                    className="text-sm sm:text-base md:text-lg lg:text-2xl font-light mb-6 sm:mb-10 lg:mb-15 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -176,14 +176,15 @@ export default function AboutUs({ }: PageProps) {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-                  className="absolute left-30 z-30"
+                  className="absolute left-4 sm:left-8 md:left-16 lg:left-30 z-30"
                 >
                   <Button
                     size="lg"
-                    className={`${styles.buttonGradient} text-primary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                    className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-sm sm:text-base lg:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
                     onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
                   >
-                    Learn More About Us
+                    <span className="hidden sm:inline">Learn More About Us</span>
+                    <span className="sm:hidden">Learn More</span>
                   </Button>
                 </motion.div>
               </div>
@@ -198,20 +199,21 @@ export default function AboutUs({ }: PageProps) {
         <section className="h-screen snap-start"></section>
 
         {/* Who We Are Section */}
-        <section id="who-we-are" className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start">
+        <section id="who-we-are" className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start py-8 sm:py-12 lg:py-0">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
               {/* Content */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 viewport={{ once: true }}
+                className="order-2 lg:order-1"
               >
-                <h2 className="text-6xl font-bold text-primary mb-6">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 sm:mb-6">
                   Who We Are
                 </h2>
-                <div className="space-y-4 sm:space-y-6 text-2xl text-muted-foreground leading-relaxed">
+                <div className="space-y-3 sm:space-y-4 lg:space-y-6 text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
                   <p>
                     SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
                     of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
@@ -231,13 +233,13 @@ export default function AboutUs({ }: PageProps) {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 viewport={{ once: true }}
-                className="relative"
+                className="relative order-1 lg:order-2"
               >
                 <AspectRatio ratio={4 / 3} className="rounded-2xl overflow-hidden shadow-2xl">
                   <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
-                    <div className="text-white text-center p-8">
-                      <div className="text-3xl font-bold mb-4">SMMC Cooperative</div>
-                      <div className="text-lg">Local Farmers Working Together</div>
+                    <div className="text-white text-center p-4 sm:p-6 lg:p-8">
+                      <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">SMMC Cooperative</div>
+                      <div className="text-sm sm:text-base lg:text-lg">Local Farmers Working Together</div>
                     </div>
                   </div>
                 </AspectRatio>
@@ -254,10 +256,10 @@ export default function AboutUs({ }: PageProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
-              className="text-center mb-12 sm:mb-16"
+              className="text-center mb-8 sm:mb-12 lg:mb-16"
             >
               <motion.h2
-                className="text-6xl font-bold text-primary mb-4 sm:mb-6"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-3 sm:mb-4 lg:mb-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -266,7 +268,7 @@ export default function AboutUs({ }: PageProps) {
                 Our Vision & Values
               </motion.h2>
               <motion.p
-                className="text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4"
+                className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -276,7 +278,7 @@ export default function AboutUs({ }: PageProps) {
               </motion.p>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {values.map((value, index) => (
                 <motion.div
                   key={index}

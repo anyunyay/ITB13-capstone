@@ -96,8 +96,8 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
             >
                 <Head title="Admin Login" />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
+                <div className="grid gap-4 sm:gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
@@ -170,7 +170,7 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
                     </Button>
                 </div>
 
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-xs sm:text-sm text-gray-600">
                     <p className="mb-2">Need help? Contact your system administrator</p>
                     <p>
                         Regular user?{' '}

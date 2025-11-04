@@ -136,42 +136,42 @@ export default function ProfilePage() {
                 {/* Main Profile Header */}
                 <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
                     <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
-                            <div className="flex items-center space-x-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 sm:pt-6">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                                 <div className="relative">
-                                    <Avatar className="h-24 w-24 border-4 border-card/50 shadow-2xl ring-4 ring-border/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20">
+                                    <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-card/50 shadow-2xl ring-4 ring-border/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20">
                                         <AvatarImage 
                                             src={user?.avatar_url || undefined} 
                                             alt={user?.name} 
                                             className="object-cover"
                                         />
-                                        <AvatarFallback className="text-2xl bg-gradient-to-br from-muted to-muted/60 text-card-foreground font-bold">
+                                        <AvatarFallback className="text-xl sm:text-2xl bg-gradient-to-br from-muted to-muted/60 text-card-foreground font-bold">
                                             {user?.name ? getInitials(user.name) : 'U'}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full border-4 border-card shadow-lg flex items-center justify-center">
-                                        <Shield className="h-4 w-4 text-primary-foreground" />
+                                    <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full border-4 border-card shadow-lg flex items-center justify-center">
+                                        <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
                                     </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <h1 className="text-2xl font-bold text-card-foreground">
+                                <div className="space-y-1 text-center sm:text-left">
+                                    <h1 className="text-xl sm:text-2xl font-bold text-card-foreground">
                                         {user?.name || 'No Name'}
                                     </h1>
-                                    <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
+                                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                                        <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-secondary/10 text-secondary">
                                             <User className="h-3 w-3 mr-1" />
                                             {getUserTypeLabel(user?.type || '')}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-xs sm:text-sm text-muted-foreground">
                                         {t('ui.member_since')} {formatDate(user?.created_at)}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex flex-col sm:items-end gap-3">
+                            <div className="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
                                 <Button
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                    className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                                 >
                                     <Edit className="h-4 w-4" />
                                     {t('ui.edit_profile')}
@@ -180,12 +180,12 @@ export default function ProfilePage() {
                         </div>
                     </CardHeader>
                     <CardContent className="px-6 py-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                             {/* Contact Information */}
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                            <div className="space-y-4 sm:space-y-6">
+                                <h3 className="text-lg sm:text-xl font-semibold text-card-foreground flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-secondary/10">
-                                        <Mail className="h-5 w-5 text-secondary" />
+                                        <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                                     </div>
                                     {t('ui.contact_information')}
                                 </h3>
@@ -218,10 +218,10 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Account Information */}
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
+                            <div className="space-y-4 sm:space-y-6">
+                                <h3 className="text-lg sm:text-xl font-semibold text-card-foreground flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-primary/10">
-                                        <Shield className="h-5 w-5 text-primary" />
+                                        <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                                     </div>
                                     {t('ui.account_information')}
                                 </h3>
@@ -280,19 +280,19 @@ export default function ProfilePage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                 {/* System Logs - Admin/Staff only */}
                                 {hasFeatureAccess(user.type, 'system_logs') && routes.systemLogs && (
                                     <Button
                                         variant="outline"
-                                        className="h-auto p-4 flex flex-col items-start gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
+                                        className="h-auto p-3 sm:p-4 flex flex-col items-start gap-2 sm:gap-3 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200"
                                         onClick={() => router.visit(routes.systemLogs!)}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <Database className="h-5 w-5 text-primary" />
-                                            <span className="font-medium">{t('ui.system_logs')}</span>
+                                        <div className="flex items-center gap-2 sm:gap-3">
+                                            <Database className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                                            <span className="text-sm sm:text-base font-medium">{t('ui.system_logs')}</span>
                                         </div>
-                                        <p className="text-sm text-muted-foreground text-left">
+                                        <p className="text-xs sm:text-sm text-muted-foreground text-left">
                                             {t('ui.view_analyze_system_logs')}
                                         </p>
                                     </Button>

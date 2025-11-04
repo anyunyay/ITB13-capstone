@@ -81,8 +81,8 @@ export default function Register() {
             iconColor="text-primary"
         >
             <Head title="Register" />
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
+                <div className="grid gap-4 sm:gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
                         <Input
@@ -165,7 +165,7 @@ export default function Register() {
                     <div className="grid gap-2">
                         <Label htmlFor="contact_number">Contact Number</Label>
                         <div className="flex gap-2">
-                            <div className="w-20">
+                            <div className="w-16 sm:w-20">
                                 <Select disabled value="+63">
                                     <SelectTrigger>
                                         <SelectValue />
@@ -223,7 +223,7 @@ export default function Register() {
                         <InputError message={errors.address} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="province">Province</Label>
                             <Select 

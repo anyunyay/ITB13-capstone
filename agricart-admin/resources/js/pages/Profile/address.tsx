@@ -323,17 +323,17 @@ export default function AddressPage() {
                     {(user.address || user.barangay || user.city || user.province) && (
                         <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
                             <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
-                                    <div className="flex items-center space-x-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 sm:pt-6">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
                                         <div className="p-2 rounded-lg bg-secondary/10">
-                                            <MapPin className="h-6 w-6 text-secondary" />
+                                            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                                         </div>
                                         <div className="space-y-1">
-                                            <h3 className="text-xl font-bold text-card-foreground">
+                                            <h3 className="text-lg sm:text-xl font-bold text-card-foreground">
                                                 {isActiveAddressSameAsMain() ? t('ui.currently_active_address') : t('ui.main_address_registration')}
                                             </h3>
                                             <div className="flex items-center gap-2">
-                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                                <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                                                     isActiveAddressSameAsMain() 
                                                         ? 'bg-secondary/10 text-secondary'
                                                         : 'bg-primary/10 text-primary'
@@ -344,17 +344,17 @@ export default function AddressPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                         <Button
                                             onClick={() => handleEdit({ id: 0, street: user.address || '', barangay: user.barangay || '', city: user.city || '', province: user.province || '', is_active: false })}
-                                            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-3 sm:px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50"
                                             disabled={mainAddressHasOngoingOrders}
                                         >
                                             <Edit className="h-4 w-4" />
                                             {t('ui.edit')}
                                         </Button>
                                         {isActiveAddressSameAsMain() && (
-                                            <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary/10 text-secondary">
+                                            <div className="inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-secondary/10 text-secondary">
                                                 <CheckCircle className="h-3 w-3 mr-1" />
                                                 {t('ui.currently_active')}
                                             </div>
@@ -575,7 +575,7 @@ export default function AddressPage() {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="province">{t('ui.province')}</Label>
                                 <Select 

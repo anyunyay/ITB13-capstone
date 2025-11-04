@@ -22,16 +22,16 @@ export default function PasswordChange() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <Head title={t('ui.change_password_required')} />
       
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <Lock className="mx-auto h-12 w-12 text-blue-400" />
-          <h2 className="mt-6 text-3xl font-extrabold text-white">
+          <Lock className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-blue-400" />
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-extrabold text-white">
             {t('ui.password_change_required')}
           </h2>
-          <p className="mt-2 text-sm text-gray-300">
+          <p className="mt-2 text-xs sm:text-sm text-gray-300 px-2">
             {t('ui.security_password_change_message')}
           </p>
         </div>
@@ -51,9 +51,9 @@ export default function PasswordChange() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="current_password" className="text-gray-200">{t('admin.current_password')}</Label>
+                <Label htmlFor="current_password" className="text-gray-200 text-sm">{t('admin.current_password')}</Label>
                 <PasswordInput
                   id="current_password"
                   value={data.current_password}
@@ -63,12 +63,12 @@ export default function PasswordChange() {
                   required
                 />
                 {errors.current_password && (
-                  <p className="text-sm text-red-400">{errors.current_password}</p>
+                  <p className="text-xs sm:text-sm text-red-400">{errors.current_password}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-200">{t('admin.new_password')}</Label>
+                <Label htmlFor="password" className="text-gray-200 text-sm">{t('admin.new_password')}</Label>
                 <PasswordInput
                   id="password"
                   value={data.password}
@@ -78,12 +78,12 @@ export default function PasswordChange() {
                   required
                 />
                 {errors.password && (
-                  <p className="text-sm text-red-400">{errors.password}</p>
+                  <p className="text-xs sm:text-sm text-red-400">{errors.password}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password_confirmation" className="text-gray-200">{t('admin.confirm_password')}</Label>
+                <Label htmlFor="password_confirmation" className="text-gray-200 text-sm">{t('admin.confirm_password')}</Label>
                 <PasswordInput
                   id="password_confirmation"
                   value={data.password_confirmation}
@@ -93,13 +93,13 @@ export default function PasswordChange() {
                   required
                 />
                 {errors.password_confirmation && (
-                  <p className="text-sm text-red-400">{errors.password_confirmation}</p>
+                  <p className="text-xs sm:text-sm text-red-400">{errors.password_confirmation}</p>
                 )}
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white border-0 py-2 sm:py-3" 
                 disabled={processing}
               >
                 {processing ? t('ui.saving') : t('admin.change_password')}

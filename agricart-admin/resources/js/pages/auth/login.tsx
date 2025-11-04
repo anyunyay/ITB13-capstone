@@ -97,8 +97,8 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
             >
                 <Head title="Customer Login" />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
+                <div className="grid gap-4 sm:gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
@@ -169,25 +169,28 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
                     </Button>
                 </div>
 
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-xs sm:text-sm text-gray-600">
                     <p className="mb-2">Don't have an account?</p>
-                    <p>
-                        <TextLink href={route('register')} tabIndex={5}>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-1 sm:gap-0">
+                        <TextLink href={route('register')} tabIndex={5} className="font-medium">
                             Sign up
                         </TextLink>
-                        {' '}or access other portals:{' '}
-                        <TextLink href={route('admin.login')} tabIndex={5}>
-                            Admin
-                        </TextLink>
-                        ,{' '}
-                        <TextLink href={route('member.login')} tabIndex={5}>
-                            Member
-                        </TextLink>
-                        ,{' '}
-                        <TextLink href={route('logistic.login')} tabIndex={5}>
-                            Logistics
-                        </TextLink>
-                    </p>
+                        <span className="hidden sm:inline">{' '}or access other portals:{' '}</span>
+                        <span className="sm:hidden">Other portals:</span>
+                        <div className="flex flex-wrap justify-center gap-1 sm:gap-0">
+                            <TextLink href={route('admin.login')} tabIndex={5} className="text-xs sm:text-sm">
+                                Admin
+                            </TextLink>
+                            <span className="hidden sm:inline">,{' '}</span>
+                            <TextLink href={route('member.login')} tabIndex={5} className="text-xs sm:text-sm">
+                                Member
+                            </TextLink>
+                            <span className="hidden sm:inline">,{' '}</span>
+                            <TextLink href={route('logistic.login')} tabIndex={5} className="text-xs sm:text-sm">
+                                Logistics
+                            </TextLink>
+                        </div>
+                    </div>
                 </div>
             </form>
 
