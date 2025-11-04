@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Helpers\SystemLogger;
 use App\Models\Sales;
 use App\Models\SalesAudit;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Notifications\DeliveryStatusUpdate;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticController extends Controller
@@ -258,7 +260,7 @@ class LogisticController extends Controller
             ->with('message', 'Delivery status updated successfully');
     }
 
-    public function markDelivered(Request $request, SalesAudit $order)
+    public function markDelivered(Request $request, SalesAudit $order, FileUploadService $fileService)
     {
         // Ensure the order is assigned to the current logistic
         if ($order->logistic_id !== Auth::id()) {
@@ -279,18 +281,28 @@ class LogisticController extends Controller
             abort(403, 'Order must be marked as "Out for Delivery" before it can be marked as delivered. Current status: ' . $order->delivery_status);
         }
 
-        // Validate the request
-        $request->validate([
-            'delivery_proof_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        // Validate the request using FileUploadService validation rules
+        $validationRules = [
+            'delivery_proof_image' => FileUploadService::getValidationRules('delivery-proofs', true),
             'confirmation_text' => 'required|string|in:I Confirm',
-        ]);
+        ];
+        
+        $request->validate($validationRules);
 
-        // Handle image upload
+        // Handle image upload using FileUploadService
         $imagePath = null;
         if ($request->hasFile('delivery_proof_image')) {
-            $image = $request->file('delivery_proof_image');
-            $imageName = 'delivery_proof_' . $order->id . '_' . time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = Storage::disk('private')->putFileAs('delivery-proofs', $image, $imageName);
+            try {
+                $imagePath = $fileService->uploadFile(
+                    $request->file('delivery_proof_image'),
+                    'delivery-proofs',
+                    'delivery_proof_' . $order->id . '_' . time()
+                );
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors([
+                    'delivery_proof_image' => 'Failed to upload delivery proof image: ' . $e->getMessage()
+                ])->withInput();
+            }
         }
 
         // Get the delivery address as plain text

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -186,35 +187,40 @@ class ProfileController extends Controller
     /**
      * Upload or update the customer's avatar.
      */
-    public function uploadAvatar(Request $request)
+    public function uploadAvatar(Request $request, FileUploadService $fileService)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        // Use FileUploadService validation rules
+        $validationRules = [
+            'avatar' => FileUploadService::getValidationRules('avatars', true),
+        ];
+        
+        $request->validate($validationRules);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Delete old avatar if exists
-        if ($user->avatar) {
-            $oldAvatarPath = public_path($user->avatar);
-            if (File::exists($oldAvatarPath)) {
-                File::delete($oldAvatarPath);
+        try {
+            // Upload new avatar using FileUploadService (this will handle old file deletion)
+            if ($request->hasFile('avatar')) {
+                $newAvatarPath = $fileService->updateFile(
+                    $request->file('avatar'),
+                    'avatars',
+                    $user->avatar,
+                    'avatar_' . $user->id . '_' . time()
+                );
+                
+                $user->update([
+                    'avatar' => $newAvatarPath,
+                ]);
             }
-        }
 
-        // Upload new avatar
-        if ($request->file('avatar')) {
-            $avatar = $request->file('avatar');
-            $avatarName = 'avatar_' . $user->id . '_' . time() . '.' . $avatar->getClientOriginalExtension();
-            $avatar->move(public_path('images/avatars/'), $avatarName);
+            return redirect()->back()->with('success', 'Profile picture updated successfully.');
             
-            $user->update([
-                'avatar' => 'images/avatars/' . $avatarName,
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'avatar' => 'Failed to upload avatar: ' . $e->getMessage()
             ]);
         }
-
-        return redirect()->back()->with('success', 'Profile picture updated successfully.');
     }
 
     /**
@@ -226,14 +232,8 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if ($user->avatar) {
-            $avatarPath = public_path($user->avatar);
-            if (File::exists($avatarPath)) {
-                File::delete($avatarPath);
-            }
-
-            $user->update([
-                'avatar' => null,
-            ]);
+            // Use the model's delete method which uses FileUploadService
+            $user->deleteAvatarFile();
         }
 
         return redirect()->back()->with('success', 'Profile picture removed successfully.');

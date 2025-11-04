@@ -387,10 +387,26 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the file fields that should be cleaned up
+     * Returns array with field => category mapping
      */
     protected function getFileFields(): array
     {
-        return ['avatar', 'document'];
+        return [
+            'avatar' => 'avatars',
+            'document' => 'documents'
+        ];
+    }
+
+    /**
+     * Get file category for a specific field
+     */
+    protected function getFileCategoryForField(string $field): string
+    {
+        return match($field) {
+            'avatar' => 'avatars',
+            'document' => 'documents',
+            default => parent::getFileCategoryForField($field)
+        };
     }
 
     /**
@@ -398,7 +414,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function deleteAvatarFile(): bool
     {
-        return $this->deleteFile('avatar');
+        return $this->deleteFile('avatar', 'avatars');
     }
 
     /**
@@ -406,7 +422,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function deleteDocumentFile(): bool
     {
-        return $this->deleteFile('document');
+        return $this->deleteFile('document', 'documents');
     }
 
     /**

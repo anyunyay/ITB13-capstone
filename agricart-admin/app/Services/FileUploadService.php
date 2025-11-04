@@ -91,15 +91,75 @@ class FileUploadService
      */
     public function updateFile(UploadedFile $newFile, string $category, ?string $oldFilePath = null, ?string $customName = null): ?string
     {
-        // Upload new file first
+        // Upload new file first to ensure success before deleting old file
         $newFilePath = $this->uploadFile($newFile, $category, $customName);
 
         // Delete old file if upload was successful and old file exists
         if ($newFilePath && $oldFilePath) {
-            $this->deleteFile($oldFilePath, $category);
+            $this->safeDeleteFile($oldFilePath, $category);
         }
 
         return $newFilePath;
+    }
+
+    /**
+     * Safely delete a file with error handling
+     *
+     * @param string|null $filePath
+     * @param string $category
+     * @return bool
+     */
+    public function safeDeleteFile(?string $filePath, string $category): bool
+    {
+        try {
+            return $this->deleteFile($filePath, $category);
+        } catch (\Exception $e) {
+            // Log the error but don't fail the operation
+            \Log::warning('Failed to delete file during update', [
+                'file_path' => $filePath,
+                'category' => $category,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Check if a file exists in storage
+     *
+     * @param string|null $filePath
+     * @param string $category
+     * @return bool
+     */
+    public function fileExists(?string $filePath, string $category): bool
+    {
+        if (!$filePath) {
+            return false;
+        }
+
+        $this->validateCategory($category);
+        $config = self::STORAGE_CONFIG[$category];
+        
+        return Storage::disk($config['disk'])->exists($filePath);
+    }
+
+    /**
+     * Get file size in bytes
+     *
+     * @param string|null $filePath
+     * @param string $category
+     * @return int|null
+     */
+    public function getFileSize(?string $filePath, string $category): ?int
+    {
+        if (!$filePath || !$this->fileExists($filePath, $category)) {
+            return null;
+        }
+
+        $this->validateCategory($category);
+        $config = self::STORAGE_CONFIG[$category];
+        
+        return Storage::disk($config['disk'])->size($filePath);
     }
 
     /**

@@ -63,6 +63,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const [deliveryImage, setDeliveryImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Get current user from page props
@@ -113,6 +114,23 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Please select a valid file type (JPEG, PNG, or PDF)');
+        event.target.value = '';
+        return;
+      }
+
+      // Validate file size (3MB = 3072KB)
+      const maxSizeKB = 3072;
+      const fileSizeKB = file.size / 1024;
+      if (fileSizeKB > maxSizeKB) {
+        alert(`File size must be less than ${maxSizeKB / 1024}MB. Current size: ${(fileSizeKB / 1024).toFixed(2)}MB`);
+        event.target.value = '';
+        return;
+      }
+
       setDeliveryImage(file);
       deliveryForm.setData('delivery_proof_image', file);
       
@@ -137,13 +155,21 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
   // Handle delivery confirmation
   const handleDeliveryConfirmation = () => {
+    // Validate image
     if (!deliveryImage) {
       alert(t('logistic.upload_image_required'));
       return;
     }
 
-    if (confirmationText !== 'I Confirm') {
+    // Validate confirmation text
+    if (confirmationText.trim() !== 'I Confirm') {
       alert(t('logistic.type_confirm_exact'));
+      return;
+    }
+
+    // Validate order status
+    if (currentOrder.delivery_status !== 'out_for_delivery') {
+      alert('Order must be "Out for Delivery" before it can be marked as delivered.');
       return;
     }
 
@@ -152,10 +178,18 @@ export default function ShowOrder({ order }: ShowOrderProps) {
     // Create FormData for file upload
     const formData = new FormData();
     formData.append('delivery_proof_image', deliveryImage);
-    formData.append('confirmation_text', confirmationText);
+    formData.append('confirmation_text', confirmationText.trim());
+
+    console.log('Submitting delivery confirmation for order:', currentOrder.id);
+    console.log('File size:', deliveryImage.size, 'bytes');
+    console.log('File type:', deliveryImage.type);
+    console.log('Confirmation text:', confirmationText);
+
+    setIsSubmitting(true);
 
     router.post(route('logistic.orders.markDelivered', currentOrder.id), formData, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        console.log('Delivery confirmation successful:', response);
         // Update local state
         setCurrentOrder(prevOrder => ({
           ...prevOrder,
@@ -172,9 +206,42 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         setDeliveryImage(null);
         setImagePreview(null);
         setConfirmationText('');
+        setIsSubmitting(false);
       },
       onError: (errors) => {
-        console.error('Delivery confirmation error:', errors);
+        console.error('Delivery confirmation error details:', {
+          errors,
+          errorType: typeof errors,
+          errorKeys: errors ? Object.keys(errors) : 'No keys',
+          errorValues: errors ? Object.values(errors) : 'No values'
+        });
+        
+        // Handle different types of errors
+        if (errors && typeof errors === 'object') {
+          // Check for validation errors
+          if (errors.delivery_proof_image) {
+            alert(`Image upload error: ${errors.delivery_proof_image}`);
+          } else if (errors.confirmation_text) {
+            alert(`Confirmation error: ${errors.confirmation_text}`);
+          } else if (errors.message) {
+            alert(`Error: ${errors.message}`);
+          } else if (errors.error) {
+            alert(`Server error: ${errors.error}`);
+          } else {
+            // Generic error handling for validation errors
+            const errorMessages = Object.values(errors).flat().filter(msg => typeof msg === 'string');
+            if (errorMessages.length > 0) {
+              alert(`Validation error: ${errorMessages.join(', ')}`);
+            } else {
+              alert('An unexpected error occurred while confirming delivery. Please check the console for details and try again.');
+            }
+          }
+        } else if (typeof errors === 'string') {
+          alert(`Error: ${errors}`);
+        } else {
+          alert('An unexpected error occurred while confirming delivery. Please check the console for details and try again.');
+        }
+        setIsSubmitting(false);
       },
       preserveScroll: true,
     });
@@ -592,10 +659,10 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               </Button>
               <Button 
                 onClick={handleDeliveryConfirmation}
-                disabled={!deliveryImage || confirmationText !== 'I Confirm' || deliveryForm.processing}
+                disabled={!deliveryImage || confirmationText.trim() !== 'I Confirm' || isSubmitting}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted"
               >
-                {deliveryForm.processing ? t('logistic.confirming') : t('logistic.confirm_delivery_button')}
+                {isSubmitting ? t('logistic.confirming') : t('logistic.confirm_delivery_button')}
               </Button>
             </DialogFooter>
           </DialogContent>

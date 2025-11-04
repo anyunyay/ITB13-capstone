@@ -221,10 +221,13 @@ class MembershipController extends Controller
             
             // Handle document update if new file is uploaded
             if ($request->hasFile('document')) {
+                // Always pass the current document path for deletion when uploading a new one
+                $oldDocumentPath = $member->document;
+                
                 $newDocumentPath = $fileService->updateFile(
                     $request->file('document'),
                     'documents',
-                    $member->document_marked_for_deletion ? $member->document : null,
+                    $oldDocumentPath, // Always delete the old document
                     $request->input('name') . '_document'
                 );
                 $member->document = $newDocumentPath;

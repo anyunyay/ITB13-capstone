@@ -161,10 +161,24 @@ class Product extends Model
 
     /**
      * Get the file fields that should be cleaned up
+     * Returns array with field => category mapping
      */
     protected function getFileFields(): array
     {
-        return ['image'];
+        return [
+            'image' => 'products'
+        ];
+    }
+
+    /**
+     * Get file category for a specific field
+     */
+    protected function getFileCategoryForField(string $field): string
+    {
+        return match($field) {
+            'image' => 'products',
+            default => parent::getFileCategoryForField($field)
+        };
     }
 
     /**
@@ -172,24 +186,23 @@ class Product extends Model
      */
     public function deleteImageFile(): bool
     {
-        if (!$this->image) {
-            return false;
-        }
-
-        // Handle both old format (products/filename.ext) and new format (filename.ext)
-        $filePath = str_contains($this->image, 'products/') 
-            ? $this->image 
-            : 'products/' . $this->image;
-
-        return $this->deleteFileByPath($filePath, 'products');
+        return $this->deleteFile('image', 'products');
     }
 
     /**
-     * Delete a file by its path and category
+     * Normalize file path for product images
      */
-    private function deleteFileByPath(string $filePath, string $category): bool
+    protected function normalizeFilePath(string $filePath, string $category): string
     {
-        $fileService = app(\App\Services\FileUploadService::class);
-        return $fileService->deleteFile($filePath, $category);
+        if ($category === 'products') {
+            // Handle both old format (products/filename.ext) and new format (filename.ext)
+            if (str_contains($filePath, 'products/')) {
+                return $filePath; // Already has the folder prefix
+            } else {
+                return 'products/' . $filePath; // Add folder prefix
+            }
+        }
+        
+        return parent::normalizeFilePath($filePath, $category);
     }
 }
