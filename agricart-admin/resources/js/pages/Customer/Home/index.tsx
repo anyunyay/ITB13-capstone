@@ -42,23 +42,6 @@ export default function CustomerHome({ products }: PageProps) {
 
   const handleRequireLogin = () => setShowLoginConfirm(true);
 
-  // Handle scroll detection for header transformation
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      const scrollTop = scrollContainer.scrollTop;
-      // Update the header's scroll state by dispatching a custom event
-      window.dispatchEvent(new CustomEvent('scroll-snap', {
-        detail: { scrollTop }
-      }));
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, []);
-
   // Get featured products (first 6 products for the carousel)
   const featuredProducts = products.slice(0, 6);
 
@@ -181,12 +164,12 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Scroll container with snap behavior - starts after Hero */}
-      <div ref={scrollContainerRef} className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
+      <div className="min-h-screen relative z-10 snap-y overflow-visible">
         {/* Spacer section to account for fixed Hero */}
         <section className="h-screen snap-start"></section>
 
         {/* Split Layout Section - Cooperatives of Farmers */}
-        <section id="explore" className="py-40 px-4 bg-muted relative z-10 snap-start h-screen flex items-center">
+        <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start">
           <div className="max-w-[90vw] mx-auto">
             <div className="grid grid-cols-1 gap-12 items-center lg:grid-cols-2">
               {/* Left Side - Content */}
@@ -291,7 +274,7 @@ export default function CustomerHome({ products }: PageProps) {
         </section>
 
         {/* Product Carousel Section */}
-        <section id="produce" className="py-18 bg-background overflow-hidden relative z-10 snap-start h-screen flex items-center">
+        <section id="produce" className="h-screen bg-background overflow-hidden relative z-10 flex items-center snap-start">
           <div className="container mx-auto my-10 p-20">
             <motion.h2
               className="text-6xl font-bold text-center text-primary mb-8"
@@ -430,7 +413,7 @@ export default function CustomerHome({ products }: PageProps) {
       </div>
 
       {/* Testimonial Section with Parallax - Outside scroll-snap container for free scrolling */}
-      <section className="relativ z-10">
+      <section className="relative z-10 snap-start">
         <TestimonialSlider
           testimonials={testimonialData}
           parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
