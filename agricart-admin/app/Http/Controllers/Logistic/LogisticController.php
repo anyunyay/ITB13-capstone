@@ -136,7 +136,7 @@ class LogisticController extends Controller
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             'delivered_time' => $order->delivered_time?->toISOString(),
             'delivery_timeline' => $order->getDeliveryTimeline(),
-            'delivery_proof_image' => $order->delivery_proof_image ? asset('storage/' . $order->delivery_proof_image) : null,
+            'delivery_proof_image' => $order->delivery_proof_image ? route('private-file.show', ['folder' => 'delivery-proofs', 'filename' => basename($order->delivery_proof_image)]) : null,
             'delivery_confirmed' => $order->delivery_confirmed,
             'created_at' => $order->created_at->toISOString(),
             'audit_trail' => $order->getAggregatedAuditTrail(),

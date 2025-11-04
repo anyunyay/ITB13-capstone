@@ -149,11 +149,10 @@ export const ProductTable = ({
                                 <div className="flex items-center gap-3">
                                     <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
                                         <img 
-                                            src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+                                            src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
                                             alt={product.name}
-                                            onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
-                                            className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
                                             onError={(e) => handleImageError(e, product.name)}
+                                            className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
                                         />
                                     </div>
                                     <div className="min-w-0 flex-1">

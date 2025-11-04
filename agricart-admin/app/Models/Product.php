@@ -145,12 +145,18 @@ class Product extends Model
             return $this->image;
         }
 
-        // Ensure path starts with /
-        if (!str_starts_with($this->image, '/')) {
-            return '/' . $this->image;
+        // If it's already a full storage path, return as is
+        if (str_starts_with($this->image, '/storage/') || str_starts_with($this->image, 'storage/')) {
+            return $this->image;
         }
 
-        return $this->image;
+        // If it contains 'products/' prefix, it's the old format - use as is
+        if (str_contains($this->image, 'products/')) {
+            return '/storage/' . ltrim($this->image, '/');
+        }
+
+        // If it's just a filename, prepend the correct storage path
+        return '/storage/products/' . ltrim($this->image, '/');
     }
 
     /**
@@ -166,6 +172,24 @@ class Product extends Model
      */
     public function deleteImageFile(): bool
     {
-        return $this->deleteFile('image');
+        if (!$this->image) {
+            return false;
+        }
+
+        // Handle both old format (products/filename.ext) and new format (filename.ext)
+        $filePath = str_contains($this->image, 'products/') 
+            ? $this->image 
+            : 'products/' . $this->image;
+
+        return $this->deleteFileByPath($filePath, 'products');
+    }
+
+    /**
+     * Delete a file by its path and category
+     */
+    private function deleteFileByPath(string $filePath, string $category): bool
+    {
+        $fileService = app(\App\Services\FileUploadService::class);
+        return $fileService->deleteFile($filePath, $category);
     }
 }

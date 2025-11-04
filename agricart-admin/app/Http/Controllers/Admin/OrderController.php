@@ -205,7 +205,7 @@ class OrderController extends Controller
             'member_share' => $order->member_share,
             'status' => $order->status,
             'delivery_status' => $order->delivery_status,
-            'delivery_proof_image' => $order->delivery_proof_image ? route('admin.orders.deliveryProof', $order->id) : null,
+            'delivery_proof_image' => $order->delivery_proof_image ? route('private-file.show', ['folder' => 'delivery-proofs', 'filename' => basename($order->delivery_proof_image)]) : null,
             'delivery_confirmed' => $order->delivery_confirmed,
             'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
             'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
@@ -275,8 +275,8 @@ class OrderController extends Controller
             abort(404, 'Delivery proof not found for this order.');
         }
 
-        // Check if the file exists
-        $filePath = storage_path('app/public/' . $order->delivery_proof_image);
+        // Check if the file exists in private storage
+        $filePath = storage_path('app/private/delivery-proofs/' . basename($order->delivery_proof_image));
         if (!file_exists($filePath)) {
             abort(404, 'Delivery proof file not found.');
         }

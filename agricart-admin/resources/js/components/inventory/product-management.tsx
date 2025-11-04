@@ -261,11 +261,10 @@ export const ProductManagement = ({
                                     <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
                                         <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
                                             <img
-                                                src={product.image_url || product.image || '/storage/fallback-photo.png'}
+                                                src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'}
                                                 alt={product.name}
-                                                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
-                                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                                                 onError={(e) => handleImageError(e, product.name)}
+                                                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                                             />
                                             <div className="absolute top-2.5 right-2.5 z-10">
                                                 <Badge variant="secondary" className="inline-block px-2.5 py-1.5 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full shadow-sm backdrop-blur-sm">

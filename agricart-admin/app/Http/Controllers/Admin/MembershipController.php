@@ -18,20 +18,22 @@ class MembershipController extends Controller
     public function index()
     {
         // Optimize: Load only essential member data (keep as collection for frontend compatibility)
+        $fileService = new \App\Services\FileUploadService();
+        
         $members = User::where('type', 'member')
             ->with('defaultAddress:id,user_id,street,barangay,city,province')
             ->select('id', 'name', 'member_id', 'contact_number', 'registration_date', 'document', 'type', 'active', 'created_at')
             ->orderBy('name')
             ->limit(500) // Limit instead of paginate to maintain frontend compatibility
             ->get()
-            ->map(function ($member) {
+            ->map(function ($member) use ($fileService) {
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
                     'member_id' => $member->member_id,
                     'contact_number' => $member->contact_number,
                     'registration_date' => $member->registration_date,
-                    'document' => $member->document,
+                    'document' => $member->document ? $fileService->getFileUrl($member->document, 'documents') : null,
                     'type' => $member->type,
                     'active' => $member->active,
                     'default_address' => $member->defaultAddress ? [
@@ -146,6 +148,14 @@ class MembershipController extends Controller
         $member = User::where('type', 'member')
             ->with('defaultAddress')
             ->findOrFail($id);
+            
+        $fileService = new \App\Services\FileUploadService();
+        
+        // Transform document path to URL
+        if ($member->document) {
+            $member->document = $fileService->getFileUrl($member->document, 'documents');
+        }
+        
         return Inertia::render('Admin/Membership/edit', compact('member'));
     }
 
@@ -269,10 +279,19 @@ class MembershipController extends Controller
 
     public function deactivated()
     {
+        $fileService = new \App\Services\FileUploadService();
+        
         $deactivatedMembers = User::where('type', 'member')
             ->inactive()
             ->with('defaultAddress')
-            ->get();
+            ->get()
+            ->map(function ($member) use ($fileService) {
+                if ($member->document) {
+                    $member->document = $fileService->getFileUrl($member->document, 'documents');
+                }
+                return $member;
+            });
+            
         return Inertia::render('Admin/Membership/deactivated', compact('deactivatedMembers'));
     }
 

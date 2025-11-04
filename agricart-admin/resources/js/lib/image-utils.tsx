@@ -61,7 +61,6 @@ export function SafeImage({
     <img
       src={imageSrc}
       alt={alt}
-      onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
       className={className}
       onError={(e) => handleImageError(e, fallbackSrc)}
       {...props}

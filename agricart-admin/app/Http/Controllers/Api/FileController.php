@@ -56,6 +56,38 @@ class FileController extends Controller
         ]);
     }
 
+    public function showPrivate($folder, $filename)
+    {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
+        // Validate folder
+        if (!in_array($folder, ['documents', 'delivery-proofs'])) {
+            return response()->json(['error' => 'Invalid folder'], 404);
+        }
+
+        // Check authorization based on folder type
+        try {
+            $this->authorizePrivateFileAccess($user, $folder);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $path = storage_path("app/private/{$folder}/{$filename}");
+
+        if (!file_exists($path)) {
+            return abort(404, "File not found: $path");
+        }
+
+        return response()->file($path, [
+            'Content-Type' => mime_content_type($path),
+            'Content-Disposition' => 'inline'
+        ]);
+    }
+
     private function authorizeFileAccess($user, $fileUpload)
     {
         switch ($fileUpload->type) {
@@ -79,6 +111,26 @@ class FileController extends Controller
 
             default:
                 throw new \Exception('Invalid file type');
+        }
+    }
+
+    private function authorizePrivateFileAccess($user, $folder)
+    {
+        switch ($folder) {
+            case 'documents':
+                if (!in_array($user->type, ['admin', 'staff'])) {
+                    abort(403, 'Unauthorized to access documents');
+                }
+                break;
+
+            case 'delivery-proofs':
+                if (!in_array($user->type, ['admin', 'staff', 'logistic'])) {
+                    abort(403, 'Unauthorized to access delivery proofs');
+                }
+                break;
+
+            default:
+                abort(403, 'Invalid folder access');
         }
     }
 }

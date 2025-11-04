@@ -40,6 +40,10 @@ const SecureImage: React.FC<SecureImageProps> = ({
                 } else if (file && typeof file === 'object' && file.path && file.type === 'product-image') {
                     // Direct product image path
                     url = `/storage/${file.path}`;
+                } else if (file && typeof file === 'object' && file.path && (file.type === 'document' || file.type === 'delivery-proof')) {
+                    // Private file using secure route
+                    const folder = file.type === 'document' ? 'documents' : 'delivery-proofs';
+                    url = `/private-file/${folder}/${file.path}`;
                 } else if (typeof file === 'string') {
                     // Direct URL string
                     url = file;

@@ -20,6 +20,7 @@ export const getSecureFileUrl = async (fileId: number, authToken: string): Promi
     try {
         const response = await fetch(`/api/files/${fileId}/url`, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'Accept': 'application/json',
@@ -49,6 +50,7 @@ export const getFallbackImageUrl = async (): Promise<string> => {
     try {
         const response = await fetch('/api/files/fallback-image', {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Accept': 'application/json',
             },
@@ -67,13 +69,23 @@ export const isProductImage = (fileType: string): boolean => {
     return fileType === 'product-image';
 };
 
+// Build secure private file URL
+export const buildPrivateFileUrl = (filename: string, type: 'document' | 'delivery-proof'): string => {
+    const folder = type === 'document' ? 'documents' : 'delivery-proofs';
+    return `/private-file/${folder}/${filename}`;
+};
+
 // Get direct URL for product images, secure URL for private files
 export const getFileUrl = async (file: FileObject, authToken: string): Promise<string> => {
     if (file.type && isProductImage(file.type)) {
         // Product images are public
         return `/storage/${file.path}`;
+    } else if (file.path && file.type) {
+        // Private files use secure route with folder and filename
+        const folder = file.type === 'document' ? 'documents' : 'delivery-proofs';
+        return `/private-file/${folder}/${file.path}`;
     } else if (file.id) {
-        // Private files need secure access
+        // Fallback to secure access by ID
         return await getSecureFileUrl(file.id, authToken);
     } else {
         // Fallback for files without proper structure
@@ -112,6 +124,7 @@ export const uploadFile = async (
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -141,6 +154,7 @@ export const deleteFile = async (fileId: number, authToken: string): Promise<boo
     try {
         const response = await fetch(`/private/files/${fileId}`, {
             method: 'DELETE',
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'Accept': 'application/json',

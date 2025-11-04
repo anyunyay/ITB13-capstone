@@ -124,8 +124,8 @@ class FileUploadService
         } else {
             // Private files must use secure route
             $filename = basename($filePath);
-            $type = $this->getCategoryType($category);
-            return route('private.file.serve', ['type' => $type, 'filename' => $filename]);
+            $folder = $this->getCategoryFolder($category);
+            return "/private-file/{$folder}/{$filename}";
         }
     }
 
@@ -137,6 +137,18 @@ class FileUploadService
         return match($category) {
             'documents', 'avatars' => 'document',
             'delivery-proofs' => 'delivery-proof',
+            default => $category
+        };
+    }
+
+    /**
+     * Get folder name for secure route based on category
+     */
+    private function getCategoryFolder(string $category): string
+    {
+        return match($category) {
+            'documents', 'avatars' => 'documents',
+            'delivery-proofs' => 'delivery-proofs',
             default => $category
         };
     }

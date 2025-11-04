@@ -457,6 +457,13 @@ Route::prefix('api/product-images')->name('api.product-images.')->middleware(['a
     Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
 });
 
+// Secure private file download/preview route
+Route::get('/private-file/{folder}/{filename}', [\App\Http\Controllers\Api\FileController::class, 'showPrivate'])
+    ->where('folder', 'documents|delivery-proofs')
+    ->where('filename', '.*')
+    ->middleware('auth')
+    ->name('private-file.show');
+
 // Private File Management routes
 Route::prefix('private')->name('private.')->middleware(['auth', 'verified'])->group(function () {
     // Document routes (Admin only)

@@ -79,7 +79,7 @@ class PrivateFileController extends Controller
                     'id' => $fileUpload->id,
                     'filename' => $filename,
                     'original_name' => $file->getClientOriginalName(),
-                    'url' => route('private.file.serve', ['type' => $type, 'filename' => $filename])
+                    'url' => "/private-file/{$folder}/{$filename}"
                 ]
             ]);
 
@@ -318,6 +318,14 @@ class PrivateFileController extends Controller
         $files = $query->with(['owner', 'uploader'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+
+        // Add absolute URLs to each file
+        $files->getCollection()->transform(function ($file) use ($type) {
+            $folder = $type === 'document' ? 'documents' : 'delivery-proofs';
+            $filename = basename($file->path);
+            $file->url = url("/private-file/{$folder}/{$filename}");
+            return $file;
+        });
 
         return response()->json([
             'success' => true,

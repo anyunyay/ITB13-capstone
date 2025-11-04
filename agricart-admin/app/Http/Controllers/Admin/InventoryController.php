@@ -143,11 +143,13 @@ class InventoryController extends Controller
             // Upload image using file service
             $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $fileService->uploadFile(
+                $fullImagePath = $fileService->uploadFile(
                     $request->file('image'), 
                     'products', 
                     $request->input('name')
                 );
+                // Store only the filename, not the full path
+                $imagePath = basename($fullImagePath);
             }
 
             $product = Product::create([
@@ -232,10 +234,11 @@ class InventoryController extends Controller
                 $newImagePath = $fileService->updateFile(
                     $request->file('image'),
                     'products',
-                    $product->image,
+                    $product->image ? 'products/' . $product->image : null,
                     $request->input('name')
                 );
-                $product->image = $newImagePath;
+                // Store only the filename, not the full path
+                $product->image = basename($newImagePath);
             }
 
             $product->update([
