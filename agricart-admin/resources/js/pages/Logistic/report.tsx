@@ -13,7 +13,7 @@ import { LogisticHeader } from '@/components/logistic-header';
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { BarChart3, Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
@@ -646,6 +646,55 @@ function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) 
 }
 
 function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: any) => string }) {
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort orders
+  const sortedOrders = [...orders].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'customer':
+        comparison = a.customer.name.localeCompare(b.customer.name);
+        break;
+      case 'total_amount':
+        comparison = a.total_amount - b.total_amount;
+        break;
+      case 'delivery_status':
+        comparison = a.delivery_status.localeCompare(b.delivery_status);
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case 'delivered_time':
+        const dateA = a.delivered_time ? new Date(a.delivered_time).getTime() : 0;
+        const dateB = b.delivered_time ? new Date(b.delivered_time).getTime() : 0;
+        comparison = dateA - dateB;
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   const getDeliveryStatusBadge = (status: string) => {
     const statusConfig = {
       pending: { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
@@ -666,17 +715,71 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Order ID</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                Order ID
+                {getSortIcon('id')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('customer')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Customer
+                {getSortIcon('customer')}
+              </Button>
+            </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">Items</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Amount</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Delivered</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_amount')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                Amount
+                {getSortIcon('total_amount')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('delivery_status')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                Status
+                {getSortIcon('delivery_status')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('created_at')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                Created
+                {getSortIcon('created_at')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('delivered_time')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                Delivered
+                {getSortIcon('delivered_time')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order, index) => (
+          {sortedOrders.map((order, index) => (
             <tr key={order.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4 text-center">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

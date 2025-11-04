@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon, Users } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Users } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -550,6 +550,53 @@ function StaffCard({ staff }: { staff: Staff }) {
 }
 
 function StaffTable({ staff }: { staff: Staff[] }) {
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort staff
+  const sortedStaff = [...staff].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'email':
+        comparison = a.email.localeCompare(b.email);
+        break;
+      case 'contact_number':
+        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
+        break;
+      case 'permissions':
+        comparison = a.permissions.length - b.permissions.length;
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   const getStatusBadge = (staff: Staff) => {
     if (staff.email_verified_at) {
       return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
@@ -563,17 +610,71 @@ function StaffTable({ staff }: { staff: Staff[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Staff ID</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Name</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Email</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Contact</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Permissions</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Staff ID
+                {getSortIcon('id')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('name')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Name
+                {getSortIcon('name')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('email')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Email
+                {getSortIcon('email')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('contact_number')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Contact
+                {getSortIcon('contact_number')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('permissions')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Permissions
+                {getSortIcon('permissions')}
+              </Button>
+            </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Created</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('created_at')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Created
+                {getSortIcon('created_at')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {staff.map((member, index) => (
+          {sortedStaff.map((member, index) => (
             <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

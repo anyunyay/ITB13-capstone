@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Users, Download, FileText, Filter, X, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, LayoutGrid, Table } from 'lucide-react';
+import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, LayoutGrid, Table } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -53,7 +53,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
-  
+
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -106,7 +106,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     if (localFilters.start_date) params.start_date = localFilters.start_date;
     if (localFilters.end_date) params.end_date = localFilters.end_date;
     if (localFilters.search) params.search = localFilters.search;
-    
+
     router.get(route('membership.report'), params);
   };
 
@@ -121,8 +121,8 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   };
 
   const hasActiveFilters = () => {
-    return localFilters.start_date || localFilters.end_date || 
-           localFilters.search;
+    return localFilters.start_date || localFilters.end_date ||
+      localFilters.search;
   };
 
   const exportReport = (format: 'csv' | 'pdf') => {
@@ -131,7 +131,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
-    
+
     if (format === 'csv') {
       // For CSV: just download, no display
       const downloadUrl = `${route('membership.report')}?${params.toString()}`;
@@ -144,7 +144,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     } else {
       // For PDF: download and display
       const downloadUrl = `${route('membership.report')}?${params.toString()}`;
-      
+
       // Create display URL for viewing
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
@@ -153,7 +153,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('membership.report')}?${displayParams.toString()}`;
-      
+
       // Download the file
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
@@ -161,7 +161,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
+
       // Open display in new tab after a short delay
       setTimeout(() => {
         window.open(displayUrl, '_blank');
@@ -171,7 +171,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
 
 
   return (
-    <PermissionGuard 
+    <PermissionGuard
       permission="generate membership report"
       pageTitle={t('admin.access_denied')}
     >
@@ -378,9 +378,9 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                               selected={endDate}
                               onSelect={handleEndDateChange}
                               initialFocus
-                              disabled={(date) => 
-                                date > new Date() || 
-                                date < new Date("1900-01-01") || 
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01") ||
                                 (startDate ? date < startDate : false)
                               }
                             />
@@ -402,10 +402,10 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
             <Card className="shadow-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">{t('admin.members_report', {count: members.length})}</CardTitle>
+                  <CardTitle className="text-xl">{t('admin.members_report', { count: members.length })}</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-sm text-muted-foreground">
-                      {members.length > 0 ? t('admin.showing_members', {count: members.length}) : t('admin.no_members_found')}
+                      {members.length > 0 ? t('admin.showing_members', { count: members.length }) : t('admin.no_members_found')}
                     </div>
                     <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                   </div>
@@ -432,7 +432,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       </div>
                       <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_members_found')}</h3>
                       <p className="text-muted-foreground max-w-md">
-                        {hasActiveFilters() 
+                        {hasActiveFilters()
                           ? t('admin.no_members_match_filter')
                           : t('admin.no_membership_data_period')}
                       </p>
@@ -461,7 +461,7 @@ function MemberCard({ member }: { member: Member }) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg">{t('admin.member_with_id', {id: member.id})}</CardTitle>
+            <CardTitle className="text-lg">{t('admin.member_with_id', { id: member.id })}</CardTitle>
             {member.member_id && (
               <p className="text-sm text-blue-600 font-mono font-semibold">
                 {t('admin.member_id')}: <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
@@ -503,12 +503,12 @@ function MemberCard({ member }: { member: Member }) {
             </p>
           </div>
         </div>
-        
+
         <div className="mt-4">
           <h4 className="font-semibold mb-2">{t('admin.document')}</h4>
           <div className="flex justify-center">
-            <SafeImage 
-              src={member.document} 
+            <SafeImage
+              src={member.document}
               alt={`Document for ${member.name}`}
               className="max-w-xs max-h-32 object-contain border rounded"
             />
@@ -546,6 +546,54 @@ function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'tab
 // MemberTable Component
 function MemberTable({ members }: { members: Member[] }) {
   const t = useTranslation();
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort members
+  const sortedMembers = [...members].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'member_id':
+        comparison = (a.member_id || '').localeCompare(b.member_id || '');
+        break;
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'contact_number':
+        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
+        break;
+      case 'registration_date':
+        const dateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
+        const dateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
+        comparison = dateA - dateB;
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
   const getVerificationBadge = (verified: boolean) => {
     return verified ? (
       <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
@@ -565,15 +613,51 @@ function MemberTable({ members }: { members: Member[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.member_id')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.name')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.contact_number')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('member_id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.member_id')}
+                {getSortIcon('member_id')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('name')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.name')}
+                {getSortIcon('name')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('contact_number')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.contact_number')}
+                {getSortIcon('contact_number')}
+              </Button>
+            </th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.registration_date_label')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('registration_date')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.registration_date_label')}
+                {getSortIcon('registration_date')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {members.map((member, index) => (
+          {sortedMembers.map((member, index) => (
             <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 {member.member_id ? (

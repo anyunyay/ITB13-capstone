@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon, DollarSign, TrendingUp } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, DollarSign, TrendingUp } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -626,6 +626,61 @@ function ProductCard({ product }: { product: ProductSale }) {
 
 function ProductTable({ products }: { products: ProductSale[] }) {
   const t = useTranslation();
+  const [sortBy, setSortBy] = useState('total_revenue');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort products
+  const sortedProducts = [...products].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'product_name':
+        comparison = a.product_name.localeCompare(b.product_name);
+        break;
+      case 'category':
+        comparison = a.category.localeCompare(b.category);
+        break;
+      case 'total_quantity':
+        comparison = a.total_quantity - b.total_quantity;
+        break;
+      case 'price_per_unit':
+        comparison = a.price_per_unit - b.price_per_unit;
+        break;
+      case 'total_revenue':
+        comparison = a.total_revenue - b.total_revenue;
+        break;
+      case 'total_cogs':
+        comparison = a.total_cogs - b.total_cogs;
+        break;
+      case 'total_gross_profit':
+        comparison = a.total_gross_profit - b.total_gross_profit;
+        break;
+      case 'margin':
+        const marginA = a.total_revenue > 0 ? (a.total_gross_profit / a.total_revenue) * 100 : 0;
+        const marginB = b.total_revenue > 0 ? (b.total_gross_profit / b.total_revenue) * 100 : 0;
+        comparison = marginA - marginB;
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   const formatCurrency = (amount: number) => {
     return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
@@ -635,18 +690,90 @@ function ProductTable({ products }: { products: ProductSale[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('member.product')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.category')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.qty_sold')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.price_unit')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.revenue')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.cogs')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.gross_profit')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.margin')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('product_name')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.product')}
+                {getSortIcon('product_name')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('category')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.category')}
+                {getSortIcon('category')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_quantity')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.qty_sold')}
+                {getSortIcon('total_quantity')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('price_per_unit')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.price_unit')}
+                {getSortIcon('price_per_unit')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_revenue')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.revenue')}
+                {getSortIcon('total_revenue')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_cogs')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.cogs')}
+                {getSortIcon('total_cogs')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_gross_profit')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.gross_profit')}
+                {getSortIcon('total_gross_profit')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('margin')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.margin')}
+                {getSortIcon('margin')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index) => (
+          {sortedProducts.map((product, index) => (
             <tr key={product.product_id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <div>
@@ -691,6 +818,56 @@ function ProductTable({ products }: { products: ProductSale[] }) {
 
 function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
   const t = useTranslation();
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort orders
+  const sortedOrders = [...orders].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'order_id':
+        comparison = a.order_id - b.order_id;
+        break;
+      case 'customer_name':
+        comparison = a.customer_name.localeCompare(b.customer_name);
+        break;
+      case 'total_quantity':
+        comparison = a.total_quantity - b.total_quantity;
+        break;
+      case 'total_amount':
+        comparison = a.total_amount - b.total_amount;
+        break;
+      case 'total_cogs':
+        comparison = a.total_cogs - b.total_cogs;
+        break;
+      case 'total_gross_profit':
+        comparison = a.total_gross_profit - b.total_gross_profit;
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   const formatCurrency = (amount: number) => {
     return `₱${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
@@ -700,18 +877,81 @@ function OrderDetailsTable({ orders }: { orders: OrderDetail[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.order_id')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('member.customer')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('order_id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.order_id')}
+                {getSortIcon('order_id')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('customer_name')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.customer')}
+                {getSortIcon('customer_name')}
+              </Button>
+            </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.products')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.total_qty')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.order_total')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.cogs')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.gross_profit')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('member.date')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_quantity')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.total_qty')}
+                {getSortIcon('total_quantity')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_amount')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.order_total')}
+                {getSortIcon('total_amount')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_cogs')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.cogs')}
+                {getSortIcon('total_cogs')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_gross_profit')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.gross_profit')}
+                {getSortIcon('total_gross_profit')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('created_at')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('member.date')}
+                {getSortIcon('created_at')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order, index) => (
+          {sortedOrders.map((order, index) => (
             <tr key={order.order_id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4 text-center">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

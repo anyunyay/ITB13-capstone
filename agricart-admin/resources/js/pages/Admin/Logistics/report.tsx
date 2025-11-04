@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -587,6 +587,64 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
 
 function LogisticTable({ logistics }: { logistics: Logistic[] }) {
   const t = useTranslation();
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort logistics
+  const sortedLogistics = [...logistics].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'email':
+        comparison = a.email.localeCompare(b.email);
+        break;
+      case 'contact_number':
+        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
+        break;
+      case 'address':
+        comparison = (a.address || '').localeCompare(b.address || '');
+        break;
+      case 'status':
+        const statusA = a.email_verified_at ? 'verified' : 'pending';
+        const statusB = b.email_verified_at ? 'verified' : 'pending';
+        comparison = statusA.localeCompare(statusB);
+        break;
+      case 'registration_date':
+        const regDateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
+        const regDateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
+        comparison = regDateA - regDateB;
+        break;
+      case 'email_verified_at':
+        const verifiedA = a.email_verified_at ? new Date(a.email_verified_at).getTime() : 0;
+        const verifiedB = b.email_verified_at ? new Date(b.email_verified_at).getTime() : 0;
+        comparison = verifiedA - verifiedB;
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
   
   const getVerificationBadge = (verified: boolean) => {
     if (verified) {
@@ -601,18 +659,90 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.member_id')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.name')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.email')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.contact')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.status')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.registration_date')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.email_verified')}</th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.member_id')}
+                {getSortIcon('id')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('name')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.name')}
+                {getSortIcon('name')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('email')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.email')}
+                {getSortIcon('email')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('contact_number')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.contact')}
+                {getSortIcon('contact_number')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('address')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.address')}
+                {getSortIcon('address')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('status')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.status')}
+                {getSortIcon('status')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('registration_date')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.registration_date')}
+                {getSortIcon('registration_date')}
+              </Button>
+            </th>
+            <th className="text-left py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('email_verified_at')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                {t('admin.email_verified')}
+                {getSortIcon('email_verified_at')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {logistics.map((logistic, index) => (
+          {sortedLogistics.map((logistic, index) => (
             <tr key={logistic.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

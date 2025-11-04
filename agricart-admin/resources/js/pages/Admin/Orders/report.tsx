@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ChevronDown, CalendarIcon } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -773,6 +773,63 @@ function OrderCard({ order }: { order: Order }) {
 
 function OrderTable({ orders }: { orders: Order[] }) {
   const t = useTranslation();
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Sort orders
+  const sortedOrders = [...orders].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'customer':
+        comparison = a.customer.name.localeCompare(b.customer.name);
+        break;
+      case 'total_amount':
+        comparison = a.total_amount - b.total_amount;
+        break;
+      case 'status':
+        comparison = a.status.localeCompare(b.status);
+        break;
+      case 'delivery_status':
+        comparison = a.delivery_status.localeCompare(b.delivery_status);
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case 'admin':
+        const adminA = a.admin?.name || '';
+        const adminB = b.admin?.name || '';
+        comparison = adminA.localeCompare(adminB);
+        break;
+      case 'logistic':
+        const logisticA = a.logistic?.name || '';
+        const logisticB = b.logistic?.name || '';
+        comparison = logisticA.localeCompare(logisticB);
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -810,18 +867,90 @@ function OrderTable({ orders }: { orders: Order[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.order_id_header')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.customer')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.total_amount')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.status')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.delivery_status')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.created')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.admin')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.logistic')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('id')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.order_id_header')}
+                {getSortIcon('id')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('customer')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.customer')}
+                {getSortIcon('customer')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('total_amount')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.total_amount')}
+                {getSortIcon('total_amount')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('status')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.status')}
+                {getSortIcon('status')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('delivery_status')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.delivery_status')}
+                {getSortIcon('delivery_status')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('created_at')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.created')}
+                {getSortIcon('created_at')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('admin')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.admin')}
+                {getSortIcon('admin')}
+              </Button>
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <Button
+                variant="ghost"
+                onClick={() => handleSort('logistic')}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+              >
+                {t('admin.logistic')}
+                {getSortIcon('logistic')}
+              </Button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order, index) => (
+          {sortedOrders.map((order, index) => (
             <tr key={order.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
