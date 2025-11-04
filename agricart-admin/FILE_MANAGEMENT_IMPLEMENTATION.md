@@ -1,263 +1,315 @@
 # File Management System Implementation
 
 ## Overview
+A comprehensive file management system with role-based access controls for handling product images, documents, and delivery proofs.
 
-This document outlines the comprehensive file management system implemented to ensure all uploaded images are properly organized in `public/storage` with dedicated folders for different file types.
-
-## Directory Structure
-
+## Storage Structure
 ```
-public/storage/
-├── documents/          # Member documents, user avatars
-├── delivery-proofs/    # Delivery proof images
-└── products/          # Product images
+storage/
+├── app/
+│   ├── public/
+│   │   └── product-images/     # Public product images
+│   └── private/
+│       ├── documents/          # Admin-only documents
+│       └── delivery-proofs/    # Logistics delivery proofs
+└── public/                     # Symlinked to storage/app/public
 ```
 
-## Implementation Components
+## Database Schema
 
-### 1. FileUploadService (`app/Services/FileUploadService.php`)
+### file_uploads Table
+```sql
+CREATE TABLE file_uploads (
+    id BIGINT PRIMARY KEY,
+    path VARCHAR(255),
+    type ENUM('product-image', 'document', 'delivery-proof'),
+    original_name VARCHAR(255),
+    mime_type VARCHAR(255),
+    size INTEGER,
+    owner_id BIGINT NULL,
+    uploaded_by BIGINT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(id),
+    FOREIGN KEY (uploaded_by) REFERENCES users(id)
+);
+```
 
-A centralized service that handles all file operations:
+### users Table Addition
+```sql
+ALTER TABLE users ADD COLUMN can_view_delivery_proofs BOOLEAN DEFAULT FALSE;
+```
+
+## Controllers
+
+### ProductImageController
+Handles public product images accessible to all users.
+
+**Routes:**
+- `POST /product-images/upload` - Upload product image
+- `DELETE /product-images/{id}` - Delete product image
 
 **Features:**
-- **Category-based validation**: Different rules for each file type
-- **Automatic directory creation**: Creates folders if they don't exist
-- **File size limits**: Configurable per category
-- **Secure file naming**: Prevents conflicts and security issues
-- **File migration**: Moves existing files to new structure
-- **Cleanup operations**: Removes files when no longer needed
+- Image validation (JPEG, PNG, JPG, GIF, WEBP)
+- 5MB file size limit
+- UUID-based filenames
+- Public URL generation
 
-**Supported Categories:**
-- `products`: Product images (JPEG, PNG, GIF, SVG, WebP - max 2MB)
-- `documents`: Member documents, avatars (JPEG, PNG, PDF, DOC, DOCX - max 5MB)
-- `delivery-proofs`: Delivery proof images (JPEG, PNG, PDF - max 3MB)
-- `avatars`: User avatars (stored in documents folder - max 1MB)
+### PrivateFileController
+Handles private documents and delivery proofs with role-based access.
 
-### 2. HasFileUploads Trait (`app/Traits/HasFileUploads.php`)
-
-A reusable trait for models that handle file uploads:
+**Routes:**
+- `POST /private/documents/upload` - Upload document (Admin only)
+- `POST /private/delivery-proofs/upload` - Upload delivery proof (Logistics only)
+- `GET /private/file/{type}/{filename}` - Serve private file (Role-based)
+- `GET /private/files/{type}` - List files (Role-based)
+- `DELETE /private/files/{id}` - Delete file (Role-based)
 
 **Features:**
-- **Automatic cleanup**: Deletes files when model is deleted
-- **Consistent API**: Standardized methods across models
-- **File operations**: Upload, update, delete files
-- **URL generation**: Proper file URL handling
+- Role-based upload restrictions
+- Secure file serving with streaming
+- Path traversal protection
+- Ownership validation
+- MIME type validation
 
-### 3. Updated Models
+## Access Control Matrix
 
-#### Product Model (`app/Models/Product.php`)
-- Uses `HasFileUploads` trait
-- Handles product image files
-- Automatic cleanup on deletion
-- Proper URL generation
+| File Type | Upload | View | Delete |
+|-----------|--------|------|--------|
+| Product Images | Admin/Staff | Everyone (public) | Admin/Staff |
+| Documents | Admin | Admin Only | Admin |
+| Delivery Proofs | Logistics | Logistics (own) + Admin + Staff (with permission) | Logistics (own) + Admin |
 
-#### User Model (`app/Models/User.php`)
-- Uses `HasFileUploads` trait
-- Handles avatar and document files
-- Separate methods for each file type
-- Document URL accessor added
+## Security Features
 
-#### DeliveryProof Model (`app/Models/DeliveryProof.php`)
-- New model for delivery proof management
-- Handles delivery proof images
-- Relationships to Sales and User models
-- Automatic file cleanup
-
-### 4. Updated Controllers
-
-#### InventoryController (`app/Http/Controllers/Admin/InventoryController.php`)
-- Uses FileUploadService for product images
-- Proper validation using service rules
-- Error handling for file operations
-- Maintains existing functionality
-
-#### MembershipController (`app/Http/Controllers/Admin/MembershipController.php`)
-- Uses FileUploadService for member documents
-- Handles document replacement workflow
-- Proper validation and error handling
-
-#### DeliveryProofController (`app/Http/Controllers/DeliveryProofController.php`)
-- New controller for delivery proof management
-- API endpoints for CRUD operations
-- Permission-based access control
-- File upload/update/delete operations
-
-### 5. File Management API (`app/Http/Controllers/Api/FileManagementController.php`)
-
-RESTful API for file operations:
-
-**Endpoints:**
-- `POST /api/files/upload` - Upload files
-- `DELETE /api/files/delete` - Delete files
-- `GET /api/files/info` - Get file information
-- `GET /api/files/validation-rules` - Get validation rules for categories
-
-### 6. Migration Command (`app/Console/Commands/MigrateFilesToNewStructure.php`)
-
-Command to migrate existing files to the new structure:
-
-```bash
-# Dry run to see what would be migrated
-php artisan files:migrate-structure --dry-run
-
-# Actually migrate files
-php artisan files:migrate-structure
+### 1. Path Traversal Protection
+```php
+if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+    abort(404);
+}
 ```
 
-### 7. Database Migration
+### 2. Role-Based Access Control
+```php
+private function authorizeFileAccess(User $user, FileUpload $fileUpload)
+{
+    switch ($fileUpload->type) {
+        case 'document':
+            if ($user->type !== 'admin') {
+                abort(403, 'Unauthorized to view documents');
+            }
+            break;
+        // ... other cases
+    }
+}
+```
 
-New `delivery_proofs` table:
-- Links to sales orders and logistic users
-- Stores proof image path and notes
-- Ensures one proof per sales order
+### 3. File Ownership Validation
+```php
+if ($user->type === 'logistic' && $fileUpload->owner_id === $user->id) {
+    return; // Allow access to own files
+}
+```
 
-## Path Structure Fix
-
-**Issue Fixed**: The original implementation was creating nested `public/storage` directories instead of using the existing `public/storage` structure.
-
-**Solution**: Updated the `FileUploadService` to:
-- Use relative paths (`storage/products`) instead of absolute paths (`public/storage/products`)
-- Convert to absolute paths using `public_path()` for file operations
-- Return correct relative paths for database storage
-
-**Result**: Files are now stored directly in:
-- `public/storage/products/` (not `public/storage/public/storage/products/`)
-- `public/storage/documents/`
-- `public/storage/delivery-proofs/`
+### 4. Secure File Streaming
+```php
+$stream = Storage::disk('private')->readStream($filePath);
+return new StreamedResponse(function () use ($stream) {
+    fpassthru($stream);
+    fclose($stream);
+}, 200, [
+    'Content-Type' => $fileUpload->mime_type,
+    'Content-Disposition' => 'inline; filename="' . $fileUpload->original_name . '"',
+    'Cache-Control' => 'no-cache, must-revalidate',
+]);
+```
 
 ## Usage Examples
 
-### Uploading Files in Controllers
-
-```php
-use App\Services\FileUploadService;
-
-public function store(Request $request, FileUploadService $fileService)
-{
-    // Validate using service rules
-    $request->validate([
-        'image' => FileUploadService::getValidationRules('products', true)
-    ]);
-
-    // Upload file - returns path like 'storage/products/filename.jpg'
-    $imagePath = $fileService->uploadFile(
-        $request->file('image'),
-        'products',
-        'custom_name_prefix'
-    );
-
-    // Save to model
-    $product = Product::create([
-        'name' => $request->name,
-        'image' => $imagePath // Stored as 'storage/products/filename.jpg'
-    ]);
-}
-```
-
-### Using the Trait in Models
-
-```php
-use App\Traits\HasFileUploads;
-
-class Product extends Model
-{
-    use HasFileUploads;
-
-    protected function getFileFields(): array
-    {
-        return ['image'];
-    }
-
-    public function deleteImageFile(): bool
-    {
-        return $this->deleteFile('image');
-    }
-}
-```
-
-### API Usage
-
+### 1. Upload Product Image
 ```javascript
-// Upload file via API
 const formData = new FormData();
-formData.append('file', fileInput.files[0]);
-formData.append('category', 'products');
-formData.append('custom_name', 'my_product');
+formData.append('image', file);
 
-fetch('/api/files/upload', {
+fetch('/product-images/upload', {
     method: 'POST',
     body: formData,
     headers: {
-        'X-CSRF-TOKEN': csrfToken
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
     }
 })
 .then(response => response.json())
 .then(data => {
     if (data.success) {
-        console.log('File uploaded:', data.data.file_path);
+        console.log('Image uploaded:', data.data.url);
     }
 });
 ```
 
-## CRUD Operations Verification
+### 2. Upload Document (Admin Only)
+```javascript
+const formData = new FormData();
+formData.append('document', file);
+
+fetch('/private/documents/upload', {
+    method: 'POST',
+    body: formData,
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    }
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        console.log('Document uploaded:', data.data.url);
+    }
+});
+```
+
+### 3. Upload Delivery Proof (Logistics Only)
+```javascript
+const formData = new FormData();
+formData.append('proof', file);
+
+fetch('/private/delivery-proofs/upload', {
+    method: 'POST',
+    body: formData,
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    }
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        console.log('Delivery proof uploaded:', data.data.url);
+    }
+});
+```
+
+### 4. List Files with Access Control
+```javascript
+fetch('/private/files/delivery-proof')
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        data.data.data.forEach(file => {
+            console.log('File:', file.original_name, 'URL:', file.url);
+        });
+    }
+});
+```
+
+## File Validation Rules
 
 ### Product Images
-- **Create**: Files uploaded to `public/storage/products/`
-- **Read**: URLs properly generated with `/storage/products/` prefix
-- **Update**: Old files deleted, new files uploaded
-- **Delete**: Files removed from filesystem when product deleted
+- **Types:** JPEG, PNG, JPG, GIF, WEBP
+- **Max Size:** 5MB
+- **Validation:** `image|mimes:jpeg,png,jpg,gif,webp|max:5120`
 
-### Member Documents
-- **Create**: Files uploaded to `public/storage/documents/`
-- **Read**: Document URLs accessible via `document_url` accessor
-- **Update**: Supports replacement workflow with deletion marking
-- **Delete**: Files cleaned up when member deleted
+### Documents
+- **Types:** PDF, DOC, DOCX, JPG, JPEG, PNG
+- **Max Size:** 10MB
+- **Validation:** `file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240`
 
 ### Delivery Proofs
-- **Create**: Files uploaded to `public/storage/delivery-proofs/`
-- **Read**: Proof images accessible via API and relationships
-- **Update**: Supports image replacement
-- **Delete**: Files removed when proof deleted
+- **Types:** PDF, JPG, JPEG, PNG
+- **Max Size:** 5MB
+- **Validation:** `file|mimes:pdf,jpg,jpeg,png|max:5120`
 
-### User Avatars
-- **Create**: Files uploaded to `public/storage/documents/`
-- **Read**: Avatar URLs properly generated
-- **Update**: Old avatars replaced with new ones
-- **Delete**: Files cleaned up when user deleted
+## Model Relationships
 
-## Security Features
+### FileUpload Model
+```php
+class FileUpload extends Model
+{
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 
-1. **File Type Validation**: Only allowed extensions per category
-2. **File Size Limits**: Configurable maximum sizes
-3. **Secure Naming**: Prevents directory traversal and conflicts
-4. **Permission Checks**: Role-based access to file operations
-5. **Path Sanitization**: Ensures files stay in designated directories
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
 
-## Error Handling
+    public function getUrlAttribute(): string
+    {
+        if ($this->type === 'product-image') {
+            return asset('storage/' . $this->path);
+        }
+        
+        return route('private.file.serve', [
+            'type' => $this->type,
+            'filename' => basename($this->path)
+        ]);
+    }
+}
+```
 
-- Comprehensive exception handling in all file operations
-- Graceful fallbacks for missing files
-- Detailed error messages for debugging
-- Rollback capabilities for failed operations
+## Configuration
+
+### Filesystem Disks
+```php
+'disks' => [
+    'public' => [
+        'driver' => 'local',
+        'root' => storage_path('app/public'),
+        'url' => env('APP_URL').'/storage',
+        'visibility' => 'public',
+    ],
+    
+    'private' => [
+        'driver' => 'local',
+        'root' => storage_path('app/private'),
+        'visibility' => 'private',
+    ],
+],
+```
+
+## Testing Scenarios
+
+### 1. Admin Access Tests
+- ✅ Admin can upload documents
+- ✅ Admin can view all delivery proofs
+- ✅ Admin can delete any file
+- ❌ Non-admin cannot upload documents
+
+### 2. Logistics Access Tests
+- ✅ Logistics can upload delivery proofs
+- ✅ Logistics can view their own delivery proofs
+- ❌ Logistics cannot view other logistics' proofs
+- ❌ Logistics cannot view documents
+
+### 3. Staff Access Tests
+- ✅ Staff with permission can view delivery proofs
+- ❌ Staff without permission cannot view delivery proofs
+- ❌ Staff cannot upload documents or delivery proofs
+
+### 4. Security Tests
+- ❌ Path traversal attempts (../) are blocked
+- ❌ Direct file access to private files is prevented
+- ✅ File ownership is validated
+- ✅ MIME types are validated
 
 ## Maintenance
 
-### Regular Tasks
-1. Monitor disk usage in storage directories
-2. Clean up orphaned files (files not referenced in database)
-3. Backup important files before major updates
-4. Verify file permissions on storage directories
+### File Cleanup
+Consider implementing automatic cleanup for:
+- Orphaned files (no database record)
+- Files from deleted users
+- Temporary upload failures
 
-### Troubleshooting
-1. Check directory permissions (755 recommended)
-2. Verify file upload limits in PHP configuration
-3. Monitor error logs for file operation failures
-4. Use migration command to fix file structure issues
+### Monitoring
+Track:
+- File upload success/failure rates
+- Storage usage by type
+- Access patterns for security auditing
 
 ## Future Enhancements
 
-1. **Image Optimization**: Automatic resizing and compression
-2. **Cloud Storage**: Support for S3, Google Cloud, etc.
-3. **File Versioning**: Keep history of file changes
-4. **Bulk Operations**: Upload/delete multiple files at once
-5. **File Metadata**: Store additional information about files
+1. **File Versioning:** Track file versions and changes
+2. **Bulk Operations:** Upload/delete multiple files
+3. **File Compression:** Automatic image optimization
+4. **Cloud Storage:** S3 integration for scalability
+5. **File Sharing:** Temporary access links
+6. **Audit Logging:** Detailed file access logs

@@ -36,6 +36,8 @@ use App\Http\Controllers\Security\PhoneChangeController;
 use App\Http\Controllers\Security\PasswordChangeController;
 use App\Http\Controllers\Security\CredentialsController;
 use App\Http\Controllers\DeliveryProofController;
+use App\Http\Controllers\ProductImageController;
+use App\Http\Controllers\PrivateFileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -439,6 +441,30 @@ Route::prefix('api/files')->name('api.files.')->middleware(['auth', 'verified'])
     Route::delete('/delete', [\App\Http\Controllers\Api\FileManagementController::class, 'delete'])->name('delete');
     Route::get('/info', [\App\Http\Controllers\Api\FileManagementController::class, 'info'])->name('info');
     Route::get('/validation-rules', [\App\Http\Controllers\Api\FileManagementController::class, 'validationRules'])->name('validation-rules');
+});
+
+// Product Image Management routes
+Route::prefix('product-images')->name('product-images.')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('/upload', [\App\Http\Controllers\ProductImageController::class, 'upload'])->name('upload');
+    Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
+});
+
+// Private File Management routes
+Route::prefix('private')->name('private.')->middleware(['auth', 'verified'])->group(function () {
+    // Document routes (Admin only)
+    Route::post('/documents/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDocument'])->name('documents.upload');
+    
+    // Delivery proof routes (Logistics only)
+    Route::post('/delivery-proofs/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDeliveryProof'])->name('delivery-proofs.upload');
+    
+    // File serving route (role-based access)
+    Route::get('/file/{type}/{filename}', [\App\Http\Controllers\PrivateFileController::class, 'serve'])->name('file.serve');
+    
+    // File listing routes
+    Route::get('/files/{type}', [\App\Http\Controllers\PrivateFileController::class, 'list'])->name('files.list');
+    
+    // File deletion route
+    Route::delete('/files/{id}', [\App\Http\Controllers\PrivateFileController::class, 'delete'])->name('files.delete');
 });
 
 // Delivery Proof routes

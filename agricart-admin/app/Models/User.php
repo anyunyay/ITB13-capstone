@@ -50,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'appearance',
         // Language preference
         'language',
+        // Delivery proof viewing permission
+        'can_view_delivery_proofs',
     ];
 
     /**
@@ -83,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_default' => 'boolean',
             'document_marked_for_deletion' => 'boolean',
             'active' => 'boolean',
+            'can_view_delivery_proofs' => 'boolean',
         ];
     }
 
