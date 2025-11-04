@@ -59,11 +59,12 @@ export const DeliveryProof = ({
               <img
                 src={deliveryProofImage}
                 alt="Delivery proof"
+                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                 className="w-full max-w-md mx-auto rounded-lg shadow-sm border"
                 style={{ maxHeight: '300px', objectFit: 'contain' }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/images/products/default-product.jpg';
+                  target.src = '/storage/fallback-photo.png';
                   target.alt = 'Delivery proof not available';
                 }}
               />

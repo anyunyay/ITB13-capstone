@@ -164,10 +164,11 @@ function ProductCard({ product }: { product: Product }) {
               <img
                 src={product.image_url}
                 alt={product.name}
+                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '/images/products/default-product.jpg';
+                    target.src = '/storage/fallback-photo.png';
                 }}
               />
             </div>

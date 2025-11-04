@@ -95,19 +95,30 @@ class PrivateFileController extends Controller
     {
         // Prevent path traversal
         if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+            \Log::warning('Path traversal attempt detected', [
+                'filename' => $filename,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
             abort(404);
+        }
+
+        // Authorization checks - must be logged in
+        $user = auth()->user();
+        if (!$user) {
+            \Log::warning('Unauthenticated file access attempt', [
+                'type' => $type,
+                'filename' => $filename,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+            abort(401, 'Authentication required');
         }
 
         // Find file record
         $fileUpload = FileUpload::where('type', $type)
             ->where('path', 'like', '%' . $filename)
             ->firstOrFail();
-
-        // Authorization checks
-        $user = auth()->user();
-        if (!$user) {
-            abort(401, 'Authentication required');
-        }
 
         $this->authorizeFileAccess($user, $fileUpload);
 
@@ -136,6 +147,15 @@ class PrivateFileController extends Controller
             case 'document':
                 // Only Admin can view documents
                 if ($user->type !== 'admin') {
+                    // Log unauthorized access attempt
+                    \Log::warning('Unauthorized document access attempt', [
+                        'user_id' => $user->id,
+                        'user_type' => $user->type,
+                        'file_id' => $fileUpload->id,
+                        'file_path' => $fileUpload->path,
+                        'ip' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ]);
                     abort(403, 'Unauthorized to view documents');
                 }
                 break;
@@ -152,11 +172,25 @@ class PrivateFileController extends Controller
                     // Staff with permission can view
                     return;
                 } else {
+                    // Log unauthorized access attempt
+                    \Log::warning('Unauthorized delivery proof access attempt', [
+                        'user_id' => $user->id,
+                        'user_type' => $user->type,
+                        'file_id' => $fileUpload->id,
+                        'file_owner_id' => $fileUpload->owner_id,
+                        'ip' => request()->ip(),
+                        'user_agent' => request()->userAgent()
+                    ]);
                     abort(403, 'Unauthorized to view this delivery proof');
                 }
                 break;
 
             default:
+                \Log::error('Invalid file type access attempt', [
+                    'user_id' => $user->id,
+                    'file_type' => $fileUpload->type,
+                    'file_id' => $fileUpload->id
+                ]);
                 abort(403, 'Invalid file type');
         }
     }
@@ -195,6 +229,62 @@ class PrivateFileController extends Controller
                 'message' => 'Delete failed: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function showFile(Request $request, $path)
+    {
+        // Prevent path traversal
+        if (str_contains($path, '..') || str_contains($path, '\\')) {
+            \Log::warning('Path traversal attempt detected in showFile', [
+                'path' => $path,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+            abort(404);
+        }
+
+        // Authorization checks - must be logged in
+        $user = auth()->user();
+        if (!$user) {
+            \Log::warning('Unauthenticated file access attempt in showFile', [
+                'path' => $path,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+            abort(401, 'Authentication required');
+        }
+
+        // Build full path
+        $fullPath = storage_path('app/private/' . $path);
+        
+        if (!file_exists($fullPath)) {
+            abort(404, 'File not found');
+        }
+
+        // Basic authorization - admin can access all, others need specific permissions
+        if ($user->type !== 'admin') {
+            if (str_contains($path, 'documents/') && $user->type !== 'admin') {
+                \Log::warning('Unauthorized document access attempt in showFile', [
+                    'user_id' => $user->id,
+                    'user_type' => $user->type,
+                    'path' => $path,
+                    'ip' => request()->ip()
+                ]);
+                abort(403, 'Unauthorized to view documents');
+            }
+            
+            if (str_contains($path, 'delivery-proofs/') && !in_array($user->type, ['admin', 'logistic', 'staff'])) {
+                \Log::warning('Unauthorized delivery proof access attempt in showFile', [
+                    'user_id' => $user->id,
+                    'user_type' => $user->type,
+                    'path' => $path,
+                    'ip' => request()->ip()
+                ]);
+                abort(403, 'Unauthorized to view delivery proofs');
+            }
+        }
+
+        return response()->file($fullPath);
     }
 
     public function list(Request $request, $type)

@@ -27,8 +27,8 @@ class ProductImageController extends Controller
             $file = $request->file('image');
             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
             
-            // Store in public disk
-            $path = Storage::disk('public')->putFileAs('product-images', $file, $filename);
+            // Store in public disk under products folder
+            $path = Storage::disk('public')->putFileAs('products', $file, $filename);
             
             // Track in database
             $fileUpload = FileUpload::create([

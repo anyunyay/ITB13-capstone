@@ -34,6 +34,21 @@ class FileUpload extends Model
     public function getUrlAttribute(): string
     {
         if ($this->type === 'product-image') {
+            // Product images are public and accessible via storage link
+            return asset('storage/' . $this->path);
+        }
+        
+        // Private files must be accessed through secure route
+        return route('private.file.serve', [
+            'type' => $this->type,
+            'filename' => basename($this->path)
+        ]);
+    }
+
+    public function getSecureUrlAttribute(): string
+    {
+        // Always return secure URL for API usage
+        if ($this->type === 'product-image') {
             return asset('storage/' . $this->path);
         }
         

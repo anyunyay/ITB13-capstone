@@ -441,10 +441,18 @@ Route::prefix('api/files')->name('api.files.')->middleware(['auth', 'verified'])
     Route::delete('/delete', [\App\Http\Controllers\Api\FileManagementController::class, 'delete'])->name('delete');
     Route::get('/info', [\App\Http\Controllers\Api\FileManagementController::class, 'info'])->name('info');
     Route::get('/validation-rules', [\App\Http\Controllers\Api\FileManagementController::class, 'validationRules'])->name('validation-rules');
+    Route::get('/{id}/url', [\App\Http\Controllers\Api\FileController::class, 'getFileUrl'])->name('url');
+    Route::get('/fallback-image', [\App\Http\Controllers\Api\FileController::class, 'getFallbackImage'])->name('fallback');
 });
 
 // Product Image Management routes
 Route::prefix('product-images')->name('product-images.')->middleware(['auth', 'verified'])->group(function () {
+    Route::post('/upload', [\App\Http\Controllers\ProductImageController::class, 'upload'])->name('upload');
+    Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
+});
+
+// API Product Image Management routes
+Route::prefix('api/product-images')->name('api.product-images.')->middleware(['auth', 'verified'])->group(function () {
     Route::post('/upload', [\App\Http\Controllers\ProductImageController::class, 'upload'])->name('upload');
     Route::delete('/{id}', [\App\Http\Controllers\ProductImageController::class, 'delete'])->name('delete');
 });
@@ -459,6 +467,11 @@ Route::prefix('private')->name('private.')->middleware(['auth', 'verified'])->gr
     
     // File serving route (role-based access)
     Route::get('/file/{type}/{filename}', [\App\Http\Controllers\PrivateFileController::class, 'serve'])->name('file.serve');
+    
+    // Simple private file serving route
+    Route::get('/{path}', [\App\Http\Controllers\PrivateFileController::class, 'showFile'])
+        ->where('path', '.*')
+        ->name('show');
     
     // File listing routes
     Route::get('/files/{type}', [\App\Http\Controllers\PrivateFileController::class, 'list'])->name('files.list');

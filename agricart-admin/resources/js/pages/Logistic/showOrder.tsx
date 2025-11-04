@@ -424,7 +424,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       <p className="text-sm font-medium text-foreground mb-2">{t('logistic.delivery_proof')}:</p>
                       <img 
                         src={currentOrder.delivery_proof_image} 
-                        alt="Delivery proof" 
+                        alt="Delivery proof"
+                        onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
                         className="w-32 h-32 object-cover rounded-lg border border-border"
                       />
                     </div>
@@ -535,7 +536,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                     <div className="relative">
                       <img 
                         src={imagePreview} 
-                        alt={t('logistic.delivery_proof_preview')} 
+                        alt={t('logistic.delivery_proof_preview')}
+                        onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
                         className="w-full h-48 object-cover rounded-lg border border-border"
                       />
                       <Button

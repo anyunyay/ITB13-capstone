@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FileUploadService
@@ -29,13 +29,13 @@ class FileUploadService
     ];
 
     /**
-     * Storage paths for each category (relative to public directory)
+     * Storage configuration for each category
      */
-    private const STORAGE_PATHS = [
-        'products' => 'storage/products',
-        'documents' => 'storage/documents',
-        'delivery-proofs' => 'storage/delivery-proofs',
-        'avatars' => 'storage/documents', // Avatars stored in documents folder
+    private const STORAGE_CONFIG = [
+        'products' => ['disk' => 'public', 'folder' => 'products'],
+        'documents' => ['disk' => 'private', 'folder' => 'documents'],
+        'delivery-proofs' => ['disk' => 'private', 'folder' => 'delivery-proofs'],
+        'avatars' => ['disk' => 'private', 'folder' => 'documents'], // Avatars stored in private documents folder
     ];
 
     /**
@@ -52,41 +52,32 @@ class FileUploadService
         $this->validateCategory($category);
         $this->validateFile($file, $category);
 
+        $config = self::STORAGE_CONFIG[$category];
         $fileName = $this->generateFileName($file, $customName);
-        $relativePath = self::STORAGE_PATHS[$category];
-        $absolutePath = public_path($relativePath);
         
-        // Ensure directory exists
-        if (!File::exists($absolutePath)) {
-            File::makeDirectory($absolutePath, 0755, true);
-        }
-
-        // Move file to storage
-        $file->move($absolutePath, $fileName);
-
-        // Return relative path from public directory
-        return $relativePath . '/' . $fileName;
+        // Store file using Laravel Storage
+        $path = Storage::disk($config['disk'])->putFileAs($config['folder'], $file, $fileName);
+        
+        return $path;
     }
 
     /**
      * Delete a file from storage
      *
      * @param string|null $filePath
+     * @param string $category
      * @return bool
      */
-    public function deleteFile(?string $filePath): bool
+    public function deleteFile(?string $filePath, string $category): bool
     {
         if (!$filePath) {
             return false;
         }
 
-        $fullPath = public_path($filePath);
+        $this->validateCategory($category);
+        $config = self::STORAGE_CONFIG[$category];
         
-        if (File::exists($fullPath)) {
-            return File::delete($fullPath);
-        }
-
-        return false;
+        return Storage::disk($config['disk'])->delete($filePath);
     }
 
     /**
@@ -105,7 +96,7 @@ class FileUploadService
 
         // Delete old file if upload was successful and old file exists
         if ($newFilePath && $oldFilePath) {
-            $this->deleteFile($oldFilePath);
+            $this->deleteFile($oldFilePath, $category);
         }
 
         return $newFilePath;
@@ -115,25 +106,39 @@ class FileUploadService
      * Get the full URL for a file
      *
      * @param string|null $filePath
+     * @param string $category
      * @return string|null
      */
-    public function getFileUrl(?string $filePath): ?string
+    public function getFileUrl(?string $filePath, string $category): ?string
     {
         if (!$filePath) {
             return null;
         }
 
-        // If it's already a full URL, return as is
-        if (filter_var($filePath, FILTER_VALIDATE_URL)) {
-            return $filePath;
+        $this->validateCategory($category);
+        $config = self::STORAGE_CONFIG[$category];
+        
+        if ($config['disk'] === 'public') {
+            // Public files can be accessed directly
+            return Storage::disk('public')->url($filePath);
+        } else {
+            // Private files must use secure route
+            $filename = basename($filePath);
+            $type = $this->getCategoryType($category);
+            return route('private.file.serve', ['type' => $type, 'filename' => $filename]);
         }
+    }
 
-        // Ensure path starts with /
-        if (!str_starts_with($filePath, '/')) {
-            $filePath = '/' . $filePath;
-        }
-
-        return $filePath;
+    /**
+     * Get file type for route based on category
+     */
+    private function getCategoryType(string $category): string
+    {
+        return match($category) {
+            'documents', 'avatars' => 'document',
+            'delivery-proofs' => 'delivery-proof',
+            default => $category
+        };
     }
 
     /**
@@ -237,25 +242,19 @@ class FileUploadService
         
         $fullOldPath = public_path($oldPath);
         
-        if (!File::exists($fullOldPath)) {
+        if (!file_exists($fullOldPath)) {
             return null;
         }
 
+        $config = self::STORAGE_CONFIG[$category];
         $fileName = basename($oldPath);
-        $relativePath = self::STORAGE_PATHS[$category];
-        $absolutePath = public_path($relativePath);
         
-        // Ensure directory exists
-        if (!File::exists($absolutePath)) {
-            File::makeDirectory($absolutePath, 0755, true);
-        }
-
-        $newFullPath = $absolutePath . '/' . $fileName;
+        // Read file content and store using Laravel Storage
+        $fileContent = file_get_contents($fullOldPath);
+        $newPath = $config['folder'] . '/' . $fileName;
         
-        // Copy file to new location
-        if (File::copy($fullOldPath, $newFullPath)) {
-            // Return relative path from public directory
-            return $relativePath . '/' . $fileName;
+        if (Storage::disk($config['disk'])->put($newPath, $fileContent)) {
+            return $newPath;
         }
 
         return null;

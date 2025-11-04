@@ -148,8 +148,9 @@ class DeliveryProofController extends Controller
         }
 
         try {
-            // Delete the file
-            $deliveryProof->deleteProofImageFile();
+            // Delete the file using FileUploadService
+            $fileService = new \App\Services\FileUploadService();
+            $fileService->deleteFile($deliveryProof->proof_image, 'delivery-proofs');
             
             // Delete the record
             $deliveryProof->delete();

@@ -35,7 +35,7 @@ export default function Edit({product}: Props) {
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
-        const fallbackPath = '/images/products/fallback-photo.png';
+        const fallbackPath = '/storage/fallback-photo.png';
         
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
@@ -162,8 +162,9 @@ export default function Edit({product}: Props) {
                             <div className="mb-4">
                                 <Label className="text-sm text-gray-600 mb-2 block">{t('admin.current_image')}:</Label>
                                 <img 
-                                  src={product.image_url || '/images/products/fallback-photo.png'} 
-                                  alt={product.name} 
+                                  src={product.image_url || '/storage/fallback-photo.png'} 
+                                  alt={product.name}
+                                  onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
                                   className="w-32 h-32 object-cover rounded-lg border"
                                   onError={(e) => handleImageError(e, product.name)}
                                 />
@@ -176,7 +177,8 @@ export default function Edit({product}: Props) {
                                 <Label className="text-sm text-gray-600 mb-2 block">{t('admin.new_image_preview')}:</Label>
                                 <img 
                                   src={imagePreview} 
-                                  alt={t('admin.new_image_preview')} 
+                                  alt={t('admin.new_image_preview')}
+                                  onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
                                   className="w-32 h-32 object-cover rounded-lg border"
                                 />
                                 <p className="text-xs text-gray-500 mt-1">

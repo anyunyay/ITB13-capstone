@@ -42,7 +42,7 @@ export const ProductTable = ({
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
-        const fallbackPath = '/images/products/fallback-photo.png';
+        const fallbackPath = '/storage/fallback-photo.png';
         
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
@@ -149,8 +149,9 @@ export const ProductTable = ({
                                 <div className="flex items-center gap-3">
                                     <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
                                         <img 
-                                            src={product.image_url || product.image || '/images/products/fallback-photo.png'} 
+                                            src={product.image_url || product.image || '/storage/fallback-photo.png'} 
                                             alt={product.name}
+                                            onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                                             className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
                                             onError={(e) => handleImageError(e, product.name)}
                                         />

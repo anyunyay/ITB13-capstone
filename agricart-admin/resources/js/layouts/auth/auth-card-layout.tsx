@@ -49,6 +49,7 @@ export default function AuthCardLayout({
                                 <img
                                     src={imageUrl}
                                     alt={title || 'Authentication'}
+                                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                                     className="h-full w-full object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent" />

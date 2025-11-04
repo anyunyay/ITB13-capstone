@@ -290,7 +290,7 @@ class LogisticController extends Controller
         if ($request->hasFile('delivery_proof_image')) {
             $image = $request->file('delivery_proof_image');
             $imageName = 'delivery_proof_' . $order->id . '_' . time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('delivery-proofs', $imageName, 'public');
+            $imagePath = Storage::disk('private')->putFileAs('delivery-proofs', $image, $imageName);
         }
 
         // Get the delivery address as plain text

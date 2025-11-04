@@ -131,6 +131,7 @@ export function FileUpload({
               <img
                 src={previewUrl}
                 alt="Preview"
+                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                 className="w-32 h-32 object-cover rounded-lg mx-auto"
               />
             ) : isPdf ? (

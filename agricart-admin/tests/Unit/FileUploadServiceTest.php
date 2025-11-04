@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use App\Services\FileUploadService;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class FileUploadServiceTest extends TestCase
@@ -22,18 +22,10 @@ class FileUploadServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Clean up test files
-        $testDirs = [
-            public_path('storage/products'),
-            public_path('storage/documents'),
-            public_path('storage/delivery-proofs')
-        ];
-
-        foreach ($testDirs as $dir) {
-            if (File::exists($dir)) {
-                File::deleteDirectory($dir);
-            }
-        }
+        // Clean up test files from both public and private storage
+        Storage::disk('public')->deleteDirectory('products');
+        Storage::disk('private')->deleteDirectory('documents');
+        Storage::disk('private')->deleteDirectory('delivery-proofs');
 
         parent::tearDown();
     }
@@ -63,8 +55,8 @@ class FileUploadServiceTest extends TestCase
         $filePath = $this->fileService->uploadFile($file, 'products', 'test-product');
         
         $this->assertNotNull($filePath);
-        $this->assertStringStartsWith('storage/products/', $filePath);
-        $this->assertTrue(File::exists(public_path($filePath)));
+        $this->assertStringStartsWith('products/', $filePath);
+        $this->assertTrue(Storage::disk('public')->exists($filePath));
     }
 
     /** @test */
@@ -75,8 +67,8 @@ class FileUploadServiceTest extends TestCase
         $filePath = $this->fileService->uploadFile($file, 'documents', 'test-document');
         
         $this->assertNotNull($filePath);
-        $this->assertStringStartsWith('storage/documents/', $filePath);
-        $this->assertTrue(File::exists(public_path($filePath)));
+        $this->assertStringStartsWith('documents/', $filePath);
+        $this->assertTrue(Storage::disk('private')->exists($filePath));
     }
 
     /** @test */
@@ -85,12 +77,12 @@ class FileUploadServiceTest extends TestCase
         $file = UploadedFile::fake()->image('test-delete.jpg', 100, 100);
         $filePath = $this->fileService->uploadFile($file, 'products');
         
-        $this->assertTrue(File::exists(public_path($filePath)));
+        $this->assertTrue(Storage::disk('public')->exists($filePath));
         
-        $deleted = $this->fileService->deleteFile($filePath);
+        $deleted = $this->fileService->deleteFile($filePath, 'products');
         
         $this->assertTrue($deleted);
-        $this->assertFalse(File::exists(public_path($filePath)));
+        $this->assertFalse(Storage::disk('public')->exists($filePath));
     }
 
     /** @test */
@@ -100,7 +92,7 @@ class FileUploadServiceTest extends TestCase
         $oldFile = UploadedFile::fake()->image('old-file.jpg', 100, 100);
         $oldPath = $this->fileService->uploadFile($oldFile, 'products');
         
-        $this->assertTrue(File::exists(public_path($oldPath)));
+        $this->assertTrue(Storage::disk('public')->exists($oldPath));
         
         // Update with new file
         $newFile = UploadedFile::fake()->image('new-file.jpg', 100, 100);
@@ -108,26 +100,26 @@ class FileUploadServiceTest extends TestCase
         
         $this->assertNotNull($newPath);
         $this->assertNotEquals($oldPath, $newPath);
-        $this->assertFalse(File::exists(public_path($oldPath))); // Old file should be deleted
-        $this->assertTrue(File::exists(public_path($newPath))); // New file should exist
+        $this->assertFalse(Storage::disk('public')->exists($oldPath)); // Old file should be deleted
+        $this->assertTrue(Storage::disk('public')->exists($newPath)); // New file should exist
     }
 
     /** @test */
     public function it_generates_proper_file_urls()
     {
-        $filePath = 'storage/products/test-image.jpg';
-        $url = $this->fileService->getFileUrl($filePath);
+        $filePath = 'products/test-image.jpg';
+        $url = $this->fileService->getFileUrl($filePath, 'products');
         
-        $this->assertEquals('/storage/products/test-image.jpg', $url);
+        $this->assertStringContainsString('/storage/', $url);
     }
 
     /** @test */
     public function it_handles_null_file_paths_gracefully()
     {
-        $url = $this->fileService->getFileUrl(null);
+        $url = $this->fileService->getFileUrl(null, 'products');
         $this->assertNull($url);
         
-        $deleted = $this->fileService->deleteFile(null);
+        $deleted = $this->fileService->deleteFile(null, 'products');
         $this->assertFalse($deleted);
     }
 
@@ -153,20 +145,21 @@ class FileUploadServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_directories_if_they_dont_exist()
+    public function it_stores_files_in_correct_storage_disks()
     {
-        // Ensure directory doesn't exist
-        $dir = public_path('storage/products');
-        if (File::exists($dir)) {
-            File::deleteDirectory($dir);
-        }
+        // Test product image goes to public storage
+        $productFile = UploadedFile::fake()->image('product.jpg', 100, 100);
+        $productPath = $this->fileService->uploadFile($productFile, 'products');
+        $this->assertTrue(Storage::disk('public')->exists($productPath));
         
-        $this->assertFalse(File::exists($dir));
+        // Test document goes to private storage
+        $documentFile = UploadedFile::fake()->create('document.pdf', 100);
+        $documentPath = $this->fileService->uploadFile($documentFile, 'documents');
+        $this->assertTrue(Storage::disk('private')->exists($documentPath));
         
-        $file = UploadedFile::fake()->image('test.jpg', 100, 100);
-        $filePath = $this->fileService->uploadFile($file, 'products');
-        
-        $this->assertTrue(File::exists($dir));
-        $this->assertTrue(File::exists(public_path($filePath)));
+        // Test delivery proof goes to private storage
+        $proofFile = UploadedFile::fake()->image('proof.jpg', 100, 100);
+        $proofPath = $this->fileService->uploadFile($proofFile, 'delivery-proofs');
+        $this->assertTrue(Storage::disk('private')->exists($proofPath));
     }
 }

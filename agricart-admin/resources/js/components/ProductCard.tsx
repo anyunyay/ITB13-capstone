@@ -85,7 +85,7 @@ export function ProductCard({
             className="w-12 h-12 object-cover rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/images/products/default-product.jpg';
+              target.src = '/storage/fallback-photo.png';
             }}
           />
         ) : (
@@ -123,7 +123,7 @@ export function ProductCard({
               className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = '/images/products/default-product.jpg';
+                target.src = '/storage/fallback-photo.png';
               }}
             />
           ) : (
@@ -166,7 +166,7 @@ export function ProductCard({
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/images/products/default-product.jpg';
+              target.src = '/storage/fallback-photo.png';
             }}
           />
         ) : (
