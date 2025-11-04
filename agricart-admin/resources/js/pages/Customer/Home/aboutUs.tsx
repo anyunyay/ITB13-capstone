@@ -22,29 +22,10 @@ export default function AboutUs({ }: PageProps) {
   const valuesRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Throttled scroll handler for better performance
   const handleScroll = useCallback(() => {
     setScrollY(window.scrollY);
-  }, []);
-
-  // Handle scroll detection for header transformation
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
-
-    const handleScrollSnap = () => {
-      const scrollTop = scrollContainer.scrollTop;
-      setScrollY(scrollTop);
-      // Update the header's scroll state by dispatching a custom event
-      window.dispatchEvent(new CustomEvent('scroll-snap', {
-        detail: { scrollTop }
-      }));
-    };
-
-    scrollContainer.addEventListener('scroll', handleScrollSnap, { passive: true });
-    return () => scrollContainer.removeEventListener('scroll', handleScrollSnap);
   }, []);
 
   // Scroll listener for parallax effects with throttling
@@ -212,7 +193,7 @@ export default function AboutUs({ }: PageProps) {
       </section>
 
       {/* Scroll container with snap behavior - starts after Hero */}
-      <div ref={scrollContainerRef} className="relative z-10 h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
+      <div className="relative z-10 min-h-screen overflow-visible">
         {/* Spacer section to account for fixed Hero */}
         <section className="h-screen snap-start"></section>
 
@@ -420,12 +401,15 @@ export default function AboutUs({ }: PageProps) {
       </div>
 
       {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
-      <section ref={servicesRef} className="h-[120vh] flex items-center justify-center bg-muted relative overflow-hidden" style={{
-        backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}>
+      <section
+        ref={servicesRef}
+        className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
+        style={{
+          backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}>
         {/* Background overlay for better content readability */}
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="max-w-[90vw] mx-auto relative z-10">

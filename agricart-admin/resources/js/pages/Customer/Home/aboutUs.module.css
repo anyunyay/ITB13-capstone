@@ -1,4 +1,10 @@
 /* About Us Page Custom Styles - Unique Visual Effects Only */
+html, body {
+  height: 100%;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
 
 /* Custom gradient backgrounds */
 .heroGradient {
