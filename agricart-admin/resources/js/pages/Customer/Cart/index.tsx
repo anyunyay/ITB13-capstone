@@ -433,8 +433,8 @@ export default function CartPage() {
   return (
     <AppHeaderLayout>
       <Head title="Cart" />
-      <div className="min-h-[90vh] py-8 mt-20">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Notification Messages - Top of Page */}
           {checkoutMessage && (
@@ -470,24 +470,24 @@ export default function CartPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Cart Items Section */}
               <div className="lg:col-span-2">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+                  <h2 className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
                     Cart Items
                 </h2>
-                  <div className="px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full border border-green-200 dark:border-green-700">
-                    <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                  <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full border border-green-200 dark:border-green-700">
+                    <span className="text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300">
                       {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
                     </span>
                   </div>
                 </div>
 
-                {/* Table Layout */}
+                {/* Mobile and Desktop Layout */}
                 <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
-                  {/* Table Header */}
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700">
+                  {/* Desktop Table Header - Hidden on mobile */}
+                  <div className="hidden lg:block bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700">
                     <div className="grid grid-cols-12 gap-4 px-6 py-3">
                       <div className="col-span-4">
                         <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Product</h3>
@@ -510,11 +510,252 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* Table Body */}
+                  {/* Cart Items Body */}
                   <div className="divide-y divide-border">
                 {cartItems.map((item) => (
                       <div key={item.item_id} className="group hover:bg-muted/50 transition-colors duration-200">
-                        <div className="grid grid-cols-12 gap-4 px-6 py-4 items-center">
+                        {/* Mobile Layout */}
+                        <div className="lg:hidden p-4 sm:p-6">
+                          <div className="flex flex-col space-y-4">
+                            {/* Product Header */}
+                            <div className="flex items-start gap-3">
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-base sm:text-lg font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                                  {item.name}
+                                </h3>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  Product ID: {item.product_id}
+                                </p>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                    {item.category}
+                                  </span>
+                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span>In Stock</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => removeItem(item.item_id)}
+                                className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 flex items-center justify-center flex-shrink-0"
+                              >
+                                ×
+                              </Button>
+                            </div>
+
+                            {/* Mobile Quantity and Price Section */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
+                                <div className="flex items-center justify-start gap-1">
+                                  {editingItems.has(item.item_id) ? (
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                                            ? (tempQuantities[item.item_id] as number)
+                                            : tempQuantities[item.item_id] === ''
+                                            ? 1
+                                            : Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                                          if (item.category === 'Kilo') {
+                                            const newQty = Math.max(1, currentQty - 0.25);
+                                            const roundedQuarter = Math.round(newQty * 4) / 4;
+                                            const next = Number(roundedQuarter.toFixed(2));
+                                            setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
+                                          } else {
+                                            const newQty = Math.max(1, Math.floor(currentQty - 1));
+                                            setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
+                                          }
+                                        }}
+                                        disabled={
+                                          (Number((tempQuantities[item.item_id] as any) || item.quantity) || 0) <= 1
+                                        }
+                                        className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 flex items-center justify-center font-bold text-xs"
+                                      >
+                                        −
+                                      </Button>
+                                      <input
+                                        type="number"
+                                        min={1}
+                                        step={item.category === 'Kilo' ? 0.25 : 1}
+                                        max={typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0}
+                                        value={tempQuantities[item.item_id] ?? ''}
+                                        onChange={(e) => {
+                                          const value = e.target.value;
+                                          if (value === '') {
+                                            setTempQuantities(prev => ({ ...prev, [item.item_id]: '' }));
+                                            return;
+                                          }
+                                          if (item.category === 'Kilo') {
+                                            const numValue = parseFloat(value);
+                                            if (!isNaN(numValue) && numValue >= 1) {
+                                              setTempQuantities(prev => ({ ...prev, [item.item_id]: numValue }));
+                                            }
+                                          } else {
+                                            const isIntegerString = /^\d+$/.test(value);
+                                            if (isIntegerString) {
+                                              const numValue = parseInt(value);
+                                              if (!isNaN(numValue) && numValue >= 1) {
+                                                setTempQuantities(prev => ({ ...prev, [item.item_id]: numValue }));
+                                              }
+                                            }
+                                          }
+                                        }}
+                                        className="w-16 h-8 text-center border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:border-green-500 dark:focus:border-green-400 focus:ring-1 focus:ring-green-100 dark:focus:ring-green-900/30 transition-all duration-200"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                                            ? (tempQuantities[item.item_id] as number)
+                                            : tempQuantities[item.item_id] === ''
+                                            ? 1
+                                            : Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                                          const availableStock = typeof item.available_stock === 'number' 
+                                            ? item.available_stock 
+                                            : parseFloat(String(item.available_stock)) || 0;
+                                          if (item.category === 'Kilo') {
+                                            const incremented = currentQty + 0.25;
+                                            const clamped = Math.min(availableStock, Math.max(1, incremented));
+                                            const roundedQuarter = Math.round(clamped * 4) / 4;
+                                            const next = Number(roundedQuarter.toFixed(2));
+                                            setTempQuantities(prev => ({ ...prev, [item.item_id]: next }));
+                                          } else {
+                                            const newQty = Math.min(availableStock, Math.floor(currentQty + 1));
+                                            setTempQuantities(prev => ({ ...prev, [item.item_id]: newQty }));
+                                          }
+                                        }}
+                                        disabled={
+                                          (Number((tempQuantities[item.item_id] as any) || item.quantity) || 0) >= 
+                                          (typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0)
+                                        }
+                                        className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 transition-all duration-200 flex items-center justify-center font-bold text-xs"
+                                      >
+                                        +
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <div className="w-16 h-8 text-center border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold text-sm flex items-center justify-center">
+                                      {formatQuantityDisplay(item.quantity, item.category)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
+                                <div className="text-lg font-bold text-card-foreground">
+                                  ₱{(Number(item.total_price) || 0).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Mobile Price Details */}
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Unit Price:</span>
+                                <div className="font-semibold">₱{((Number(item.total_price) || 0) / (Number(item.quantity) || 1)).toFixed(2)} per {item.category}</div>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Available:</span>
+                                <div className="font-semibold">{formatQuantityDisplay(typeof item.available_stock === 'number' ? item.available_stock : parseFloat(String(item.available_stock)) || 0, item.category)}</div>
+                              </div>
+                            </div>
+
+                            {/* Mobile Action Buttons */}
+                            <div className="flex items-center justify-center gap-3 pt-2 border-t border-border">
+                              {editingItems.has(item.item_id) ? (
+                                <>
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentQty = typeof tempQuantities[item.item_id] === 'number'
+                                        ? (tempQuantities[item.item_id] as number)
+                                        : tempQuantities[item.item_id] === ''
+                                        ? 1
+                                        : Number(tempQuantities[item.item_id] || item.quantity) || 0;
+                                      const availableStock = typeof item.available_stock === 'number' 
+                                        ? item.available_stock 
+                                        : parseFloat(String(item.available_stock)) || 0;
+                                      let normalized: number;
+                                      if (item.category === 'Kilo') {
+                                        normalized = Math.max(1, currentQty);
+                                        normalized = Math.min(availableStock, normalized);
+                                        normalized = Math.round(normalized * 4) / 4;
+                                        normalized = Number(normalized.toFixed(2));
+                                      } else {
+                                        normalized = Math.max(1, Math.floor(currentQty));
+                                        normalized = Math.min(availableStock, normalized);
+                                      }
+                                      setTempQuantities(prev => ({ ...prev, [item.item_id]: normalized }));
+                                      updateItemQuantity(item.item_id, normalized);
+                                      exitEditMode(item.item_id);
+                                    }}
+                                    disabled={updatingItems.has(item.item_id) || !!quantityErrors[item.item_id]}
+                                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex-1"
+                                  >
+                                    {updatingItems.has(item.item_id) ? (
+                                      <div className="flex items-center gap-2 justify-center">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Saving...</span>
+                                      </div>
+                                    ) : (
+                                      'Save Changes'
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => exitEditMode(item.item_id)}
+                                    disabled={updatingItems.has(item.item_id)}
+                                    className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 px-4 py-2 rounded-xl font-semibold transition-all duration-200 flex-1"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => enterEditMode(item.item_id)}
+                                  disabled={updatingItems.has(item.item_id)}
+                                  className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 px-6 py-2 rounded-xl font-semibold transition-all duration-200"
+                                >
+                                  Edit Quantity
+                                </Button>
+                              )}
+                            </div>
+
+                            {/* Mobile Error Display */}
+                            {quantityErrors[item.item_id] && (
+                              <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-700 rounded-lg p-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-6 h-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                  </div>
+                                  <span className="text-red-700 dark:text-red-300 text-sm font-semibold">
+                                    {quantityErrors[item.item_id]}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout */}
+                        <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 items-center">
                           {/* Product Column */}
                           <div className="col-span-4">
                             <div className="flex items-center gap-3">
@@ -823,9 +1064,9 @@ export default function CartPage() {
               </div>
 
               {/* Delivery Address and Order Summary Section */}
-              <div className="lg:col-span-1 space-y-5 sticky top-24 self-start">
+              <div className="lg:col-span-1 space-y-4 lg:space-y-5 lg:sticky lg:top-24 lg:self-start">
                 {/* Delivery Address Section */}
-                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
                   <div className="flex items-center gap-2 mb-2.5">
                     <MapPin className="h-4 w-4 text-green-600 dark:text-green-400" />
                     <h3 className="text-sm font-semibold text-green-600 dark:text-green-400">Delivery Address</h3>
@@ -1018,8 +1259,8 @@ export default function CartPage() {
                 </div>
 
                 {/* Order Summary Section */}
-                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4.5">
-                  <h3 className="text-sm font-semibold text-green-600 dark:text-green-400 mb-2.5">Order Summary</h3>
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
+                  <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">Order Summary</h3>
                   
                   <div className="space-y-1.5 mb-2.5">
                     <div className="flex justify-between items-center">

@@ -110,28 +110,28 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
             <div className={cn(
                 "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out mx-auto",
                 isScrolled 
-                    ? "bg-green-700 shadow-lg rounded-2xl mt-4 w-7/10 mx-auto" 
+                    ? "bg-green-700 shadow-lg rounded-2xl mt-2 sm:mt-4 w-[95%] sm:w-[90%] lg:w-7/10 mx-auto" 
                     : "bg-transparent w-full mx-auto"
             )}>
                 <div className={cn(
-                    "mx-auto flex items-center px-4 md:max-w-7xl transition-all duration-300 ease-in-out mx-auto",
-                    isScrolled ? "h-16" : "h-20"
+                    "mx-auto flex items-center px-3 sm:px-4 md:max-w-7xl transition-all duration-300 ease-in-out mx-auto",
+                    isScrolled ? "h-14 sm:h-16" : "h-16 sm:h-20"
                 )}>
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
                             <SheetTrigger asChild>
                                 <Button variant="ghost" size="icon" className={cn(
-                                    "mr-2 transition-all duration-300 ease-in-out hover:bg-green-600 hover:text-white",
-                                    isScrolled ? "h-[34px] w-[34px] text-white" : "h-[42px] w-[42px] text-green-600"
+                                    "mr-1 sm:mr-2 transition-all duration-300 ease-in-out hover:bg-green-600 hover:text-white",
+                                    isScrolled ? "h-[30px] w-[30px] sm:h-[34px] sm:w-[34px] text-white" : "h-[36px] w-[36px] sm:h-[42px] sm:w-[42px] text-green-600"
                                 )}>
                                     <Menu className={cn(
                                         "transition-all duration-300 ease-in-out",
-                                        isScrolled ? "h-5 w-5" : "h-6 w-6"
+                                        isScrolled ? "h-4 w-4 sm:h-5 sm:w-5" : "h-5 w-5 sm:h-6 sm:w-6"
                                     )} />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar">
+                            <SheetContent side="left" className="flex h-full w-64 sm:w-72 flex-col items-stretch justify-between bg-sidebar">
                                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
                                     <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
@@ -146,20 +146,20 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 </div>
                                             )}
                                             {mainNavItems.map((item) => (
-                                                <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium text-green-600 hover:text-green-700">
+                                                <Link key={item.title} href={item.href} className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                                                     {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
                                             {rightNavItems.map((item) => (
-                                                <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium text-green-600 hover:text-green-700">
+                                                <Link key={item.title} href={item.href} className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                                                     {item.icon && (
                                                         <span className="relative">
                                                             <Icon iconNode={item.icon} className="h-5 w-5" />
                                                             {item.title === 'Cart' && cartCount > 0 && (
                                                                 <span className="absolute -top-2 -right-2">
                                                                     <Badge className="bg-green-600 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                                                                        {cartCount}
+                                                                        {cartCount > 9 ? '9+' : cartCount}
                                                                     </Badge>
                                                                 </span>
                                                             )}
@@ -179,10 +179,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2">
                         <Link href='/' className={cn(
                             "flex items-center space-x-2 transition-all duration-300 ease-in-out",
-                            isScrolled ? "scale-100" : "scale-110"
+                            isScrolled ? "scale-90 sm:scale-100" : "scale-100 sm:scale-110"
                         )}>
                             <AppLogo />{/* change Logo as needed */}
                         </Link>
@@ -229,7 +229,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </NavigationMenu>
                     </div>
 
-                    <div className="ml-auto flex items-center space-x-2">
+                    <div className="ml-auto flex items-center space-x-1 sm:space-x-2">
                         <div className="relative flex items-center space-x-1">
                             {showSearchBar && <SearchBar isScrolled={isScrolled} />}
                             <div className="hidden lg:flex">
@@ -250,8 +250,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                         className={cn(
                                                             "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
                                                 isScrolled 
-                                                    ? "h-9 w-9 text-sm text-white hover:text-white hover:bg-green-600" 
-                                                    : "h-11 w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                    ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                    : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
                                                         )}
                                                     >
                                                         <span className="sr-only">{item.title}</span>
@@ -260,13 +260,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                                 <Icon iconNode={item.icon} className={cn(
                                                                     "transition-all duration-300 ease-in-out",
                                                                     isScrolled 
-                                                                        ? "size-5 text-white opacity-80 group-hover:opacity-100" 
-                                                                        : "size-6 opacity-80 group-hover:opacity-100"
+                                                                        ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                                        : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
                                                                 )} />
                                                                 {item.title === 'Cart' && cartCount > 0 && (
                                                                     <Badge 
                                                                         variant="destructive" 
-                                                                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs z-10"
+                                                                        className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-xs z-10"
                                                                     >
                                                                         {cartCount > 9 ? '9+' : cartCount}
                                                                     </Badge>
@@ -290,12 +290,12 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <Button variant="ghost" className={cn(
                                         "rounded-full p-1 transition-all duration-300 ease-in-out",
                                         isScrolled 
-                                            ? "size-10 text-white hover:text-white hover:bg-green-600" 
-                                            : "size-12 hover:bg-green-600 hover:text-white text-green-600"
+                                            ? "size-9 sm:size-10 text-white hover:text-white hover:bg-green-600" 
+                                            : "size-10 sm:size-12 hover:bg-green-600 hover:text-white text-green-600"
                                     )}>
                                         <Avatar className={cn(
                                             "overflow-hidden rounded-full transition-all duration-300 ease-in-out",
-                                            isScrolled ? "size-8" : "size-10"
+                                            isScrolled ? "size-7 sm:size-8" : "size-8 sm:size-10"
                                         )}>
                                             <AvatarImage src={(auth.user as any).avatar_url || ''} alt={auth.user.name || 'User'} />
                                             <AvatarFallback className="rounded-lg bg-green-100 text-green-600 dark:bg-green-700 dark:text-white">
@@ -309,14 +309,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <>
+                            <div className="flex space-x-1 sm:space-x-2">
                                 <Button
                                     variant="outline"
                                     className={cn(
-                                        "ml-2 transition-all duration-300 ease-in-out bg-transparent",
+                                        "transition-all duration-300 ease-in-out bg-transparent",
                                         isScrolled 
-                                            ? "h-9 px-3 text-sm border-green-600 text-white hover:bg-green-600 hover:text-white" 
-                                            : "h-11 px-4 text-base border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                                            ? "h-8 px-2 sm:h-9 sm:px-3 text-xs sm:text-sm border-green-600 text-white hover:bg-green-600 hover:text-white" 
+                                            : "h-9 px-3 sm:h-11 sm:px-4 text-sm sm:text-base border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                                     )}
                                     onClick={() => window.location.href = '/login'}
                                 >
@@ -325,16 +325,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Button
                                     variant="outline"
                                     className={cn(
-                                        "ml-2 transition-all duration-300 ease-in-out bg-transparent",
+                                        "transition-all duration-300 ease-in-out bg-transparent",
                                         isScrolled 
-                                            ? "h-9 px-3 text-sm border-green-600 text-white hover:bg-green-600 hover:text-white" 
-                                            : "h-11 px-4 text-base border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                                            ? "h-8 px-2 sm:h-9 sm:px-3 text-xs sm:text-sm border-green-600 text-white hover:bg-green-600 hover:text-white" 
+                                            : "h-9 px-3 sm:h-11 sm:px-4 text-sm sm:text-base border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                                     )}
                                     onClick={() => window.location.href = '/register'}
                                 >
                                     Register
                                 </Button>
-                            </>
+                            </div>
                         )}
                     </div>
                 </div>

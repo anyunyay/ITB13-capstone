@@ -78,13 +78,13 @@ export default function CustomerProducts() {
   return (
     <AppHeaderLayout>
       <Head title={t('customer.products_fresh_produce')} />
-      <div className="min-h-[90vh] py-8 mt-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3 sm:mb-4">
               {t('customer.fresh_produce_from_cooperatives')}
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
               Discover our wide selection of fresh fruits and vegetables, 
               sourced directly from trusted farmer cooperatives in your area.
             </p>
@@ -98,11 +98,11 @@ export default function CustomerProducts() {
           />
           
           {/* View All Toggle Button */}
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-6 sm:mt-8">
             <Button
               onClick={toggleViewMode}
               variant="outline"
-              className="px-8 py-3 text-base font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+              className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-md hover:shadow-lg w-full sm:w-auto max-w-xs"
             >
               {viewMode === 'carousel' ? t('ui.view_all_products') : t('ui.back_to_carousel')}
             </Button>

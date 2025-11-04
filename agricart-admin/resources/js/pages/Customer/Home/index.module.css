@@ -1,4 +1,4 @@
-/* Modern Mobile-First Home Page Styles - Cleaned up version */
+/* Modern Mobile-First Home Page Styles - Fully Responsive */
 
 /* Import Raleway font */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
@@ -12,6 +12,36 @@ html, body {
   height: 100%;
   scroll-snap-type: y proximity;
   scroll-behavior: smooth;
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+  /* Mobile specific adjustments */
+  .snap-y {
+    scroll-snap-type: none; /* Disable snap on mobile for better touch scrolling */
+  }
+  
+  /* Ensure touch targets are large enough */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet specific adjustments */
+  .snap-y {
+    scroll-snap-type: y proximity;
+  }
+}
+
+/* Ensure proper spacing and sizing across all devices */
+@media (max-width: 768px) {
+  /* Reduce excessive padding on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* All layout, spacing, positioning, and styling has been moved to Tailwind classes */
