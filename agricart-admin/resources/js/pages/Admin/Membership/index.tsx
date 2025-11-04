@@ -252,7 +252,7 @@ export default function Index() {
             <AppLayout>
                 <Head title={t('admin.member_management')} />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
                         <DashboardHeader memberStats={memberStats} />
 
                         <FlashMessages

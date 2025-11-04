@@ -701,16 +701,16 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             <AppLayout>
                 <Head title={t('admin.trends_management')} />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
                         {/* Dashboard Header */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
                             <div className="flex items-center gap-2">
-                                <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
-                                    <TrendingUp className="h-6 w-6" />
+                                <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                    <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.price_trend_analysis')}</h1>
-                                    <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                    <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('admin.price_trend_analysis')}</h1>
+                                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                                         {t('admin.visualize_product_price_fluctuations')}
                                     </p>
                                 </div>
@@ -719,11 +719,11 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
 
                     <Card>
                         <CardHeader>
-                            <div className="flex items-center justify-between">
-                            <CardTitle>{t('admin.filters')}</CardTitle>
-                                <div className="flex items-center space-x-6">
-                                    <Label className="text-base font-semibold">{t('admin.time_period')}</Label>
-                                    <div className="flex space-x-4">
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <CardTitle className="text-lg sm:text-xl">{t('admin.filters')}</CardTitle>
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+                                    <Label className="text-sm sm:text-base font-semibold">{t('admin.time_period')}</Label>
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
                                         <div className="flex items-center space-x-2">
                                             <input
                                                 type="radio"
@@ -734,7 +734,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="specific">{t('admin.specific_date')}</Label>
+                                            <Label htmlFor="specific" className="text-sm">{t('admin.specific_date')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -746,7 +746,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="monthly">{t('admin.monthly')}</Label>
+                                            <Label htmlFor="monthly" className="text-sm">{t('admin.monthly')}</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -758,14 +758,14 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
                                                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <Label htmlFor="yearly">{t('admin.yearly')}</Label>
+                                            <Label htmlFor="yearly" className="text-sm">{t('admin.yearly')}</Label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                                 <div>
                                     <Label>{t('admin.category')}</Label>
                                     <Select value={selectedCategory} onValueChange={handleCategoryChange}>

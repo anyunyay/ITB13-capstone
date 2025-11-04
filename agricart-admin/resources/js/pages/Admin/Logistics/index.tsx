@@ -163,7 +163,7 @@ export default function Index() {
             <AppLayout>
                 <Head title={t('admin.logistic_management')} />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
                         {/* Flash Messages */}
                         <FlashMessage flash={flash} />
                         

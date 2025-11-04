@@ -136,34 +136,34 @@ export default function Dashboard({
             <AppSidebarLayout>
                 <Head title={t('admin.dashboard_title')} />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+                    <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
                         {/* Dashboard Header */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
-                            <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
+                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                            <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2">
-                                        <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
-                                            <BarChart3 className="h-6 w-6" />
+                                        <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                            <BarChart3 className="h-4 w-4 sm:h-6 sm:w-6" />
                                         </div>
                                         <div>
-                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.dashboard_title')}</h1>
-                                            <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('admin.dashboard_title')}</h1>
+                                            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                                                 {t('admin.dashboard_description')}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap gap-2 items-center">
-                                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                                        <Link href={route('admin.orders.index')}>
-                                            <ShoppingCart className="h-4 w-4 mr-2 inline" />
-                                            {t('admin.view_orders')}
+                                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                                    <Button variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                                        <Link href={route('admin.orders.index')} className="flex items-center justify-center w-full">
+                                            <ShoppingCart className="h-4 w-4 mr-2" />
+                                            <span className="text-sm sm:text-base">{t('admin.view_orders')}</span>
                                         </Link>
                                     </Button>
-                                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                                        <Link href={route('inventory.index')}>
-                                            <Package className="h-4 w-4 mr-2 inline" />
-                                            {t('admin.manage_inventory')}
+                                    <Button variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                                        <Link href={route('inventory.index')} className="flex items-center justify-center w-full">
+                                            <Package className="h-4 w-4 mr-2" />
+                                            <span className="text-sm sm:text-base">{t('admin.manage_inventory')}</span>
                                         </Link>
                                     </Button>
                                 </div>
@@ -171,7 +171,7 @@ export default function Dashboard({
                         </div>
 
                     {/* Key Metrics Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                         {/* Orders Today */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -232,7 +232,7 @@ export default function Dashboard({
                     </div>
 
                     {/* Alerts and Urgent Items */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {/* Urgent Orders */}
                         <Card className="border-red-200 bg-red-50">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -299,16 +299,16 @@ export default function Dashboard({
 
                     {/* Main Content Tabs */}
                     <Tabs defaultValue="overview" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4">
-                            <TabsTrigger value="overview">{t('admin.overview_tab')}</TabsTrigger>
-                            <TabsTrigger value="performance">{t('admin.performance_tab')}</TabsTrigger>
-                            <TabsTrigger value="inventory">{t('admin.inventory_tab')}</TabsTrigger>
-                            <TabsTrigger value="activity">{t('admin.activity_tab')}</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+                            <TabsTrigger value="overview" className="text-xs sm:text-sm">{t('admin.overview_tab')}</TabsTrigger>
+                            <TabsTrigger value="performance" className="text-xs sm:text-sm">{t('admin.performance_tab')}</TabsTrigger>
+                            <TabsTrigger value="inventory" className="text-xs sm:text-sm">{t('admin.inventory_tab')}</TabsTrigger>
+                            <TabsTrigger value="activity" className="text-xs sm:text-sm">{t('admin.activity_tab')}</TabsTrigger>
                         </TabsList>
 
                         {/* Overview Tab */}
                         <TabsContent value="overview" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Order Status Breakdown */}
                                 <Card>
                                     <CardHeader>
@@ -386,7 +386,7 @@ export default function Dashboard({
 
                         {/* Performance Tab */}
                         <TabsContent value="performance" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Top Selling Products */}
                                 <Card>
                                     <CardHeader>
@@ -452,7 +452,7 @@ export default function Dashboard({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                         {logisticsPerformance.slice(0, 6).map((logistic) => (
                                             <div key={logistic.id} className="border rounded-lg p-4">
                                                 <div className="font-medium">{logistic.name}</div>
@@ -471,7 +471,7 @@ export default function Dashboard({
 
                         {/* Inventory Tab */}
                         <TabsContent value="inventory" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Stock Overview */}
                                 <Card>
                                     <CardHeader>
@@ -550,7 +550,7 @@ export default function Dashboard({
 
                         {/* Recent Activity Tab */}
                         <TabsContent value="activity" className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Recent Orders */}
                                 <Card>
                                     <CardHeader>

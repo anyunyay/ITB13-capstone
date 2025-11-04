@@ -45,16 +45,16 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             <Head title={t('admin.profile_settings')} />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     <HeadingSmall title={t('admin.profile_information')} description={t('admin.update_name_email')} />
 
-                    <form onSubmit={submit} className="space-y-6">
+                    <form onSubmit={submit} className="space-y-4 sm:space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">{t('admin.name')}</Label>
+                            <Label htmlFor="name" className="text-sm sm:text-base">{t('admin.name')}</Label>
 
                             <Input
                                 id="name"
-                                className="mt-1 block w-full"
+                                className="mt-1 block w-full text-sm sm:text-base"
                                 value={data.name}
                                 onChange={(e) => {
                                     const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
@@ -69,12 +69,12 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">{t('admin.email_address')}</Label>
+                            <Label htmlFor="email" className="text-sm sm:text-base">{t('admin.email_address')}</Label>
 
                             <Input
                                 id="email"
                                 type="email"
-                                className="mt-1 block w-full"
+                                className="mt-1 block w-full text-sm sm:text-base"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 required

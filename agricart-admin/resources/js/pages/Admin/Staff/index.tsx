@@ -190,37 +190,37 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
         <Head title={t('admin.staff_management')} />
         
         <div className="min-h-screen bg-background">
-          <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
             {/* Dashboard Header */}
-            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
-              <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+              <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
-                      <UsersRound className="h-6 w-6" />
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                      <UsersRound className="h-4 w-4 sm:h-6 sm:w-6" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('staff.staff_management')}</h1>
-                      <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('staff.staff_management')}</h1>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                         {t('staff.staff_management_description')}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                   {createStaffs && (
-                    <Button asChild className="bg-primary text-primary-foreground border-0 px-5 py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md">
-                      <Link href="/admin/staff/add">
+                    <Button asChild className="bg-primary text-primary-foreground border-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md">
+                      <Link href="/admin/staff/add" className="flex items-center justify-center w-full">
                         <UsersRound className="mr-2 h-4 w-4" />
-                        {t('staff.add_staff_member')}
+                        <span className="text-sm sm:text-base">{t('staff.add_staff_member')}</span>
                       </Link>
                     </Button>
                   )}
                   <PermissionGate permission="generate staff report">
-                    <Button variant="outline" asChild className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                      <Link href={route('admin.staff.report')}>
+                    <Button variant="outline" asChild className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href={route('admin.staff.report')} className="flex items-center justify-center w-full">
                         <BarChart3 className="h-4 w-4 mr-2" />
-                        {t('staff.generate_report')}
+                        <span className="text-sm sm:text-base">{t('staff.generate_report')}</span>
                       </Link>
                     </Button>
                   </PermissionGate>

@@ -341,7 +341,7 @@ export default function InventoryIndex() {
             <AppLayout>
                 <Head title={t('admin.inventory_management')} />
                 <div className="min-h-screen bg-background">
-                    <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
+                    <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
                         <DashboardHeader stockStats={stockStats} />
 
                         {/* Flash Messages and Alerts */}
@@ -366,14 +366,16 @@ export default function InventoryIndex() {
                                 setStockCurrentPage(1);
                             }
                         }} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="products" className="flex items-center gap-2">
-                                    <Package className="h-4 w-4" />
-                                    {t('admin.products_tab')}
+                            <TabsList className="grid w-full grid-cols-2 h-auto">
+                                <TabsTrigger value="products" className="flex items-center gap-2 text-xs sm:text-sm">
+                                    <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">{t('admin.products_tab')}</span>
+                                    <span className="sm:hidden">{t('admin.products')}</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="stocks" className="flex items-center gap-2">
-                                    <Warehouse className="h-4 w-4" />
-                                    {t('admin.stocks_tab')}
+                                <TabsTrigger value="stocks" className="flex items-center gap-2 text-xs sm:text-sm">
+                                    <Warehouse className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="hidden sm:inline">{t('admin.stocks_tab')}</span>
+                                    <span className="sm:hidden">{t('admin.stocks')}</span>
                                 </TabsTrigger>
                             </TabsList>
 

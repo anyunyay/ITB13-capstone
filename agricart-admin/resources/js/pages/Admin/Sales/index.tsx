@@ -297,35 +297,35 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
       <AppLayout>
         <Head title={t('admin.sales_management')} />
         <div className="min-h-screen bg-background">
-          <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
             {/* Dashboard Header */}
-            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
-              <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+              <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg flex items-center justify-center">
-                      <DollarSign className="h-6 w-6" />
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 sm:h-6 sm:w-6" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.sales_management_page_title')}</h1>
-                      <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('admin.sales_management_page_title')}</h1>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
                         {t('admin.sales_management_description')}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                   <PermissionGate permission="view sales">
-                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                      <Link href={route('admin.sales.memberSales')}>
-                        {t('admin.member_sales_link')}
+                    <Button variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href={route('admin.sales.memberSales')} className="flex items-center justify-center w-full">
+                        <span className="text-sm sm:text-base">{t('admin.member_sales_link')}</span>
                       </Link>
                     </Button>
                   </PermissionGate>
                   <PermissionGate permission="generate sales report">
-                    <Button variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                      <Link href={route('admin.sales.report')}>
-                        {t('admin.view_report')}
+                    <Button variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href={route('admin.sales.report')} className="flex items-center justify-center w-full">
+                        <span className="text-sm sm:text-base">{t('admin.view_report')}</span>
                       </Link>
                     </Button>
                   </PermissionGate>
@@ -334,7 +334,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
             </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{t('admin.total_revenue_label')}</CardTitle>
@@ -441,10 +441,10 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
           </div>
 
           <Tabs defaultValue="sales" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="sales">{t('admin.all_sales')}</TabsTrigger>
-              <TabsTrigger value="pending">{t('admin.pending_orders_label')}</TabsTrigger>
-              <TabsTrigger value="members">{t('admin.member_sales_tab')}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 h-auto">
+              <TabsTrigger value="sales" className="text-xs sm:text-sm">{t('admin.all_sales')}</TabsTrigger>
+              <TabsTrigger value="pending" className="text-xs sm:text-sm">{t('admin.pending_orders_label')}</TabsTrigger>
+              <TabsTrigger value="members" className="text-xs sm:text-sm">{t('admin.member_sales_tab')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="sales" className="mt-6">
@@ -456,59 +456,60 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.sale_id')}
-                            {getSalesSortIcon('id')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.customer')}
-                            {getSalesSortIcon('customer')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.total_amount')}
-                            {getSalesSortIcon('total_amount')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.coop_share')}
-                            {getSalesSortIcon('coop_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.revenue_column')}
-                            {getSalesSortIcon('member_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.cogs')}
-                            {getSalesSortIcon('cogs')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.gross_profit')}
-                            {getSalesSortIcon('gross_profit')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleSalesSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.date')}
-                            {getSalesSortIcon('created_at')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">{t('admin.processed_by')}</TableHead>
-                        <TableHead className="text-center">{t('admin.logistic')}</TableHead>
+                  <div className="overflow-x-auto">
+                    <Table className="min-w-[800px]">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.sale_id')}
+                              {getSalesSortIcon('id')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.customer')}
+                              {getSalesSortIcon('customer')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.total_amount')}
+                              {getSalesSortIcon('total_amount')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.coop_share')}
+                              {getSalesSortIcon('coop_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.revenue_column')}
+                              {getSalesSortIcon('member_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.cogs')}
+                              {getSalesSortIcon('cogs')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.gross_profit')}
+                              {getSalesSortIcon('gross_profit')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleSalesSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.date')}
+                              {getSalesSortIcon('created_at')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.processed_by')}</TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.logistic')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -532,14 +533,15 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                         </TableRow>
                       ))}
                       {paginatedSales.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={10} className="text-center text-muted-foreground">
-                            {t('admin.no_sales_found')}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                          <TableRow>
+                            <TableCell colSpan={10} className="text-center text-muted-foreground">
+                              {t('admin.no_sales_found')}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
 
                   {/* Pagination Controls */}
                   {salesTotalPages > 1 && (
@@ -564,54 +566,55 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.order_id')}
-                            {getPendingSortIcon('id')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.customer')}
-                            {getPendingSortIcon('customer')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.total_amount')}
-                            {getPendingSortIcon('total_amount')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">{t('admin.subtotal')}</TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.coop_share')}
-                            {getPendingSortIcon('coop_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.revenue_column')}
-                            {getPendingSortIcon('member_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">{t('admin.cogs')}</TableHead>
-                        <TableHead className="text-center">{t('admin.gross_profit')}</TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.date')}
-                            {getPendingSortIcon('created_at')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handlePendingSort('status')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.status')}
-                            {getPendingSortIcon('status')}
-                          </button>
-                        </TableHead>
+                  <div className="overflow-x-auto">
+                    <Table className="min-w-[900px]">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.order_id')}
+                              {getPendingSortIcon('id')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.customer')}
+                              {getPendingSortIcon('customer')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.total_amount')}
+                              {getPendingSortIcon('total_amount')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.subtotal')}</TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.coop_share')}
+                              {getPendingSortIcon('coop_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.revenue_column')}
+                              {getPendingSortIcon('member_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.cogs')}</TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.gross_profit')}</TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.date')}
+                              {getPendingSortIcon('created_at')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handlePendingSort('status')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.status')}
+                              {getPendingSortIcon('status')}
+                            </button>
+                          </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -639,14 +642,15 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                         </TableRow>
                       ))}
                       {paginatedPendingOrders.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={10} className="text-center text-muted-foreground">
-                            {t('admin.no_pending_orders_found')}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                          <TableRow>
+                            <TableCell colSpan={10} className="text-center text-muted-foreground">
+                              {t('admin.no_pending_orders_found')}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
 
                   {/* Pagination Controls */}
                   {pendingTotalPages > 1 && (
@@ -671,58 +675,59 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('member_name')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.member')}
-                            {getMemberSortIcon('member_name')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_orders')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.total_orders')}
-                            {getMemberSortIcon('total_orders')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.total_revenue')}
-                            {getMemberSortIcon('total_revenue')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.coop_share')}
-                            {getMemberSortIcon('total_coop_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.revenue_column')}
-                            {getMemberSortIcon('total_member_share')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.cogs')}
-                            {getMemberSortIcon('total_cogs')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.gross_profit')}
-                            {getMemberSortIcon('total_gross_profit')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">
-                          <button onClick={() => handleMemberSort('total_quantity_sold')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                            {t('admin.quantity_sold')}
-                            {getMemberSortIcon('total_quantity_sold')}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-center">{t('admin.average_revenue')}</TableHead>
+                  <div className="overflow-x-auto">
+                    <Table className="min-w-[1000px]">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('member_name')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.member')}
+                              {getMemberSortIcon('member_name')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_orders')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.total_orders')}
+                              {getMemberSortIcon('total_orders')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.total_revenue')}
+                              {getMemberSortIcon('total_revenue')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.coop_share')}
+                              {getMemberSortIcon('total_coop_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.revenue_column')}
+                              {getMemberSortIcon('total_member_share')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.cogs')}
+                              {getMemberSortIcon('total_cogs')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.gross_profit')}
+                              {getMemberSortIcon('total_gross_profit')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">
+                            <button onClick={() => handleMemberSort('total_quantity_sold')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.quantity_sold')}
+                              {getMemberSortIcon('total_quantity_sold')}
+                            </button>
+                          </TableHead>
+                          <TableHead className="text-center whitespace-nowrap">{t('admin.average_revenue')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -745,14 +750,15 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                         </TableRow>
                       ))}
                       {paginatedMemberSales.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={9} className="text-center text-muted-foreground">
-                            {t('admin.no_member_sales_data_found')}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                          <TableRow>
+                            <TableCell colSpan={9} className="text-center text-muted-foreground">
+                              {t('admin.no_member_sales_data_found')}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
 
                   {/* Pagination Controls */}
                   {memberTotalPages > 1 && (
