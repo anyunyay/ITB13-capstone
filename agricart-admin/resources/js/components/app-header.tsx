@@ -114,7 +114,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     : "bg-transparent w-full mx-auto"
             )}>
                 <div className={cn(
-                    "mx-auto flex items-center px-3 sm:px-4 md:max-w-7xl transition-all duration-300 ease-in-out mx-auto",
+                    "mx-auto flex items-center px-2 sm:px-3 lg:px-4 md:max-w-7xl transition-all duration-300 ease-in-out mx-auto",
                     isScrolled ? "h-14 sm:h-16" : "h-16 sm:h-20"
                 )}>
                     {/* Mobile Menu */}
@@ -179,16 +179,16 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    <div className="flex items-center space-x-1 sm:space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2 min-w-0">
                         <Link href='/' className={cn(
-                            "flex items-center space-x-2 transition-all duration-300 ease-in-out",
+                            "flex items-center space-x-2 transition-all duration-300 ease-in-out flex-shrink-0",
                             isScrolled ? "scale-90 sm:scale-100" : "scale-100 sm:scale-110"
                         )}>
                             <AppLogo />{/* change Logo as needed */}
                         </Link>
                         {/* Breadcrumbs on top left */}
                         {breadcrumbs.length > 0 && (
-                            <div className="hidden lg:block">
+                            <div className="hidden lg:block min-w-0 flex-1">
                                 <Breadcrumbs breadcrumbs={breadcrumbs} />
                             </div>
                         )}
@@ -229,7 +229,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </NavigationMenu>
                     </div>
 
-                    <div className="ml-auto flex items-center space-x-1 sm:space-x-2">
+                    <div className="ml-auto flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                         <div className="relative flex items-center space-x-1">
                             {showSearchBar && <SearchBar isScrolled={isScrolled} />}
                             <div className="hidden lg:flex">

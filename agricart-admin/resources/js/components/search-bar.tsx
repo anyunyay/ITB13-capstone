@@ -143,7 +143,7 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
                             placeholder="Search products..."
                             value={query}
                             onChange={(e) => handleInputChange(e.target.value)}
-                            className="pl-10 pr-10 w-64"
+                            className="pl-10 pr-10 w-48 sm:w-64"
                         />
                         {isLoading && (
                             <Loader2 className={cn(
@@ -170,7 +170,7 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
 
             {/* Search Results Dropdown */}
             {showResults && results.length > 0 && (
-                <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto">
+                <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto max-w-[calc(100vw-2rem)] sm:max-w-none">
                     <CardContent className="p-0">
                         {results.map((product) => (
                             <ProductCard 
@@ -187,7 +187,7 @@ export function SearchBar({ className, isScrolled = false }: SearchBarProps) {
 
             {/* No Results */}
             {showResults && results.length === 0 && query.trim().length >= 2 && !isLoading && (
-                <Card className="absolute top-full left-0 right-0 mt-2 z-50">
+                <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none">
                     <CardContent className="p-4 text-center text-green-600">
                         No products found for "{query}"
                     </CardContent>
