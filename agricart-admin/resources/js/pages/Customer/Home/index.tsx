@@ -164,7 +164,7 @@ export default function CustomerHome({ products }: PageProps) {
       </section>
 
       {/* Main scroll container with proper snap behavior */}
-      <div className="h-screen overflow-y-auto snap-y snap-proximity relative z-10">
+      <div className="min-h-screen overflow-visible relative z-10">
         {/* Spacer section to account for fixed Hero */}
         <section className="h-screen snap-start"></section>
 
@@ -410,16 +410,16 @@ export default function CustomerHome({ products }: PageProps) {
             </div>
           </div>
         </section>
-
-        {/* Testimonial Section with Parallax */}
-        <section className="h-screen relative z-10 snap-start">
-          <TestimonialSlider
-            testimonials={testimonialData}
-            parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
-            autoplayInterval={6500}
-          />
-        </section>
       </div>
+
+      {/* Testimonial Section with Parallax */}
+      <section className="h-screen relative z-10 snap-start">
+        <TestimonialSlider
+          testimonials={testimonialData}
+          parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+          autoplayInterval={6500}
+        />
+      </section>
 
       {/* Login Confirmation Dialog */}
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
