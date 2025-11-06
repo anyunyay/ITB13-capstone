@@ -400,89 +400,89 @@ export default function AboutUs({ }: PageProps) {
             </motion.div>
           </div>
         </section>
-      </div>
 
-      {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
-      <section
-        ref={servicesRef}
-        className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
-        style={{
-          backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}>
-        {/* Background overlay for better content readability */}
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="max-w-[90vw] mx-auto relative z-10">
-          <div className="space-y-4">
-            {services.map((service, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                viewport={{ once: true }}
-                className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
-                  }`}
-              >
-                {/* Content */}
-                <div className={index % 2 === 1 ? 'lg:col-start-2 mx-20' : 'mx-20'}>
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
-                      {service.icon}
+        {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
+        <section
+          ref={servicesRef}
+          className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
+          style={{
+            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}>
+          {/* Background overlay for better content readability */}
+          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="max-w-[90vw] mx-auto relative z-10">
+            <div className="space-y-4">
+              {services.map((service, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true }}
+                  className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                    }`}
+                >
+                  {/* Content */}
+                  <div className={index % 2 === 1 ? 'lg:col-start-2 mx-20' : 'mx-20'}>
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
+                        {service.icon}
+                      </div>
+                      <h3 className="text-4xl font-bold text-popover-foreground">
+                        {service.title}
+                      </h3>
                     </div>
-                    <h3 className="text-4xl font-bold text-popover-foreground">
-                      {service.title}
-                    </h3>
+                    <p className="text-2xl text-popover-foreground mb-4 sm:mb-6 leading-relaxed">
+                      {service.description}
+                    </p>
                   </div>
-                  <p className="text-2xl text-popover-foreground mb-4 sm:mb-6 leading-relaxed">
-                    {service.description}
-                  </p>
-                </div>
 
-                {/* Image/Visual with Parallax */}
-                <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                  <AspectRatio ratio={4 / 1} className="w-full overflow-hidden shadow-lg relative">
-                    <motion.div
-                      className="w-full h-full"
-                      style={{
-                        transform: `translate3d(0, ${(scrollY - (servicesRef.current?.offsetTop || 0)) * service.parallaxSpeed}px, 0)`,
-                        willChange: 'transform'
-                      }}
-                    >
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
+                  {/* Image/Visual with Parallax */}
+                  <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                    <AspectRatio ratio={4 / 1} className="w-full overflow-hidden shadow-lg relative">
+                      <motion.div
+                        className="w-full h-full"
+                        style={{
+                          transform: `translate3d(0, ${(scrollY - (servicesRef.current?.offsetTop || 0)) * service.parallaxSpeed}px, 0)`,
+                          willChange: 'transform'
                         }}
-                      />
-                      {/* Overlay for better text contrast if needed */}
-                      <div className="absolute inset-0 bg-black/20"></div>
-                    </motion.div>
-                  </AspectRatio>
-                </div>
-              </motion.div>
-            ))}
+                      >
+                        <img
+                          src={service.image}
+                          alt={service.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                        {/* Overlay for better text contrast if needed */}
+                        <div className="absolute inset-0 bg-black/20"></div>
+                      </motion.div>
+                    </AspectRatio>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer - Outside scroll-snap container */}
-      <div className="relative z-20 w-full">
-        <Footer
-          companyName="SMMC Cooperative"
-          facebookUrl="https://facebook.com/smmccooperative"
-          emailAddress="contact@smmccooperative.com"
-          physicalAddress="Cabuyao, Laguna, Philippines"
-          navigationLinks={[
-            { title: "Privacy Policy", href: "/privacy" },
-            { title: "Terms of Service", href: "/terms" }
-          ]}
-        />
+        {/* Footer - Outside scroll-snap container */}
+        <div className="relative z-20 w-full">
+          <Footer
+            companyName="SMMC Cooperative"
+            facebookUrl="https://facebook.com/smmccooperative"
+            emailAddress="contact@smmccooperative.com"
+            physicalAddress="Cabuyao, Laguna, Philippines"
+            navigationLinks={[
+              { title: "Privacy Policy", href: "/privacy" },
+              { title: "Terms of Service", href: "/terms" }
+            ]}
+          />
+        </div>
       </div>
     </AppHeaderLayout>
   );
