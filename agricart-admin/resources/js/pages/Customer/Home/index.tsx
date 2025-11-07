@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { TestimonialSlider } from '@/components/TestimonialSlider';
 import Footer from '@/components/Footer';
@@ -241,7 +240,7 @@ export default function CustomerHome({ products }: PageProps) {
                   </motion.div>
                 </motion.div>
 
-                {/* Right Side - Image with AspectRatio */}
+                {/* Right Side - Responsive Image */}
                 <motion.div
                   className="w-full order-1 lg:order-2"
                   initial={{ opacity: 0, x: 50 }}
@@ -249,14 +248,14 @@ export default function CustomerHome({ products }: PageProps) {
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  <AspectRatio ratio={4 / 3} className="rounded-xl overflow-hidden shadow-lg">
+                  <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-xl overflow-hidden shadow-lg">
                     {/* Stock image placeholder - replace with actual cooperative/farm image */}
                     <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
                       <div className="text-white text-center p-4 sm:p-8">
                         <div className="text-lg sm:text-2xl font-semibold mb-2">SMMC Letters Pic</div>
                       </div>
                     </div>
-                  </AspectRatio>
+                  </div>
                 </motion.div>
               </div>
             </div>

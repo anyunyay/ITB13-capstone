@@ -2,7 +2,6 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Leaf, Users, Truck, Shield, Globe } from 'lucide-react';
@@ -121,76 +120,67 @@ export default function AboutUs({ }: PageProps) {
 
       {/* Hero Section - Fixed outside scroll container */}
       <section className="fixed top-0 left-0 w-full h-screen z-0">
-        <AspectRatio ratio={18 / 9}>
-          <div className="absolute top-0 left-0 w-full h-full">
-            {/* Background image with gradient overlay */}
-            <div className="w-full h-full relative">
-              <img
-                src="/images/frontpage/pexels-pixabay-265216.jpg"
-                alt="About SMMC Cooperative"
-                className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
-                loading="eager"
-                onError={(e) => {
-                  // Fallback handling if image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-              />
-              {/* Gradient overlay for better text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
-
-              {/* Text overlay - positioned above gradient - Responsive */}
-              <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-4 pb-8 sm:pl-8 sm:pb-12 md:pl-16 md:pb-20 lg:pl-30 lg:pb-30">
-                <motion.div
-                  className="text-left"
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                >
-                  <motion.h2
-                    className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-light"
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                  >
-                    Many Roots,
-                  </motion.h2>
-                  <motion.h1
-                    className="text-4xl sm:text-6xl md:text-8xl lg:text-[164px] leading-none font-bold text-primary"
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                  >
-                    One Bloom.
-                  </motion.h1>
-                  <motion.p
-                    className="text-sm sm:text-base md:text-lg lg:text-2xl font-light mb-6 sm:mb-10 lg:mb-15 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-                  >
-                    Empowering people through sustainable agriculture, fair trade, and fresh produce.
-                  </motion.p>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-                  className="absolute left-4 sm:left-8 md:left-16 lg:left-30 z-30"
-                >
-                  <Button
-                    size="lg"
-                    className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-sm sm:text-base lg:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
-                    onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
-                  >
-                    <span className="hidden sm:inline">Learn More About Us</span>
-                    <span className="sm:hidden">Learn More</span>
-                  </Button>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </AspectRatio>
+        {/* Background image layer */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            willChange: 'transform',
+            transform: 'translateZ(0)'
+          }}
+        />
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10" />
+        
+        {/* Content overlay - Mobile: centered, Desktop: bottom-left */}
+        <div className="absolute inset-0 flex items-center justify-center lg:items-end lg:justify-start text-white z-20 px-4 lg:pl-30 lg:pb-30">
+          <motion.div
+            className="text-center lg:text-left"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          >
+            <motion.h2
+              className="text-4xl sm:text-3xl md:text-5xl lg:text-7xl font-light"
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            >
+              Many Roots,
+            </motion.h2>
+            <motion.h1
+              className="text-6xl sm:text-6xl md:text-8xl lg:text-[164px] leading-none font-bold text-primary"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            >
+              One Bloom.
+            </motion.h1>
+            <motion.p
+              className="text-sm sm:text-base md:text-lg lg:text-2xl font-light mb-2 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed mx-auto lg:mx-0"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+            >
+              Empowering people through sustainable agriculture, fair trade, and fresh produce.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
+            >
+              <Button
+                size="lg"
+                className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-sm sm:text-base lg:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <span className="hidden sm:inline">Learn More About Us</span>
+                <span className="sm:hidden">Learn More</span>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Scroll container with snap behavior - starts after Hero */}
@@ -235,14 +225,14 @@ export default function AboutUs({ }: PageProps) {
                 viewport={{ once: true }}
                 className="relative order-1 lg:order-2"
               >
-                <AspectRatio ratio={4 / 3} className="rounded-2xl overflow-hidden shadow-2xl">
+                <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-2xl overflow-hidden shadow-2xl">
                   <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
                     <div className="text-white text-center p-4 sm:p-6 lg:p-8">
                       <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">SMMC Cooperative</div>
                       <div className="text-sm sm:text-base lg:text-lg">Local Farmers Working Together</div>
                     </div>
                   </div>
-                </AspectRatio>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -321,21 +311,21 @@ export default function AboutUs({ }: PageProps) {
             >
               {/* Left Side - Overlapping Images */}
               <motion.div
-                className="relative"
+                className="relative h-96 sm:h-[500px] lg:h-[600px]"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                {/* Bottom Image - Portrait/Square (Background) */}
+                {/* Bottom Image - Portrait (Background) */}
                 <motion.div
-                  className="absolute -bottom-30 right-0 z-10 w-7/10"
+                  className="absolute bottom-0 right-0 z-10 w-7/10 h-80 sm:h-96 lg:h-[450px]"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  <AspectRatio ratio={4 / 5} className="rounded-2xl overflow-hidden shadow-lg">
+                  <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
                     <img
                       src="/images/frontpage/pexels-pixabay-265216.jpg"
                       alt="Community farmers working together"
@@ -345,18 +335,18 @@ export default function AboutUs({ }: PageProps) {
                         target.style.display = 'none';
                       }}
                     />
-                  </AspectRatio>
+                  </div>
                 </motion.div>
 
                 {/* Top Image - Landscape (Foreground) */}
                 <motion.div
-                  className="relative -bottom-50 right-5 z-20 w-9/10"
+                  className="absolute top-0 left-0 z-20 w-9/10 h-56 sm:h-72 lg:h-80"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  <AspectRatio ratio={16 / 9} className="rounded-2xl overflow-hidden shadow-xl">
+                  <div className="w-full h-full rounded-2xl overflow-hidden shadow-xl">
                     <img
                       src="/images/frontpage/pexels-pixabay-265216.jpg"
                       alt="Sustainable farming practices"
@@ -366,7 +356,7 @@ export default function AboutUs({ }: PageProps) {
                         target.style.display = 'none';
                       }}
                     />
-                  </AspectRatio>
+                  </div>
                 </motion.div>
               </motion.div>
 
@@ -442,7 +432,7 @@ export default function AboutUs({ }: PageProps) {
 
                   {/* Image/Visual with Parallax */}
                   <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                    <AspectRatio ratio={4 / 1} className="w-full overflow-hidden shadow-lg relative">
+                    <div className="w-full h-32 sm:h-40 md:h-48 lg:h-56 overflow-hidden shadow-lg relative">
                       <motion.div
                         className="w-full h-full"
                         style={{
@@ -462,7 +452,7 @@ export default function AboutUs({ }: PageProps) {
                         {/* Overlay for better text contrast if needed */}
                         <div className="absolute inset-0 bg-black/20"></div>
                       </motion.div>
-                    </AspectRatio>
+                    </div>
                   </div>
                 </motion.div>
               ))}
