@@ -239,17 +239,17 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Vision & Values Section */}
-        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start py-6 sm:py-8 lg:py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
-              className="text-center mb-8 sm:mb-12 lg:mb-16"
+              className="text-center mb-6 sm:mb-8 lg:mb-10"
             >
               <motion.h2
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-3 sm:mb-4 lg:mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3 sm:mb-4 lg:mb-5"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -258,7 +258,7 @@ export default function AboutUs({ }: PageProps) {
                 Our Vision & Values
               </motion.h2>
               <motion.p
-                className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4"
+                className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-snug px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -268,7 +268,7 @@ export default function AboutUs({ }: PageProps) {
               </motion.p>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
               {values.map((value, index) => (
                 <motion.div
                   key={index}
@@ -278,16 +278,16 @@ export default function AboutUs({ }: PageProps) {
                   viewport={{ once: true }}
                 >
                   <Card className={`h-full text-center ${styles.cardHover} ${styles.hoverLift}`}>
-                    <CardHeader className="pb-4">
-                      <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary ${styles.iconBounce}`}>
+                    <CardHeader className="pb-3 pt-4 sm:pt-5 lg:pt-6">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 text-primary ${styles.iconBounce}`}>
                         {value.icon}
                       </div>
-                      <CardTitle className="text-4xl font-bold text-primary">
+                      <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary">
                         {value.title}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-2xl text-muted-foreground leading-relaxed">
+                    <CardContent className="pb-4 sm:pb-5 lg:pb-6 px-3 sm:px-4">
+                      <p className="text-xs sm:text-xs md:text-sm lg:text-base text-muted-foreground leading-relaxed">
                         {value.description}
                       </p>
                     </CardContent>
@@ -299,27 +299,27 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Members Section */}
-        <section ref={missionRef} className="h-screen flex items-center justify-center py-20 bg-background relative overflow-hidden snap-start">
-          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
+        <section ref={missionRef} className="h-screen flex items-center justify-center py-12 sm:py-16 lg:py-20 bg-background relative overflow-hidden snap-start">
+          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
             {/* New Image and Content Layout */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center w-full"
             >
               {/* Left Side - Overlapping Images */}
               <motion.div
-                className="relative h-96 sm:h-[500px] lg:h-[600px]"
+                className="relative h-80 sm:h-96 md:h-[450px] lg:h-[650px]"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                {/* Bottom Image - Portrait (Background) */}
+                {/* Bottom Image - Portrait (Background) - Hidden on mobile/tablet */}
                 <motion.div
-                  className="absolute bottom-0 right-0 z-10 w-7/10 h-80 sm:h-96 lg:h-[450px]"
+                  className="hidden lg:block absolute bottom-0 right-0 z-10 w-7/10 h-[450px]"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -338,9 +338,9 @@ export default function AboutUs({ }: PageProps) {
                   </div>
                 </motion.div>
 
-                {/* Top Image - Landscape (Foreground) */}
+                {/* Top Image - Landscape (Foreground) - Full width on mobile/tablet */}
                 <motion.div
-                  className="absolute top-0 left-0 z-20 w-9/10 h-56 sm:h-72 lg:h-80"
+                  className="relative lg:absolute top-0 left-0 z-20 w-full lg:w-9/10 h-full lg:h-80"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -362,14 +362,14 @@ export default function AboutUs({ }: PageProps) {
 
               {/* Right Side - Content */}
               <motion.div
-                className="space-y-6"
+                className="space-y-6 sm:space-y-8 lg:space-y-10"
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
                 <motion.h2
-                  className="text-6xl font-bold text-primary"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -378,7 +378,7 @@ export default function AboutUs({ }: PageProps) {
                   Agriculture Excellence
                 </motion.h2>
                 <motion.p
-                  className="text-2xl text-muted-foreground leading-relaxed"
+                  className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
@@ -415,23 +415,8 @@ export default function AboutUs({ }: PageProps) {
                   className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                     }`}
                 >
-                  {/* Content */}
-                  <div className={index % 2 === 1 ? 'lg:col-start-2 mx-20' : 'mx-20'}>
-                    <div className="flex items-center gap-4 mb-2">
-                      <div className={`w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
-                        {service.icon}
-                      </div>
-                      <h3 className="text-4xl font-bold text-popover-foreground">
-                        {service.title}
-                      </h3>
-                    </div>
-                    <p className="text-2xl text-popover-foreground mb-4 sm:mb-6 leading-relaxed">
-                      {service.description}
-                    </p>
-                  </div>
-
                   {/* Image/Visual with Parallax */}
-                  <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                  <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
                     <div className="w-full h-32 sm:h-40 md:h-48 lg:h-56 overflow-hidden shadow-lg relative">
                       <motion.div
                         className="w-full h-full"
@@ -453,6 +438,21 @@ export default function AboutUs({ }: PageProps) {
                         <div className="absolute inset-0 bg-black/20"></div>
                       </motion.div>
                     </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className={index % 2 === 1 ? 'lg:col-start-1 mx-4 sm:mx-8 md:mx-12 lg:mx-20' : 'mx-4 sm:mx-8 md:mx-12 lg:mx-20'}>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-2">
+                      <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
+                        {service.icon}
+                      </div>
+                      <h3 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-bold text-popover-foreground">
+                        {service.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm sm:text-base md:text-lg lg:text-2xl text-popover-foreground mb-4 sm:mb-6 leading-relaxed">
+                      {service.description}
+                    </p>
                   </div>
                 </motion.div>
               ))}
