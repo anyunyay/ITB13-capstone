@@ -1,8 +1,7 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import { Head, usePage, router } from '@inertiajs/react';
-import { useState, useRef, useEffect, useCallback} from 'react';
+import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import type { SharedData } from '@/types';
 import {
   Dialog,
   DialogContent,
@@ -38,9 +37,6 @@ interface PageProps {
 export default function CustomerHome({ products }: PageProps) {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const handleRequireLogin = () => setShowLoginConfirm(true);
 
   // Get featured products (first 6 products for the carousel)
   const featuredProducts = products.slice(0, 6);
@@ -114,104 +110,46 @@ export default function CustomerHome({ products }: PageProps) {
       <Head title="Home - SMMC Cooperative" />
 
       {/* Hero Section - Fixed outside scroll container */}
-      <section className="fixed top-0 left-0 w-full h-screen z-0 flex items-center justify-center">
-          {/* Mobile: 4:9 aspect ratio centered, Desktop: full screen with original layout */}
-          <div className="w-full h-full sm:w-full sm:h-full relative">
-            {/* Mobile AspectRatio Container */}
-            <div className="block sm:hidden w-full h-full flex items-center justify-center">
-              <AspectRatio ratio={4 / 9}>
-                <div className="w-full h-full relative">
-                  <img
-                    src="/images/frontpage/pexels-pixabay-265216.jpg"
-                    alt="Farm landscape"
-                    className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
-                    loading="eager"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                  {/* Mobile Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
-                  {/* Mobile Text overlay - centered */}
-                  <div className="absolute inset-0 flex items-center justify-center text-white z-30 px-4">
-                    <motion.div
-                      className="text-center"
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                    >
-                      <motion.h2
-                        className="text-4xl font-light mb-2"
-                        initial={{ opacity: 0, y: -30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                      >
-                        Grown Here,
-                      </motion.h2>
-                      <motion.h1
-                        className="text-7xl leading-none font-bold text-primary"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                      >
-                        For You.
-                      </motion.h1>
-                    </motion.div>
-                  </div>
-                </div>
-              </AspectRatio>
-            </div>
-
-            {/* Desktop: Original full-screen layout */}
-            <div className="hidden sm:block w-full h-full">
-              <AspectRatio ratio={18 / 9}>
-                <div className="absolute top-0 left-0 w-full h-full">
-                  {/* Background image with gradient overlay */}
-                  <div className="w-full h-full relative">
-                    <img
-                      src="/images/frontpage/pexels-pixabay-265216.jpg"
-                      alt="Farm landscape"
-                      className="w-full h-full object-cover object-center absolute top-0 left-0 z-0 [transform:translateZ(0px)] [will-change:transform]"
-                      loading="eager"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                    {/* Desktop Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
-                    {/* Desktop Text overlay - original left-aligned layout */}
-                    <div className="absolute inset-0 flex items-end justify-start text-white z-30 pl-8 pb-12 md:pl-16 md:pb-20 lg:pl-30 lg:pb-30">
-                      <motion.div
-                        className="text-left"
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                      >
-                        <motion.h2
-                          className="text-3xl md:text-5xl lg:text-7xl font-light"
-                          initial={{ opacity: 0, x: -50 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                        >
-                          Grown Here,
-                        </motion.h2>
-                        <motion.h1
-                          className="text-6xl md:text-8xl lg:text-[164px] leading-none font-bold text-primary"
-                          initial={{ opacity: 0, x: -50 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                        >
-                          For You.
-                        </motion.h1>
-                      </motion.div>
-                    </div>
-                  </div>
-                </div>
-              </AspectRatio>
-            </div>
-          </div>
+      <section className="fixed top-0 left-0 w-full h-screen z-0">
+        {/* Background image layer */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            willChange: 'transform',
+            transform: 'translateZ(0)'
+          }}
+        />
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10" />
+        
+        {/* Content overlay - Mobile & Tablet: centered, Desktop: bottom-left */}
+        <div className="absolute inset-0 flex items-center justify-center lg:items-end lg:justify-start text-white z-20 px-4 lg:pl-30 lg:pb-30">
+          <motion.div
+            className="text-center lg:text-left"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          >
+            <motion.h2
+              className="text-4xl lg:text-7xl font-light mb-2 lg:mb-0"
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            >
+              Grown Here,
+            </motion.h2>
+            <motion.h1
+              className="text-7xl lg:text-[164px] leading-none font-bold text-primary"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            >
+              For You.
+            </motion.h1>
+          </motion.div>
+        </div>
       </section>
 
       {/* Main scroll container with proper snap behavior */}
