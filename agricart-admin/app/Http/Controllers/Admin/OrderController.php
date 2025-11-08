@@ -30,52 +30,52 @@ class OrderController extends Controller
         $status = $request->get('status', 'all');
         $highlightOrderId = $request->get('highlight_order');
         $showUrgentApproval = $request->get('urgent_approval', false);
-        
+
         // Optimize: Load only recent orders with essential data including audit trail for order cards
         $allOrders = SalesAudit::with([
-                'customer' => function($query) {
-                    $query->select('id', 'name', 'email', 'contact_number');
-                },
-                'customer.defaultAddress' => function($query) {
-                    $query->select('id', 'user_id', 'street', 'barangay', 'city', 'province');
-                },
-                'address' => function($query) {
-                    $query->select('id', 'street', 'barangay', 'city', 'province');
-                },
-                'admin' => function($query) {
-                    $query->select('id', 'name');
-                },
-                'logistic' => function($query) {
-                    $query->select('id', 'name', 'contact_number');
-                },
-                'auditTrail.product' => function($query) {
-                    $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
-                },
-                'auditTrail.product.stocks' => function($query) {
-                    $query->where('quantity', '>', 0)->whereNull('removed_at');
-                }
-            ])
+            'customer' => function ($query) {
+                $query->select('id', 'name', 'email', 'contact_number');
+            },
+            'customer.defaultAddress' => function ($query) {
+                $query->select('id', 'user_id', 'street', 'barangay', 'city', 'province');
+            },
+            'address' => function ($query) {
+                $query->select('id', 'street', 'barangay', 'city', 'province');
+            },
+            'admin' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'logistic' => function ($query) {
+                $query->select('id', 'name', 'contact_number');
+            },
+            'auditTrail.product' => function ($query) {
+                $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+            },
+            'auditTrail.product.stocks' => function ($query) {
+                $query->where('quantity', '>', 0)->whereNull('removed_at');
+            }
+        ])
             ->select('id', 'customer_id', 'address_id', 'admin_id', 'logistic_id', 'total_amount', 'status', 'delivery_status', 'delivery_packed_time', 'delivered_time', 'created_at', 'admin_notes', 'is_urgent')
             ->orderBy('created_at', 'desc')
             ->limit(200) // Reduced limit for better performance
             ->get()
             ->values(); // Convert to array
-        
+
         // Process orders to check for delayed status and calculate urgent orders
         $processedOrders = $allOrders->map(function ($order) {
             $orderAge = $order->created_at->diffInHours(now());
-            
+
             // Check if order should be marked as delayed (over 24 hours and still pending)
             if ($order->status === 'pending' && $orderAge > 24) {
                 $order->update(['status' => 'delayed']);
                 $order->status = 'delayed';
-                
+
                 // Send notification to customer about delay
                 if ($order->customer) {
                     $order->customer->notify(new OrderDelayedNotification($order));
                 }
             }
-            
+
             // Transform the order data with optimized structure
             return [
                 'id' => $order->id,
@@ -88,8 +88,8 @@ class OrderController extends Controller
                     'city' => $order->customer->defaultAddress?->city ?? 'N/A',
                     'province' => $order->customer->defaultAddress?->province ?? 'N/A',
                 ],
-                'delivery_address' => $order->address ? 
-                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                'delivery_address' => $order->address ?
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
                     null,
                 'order_address' => $order->address ? [
                     'street' => $order->address->street,
@@ -117,14 +117,14 @@ class OrderController extends Controller
                 'is_urgent' => $order->is_urgent,
             ];
         });
-        
+
         // Filter orders by status if needed
         if ($status === 'all') {
             $orders = $processedOrders;
         } else {
             $orders = $processedOrders->where('status', $status)->values();
         }
-        
+
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
 
@@ -137,7 +137,7 @@ class OrderController extends Controller
             $orderAge = \Carbon\Carbon::parse($order['created_at'])->diffInHours(now());
             return $orderAge >= 16; // 16+ hours old (8 hours left)
         })->values(); // Convert to array
-        
+
         return Inertia::render('Admin/Orders/index', [
             'orders' => $orders,
             'allOrders' => $processedOrders,
@@ -152,30 +152,30 @@ class OrderController extends Controller
     public function show(Request $request, SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
-        
+
         // Get available logistics for assignment
         $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
-        
+
         // Check if highlighting is requested (from notification click)
         $highlight = $request->get('highlight', false);
-        
+
         // Calculate order age and urgency
         $orderAge = $order->created_at->diffInHours(now());
-        
+
         // Check if order should be marked as delayed (over 24 hours and still pending)
         if ($order->status === 'pending' && $orderAge > 24) {
             $order->update(['status' => 'delayed']);
             $order->status = 'delayed';
-            
+
             // Send notification to customer about delay
             if ($order->customer) {
                 $order->customer->notify(new OrderDelayedNotification($order));
             }
         }
-        
+
         $isUrgent = $order->status === 'pending' && ($order->is_urgent || $orderAge >= 16); // Manually marked OR 16+ hours old (8 hours left)
         $canApprove = in_array($order->status, ['pending', 'delayed']);
-        
+
         // Transform the order data to include customer address information
         $transformedOrder = [
             'id' => $order->id,
@@ -188,10 +188,9 @@ class OrderController extends Controller
                 'city' => $order->address ? $order->address->city : ($order->customer->defaultAddress ? $order->customer->defaultAddress->city : null),
                 'province' => $order->address ? $order->address->province : ($order->customer->defaultAddress ? $order->customer->defaultAddress->province : null),
             ],
-            'delivery_address' => $order->address ? 
-                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
-                ($order->customer->defaultAddress ? 
-                    $order->customer->defaultAddress->street . ', ' . $order->customer->defaultAddress->barangay . ', ' . $order->customer->defaultAddress->city . ', ' . $order->customer->defaultAddress->province : 
+            'delivery_address' => $order->address ?
+                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : ($order->customer->defaultAddress ?
+                    $order->customer->defaultAddress->street . ', ' . $order->customer->defaultAddress->barangay . ', ' . $order->customer->defaultAddress->city . ', ' . $order->customer->defaultAddress->province :
                     null),
             'order_address' => $order->address ? [
                 'street' => $order->address->street,
@@ -238,7 +237,7 @@ class OrderController extends Controller
     public function receiptPreview(SalesAudit $order)
     {
         $order->load(['customer.defaultAddress', 'admin', 'auditTrail.product']);
-        
+
         // Transform the order data to include aggregated audit trail with stored prices
         $transformedOrder = [
             'id' => $order->id,
@@ -257,7 +256,7 @@ class OrderController extends Controller
             ] : null,
             'audit_trail' => $order->getAggregatedAuditTrail(),
         ];
-        
+
         return Inertia::render('Admin/Orders/receipt-preview', [
             'order' => $transformedOrder,
         ]);
@@ -284,7 +283,7 @@ class OrderController extends Controller
         // Get file info
         $fileInfo = pathinfo($filePath);
         $mimeType = mime_content_type($filePath);
-        
+
         // Set appropriate headers
         $headers = [
             'Content-Type' => $mimeType,
@@ -349,14 +348,14 @@ class OrderController extends Controller
             foreach ($insufficientItems as $item) {
                 $errorMessage .= "• {$item['product_name']} ({$item['category']}): Requested {$item['requested_quantity']}, Available {$item['available_stock']}, Shortage {$item['shortage']}\n";
             }
-            
+
             return redirect()->back()->with('error', $errorMessage);
         }
 
         // Get multi-member order summary before processing
         $orderSummary = AuditTrailService::getMultiMemberOrderSummary($order);
         $involvedMembers = collect($orderSummary['members'])->pluck('member_id');
-        
+
         Log::info('Processing multi-member order approval', [
             'order_id' => $order->id,
             'total_members' => $orderSummary['total_members_involved'],
@@ -366,7 +365,7 @@ class OrderController extends Controller
         // Process the stock only when approving
         $processedMembers = collect();
         $processedStocks = collect();
-        
+
         foreach ($order->auditTrail as $trail) {
             if ($trail->stock) {
                 // Validate no duplicate processing
@@ -379,20 +378,20 @@ class OrderController extends Controller
                     ]);
                     continue;
                 }
-                
+
                 $processedStocks->push($memberStockKey);
                 $processedMembers->push($trail->stock->member_id);
-                
+
                 // Store the quantity before deduction for audit trail
                 $quantityBeforeDeduction = $trail->stock->quantity;
                 $quantitySold = $trail->quantity;
-                
+
                 // Deduct from available quantity
                 $trail->stock->quantity -= $trail->quantity;
-                
+
                 // Add to sold quantity
                 $trail->stock->sold_quantity += $trail->quantity;
-                
+
                 $trail->stock->save();
 
                 // Record stock movement in stock_trails table
@@ -411,7 +410,7 @@ class OrderController extends Controller
 
                 // Create comprehensive audit trail entry for order completion
                 $availableStockAfterSale = $trail->stock->quantity;
-                
+
                 // Update the existing audit trail with comprehensive data
                 $trail->update([
                     'member_id' => $trail->stock->member_id,
@@ -470,13 +469,13 @@ class OrderController extends Controller
 
         // Validate multi-member order processing completeness
         $validation = AuditTrailService::validateMultiMemberAuditTrails($order, $involvedMembers);
-        
+
         if (!$validation['is_complete']) {
             Log::error('Multi-member order validation failed during approval', [
                 'order_id' => $order->id,
                 'validation' => $validation
             ]);
-            
+
             return redirect()->back()->with('error', 'Order processing validation failed. Please contact support.');
         }
 
@@ -511,7 +510,7 @@ class OrderController extends Controller
 
         // Notify the customer with status update
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
-        
+
         // Send order receipt email to customer
         $order->customer?->notify(new OrderReceipt($order));
 
@@ -532,15 +531,15 @@ class OrderController extends Controller
                 if ($trail->stock) {
                     // Store quantity before reversal
                     $quantityBeforeReversal = $trail->stock->quantity;
-                    
+
                     // Restore available quantity
                     $trail->stock->quantity += $trail->quantity;
-                    
+
                     // Deduct from sold quantity
                     $trail->stock->sold_quantity -= $trail->quantity;
-                    
+
                     $trail->stock->save();
-                    
+
                     // Record stock reversal in stock_trails table
                     StockTrail::record(
                         stockId: $trail->stock->id,
@@ -554,7 +553,7 @@ class OrderController extends Controller
                         performedBy: $request->user()->id,
                         performedByType: $request->user()->type
                     );
-                    
+
                     // Log stock reversal
                     SystemLogger::logStockUpdate(
                         $trail->stock->id,
@@ -606,7 +605,7 @@ class OrderController extends Controller
     public function markUrgent(Request $request, Sales $order)
     {
         Log::info('Mark urgent called for order: ' . $order->id);
-        
+
         if ($order->status !== 'pending') {
             Log::info('Order is not pending, status: ' . $order->status);
             return redirect()->back()->with('error', 'Only pending orders can be marked as urgent.');
@@ -621,7 +620,7 @@ class OrderController extends Controller
     public function unmarkUrgent(Request $request, Sales $order)
     {
         Log::info('Unmark urgent called for order: ' . $order->id);
-        
+
         $order->update(['is_urgent' => false]);
         Log::info('Order urgency removed successfully');
 
@@ -719,6 +718,8 @@ class OrderController extends Controller
         $endDate = $request->get('end_date');
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
+        $logisticIds = $request->get('logistic_ids', []);
+        $adminIds = $request->get('admin_ids', []);
         $search = $request->get('search');
         $minAmount = $request->get('min_amount');
         $maxAmount = $request->get('max_amount');
@@ -745,6 +746,16 @@ class OrderController extends Controller
             $query->where('delivery_status', $deliveryStatus);
         }
 
+        // Filter by logistics
+        if (!empty($logisticIds) && is_array($logisticIds)) {
+            $query->whereIn('logistic_id', $logisticIds);
+        }
+
+        // Filter by admin/staff (processed by)
+        if (!empty($adminIds) && is_array($adminIds)) {
+            $query->whereIn('admin_id', $adminIds);
+        }
+
         // Filter by amount range
         if ($minAmount !== null && $minAmount !== '') {
             $query->where('total_amount', '>=', $minAmount);
@@ -755,12 +766,12 @@ class OrderController extends Controller
 
         // Search functionality
         if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->whereHas('customer', function($customerQuery) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('customer', function ($customerQuery) use ($search) {
                     $customerQuery->where('name', 'like', "%{$search}%")
-                                 ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 })->orWhere('admin_notes', 'like', "%{$search}%")
-                  ->orWhere('id', 'like', "%{$search}%");
+                    ->orWhere('id', 'like', "%{$search}%");
             });
         }
 
@@ -786,15 +797,32 @@ class OrderController extends Controller
             return $this->exportToPdf($orders, $summary, $display);
         }
 
+        // Get all logistics for filter dropdown
+        $logistics = User::where('type', 'logistic')
+            ->select('id', 'name', 'contact_number')
+            ->orderBy('name')
+            ->get();
+
+        // Get all admins and staff for filter dropdown
+        $admins = User::whereIn('type', ['admin', 'staff'])
+            ->select('id', 'name', 'email', 'type')
+            ->orderBy('type')
+            ->orderBy('name')
+            ->get();
+
         // Return view for display
         return Inertia::render('Admin/Orders/report', [
             'orders' => $orders,
             'summary' => $summary,
+            'logistics' => $logistics,
+            'admins' => $admins,
             'filters' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'status' => $status,
                 'delivery_status' => $deliveryStatus,
+                'logistic_ids' => $logisticIds,
+                'admin_ids' => $adminIds,
                 'search' => $search,
                 'min_amount' => $minAmount,
                 'max_amount' => $maxAmount,
@@ -805,7 +833,7 @@ class OrderController extends Controller
     private function exportToCsv($orders, $summary, $display = false)
     {
         $filename = 'orders_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -820,9 +848,9 @@ class OrderController extends Controller
             ];
         }
 
-        $callback = function() use ($orders, $summary) {
+        $callback = function () use ($orders, $summary) {
             $file = fopen('php://output', 'w');
-            
+
             // Write headers
             fputcsv($file, [
                 'Order ID',
@@ -881,10 +909,9 @@ class OrderController extends Controller
 
         $pdf = Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
+
         $filename = 'orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
-
 }
