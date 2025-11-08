@@ -139,6 +139,7 @@ return [
     'sold' => 'nabenta',
     'stocks_sold' => 'mga stock na nabenta',
     'available' => 'available',
+    'removed' => 'tinanggal',
     'delivered' => 'naihatid',
 
     // Inventory
@@ -1077,6 +1078,11 @@ return [
     'confirm_restore_archived_product' => 'I-restore ang archived product - :name?',
     'confirm_permanently_delete_archived_product' => 'Permanenteng tanggalin ang archived product - :name? Hindi ito maibabalik.',
     'product_information' => 'Impormasyon ng Produkto',
+    'stock_details' => 'Detalye ng Stock',
+    'created_on' => 'Nilikha noong :date',
+    'quantity_units' => ':quantity units',
+    'product_type' => 'Uri ng Produkto',
+    'select_all_max_five' => 'Piliin Lahat (Max: 5)',
 
     // Sorting Options
     'sort_name_asc' => 'Pangalan (A-Z)',
