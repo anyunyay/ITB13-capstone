@@ -18,4 +18,20 @@ return [
     'add_to_cart' => 'Idagdag sa Cart',
     'out_of_stock' => 'Walang Stock',
     'in_stock' => 'May Stock',
+    
+    // Add to Cart Modal
+    'prices' => 'Mga Presyo',
+    'kilo' => 'Kilo',
+    'piece' => 'Piraso',
+    'tali' => 'Tali',
+    'stock' => 'Stock',
+    'no_stock' => 'Walang stock',
+    'quantity' => 'Dami',
+    'max' => 'Max',
+    'cancel' => 'Kanselahin',
+    'adding' => 'Idinaragdag...',
+    'no_image' => 'Walang Larawan',
+    'please_select_category' => 'Pumili ng kategorya.',
+    'successfully_added_to_cart' => 'Matagumpay na naidagdag sa cart!',
+    'failed_to_add_to_cart' => 'Hindi naidagdag sa cart. Subukan muli.',
 ];

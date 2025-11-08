@@ -9,6 +9,7 @@ import { debounce } from '@/lib/debounce';
 import StockManager from '@/lib/stock-manager';
 import { Minus, Plus, ShoppingCart, CheckCircle, AlertCircle } from 'lucide-react';
 import type { SharedData } from '@/types';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
   id: number;
@@ -47,8 +48,9 @@ export function AddToCartModal({
   
   const { auth } = usePage<{ auth: any } & SharedData>().props;
   const stockManager = StockManager.getInstance();
+  const t = useTranslation();
 
-  const { data, setData, post, processing, errors } = useForm({
+  const { processing, errors } = useForm({
     product_id: product.id,
     category: '',
     quantity: 1,
@@ -69,39 +71,12 @@ export function AddToCartModal({
     }
   }, [isOpen, product.id, product.stock_by_category, stockManager]);
 
-  const categories = Object.keys(availableStock).filter(cat => availableStock[cat] > 0);
   const isKilo = selectedCategory === 'Kilo';
   const maxQty = availableStock[selectedCategory] ?? 0;
 
   const formatPrice = (price: number | string): string => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
-  };
-
-  const getPriceForCategory = (category: string) => {
-    switch (category) {
-      case 'Kilo':
-        return product.price_kilo;
-      case 'PC':
-        return product.price_pc;
-      case 'Tali':
-        return product.price_tali;
-      default:
-        return null;
-    }
-  };
-
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case 'Kilo':
-        return 'Per Kilo';
-      case 'PC':
-        return 'Per Piece';
-      case 'Tali':
-        return 'Per Tali';
-      default:
-        return category;
-    }
   };
 
   // Debounced add to cart function
@@ -117,7 +92,7 @@ export function AddToCartModal({
     }
 
     if (!selectedCategory) {
-      setMessage('Please select a category.');
+      setMessage(t('customer.please_select_category'));
       setMessageType('error');
       return;
     }
@@ -142,7 +117,7 @@ export function AddToCartModal({
       quantity: sendQty,
     }, {
       onSuccess: () => {
-        setMessage('Successfully added to cart!');
+        setMessage(t('customer.successfully_added_to_cart'));
         setMessageType('success');
         onStockUpdate?.(product.id, selectedCategory, sendQty);
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
@@ -155,7 +130,7 @@ export function AddToCartModal({
       onError: () => {
         stockManager.removeFromCart(product.id, selectedCategory, sendQty);
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
-        setMessage('Failed to add to cart. Please try again.');
+        setMessage(t('customer.failed_to_add_to_cart'));
         setMessageType('error');
         setIsAddingToCart(false);
       },
@@ -202,97 +177,88 @@ export function AddToCartModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 border-green-200 dark:border-green-700 modal-scrollbar">
-        <DialogHeader className="space-y-4">
+      <DialogContent className="max-w-[90vw] overflow-y-auto bg-card border-border modal-scrollbar p-4 md:p-6">
+        <DialogHeader className="space-y-3 md:space-y-4">
           {/* Product Header */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-row gap-3 md:gap-4">
             {/* Product Image */}
             <div className="flex-shrink-0">
-              <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-green-100 dark:bg-green-900/30">
-                {product.image_url || product.image ? (
-                  <img 
-                    src={product.image_url || product.image} 
-                    alt={product.name}
-                    onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/storage/fallback-photo.png';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-green-600 dark:text-green-400 text-sm font-medium">No Image</span>
-                  </div>
-                )}
+              <div className="w-24 h-36 md:w-32 md:h-48 rounded-lg overflow-hidden bg-muted">
+                <img 
+                  src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/storage/fallback-photo.png';
+                  }}
+                />
               </div>
             </div>
 
             {/* Product Details */}
-            <div className="flex-1 space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <DialogTitle className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
-                    {product.name}
-                  </DialogTitle>
-                  <Badge 
-                    variant="secondary" 
-                    className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 capitalize"
-                  >
-                    {product.produce_type}
-                  </Badge>
-                </div>
+            <div className="flex-1 space-y-2 flex flex-col items-start text-left sm:-ml-2 md:ml-0">
+              <div>
+                <Badge 
+                  variant="secondary" 
+                  className="capitalize text-xs md:text-sm lg:text-base font-medium"
+                >
+                  {product.produce_type}
+                </Badge>
+                <DialogTitle className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary mt-2 leading-tight">
+                  {product.name}
+                </DialogTitle>
               </div>
               
-              <DialogDescription className="text-green-600 dark:text-green-400 text-base leading-relaxed">
+              <DialogDescription className="text-foreground text-base lg:text-xl leading-snug">
                 {product.description}
               </DialogDescription>
             </div>
           </div>
 
           {/* Category and Price Row */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-green-600 dark:text-green-400">Available Prices:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="space-y-2 md:space-y-3">
+            <h4 className="font-semibold flex items-center text-primary text-lg lg:text-xl">{t('customer.prices')}:</h4>
+            <div className="grid grid-cols-3 gap-2">
               {product.price_kilo && (
-                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                  <div className="text-sm text-green-600 dark:text-green-400">Per Kilo</div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_kilo)}</div>
+                <div className="flex flex-col items-center justify-center p-2 md:p-3 bg-muted rounded-lg border border-border">
+                  <div className="text-base lg:text-xl text-muted-foreground">{t('customer.kilo')}</div>
+                  <div className="text-base lg:text-xl font-bold text-primary">₱{formatPrice(product.price_kilo)}</div>
                 </div>
               )}
               {product.price_pc && (
-                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                  <div className="text-sm text-green-600 dark:text-green-400">Per Piece</div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_pc)}</div>
+                <div className="flex flex-col items-center justify-center p-2 md:p-3 bg-muted rounded-lg border border-border">
+                  <div className="text-base lg:text-xl text-muted-foreground">{t('customer.piece')}</div>
+                  <div className="text-base lg:text-xl font-bold text-primary">₱{formatPrice(product.price_pc)}</div>
                 </div>
               )}
               {product.price_tali && (
-                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                  <div className="text-sm text-green-600 dark:text-green-400">Per Tali</div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_tali)}</div>
+                <div className="flex flex-col items-center justify-center p-2 md:p-3 bg-muted rounded-lg border border-border">
+                  <div className="text-base lg:text-xl text-muted-foreground">{t('customer.tali')}</div>
+                  <div className="text-base lg:text-xl font-bold text-primary">₱{formatPrice(product.price_tali)}</div>
                 </div>
               )}
             </div>
           </div>
 
-          <Separator className="bg-green-200 dark:bg-green-700" />
+          <Separator />
 
-          {/* Stock Information and Total Price Row */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-green-600 dark:text-green-400 flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4" />
-              Available Stock
-            </h4>
+          {/* Stock Information */}
+          <div className="space-y-2 md:space-y-3">
+            <h3 className="font-semibold text-primary flex items-center gap-2 text-lg lg:text-xl">
+              <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+              {t('customer.stock')}
+            </h3>
             
             {Object.keys(availableStock).length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {Object.entries(availableStock).map(([category, quantity]) => (
                   <div 
                     key={category}
-                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                    className={`p-2 md:p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                       selectedCategory === category
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
-                        : 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-800 hover:border-green-300 dark:hover:border-green-600'
+                        ? 'border-primary bg-accent/10'
+                        : 'border-border bg-card hover:border-accent'
                     }`}
                     onClick={() => {
                       setSelectedCategory(category);
@@ -302,10 +268,10 @@ export function AddToCartModal({
                     }}
                   >
                     <div className="text-center">
-                      <div className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">
-                        {getCategoryLabel(category)}
+                      <div className="text-base lg:text-xl font-medium text-muted-foreground">
+                        {category}
                       </div>
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                      <div className="text-base lg:text-xl font-bold text-primary">
                         {category === 'Kilo' ? quantity.toFixed(2) : quantity}
                       </div>
                     </div>
@@ -313,22 +279,21 @@ export function AddToCartModal({
                 ))}
               </div>
             ) : (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
-                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">No stock available</span>
+              <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20">
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+                  <span className="text-base md:text-xl lg:text-2xl font-medium">{t('customer.no_stock')}</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Quantity Selection and Total Price */}
+          {/* Quantity Selection */}
           {selectedCategory && (
-            <div className="space-y-4">
-              {/* Quantity Selection Row */}
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-green-600 dark:text-green-400">Select Quantity</h4>
-                <div className="flex items-center gap-3">
+            <div className="space-y-2 md:space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <h4 className="font-semibold text-primary text-lg lg:text-xl">{t('customer.quantity')}</h4>
+                <div className="flex items-center gap-2 md:gap-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -337,9 +302,9 @@ export function AddToCartModal({
                       typeof selectedQuantity === 'number' ? selectedQuantity - (isKilo ? 0.25 : 1) : 1
                     )}
                     disabled={Number((selectedQuantity as any) || 0) <= 1}
-                    className="w-10 h-10 border-green-600 dark:border-green-500 text-green-600 dark:text-green-400 hover:bg-green-600 hover:text-white"
+                    className="w-10 h-10 p-0"
                   >
-                    <Minus className="w-3 h-3" />
+                    <Minus className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                   </Button>
 
                   <div className="flex flex-col items-center gap-1">
@@ -360,10 +325,10 @@ export function AddToCartModal({
                           handleQuantityChange(numValue);
                         }
                       }}
-                      className="w-20 text-center text-xl font-bold border-2 border-green-600 dark:border-green-500 rounded-lg p-2 bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-20 text-center text-lg md:text-xl lg:text-2xl font-bold border-2 border-input rounded-lg p-2 bg-background text-primary focus:border-ring focus:ring-2 focus:ring-ring/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <div className="text-xs text-green-600 dark:text-green-400">
-                      Max: {isKilo ? maxQty.toFixed(2) : maxQty}
+                    <div className="text-sm lg:text-base text-muted-foreground">
+                      {t('customer.max')}: {isKilo ? maxQty.toFixed(2) : maxQty}
                     </div>
                   </div>
 
@@ -375,60 +340,47 @@ export function AddToCartModal({
                       typeof selectedQuantity === 'number' ? selectedQuantity + (isKilo ? 0.25 : 1) : 1
                     )}
                     disabled={Number((selectedQuantity as any) || 0) >= maxQty}
-                    className="w-10 h-10 border-green-600 dark:border-green-500 text-green-600 dark:text-green-400 hover:bg-green-600 hover:text-white"
+                    className="w-10 h-10 p-0"
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                   </Button>
                 </div>
               </div>
-              
             </div>
           )}
 
           {/* Error Messages */}
-          {errors.quantity && (
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{errors.quantity}</span>
-            </div>
-          )}
-          {errors.category && (
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{errors.category}</span>
-            </div>
-          )}
-          {errors.product_id && (
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{errors.product_id}</span>
+          {(errors.quantity || errors.category || errors.product_id) && (
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" />
+              <span className="text-base md:text-xl lg:text-2xl">{errors.quantity || errors.category || errors.product_id}</span>
             </div>
           )}
 
           {/* Success/Error Messages */}
           {message && (
-            <div className={`flex items-center gap-2 p-3 rounded-lg ${
+            <div className={`flex items-center gap-2 p-3 rounded-lg border ${
               messageType === 'success' 
-                ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-700'
-                : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700'
+                ? 'bg-accent/10 text-primary border-accent/20'
+                : 'bg-destructive/10 text-destructive border-destructive/20'
             }`}>
               {messageType === 'success' ? (
-                <CheckCircle className="w-5 h-5" />
+                <CheckCircle className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" />
               ) : (
-                <AlertCircle className="w-5 h-5" />
+                <AlertCircle className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" />
               )}
-              <span className="font-medium">{message}</span>
+              <span className="font-medium text-base md:text-xl lg:text-2xl">{message}</span>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex flex-row gap-3 pt-2">
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-green-600 dark:border-green-500 text-green-600 dark:text-green-400 hover:bg-green-600 hover:text-white"
+              className="flex-1 text-base md:text-lg lg:text-lg py-3"
             >
-              Cancel
+              {t('customer.cancel')}
             </Button>
             <Button
               onClick={handleAddToCart}
@@ -440,17 +392,17 @@ export function AddToCartModal({
                 Number((selectedQuantity as any) || 0) > maxQty ||
                 Object.keys(availableStock).length === 0
               }
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="flex-1 font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-base md:text-lg lg:text-lg"
             >
               {processing || isAddingToCart ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Adding to Cart...
+                  <div className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <span>{t('customer.adding')}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4" />
-                  Add to Cart
+                  <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
+                  <span>{t('customer.add_to_cart')}</span>
                 </div>
               )}
             </Button>
