@@ -78,21 +78,15 @@ export function ProductCard({
         className={`flex items-center space-x-2 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer border-b last:border-b-0 transition-colors duration-200 ${className}`}
         onClick={() => router.visit(`/customer/product/${product.id}`)}
       >
-        {product.image_url || product.image ? (
-          <img
-            src={product.image_url || product.image}
-            alt={product.name}
-            className="w-12 h-12 object-cover rounded-lg"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/storage/fallback-photo.png';
-            }}
-          />
-        ) : (
-          <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-            <span className="text-green-600 dark:text-green-400 text-xs font-medium">No Image</span>
-          </div>
-        )}
+        <img
+          src={product.image_url || product.image || '/storage/fallback-photo.png'}
+          alt={product.name}
+          className="w-12 h-12 object-cover rounded-lg"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/storage/fallback-photo.png';
+          }}
+        />
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-sm text-green-600 dark:text-green-400 truncate">{product.name}</div>
           <div className="text-xs text-green-600 dark:text-green-400 truncate capitalize">{product.produce_type}</div>
@@ -116,21 +110,15 @@ export function ProductCard({
       <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg group ${className}`}>
         {/* Image Section */}
         <div className="relative overflow-hidden">
-          {product.image_url || product.image ? (
-            <img 
-              src={product.image_url || product.image} 
-              alt={product.name}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/storage/fallback-photo.png';
-              }}
-            />
-          ) : (
-            <div className="w-full h-48 bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <span className="text-green-600 dark:text-green-400 text-sm font-medium">No Image</span>
-            </div>
-          )}
+          <img 
+            src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+            alt={product.name}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/storage/fallback-photo.png';
+            }}
+          />
           <div className="absolute top-3 right-3">
             <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 capitalize">
               {product.produce_type}
@@ -156,36 +144,48 @@ export function ProductCard({
 
   // Default variant - full featured card
   return (
-    <Card className={`w-full p-0 bg-white dark:bg-gray-800 border-2 border-green-200 dark:border-green-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:border-green-300 dark:hover:border-green-600 group ${className}`}>
+    <Card 
+      className={`w-full p-0 bg-white dark:bg-gray-800 border-2 border-green-200 dark:border-green-700 rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 hover:border-green-300 dark:hover:border-green-600 group ${className}`}
+      style={{
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        willChange: 'transform'
+      }}
+    >
       {/* Image Section */}
-      <div className="relative overflow-hidden rounded-t-xl">
-        {product.image_url || product.image ? (
-          <img 
-            src={product.image_url || product.image} 
-            alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/storage/fallback-photo.png';
-            }}
-          />
-        ) : (
-          <div className="w-full h-48 bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-            <span className="text-green-600 dark:text-green-400 text-sm font-medium">No Image</span>
-          </div>
-        )}
-        <div className="absolute top-3 right-3">
-          <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 capitalize">
+      <div 
+        className="relative overflow-hidden rounded-t-lg sm:rounded-t-xl"
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
+        }}
+      >
+        <img 
+          src={product.image_url || product.image || '/storage/fallback-photo.png'} 
+          alt={product.name}
+          className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          style={{
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden',
+            willChange: 'transform'
+          }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/storage/fallback-photo.png';
+          }}
+        />
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+          <span className="px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 capitalize">
             {product.produce_type}
           </span>
         </div>
       </div>
       
       {/* Content Section */}
-      <div className="p-4 space-y-3">
+      <div className="p-2 sm:p-3 lg:p-4 space-y-1.5 sm:space-y-2 lg:space-y-3">
         {/* Product Title */}
         <div>
-          <h3 className="text-lg font-bold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors leading-tight">
+          <h3 className="text-sm sm:text-base lg:text-lg font-bold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors leading-tight line-clamp-2">
             <Link 
               href={`/customer/product/${product.id}`}
               className="hover:underline cursor-pointer"
@@ -196,42 +196,42 @@ export function ProductCard({
         </div>
         
         {/* Price Section */}
-        <div className="space-y-1">
+        <div className="space-y-0.5 sm:space-y-1">
           {product.price_kilo && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-sm text-green-600 dark:text-green-400">Per Kilo:</span>
-              <span className="text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_kilo)}</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Kilo:</span>
+              <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_kilo)}</span>
             </div>
           )}
           {product.price_pc && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-sm text-green-600 dark:text-green-400">Per Piece:</span>
-              <span className="text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_pc)}</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Piece:</span>
+              <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_pc)}</span>
             </div>
           )}
           {product.price_tali && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-sm text-green-600 dark:text-green-400">Per Tali:</span>
-              <span className="text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_tali)}</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Tali:</span>
+              <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_tali)}</span>
             </div>
           )}
           {!product.price_kilo && !product.price_pc && !product.price_tali && (
-            <div className="text-sm text-green-600 dark:text-green-400 font-medium py-0.5">No prices set</div>
+            <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium py-0.5">No prices set</div>
           )}
         </div>
         
         {/* Description */}
-        <div className="pt-1">
-          <p className="text-sm text-green-600 dark:text-green-400 break-words line-clamp-2 leading-relaxed">{product.description}</p>
+        <div className="pt-0.5 sm:pt-1">
+          <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 break-words line-clamp-2 leading-relaxed">{product.description}</p>
         </div>
         
         {/* Add to Cart Button */}
         {showAddToCart && (
-          <div className="pt-1">
+          <div className="pt-0.5 sm:pt-1">
             <Button 
               variant="default" 
               onClick={() => setModalOpen(true)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg text-xs sm:text-sm lg:text-base transition-colors duration-200 shadow-sm sm:shadow-md hover:shadow-md sm:hover:shadow-lg"
             >
               Add to Cart
             </Button>

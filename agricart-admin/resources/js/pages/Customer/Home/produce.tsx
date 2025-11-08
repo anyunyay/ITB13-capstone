@@ -1,8 +1,7 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import { Head, usePage, router, useForm, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useState, useEffect, useCallback } from 'react';
 import type { SharedData } from '@/types';
-import { debounce } from '@/lib/debounce';
 import { useScrollRestoration, usePageState } from '@/hooks/useScrollRestoration';
 import {
   Carousel,
@@ -20,8 +19,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { route } from 'ziggy-js';
 import StockManager from '@/lib/stock-manager';
 import Footer from '@/components/Footer';
 import { ProduceSearchBar } from '@/components/ProduceSearchBar';
@@ -78,14 +75,16 @@ export function ProductCarousel({
   onStockUpdate,
   viewMode = 'grid'
 }: ProductCarouselProps) {
+  const isSingleProduct = products.length === 1;
+
   if (viewMode === 'list') {
     return (
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="-ml-2 flex flex-wrap">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4">
+        <div className={`flex flex-wrap gap-2 ${isSingleProduct ? 'justify-center' : 'justify-center md:grid md:grid-cols-3 lg:grid-cols-4 md:justify-items-stretch'}`}>
           {products.map(product => (
             <div
               key={product.id}
-              className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6 w-full sm:w-auto"
+              className={`flex justify-center ${isSingleProduct ? 'w-full max-w-[280px] sm:max-w-[320px]' : 'w-full max-w-[180px] sm:max-w-[200px] md:max-w-none'}`}
             >
               <ProductCard
                 product={product}
@@ -101,24 +100,50 @@ export function ProductCarousel({
   }
 
   return (
-    <Carousel className="w-full max-w-7xl mx-auto" opts={{ align: 'center', loop: true }}>
-      <CarouselContent className="-ml-2">
+    <Carousel 
+      className="w-full max-w-7xl mx-auto relative px-2 sm:px-0" 
+      style={{
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        willChange: 'transform'
+      }}
+      opts={{ align: 'center', loop: isSingleProduct ? false : true }}
+    >
+      <CarouselContent 
+        className={`-ml-1 flex items-center ${isSingleProduct ? 'justify-center' : ''}`}
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          willChange: 'transform'
+        }}
+      >
         {products.map(product => (
           <CarouselItem
             key={product.id}
-            className="pl-2 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 flex justify-center mb-6"
+            className={`pl-1 ${isSingleProduct ? 'basis-auto' : 'basis-1/2 md:basis-1/3 lg:basis-1/4'} flex justify-center items-start mb-6`}
+            style={{
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden'
+            }}
           >
-            <ProductCard
-              product={product}
-              onRequireLogin={onRequireLogin}
-              onStockUpdate={onStockUpdate}
-              className="w-full max-w-none"
-            />
+            <div className={`flex justify-center ${isSingleProduct ? 'w-[280px] sm:w-[320px]' : 'w-full max-w-[180px] sm:max-w-none'}`}>
+              <ProductCard
+                product={product}
+                onRequireLogin={onRequireLogin}
+                onStockUpdate={onStockUpdate}
+                className="w-full max-w-none"
+              />
+            </div>
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
-      <CarouselNext className="bg-transparent text-primary hover:bg-primary hover:text-white border-transparent hover:border-primary transition-all duration-300 ease-in-out" />
+      {/* Navigation buttons - hidden when single product */}
+      {!isSingleProduct && (
+        <>
+          <CarouselPrevious className="left-1 sm:left-2 lg:-left-16 bg-white dark:bg-gray-800 text-primary hover:bg-primary hover:text-white border-2 border-primary hover:border-primary transition-all duration-300 ease-in-out shadow-lg z-10" />
+          <CarouselNext className="right-1 sm:right-2 lg:-right-16 bg-white dark:bg-gray-800 text-primary hover:bg-primary hover:text-white border-2 border-primary hover:border-primary transition-all duration-300 ease-in-out shadow-lg z-10" />
+        </>
+      )}
     </Carousel>
   );
 }
@@ -179,28 +204,55 @@ export default function CustomerHome() {
   // Update products state when initialProducts change
   useEffect(() => {
     setProducts(initialProducts);
-    setFilteredProducts(initialProducts);
-  }, [initialProducts]);
+    // Only reset filtered products if there's no active search
+    if (!searchQuery.trim()) {
+      setFilteredProducts(initialProducts);
+    } else {
+      // Re-apply search filter with new products
+      const filtered = initialProducts.filter(product => {
+        const searchTerm = searchQuery.toLowerCase();
+        const name = (product.name || '').toLowerCase();
+        const description = (product.description || '').toLowerCase();
+        const produceType = (product.produce_type || '').toLowerCase();
+        
+        return (
+          name.includes(searchTerm) ||
+          description.includes(searchTerm) ||
+          produceType.includes(searchTerm)
+        );
+      });
+      setFilteredProducts(filtered);
+    }
+  }, [initialProducts, searchQuery]);
 
-  // Filter products based on search query
-  const handleSearch = (query: string) => {
+  // Filter products based on search query - memoized to prevent unnecessary re-renders
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    if (!query.trim()) {
-      setFilteredProducts(products);
+    
+    // Trim the query to handle whitespace-only searches
+    const trimmedQuery = query.trim();
+    
+    if (!trimmedQuery) {
+      setFilteredProducts(initialProducts);
       return;
     }
 
-    const filtered = products.filter(product => {
-      const searchTerm = query.toLowerCase();
+    const searchTerm = trimmedQuery.toLowerCase();
+    const filtered = initialProducts.filter(product => {
+      // Safely handle potentially null/undefined values
+      const name = (product.name || '').toLowerCase();
+      const description = (product.description || '').toLowerCase();
+      const produceType = (product.produce_type || '').toLowerCase();
+      
       return (
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm) ||
-        product.produce_type.toLowerCase().includes(searchTerm)
+        name.includes(searchTerm) ||
+        description.includes(searchTerm) ||
+        produceType.includes(searchTerm)
       );
     });
 
     setFilteredProducts(filtered);
-  };
+  }, [initialProducts]);
 
   // Refresh stock data when page loads to ensure accuracy
   useEffect(() => {
@@ -291,36 +343,44 @@ export default function CustomerHome() {
       return null;
     }
 
+    const isSingleProduct = typeFilteredProducts.length === 1;
+
     return (
       <div id={sectionId} className="w-full max-w-7xl mx-auto">
-        {/* Section Header with Centered Title and View All Button */}
-        <div className="flex justify-center items-center mb-6 relative">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-primary text-center">{title}</h2>
-          <Button
-            onClick={toggleFunction}
-            variant="ghost"
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
-                ? 'text-primary'
-                : 'text-primary'
-              }`}
-          >
-            {viewMode === 'carousel' ? 'View All' : 'View Less'}
-          </Button>
+        {/* Section Header - Mobile: Centered Title */}
+        <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center mb-3 sm:mb-6 sm:relative">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-primary text-center mb-2 sm:mb-0">{title}</h2>
+          
+          {/* Desktop View All Button - Top Right - Hidden when single product */}
+          {!isSingleProduct && (
+            <Button
+              onClick={toggleFunction}
+              variant="ghost"
+              className={`hidden sm:block sm:absolute sm:right-0 px-4 sm:px-6 py-1.5 sm:py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
+                  ? 'text-primary'
+                  : 'text-primary'
+                }`}
+            >
+              {viewMode === 'carousel' ? 'View All' : 'View Less'}
+            </Button>
+          )}
         </div>
 
-        {/* Mobile View All Button */}
-        <div className="flex justify-center mb-4 sm:hidden">
-          <Button
-            onClick={toggleFunction}
-            variant="ghost"
-            className={`px-6 py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
-                ? 'text-primary'
-                : 'text-primary'
-              }`}
-          >
-            {viewMode === 'carousel' ? 'View All' : 'View Less'}
-          </Button>
-        </div>
+{/* Mobile View All Button - Below Title, Right Side - Hidden when single product */}
+        {!isSingleProduct && (
+          <div className="flex justify-end mb-3 sm:hidden">
+            <Button
+              onClick={toggleFunction}
+              variant="ghost"
+              className={`px-4 py-1.5 text-base font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
+                  ? 'text-primary'
+                  : 'text-primary'
+                }`}
+            >
+              {viewMode === 'carousel' ? 'View All' : 'View Less'}
+            </Button>
+          </div>
+        )}
 
         <ProductCarousel
           products={typeFilteredProducts}
@@ -336,20 +396,20 @@ export default function CustomerHome() {
     <AppHeaderLayout>
       <Head title="Produce" />
 
-      <div id="produce-sections" className="flex flex-col items-center justify-center gap-12 px-4 py-16 mt-10 bg-background">
+      <div id="produce-sections" className="flex flex-col items-center justify-center gap-8 sm:gap-12 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">
         {/* Search Bar */}
-        <div className="w-full">
+        <div className="w-full max-w-7xl px-2 sm:px-0">
           <ProduceSearchBar onSearch={handleSearch} />
         </div>
         {/* No Results Message */}
         {searchQuery && filteredProducts.length === 0 && (
-          <div className="w-full max-w-5xl mx-auto text-center py-16">
-            <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl p-12 border-2 border-green-200 dark:border-green-700 backdrop-blur-md">
-              <div className="text-8xl mb-6">🔍</div>
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="w-full max-w-5xl mx-auto text-center py-8 sm:py-16 px-4">
+            <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-12 border-2 border-green-200 dark:border-green-700">
+              <div className="text-5xl sm:text-8xl mb-4 sm:mb-6">🔍</div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 No products found
-              </h3>
-              <p className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              </h2>
+              <p className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-4 sm:mb-8 max-w-md mx-auto">
                 We couldn't find any products matching <span className="font-semibold text-green-600">"{searchQuery}"</span>
               </p>
             </div>
