@@ -100,8 +100,8 @@ export function ProductCarousel({
   }
 
   return (
-    <Carousel 
-      className="w-full max-w-7xl mx-auto relative px-2 sm:px-0" 
+    <Carousel
+      className="w-full max-w-7xl mx-auto relative px-2 sm:px-0"
       style={{
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -109,8 +109,8 @@ export function ProductCarousel({
       }}
       opts={{ align: 'center', loop: isSingleProduct ? false : true }}
     >
-      <CarouselContent 
-        className={`-ml-1 flex items-center ${isSingleProduct ? 'justify-center' : ''}`}
+      <CarouselContent
+        className={`-ml-2 flex items-center ${isSingleProduct ? 'justify-center' : ''}`}
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -120,7 +120,7 @@ export function ProductCarousel({
         {products.map(product => (
           <CarouselItem
             key={product.id}
-            className={`pl-1 ${isSingleProduct ? 'basis-auto' : 'basis-1/2 md:basis-1/3 lg:basis-1/4'} flex justify-center items-start mb-6`}
+            className={`pl-2 ${isSingleProduct ? 'basis-auto' : 'basis-1/2 md:basis-1/3 lg:basis-1/4'} flex justify-center items-start mb-6`}
             style={{
               transform: 'translateZ(0)',
               backfaceVisibility: 'hidden'
@@ -214,7 +214,7 @@ export default function CustomerHome() {
         const name = (product.name || '').toLowerCase();
         const description = (product.description || '').toLowerCase();
         const produceType = (product.produce_type || '').toLowerCase();
-        
+
         return (
           name.includes(searchTerm) ||
           description.includes(searchTerm) ||
@@ -228,10 +228,10 @@ export default function CustomerHome() {
   // Filter products based on search query - memoized to prevent unnecessary re-renders
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    
+
     // Trim the query to handle whitespace-only searches
     const trimmedQuery = query.trim();
-    
+
     if (!trimmedQuery) {
       setFilteredProducts(initialProducts);
       return;
@@ -243,7 +243,7 @@ export default function CustomerHome() {
       const name = (product.name || '').toLowerCase();
       const description = (product.description || '').toLowerCase();
       const produceType = (product.produce_type || '').toLowerCase();
-      
+
       return (
         name.includes(searchTerm) ||
         description.includes(searchTerm) ||
@@ -350,15 +350,15 @@ export default function CustomerHome() {
         {/* Section Header - Mobile: Centered Title */}
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center mb-3 sm:mb-6 sm:relative">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-primary text-center mb-2 sm:mb-0">{title}</h2>
-          
+
           {/* Desktop View All Button - Top Right - Hidden when single product */}
           {!isSingleProduct && (
             <Button
               onClick={toggleFunction}
               variant="ghost"
               className={`hidden sm:block sm:absolute sm:right-0 px-4 sm:px-6 py-1.5 sm:py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
-                  ? 'text-primary'
-                  : 'text-primary'
+                ? 'text-primary'
+                : 'text-primary'
                 }`}
             >
               {viewMode === 'carousel' ? 'View All' : 'View Less'}
@@ -366,15 +366,15 @@ export default function CustomerHome() {
           )}
         </div>
 
-{/* Mobile View All Button - Below Title, Right Side - Hidden when single product */}
+        {/* Mobile View All Button - Below Title, Right Side - Hidden when single product */}
         {!isSingleProduct && (
           <div className="flex justify-end mb-3 sm:hidden">
             <Button
               onClick={toggleFunction}
               variant="ghost"
               className={`px-4 py-1.5 text-base font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
-                  ? 'text-primary'
-                  : 'text-primary'
+                ? 'text-primary'
+                : 'text-primary'
                 }`}
             >
               {viewMode === 'carousel' ? 'View All' : 'View Less'}
@@ -396,9 +396,9 @@ export default function CustomerHome() {
     <AppHeaderLayout>
       <Head title="Produce" />
 
-      <div id="produce-sections" className="flex flex-col items-center justify-center gap-8 sm:gap-12 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">
+      <div id="produce-sections" className="flex flex-col items-center justify-center gap-2 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">
         {/* Search Bar */}
-        <div className="w-full max-w-7xl px-2 sm:px-0">
+        <div className="w-full max-w-7xl px-2 mt-10 mb-10 sm:px-0">
           <ProduceSearchBar onSearch={handleSearch} />
         </div>
         {/* No Results Message */}

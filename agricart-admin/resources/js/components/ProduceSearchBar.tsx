@@ -51,7 +51,7 @@ export function ProduceSearchBar({ onSearch, className }: ProduceSearchBarProps)
           className={cn(
             "relative flex items-center transition-all duration-300 ease-out overflow-hidden",
             "bg-gradient-to-r from-white to-green-50 dark:from-gray-800 dark:to-gray-900",
-            "rounded-xl shadow-lg border-2 backdrop-blur-md",
+            "rounded-xl shadow-lg border-2",
             "hover:shadow-green-200 dark:hover:shadow-green-900",
             isFocused 
               ? "border-green-500 shadow-green-300 dark:shadow-green-800 shadow-xl" 
