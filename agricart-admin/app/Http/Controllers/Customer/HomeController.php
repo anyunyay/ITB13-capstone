@@ -91,58 +91,6 @@ class HomeController extends Controller
         return response()->json($products);
     }
 
-    public function show(Product $product)
-    {
-        // Check customer email verification
-        $verificationRedirect = $this->ensureCustomerEmailVerified();
-        if ($verificationRedirect) {
-            return $verificationRedirect;
-        }
-
-        $product->load(['stocks' => function($query) {
-            $query->customerVisible();
-        }]);
-        
-        $stockSums = $product->stocks
-            ->groupBy('category')
-            ->map(fn($group) => $group->sum('quantity'));
-
-        $product->stock_by_category = $stockSums;
-
-        return Inertia::render('Customer/Products/show', [
-            'product' => $product,
-            'auth' => [
-                'user' => Auth::user()
-            ]
-        ]);
-    }
-
-    public function product(Product $product)
-    {
-        // Check customer email verification
-        $verificationRedirect = $this->ensureCustomerEmailVerified();
-        if ($verificationRedirect) {
-            return $verificationRedirect;
-        }
-
-        $product->load(['stocks' => function($query) {
-            $query->customerVisible();
-        }]);
-        
-        $stockSums = $product->stocks
-            ->groupBy('category')
-            ->map(fn($group) => $group->sum('quantity'));
-
-        $product->stock_by_category = $stockSums;
-
-        return Inertia::render('Customer/Products/product', [
-            'product' => $product,
-            'auth' => [
-                'user' => Auth::user()
-            ]
-        ]);
-    }
-
     public function produce()
     {
         // Check customer email verification

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, usePage, router, useForm } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddToCartModal } from '@/components/AddToCartModal';
-import { route } from 'ziggy-js';
-import { debounce } from '@/lib/debounce';
 import StockManager from '@/lib/stock-manager';
 import type { SharedData } from '@/types';
 
@@ -75,8 +73,7 @@ export function ProductCard({
   if (variant === 'compact') {
     return (
       <div 
-        className={`flex items-center space-x-2 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer border-b last:border-b-0 transition-colors duration-200 ${className}`}
-        onClick={() => router.visit(`/customer/product/${product.id}`)}
+        className={`flex items-center space-x-2 p-2 hover:bg-green-50 dark:hover:bg-green-900/20 border-b last:border-b-0 transition-colors duration-200 ${className}`}
       >
         <img
           src={product.image_url || product.image || '/storage/fallback-photo.png'}
@@ -185,13 +182,8 @@ export function ProductCard({
       <div className="p-2 sm:p-3 lg:p-4 space-y-1.5 sm:space-y-2 lg:space-y-3">
         {/* Product Title */}
         <div>
-          <h3 className="text-sm sm:text-base lg:text-lg font-bold text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors leading-tight line-clamp-2">
-            <Link 
-              href={`/customer/product/${product.id}`}
-              className="hover:underline cursor-pointer"
-            >
-              {product.name}
-            </Link>
+          <h3 className="text-sm sm:text-base lg:text-lg font-bold text-green-600 dark:text-green-400 transition-colors leading-tight line-clamp-2">
+            {product.name}
           </h3>
         </div>
         
