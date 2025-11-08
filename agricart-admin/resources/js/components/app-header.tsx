@@ -151,20 +151,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
-                                            {rightNavItems.map((item) => (
+                                            {/* Only show Order History in sidebar - Cart and Notifications are now in header */}
+                                            {rightNavItems.filter(item => item.title === 'Order History').map((item) => (
                                                 <Link key={item.title} href={item.href} className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                                                    {item.icon && (
-                                                        <span className="relative">
-                                                            <Icon iconNode={item.icon} className="h-5 w-5" />
-                                                            {item.title === 'Cart' && cartCount > 0 && (
-                                                                <span className="absolute -top-2 -right-2">
-                                                                    <Badge className="bg-green-600 text-white px-1.5 py-0.5 text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                                                                        {cartCount > 9 ? '9+' : cartCount}
-                                                                    </Badge>
-                                                                </span>
-                                                            )}
-                                                        </span>
-                                                    )}
+                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
@@ -232,6 +222,56 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="ml-auto flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                         <div className="relative flex items-center space-x-1">
                             {showSearchBar && <SearchBar isScrolled={isScrolled} />}
+                            
+                            {/* Mobile Cart and Notification Icons */}
+                            <div className="flex lg:hidden items-center space-x-1">
+                                {/* Cart Icon for Mobile */}
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Link
+                                                href="/customer/cart"
+                                                className={cn(
+                                                    "group inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                    isScrolled 
+                                                        ? "h-8 w-8 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                        : "h-9 w-9 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                )}
+                                            >
+                                                <span className="sr-only">Cart</span>
+                                                <Icon iconNode={ShoppingBasket} className={cn(
+                                                    "transition-all duration-300 ease-in-out",
+                                                    isScrolled 
+                                                        ? "size-4 text-white opacity-80 group-hover:opacity-100" 
+                                                        : "size-5 opacity-80 group-hover:opacity-100"
+                                                )} />
+                                                {cartCount > 0 && (
+                                                    <Badge 
+                                                        variant="destructive" 
+                                                        className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-xs z-10"
+                                                    >
+                                                        {cartCount > 9 ? '9+' : cartCount}
+                                                    </Badge>
+                                                )}
+                                            </Link>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Cart</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+
+                                {/* Notification Icon for Mobile */}
+                                {auth.user && (
+                                    <NotificationBell 
+                                        notifications={notifications || []}
+                                        userType={(auth.user as any)?.type || 'customer'}
+                                        isScrolled={isScrolled}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Desktop Icons */}
                             <div className="hidden lg:flex">
                                 {rightNavItems.map((item) => (
                                     item.title === 'Notifications' && auth.user ? (
