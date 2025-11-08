@@ -12,10 +12,18 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon } from 'lucide-react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { formatInTimeZone } from 'date-fns-tz';
+import { useState, useMemo, useEffect } from 'react';
+
+// Configure dayjs with timezone support
+dayjs.extend(utc);
+dayjs.extend(timezone);
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -103,6 +111,10 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Dynamic items per page based on view type
+  const itemsPerPage = currentView === 'cards' ? 8 : 10;
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -111,6 +123,20 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   const [endDate, setEndDate] = useState<Date | undefined>(
     localFilters.end_date ? new Date(localFilters.end_date) : undefined
   );
+
+  // Paginate stocks
+  const paginatedStocks = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return stocks.slice(startIndex, endIndex);
+  }, [stocks, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(stocks.length / itemsPerPage);
+
+  // Reset pagination when filters change or view changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stocks.length, currentView]);
 
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
@@ -121,7 +147,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
     setStartDate(date);
     setLocalFilters(prev => ({
       ...prev,
-      start_date: date ? format(date, 'yyyy-MM-dd') : ''
+      start_date: date ? formatInTimeZone(date, 'Asia/Manila', 'yyyy-MM-dd') : ''
     }));
   };
 
@@ -129,15 +155,15 @@ export default function InventoryReport({ stocks, summary, members, productTypes
     setEndDate(date);
     setLocalFilters(prev => ({
       ...prev,
-      end_date: date ? format(date, 'yyyy-MM-dd') : ''
+      end_date: date ? formatInTimeZone(date, 'Asia/Manila', 'yyyy-MM-dd') : ''
     }));
   };
 
   const getDateRangeDisplay = () => {
     if (!startDate && !endDate) return t('admin.no_date_range_selected');
-    if (startDate && !endDate) return t('admin.from_date', { date: format(startDate, 'MMM dd, yyyy') });
-    if (!startDate && endDate) return t('admin.until_date', { date: format(endDate, 'MMM dd, yyyy') });
-    return t('admin.date_range_display', { start: format(startDate!, 'MMM dd, yyyy'), end: format(endDate!, 'MMM dd, yyyy') });
+    if (startDate && !endDate) return t('admin.from_date', { date: formatInTimeZone(startDate, 'Asia/Manila', 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date', { date: formatInTimeZone(endDate, 'Asia/Manila', 'MMM dd, yyyy') });
+    return t('admin.date_range_display', { start: formatInTimeZone(startDate!, 'Asia/Manila', 'MMM dd, yyyy'), end: formatInTimeZone(endDate!, 'Asia/Manila', 'MMM dd, yyyy') });
   };
 
   const getDurationDisplay = () => {
@@ -500,7 +526,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
+                            {startDate ? formatInTimeZone(startDate, 'Asia/Manila', "MMM dd, yyyy") : t('admin.pick_start_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -509,7 +535,11 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             selected={startDate}
                             onSelect={handleStartDateChange}
                             initialFocus
-                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            disabled={(date) => {
+                              const today = dayjs().tz('Asia/Manila').startOf('day').toDate();
+                              const minDate = new Date("1900-01-01");
+                              return date > today || date < minDate;
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -523,7 +553,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
+                            {endDate ? formatInTimeZone(endDate, 'Asia/Manila', "MMM dd, yyyy") : t('admin.pick_end_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -532,11 +562,13 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                             selected={endDate}
                             onSelect={handleEndDateChange}
                             initialFocus
-                            disabled={(date) =>
-                              date > new Date() ||
-                              date < new Date("1900-01-01") ||
-                              (startDate ? date < startDate : false)
-                            }
+                            disabled={(date) => {
+                              const today = dayjs().tz('Asia/Manila').startOf('day').toDate();
+                              const minDate = new Date("1900-01-01");
+                              return date > today ||
+                                date < minDate ||
+                                (startDate ? date < startDate : false);
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -703,13 +735,21 @@ export default function InventoryReport({ stocks, summary, members, productTypes
                 <>
                   {currentView === 'cards' ? (
                     <div className="space-y-4">
-                      {stocks.map((stock) => (
+                      {paginatedStocks.map((stock) => (
                         <StockCard key={stock.id} stock={stock} />
                       ))}
                     </div>
                   ) : (
-                    <StockTable stocks={stocks} />
+                    <StockTable stocks={paginatedStocks} />
                   )}
+
+                  <PaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={stocks.length}
+                  />
                 </>
               ) : (
                 <div className="text-center py-12">
@@ -813,10 +853,6 @@ function StockCard({ stock }: { stock: Stock }) {
                 <span className="font-medium text-foreground">{t('admin.member')}:</span>
                 <span className="text-muted-foreground ml-2">{stock.member.name}</span>
               </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.email')}:</span>
-                <span className="text-muted-foreground ml-2">{stock.member.email}</span>
-              </p>
               {stock.member.contact_number && (
                 <p className="text-sm">
                   <span className="font-medium text-foreground">{t('admin.contact_number')}:</span>
@@ -850,6 +886,106 @@ function StockCard({ stock }: { stock: Stock }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+interface PaginationControlsProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  itemsPerPage: number;
+  totalItems: number;
+}
+
+function PaginationControls({
+  currentPage,
+  totalPages,
+  onPageChange,
+  itemsPerPage,
+  totalItems
+}: PaginationControlsProps) {
+  const t = useTranslation();
+
+  const getVisiblePages = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-center mt-8 p-4 bg-card border border-border rounded-xl shadow-sm relative">
+      <span className="text-sm text-muted-foreground font-medium whitespace-nowrap absolute left-4 top-1/2 transform -translate-y-1/2">
+        {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('admin.of')} {totalItems}
+      </span>
+
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm font-medium transition-all hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground min-h-[2.5rem]"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          {t('ui.previous')}
+        </Button>
+
+        <div className="flex items-center gap-1">
+          {getVisiblePages().map((page, index) => (
+            <div key={index}>
+              {page === '...' ? (
+                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Button
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPageChange(page as number)}
+                  className={`min-w-[2.5rem] h-[2.5rem] p-0 border border-border rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center ${currentPage === page
+                    ? 'bg-background text-foreground border-foreground font-semibold'
+                    : 'bg-background text-foreground hover:bg-muted hover:border-border hover:text-foreground'
+                    }`}
+                >
+                  {page}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-background text-foreground text-sm font-medium transition-all hover:bg-muted hover:border-border hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground min-h-[2.5rem]"
+        >
+          {t('ui.next')}
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 }
 

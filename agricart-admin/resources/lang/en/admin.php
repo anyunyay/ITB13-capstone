@@ -1030,6 +1030,11 @@ return [
     'confirm_restore_archived_product' => 'Restore archived product - :name?',
     'confirm_permanently_delete_archived_product' => 'Permanently delete archived product - :name? This cannot be undone.',
     'product_information' => 'Product Information',
+    'stock_details' => 'Stock Details',
+    'created_on' => 'Created on :date',
+    'quantity_units' => ':quantity units',
+    'product_type' => 'Product Type',
+    'select_all_max_five' => 'Select All (Max: 5)',
 
     // Sorting Options
     'sort_name_asc' => 'Name (A-Z)',
