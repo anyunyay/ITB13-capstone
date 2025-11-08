@@ -460,11 +460,11 @@ export default function CartPage() {
               <div className="w-24 h-24 mx-auto mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                 <ShoppingCart className="w-12 h-12 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-4">Your cart is empty</h2>
-              <p className="text-green-600 dark:text-green-400 mb-8">Start adding fresh produce to your cart to get started!</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">Your cart is empty</h2>
+              <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400 mb-8">Start adding fresh produce to your cart to get started!</p>
               <Button 
                 onClick={() => router.visit('/customer/produce')}
-                className="px-8 py-3 text-base font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                className="px-8 py-3 text-base md:text-base lg:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
               >
                 Browse Products
               </Button>
@@ -474,11 +474,11 @@ export default function CartPage() {
               {/* Cart Items Section */}
               <div className="lg:col-span-2">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-                  <h2 className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400">
                     Cart Items
                 </h2>
                   <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full border border-green-200 dark:border-green-700">
-                    <span className="text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300">
+                    <span className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300">
                       {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
                     </span>
                   </div>
@@ -523,10 +523,10 @@ export default function CartPage() {
                                 <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h3 className="text-base sm:text-lg font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
                                   {item.name}
                                 </h3>
-                                <p className="text-xs text-muted-foreground mb-2">
+                                <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-2">
                                   Product ID: {item.product_id}
                                 </p>
                                 <div className="flex items-center gap-2 mb-2">
@@ -552,7 +552,7 @@ export default function CartPage() {
                             {/* Mobile Quantity and Price Section */}
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
+                                <label className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
                                 <div className="flex items-center justify-start gap-1">
                                   {editingItems.has(item.item_id) ? (
                                     <div className="flex items-center gap-1">
@@ -654,8 +654,8 @@ export default function CartPage() {
                               </div>
 
                               <div>
-                                <label className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
-                                <div className="text-lg font-bold text-card-foreground">
+                                <label className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
+                                <div className="text-base md:text-xl lg:text-2xl font-bold text-card-foreground">
                                   ₱{(Number(item.total_price) || 0).toFixed(2)}
                                 </div>
                               </div>

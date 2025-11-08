@@ -241,7 +241,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       <div className="max-w-6xl mx-auto p-4 sm:p-6 mt-20">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('ui.order_history')}</h1>
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-foreground">{t('ui.order_history')}</h1>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
@@ -342,10 +342,10 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
         <Tabs value={currentDeliveryStatus} onValueChange={handleDeliveryStatusFilter} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-            <TabsTrigger value="all" className="text-xs sm:text-sm py-2 px-2">{t('ui.all')} ({counts.all})</TabsTrigger>
-            <TabsTrigger value="pending" className="text-xs sm:text-sm py-2 px-2">{t('ui.pending')} ({counts.pending})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery" className="text-xs sm:text-sm py-2 px-2">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
-            <TabsTrigger value="delivered" className="text-xs sm:text-sm py-2 px-2">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
+            <TabsTrigger value="all" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.all')} ({counts.all})</TabsTrigger>
+            <TabsTrigger value="pending" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.pending')} ({counts.pending})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
+            <TabsTrigger value="delivered" className="text-base md:text-base lg:text-lg py-2 px-2">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
           </TabsList>
 
           <TabsContent value={currentDeliveryStatus} className="mt-6">
@@ -353,8 +353,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               <Card className="p-6 text-center text-muted-foreground bg-muted">
                 <div className="flex flex-col items-center gap-2">
                   <Package className="h-12 w-12 text-muted-foreground" />
-                  <p className="text-lg font-medium">{t('ui.no_orders_found')}</p>
-                  <p className="text-sm text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
+                  <p className="text-2xl md:text-3xl lg:text-4xl font-medium">{t('ui.no_orders_found')}</p>
+                  <p className="text-base md:text-xl lg:text-2xl text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
                 </div>
               </Card>
             ) : (
@@ -365,9 +365,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-card-foreground">Order ID:</span>
-                          <span className="text-lg font-bold text-primary">#{order.id}</span>
+                          <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">#{order.id}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-base md:text-xl lg:text-2xl text-muted-foreground">
                           <CalendarIcon className="h-4 w-4" />
                           <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
                         </div>
@@ -380,7 +380,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     {/* Delivery Status Tracker */}
                     {order.status === 'approved' && order.delivery_status && (
                       <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
-                        <h5 className="font-semibold text-sm mb-3 text-primary">{t('ui.delivery_status')}</h5>
+                        <h5 className="font-semibold text-2xl md:text-3xl lg:text-4xl mb-3 text-primary">{t('ui.delivery_status')}</h5>
                         <div className="flex items-center justify-between">
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>

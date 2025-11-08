@@ -132,7 +132,7 @@ export default function CustomerHome({ products }: PageProps) {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h2
-              className="text-4xl lg:text-7xl font-light mb-2 lg:mb-0"
+              className="text-4xl md:text-5xl lg:text-7xl font-light mb-2 lg:mb-0"
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -140,7 +140,7 @@ export default function CustomerHome({ products }: PageProps) {
               Grown Here,
             </motion.h2>
             <motion.h1
-              className="text-7xl lg:text-[164px] leading-none font-bold text-primary"
+              className="text-5xl md:text-7xl lg:text-9xl leading-none font-bold text-primary"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -169,7 +169,7 @@ export default function CustomerHome({ products }: PageProps) {
                   viewport={{ once: true }}
                 >
                   <motion.h2
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-primary font-extrabold mb-2 sm:mb-4"
+                    className="text-4xl md:text-5xl lg:text-6xl text-primary font-extrabold mb-2 sm:mb-4"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -178,7 +178,7 @@ export default function CustomerHome({ products }: PageProps) {
                     SMMC Cooperative
                   </motion.h2>
                   <motion.h3
-                    className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-foreground font-semibold mb-4 sm:mb-6"
+                    className="text-2xl md:text-3xl lg:text-4xl text-foreground font-semibold mb-4 sm:mb-6"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -187,7 +187,7 @@ export default function CustomerHome({ products }: PageProps) {
                     Empowering Local Communities Through Sustainable Agriculture
                   </motion.h3>
                   <motion.p
-                    className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-4 leading-relaxed"
+                    className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-4 leading-relaxed"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -214,8 +214,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1">00</div>
-                      <div className="text-xs sm:text-sm md:text-base text-primary font-medium">Years Experience</div>
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Years Experience</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -224,8 +224,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1">00</div>
-                      <div className="text-xs sm:text-sm md:text-base text-primary font-medium">Active Farmers</div>
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Active Farmers</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -234,8 +234,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1">00</div>
-                      <div className="text-xs sm:text-sm md:text-base text-primary font-medium">Cooperatives</div>
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Cooperatives</div>
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -265,7 +265,7 @@ export default function CustomerHome({ products }: PageProps) {
           <section id="produce" className="h-screen bg-background relative z-10 flex items-center snap-start">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 overflow-visible">
               <motion.h2
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -353,7 +353,7 @@ export default function CustomerHome({ products }: PageProps) {
                 viewport={{ once: true }}
               >
                 <button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-base sm:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-base md:text-base lg:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                   onClick={() => router.visit('/customer/produce')}
                 >
                   Show All Produce
@@ -381,9 +381,9 @@ export default function CustomerHome({ products }: PageProps) {
 
                           {/* Title */}
                           <div className="flex flex-col flex-1">
-                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-primary transition-all duration-500 ease-in-out group-hover:text-primary/90">
+                            <p className="text-base md:text-xl lg:text-2xl font-bold text-primary transition-all duration-500 ease-in-out group-hover:text-primary/90">
                               {card.title}
-                            </h3>
+                            </p>
                             <div className="w-full h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 transition-all duration-500 ease-in-out group-hover:from-primary/80"></div>
                           </div>
                         </div>

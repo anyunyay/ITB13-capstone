@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { Download, FileText } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
   id: number;
@@ -54,6 +55,7 @@ interface ReportPageProps {
 }
 
 export default function OrderReport({ orders, summary, filters }: ReportPageProps) {
+  const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
 
   // Helper function to combine quantities for the same items
@@ -144,7 +146,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
       <Head title="My Orders Report" />
       <div className="max-w-4xl mx-auto p-4 mt-20">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-foreground">{t('ui.my_orders_report')}</h1>
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-foreground">{t('ui.my_orders_report')}</h1>
           <div className="flex gap-2">
             <Button onClick={() => exportReport('csv')} variant="outline">
               <Download className="h-4 w-4 mr-2" />
@@ -221,52 +223,52 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Total Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-card-foreground">{summary.total_orders}</div>
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-card-foreground">{summary.total_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Total Spent</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-green-600 dark:text-green-400">
                 ₱{Number(summary.total_spent).toFixed(2)}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Pending Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.pending_orders}</div>
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-yellow-600 dark:text-yellow-400">{summary.pending_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Approved Orders</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Approved Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{summary.approved_orders}</div>
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-green-600 dark:text-green-400">{summary.approved_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Rejected Orders</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Rejected Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{summary.rejected_orders}</div>
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-red-600 dark:text-red-400">{summary.rejected_orders}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Delivered Orders</CardTitle>
+              <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-medium text-muted-foreground">Delivered Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.delivered_orders}</div>
+              <div className="text-lg md:text-2xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400">{summary.delivered_orders}</div>
             </CardContent>
           </Card>
         </div>

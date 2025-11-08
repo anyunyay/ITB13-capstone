@@ -295,11 +295,11 @@ export default function CustomerHome() {
       <div id={sectionId} className="w-full max-w-7xl mx-auto">
         {/* Section Header with Centered Title and View All Button */}
         <div className="flex justify-center items-center mb-6 relative">
-          <h2 className="text-6xl font-semibold text-primary text-center">{title}</h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-primary text-center">{title}</h2>
           <Button
             onClick={toggleFunction}
             variant="ghost"
-            className={`absolute right-0 hidden sm:block px-6 py-2 text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
+            className={`absolute right-0 hidden sm:block px-6 py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
                 ? 'text-primary'
                 : 'text-primary'
               }`}
@@ -313,7 +313,7 @@ export default function CustomerHome() {
           <Button
             onClick={toggleFunction}
             variant="ghost"
-            className={`px-6 py-2 text-sm font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
+            className={`px-6 py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
                 ? 'text-primary'
                 : 'text-primary'
               }`}
@@ -346,10 +346,10 @@ export default function CustomerHome() {
           <div className="w-full max-w-5xl mx-auto text-center py-16">
             <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl p-12 border-2 border-green-200 dark:border-green-700 backdrop-blur-md">
               <div className="text-8xl mb-6">🔍</div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 No products found
               </h3>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              <p className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
                 We couldn't find any products matching <span className="font-semibold text-green-600">"{searchQuery}"</span>
               </p>
             </div>
