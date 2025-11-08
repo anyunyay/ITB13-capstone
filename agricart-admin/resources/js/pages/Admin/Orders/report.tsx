@@ -10,10 +10,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { useState } from 'react';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -76,11 +82,26 @@ interface ReportSummary {
   delivered_orders: number;
 }
 
+interface Logistic {
+  id: number;
+  name: string;
+  contact_number?: string;
+}
+
+interface AdminStaff {
+  id: number;
+  name: string;
+  email: string;
+  type: 'admin' | 'staff';
+}
+
 interface ReportFilters {
   start_date?: string;
   end_date?: string;
   status: string;
   delivery_status: string;
+  logistic_ids: string[];
+  admin_ids: string[];
   search?: string;
   min_amount?: string;
   max_amount?: string;
@@ -89,14 +110,23 @@ interface ReportFilters {
 interface ReportPageProps {
   orders: Order[];
   summary: ReportSummary;
+  logistics: Logistic[];
+  admins: AdminStaff[];
   filters: ReportFilters;
 }
 
-export default function OrderReport({ orders, summary, filters }: ReportPageProps) {
+export default function OrderReport({ orders, summary, logistics, admins, filters }: ReportPageProps) {
   const t = useTranslation();
-  const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
+  const normalizedFilters: ReportFilters = {
+    ...filters,
+    logistic_ids: Array.isArray(filters.logistic_ids) ? filters.logistic_ids : [],
+    admin_ids: Array.isArray(filters.admin_ids) ? filters.admin_ids : []
+  };
+  const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [logisticsOpen, setLogisticsOpen] = useState(false);
+  const [adminsOpen, setAdminsOpen] = useState(false);
   
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -115,7 +145,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
     setStartDate(date);
     setLocalFilters(prev => ({
       ...prev,
-      start_date: date ? format(date, 'yyyy-MM-dd') : ''
+      start_date: date ? formatInTimeZone(date, 'Asia/Manila', 'yyyy-MM-dd') : ''
     }));
   };
 
@@ -123,15 +153,15 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
     setEndDate(date);
     setLocalFilters(prev => ({
       ...prev,
-      end_date: date ? format(date, 'yyyy-MM-dd') : ''
+      end_date: date ? formatInTimeZone(date, 'Asia/Manila', 'yyyy-MM-dd') : ''
     }));
   };
 
   const getDateRangeDisplay = () => {
     if (!startDate && !endDate) return t('admin.no_date_range_selected');
-    if (startDate && !endDate) return t('admin.from_date', { date: format(startDate, 'MMM dd, yyyy') });
-    if (!startDate && endDate) return t('admin.until_date', { date: format(endDate, 'MMM dd, yyyy') });
-    return t('admin.date_range_display', { start: format(startDate!, 'MMM dd, yyyy'), end: format(endDate!, 'MMM dd, yyyy') });
+    if (startDate && !endDate) return t('admin.from_date', { date: formatInTimeZone(startDate, 'Asia/Manila', 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date', { date: formatInTimeZone(endDate, 'Asia/Manila', 'MMM dd, yyyy') });
+    return t('admin.date_range_display', { start: formatInTimeZone(startDate!, 'Asia/Manila', 'MMM dd, yyyy'), end: formatInTimeZone(endDate!, 'Asia/Manila', 'MMM dd, yyyy') });
   };
 
   const getDurationDisplay = () => {
@@ -151,6 +181,8 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
     if (localFilters.end_date) params.end_date = localFilters.end_date;
     if (localFilters.status !== 'all') params.status = localFilters.status;
     if (localFilters.delivery_status !== 'all') params.delivery_status = localFilters.delivery_status;
+    if (localFilters.logistic_ids.length > 0) params.logistic_ids = localFilters.logistic_ids;
+    if (localFilters.admin_ids.length > 0) params.admin_ids = localFilters.admin_ids;
     if (localFilters.search) params.search = localFilters.search;
     if (localFilters.min_amount) params.min_amount = localFilters.min_amount;
     if (localFilters.max_amount) params.max_amount = localFilters.max_amount;
@@ -164,6 +196,12 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.status !== 'all') params.append('status', localFilters.status);
     if (localFilters.delivery_status !== 'all') params.append('delivery_status', localFilters.delivery_status);
+    if (localFilters.logistic_ids.length > 0) {
+      localFilters.logistic_ids.forEach(id => params.append('logistic_ids[]', id));
+    }
+    if (localFilters.admin_ids.length > 0) {
+      localFilters.admin_ids.forEach(id => params.append('admin_ids[]', id));
+    }
     if (localFilters.search) params.append('search', localFilters.search);
     if (localFilters.min_amount) params.append('min_amount', localFilters.min_amount);
     if (localFilters.max_amount) params.append('max_amount', localFilters.max_amount);
@@ -188,6 +226,12 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       if (localFilters.status !== 'all') displayParams.append('status', localFilters.status);
       if (localFilters.delivery_status !== 'all') displayParams.append('delivery_status', localFilters.delivery_status);
+      if (localFilters.logistic_ids.length > 0) {
+        localFilters.logistic_ids.forEach(id => displayParams.append('logistic_ids[]', id));
+      }
+      if (localFilters.admin_ids.length > 0) {
+        localFilters.admin_ids.forEach(id => displayParams.append('admin_ids[]', id));
+      }
       if (localFilters.search) displayParams.append('search', localFilters.search);
       if (localFilters.min_amount) displayParams.append('min_amount', localFilters.min_amount);
       if (localFilters.max_amount) displayParams.append('max_amount', localFilters.max_amount);
@@ -250,6 +294,8 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
       end_date: '',
       status: 'all',
       delivery_status: 'all',
+      logistic_ids: [],
+      admin_ids: [],
       search: '',
       min_amount: '',
       max_amount: ''
@@ -259,7 +305,50 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
   const hasActiveFilters = () => {
     return localFilters.start_date || localFilters.end_date || 
            localFilters.status !== 'all' || localFilters.delivery_status !== 'all' ||
+           localFilters.logistic_ids.length > 0 || localFilters.admin_ids.length > 0 ||
            localFilters.search || localFilters.min_amount || localFilters.max_amount;
+  };
+
+  const handleLogisticToggle = (logisticId: string) => {
+    setLocalFilters(prev => {
+      const isSelected = prev.logistic_ids.includes(logisticId);
+      if (isSelected) {
+        return { ...prev, logistic_ids: prev.logistic_ids.filter(id => id !== logisticId) };
+      } else {
+        return { ...prev, logistic_ids: [...prev.logistic_ids, logisticId] };
+      }
+    });
+  };
+
+  const handleAdminToggle = (adminId: string) => {
+    setLocalFilters(prev => {
+      const isSelected = prev.admin_ids.includes(adminId);
+      if (isSelected) {
+        return { ...prev, admin_ids: prev.admin_ids.filter(id => id !== adminId) };
+      } else {
+        return { ...prev, admin_ids: [...prev.admin_ids, adminId] };
+      }
+    });
+  };
+
+  const getLogisticsLabel = () => {
+    const count = localFilters.logistic_ids.length;
+    if (count === 0) return t('admin.select_logistics');
+    if (count === 1) {
+      const logistic = logistics.find(l => l.id.toString() === localFilters.logistic_ids[0]);
+      return logistic?.name || t('admin.selected_count', { count });
+    }
+    return t('admin.selected_count', { count });
+  };
+
+  const getAdminsLabel = () => {
+    const count = localFilters.admin_ids.length;
+    if (count === 0) return t('admin.select_processed_by');
+    if (count === 1) {
+      const admin = admins.find(a => a.id.toString() === localFilters.admin_ids[0]);
+      return admin?.name || t('admin.selected_count', { count });
+    }
+    return t('admin.selected_count', { count });
   };
 
   return (
@@ -435,7 +524,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                   )}
 
                   {/* Filter Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mb-6">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                       <Popover>
@@ -445,7 +534,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate ? format(startDate, "MMM dd, yyyy") : t('admin.pick_start_date')}
+                            {startDate ? formatInTimeZone(startDate, 'Asia/Manila', "MMM dd, yyyy") : t('admin.pick_start_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -454,7 +543,11 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             selected={startDate}
                             onSelect={handleStartDateChange}
                             initialFocus
-                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                            disabled={(date) => {
+                              const today = dayjs().tz('Asia/Manila').startOf('day').toDate();
+                              const minDate = new Date("1900-01-01");
+                              return date > today || date < minDate;
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -468,7 +561,7 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {endDate ? format(endDate, "MMM dd, yyyy") : t('admin.pick_end_date')}
+                            {endDate ? formatInTimeZone(endDate, 'Asia/Manila', "MMM dd, yyyy") : t('admin.pick_end_date')}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -477,11 +570,11 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                             selected={endDate}
                             onSelect={handleEndDateChange}
                             initialFocus
-                            disabled={(date) => 
-                              date > new Date() || 
-                              date < new Date("1900-01-01") || 
-                              (startDate ? date < startDate : false)
-                            }
+                            disabled={(date) => {
+                              const today = dayjs().tz('Asia/Manila').startOf('day').toDate();
+                              const minDate = new Date("1900-01-01");
+                              return date > today || date < minDate || (startDate ? date < startDate : false);
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -538,6 +631,113 @@ export default function OrderReport({ orders, summary, filters }: ReportPageProp
                         onChange={(e) => handleFilterChange('max_amount', e.target.value)}
                         className="border-border rounded-lg bg-background text-foreground focus:border-primary"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="logistics" className="text-sm font-medium">{t('admin.logistics')}</Label>
+                      <Popover open={logisticsOpen} onOpenChange={setLogisticsOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={logisticsOpen}
+                            className="w-full justify-between border-border rounded-lg bg-background text-foreground focus:border-primary h-10"
+                          >
+                            <span className="truncate text-left">{getLogisticsLabel()}</span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0" align="start">
+                          <div className="p-3 border-b">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder={t('admin.search_logistics')}
+                                className="pl-8 h-9"
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-[300px] overflow-y-auto p-2">
+                            {logistics.length > 0 ? (
+                              <div className="space-y-1">
+                                {logistics.map((logistic) => {
+                                  const isSelected = localFilters.logistic_ids.includes(logistic.id.toString());
+                                  return (
+                                    <div
+                                      key={logistic.id}
+                                      className="flex items-center space-x-2 px-2 py-2 rounded-sm hover:bg-accent cursor-pointer"
+                                      onClick={() => handleLogisticToggle(logistic.id.toString())}
+                                    >
+                                      <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={() => handleLogisticToggle(logistic.id.toString())}
+                                        className="pointer-events-none"
+                                      />
+                                      <span className="text-sm flex-1">{logistic.name}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground text-center py-6">{t('admin.no_logistics_available')}</p>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="processed_by" className="text-sm font-medium">{t('admin.processed_by')}</Label>
+                      <Popover open={adminsOpen} onOpenChange={setAdminsOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={adminsOpen}
+                            className="w-full justify-between border-border rounded-lg bg-background text-foreground focus:border-primary h-10"
+                          >
+                            <span className="truncate text-left">{getAdminsLabel()}</span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0" align="start">
+                          <div className="p-3 border-b">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder={t('admin.search_admins')}
+                                className="pl-8 h-9"
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-[300px] overflow-y-auto p-2">
+                            {admins.length > 0 ? (
+                              <div className="space-y-1">
+                                {admins.map((admin) => {
+                                  const isSelected = localFilters.admin_ids.includes(admin.id.toString());
+                                  return (
+                                    <div
+                                      key={admin.id}
+                                      className="flex items-center space-x-2 px-2 py-2 rounded-sm hover:bg-accent cursor-pointer"
+                                      onClick={() => handleAdminToggle(admin.id.toString())}
+                                    >
+                                      <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={() => handleAdminToggle(admin.id.toString())}
+                                        className="pointer-events-none"
+                                      />
+                                      <span className="text-sm flex-1">{admin.name}</span>
+                                      <Badge variant="outline" className="text-xs px-1.5 py-0 h-5">
+                                        {admin.type}
+                                      </Badge>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground text-center py-6">{t('admin.no_admins_available')}</p>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
 
@@ -933,7 +1133,7 @@ function OrderTable({ orders }: { orders: Order[] }) {
                 onClick={() => handleSort('admin')}
                 className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
               >
-                {t('admin.admin')}
+                {t('admin.processed_by')}
                 {getSortIcon('admin')}
               </Button>
             </th>
