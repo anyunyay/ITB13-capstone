@@ -36,19 +36,6 @@ interface Sale {
   };
 }
 
-interface MemberSale {
-  member_id: number;
-  member_name: string;
-  member_email: string;
-  total_orders: number;
-  total_revenue: number;
-  total_coop_share: number;
-  total_member_share: number;
-  total_cogs: number;
-  total_gross_profit: number;
-  total_quantity_sold: number;
-}
-
 interface ReportSummary {
   total_revenue: number;
   total_coop_share: number;
@@ -72,16 +59,15 @@ interface ReportFilters {
 
 interface ReportPageProps {
   sales: Sale[];
-  memberSales: MemberSale[];
   summary: ReportSummary;
   filters: ReportFilters;
 }
 
-export default function SalesReport({ sales, memberSales, summary, filters }: ReportPageProps) {
+export default function SalesReport({ sales, summary, filters }: ReportPageProps) {
   const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  
+
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -137,7 +123,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
     if (localFilters.min_amount) params.min_amount = localFilters.min_amount;
     if (localFilters.max_amount) params.max_amount = localFilters.max_amount;
     if (localFilters.search) params.search = localFilters.search;
-    
+
     router.get(route('admin.sales.report'), params);
   };
 
@@ -147,9 +133,9 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     params.append('format', format);
     params.append('export_type', exportType);
-    
+
     const filename = exportType === 'members' ? 'member_sales_report' : 'sales_report';
-    
+
     if (format === 'csv') {
       const downloadUrl = `${route('admin.sales.report')}?${params.toString()}`;
       const downloadLink = document.createElement('a');
@@ -160,7 +146,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
       document.body.removeChild(downloadLink);
     } else {
       const downloadUrl = `${route('admin.sales.report')}?${params.toString()}`;
-      
+
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
@@ -168,14 +154,14 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
       displayParams.append('export_type', exportType);
       displayParams.append('display', 'true');
       const displayUrl = `${route('admin.sales.report')}?${displayParams.toString()}`;
-      
+
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
       downloadLink.download = `${filename}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${format}`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
+
       setTimeout(() => {
         window.open(displayUrl, '_blank');
       }, 500);
@@ -195,9 +181,9 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
   };
 
   const hasActiveFilters = () => {
-    return localFilters.start_date || localFilters.end_date || 
-           localFilters.min_amount || localFilters.max_amount ||
-           localFilters.search;
+    return localFilters.start_date || localFilters.end_date ||
+      localFilters.min_amount || localFilters.max_amount ||
+      localFilters.search;
   };
 
   return (
@@ -211,8 +197,8 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <div className="flex items-center gap-2">
                 <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
                   <BarChart3 className="h-8 w-8" />
-              </div>
-              <div>
+                </div>
+                <div>
                   <h1 className="text-3xl font-bold text-foreground">{t('admin.sales_report_page_title')}</h1>
                   <p className="text-muted-foreground mt-1">
                     {t('admin.generate_comprehensive_sales_reports')}
@@ -236,7 +222,7 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
                   {t('admin.total_revenue_label')}
                 </CardTitle>
@@ -257,8 +243,8 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">₱{Number(summary.total_coop_share).toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.coop_share_10_percent')}</p>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -266,12 +252,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <Users className="h-4 w-4" />
                   {t('admin.revenue_100_percent')}
                 </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
                 <div className="text-2xl font-bold text-blue-600">₱{Number(summary.total_member_share).toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.full_product_revenue')}</p>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -325,13 +311,13 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_customers')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
                 <div className="text-2xl font-bold text-secondary">{summary.total_customers}</div>
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.unique_buyers')}</p>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Advanced Filters - Collapsible */}
           <Card className="shadow-sm">
@@ -452,9 +438,9 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                             selected={endDate}
                             onSelect={handleEndDateChange}
                             initialFocus
-                            disabled={(date) => 
-                              date > new Date() || 
-                              date < new Date("1900-01-01") || 
+                            disabled={(date) =>
+                              date > new Date() ||
+                              date < new Date("1900-01-01") ||
                               (startDate ? date < startDate : false)
                             }
                           />
@@ -493,12 +479,12 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
             </Collapsible>
           </Card>
 
-        {/* Sales Table */}
+          {/* Sales Table */}
           <Card className="shadow-sm">
             <CardHeader>
-                          <CardTitle className="text-xl">{t('admin.sales_report_transactions', { count: sales.length })}</CardTitle>
-          </CardHeader>
-          <CardContent>
+              <CardTitle className="text-xl">{t('admin.sales_report_transactions', { count: sales.length })}</CardTitle>
+            </CardHeader>
+            <CardContent>
               {sales.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
@@ -530,32 +516,32 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                           </td>
                           <td className="py-3 px-4 text-right">
                             <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                            ₱{Number(sale.total_amount).toFixed(2)}
-                          </Badge>
+                              ₱{Number(sale.total_amount).toFixed(2)}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                            ₱{Number(sale.coop_share || 0).toFixed(2)}
-                          </Badge>
+                              ₱{Number(sale.coop_share || 0).toFixed(2)}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                            ₱{Number(sale.member_share || 0).toFixed(2)}
-                          </Badge>
+                              ₱{Number(sale.member_share || 0).toFixed(2)}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300">
-                            ₱{Number(sale.cogs || 0).toFixed(2)}
-                          </Badge>
+                              ₱{Number(sale.cogs || 0).toFixed(2)}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                            ₱{Number(sale.gross_profit || 0).toFixed(2)}
-                          </Badge>
+                              ₱{Number(sale.gross_profit || 0).toFixed(2)}
+                            </Badge>
                           </td>
                           <td className="py-3 px-4">
                             <div className="text-sm text-foreground">{dayjs(sale.created_at).format('MMM DD, YYYY')}</div>
-                          <div className="text-xs text-muted-foreground">{dayjs(sale.created_at).format('HH:mm')}</div>
+                            <div className="text-xs text-muted-foreground">{dayjs(sale.created_at).format('HH:mm')}</div>
                           </td>
                         </tr>
                       ))}
@@ -567,10 +553,10 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                   <div className="flex flex-col items-center">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                       <BarChart3 className="w-8 h-8 text-muted-foreground" />
-              </div>
+                    </div>
                     <h3 className="text-lg font-medium text-foreground mb-2">No sales found</h3>
                     <p className="text-muted-foreground max-w-md">
-                      {hasActiveFilters() 
+                      {hasActiveFilters()
                         ? 'No sales match your current filter criteria. Try adjusting your filters to see more results.'
                         : 'No sales data available for the selected time period.'
                       }
@@ -580,118 +566,17 @@ export default function SalesReport({ sales, memberSales, summary, filters }: Re
                         Clear Filters
                       </Button>
                     )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Member Sales */}
-        {memberSales.length > 0 && (
-            <Card className="shadow-sm">
-            <CardHeader>
-                <CardTitle className="text-xl">{t('admin.member_sales_performance_count', { count: memberSales.length })}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {memberSales.map((member, index) => (
-                  <MemberSaleCard key={member.member_id} member={member} index={index} />
-                ))}
-              </div>
+              )}
             </CardContent>
           </Card>
-        )}
+
+
         </div>
       </div>
     </AppLayout>
   );
 }
 
-function MemberSaleCard({ member, index }: { member: MemberSale; index: number }) {
-  const t = useTranslation();
-  const averageRevenue = member.total_orders > 0 ? member.total_revenue / member.total_orders : 0;
 
-  return (
-    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <Badge variant={index < 3 ? "default" : "secondary"} className={index < 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}>
-              #{index + 1}
-            </Badge>
-            <div>
-              <CardTitle className="text-lg text-foreground">{member.member_name}</CardTitle>
-              <p className="text-sm text-muted-foreground">{member.member_email}</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-600">
-              ₱{Number(member.total_revenue).toFixed(2)}
-            </div>
-            <p className="text-sm text-muted-foreground">{member.total_orders} orders</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-{t('admin.performance_metrics')}
-            </h4>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium text-foreground">{t('admin.total_orders')}:</span> 
-                <span className="text-muted-foreground ml-2">{member.total_orders}</span>
-              </p>
-              <p>
-                <span className="font-medium text-foreground">{t('admin.total_revenue')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(member.total_revenue).toFixed(2)}</span>
-              </p>
-              <p>
-                <span className="font-medium text-foreground">{t('admin.average_revenue')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(averageRevenue).toFixed(2)}</span>
-              </p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-{t('admin.financial_analysis')}
-            </h4>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium text-foreground">{t('admin.revenue_100_percent')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(member.total_member_share || 0).toFixed(2)}</span>
-              </p>
-              <p>
-                <span className="font-medium text-orange-600">{t('admin.cogs')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(member.total_cogs || 0).toFixed(2)}</span>
-              </p>
-              <p>
-                <span className="font-medium text-green-600">{t('admin.gross_profit')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(member.total_gross_profit || 0).toFixed(2)}</span>
-              </p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-accent rounded-full"></div>
-{t('admin.additional_info')}
-            </h4>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium text-foreground">{t('admin.total_quantity_column')}:</span> 
-                <span className="text-muted-foreground ml-2">{member.total_quantity_sold}</span>
-              </p>
-              <p>
-                <span className="font-medium text-green-600">{t('admin.coop_share')}:</span> 
-                <span className="text-muted-foreground ml-2">₱{Number(member.total_coop_share || 0).toFixed(2)}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
