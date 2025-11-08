@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ImageLightbox } from '@/components/ImageLightbox';
 import StockManager from '@/lib/stock-manager';
 import Footer from '@/components/Footer';
 import { ProduceSearchBar } from '@/components/ProduceSearchBar';
@@ -44,10 +45,11 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-function ProductCard({ product, onRequireLogin, onStockUpdate, className }: {
+function ProductCard({ product, onRequireLogin, onStockUpdate, onImageClick, className }: {
   product: Product;
   onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
+  onImageClick: (imageUrl: string, productName: string) => void;
   className?: string;
 }) {
   return (
@@ -55,6 +57,7 @@ function ProductCard({ product, onRequireLogin, onStockUpdate, className }: {
       product={product}
       onRequireLogin={onRequireLogin}
       onStockUpdate={onStockUpdate}
+      onImageClick={onImageClick}
       variant="default"
       showAddToCart={true}
       className={className}
@@ -66,6 +69,7 @@ interface ProductCarouselProps {
   products: Product[];
   onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
+  onImageClick: (imageUrl: string, productName: string) => void;
   viewMode?: 'grid' | 'list';
 }
 
@@ -73,6 +77,7 @@ export function ProductCarousel({
   products,
   onRequireLogin,
   onStockUpdate,
+  onImageClick,
   viewMode = 'grid'
 }: ProductCarouselProps) {
   const isSingleProduct = products.length === 1;
@@ -90,6 +95,7 @@ export function ProductCarousel({
                 product={product}
                 onRequireLogin={onRequireLogin}
                 onStockUpdate={onStockUpdate}
+                onImageClick={onImageClick}
                 className="w-full max-w-none"
               />
             </div>
@@ -131,6 +137,7 @@ export function ProductCarousel({
                 product={product}
                 onRequireLogin={onRequireLogin}
                 onStockUpdate={onStockUpdate}
+                onImageClick={onImageClick}
                 className="w-full max-w-none"
               />
             </div>
@@ -150,6 +157,8 @@ export function ProductCarousel({
 
 export default function CustomerHome() {
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState({ src: '', alt: '' });
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
   const [filteredProducts, setFilteredProducts] = useState(initialProducts);
@@ -261,6 +270,11 @@ export default function CustomerHome() {
   }, [initialProducts]);
 
   const handleRequireLogin = () => setShowLoginConfirm(true);
+
+  const handleImageClick = (imageUrl: string, productName: string) => {
+    setLightboxImage({ src: imageUrl, alt: productName });
+    setLightboxOpen(true);
+  };
 
   const toggleFruitsViewMode = () => {
     setFruitsViewMode(prevMode => {
@@ -386,6 +400,7 @@ export default function CustomerHome() {
           products={typeFilteredProducts}
           onRequireLogin={handleRequireLogin}
           onStockUpdate={handleStockUpdate}
+          onImageClick={handleImageClick}
           viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
         />
       </div>
@@ -443,6 +458,14 @@ export default function CustomerHome() {
             </DialogHeader>
           </DialogContent>
         </Dialog>
+
+        {/* Image Lightbox */}
+        <ImageLightbox
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
       </div>
 
       {/* Footer */}

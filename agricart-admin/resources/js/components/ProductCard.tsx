@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddToCartModal } from '@/components/AddToCartModal';
 import StockManager from '@/lib/stock-manager';
@@ -26,6 +26,7 @@ interface ProductCardProps {
   variant?: 'default' | 'compact' | 'minimal';
   showAddToCart?: boolean;
   className?: string;
+  onImageClick?: (imageUrl: string, productName: string) => void;
 }
 
 export function ProductCard({ 
@@ -34,13 +35,21 @@ export function ProductCard({
   onStockUpdate,
   variant = 'default',
   showAddToCart = true,
-  className = ''
+  className = '',
+  onImageClick
 }: ProductCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
   
   const { auth } = usePage<{ auth: any } & SharedData>().props;
   const stockManager = StockManager.getInstance();
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onImageClick) {
+      onImageClick(product.image_url || product.image || '/storage/fallback-photo.png', product.name);
+    }
+  };
 
   // Initialize stock data when component mounts
   useEffect(() => {
@@ -53,7 +62,7 @@ export function ProductCard({
 
   // Subscribe to stock updates for this product
   useEffect(() => {
-    const unsubscribe = stockManager.subscribe((productId, category) => {
+    const unsubscribe = stockManager.subscribe((productId) => {
       if (productId === product.id) {
         setAvailableStock(stockManager.getAvailableStockByCategory(product.id));
       }
@@ -78,7 +87,8 @@ export function ProductCard({
         <img
           src={product.image_url || product.image || '/storage/fallback-photo.png'}
           alt={product.name}
-          className="w-12 h-12 object-cover rounded-lg"
+          className="w-12 h-12 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={handleImageClick}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = '/storage/fallback-photo.png';
@@ -110,7 +120,8 @@ export function ProductCard({
           <img 
             src={product.image_url || product.image || '/storage/fallback-photo.png'} 
             alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={handleImageClick}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = '/storage/fallback-photo.png';
@@ -151,11 +162,12 @@ export function ProductCard({
     >
       {/* Image Section */}
       <div 
-        className="relative overflow-hidden rounded-t-lg sm:rounded-t-xl"
+        className="relative overflow-hidden rounded-t-lg sm:rounded-t-xl cursor-pointer"
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden'
         }}
+        onClick={handleImageClick}
       >
         <img 
           src={product.image_url || product.image || '/storage/fallback-photo.png'} 
