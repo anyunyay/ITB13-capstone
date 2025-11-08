@@ -140,6 +140,7 @@ return [
     'sold' => 'sold',
     'stocks_sold' => 'stocks sold',
     'available' => 'available',
+    'removed' => 'removed',
     'delivered' => 'delivered',
 
     // Inventory

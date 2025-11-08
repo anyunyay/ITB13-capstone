@@ -139,6 +139,7 @@ return [
     'sold' => 'nabenta',
     'stocks_sold' => 'mga stock na nabenta',
     'available' => 'available',
+    'removed' => 'tinanggal',
     'delivered' => 'naihatid',
 
     // Inventory
