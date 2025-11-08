@@ -1196,6 +1196,13 @@ return [
     'email' => 'Email',
     'contact' => 'Contact',
     'address' => 'Address',
+
+    // Filter Selections
+    'select_logistics' => 'Select logistics',
+    'select_processed_by' => 'Select processed by',
+    'search_logistics' => 'Search logistics...',
+    'search_admins' => 'Search admins/staff...',
+    'selected_count' => ':count selected',
     'registration_details' => 'Registration Details',
     'registration_date' => 'Registration Date',
     'email_verified' => 'Email Verified',

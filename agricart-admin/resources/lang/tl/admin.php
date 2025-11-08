@@ -1196,6 +1196,13 @@ return [
     'reactivate_logistics_account' => 'I-reactivate ang logistik na account',
     'prevent_system_access' => 'Pigilan silang mag-access ng system',
     'allow_system_access' => 'Payagan silang mag-access ng system muli',
+
+    // Filter Selections
+    'select_logistics' => 'Pumili ng logistics',
+    'select_processed_by' => 'Pumili ng nag-proseso',
+    'search_logistics' => 'Maghanap ng logistics...',
+    'search_admins' => 'Maghanap ng admins/staff...',
+    'selected_count' => ':count napili',
     'move_to_deactivated_logistics_list' => 'Ilipat sila sa listahan ng mga deactivated logistik',
     'move_to_active_logistics_list' => 'Ibalik sila sa listahan ng mga aktibong logistik',
     'deactivating' => 'Nagde-deactivate...',
