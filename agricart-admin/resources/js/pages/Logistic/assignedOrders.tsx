@@ -4,9 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LogisticHeader } from '@/components/logistic-header';
+import { Pagination } from '@/components/pagination';
 import { format } from 'date-fns';
 import { CheckCircle, Eye } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { useState, useEffect } from 'react';
 
 interface Order {
   id: number;
@@ -39,13 +41,33 @@ interface Order {
   }>;
 }
 
+interface PaginatedOrders {
+  data: Order[];
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  total: number;
+}
+
 interface AssignedOrdersProps {
-  orders: Order[];
+  orders: PaginatedOrders;
   currentStatus: string;
 }
 
 export default function AssignedOrders({ orders, currentStatus }: AssignedOrdersProps) {
   const t = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  useEffect(() => {
+    setIsLoading(false);
+  }, [orders]);
   
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
@@ -78,16 +100,18 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
   // Note: Backend now provides aggregated quantities, so no need for client-side aggregation
 
   const handleStatusFilter = (status: string) => {
+    setIsLoading(true);
     router.get(route('logistic.orders.index'), { status }, {
       preserveState: true,
       replace: true,
+      onFinish: () => setIsLoading(false),
     });
   };
 
-  const pendingOrders = orders.filter(order => order.delivery_status === 'pending');
-  const readyToPickupOrders = orders.filter(order => order.delivery_status === 'ready_to_pickup');
-  const outForDeliveryOrders = orders.filter(order => order.delivery_status === 'out_for_delivery');
-  const deliveredOrders = orders.filter(order => order.delivery_status === 'delivered');
+  const pendingOrders = orders.data.filter(order => order.delivery_status === 'pending');
+  const readyToPickupOrders = orders.data.filter(order => order.delivery_status === 'ready_to_pickup');
+  const outForDeliveryOrders = orders.data.filter(order => order.delivery_status === 'out_for_delivery');
+  const deliveredOrders = orders.data.filter(order => order.delivery_status === 'delivered');
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,120 +134,175 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">{t('logistic.all_orders')} ({orders.length})</TabsTrigger>
-            <TabsTrigger value="pending">{t('logistic.pending')} ({pendingOrders.length})</TabsTrigger>
-            <TabsTrigger value="ready_to_pickup">{t('logistic.ready_to_pickup')} ({readyToPickupOrders.length})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery">{t('logistic.out_for_delivery')} ({outForDeliveryOrders.length})</TabsTrigger>
-            <TabsTrigger value="delivered">{t('logistic.delivered')} ({deliveredOrders.length})</TabsTrigger>
+            <TabsTrigger value="all" disabled={isLoading}>{t('logistic.all_orders')} ({orders.total})</TabsTrigger>
+            <TabsTrigger value="pending" disabled={isLoading}>{t('logistic.pending')} ({pendingOrders.length})</TabsTrigger>
+            <TabsTrigger value="ready_to_pickup" disabled={isLoading}>{t('logistic.ready_to_pickup')} ({readyToPickupOrders.length})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" disabled={isLoading}>{t('logistic.out_for_delivery')} ({outForDeliveryOrders.length})</TabsTrigger>
+            <TabsTrigger value="delivered" disabled={isLoading}>{t('logistic.delivered')} ({deliveredOrders.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
-            {orders.length === 0 ? (
+            {orders.data.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-muted-foreground">{t('logistic.no_orders_assigned_yet')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {orders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    t={t}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4">
+                  {orders.data.map((order) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      getDeliveryStatusBadge={getDeliveryStatusBadge}
+                      formatQuantity={formatQuantity}
+                      t={t}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
+              </>
             )}
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4">
-            {pendingOrders.length === 0 ? (
+            {orders.data.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-muted-foreground">{t('logistic.no_pending_orders')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {pendingOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    t={t}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4">
+                  {orders.data.map((order) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      getDeliveryStatusBadge={getDeliveryStatusBadge}
+                      formatQuantity={formatQuantity}
+                      t={t}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
+              </>
             )}
           </TabsContent>
 
           <TabsContent value="ready_to_pickup" className="space-y-4">
-            {readyToPickupOrders.length === 0 ? (
+            {orders.data.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-muted-foreground">{t('logistic.no_orders_ready_pickup')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {readyToPickupOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    t={t}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4">
+                  {orders.data.map((order) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      getDeliveryStatusBadge={getDeliveryStatusBadge}
+                      formatQuantity={formatQuantity}
+                      t={t}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
+              </>
             )}
           </TabsContent>
 
           <TabsContent value="out_for_delivery" className="space-y-4">
-            {outForDeliveryOrders.length === 0 ? (
+            {orders.data.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-muted-foreground">{t('logistic.no_orders_out_delivery')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {outForDeliveryOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    t={t}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4">
+                  {orders.data.map((order) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      getDeliveryStatusBadge={getDeliveryStatusBadge}
+                      formatQuantity={formatQuantity}
+                      t={t}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
+              </>
             )}
           </TabsContent>
 
           <TabsContent value="delivered" className="space-y-4">
-            {deliveredOrders.length === 0 ? (
+            {orders.data.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-muted-foreground">{t('logistic.no_delivered_orders')}</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4">
-                {deliveredOrders.map((order) => (
-                  <OrderCard 
-                    key={order.id} 
-                    order={order} 
-                    getDeliveryStatusBadge={getDeliveryStatusBadge}
-                    formatQuantity={formatQuantity}
-                    t={t}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4">
+                  {orders.data.map((order) => (
+                    <OrderCard 
+                      key={order.id} 
+                      order={order} 
+                      getDeliveryStatusBadge={getDeliveryStatusBadge}
+                      formatQuantity={formatQuantity}
+                      t={t}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
+              </>
             )}
           </TabsContent>
 

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LogisticHeader } from '@/components/logistic-header';
+import { Pagination } from '@/components/pagination';
 import { format } from 'date-fns';
 import { CheckCircle, Eye, Truck, Package, Clock, TrendingUp, ArrowRight, MapPin, Calendar } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -35,8 +36,23 @@ interface Order {
   }>;
 }
 
+interface PaginatedOrders {
+  data: Order[];
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  total: number;
+}
+
 interface LogisticDashboardProps {
-  assignedOrders: Order[];
+  assignedOrders: PaginatedOrders;
   stats: {
     pending: number;
     ready_to_pickup: number;
@@ -162,7 +178,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </div>
           </CardHeader>
           <CardContent>
-            {assignedOrders.length === 0 ? (
+            {assignedOrders.data.length === 0 ? (
               <div className="text-center py-12">
                 <div className="p-4 bg-muted/50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <Package className="h-8 w-8 text-muted-foreground" />
@@ -172,7 +188,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
               </div>
             ) : (
               <div className="space-y-4">
-                {assignedOrders.slice(0, 5).map((order) => (
+                {assignedOrders.data.map((order) => (
                   <div key={order.id} className="border border-border rounded-lg p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -213,15 +229,16 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                     </div>
                   </div>
                 ))}
-                {assignedOrders.length > 5 && (
-                  <div className="text-center pt-4">
-                    <Link href={route('logistic.orders.index')}>
-                      <Button variant="ghost" className="text-primary hover:text-primary/80">
-                        {t('logistic.view_more_orders', { count: assignedOrders.length - 5 })}
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
+                {assignedOrders.total > assignedOrders.per_page && (
+                  <Pagination
+                    links={assignedOrders.links}
+                    from={assignedOrders.from}
+                    to={assignedOrders.to}
+                    total={assignedOrders.total}
+                    currentPage={assignedOrders.current_page}
+                    lastPage={assignedOrders.last_page}
+                    perPage={assignedOrders.per_page}
+                  />
                 )}
               </div>
             )}

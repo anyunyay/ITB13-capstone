@@ -11,6 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LogisticHeader } from '@/components/logistic-header';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { Pagination } from '@/components/pagination';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { BarChart3, Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
@@ -44,6 +45,21 @@ interface Order {
   }>;
 }
 
+interface PaginatedOrders {
+  data: Order[];
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  total: number;
+}
+
 interface ReportSummary {
   total_orders: number;
   total_revenue: number;
@@ -61,7 +77,7 @@ interface ReportFilters {
 }
 
 interface ReportPageProps {
-  orders: Order[];
+  orders: PaginatedOrders;
   summary: ReportSummary;
   filters: ReportFilters;
 }
@@ -458,27 +474,36 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">{t('logistic.orders')} ({orders.length})</CardTitle>
+              <CardTitle className="text-xl">{t('logistic.orders')} ({orders.total})</CardTitle>
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground">
-                  {orders.length > 0 ? `Showing ${orders.length} orders` : 'No orders found'}
+                  {orders.total > 0 ? `Showing ${orders.from} to ${orders.to} of ${orders.total} orders` : 'No orders found'}
                 </div>
                 <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {orders.length > 0 ? (
+            {orders.data.length > 0 ? (
               <>
                 {currentView === 'cards' ? (
                   <div className="space-y-4">
-                    {orders.map((order) => (
+                    {orders.data.map((order) => (
                       <OrderCard key={order.id} order={order} t={t} />
                     ))}
                   </div>
                 ) : (
-                  <OrderTable orders={orders} t={t} />
+                  <OrderTable orders={orders.data} t={t} />
                 )}
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
               </>
             ) : (
               <div className="text-center py-12">
