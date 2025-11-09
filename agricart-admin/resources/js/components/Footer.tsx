@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { Facebook, Mail, MapPin } from 'lucide-react';
+import { Facebook, Mail, MapPin, Leaf } from 'lucide-react';
 
 /**
  * Footer Component Props Interface
@@ -73,91 +73,152 @@ const Footer: React.FC<FooterProps> = ({
   className = ""
 }) => {
   return (
-    <footer className={`bg-gradient-to-br from-gray-800 to-gray-700 text-gray-50 mt-auto relative z-20 ${className}`} role="contentinfo">
-      {/* Top Section - Contact Information */}
-      <div className="py-12 md:py-16 lg:py-20 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 text-white">Get In Touch</h3>
-            <p className="text-base md:text-lg lg:text-xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Connect with us for fresh produce, questions, or to learn more about our cooperative.
-            </p>
-            
-            {/* Contact Links Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8 w-full max-w-5xl mx-auto">
-              {/* Facebook Link */}
-              <a 
-                href={facebookUrl} 
-                className="flex items-center gap-4 p-4 md:p-6 lg:p-8 bg-white/5 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 hover:shadow-lg text-inherit no-underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Visit our Facebook page"
-              >
-                <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-green-600/10 rounded-lg flex-shrink-0">
-                  <Facebook className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-green-500" />
-                </div>
-                <div className="flex flex-col text-left flex-1">
-                  <div className="text-sm md:text-base text-gray-400 mb-1 font-medium">Follow Us</div>
-                  <div className="text-base md:text-lg lg:text-xl text-white font-semibold break-words">Facebook</div>
-                </div>
-              </a>
+    <footer className={`bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-foreground mt-auto relative z-20 overflow-hidden ${className}`} role="contentinfo">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-primary rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-secondary rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-primary rounded-full blur-3xl"></div>
+      </div>
 
-              {/* Email Link */}
-              <a 
-                href={`mailto:${emailAddress}`}
-                className="flex items-center gap-4 p-4 md:p-6 lg:p-8 bg-white/5 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 hover:shadow-lg text-inherit no-underline"
-                aria-label="Send us an email"
-              >
-                <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-green-600/10 rounded-lg flex-shrink-0">
-                  <Mail className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-green-500" />
+      {/* Main Content */}
+      <div className="relative z-10">
+        {/* Top Section - Brand and Contact */}
+        <div className="py-10 sm:py-12 md:py-16 lg:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+              
+              {/* Left Column - Brand Section */}
+              <div className="lg:col-span-5 space-y-6">
+                {/* Logo and Company Name */}
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-secondary to-primary rounded-xl flex items-center justify-center shadow-lg">
+                    <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{companyName}</h3>
+                    <p className="text-sm text-secondary font-medium">Fresh from Farm to Table</p>
+                  </div>
                 </div>
-                <div className="flex flex-col text-left flex-1">
-                  <div className="text-sm md:text-base text-gray-400 mb-1 font-medium">Email Us</div>
-                  <div className="text-base md:text-lg lg:text-xl text-white font-semibold break-words">{emailAddress}</div>
-                </div>
-              </a>
 
-              {/* Address */}
-              <div className="flex items-center gap-4 p-4 md:p-6 lg:p-8 bg-white/5 rounded-xl border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:-translate-y-1 hover:shadow-lg">
-                <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-green-600/10 rounded-lg flex-shrink-0">
-                  <MapPin className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-green-500" />
+                {/* Description */}
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
+                  Connect with us for fresh produce, questions, or to learn more about our cooperative. 
+                  We're committed to bringing you the finest quality products from local farmers.
+                </p>
+
+                {/* Quick Stats or Badge */}
+                <div className="flex flex-wrap gap-3">
+                  <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-xs text-secondary font-semibold">100% Fresh</p>
+                  </div>
+                  <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-xs text-secondary font-semibold">Locally Sourced</p>
+                  </div>
+                  <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-xs text-secondary font-semibold">Sustainable</p>
+                  </div>
                 </div>
-                <div className="flex flex-col text-left flex-1">
-                  <div className="text-sm md:text-base text-gray-400 mb-1 font-medium">Visit Us</div>
-                  <div className="text-base md:text-lg lg:text-xl text-white font-semibold break-words">{physicalAddress}</div>
+              </div>
+
+              {/* Right Column - Contact Information */}
+              <div className="lg:col-span-7">
+                <h4 className="text-lg sm:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-primary rounded-full"></span>
+                  Get In Touch
+                </h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  {/* Facebook Card */}
+                  <a 
+                    href={facebookUrl} 
+                    className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm p-5 rounded-2xl border border-border/50 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 text-inherit no-underline overflow-hidden"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Visit our Facebook page"
+                  >
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300"></div>
+                    <div className="relative flex items-start gap-4">
+                      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <Facebook className="w-6 h-6 text-primary-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">Follow Us On</p>
+                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">Facebook</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  {/* Email Card */}
+                  <a 
+                    href={`mailto:${emailAddress}`}
+                    className="group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm p-5 rounded-2xl border border-border/50 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 text-inherit no-underline overflow-hidden"
+                    aria-label="Send us an email"
+                  >
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300"></div>
+                    <div className="relative flex items-start gap-4">
+                      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <Mail className="w-6 h-6 text-primary-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">Email Us At</p>
+                        <p className="text-sm sm:text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300 truncate">{emailAddress}</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  {/* Address Card - Spans 2 columns on larger screens */}
+                  <div className="sm:col-span-2 group relative bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm p-5 rounded-2xl border border-border/50 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300"></div>
+                    <div className="relative flex items-start gap-4">
+                      <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <MapPin className="w-6 h-6 text-primary-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">Visit Us At</p>
+                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">{physicalAddress}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Section - Copyright and Navigation */}
-      <div className="py-6 md:py-8 lg:py-10 bg-black/20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-            {/* Copyright */}
-            <div className="order-2 md:order-1">
-              <p className="text-sm text-gray-400 m-0">
-                © {currentYear} {companyName}. All rights reserved.
-              </p>
+        {/* Divider */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+        </div>
+
+        {/* Bottom Section - Copyright and Navigation */}
+        <div className="py-6 sm:py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              
+              {/* Copyright */}
+              <div className="order-2 md:order-1">
+                <p className="text-xs sm:text-sm text-muted-foreground m-0 text-center md:text-left">
+                  © {currentYear} {companyName}. All rights reserved.
+                </p>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="order-1 md:order-2" aria-label="Footer navigation">
+                <ul className="flex flex-wrap justify-center md:justify-end gap-2 sm:gap-3 list-none m-0 p-0">
+                  {navigationLinks.map((link, index) => (
+                    <li key={index} className="m-0">
+                      <Link 
+                        href={link.href}
+                        className="text-xs sm:text-sm text-muted-foreground no-underline font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:text-secondary hover:bg-primary/10 whitespace-nowrap"
+                      >
+                        {link.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
-
-            {/* Navigation Links */}
-            <nav className="order-1 md:order-2 md:ml-auto" aria-label="Footer navigation">
-              <ul className="flex flex-wrap justify-center md:justify-end gap-6 lg:gap-8 list-none m-0 p-0">
-                {navigationLinks.map((link, index) => (
-                  <li key={index} className="m-0">
-                    <Link 
-                      href={link.href}
-                      className="text-sm md:text-base text-gray-300 no-underline font-medium transition-colors duration-200 py-1 border-b border-transparent hover:text-green-500 hover:border-green-500"
-                    >
-                      {link.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
           </div>
         </div>
       </div>
