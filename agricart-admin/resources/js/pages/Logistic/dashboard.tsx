@@ -152,7 +152,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
         {/* Assigned Orders */}
         <Card className="hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <CardTitle className="text-foreground flex items-center gap-2">
                   <Package className="h-5 w-5" />
@@ -160,8 +160,8 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">{t('logistic.latest_assigned_orders')}</p>
               </div>
-              <Link href={route('logistic.report')}>
-                <Button variant="outline" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Link href={route('logistic.report')} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   {t('logistic.generate_report')}
                 </Button>
@@ -180,37 +180,37 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             ) : (
               <div className="space-y-4">
                 {assignedOrders.data.map((order) => (
-                  <div key={order.id} className="border border-border rounded-lg p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
-                    <div className="flex items-center justify-between">
+                  <div key={order.id} className="border border-border rounded-lg p-4 sm:p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center flex-wrap gap-2 mb-3">
                           <h3 className="font-semibold text-foreground text-lg">{t('logistic.order_number', { id: order.id })}</h3>
                           {getDeliveryStatusBadge(order.delivery_status)}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 text-sm">
                           <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.customer')}:</span>
-                            <span className="font-medium text-foreground">{order.customer.name}</span>
+                            <span className="font-medium text-foreground truncate">{order.customer.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.date')}:</span>
                             <span className="font-medium text-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.total')}:</span>
                             <span className="font-medium text-foreground">₱{order.total_amount.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Link href={route('logistic.orders.show', order.id)}>
+                      <div className="flex items-center">
+                        <Link href={route('logistic.orders.show', order.id)} className="w-full lg:w-auto">
                           <Button 
                             variant="outline" 
                             size="sm"
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                            className="w-full lg:w-auto group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             {t('logistic.view_details')}

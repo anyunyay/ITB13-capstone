@@ -1,12 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { Pagination } from '@/components/common/pagination';
 import { format } from 'date-fns';
-import { CheckCircle, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useState, useEffect } from 'react';
 
@@ -134,12 +134,42 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
         </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-            <TabsTrigger value="all" disabled={isLoading}>{t('logistic.all_orders')} ({statusCounts.all})</TabsTrigger>
-            <TabsTrigger value="pending" disabled={isLoading}>{t('logistic.pending')} ({statusCounts.pending})</TabsTrigger>
-            <TabsTrigger value="ready_to_pickup" disabled={isLoading}>{t('logistic.ready_to_pickup')} ({statusCounts.ready_to_pickup})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery" disabled={isLoading}>{t('logistic.out_for_delivery')} ({statusCounts.out_for_delivery})</TabsTrigger>
-            <TabsTrigger value="delivered" disabled={isLoading}>{t('logistic.delivered')} ({statusCounts.delivered})</TabsTrigger>
+          <TabsList className="h-auto flex-wrap lg:flex-nowrap lg:h-10 inline-flex p-1">
+            <TabsTrigger 
+              value="all" 
+              disabled={isLoading}
+              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+            >
+              <span className="truncate">{t('logistic.all_orders')} ({statusCounts.all})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="pending" 
+              disabled={isLoading}
+              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+            >
+              <span className="truncate">{t('logistic.pending')} ({statusCounts.pending})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ready_to_pickup" 
+              disabled={isLoading}
+              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+            >
+              <span className="truncate">{t('logistic.ready_to_pickup')} ({statusCounts.ready_to_pickup})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="out_for_delivery" 
+              disabled={isLoading}
+              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+            >
+              <span className="truncate">{t('logistic.out_for_delivery')} ({statusCounts.out_for_delivery})</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="delivered" 
+              disabled={isLoading}
+              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+            >
+              <span className="truncate">{t('logistic.delivered')} ({statusCounts.delivered})</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -323,14 +353,16 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, t }: {
   
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+          {/* Header - Stack on mobile, side-by-side on desktop */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center flex-wrap gap-2">
               <h3 className="font-semibold text-foreground">{t('logistic.order_number', { id: order.id })}</h3>
               {getDeliveryStatusBadge(order.delivery_status)}
             </div>
-            <Link href={route('logistic.orders.show', order.id)}>
+            {/* Button hidden on mobile, shown on desktop */}
+            <Link href={route('logistic.orders.show', order.id)} className="hidden sm:block">
               <Button 
                 variant="outline" 
                 size="sm"
@@ -373,6 +405,18 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, t }: {
               </div>
             </div>
           </div>
+
+          {/* Button shown on mobile at bottom, hidden on desktop */}
+          <Link href={route('logistic.orders.show', order.id)} className="block sm:hidden">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="w-full"
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              {t('logistic.view_details')}
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
