@@ -32,16 +32,16 @@ class SalesController extends Controller
 
         // Get pending orders from sales_audit with optimized loading
         $salesAuditQuery = SalesAudit::with([
-                'customer' => function($query) {
-                    $query->select('id', 'name', 'email');
-                },
-                'admin' => function($query) {
-                    $query->select('id', 'name');
-                },
-                'logistic' => function($query) {
-                    $query->select('id', 'name');
-                }
-            ])
+            'customer' => function ($query) {
+                $query->select('id', 'name', 'email');
+            },
+            'admin' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'logistic' => function ($query) {
+                $query->select('id', 'name');
+            }
+        ])
             ->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'status', 'created_at')
             ->where('status', '!=', 'cancelled');
 
@@ -60,7 +60,7 @@ class SalesController extends Controller
         $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
         $totalCogs = ($totalMemberShare / 1.3) * 0.7;
         $totalGrossProfit = $totalMemberShare - $totalCogs;
-        
+
         $summary = [
             'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
             'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
@@ -69,9 +69,9 @@ class SalesController extends Controller
             'total_cogs' => $totalCogs,
             'total_gross_profit' => $totalGrossProfit,
             'total_orders' => $salesRaw->count() + $pendingOrders->count(),
-            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ?
                 ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
-            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
+            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ?
                 ($salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
             'total_customers' => $salesRaw->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
         ];
@@ -80,7 +80,7 @@ class SalesController extends Controller
         $sales = $salesRaw->map(function ($sale) {
             $cogs = ($sale->member_share / 1.3) * 0.7;
             $grossProfit = $sale->member_share - $cogs;
-            
+
             return [
                 'id' => $sale->id,
                 'customer' => [
@@ -139,94 +139,94 @@ class SalesController extends Controller
 
     public function generateReport(Request $request)
     {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $search = $request->get('search');
+        $minAmount = $request->get('min_amount');
+        $maxAmount = $request->get('max_amount');
+        $format = $request->get('format', 'view'); // view, csv, pdf
+        $display = $request->get('display', false); // true for display mode
+
         $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit']);
 
-        // Filter by date range if provided
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('delivered_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
-            ]);
+        // Filter by date range with timezone (Asia/Manila)
+        if ($startDate) {
+            $startDateTime = \Carbon\Carbon::parse($startDate, 'Asia/Manila')->startOfDay();
+            $query->where('delivered_at', '>=', $startDateTime);
+        }
+        if ($endDate) {
+            $endDateTime = \Carbon\Carbon::parse($endDate, 'Asia/Manila')->endOfDay();
+            $query->where('delivered_at', '<=', $endDateTime);
+        }
+
+        // Filter by amount range
+        if ($minAmount !== null && $minAmount !== '') {
+            $query->where('total_amount', '>=', $minAmount);
+        }
+        if ($maxAmount !== null && $maxAmount !== '') {
+            $query->where('total_amount', '<=', $maxAmount);
+        }
+
+        // Search functionality
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('customer', function ($customerQuery) use ($search) {
+                    $customerQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })->orWhere('id', 'like', "%{$search}%");
+            });
         }
 
         // Optimize: Load only essential fields for reporting
-        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
+        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at', 'created_at')
             ->orderBy('delivered_at', 'desc')
             ->get();
 
-        // Get pending orders from sales_audit for comprehensive reporting
-        $salesAuditQuery = SalesAudit::with([
-                'customer' => function($query) {
-                    $query->select('id', 'name', 'email');
-                },
-                'admin' => function($query) {
-                    $query->select('id', 'name');
-                },
-                'logistic' => function($query) {
-                    $query->select('id', 'name');
-                }
-            ])
-            ->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'status', 'created_at')
-            ->where('status', '!=', 'cancelled');
-
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $salesAuditQuery->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
-            ]);
-        }
-
-        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
-
-        // Calculate summary statistics from both delivered and pending orders
-        $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
+        // Calculate summary statistics from filtered results only
+        $totalMemberShare = $salesRaw->sum('member_share');
         $totalCogs = ($totalMemberShare / 1.3) * 0.7;
         $totalGrossProfit = $totalMemberShare - $totalCogs;
-        
+
         $summary = [
-            'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
-            'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
-            'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_revenue' => $salesRaw->sum('total_amount'),
+            'total_subtotal' => $salesRaw->sum('subtotal'),
+            'total_coop_share' => $salesRaw->sum('coop_share'),
             'total_member_share' => $totalMemberShare,
             'total_cogs' => $totalCogs,
             'total_gross_profit' => $totalGrossProfit,
-            'total_orders' => $salesRaw->count() + $pendingOrders->count(),
-            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
-                ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
-            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ? 
-                ($salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
-            'total_customers' => $salesRaw->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
+            'total_orders' => $salesRaw->count(),
+            'average_order_value' => $salesRaw->count() > 0 ?
+                $salesRaw->sum('total_amount') / $salesRaw->count() : 0,
+            'average_coop_share' => $salesRaw->count() > 0 ?
+                $salesRaw->sum('coop_share') / $salesRaw->count() : 0,
+            'total_customers' => $salesRaw->unique('customer_id')->count(),
         ];
 
-        // Get member sales data
-        $memberSales = $this->getMemberSales($request);
-
-        // Check if format is specified for export
-        if ($request->filled('format')) {
-            $display = $request->get('display', false);
-            $exportType = $request->get('export_type', 'sales'); // 'sales' or 'members'
-            
-            if ($request->format === 'pdf') {
-                return $this->exportToPdf($salesRaw, $memberSales, $request, $display, $exportType);
-            } elseif ($request->format === 'csv') {
-                return $this->exportCsv($salesRaw, $memberSales, $request, $display, $exportType);
-            }
+        // If export is requested - same pattern as Orders Report
+        if ($format === 'csv') {
+            return $this->exportToCsv($salesRaw, $summary, $display);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPdf($salesRaw, $summary, $display);
         }
 
         // Return Inertia page for report view
         return Inertia::render('Admin/Sales/report', [
             'sales' => $salesRaw,
             'summary' => $summary,
-            'memberSales' => $memberSales,
-            'filters' => $request->only(['start_date', 'end_date']),
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'min_amount' => $minAmount,
+                'max_amount' => $maxAmount,
+                'search' => $search,
+            ],
         ]);
     }
 
-    private function exportCsv($salesRaw, $memberSales, $request, $display = false, $exportType = 'sales')
+    private function exportToCsv($salesRaw, $summary, $display = false)
     {
-        $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
-        $filename .= now()->format('Y-m-d_H-i-s') . '.csv';
-        
+        $filename = 'sales_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -241,72 +241,59 @@ class SalesController extends Controller
             ];
         }
 
-        $callback = function() use ($salesRaw, $memberSales, $request, $exportType) {
+        $callback = function () use ($salesRaw, $summary) {
             $file = fopen('php://output', 'w');
-            
-            if ($exportType === 'sales') {
-                // Sales data only
-                fputcsv($file, ['Sale ID', 'Total Amount', 'Revenue (100%)', 'COGS', 'Gross Profit', 'Delivered Date', 'Customer', 'Processed By', 'Logistic']);
-                
-                foreach ($salesRaw as $sale) {
-                    $cogs = ($sale->member_share / 1.3) * 0.7;
-                    $grossProfit = $sale->member_share - $cogs;
-                    
-                    fputcsv($file, [
-                        $sale->id,
-                        number_format($sale->total_amount, 2),
-                        number_format($sale->member_share, 2),
-                        number_format($cogs, 2),
-                        number_format($grossProfit, 2),
-                        $sale->delivered_at->format('Y-m-d H:i:s'),
-                        $sale->customer?->name ?? 'N/A',
-                        $sale->admin?->name ?? 'N/A',
-                        $sale->logistic?->name ?? 'N/A'
-                    ]);
-                }
-            } else {
-                // Member sales data only
-                fputcsv($file, ['Rank', 'Member Name', 'Member Email', 'Total Orders', 'Total Revenue', 'Revenue (100%)', 'COGS', 'Gross Profit', 'Quantity Sold', 'Average Revenue']);
-                
-                foreach ($memberSales as $index => $member) {
-                    $averageRevenue = $member->total_orders > 0 ? $member->total_revenue / $member->total_orders : 0;
-                    fputcsv($file, [
-                        $index + 1,
-                        $member->member_name,
-                        $member->member_email,
-                        $member->total_orders,
-                        number_format($member->total_revenue, 2),
-                        number_format($member->total_member_share, 2),
-                        number_format($member->total_cogs, 2),
-                        number_format($member->total_gross_profit, 2),
-                        $member->total_quantity_sold,
-                        number_format($averageRevenue, 2)
-                    ]);
-                }
+
+            // Add summary header
+            fputcsv($file, ['Sales Report Summary']);
+            fputcsv($file, ['Total Orders', $summary['total_orders']]);
+            fputcsv($file, ['Total Revenue', number_format($summary['total_revenue'], 2)]);
+            fputcsv($file, ['Total Coop Share', number_format($summary['total_coop_share'], 2)]);
+            fputcsv($file, ['Total Member Share', number_format($summary['total_member_share'], 2)]);
+            fputcsv($file, ['Total COGS', number_format($summary['total_cogs'], 2)]);
+            fputcsv($file, ['Total Gross Profit', number_format($summary['total_gross_profit'], 2)]);
+            fputcsv($file, ['Average Order Value', number_format($summary['average_order_value'], 2)]);
+            fputcsv($file, []); // Empty row
+
+            // Sales data
+            fputcsv($file, ['Sale ID', 'Customer', 'Email', 'Total Amount', 'Coop Share', 'Member Share', 'COGS', 'Gross Profit', 'Date']);
+
+            foreach ($salesRaw as $sale) {
+                $cogs = ($sale->member_share / 1.3) * 0.7;
+                $grossProfit = $sale->member_share - $cogs;
+
+                fputcsv($file, [
+                    $sale->id,
+                    $sale->customer?->name ?? 'N/A',
+                    $sale->customer?->email ?? 'N/A',
+                    number_format($sale->total_amount, 2),
+                    number_format($sale->coop_share, 2),
+                    number_format($sale->member_share, 2),
+                    number_format($cogs, 2),
+                    number_format($grossProfit, 2),
+                    $sale->delivered_at ? $sale->delivered_at->format('Y-m-d H:i:s') : ($sale->created_at ? $sale->created_at->format('Y-m-d H:i:s') : 'N/A')
+                ]);
             }
-            
+
             fclose($file);
         };
 
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($salesRaw, $memberSales, $request, $display = false, $exportType = 'sales')
+    private function exportToPdf($salesRaw, $summary, $display = false)
     {
-        $filename = $exportType === 'members' ? 'member_sales_report_' : 'sales_report_';
-        $filename .= date('Y-m-d_H-i-s') . '.pdf';
-        
         $html = view('reports.sales-pdf', [
             'sales' => $salesRaw,
-            'memberSales' => $memberSales,
-            'exportType' => $exportType,
-            'generated_at' => now()->format('Y-m-d H:i:s'),
-            'filters' => $request->only(['start_date', 'end_date']),
+            'summary' => $summary,
+            'generated_at' => now()->format('Y-m-d H:i:s')
         ])->render();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
+
+        $filename = 'sales_report_' . date('Y-m-d_H-i-s') . '.pdf';
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
@@ -488,15 +475,15 @@ class SalesController extends Controller
         $auditTrails = $query->orderBy('created_at', 'desc')->get();
 
         $filename = 'audit_trail_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($auditTrails) {
+        $callback = function () use ($auditTrails) {
             $file = fopen('php://output', 'w');
-            
+
             // CSV headers
             fputcsv($file, [
                 'Timestamp',
