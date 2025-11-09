@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { CalendarIcon, Download, FileText, X, Package, CheckCircle } from 'lucide-react';
+import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import OrderReceivedConfirmationModal from '@/components/OrderReceivedConfirmationModal';
 import StarRating from '@/components/StarRating';
@@ -59,6 +59,12 @@ interface HistoryProps {
   orders: Order[];
   currentStatus: string;
   currentDeliveryStatus: string;
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
   counts: {
     all: number;
     pending: number;
@@ -68,7 +74,7 @@ interface HistoryProps {
   };
 }
 
-export default function History({ orders, currentStatus, currentDeliveryStatus, counts }: HistoryProps) {
+export default function History({ orders, currentStatus, currentDeliveryStatus, pagination, counts }: HistoryProps) {
   const t = useTranslation();
   const page = usePage<{ notifications?: Array<any> }>();
   const notifications = page.props.notifications || [];
@@ -78,6 +84,15 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
+  // Backend returns 5 items per page, display all of them
+  const paginatedOrders = orders;
+
+  // Calculate total pages based on actual total from backend
+  const totalPages = pagination.last_page;
+  const currentPage = pagination.current_page;
+  
+  // Check if we're on the last page
+  const isLastPage = currentPage >= totalPages;
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -123,7 +138,26 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     if (deliveryStatus !== 'all') {
       params.append('delivery_status', deliveryStatus);
     }
-    router.get('/customer/orders/history', Object.fromEntries(params));
+    params.append('page', '1');
+    router.get('/customer/orders/history', Object.fromEntries(params), {
+      preserveScroll: true,
+    });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams();
+    if (currentDeliveryStatus !== 'all') {
+      params.append('delivery_status', currentDeliveryStatus);
+    }
+    params.append('page', newPage.toString());
+    
+    router.get('/customer/orders/history', Object.fromEntries(params), {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+    });
   };
 
   const generateReport = (format: 'csv' | 'pdf') => {
@@ -319,8 +353,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 </section>
               </Card>
             ) : (
-              <section className="space-y-3 sm:space-y-4">
-                {orders.map((order: Order) => (
+              <>
+                <section className="space-y-3 sm:space-y-4">
+                  {paginatedOrders.map((order: Order) => (
                   <article key={order.id} id={`order-${order.id}`} className="p-3 sm:p-4 md:p-6 bg-card border border-border rounded-lg hover:shadow-lg transition-all duration-200 overflow-hidden">
                     <div className="relative mb-3 sm:mb-4">
                       <div className="flex flex-nowrap items-start justify-between gap-2">
@@ -577,9 +612,39 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   </article>
                 ))}
               </section>
-            )}
-          </TabsContent>
-        </Tabs>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <nav className="flex items-center justify-center gap-2 sm:gap-4 mt-6 pt-4 border-t border-border" aria-label="Pagination">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t('ui.previous') || 'Previous'}</span>
+                  </Button>
+                  <div className="text-sm text-muted-foreground px-2">
+                    Page {currentPage} of {totalPages}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={isLastPage}
+                    className="flex items-center gap-1"
+                  >
+                    <span className="hidden sm:inline">{t('ui.next') || 'Next'}</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </nav>
+              )}
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
 
         {selectedOrderForConfirmation && (
           <OrderReceivedConfirmationModal

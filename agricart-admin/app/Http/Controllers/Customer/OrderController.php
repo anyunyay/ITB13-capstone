@@ -190,10 +190,22 @@ class OrderController extends Controller
         
         $allOrdersCount = $pendingOrders + $outForDeliveryOrders + $deliveredOrders;
 
+        // Pagination: 5 items per page
+        $page = $request->get('page', 1);
+        $perPage = 5;
+        $total = $allOrders->count();
+        $paginatedOrders = $allOrders->forPage($page, $perPage)->values();
+
         return Inertia::render('Customer/Order History/index', [
-            'orders' => $allOrders,
+            'orders' => $paginatedOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
+            'pagination' => [
+                'current_page' => (int) $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => (int) ceil($total / $perPage),
+            ],
             'counts' => [
                 'all' => $allOrdersCount,
                 'pending' => $pendingOrders,
