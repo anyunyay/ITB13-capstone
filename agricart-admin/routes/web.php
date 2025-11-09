@@ -354,6 +354,9 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [LogisticNotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [LogisticNotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
         Route::post('/notifications/mark-all-read', [LogisticNotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
+        
+        // Profile Notification page
+        Route::get('/profile/notifications', [LogisticNotificationController::class, 'profileIndex'])->name('logistic.profile.notifications');
     });
 
     // Member routes
@@ -386,6 +389,9 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [MemberNotificationController::class, 'index'])->name('member.notifications.index');
         Route::post('/notifications/mark-read', [MemberNotificationController::class, 'markRead'])->name('member.notifications.markRead');
         Route::post('/notifications/mark-all-read', [MemberNotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
+        
+        // Profile Notification page
+        Route::get('/profile/notifications', [MemberNotificationController::class, 'profileIndex'])->name('member.profile.notifications');
     });
 });
 

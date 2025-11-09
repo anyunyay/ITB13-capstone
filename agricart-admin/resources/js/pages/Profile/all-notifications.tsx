@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +19,8 @@ import {
   TruckIcon,
   X
 } from 'lucide-react';
-import { useTranslation } from '@/hooks/use-translation';
 import ProfileWrapper from './profile-wrapper';
+import { PaginationControls } from '@/components/notifications/pagination-controls';
 
 interface Notification {
   id: string;
@@ -32,8 +32,25 @@ interface Notification {
   data: any;
 }
 
-interface PageProps {
-  notifications: Notification[];
+interface PaginationLinks {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
+
+interface PaginatedNotifications {
+  data: Notification[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number;
+  to: number;
+  links: PaginationLinks[];
+}
+
+interface AllNotificationsPageProps {
+  paginatedNotifications: PaginatedNotifications;
   user: {
     type: string;
     [key: string]: any;
@@ -41,11 +58,16 @@ interface PageProps {
   [key: string]: any;
 }
 
-export default function NotificationsPage() {
-  const { notifications, user } = usePage<PageProps>().props;
-  const t = useTranslation();
+export default function AllNotificationsPage() {
+  const { paginatedNotifications, user } = usePage<AllNotificationsPageProps>().props;
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
   const userType = user?.type || 'customer';
+
+  const notificationData = paginatedNotifications.data;
+  const currentPage = paginatedNotifications.current_page;
+  const totalPages = paginatedNotifications.last_page;
+  const perPage = paginatedNotifications.per_page;
+  const totalItems = paginatedNotifications.total;
 
   const handleSelectNotification = (id: string) => {
     setSelectedNotifications(prev => 
@@ -56,8 +78,23 @@ export default function NotificationsPage() {
   };
 
   const handleSelectAll = () => {
-    const unreadIds = notifications.filter(n => !n.read_at).map(n => n.id);
+    const unreadIds = notificationData.filter(n => !n.read_at).map(n => n.id);
     setSelectedNotifications(unreadIds);
+  };
+
+  const handlePageChange = (page: number) => {
+    const routePrefix = userType === 'admin' || userType === 'staff' 
+      ? '/admin/profile/notifications'
+      : userType === 'member'
+      ? '/member/profile/notifications'
+      : userType === 'logistic'
+      ? '/logistic/profile/notifications'
+      : '/customer/profile/notifications';
+    
+    router.visit(`${routePrefix}?page=${page}`, {
+      preserveState: true,
+      preserveScroll: false,
+    });
   };
 
   const handleMarkAsRead = (ids?: string[]) => {
@@ -236,7 +273,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read_at).length;
+  const unreadCount = notificationData.filter(n => !n.read_at).length;
 
   return (
     <ProfileWrapper title="All Notifications">
@@ -244,46 +281,48 @@ export default function NotificationsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-gray-600 mt-1">
-              {unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'You’re all caught up. You have no unread notifications.'}
+              {unreadCount > 0 
+                ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                : "You're all caught up. You have no unread notifications."}
             </p>
           </div>
           
           {unreadCount > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSelectAll}
                 disabled={selectedNotifications.length === unreadCount}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial min-w-0"
               >
-                <Check className="h-4 w-4" />
-                Select All Unread
+                <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">Select All</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleMarkAsRead()}
                 disabled={selectedNotifications.length === 0}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial min-w-0"
               >
-                <Check className="h-4 w-4" />
-                Mark Selected
+                <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">Mark</span>
               </Button>
               <Button
                 variant="default"
                 size="sm"
                 onClick={handleMarkAllAsRead}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                className="flex items-center gap-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial min-w-0"
               >
-                <CheckCheck className="h-4 w-4" />
-                Mark All Read
+                <CheckCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">All Read</span>
               </Button>
             </div>
           )}
         </div>
 
-        {notifications.length === 0 ? (
+        {notificationData.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Bell className="h-12 w-12 text-gray-400 mb-4" />
@@ -295,7 +334,7 @@ export default function NotificationsPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {notifications.map((notification) => (
+            {notificationData.map((notification) => (
               <Card 
                 key={notification.id} 
                 className={`border-l-4 transition-all hover:shadow-md group ${
@@ -313,37 +352,37 @@ export default function NotificationsPage() {
                   handleNotificationClick(notification);
                 }}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 mt-1">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 mt-0.5 sm:mt-1">
                       {getNotificationIcon(notification.type)}
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900">
+                      <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                           {notification.type === 'order_status_update' && notification.data?.status === 'approved' 
                             ? 'Order Approved - Processing' 
                             : getNotificationTitle(notification.type)}
                         </h3>
                         {!notification.read_at && (
-                          <Badge variant="secondary" className="text-xs bg-green-600 text-white">
+                          <Badge variant="secondary" className="text-xs bg-green-600 text-white shrink-0">
                             New
                           </Badge>
                         )}
                       </div>
                       
-                      <p className="text-gray-700 mb-2">
+                      <p className="text-gray-700 mb-2 text-sm sm:text-base break-words">
                         {notification.message}
                       </p>
                       {notification.data?.sub_message && (
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words">
                           {notification.data.sub_message}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between mt-3">
-                        <p className="text-sm text-gray-500">
+                      <div className="flex items-center justify-between mt-3 gap-2 flex-wrap">
+                        <p className="text-xs sm:text-sm text-gray-500">
                           {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                         </p>
                         
@@ -357,7 +396,7 @@ export default function NotificationsPage() {
                                 handleSelectNotification(notification.id);
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                              className="rounded border-gray-300 text-green-600 focus:ring-green-500 w-4 h-4 sm:w-5 sm:h-5"
                             />
                           )}
                         </div>
@@ -368,6 +407,16 @@ export default function NotificationsPage() {
               </Card>
             ))}
           </div>
+        )}
+
+        {totalPages > 1 && (
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            itemsPerPage={perPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
     </ProfileWrapper>

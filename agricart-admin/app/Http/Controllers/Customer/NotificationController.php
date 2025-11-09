@@ -120,8 +120,8 @@ class NotificationController extends Controller
                 'App\\Notifications\\OrderRejectionNotification'
             ])
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($notification) {
+            ->paginate(5)
+            ->through(function ($notification) {
                 return [
                     'id' => $notification->id,
                     'type' => $notification->data['type'] ?? 'unknown',
@@ -133,8 +133,8 @@ class NotificationController extends Controller
                 ];
             });
 
-        return Inertia::render('Profile/notifications', [
-            'notifications' => $notifications,
+        return Inertia::render('Profile/all-notifications', [
+            'paginatedNotifications' => $notifications,
         ]);
     }
 }
