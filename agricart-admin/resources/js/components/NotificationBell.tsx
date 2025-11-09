@@ -151,6 +151,8 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         return '📋';
       case 'delivery_status_update':
         return '🚛';
+      case 'order_rejection':
+        return '❌';
       default:
         return '🔔';
     }
@@ -176,7 +178,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
@@ -208,7 +210,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 sm:w-80 max-w-[calc(100vw-2rem)]">
+      <DropdownMenuContent align="end" className="w-72 sm:w-80 max-w-[calc(100vw-2rem)]" onCloseAutoFocus={(e) => e.preventDefault()}>
         <div className="flex items-center justify-between p-2">
           <h3 className="font-semibold">Notifications</h3>
           {unreadCount > 0 && (

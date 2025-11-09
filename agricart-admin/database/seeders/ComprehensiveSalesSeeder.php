@@ -20,6 +20,12 @@ class ComprehensiveSalesSeeder extends Seeder
      */
     public function run(): void
     {
+        // Disable notification events during seeding to prevent errors
+        \Illuminate\Support\Facades\Event::fake([
+            \Illuminate\Notifications\Events\NotificationSending::class,
+            \Illuminate\Notifications\Events\NotificationSent::class,
+        ]);
+        
         // Clear existing data to avoid conflicts
         Sales::query()->delete();
         SalesAudit::query()->delete();

@@ -91,7 +91,8 @@ class HandleInertiaRequests extends Middleware
                     $notificationTypes = [
                         'App\\Notifications\\OrderConfirmationNotification',
                         'App\\Notifications\\OrderStatusUpdate',
-                        'App\\Notifications\\DeliveryStatusUpdate'
+                        'App\\Notifications\\DeliveryStatusUpdate',
+                        'App\\Notifications\\OrderRejectionNotification'
                     ];
                     break;
                 case 'admin':

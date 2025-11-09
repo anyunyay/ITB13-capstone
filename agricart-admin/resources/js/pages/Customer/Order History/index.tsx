@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -77,14 +77,17 @@ interface HistoryProps {
 export default function History({ orders, currentStatus, currentDeliveryStatus, pagination, counts }: HistoryProps) {
   const t = useTranslation();
   const page = usePage<{ notifications?: Array<any> }>();
-  const notifications = page.props.notifications || [];
+  const allNotifications = page.props.notifications || [];
+  
+  // Show only unread notifications - they will be removed once marked as read
+  const notifications = allNotifications.filter(n => !n.read_at);
+  
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [reportOpen, setReportOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
-  const [markedNotifications, setMarkedNotifications] = useState<Set<number>>(new Set());
   
   // Backend returns 5 items per page, display all of them
   const paginatedOrders = orders;
@@ -97,33 +100,34 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   // Disable Next if: on last page OR no more orders available
   const isLastPage = currentPage >= totalPages || orders.length < (pagination?.per_page || 5);
 
-  // Mark notifications as read only once when they first appear
-  useEffect(() => {
-    if (notifications.length > 0) {
-      const unreadNotifications = notifications.filter(n => !markedNotifications.has(n.id));
-      
-      if (unreadNotifications.length > 0) {
-        const timer = setTimeout(() => {
-          router.post('/customer/notifications/mark-read', {
-            ids: unreadNotifications.map(n => n.id),
-          }, { 
-            preserveScroll: true,
-            preserveState: true,
-            only: ['notifications'], // Only refresh notifications, not the entire page
-          });
-          
-          // Track marked notifications to prevent duplicate marking
-          setMarkedNotifications(prev => {
-            const newSet = new Set(prev);
-            unreadNotifications.forEach(n => newSet.add(n.id));
-            return newSet;
-          });
-        }, 2000);
 
-        return () => clearTimeout(timer);
+
+  // Mark all unread notifications as read when user navigates OUT of the page
+  useEffect(() => {
+    const unreadNotifications = allNotifications.filter(n => !n.read_at);
+    
+    // Cleanup function runs when component unmounts (user navigates away)
+    return () => {
+      if (unreadNotifications.length > 0) {
+        // Use fetch with keepalive for reliable delivery during navigation
+        fetch('/customer/notifications/mark-read', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({ ids: unreadNotifications.map(n => n.id) }),
+          keepalive: true, // Ensures request completes even if page is closing
+        }).catch(error => {
+          console.error('Failed to mark notifications as read:', error);
+        });
       }
-    }
-  }, [notifications]);
+    };
+  }, [allNotifications]);
+
+
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -208,6 +212,17 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       onError: (errors) => {
         console.error('Cancellation failed:', errors);
       }
+    });
+  };
+
+  const handleDismissNotification = (notificationId: number) => {
+    // Mark notification as read when user clicks X button
+    router.post('/customer/notifications/mark-read', {
+      ids: [notificationId],
+    }, {
+      preserveScroll: true,
+      preserveState: true,
+      only: ['notifications'], // Only refresh notifications to remove the dismissed one
     });
   };
 
@@ -340,11 +355,18 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         {notifications.length > 0 && (
           <aside className="mb-3 sm:mb-4 space-y-2" role="alert" aria-live="polite">
             {notifications.map(n => (
-              <article key={n.id} className={`p-2 sm:p-3 rounded ${
+              <article key={n.id} className={`relative p-2 sm:p-3 pr-10 rounded ${
                 n.data?.delivery_status ? 
                   (n.data.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground') :
                   (n.data?.status === 'approved' ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground')
               }`}>
+                <button
+                  onClick={() => handleDismissNotification(n.id)}
+                  className="absolute top-2 right-2 p-1 rounded hover:bg-black/10 transition-colors"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="h-4 w-4" />
+                </button>
                 <p className="text-xs sm:text-sm md:text-base break-words">
                   <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
                 </p>

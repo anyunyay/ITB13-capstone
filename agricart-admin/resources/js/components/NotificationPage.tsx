@@ -18,7 +18,8 @@ import {
   Truck,
   CheckCircle,
   FileText,
-  TruckIcon
+  TruckIcon,
+  X
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -114,6 +115,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return <FileText className="h-5 w-5 text-blue-600" />;
       case 'delivery_status_update':
         return <TruckIcon className="h-5 w-5 text-blue-600" />;
+      case 'order_rejection':
+        return <X className="h-5 w-5 text-red-600" />;
       default:
         return <Bell className="h-5 w-5 text-gray-600" />;
     }
@@ -143,6 +146,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return t('ui.order_status_update');
       case 'delivery_status_update':
         return t('ui.delivery_status_update');
+      case 'order_rejection':
+        return 'Order Declined';
       default:
         return t('ui.notification');
     }
@@ -154,6 +159,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
       case 'delivery_task':
         return 'border-l-primary bg-primary/5';
       case 'low_stock_alert':
+      case 'order_rejection':
         return 'border-l-destructive bg-destructive/5';
       case 'product_sale':
       case 'earnings_update':
