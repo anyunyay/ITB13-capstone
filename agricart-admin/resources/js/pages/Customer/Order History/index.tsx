@@ -199,7 +199,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     <AppHeaderLayout>
       <main className="max-w-6xl mx-auto p-4 sm:p-6 mt-20">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-foreground">{t('ui.order_history')}</h1>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary">{t('ui.order_history')}</h2>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
@@ -209,9 +209,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             </PopoverTrigger>
             <PopoverContent className="w-80" align="end">
               <section className="space-y-4">
-                <h3 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground">{t('ui.generate_order_report')}</h3>
+                <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground">{t('ui.generate_order_report')}</p>
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-base md:text-xl lg:text-2xl text-foreground">{t('ui.start_date')}</Label>
+                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.start_date')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -233,7 +233,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-base md:text-xl lg:text-2xl text-foreground">{t('ui.end_date')}</Label>
+                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.end_date')}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -287,13 +287,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   (n.data.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground') :
                   (n.data?.status === 'approved' ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground')
               }`}>
-                <p className="text-base md:text-xl lg:text-2xl">
+                <p className="text-sm md:base lg:text-lg">
                   <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
+                  <time className="ml-2 text-xs opacity-80 float-right">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</time>
                 </p>
                 {n.data?.sub_message && (
                   <p className="text-sm md:text-base lg:text-base opacity-90 mt-1">{n.data.sub_message}</p>
                 )}
-                <time className="ml-2 text-xs opacity-80">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</time>
               </article>
             ))}
           </aside>
@@ -307,7 +307,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             <TabsTrigger value="delivered" className="text-sm md:text-base lg:text-base py-2 px-2">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
           </TabsList>
 
-          <TabsContent value={currentDeliveryStatus} className="mt-6">
+          <TabsContent value={currentDeliveryStatus} className="mt-2">
             {orders.length === 0 ? (
               <Card className="p-6 text-center bg-muted">
                 <section className="flex flex-col items-center gap-2">
@@ -323,12 +323,12 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     <header className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">Order ID:</span>
-                          <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">#{order.id}</span>
+                          <span className="text-base md:text-base lg:text-lg font-semibold text-card-foreground">Order ID:</span>
+                          <span className="text-base md:text-base lg:text-lg font-bold text-primary">#{order.id}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <CalendarIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                          <time className="text-base md:text-xl lg:text-2xl text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                          <time className="text-sm md:text-sm lg:text-base text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -338,7 +338,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
                     {order.status === 'approved' && order.delivery_status && (
                       <section className="mb-4 p-4 bg-primary/10 rounded-lg border border-primary/20">
-                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-3 text-primary">{t('ui.delivery_status')}</h2>
+                        <span className="text-base md:text-base lg:text-lg font-semibold mb-3 text-primary">{t('ui.delivery_status')}</span>
                         <nav className="flex items-center justify-between" aria-label="Delivery progress">
                           <div className={`flex items-center ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 1">
@@ -365,16 +365,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             <span className="ml-2 text-xs md:text-sm lg:text-sm font-medium">{t('ui.delivered')}</span>
                           </div>
                         </nav>
-                        <div className="mt-3">
-                          {getDeliveryStatusBadge(order.delivery_status || 'pending')}
-                        </div>
                       </section>
                     )}
                     
                     {order.admin_notes && (
                       <aside className="mb-4 p-3 bg-accent/10 border-l-4 border-accent rounded">
-                        <h3 className="text-base md:text-xl lg:text-2xl font-semibold mb-1 text-accent-foreground">Admin Notes:</h3>
-                        <p className="text-sm md:text-base lg:text-base text-foreground">{order.admin_notes}</p>
+                        <h3 className="text-base md:text-base lg:text-lg font-semibold mb-1 text-accent-foreground">Approver Notes:</h3>
+                        <p className="text-base md:text-base lg:text-lg text-foreground">{order.admin_notes}</p>
                       </aside>
                     )}
 
@@ -382,11 +379,11 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <aside className="mb-4 p-4 bg-destructive/10 border-l-4 border-destructive rounded" role="alert">
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                           <div className="flex-1">
-                            <h3 className="text-base md:text-xl lg:text-2xl font-semibold mb-2 text-destructive-foreground">{t('ui.order_delayed')}</h3>
-                            <p className="text-sm md:text-base lg:text-base text-foreground mb-2">
+                            <h3 className="text-base md:text-base lg:text-lg font-semibold mb-2 text-destructive">{t('ui.order_delayed')}</h3>
+                            <p className="text-xs md:text-sm lg:text-sm text-foreground mb-2">
                               {t('ui.order_delay_message')}
                             </p>
-                            <p className="text-sm md:text-base lg:text-base text-foreground">
+                            <p className="text-xs md:text-sm lg:text-sm text-foreground">
                               If you have any concerns, please contact us at: <strong>sample@email.com</strong>
                             </p>
                           </div>
@@ -402,10 +399,11 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle className="text-2xl md:text-3xl lg:text-4xl">Cancel Order #{order.id}</DialogTitle>
-                                <DialogDescription className="text-base md:text-xl lg:text-2xl">
+                                <DialogTitle className="text-base md:text-lg lg:text-xl">Cancel Order #{order.id}</DialogTitle>
+                                <DialogDescription className="text-sm md:text-base lg:text-lg">
                                   Are you sure you want to cancel this delayed order? This action cannot be undone.
                                   <br /><br />
+                                  <strong>Order ID:</strong> #{order.id} <br />
                                   <strong>Order Total:</strong> ₱{Number(order.total_amount).toFixed(2)}
                                 </DialogDescription>
                               </DialogHeader>
@@ -431,7 +429,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
                     {order.logistic && (
                       <aside className="mb-4 p-3 bg-secondary/10 border-l-4 border-secondary rounded">
-                        <h3 className="text-base md:text-xl lg:text-2xl font-semibold mb-1 text-secondary-foreground">Delivery Information:</h3>
+                        <h3 className="text-base md:text-base lg:text-lg font-semibold mb-1 text-primary">Delivery Information:</h3>
                         <p className="text-sm md:text-base lg:text-base text-card-foreground">
                           <span className="font-medium">Assigned to:</span> {order.logistic.name}
                           {order.logistic.contact_number && (
@@ -536,8 +534,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
                     <footer className="mt-4 pt-4 border-t border-border">
                       <div className="flex justify-between items-center">
-                        <span className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">Order Total:</span>
-                        <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">₱{Number(order.total_amount).toFixed(2)}</span>
+                        <span className="text-lg md:text-xl lg:text-2xl font-semibold text-card-foreground">Order Total:</span>
+                        <span className="text-lg md:text-xl lg:text-2xl font-bold text-primary">₱{Number(order.total_amount).toFixed(2)}</span>
                       </div>
                     </footer>
 
@@ -554,28 +552,21 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       </section>
                     )}
 
-                    {order.customer_received && (
+                    {order.customer_confirmed_at && (
                       <aside className="mt-4 p-3 bg-primary/10 border-l-4 border-primary rounded">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2">
                           <CheckCircle className="h-5 w-5 text-primary" aria-hidden="true" />
-                          <h3 className="text-base md:text-xl lg:text-2xl font-semibold text-primary">Order Confirmed</h3>
+                          <h3 className="text-base md:text-lg lg:text-xl font-semibold text-primary">Order Confirmed</h3>
+                          <p className="ml-auto text-right text-xs mt-2 text-muted-foreground">
+                            Confirmed on {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
+                          </p>
                         </div>
                         {order.customer_rate && (
                           <div className="mb-2">
                             <p className="text-sm md:text-base lg:text-base text-muted-foreground mb-1">Your Rating:</p>
                             <StarRating rating={order.customer_rate} onRatingChange={() => {}} interactive={false} showLabel={false} />
+                            <p className="text-sm md:text-base lg:text-base text-center text-foreground">{order.customer_feedback}</p>
                           </div>
-                        )}
-                        {order.customer_feedback && (
-                          <div>
-                            <p className="text-sm md:text-base lg:text-base text-muted-foreground mb-1">Your Feedback:</p>
-                            <p className="text-sm md:text-base lg:text-base text-foreground">{order.customer_feedback}</p>
-                          </div>
-                        )}
-                        {order.customer_confirmed_at && (
-                          <p className="text-xs mt-2 text-muted-foreground">
-                            Confirmed on {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
-                          </p>
                         )}
                       </aside>
                     )}
