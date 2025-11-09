@@ -84,25 +84,44 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
+  const [markedNotifications, setMarkedNotifications] = useState<Set<number>>(new Set());
+  
   // Backend returns 5 items per page, display all of them
   const paginatedOrders = orders;
 
   // Calculate total pages based on actual total from backend
-  const totalPages = pagination.last_page;
-  const currentPage = pagination.current_page;
+  const totalPages = pagination?.last_page || 1;
+  const currentPage = pagination?.current_page || 1;
   
   // Check if we're on the last page
-  const isLastPage = currentPage >= totalPages;
+  // Disable Next if: on last page OR no more orders available
+  const isLastPage = currentPage >= totalPages || orders.length < (pagination?.per_page || 5);
 
+  // Mark notifications as read only once when they first appear
   useEffect(() => {
     if (notifications.length > 0) {
-      const timer = setTimeout(() => {
-        router.post('/customer/notifications/mark-read', {
-          ids: notifications.map(n => n.id),
-        }, { preserveScroll: true });
-      }, 2000);
+      const unreadNotifications = notifications.filter(n => !markedNotifications.has(n.id));
+      
+      if (unreadNotifications.length > 0) {
+        const timer = setTimeout(() => {
+          router.post('/customer/notifications/mark-read', {
+            ids: unreadNotifications.map(n => n.id),
+          }, { 
+            preserveScroll: true,
+            preserveState: true,
+            only: ['notifications'], // Only refresh notifications, not the entire page
+          });
+          
+          // Track marked notifications to prevent duplicate marking
+          setMarkedNotifications(prev => {
+            const newSet = new Set(prev);
+            unreadNotifications.forEach(n => newSet.add(n.id));
+            return newSet;
+          });
+        }, 2000);
 
-      return () => clearTimeout(timer);
+        return () => clearTimeout(timer);
+      }
     }
   }, [notifications]);
 
@@ -141,6 +160,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     params.append('page', '1');
     router.get('/customer/orders/history', Object.fromEntries(params), {
       preserveScroll: true,
+      preserveState: true,
+      only: ['orders', 'counts', 'pagination', 'currentDeliveryStatus'], // Only fetch necessary data
     });
   };
 
@@ -154,6 +175,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     router.get('/customer/orders/history', Object.fromEntries(params), {
       preserveScroll: true,
       preserveState: true,
+      only: ['orders', 'pagination'], // Only fetch orders and pagination data
       onSuccess: () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
@@ -178,6 +200,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
   const handleCancelOrder = (orderId: number) => {
     router.post(`/customer/orders/${orderId}/cancel`, {}, {
+      preserveState: true,
+      only: ['orders', 'counts', 'notifications'], // Only refresh necessary data
       onSuccess: () => {
         setCancelDialogOpen(prev => ({ ...prev, [orderId]: false }));
       },
@@ -614,13 +638,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               </section>
 
               {/* Pagination Controls */}
-              {totalPages > 1 && (
+              {(totalPages > 1 || currentPage > 1) && (
                 <nav className="flex items-center justify-center gap-2 sm:gap-4 mt-6 pt-4 border-t border-border" aria-label="Pagination">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    disabled={currentPage <= 1}
                     className="flex items-center gap-1"
                   >
                     <ChevronLeft className="h-4 w-4" />
