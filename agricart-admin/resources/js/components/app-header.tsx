@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
 import { SearchBar } from './search-bar';
 import { NotificationBell } from './NotificationBell';
+import { LoginModal } from '@/components/LoginModal';
 import { useEffect, useState } from 'react';
 
 const mainNavItems: NavItem[] = [
@@ -64,6 +65,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const cartCount = Object.keys(cart).length;
     const unreadCount = notifications.filter((n: any) => !n.read_at).length;
     const [isScrolled, setIsScrolled] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [loginModalConfig, setLoginModalConfig] = useState({ title: '', description: '' });
 
     useEffect(() => {
         const handleScroll = () => {
@@ -102,6 +105,23 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
             if (orderId) {
                 router.visit(`/customer/orders/history#order-${orderId}`);
             }
+        }
+    };
+
+    const handleProtectedNavigation = (href: string, title: string) => {
+        if (!auth?.user) {
+            let description = '';
+            if (title === 'Cart') {
+                description = 'You must be logged in to view your cart.';
+            } else if (title === 'Order History') {
+                description = 'You must be logged in to view your order history.';
+            } else if (title === 'Notifications') {
+                description = 'You must be logged in to view your notifications.';
+            }
+            setLoginModalConfig({ title: 'Login Required', description });
+            setShowLoginModal(true);
+        } else {
+            router.visit(href);
         }
     };
 
@@ -153,10 +173,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             ))}
                                             {/* Only show Order History in sidebar - Cart and Notifications are now in header */}
                                             {rightNavItems.filter(item => item.title === 'Order History').map((item) => (
-                                                <Link key={item.title} href={item.href} className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
+                                                <button 
+                                                    key={item.title} 
+                                                    onClick={() => handleProtectedNavigation(item.href, item.title)}
+                                                    className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors w-full text-left"
+                                                >
                                                     {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
                                                     <span>{item.title}</span>
-                                                </Link>
+                                                </button>
                                             ))}
                                         </div>
 
@@ -228,9 +252,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 {/* Cart Icon for Mobile */}
                                 <TooltipProvider delayDuration={0}>
                                     <Tooltip>
-                                        <TooltipTrigger>
-                                            <Link
-                                                href="/customer/cart"
+                                        <TooltipTrigger asChild>
+                                            <button
+                                                onClick={() => handleProtectedNavigation('/customer/cart', 'Cart')}
                                                 className={cn(
                                                     "group inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
                                                     isScrolled 
@@ -253,7 +277,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                         {cartCount > 9 ? '9+' : cartCount}
                                                     </Badge>
                                                 )}
-                                            </Link>
+                                            </button>
                                         </TooltipTrigger>
                                         <TooltipContent>
                                             <p>Cart</p>
@@ -262,12 +286,39 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </TooltipProvider>
 
                                 {/* Notification Icon for Mobile */}
-                                {auth.user && (
+                                {auth.user ? (
                                     <NotificationBell 
                                         notifications={notifications || []}
                                         userType={(auth.user as any)?.type || 'customer'}
                                         isScrolled={isScrolled}
                                     />
+                                ) : (
+                                    <TooltipProvider delayDuration={0}>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <button
+                                                    onClick={() => handleProtectedNavigation('/', 'Notifications')}
+                                                    className={cn(
+                                                        "group inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                        isScrolled 
+                                                            ? "h-8 w-8 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                            : "h-9 w-9 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                    )}
+                                                >
+                                                    <span className="sr-only">Notifications</span>
+                                                    <Icon iconNode={Bell} className={cn(
+                                                        "transition-all duration-300 ease-in-out",
+                                                        isScrolled 
+                                                            ? "size-4 text-white opacity-80 group-hover:opacity-100" 
+                                                            : "size-5 opacity-80 group-hover:opacity-100"
+                                                    )} />
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Notifications</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 )}
                             </div>
 
@@ -281,17 +332,46 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             userType={(auth.user as any)?.type || 'customer'}
                                             isScrolled={isScrolled}
                                         />
+                                    ) : item.title === 'Notifications' && !auth.user ? (
+                                        <TooltipProvider key={item.title} delayDuration={0}>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => handleProtectedNavigation(item.href, item.title)}
+                                                        className={cn(
+                                                            "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                            isScrolled 
+                                                                ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                                : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                        )}
+                                                    >
+                                                        <span className="sr-only">{item.title}</span>
+                                                        {item.icon && (
+                                                            <Icon iconNode={item.icon} className={cn(
+                                                                "transition-all duration-300 ease-in-out",
+                                                                isScrolled 
+                                                                    ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                                    : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
+                                                            )} />
+                                                        )}
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{item.title}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     ) : (
                                         <TooltipProvider key={item.title} delayDuration={0}>
                                             <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Link
-                                                        href={item.href}
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => handleProtectedNavigation(item.href, item.title)}
                                                         className={cn(
                                                             "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
-                                                isScrolled 
-                                                    ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
-                                                    : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                            isScrolled 
+                                                                ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                                : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
                                                         )}
                                                     >
                                                         <span className="sr-only">{item.title}</span>
@@ -313,7 +393,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                                 )}
                                                             </>
                                                         )}
-                                                    </Link>
+                                                    </button>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>{item.title}</p>
@@ -379,6 +459,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </div>
                 </div>
             </div>
+
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                title={loginModalConfig.title}
+                description={loginModalConfig.description}
+            />
         </>
     );
 }

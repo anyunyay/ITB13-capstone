@@ -34,5 +34,11 @@ return [
     'please_select_category' => 'Please select a category.',
     'successfully_added_to_cart' => 'Successfully added to cart!',
     'failed_to_add_to_cart' => 'Failed to add to cart. Please try again.',
+    
+    // Login Modal
+    'login_required' => 'Login Required',
+    'login_required_description' => 'You must be logged in to access this feature.',
+    'login_to_add_to_cart' => 'You must be logged in to add products to your cart.',
+    'go_to_login' => 'Go to Login',
 ];
 

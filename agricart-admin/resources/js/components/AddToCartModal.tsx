@@ -10,6 +10,7 @@ import StockManager from '@/lib/stock-manager';
 import { Minus, Plus, ShoppingCart, CheckCircle, AlertCircle } from 'lucide-react';
 import type { SharedData } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
+import { LoginModal } from '@/components/LoginModal';
 
 interface Product {
   id: number;
@@ -28,7 +29,6 @@ interface AddToCartModalProps {
   product: Product;
   isOpen: boolean;
   onClose: () => void;
-  onRequireLogin?: () => void;
   onStockUpdate?: (productId: number, category: string, quantity: number) => void;
 }
 
@@ -36,7 +36,6 @@ export function AddToCartModal({
   product, 
   isOpen, 
   onClose, 
-  onRequireLogin, 
   onStockUpdate 
 }: AddToCartModalProps) {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -45,6 +44,7 @@ export function AddToCartModal({
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   
   const { auth } = usePage<{ auth: any } & SharedData>().props;
   const stockManager = StockManager.getInstance();
@@ -69,6 +69,10 @@ export function AddToCartModal({
       setMessage(null);
       setMessageType(null);
     }
+    // Reset login modal state when cart modal closes
+    if (!isOpen) {
+      setShowLoginModal(false);
+    }
   }, [isOpen, product.id, product.stock_by_category, stockManager]);
 
   const isKilo = selectedCategory === 'Kilo';
@@ -86,8 +90,11 @@ export function AddToCartModal({
     if (isAddingToCart) return;
 
     if (!auth?.user) {
-      onRequireLogin?.();
       onClose();
+      // Small delay to ensure cart modal closes before login modal opens
+      setTimeout(() => {
+        setShowLoginModal(true);
+      }, 100);
       return;
     }
 
@@ -176,8 +183,9 @@ export function AddToCartModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] overflow-y-auto bg-card border-border modal-scrollbar p-4 md:p-6">
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-[90vw] overflow-y-auto bg-card border-border modal-scrollbar p-4 md:p-6">
         <DialogHeader className="space-y-3 md:space-y-4">
           {/* Product Header */}
           <div className="flex flex-row gap-3 md:gap-4">
@@ -410,5 +418,12 @@ export function AddToCartModal({
         </DialogHeader>
       </DialogContent>
     </Dialog>
+
+    <LoginModal
+      isOpen={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+      description={t('customer.login_to_add_to_cart') || 'You must be logged in to add products to your cart.'}
+    />
+    </>
   );
 }

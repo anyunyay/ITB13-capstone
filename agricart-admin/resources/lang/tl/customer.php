@@ -34,4 +34,10 @@ return [
     'please_select_category' => 'Pumili ng kategorya.',
     'successfully_added_to_cart' => 'Matagumpay na naidagdag sa cart!',
     'failed_to_add_to_cart' => 'Hindi naidagdag sa cart. Subukan muli.',
+    
+    // Login Modal
+    'login_required' => 'Kailangan ng Login',
+    'login_required_description' => 'Kailangan mong mag-login upang ma-access ang feature na ito.',
+    'login_to_add_to_cart' => 'Kailangan mong mag-login upang magdagdag ng mga produkto sa iyong cart.',
+    'go_to_login' => 'Pumunta sa Login',
 ];

@@ -21,7 +21,6 @@ interface Product {
 
 interface ProductCardProps {
   product: Product;
-  onRequireLogin?: () => void;
   onStockUpdate?: (productId: number, category: string, quantity: number) => void;
   variant?: 'default' | 'compact' | 'minimal';
   showAddToCart?: boolean;
@@ -31,7 +30,6 @@ interface ProductCardProps {
 
 export function ProductCard({ 
   product, 
-  onRequireLogin, 
   onStockUpdate,
   variant = 'default',
   showAddToCart = true,
@@ -248,7 +246,6 @@ export function ProductCard({
         product={product}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onRequireLogin={onRequireLogin}
         onStockUpdate={onStockUpdate}
       />
     </Card>
