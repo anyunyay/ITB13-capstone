@@ -65,15 +65,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ isset($exportType) && $exportType === 'members' ? 'Member Sales Report' : 'Sales Report' }}</h1>
+        <h1>Sales Report</h1>
         <p>Generated on: {{ $generated_at }}</p>
-        @if(isset($filters['start_date']) && isset($filters['end_date']))
-        <p>Period: {{ $filters['start_date'] }} to {{ $filters['end_date'] }}</p>
-        @endif
     </div>
 
-
-    @if(!isset($exportType) || $exportType === 'sales')
+    @if($sales->count() > 0)
     <table>
         <thead>
             <tr>
@@ -101,49 +97,23 @@
                 <td>PHP {{ number_format($grossProfit, 2, '.', ',') }}</td>
                 <td>{{ $sale->admin->name ?? 'N/A' }}</td>
                 <td>{{ $sale->logistic->name ?? 'N/A' }}</td>
-                <td>{{ $sale->created_at->format('Y-m-d H:i') }}</td>
+                <td>
+                    @if($sale->delivered_at)
+                        {{ $sale->delivered_at->format('Y-m-d H:i') }}
+                    @elseif($sale->created_at)
+                        {{ $sale->created_at->format('Y-m-d H:i') }}
+                    @else
+                        N/A
+                    @endif
+                </td>
             </tr>
             @endforeach
         </tbody>
     </table>
-    @endif
-
-    @if(isset($exportType) && $exportType === 'members' && $memberSales->count() > 0)
-    <table>
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Member Name</th>
-                <th>Member Email</th>
-                <th>Total Orders</th>
-                <th>Total Revenue</th>
-                <th>Revenue (100%)</th>
-                <th>COGS</th>
-                <th>Gross Profit</th>
-                <th>Quantity Sold</th>
-                <th>Average Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($memberSales as $index => $member)
-            @php
-                $averageRevenue = $member->total_orders > 0 ? $member->total_revenue / $member->total_orders : 0;
-            @endphp
-            <tr>
-                <td>#{{ $index + 1 }}</td>
-                <td>{{ $member->member_name }}</td>
-                <td>{{ $member->member_email }}</td>
-                <td>{{ $member->total_orders }}</td>
-                <td>PHP {{ number_format($member->total_revenue, 2, '.', ',') }}</td>
-                <td>PHP {{ number_format($member->total_member_share, 2, '.', ',') }}</td>
-                <td>PHP {{ number_format($member->total_cogs, 2, '.', ',') }}</td>
-                <td>PHP {{ number_format($member->total_gross_profit, 2, '.', ',') }}</td>
-                <td>{{ $member->total_quantity_sold }}</td>
-                <td>PHP {{ number_format($averageRevenue, 2, '.', ',') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    @else
+    <div style="text-align: center; padding: 40px; color: #666; font-style: italic;">
+        <p>No sales found matching the selected filters.</p>
+    </div>
     @endif
 
     <div class="footer">
