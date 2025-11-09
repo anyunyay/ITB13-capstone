@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
-import { Pagination } from '@/components/common/pagination';
 import { format } from 'date-fns';
 import { CheckCircle, Eye, Truck, Package, Clock, TrendingUp, ArrowRight, MapPin, Calendar } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -93,7 +92,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
@@ -105,13 +104,13 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-yellow-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.pending')}</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
+              <Clock className="h-4 w-4 text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{stats.pending}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.awaiting_preparation')}</p>
             </CardContent>
           </Card>
@@ -127,24 +126,24 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-blue-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-accent">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
-              <Truck className="h-4 w-4 text-blue-600" />
+              <Truck className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{stats.out_for_delivery}</div>
+              <div className="text-3xl font-bold text-accent">{stats.out_for_delivery}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.in_transit')}</p>
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-green-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-secondary">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.delivered')}</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{stats.delivered}</div>
+              <div className="text-3xl font-bold text-secondary">{stats.delivered}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.successfully_delivered')}</p>
             </CardContent>
           </Card>
@@ -161,20 +160,12 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">{t('logistic.latest_assigned_orders')}</p>
               </div>
-              <div className="flex space-x-2">
-                <Link href={route('logistic.report')}>
-                  <Button variant="outline" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    {t('logistic.generate_report')}
-                  </Button>
-                </Link>
-                <Link href={route('logistic.orders.index')}>
-                  <Button variant="outline" className="group">
-                    {t('logistic.view_all_orders')}
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
+              <Link href={route('logistic.report')}>
+                <Button variant="outline" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  {t('logistic.generate_report')}
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent>
@@ -196,7 +187,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                           <h3 className="font-semibold text-foreground text-lg">{t('logistic.order_number', { id: order.id })}</h3>
                           {getDeliveryStatusBadge(order.delivery_status)}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 text-sm">
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             <span className="text-muted-foreground">{t('logistic.customer')}:</span>
@@ -229,16 +220,15 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                     </div>
                   </div>
                 ))}
-                {assignedOrders.total > assignedOrders.per_page && (
-                  <Pagination
-                    links={assignedOrders.links}
-                    from={assignedOrders.from}
-                    to={assignedOrders.to}
-                    total={assignedOrders.total}
-                    currentPage={assignedOrders.current_page}
-                    lastPage={assignedOrders.last_page}
-                    perPage={assignedOrders.per_page}
-                  />
+                {assignedOrders.total > 5 && (
+                  <div className="flex justify-center pt-4">
+                    <Link href={route('logistic.orders.index')}>
+                      <Button variant="outline" className="group">
+                        {t('logistic.view_all_orders')}
+                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  </div>
                 )}
               </div>
             )}

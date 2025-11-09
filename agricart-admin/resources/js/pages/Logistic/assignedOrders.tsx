@@ -76,9 +76,9 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
       case 'ready_to_pickup':
         return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-blue-600 text-white">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-green-600 text-green-600">{t('logistic.delivered')}</Badge>;
+        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -133,7 +133,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
         </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             <TabsTrigger value="all" disabled={isLoading}>{t('logistic.all_orders')} ({orders.total})</TabsTrigger>
             <TabsTrigger value="pending" disabled={isLoading}>{t('logistic.pending')} ({pendingOrders.length})</TabsTrigger>
             <TabsTrigger value="ready_to_pickup" disabled={isLoading}>{t('logistic.ready_to_pickup')} ({readyToPickupOrders.length})</TabsTrigger>
@@ -340,7 +340,7 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, t }: {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{t('logistic.customer')}:</span> {order.customer.name}

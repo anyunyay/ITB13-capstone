@@ -323,7 +323,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 )}
 
                 {/* Filter Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                     <Popover>
@@ -404,7 +404,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
@@ -432,7 +432,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">{summary.pending_orders}</div>
+              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{summary.pending_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Awaiting pickup</p>
             </CardContent>
           </Card>
@@ -442,7 +442,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{summary.out_for_delivery_orders}</div>
+              <div className="text-3xl font-bold text-accent">{summary.out_for_delivery_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Currently delivering</p>
             </CardContent>
           </Card>
@@ -452,7 +452,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{summary.delivered_orders}</div>
+              <div className="text-3xl font-bold text-secondary">{summary.delivered_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Successfully delivered</p>
             </CardContent>
           </Card>
@@ -567,12 +567,12 @@ function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) 
           <div className="flex items-center gap-2">
             {getDeliveryStatusBadge(order.delivery_status)}
             {(order as any).ready_for_pickup ? (
-              <Badge className="bg-green-600 text-white text-xs">✓ {t('logistic.ready')}</Badge>
+              <Badge className="bg-secondary text-secondary-foreground text-xs">✓ {t('logistic.ready')}</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">{t('admin.not_ready')}</Badge>
+              <Badge variant="secondary" className="bg-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] text-white text-xs">{t('admin.not_ready')}</Badge>
             )}
             {(order as any).picked_up ? (
-              <Badge className="bg-blue-600 text-white text-xs">✓ {t('admin.picked_up')}</Badge>
+              <Badge className="bg-accent text-accent-foreground text-xs">✓ {t('admin.picked_up')}</Badge>
             ) : (
               <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">{t('admin.not_picked_up')}</Badge>
             )}
@@ -580,7 +580,7 @@ function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) 
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>
