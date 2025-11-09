@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
-import OrderReceiptPreview from '@/components/OrderReceiptPreview';
+import OrderReceiptPreview from '@/components/customer/orders/OrderReceiptPreview';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface OrderItem {

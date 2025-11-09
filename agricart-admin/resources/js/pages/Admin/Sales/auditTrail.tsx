@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Filter, Search } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface AuditTrail {

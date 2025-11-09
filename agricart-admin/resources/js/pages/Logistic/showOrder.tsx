@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogisticHeader } from '@/components/logistic-header';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X } from 'lucide-react';
@@ -249,7 +249,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.order_number', { id: currentOrder.id }) + ' ' + t('logistic.order_details')} />
       
       <div className="p-6 pt-25 space-y-6">

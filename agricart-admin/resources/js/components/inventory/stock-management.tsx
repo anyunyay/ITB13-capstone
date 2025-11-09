@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, Edit, Eye, EyeOff, Trash2, ShoppingCart, History, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { Stock, RemovedStock, SoldStock } from '@/types/inventory';
 import { useState } from 'react';

@@ -10,7 +10,7 @@ import StockManager from '@/lib/stock-manager';
 import { Minus, Plus, ShoppingCart, CheckCircle, AlertCircle } from 'lucide-react';
 import type { SharedData } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
-import { LoginModal } from '@/components/LoginModal';
+import { LoginModal } from '@/components/shared/auth/LoginModal';
 
 interface Product {
   id: number;

@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Package, ArrowLeft, TrendingUp, Users, CheckCircle, XCircle, AlertCircle, History, BarChart3 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
-import { MemberHeader } from '@/components/member-header';
+import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
 import { useTranslation } from '@/hooks/use-translation';
 

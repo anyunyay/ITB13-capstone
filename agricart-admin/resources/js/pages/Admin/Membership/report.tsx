@@ -12,7 +12,7 @@ import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, 
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { SafeImage } from '@/lib/image-utils';
 import { useTranslation } from '@/hooks/use-translation';
 

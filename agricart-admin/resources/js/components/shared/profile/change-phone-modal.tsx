@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import OtpVerificationModal from './otp-verification-modal';
+import OtpVerificationModal from '@/components/shared/auth/otp-verification-modal';
 
 interface User {
     id: number;

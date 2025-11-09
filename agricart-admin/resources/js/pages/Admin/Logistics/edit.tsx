@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"

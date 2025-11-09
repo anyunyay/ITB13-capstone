@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, Filter, Calendar, Package, DollarSign, Users, TrendingUp } from 'lucide-react';
-import { MemberHeader } from '@/components/member-header';
+import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
 import { useTranslation } from '@/hooks/use-translation';
 

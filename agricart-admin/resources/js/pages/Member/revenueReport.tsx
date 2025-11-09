@@ -1,4 +1,4 @@
-import { MemberHeader } from '@/components/member-header';
+import { MemberHeader } from '@/components/member/member-header';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

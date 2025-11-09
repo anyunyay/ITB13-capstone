@@ -5,9 +5,9 @@ import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
-import { PermissionGate } from '@/components/permission-gate';
-import { FlashMessage } from '@/components/flash-message';
+import { PermissionGuard } from '@/components/common/permission-guard';
+import { PermissionGate } from '@/components/common/permission-gate';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import {
     Table,
     TableBody,

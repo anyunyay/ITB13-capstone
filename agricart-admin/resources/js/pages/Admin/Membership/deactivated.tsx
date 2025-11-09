@@ -5,8 +5,8 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGuard } from '@/components/common/permission-guard';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { SafeImage } from '@/lib/image-utils';
 import {
     Table,

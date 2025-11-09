@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import InputError from '@/components/input-error';
+import InputError from '@/components/common/forms/input-error';
 import { useTranslation } from '@/hooks/use-translation';
 
 // List of all barangays in Cabuyao, Laguna (only Sala is selectable)

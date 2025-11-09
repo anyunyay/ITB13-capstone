@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LogisticHeader } from '@/components/logistic-header';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { ViewToggle } from '@/components/inventory/view-toggle';
-import { Pagination } from '@/components/pagination';
+import { Pagination } from '@/components/common/pagination';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { BarChart3, Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
@@ -207,7 +207,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.logistics_report')} />
 
       <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8 pt-25">

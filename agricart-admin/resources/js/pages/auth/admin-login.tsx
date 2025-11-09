@@ -2,16 +2,16 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle, Shield } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
+import InputError from '@/components/common/forms/input-error';
+import TextLink from '@/components/common/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
-import LoginRestrictionPopup from '@/components/LoginRestrictionPopup';
-import CountdownTimer from '@/components/CountdownTimer';
+import LoginRestrictionPopup from '@/components/shared/auth/LoginRestrictionPopup';
+import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
 
 type AdminLoginForm = {

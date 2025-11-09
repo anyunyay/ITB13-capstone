@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, BarChart3, Plus } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { StatsOverview } from './stats-overview';
 import { StockStats } from '@/types/inventory';
 import { useTranslation } from '@/hooks/use-translation';

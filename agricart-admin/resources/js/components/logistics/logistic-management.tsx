@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { IdCard, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Logistic } from '../../types/logistics';

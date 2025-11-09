@@ -7,7 +7,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { ViewToggle } from './view-toggle';
 import { ProductTable } from './product-table';

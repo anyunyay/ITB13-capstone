@@ -11,7 +11,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { OctagonAlert } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"

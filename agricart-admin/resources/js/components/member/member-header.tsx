@@ -1,35 +1,26 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { type SharedData } from '@/types';
-import { Truck, User, LogOut } from 'lucide-react';
-import { router } from '@inertiajs/react';
-import { NotificationBell } from './NotificationBell';
-import { AvatarDropdown } from '@/components/avatar-dropdown';
+import { Package } from 'lucide-react';
+import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
+import { AvatarDropdown } from '@/components/shared/layout/avatar-dropdown';
 
-export function LogisticHeader() {
+export function MemberHeader() {
     const page = usePage<SharedData & { notifications?: Array<any> }>();
     const { auth, notifications = [] } = page.props;
     const user = auth?.user;
 
-    const handleLogout = () => {
-        router.post('/logout');
-    };
 
     return (
-        <header className="fixed top-0 left-0 right-0 bg-card border-b border-border px-6 py-4 shadow-sm z-50">
+        <header className="fixed top-0 left-0 right-0 bg-card border-b border-border px-6 py-4 z-50 shadow-sm">
             <div className="flex items-center justify-between max-w-full">
                 {/* Logo and Navigation */}
                 <div className="flex items-center space-x-8">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                            <Truck className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                            <span className="text-xl font-bold text-foreground">Agricart Logistics</span>
-                            <p className="text-xs text-muted-foreground">Delivery Management</p>
-                        </div>
+                    <div className="flex items-center space-x-2">
+                        <Package className="h-8 w-8 text-primary" />
+                        <span className="text-xl font-bold text-foreground">Agricart</span>
                     </div>
                 </div>
 
@@ -37,15 +28,15 @@ export function LogisticHeader() {
                 <div className="flex items-center space-x-4">
                     <NotificationBell 
                         notifications={notifications}
-                        userType="logistic"
+                        userType="member"
                     />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-muted">
-                                <Avatar className="h-10 w-10">
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                <Avatar className="h-8 w-8">
                                     <AvatarImage src={(user as any)?.avatar_url || ''} alt={user?.name} />
-                                    <AvatarFallback className="bg-primary text-primary-foreground">
-                                        {user?.name?.charAt(0)?.toUpperCase() || 'L'}
+                                    <AvatarFallback>
+                                        {user?.name?.charAt(0)?.toUpperCase() || 'M'}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>

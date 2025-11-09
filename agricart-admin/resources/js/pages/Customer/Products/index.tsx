@@ -5,7 +5,7 @@ import type { SharedData } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ProductCarousel } from '../Home/produce';
 import StockManager from '@/lib/stock-manager';
-import SimpleFooter from '@/components/SimpleFooter';
+import SimpleFooter from '@/components/shared/layout/SimpleFooter';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -66,7 +66,7 @@ export default function CustomerProducts() {
   };
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title={t('customer.products_fresh_produce')} />
       <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

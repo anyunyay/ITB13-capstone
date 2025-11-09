@@ -14,7 +14,7 @@ import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, Ar
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Logistic {

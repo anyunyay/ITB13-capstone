@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AddToCartModal } from '@/components/AddToCartModal';
+import { AddToCartModal } from '@/components/customer/cart/AddToCartModal';
 import StockManager from '@/lib/stock-manager';
 import type { SharedData } from '@/types';
 

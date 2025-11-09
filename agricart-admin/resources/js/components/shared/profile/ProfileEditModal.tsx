@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Save, X, Camera, Trash2, Upload, User, Mail, Phone } from 'lucide-react';
-import EmailChangeModal from '@/components/change-email-modal';
-import PhoneChangeModal from '@/components/change-phone-modal';
+import EmailChangeModal from '@/components/shared/profile/change-email-modal';
+import PhoneChangeModal from '@/components/shared/profile/change-phone-modal';
 import { getDisplayEmail } from '@/lib/utils';
 
 interface User {

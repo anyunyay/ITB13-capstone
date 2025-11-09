@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { format } from 'date-fns';
 import { Eye, Package, User, MapPin, Phone, Mail } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { Order } from '@/types/orders';
 import animations from '../../pages/Admin/Orders/orders-animations.module.css';
 import { useTranslation } from '@/hooks/use-translation';

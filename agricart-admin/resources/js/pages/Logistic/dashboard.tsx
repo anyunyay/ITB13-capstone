@@ -2,8 +2,8 @@ import { Head, Link } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { LogisticHeader } from '@/components/logistic-header';
-import { Pagination } from '@/components/pagination';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
+import { Pagination } from '@/components/common/pagination';
 import { format } from 'date-fns';
 import { CheckCircle, Eye, Truck, Package, Clock, TrendingUp, ArrowRight, MapPin, Calendar } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -82,7 +82,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.dashboard')} />
       
       <div className="p-6 pt-25 space-y-8">

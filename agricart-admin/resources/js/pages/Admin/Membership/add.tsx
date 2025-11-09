@@ -24,7 +24,7 @@ import {
     ArrowLeft,
     Loader2
 } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { Calendar } from "@/components/ui/calendar"
 import { useTranslation } from '@/hooks/use-translation';
 

@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-import { NotificationPage } from '@/components/NotificationPage';
+import { NotificationPage } from '@/components/shared/notifications/NotificationPage';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Notification {

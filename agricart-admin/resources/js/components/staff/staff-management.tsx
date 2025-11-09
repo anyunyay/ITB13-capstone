@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown, Shield, Filter } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
 import { useTranslation } from '@/hooks/use-translation';

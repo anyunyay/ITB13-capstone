@@ -341,7 +341,7 @@ export default function CartPage() {
   const meetsMinimumOrder = cartTotal >= minimumOrder;
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title="Cart" />
       <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

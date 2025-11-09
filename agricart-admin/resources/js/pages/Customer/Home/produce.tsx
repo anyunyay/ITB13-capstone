@@ -10,12 +10,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { ProductCard as StandardProductCard } from '@/components/ProductCard';
+import { ProductCard as StandardProductCard } from '@/components/customer/products/ProductCard';
 import { Button } from '@/components/ui/button';
-import { ImageLightbox } from '@/components/ImageLightbox';
+import { ImageLightbox } from '@/components/customer/products/ImageLightbox';
 import StockManager from '@/lib/stock-manager';
-import Footer from '@/components/Footer';
-import { ProduceSearchBar } from '@/components/ProduceSearchBar';
+import Footer from '@/components/shared/layout/Footer';
+import { ProduceSearchBar } from '@/components/customer/products/ProduceSearchBar';
 
 interface Product {
   id: number;
@@ -391,7 +391,7 @@ export default function CustomerHome() {
   };
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title="Produce" />
 
       <div id="produce-sections" className="flex flex-col items-center justify-center gap-2 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">

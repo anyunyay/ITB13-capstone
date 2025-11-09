@@ -1,10 +1,10 @@
-import { Breadcrumbs } from '@/components/breadcrumbs';
+import { Breadcrumbs } from '@/components/shared/layout/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { NotificationBell } from '@/components/NotificationBell';
+import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
 
-export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
+export function AdminHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
     const page = usePage<SharedData & { notifications?: Array<any> }>();
     const { auth, notifications = [] } = page.props;
     

@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { CheckCircle } from 'lucide-react';
 import { router } from '@inertiajs/react';
-import StarRating from '@/components/StarRating';
+import StarRating from '@/components/customer/products/StarRating';
 
 interface OrderReceivedConfirmationModalProps {
   isOpen: boolean;

@@ -1,8 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { useEffect, useState, useMemo } from 'react';
-import { UrgentOrderPopup } from '@/components/urgent-order-popup';
+import { UrgentOrderPopup } from '@/components/common/modals/urgent-order-popup';
 import { DashboardHeader } from '@/components/orders/dashboard-header';
 import { OrderManagement } from '@/components/orders/order-management';
 import { Order, OrdersPageProps } from '@/types/orders';

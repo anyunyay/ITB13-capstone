@@ -13,8 +13,8 @@ import { useEffect, useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import OrderReceivedConfirmationModal from '@/components/OrderReceivedConfirmationModal';
-import StarRating from '@/components/StarRating';
+import OrderReceivedConfirmationModal from '@/components/customer/orders/OrderReceivedConfirmationModal';
+import StarRating from '@/components/customer/products/StarRating';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderItem {
@@ -269,7 +269,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   };
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <main className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 mt-20 mb-8 sm:mb-12 md:mb-16 overflow-x-hidden">
         <header className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary truncate">{t('ui.order_history')}</h2>

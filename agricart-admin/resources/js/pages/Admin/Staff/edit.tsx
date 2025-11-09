@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import PasswordInput from '@/components/ui/password-input';
 import { ArrowLeft, Save } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Permission {

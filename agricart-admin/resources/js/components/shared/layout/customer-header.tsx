@@ -1,24 +1,24 @@
-import { Breadcrumbs } from '@/components/breadcrumbs';
-import { Icon } from '@/components/icon';
+import { Breadcrumbs } from '@/components/shared/layout/breadcrumbs';
+import { Icon } from '@/components/common/icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { AvatarDropdown } from '@/components/avatar-dropdown';
+import { AvatarDropdown } from '@/components/shared/layout/avatar-dropdown';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Menu, Search, ShoppingBasket, Apple, BookUser, Carrot, Bell, History} from 'lucide-react';
-import AppLogo from './app-logo';
-import AppLogoIcon from './app-logo-icon';
+import AppLogo from '@/components/shared/layout/app-logo';
+import AppLogoIcon from '@/components/shared/layout/app-logo-icon';
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/react';
-import { SearchBar } from './search-bar';
-import { NotificationBell } from './NotificationBell';
-import { LoginModal } from '@/components/LoginModal';
+import { SearchBar } from '@/components/common/forms/search-bar';
+import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
+import { LoginModal } from '@/components/shared/auth/LoginModal';
 import { useEffect, useState } from 'react';
 
 const mainNavItems: NavItem[] = [
@@ -58,7 +58,7 @@ interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
+export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData & { cart?: Record<string, any>, notifications?: Array<any> }>();
     const { auth, cart = {}, notifications = [] } = page.props;
     const getInitials = useInitials();

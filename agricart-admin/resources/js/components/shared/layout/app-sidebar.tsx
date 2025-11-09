@@ -1,6 +1,6 @@
-import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
+import { NavFooter } from '@/components/shared/layout/nav-footer';
+import { NavMain } from '@/components/shared/layout/nav-main';
+import { NavUser } from '@/components/shared/layout/nav-user';
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +23,7 @@ import {
   TrendingUp,
   LineChart,
 } from 'lucide-react';
-import AppLogo from './app-logo';
+import AppLogo from '@/components/shared/layout/app-logo';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useTranslation } from '@/hooks/use-translation';
 

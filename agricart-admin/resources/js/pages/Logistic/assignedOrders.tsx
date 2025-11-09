@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogisticHeader } from '@/components/logistic-header';
-import { Pagination } from '@/components/pagination';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
+import { Pagination } from '@/components/common/pagination';
 import { format } from 'date-fns';
 import { CheckCircle, Eye } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -115,7 +115,7 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.assigned_orders')} />
       
       <div className="p-6 pt-25 space-y-6">

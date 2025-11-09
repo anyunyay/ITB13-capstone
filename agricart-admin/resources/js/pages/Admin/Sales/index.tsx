@@ -8,8 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-import { PermissionGate } from '@/components/permission-gate';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGate } from '@/components/common/permission-gate';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { PaginationControls } from '@/components/inventory/pagination-controls';

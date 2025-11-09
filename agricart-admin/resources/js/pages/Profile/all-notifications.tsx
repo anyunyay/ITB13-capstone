@@ -20,7 +20,7 @@ import {
   X
 } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
-import { PaginationControls } from '@/components/notifications/pagination-controls';
+import { PaginationControls } from '@/components/shared/notifications/pagination-controls';
 
 interface Notification {
   id: string;
