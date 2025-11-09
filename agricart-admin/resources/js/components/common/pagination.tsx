@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
@@ -25,11 +25,23 @@ export function Pagination({ links, from, to, total, currentPage, lastPage, perP
   const handlePageChange = (url: string | null) => {
     if (!url) return;
     
-    if (onPageChange) {
-      const urlParams = new URLSearchParams(url.split('?')[1]);
-      const page = parseInt(urlParams.get('page') || '1');
-      onPageChange(page);
-    }
+    // Smooth scroll to top before navigation
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Navigate after a short delay to allow scroll to start
+    setTimeout(() => {
+      router.visit(url, {
+        preserveState: true,
+        preserveScroll: false,
+        onSuccess: () => {
+          if (onPageChange) {
+            const urlParams = new URLSearchParams(url.split('?')[1]);
+            const page = parseInt(urlParams.get('page') || '1');
+            onPageChange(page);
+          }
+        }
+      });
+    }, 100);
   };
 
   return (
@@ -43,29 +55,31 @@ export function Pagination({ links, from, to, total, currentPage, lastPage, perP
       <div className="flex items-center gap-2">
         {/* First Page */}
         {currentPage > 2 && (
-          <Link href={links[0].url || '#'} preserveState preserveScroll>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={!links[0].url}
-              onClick={() => handlePageChange(links[0].url)}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-        )}
-
-        {/* Previous Page */}
-        <Link href={links[0].url || '#'} preserveState preserveScroll>
           <Button
             variant="outline"
             size="icon"
             disabled={!links[0].url}
-            onClick={() => handlePageChange(links[0].url)}
+            onClick={(e) => {
+              e.preventDefault();
+              handlePageChange(links[0].url);
+            }}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronsLeft className="h-4 w-4" />
           </Button>
-        </Link>
+        )}
+
+        {/* Previous Page */}
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={!links[0].url}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePageChange(links[0].url);
+          }}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
 
         {/* Page Numbers */}
         <div className="flex items-center gap-1">
@@ -79,17 +93,19 @@ export function Pagination({ links, from, to, total, currentPage, lastPage, perP
               (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
             ) {
               return (
-                <Link key={index} href={link.url || '#'} preserveState preserveScroll>
-                  <Button
-                    variant={link.active ? 'default' : 'outline'}
-                    size="sm"
-                    className="min-w-[2.5rem]"
-                    disabled={!link.url}
-                    onClick={() => handlePageChange(link.url)}
-                  >
-                    {link.label}
-                  </Button>
-                </Link>
+                <Button
+                  key={index}
+                  variant={link.active ? 'default' : 'outline'}
+                  size="sm"
+                  className="min-w-[2.5rem]"
+                  disabled={!link.url}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(link.url);
+                  }}
+                >
+                  {link.label}
+                </Button>
               );
             } else if (
               pageNumber === currentPage - 2 ||
@@ -106,28 +122,32 @@ export function Pagination({ links, from, to, total, currentPage, lastPage, perP
         </div>
 
         {/* Next Page */}
-        <Link href={links[links.length - 1].url || '#'} preserveState preserveScroll>
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={!links[links.length - 1].url}
-            onClick={() => handlePageChange(links[links.length - 1].url)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </Link>
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={!links[links.length - 1].url}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePageChange(links[links.length - 1].url);
+          }}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
 
         {/* Last Page */}
         {currentPage < lastPage - 1 && (
-          <Link href={`?page=${lastPage}`} preserveState preserveScroll>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={currentPage === lastPage}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={currentPage === lastPage}
+            onClick={(e) => {
+              e.preventDefault();
+              const lastPageUrl = links[0].url?.split('?')[0] + `?page=${lastPage}`;
+              handlePageChange(lastPageUrl);
+            }}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
         )}
       </div>
     </div>

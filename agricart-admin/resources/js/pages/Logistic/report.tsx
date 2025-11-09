@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -226,14 +226,15 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <Button
-                variant="outline"
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2"
-              >
-                <X className="h-4 w-4" />
-                {t('logistic.back_to_dashboard')}
-              </Button>
+              <Link href={route('logistic.dashboard')}>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  {t('logistic.back_to_dashboard')}
+                </Button>
+              </Link>
               <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 {t('logistic.export_csv')}

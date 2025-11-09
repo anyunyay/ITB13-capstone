@@ -77,6 +77,20 @@ class LogisticController extends Controller
         $status = $request->get('status', 'all');
         $perPage = $request->get('per_page', 5);
         
+        // Get base query for all orders
+        $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']);
+
+        // Get counts for each status
+        $statusCounts = [
+            'all' => $baseQuery->count(),
+            'pending' => (clone $baseQuery)->where('delivery_status', 'pending')->count(),
+            'ready_to_pickup' => (clone $baseQuery)->where('delivery_status', 'ready_to_pickup')->count(),
+            'out_for_delivery' => (clone $baseQuery)->where('delivery_status', 'out_for_delivery')->count(),
+            'delivered' => (clone $baseQuery)->where('delivery_status', 'delivered')->count(),
+        ];
+        
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
             ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']) // Show all orders including delivered for auditing
@@ -112,6 +126,7 @@ class LogisticController extends Controller
         return Inertia::render('Logistic/assignedOrders', [
             'orders' => $orders,
             'currentStatus' => $status,
+            'statusCounts' => $statusCounts,
         ]);
     }
 

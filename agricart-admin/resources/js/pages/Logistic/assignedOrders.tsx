@@ -59,9 +59,16 @@ interface PaginatedOrders {
 interface AssignedOrdersProps {
   orders: PaginatedOrders;
   currentStatus: string;
+  statusCounts: {
+    all: number;
+    pending: number;
+    ready_to_pickup: number;
+    out_for_delivery: number;
+    delivered: number;
+  };
 }
 
-export default function AssignedOrders({ orders, currentStatus }: AssignedOrdersProps) {
+export default function AssignedOrders({ orders, currentStatus, statusCounts }: AssignedOrdersProps) {
   const t = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -101,17 +108,12 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
 
   const handleStatusFilter = (status: string) => {
     setIsLoading(true);
-    router.get(route('logistic.orders.index'), { status }, {
+    router.get(route('logistic.orders.index'), { status, page: 1 }, {
       preserveState: true,
       replace: true,
       onFinish: () => setIsLoading(false),
     });
   };
-
-  const pendingOrders = orders.data.filter(order => order.delivery_status === 'pending');
-  const readyToPickupOrders = orders.data.filter(order => order.delivery_status === 'ready_to_pickup');
-  const outForDeliveryOrders = orders.data.filter(order => order.delivery_status === 'out_for_delivery');
-  const deliveredOrders = orders.data.filter(order => order.delivery_status === 'delivered');
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,21 +126,20 @@ export default function AssignedOrders({ orders, currentStatus }: AssignedOrders
             <h1 className="text-3xl font-bold text-foreground">{t('logistic.assigned_orders')}</h1>
             <p className="text-muted-foreground">{t('logistic.manage_assigned_orders')}</p>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => window.history.back()}
-          >
-            {t('logistic.back_to_dashboard')}
-          </Button>
+          <Link href={route('logistic.dashboard')}>
+            <Button variant="outline">
+              {t('logistic.back_to_dashboard')}
+            </Button>
+          </Link>
         </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-            <TabsTrigger value="all" disabled={isLoading}>{t('logistic.all_orders')} ({orders.total})</TabsTrigger>
-            <TabsTrigger value="pending" disabled={isLoading}>{t('logistic.pending')} ({pendingOrders.length})</TabsTrigger>
-            <TabsTrigger value="ready_to_pickup" disabled={isLoading}>{t('logistic.ready_to_pickup')} ({readyToPickupOrders.length})</TabsTrigger>
-            <TabsTrigger value="out_for_delivery" disabled={isLoading}>{t('logistic.out_for_delivery')} ({outForDeliveryOrders.length})</TabsTrigger>
-            <TabsTrigger value="delivered" disabled={isLoading}>{t('logistic.delivered')} ({deliveredOrders.length})</TabsTrigger>
+            <TabsTrigger value="all" disabled={isLoading}>{t('logistic.all_orders')} ({statusCounts.all})</TabsTrigger>
+            <TabsTrigger value="pending" disabled={isLoading}>{t('logistic.pending')} ({statusCounts.pending})</TabsTrigger>
+            <TabsTrigger value="ready_to_pickup" disabled={isLoading}>{t('logistic.ready_to_pickup')} ({statusCounts.ready_to_pickup})</TabsTrigger>
+            <TabsTrigger value="out_for_delivery" disabled={isLoading}>{t('logistic.out_for_delivery')} ({statusCounts.out_for_delivery})</TabsTrigger>
+            <TabsTrigger value="delivered" disabled={isLoading}>{t('logistic.delivered')} ({statusCounts.delivered})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
