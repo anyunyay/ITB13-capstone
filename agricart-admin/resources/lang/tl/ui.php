@@ -288,6 +288,7 @@ return [
 
     // General UI
     'notifications' => 'Mga Notification',
+    'all_notifications' => 'Lahat ng Notification',
     'unauthorized' => 'Walang Pahintulot',
     'not_authorized_message' => 'Wala kayong pahintulot na ma-access ang page na ito.',
     'no_permission_message' => 'Wala kayong permission na makita ang page na ito',

@@ -3,7 +3,7 @@ import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { type User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings, MapPin, Lock, Palette, HelpCircle, User as UserIcon, Database } from 'lucide-react';
+import { LogOut, Settings, MapPin, Lock, Palette, HelpCircle, User as UserIcon, Database, Bell } from 'lucide-react';
 import { clearSessionData } from '@/lib/csrf-cleanup';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -29,6 +29,7 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
             password: `${baseRoute}/profile/password`,
             appearance: `${baseRoute}/profile/appearance`,
             help: `${baseRoute}/profile/help`,
+            notifications: `${baseRoute}/profile/notifications`,
         };
     };
 
@@ -54,6 +55,12 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
                             <Link className="block w-full" href={routes.profile} as="button" prefetch onClick={cleanup}>
                                 <UserIcon className="mr-2 h-4 w-4" />
                                 {t('admin.profile')}
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link className="block w-full" href={routes.notifications} as="button" prefetch onClick={cleanup}>
+                                <Bell className="mr-2 h-4 w-4" />
+                                {t('ui.all_notifications')}
                             </Link>
                         </DropdownMenuItem>
                         {(user.type === 'admin' || user.type === 'staff') && (

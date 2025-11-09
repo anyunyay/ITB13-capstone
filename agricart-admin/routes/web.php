@@ -244,6 +244,11 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
         Route::post('/notifications/mark-read', [AdminNotificationController::class, 'markRead'])->name('admin.notifications.markRead');
         Route::post('/notifications/mark-all-read', [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
+        Route::post('/notifications/{id}/hide-from-header', [AdminNotificationController::class, 'hideFromHeader'])->name('admin.notifications.hideFromHeader');
+        Route::post('/notifications/hide-all-from-header', [AdminNotificationController::class, 'hideAllFromHeader'])->name('admin.notifications.hideAllFromHeader');
+        
+        // Profile Notification page
+        Route::get('/profile/notifications', [AdminNotificationController::class, 'profileIndex'])->name('admin.profile.notifications');
     });
 
         
@@ -307,6 +312,11 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
         Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/{id}/hide-from-header', [NotificationController::class, 'hideFromHeader'])->name('notifications.hideFromHeader');
+        Route::post('/notifications/hide-all-from-header', [NotificationController::class, 'hideAllFromHeader'])->name('notifications.hideAllFromHeader');
+        
+        // Profile Notification page
+        Route::get('/profile/notifications', [NotificationController::class, 'profileIndex'])->name('customer.profile.notifications');
     });
 
     // Logistic routes

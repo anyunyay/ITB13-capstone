@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, BellRing } from 'lucide-react';
+import { Bell, BellRing, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -31,11 +31,28 @@ interface NotificationBellProps {
 
 export function NotificationBell({ notifications, userType, isScrolled = false }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const unread = notifications.filter(n => !n.read_at).length;
     setUnreadCount(unread);
   }, [notifications]);
+
+  // Close dropdown on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('scroll', handleScroll, true);
+      return () => {
+        window.removeEventListener('scroll', handleScroll, true);
+      };
+    }
+  }, [isOpen]);
 
   const handleNotificationClick = (notification: Notification) => {
     try {
@@ -127,6 +144,48 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
     });
   };
 
+  const handleClearAll = () => {
+    const routePrefix = userType === 'admin' || userType === 'staff' 
+      ? '/admin/notifications'
+      : userType === 'member'
+      ? '/member/notifications'
+      : userType === 'logistic'
+      ? '/logistic/notifications'
+      : '/customer/notifications';
+    
+    router.post(`${routePrefix}/hide-all-from-header`, {}, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+
+  const handleDismissNotification = (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    const routePrefix = userType === 'admin' || userType === 'staff' 
+      ? '/admin/notifications'
+      : userType === 'member'
+      ? '/member/notifications'
+      : userType === 'logistic'
+      ? '/logistic/notifications'
+      : '/customer/notifications';
+    
+    router.post(`${routePrefix}/${notificationId}/hide-from-header`, {}, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+
+  const handleSeeAll = () => {
+    const routeName = userType === 'admin' || userType === 'staff' 
+      ? '/admin/profile/notifications'
+      : userType === 'member'
+      ? '/member/profile/notifications'
+      : userType === 'logistic'
+      ? '/logistic/profile/notifications'
+      : '/customer/profile/notifications';
+    router.visit(routeName);
+  };
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'new_order':
@@ -178,7 +237,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
   };
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
@@ -213,14 +272,14 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
       <DropdownMenuContent align="end" className="w-72 sm:w-80 max-w-[calc(100vw-2rem)]" onCloseAutoFocus={(e) => e.preventDefault()}>
         <div className="flex items-center justify-between p-2">
           <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
+          {notifications.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleMarkAllAsRead}
-              className="text-xs"
+              onClick={handleClearAll}
+              className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              Mark all read
+              Clear All
             </Button>
           )}
         </div>
@@ -232,10 +291,10 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">
-            {notifications.slice(0, 10).map((notification) => (
+            {notifications.slice(0, 4).map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className={`p-3 cursor-pointer ${!notification.read_at ? 'bg-green-50' : ''}`}
+                className={`p-3 cursor-pointer relative group ${!notification.read_at ? 'bg-green-50' : ''}`}
                 onClick={() => {
                   if (!notification.read_at) {
                     // Mark as read and navigate in one action
@@ -246,7 +305,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
                   }
                 }}
               >
-                <div className="flex items-start space-x-3 w-full">
+                <div className="flex items-start space-x-3 w-full pr-6">
                   <span className="text-lg flex-shrink-0">
                     {getNotificationIcon(notification.type)}
                   </span>
@@ -267,28 +326,27 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
                     <div className="w-2 h-2 bg-green-600 rounded-full flex-shrink-0 mt-1" />
                   )}
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                  onClick={(e) => handleDismissNotification(e, notification.id)}
+                >
+                  <X className="h-4 w-4 text-red-600" />
+                </Button>
               </DropdownMenuItem>
             ))}
           </div>
         )}
         
-        {notifications.length > 10 && (
+        {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => {
-                const routeName = userType === 'admin' || userType === 'staff' 
-                  ? 'admin.notifications.index'
-                  : userType === 'member'
-                  ? 'member.notifications.index'
-                  : userType === 'logistic'
-                  ? 'logistic.notifications.index'
-                  : 'notifications.index';
-                router.visit(route(routeName));
-              }}
-              className="text-center justify-center"
+              onClick={handleSeeAll}
+              className="text-center justify-center font-medium text-green-600 hover:text-green-700 hover:bg-green-50"
             >
-              View all notifications
+              See All
             </DropdownMenuItem>
           </>
         )}
