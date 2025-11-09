@@ -455,7 +455,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     
                     {order.admin_notes && (
                       <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-accent/10 border-l-4 border-accent rounded overflow-hidden">
-                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-accent-foreground">Approver Notes:</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">Approver Notes:</h3>
                         <p className="text-xs sm:text-sm md:text-base text-foreground break-words">{order.admin_notes}</p>
                       </aside>
                     )}
