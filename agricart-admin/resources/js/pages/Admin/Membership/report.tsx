@@ -11,10 +11,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, LayoutGrid, Table } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { SafeImage } from '@/lib/image-utils';
 import { useTranslation } from '@/hooks/use-translation';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 interface Member {
   id: number;
@@ -53,6 +54,14 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+
+  // Sorting state
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -106,6 +115,8 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     if (localFilters.start_date) params.start_date = localFilters.start_date;
     if (localFilters.end_date) params.end_date = localFilters.end_date;
     if (localFilters.search) params.search = localFilters.search;
+    params.sort_by = sortBy;
+    params.sort_order = sortOrder;
 
     router.get(route('membership.report'), params);
   };
@@ -125,12 +136,79 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       localFilters.search;
   };
 
+  // Helper to get sort icon
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ?
+      <ArrowUp className="h-4 w-4 ml-1" /> :
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Sort members data
+  const sortedMembers = [...members].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'member_id':
+        comparison = (a.member_id || '').localeCompare(b.member_id || '');
+        break;
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'contact_number':
+        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
+        break;
+      case 'registration_date':
+        const dateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
+        const dateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
+        comparison = dateA - dateB;
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedMembers.length / itemsPerPage);
+  const paginatedMembers = sortedMembers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [members.length]);
+
   const exportReport = (format: 'csv' | 'pdf') => {
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
+    params.append('sort_by', sortBy);
+    params.append('sort_order', sortOrder);
 
     if (format === 'csv') {
       // For CSV: just download, no display
@@ -151,6 +229,8 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       if (localFilters.search) displayParams.append('search', localFilters.search);
       displayParams.append('format', format);
+      displayParams.append('sort_by', sortBy);
+      displayParams.append('sort_order', sortOrder);
       displayParams.append('display', 'true');
       const displayUrl = `${route('membership.report')}?${displayParams.toString()}`;
 
@@ -415,13 +495,37 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 {members.length > 0 ? (
                   <>
                     {currentView === 'cards' ? (
-                      <div className="space-y-4">
-                        {members.map((member) => (
-                          <MemberCard key={member.id} member={member} />
-                        ))}
-                      </div>
+                      <>
+                        <div className="space-y-4">
+                          {paginatedMembers.map((member) => (
+                            <MemberCard key={member.id} member={member} />
+                          ))}
+                        </div>
+                        <PaginationControls
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          onPageChange={handlePageChange}
+                          itemsPerPage={itemsPerPage}
+                          totalItems={sortedMembers.length}
+                        />
+                      </>
                     ) : (
-                      <MemberTable members={members} />
+                      <>
+                        <MemberTable 
+                          members={paginatedMembers} 
+                          sortBy={sortBy}
+                          sortOrder={sortOrder}
+                          onSort={handleSort}
+                          getSortIcon={getSortIcon}
+                        />
+                        <PaginationControls
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          onPageChange={handlePageChange}
+                          itemsPerPage={itemsPerPage}
+                          totalItems={sortedMembers.length}
+                        />
+                      </>
                     )}
                   </>
                 ) : (
@@ -544,142 +648,89 @@ function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'tab
 }
 
 // MemberTable Component
-function MemberTable({ members }: { members: Member[] }) {
+function MemberTable({ 
+  members, 
+  sortBy, 
+  sortOrder, 
+  onSort, 
+  getSortIcon 
+}: { 
+  members: Member[];
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: string) => void;
+  getSortIcon: (field: string) => React.ReactElement;
+}) {
   const t = useTranslation();
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('desc');
-    }
-  };
-
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
-  // Sort members
-  const sortedMembers = [...members].sort((a, b) => {
-    let comparison = 0;
-    switch (sortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'member_id':
-        comparison = (a.member_id || '').localeCompare(b.member_id || '');
-        break;
-      case 'name':
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case 'contact_number':
-        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-        break;
-      case 'registration_date':
-        const dateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
-        const dateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
-        comparison = dateA - dateB;
-        break;
-      case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      default:
-        return 0;
-    }
-    return sortOrder === 'asc' ? comparison : -comparison;
-  });
-  const getVerificationBadge = (verified: boolean) => {
-    return verified ? (
-      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-        <UserCheck className="h-3 w-3 mr-1" />
-        Verified
-      </Badge>
-    ) : (
-      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
-        <Clock className="h-3 w-3 mr-1" />
-        Pending
-      </Badge>
-    );
-  };
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-muted/50">
-            <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('member_id')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <button 
+                onClick={() => onSort('member_id')} 
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 {t('admin.member_id')}
                 {getSortIcon('member_id')}
-              </Button>
+              </button>
             </th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('name')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <button 
+                onClick={() => onSort('name')} 
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 {t('admin.name')}
                 {getSortIcon('name')}
-              </Button>
+              </button>
             </th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('contact_number')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <button 
+                onClick={() => onSort('contact_number')} 
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 {t('admin.contact_number')}
                 {getSortIcon('contact_number')}
-              </Button>
+              </button>
             </th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('registration_date')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              <button 
+                onClick={() => onSort('registration_date')} 
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 {t('admin.registration_date_label')}
                 {getSortIcon('registration_date')}
-              </Button>
+              </button>
             </th>
           </tr>
         </thead>
         <tbody>
-          {sortedMembers.map((member, index) => (
+          {members.map((member, index) => (
             <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 text-center">
                 {member.member_id ? (
                   <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
                 ) : (
                   <span className="text-muted-foreground">{t('admin.not_assigned')}</span>
                 )}
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 text-center">
                 <div className="font-medium text-foreground">{member.name}</div>
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3 px-4 text-center">
                 <div className="text-sm text-muted-foreground">
                   {member.contact_number || t('admin.not_assigned')}
                 </div>
               </td>
-              <td className="py-3 px-4">
-                <div className="text-sm text-muted-foreground max-w-xs truncate">
+              <td className="py-3 px-4 text-center">
+                <div className="text-sm text-muted-foreground max-w-xs truncate mx-auto">
                   {member.address || t('admin.not_assigned')}
                 </div>
               </td>
-              <td className="py-3 px-4 text-sm text-muted-foreground">
+              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
                 {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : t('admin.not_assigned')}
               </td>
             </tr>
