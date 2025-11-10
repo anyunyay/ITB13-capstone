@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { UsersRound, Search, Edit, UserMinus, RotateCcw, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Member } from '../../types/membership';

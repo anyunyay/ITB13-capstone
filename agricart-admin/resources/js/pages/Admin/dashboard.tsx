@@ -18,7 +18,7 @@ import {
     Truck,
     Star
 } from 'lucide-react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface DashboardProps {

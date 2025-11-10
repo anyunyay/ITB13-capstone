@@ -40,6 +40,37 @@ class NotificationController extends Controller
     }
 
     /**
+     * Display all notifications page in profile
+     */
+    public function profileIndex(Request $request)
+    {
+        $user = $request->user();
+        $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\\Notifications\\ProductSaleNotification',
+                'App\\Notifications\\EarningsUpdateNotification',
+                'App\\Notifications\\LowStockAlertNotification'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(5)
+            ->through(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'type' => $notification->data['type'] ?? 'unknown',
+                    'message' => $notification->data['message'] ?? '',
+                    'action_url' => $notification->data['action_url'] ?? null,
+                    'created_at' => $notification->created_at->toISOString(),
+                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
+                    'data' => $notification->data,
+                ];
+            });
+
+        return Inertia::render('Profile/all-notifications', [
+            'paginatedNotifications' => $notifications,
+        ]);
+    }
+
+    /**
      * Mark specific notifications as read
      */
     public function markRead(Request $request)

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import OrderReceiptPreview from '@/components/OrderReceiptPreview';
+import OrderReceiptPreview from '@/components/customer/orders/OrderReceiptPreview';
 import { Order } from '@/types/order';
 
 interface ReceiptModalProps {

@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { TestimonialSlider } from '@/components/TestimonialSlider';
-import Footer from '@/components/Footer';
+import { TestimonialSlider } from '@/components/customer/marketing/TestimonialSlider';
+import Footer from '@/components/shared/layout/Footer';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface PageProps {
@@ -105,7 +105,7 @@ export default function CustomerHome({ products }: PageProps) {
   ];
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title="Home - SMMC Cooperative" />
 
       {/* Hero Section - Fixed outside scroll container */}

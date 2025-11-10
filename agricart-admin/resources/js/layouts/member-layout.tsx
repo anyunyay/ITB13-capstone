@@ -1,4 +1,4 @@
-import { MemberHeader } from '@/components/member-header';
+import { MemberHeader } from '@/components/member/member-header';
 import { type BreadcrumbItem } from '@/types';
 import type { PropsWithChildren } from 'react';
 

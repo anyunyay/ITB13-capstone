@@ -5,7 +5,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate } from '@/components/common/permission-gate';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
 import { useTranslation } from '@/hooks/use-translation';

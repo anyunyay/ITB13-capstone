@@ -61,8 +61,10 @@ class OrderRejectionNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'order_rejection',
+            'status' => 'rejected',
             'message' => 'Order #' . $this->order->id . ' has been declined',
-            'reason' => $this->order->admin_notes,
+            'sub_message' => $this->order->admin_notes ? 'Reason: ' . $this->order->admin_notes : 'Please contact support for more information.',
+            'action_url' => '/customer/orders/history',
         ];
     }
 }

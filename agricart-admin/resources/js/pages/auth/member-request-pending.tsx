@@ -2,7 +2,7 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { LoaderCircle, Clock, X, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
-import TextLink from '@/components/text-link';
+import TextLink from '@/components/common/text-link';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';
 

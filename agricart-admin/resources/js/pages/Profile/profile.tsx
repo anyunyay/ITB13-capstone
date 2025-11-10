@@ -5,7 +5,7 @@ import { usePage } from '@inertiajs/react';
 import { User, Edit, Mail, Phone, Calendar, Shield, MapPin, FileText, Settings, Key, Palette, HelpCircle, LogOut, Database } from 'lucide-react';
 import ProfileWrapper from './profile-wrapper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import ProfileEditModal from '@/components/ProfileEditModal';
+import ProfileEditModal from '@/components/shared/profile/ProfileEditModal';
 import { getDisplayEmail, getProfileRoutes, hasFeatureAccess } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { useTranslation } from '@/hooks/use-translation';

@@ -511,6 +511,13 @@ class OrderController extends Controller
         // Notify the customer with status update
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
 
+        // Send delivery status notification for "Preparing" stage
+        $order->customer?->notify(new \App\Notifications\DeliveryStatusUpdate(
+            $order->id,
+            'pending',
+            'Your order is being prepared for delivery.'
+        ));
+
         // Send order receipt email to customer
         $order->customer?->notify(new OrderReceipt($order));
 
@@ -657,8 +664,15 @@ class OrderController extends Controller
             $order->logistic->notify(new \App\Notifications\LogisticOrderReadyNotification($order));
         }
 
+        // Send delivery status notification to customer
+        $order->customer?->notify(new \App\Notifications\DeliveryStatusUpdate(
+            $order->id,
+            'ready_to_pickup',
+            'Your order is ready for pickup and will be delivered soon.'
+        ));
+
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('message', 'Order marked as ready for pickup successfully. Logistic has been notified.');
+            ->with('message', 'Order marked as ready for pickup successfully. Logistic and customer have been notified.');
     }
 
     public function markPickedUp(Request $request, SalesAudit $order)
@@ -688,6 +702,13 @@ class OrderController extends Controller
                 'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
             ]
         );
+
+        // Send delivery status notification to customer
+        $order->customer?->notify(new \App\Notifications\DeliveryStatusUpdate(
+            $order->id,
+            'out_for_delivery',
+            'Your order is out for delivery and on its way to you.'
+        ));
 
         // Send notification to logistic
         if ($order->logistic_id) {

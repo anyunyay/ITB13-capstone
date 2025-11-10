@@ -3,7 +3,7 @@ import { type SharedData } from '@/types';
 import { Head, usePage, useForm, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PermissionGuard } from '@/components/permission-guard';
+import { PermissionGuard } from '@/components/common/permission-guard';
 import { DashboardHeader } from '@/components/membership/dashboard-header';
 import { PasswordRequests } from '@/components/membership/password-requests';
 import { MemberManagement } from '@/components/membership/member-management';

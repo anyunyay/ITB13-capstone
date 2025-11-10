@@ -2,17 +2,10 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import type { SharedData } from '@/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ProductCarousel } from '../Home/produce';
 import StockManager from '@/lib/stock-manager';
-import SimpleFooter from '@/components/SimpleFooter';
+import SimpleFooter from '@/components/shared/layout/SimpleFooter';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -38,7 +31,6 @@ interface PageProps {
 
 export default function CustomerProducts() {
   const t = useTranslation();
-  const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
   const [products, setProducts] = useState(initialProducts);
@@ -48,8 +40,6 @@ export default function CustomerProducts() {
     const stockManager = StockManager.getInstance();
     stockManager.refreshAllStockData(initialProducts);
   }, [initialProducts]);
-
-  const handleRequireLogin = () => setShowLoginConfirm(true);
 
   const toggleViewMode = () => {
     setViewMode(prevMode => prevMode === 'carousel' ? 'grid' : 'carousel');
@@ -76,7 +66,7 @@ export default function CustomerProducts() {
   };
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title={t('customer.products_fresh_produce')} />
       <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,8 +82,8 @@ export default function CustomerProducts() {
           
           <ProductCarousel 
             products={products}
-            onRequireLogin={handleRequireLogin}
             onStockUpdate={handleStockUpdate}
+            onImageClick={() => {}}
             viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
           />
           
@@ -108,22 +98,6 @@ export default function CustomerProducts() {
             </Button>
           </div>
         </div>
-
-        {/* Login Confirmation Dialog */}
-        <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{t('ui.login_required')}</DialogTitle>
-              <DialogDescription>
-                {t('ui.must_be_logged_in')}
-              </DialogDescription>
-              <div className="flex gap-4 mt-4">
-                <Button className="w-full" onClick={() => router.visit('/login')}>{t('ui.go_to_login')}</Button>
-                <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>{t('ui.cancel')}</Button>
-              </div>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
       </div>
       
       {/* Simple Footer */}

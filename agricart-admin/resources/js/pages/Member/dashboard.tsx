@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, History, TrendingUp, FileText, CheckCircle, DollarSign } from 'lucide-react';
 import { Link } from '@inertiajs/react';
-import { MemberHeader } from '@/components/member-header';
+import { MemberHeader } from '@/components/member/member-header';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {

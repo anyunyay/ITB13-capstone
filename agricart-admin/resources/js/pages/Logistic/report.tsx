@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LogisticHeader } from '@/components/logistic-header';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { ViewToggle } from '@/components/inventory/view-toggle';
+import { Pagination } from '@/components/common/pagination';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { BarChart3, Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
@@ -44,6 +45,21 @@ interface Order {
   }>;
 }
 
+interface PaginatedOrders {
+  data: Order[];
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  total: number;
+}
+
 interface ReportSummary {
   total_orders: number;
   total_revenue: number;
@@ -61,7 +77,7 @@ interface ReportFilters {
 }
 
 interface ReportPageProps {
-  orders: Order[];
+  orders: PaginatedOrders;
   summary: ReportSummary;
   filters: ReportFilters;
 }
@@ -191,7 +207,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.logistics_report')} />
 
       <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8 pt-25">
@@ -210,14 +226,15 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <Button
-                variant="outline"
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2"
-              >
-                <X className="h-4 w-4" />
-                {t('logistic.back_to_dashboard')}
-              </Button>
+              <Link href={route('logistic.dashboard')}>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  {t('logistic.back_to_dashboard')}
+                </Button>
+              </Link>
               <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 {t('logistic.export_csv')}
@@ -307,7 +324,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 )}
 
                 {/* Filter Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
                     <Popover>
@@ -388,7 +405,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
@@ -416,7 +433,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">{summary.pending_orders}</div>
+              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{summary.pending_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Awaiting pickup</p>
             </CardContent>
           </Card>
@@ -426,7 +443,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{summary.out_for_delivery_orders}</div>
+              <div className="text-3xl font-bold text-accent">{summary.out_for_delivery_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Currently delivering</p>
             </CardContent>
           </Card>
@@ -436,7 +453,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{summary.delivered_orders}</div>
+              <div className="text-3xl font-bold text-secondary">{summary.delivered_orders}</div>
               <p className="text-xs text-muted-foreground mt-1">Successfully delivered</p>
             </CardContent>
           </Card>
@@ -458,27 +475,36 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
         <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">{t('logistic.orders')} ({orders.length})</CardTitle>
+              <CardTitle className="text-xl">{t('logistic.orders')} ({orders.total})</CardTitle>
               <div className="flex items-center gap-2">
                 <div className="text-sm text-muted-foreground">
-                  {orders.length > 0 ? `Showing ${orders.length} orders` : 'No orders found'}
+                  {orders.total > 0 ? `Showing ${orders.from} to ${orders.to} of ${orders.total} orders` : 'No orders found'}
                 </div>
                 <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {orders.length > 0 ? (
+            {orders.data.length > 0 ? (
               <>
                 {currentView === 'cards' ? (
                   <div className="space-y-4">
-                    {orders.map((order) => (
+                    {orders.data.map((order) => (
                       <OrderCard key={order.id} order={order} t={t} />
                     ))}
                   </div>
                 ) : (
-                  <OrderTable orders={orders} t={t} />
+                  <OrderTable orders={orders.data} t={t} />
                 )}
+                <Pagination
+                  links={orders.links}
+                  from={orders.from}
+                  to={orders.to}
+                  total={orders.total}
+                  currentPage={orders.current_page}
+                  lastPage={orders.last_page}
+                  perPage={orders.per_page}
+                />
               </>
             ) : (
               <div className="text-center py-12">
@@ -542,12 +568,12 @@ function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) 
           <div className="flex items-center gap-2">
             {getDeliveryStatusBadge(order.delivery_status)}
             {(order as any).ready_for_pickup ? (
-              <Badge className="bg-green-600 text-white text-xs">✓ {t('logistic.ready')}</Badge>
+              <Badge className="bg-secondary text-secondary-foreground text-xs">✓ {t('logistic.ready')}</Badge>
             ) : (
-              <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">{t('admin.not_ready')}</Badge>
+              <Badge variant="secondary" className="bg-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] text-white text-xs">{t('admin.not_ready')}</Badge>
             )}
             {(order as any).picked_up ? (
-              <Badge className="bg-blue-600 text-white text-xs">✓ {t('admin.picked_up')}</Badge>
+              <Badge className="bg-accent text-accent-foreground text-xs">✓ {t('admin.picked_up')}</Badge>
             ) : (
               <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">{t('admin.not_picked_up')}</Badge>
             )}
@@ -555,7 +581,7 @@ function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) 
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-primary rounded-full"></div>

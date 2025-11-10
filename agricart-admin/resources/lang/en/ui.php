@@ -288,6 +288,7 @@ return [
 
     // General UI
     'notifications' => 'Notifications',
+    'all_notifications' => 'All Notifications',
     'unauthorized' => 'Unauthorized',
     'not_authorized_message' => 'You are not authorized to access this page.',
     'no_permission_message' => "You don't have permission to view this page",

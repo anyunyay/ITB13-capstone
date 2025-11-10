@@ -1,4 +1,4 @@
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LogisticHeader } from '@/components/logistic-header';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X } from 'lucide-react';
@@ -102,9 +102,9 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       case 'ready_to_pickup':
         return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-blue-600 text-white">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-green-600 text-green-600">{t('logistic.delivered')}</Badge>;
+        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -249,7 +249,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.order_number', { id: currentOrder.id }) + ' ' + t('logistic.order_details')} />
       
       <div className="p-6 pt-25 space-y-6">
@@ -258,22 +258,21 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             <h1 className="text-3xl font-bold text-foreground">{t('logistic.order_number', { id: currentOrder.id })}</h1>
             <p className="text-muted-foreground">{t('logistic.order_details_management')}</p>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => window.history.back()}
-          >
-            {t('logistic.back_to_orders')}
-          </Button>
+          <Link href={route('logistic.orders.index')}>
+            <Button variant="outline">
+              {t('logistic.back_to_orders')}
+            </Button>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Order Information */}
           <Card>
             <CardHeader>
               <CardTitle className="text-foreground">{t('logistic.order_information')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('logistic.order_id')}</p>
                   <p className="text-sm text-foreground">#{currentOrder.id}</p>
@@ -303,7 +302,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 {currentOrder.delivery_packed_time && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{t('logistic.packed_at')}</p>
-                    <p className="text-sm text-blue-600">
+                    <p className="text-sm text-accent">
                       {format(new Date(currentOrder.delivery_packed_time), 'MMM dd, yyyy HH:mm')}
                     </p>
                   </div>
@@ -311,7 +310,7 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 {currentOrder.delivered_time && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivered_at')}</p>
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-secondary">
                       {format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
                     </p>
                   </div>
@@ -356,12 +355,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             <CardTitle className="text-foreground flex items-center gap-2">
               {currentOrder.delivery_status === 'delivered' ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-secondary" />
                   {t('logistic.delivery_status_completed')}
                 </>
               ) : (
                 <>
-                  <Truck className="h-5 w-5 text-blue-600" />
+                  <Truck className="h-5 w-5 text-accent" />
                   {t('logistic.delivery_progress')}
                 </>
               )}
@@ -371,53 +370,53 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             {/* Progressive Status Line */}
             <div className="space-y-4">
               {/* Status Steps */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between overflow-x-auto pb-2">
                 {/* Step 1: Pending */}
-                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'pending' ? 'text-blue-400' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'pending' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'pending' ? 'text-accent' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'pending' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'pending' ? '1' : '✓'}
                   </div>
-                  <span className="text-xs mt-1 text-center">{t('logistic.preparing')}</span>
+                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.preparing')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 2: Ready to Pick Up */}
-                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'text-green-400' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-green-600 text-white' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'ready_to_pickup' ? 'text-secondary' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-secondary text-secondary-foreground' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'ready_to_pickup' ? '2' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? '✓' : '2'}
                   </div>
-                  <span className="text-xs mt-1 text-center">{t('logistic.ready')}</span>
+                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.ready')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 3: Out for Delivery */}
-                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'text-blue-400' : currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-blue-600 text-white' : currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'out_for_delivery' ? 'text-accent' : currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'out_for_delivery' ? '3' : currentOrder.delivery_status === 'delivered' ? '✓' : '3'}
                   </div>
-                  <span className="text-xs mt-1 text-center">{t('logistic.out_for_delivery')}</span>
+                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.out_for_delivery')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 ${currentOrder.delivery_status === 'delivered' ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 4: Delivered */}
-                <div className={`flex flex-col items-center ${currentOrder.delivery_status === 'delivered' ? 'text-green-400' : 'text-gray-500'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'delivered' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'delivered' ? '✓' : '4'}
                   </div>
-                  <span className="text-xs mt-1 text-center">{t('logistic.delivered')}</span>
+                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.delivered')}</span>
                 </div>
               </div>
 
               {/* Current Status Message */}
               <div className="mt-4">
                 {currentOrder.delivery_status === 'pending' && (
-                  <p className="text-sm text-yellow-600 flex items-center gap-1">
+                  <p className="text-sm text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4" />
                     {t('logistic.order_pending_preparation')}
                   </p>
@@ -429,13 +428,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (
-                  <p className="text-sm text-blue-600 flex items-center gap-1">
+                  <p className="text-sm text-accent flex items-center gap-1">
                     <Truck className="h-4 w-4" />
                     {t('logistic.order_out_delivery')}
                   </p>
                 )}
                 {currentOrder.delivery_status === 'delivered' && (
-                  <p className="text-sm text-green-600 flex items-center gap-1">
+                  <p className="text-sm text-secondary flex items-center gap-1">
                     <CheckCircle className="h-4 w-4" />
                     {t('logistic.order_delivered_completed')}
                   </p>
@@ -478,12 +477,12 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
               {/* Delivered Status Display */}
               {currentOrder.delivery_status === 'delivered' && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/30 dark:border-green-600">
+                <div className="mt-4 p-3 bg-[color-mix(in_srgb,var(--secondary)_10%,transparent)] border border-secondary/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-700 dark:text-green-300">{t('admin.order_delivered')}</span>
+                    <CheckCircle className="h-4 w-4 text-secondary" />
+                    <span className="text-sm font-medium text-secondary">{t('admin.order_delivered')}</span>
                   </div>
-                  <p className="text-sm text-green-600 dark:text-green-400">
+                  <p className="text-sm text-secondary/80">
                     {t('logistic.order_delivered_note')}
                   </p>
                   {currentOrder.delivery_proof_image && (

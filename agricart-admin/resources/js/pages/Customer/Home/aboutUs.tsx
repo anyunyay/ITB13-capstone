@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Leaf, Users, Truck, Shield, Globe } from 'lucide-react';
-import Footer from '@/components/Footer';
+import Footer from '@/components/shared/layout/Footer';
 import styles from './aboutUs.module.css';
 
 interface PageProps {
@@ -115,7 +115,7 @@ export default function AboutUs({ }: PageProps) {
   ];
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title="About Us - SMMC Cooperative" />
 
       {/* Hero Section - Fixed outside scroll container */}

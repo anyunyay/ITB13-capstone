@@ -10,19 +10,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { ProductCard as StandardProductCard } from '@/components/ProductCard';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { ProductCard as StandardProductCard } from '@/components/customer/products/ProductCard';
 import { Button } from '@/components/ui/button';
-import { ImageLightbox } from '@/components/ImageLightbox';
+import { ImageLightbox } from '@/components/customer/products/ImageLightbox';
 import StockManager from '@/lib/stock-manager';
-import Footer from '@/components/Footer';
-import { ProduceSearchBar } from '@/components/ProduceSearchBar';
+import Footer from '@/components/shared/layout/Footer';
+import { ProduceSearchBar } from '@/components/customer/products/ProduceSearchBar';
 
 interface Product {
   id: number;
@@ -45,9 +38,8 @@ interface PageProps {
   [key: string]: unknown;
 }
 
-function ProductCard({ product, onRequireLogin, onStockUpdate, onImageClick, className }: {
+function ProductCard({ product, onStockUpdate, onImageClick, className }: {
   product: Product;
-  onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
   onImageClick: (imageUrl: string, productName: string) => void;
   className?: string;
@@ -55,7 +47,6 @@ function ProductCard({ product, onRequireLogin, onStockUpdate, onImageClick, cla
   return (
     <StandardProductCard
       product={product}
-      onRequireLogin={onRequireLogin}
       onStockUpdate={onStockUpdate}
       onImageClick={onImageClick}
       variant="default"
@@ -67,7 +58,6 @@ function ProductCard({ product, onRequireLogin, onStockUpdate, onImageClick, cla
 
 interface ProductCarouselProps {
   products: Product[];
-  onRequireLogin: () => void;
   onStockUpdate: (productId: number, category: string, quantity: number) => void;
   onImageClick: (imageUrl: string, productName: string) => void;
   viewMode?: 'grid' | 'list';
@@ -75,7 +65,6 @@ interface ProductCarouselProps {
 
 export function ProductCarousel({
   products,
-  onRequireLogin,
   onStockUpdate,
   onImageClick,
   viewMode = 'grid'
@@ -93,7 +82,6 @@ export function ProductCarousel({
             >
               <ProductCard
                 product={product}
-                onRequireLogin={onRequireLogin}
                 onStockUpdate={onStockUpdate}
                 onImageClick={onImageClick}
                 className="w-full max-w-none"
@@ -135,7 +123,6 @@ export function ProductCarousel({
             <div className={`flex justify-center ${isSingleProduct ? 'w-[280px] sm:w-[320px]' : 'w-full max-w-[180px] sm:max-w-none'}`}>
               <ProductCard
                 product={product}
-                onRequireLogin={onRequireLogin}
                 onStockUpdate={onStockUpdate}
                 onImageClick={onImageClick}
                 className="w-full max-w-none"
@@ -156,7 +143,6 @@ export function ProductCarousel({
 }
 
 export default function CustomerHome() {
-  const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState({ src: '', alt: '' });
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
@@ -268,8 +254,6 @@ export default function CustomerHome() {
     const stockManager = StockManager.getInstance();
     stockManager.refreshAllStockData(initialProducts);
   }, [initialProducts]);
-
-  const handleRequireLogin = () => setShowLoginConfirm(true);
 
   const handleImageClick = (imageUrl: string, productName: string) => {
     setLightboxImage({ src: imageUrl, alt: productName });
@@ -398,7 +382,6 @@ export default function CustomerHome() {
 
         <ProductCarousel
           products={typeFilteredProducts}
-          onRequireLogin={handleRequireLogin}
           onStockUpdate={handleStockUpdate}
           onImageClick={handleImageClick}
           viewMode={viewMode === 'carousel' ? 'grid' : 'list'}
@@ -408,7 +391,7 @@ export default function CustomerHome() {
   };
 
   return (
-    <AppHeaderLayout>
+    <CustomerHeaderLayout>
       <Head title="Produce" />
 
       <div id="produce-sections" className="flex flex-col items-center justify-center gap-2 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">
@@ -442,22 +425,6 @@ export default function CustomerHome() {
             renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
           )
         ) : null}
-
-        {/* Login Confirmation Dialog */}
-        <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Login Required</DialogTitle>
-              <DialogDescription>
-                You must be logged in to add products to your cart.
-              </DialogDescription>
-              <div className="flex gap-4 mt-4">
-                <Button className="w-full" onClick={() => router.visit('/login')}>Go to Login</Button>
-                <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>Cancel</Button>
-              </div>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
 
         {/* Image Lightbox */}
         <ImageLightbox

@@ -17,44 +17,47 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogisticController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $logistic = Auth::user();
+        $perPage = $request->get('per_page', 5);
         
         // Get assigned orders for this logistic - show all orders including delivered for auditing
-        $assignedOrders = SalesAudit::where('logistic_id', $logistic->id)
+        $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
             ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered'])
             ->with(['customer', 'address', 'auditTrail.product'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($order) {
-                return [
-                    'id' => $order->id,
-                    'customer' => [
-                        'name' => $order->customer->name,
-                        'email' => $order->customer->email,
-                        'contact_number' => $order->customer->contact_number,
-                    ],
-                    'delivery_address' => $order->address ? 
-                        $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
-                        null,
-                    'total_amount' => $order->total_amount,
-                    'delivery_status' => $order->delivery_status,
-                    'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
-                    'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
-                    'delivered_time' => $order->delivered_time?->toISOString(),
-                    'delivery_timeline' => $order->getDeliveryTimeline(),
-                    'created_at' => $order->created_at->toISOString(),
-                    'audit_trail' => $order->getAggregatedAuditTrail(),
-                ];
-            });
+            ->orderBy('created_at', 'desc');
 
-        // Count orders by delivery status
-        $pendingCount = $assignedOrders->where('delivery_status', 'pending')->count();
-        $readyToPickupCount = $assignedOrders->where('delivery_status', 'ready_to_pickup')->count();
-        $outForDeliveryCount = $assignedOrders->where('delivery_status', 'out_for_delivery')->count();
-        $deliveredCount = $assignedOrders->where('delivery_status', 'delivered')->count();
+        // Get stats before pagination
+        $allOrders = $query->get();
+        $pendingCount = $allOrders->where('delivery_status', 'pending')->count();
+        $readyToPickupCount = $allOrders->where('delivery_status', 'ready_to_pickup')->count();
+        $outForDeliveryCount = $allOrders->where('delivery_status', 'out_for_delivery')->count();
+        $deliveredCount = $allOrders->where('delivery_status', 'delivered')->count();
+
+        // Paginate orders
+        $assignedOrders = $query->paginate($perPage)->through(function ($order) {
+            return [
+                'id' => $order->id,
+                'customer' => [
+                    'name' => $order->customer->name,
+                    'email' => $order->customer->email,
+                    'contact_number' => $order->customer->contact_number,
+                ],
+                'delivery_address' => $order->address ? 
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                    null,
+                'total_amount' => $order->total_amount,
+                'delivery_status' => $order->delivery_status,
+                'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
+                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                'delivered_time' => $order->delivered_time?->toISOString(),
+                'delivery_timeline' => $order->getDeliveryTimeline(),
+                'created_at' => $order->created_at->toISOString(),
+                'audit_trail' => $order->getAggregatedAuditTrail(),
+            ];
+        });
 
         return Inertia::render('Logistic/dashboard', [
             'assignedOrders' => $assignedOrders,
@@ -63,7 +66,7 @@ class LogisticController extends Controller
                 'ready_to_pickup' => $readyToPickupCount,
                 'out_for_delivery' => $outForDeliveryCount,
                 'delivered' => $deliveredCount,
-                'total' => $assignedOrders->count(),
+                'total' => $allOrders->count(),
             ],
         ]);
     }
@@ -72,6 +75,21 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         $status = $request->get('status', 'all');
+        $perPage = $request->get('per_page', 5);
+        
+        // Get base query for all orders
+        $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
+            ->where('status', 'approved')
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']);
+
+        // Get counts for each status
+        $statusCounts = [
+            'all' => $baseQuery->count(),
+            'pending' => (clone $baseQuery)->where('delivery_status', 'pending')->count(),
+            'ready_to_pickup' => (clone $baseQuery)->where('delivery_status', 'ready_to_pickup')->count(),
+            'out_for_delivery' => (clone $baseQuery)->where('delivery_status', 'out_for_delivery')->count(),
+            'delivered' => (clone $baseQuery)->where('delivery_status', 'delivered')->count(),
+        ];
         
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
@@ -83,32 +101,32 @@ class LogisticController extends Controller
             $query->where('delivery_status', $status);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get()
-            ->map(function ($order) {
-                return [
-                    'id' => $order->id,
-                    'customer' => [
-                        'name' => $order->customer->name,
-                        'email' => $order->customer->email,
-                        'contact_number' => $order->customer->contact_number,
-                    ],
-                    'delivery_address' => $order->address ? 
-                        $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
-                        null,
-                    'total_amount' => $order->total_amount,
-                    'delivery_status' => $order->delivery_status,
-                    'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
-                    'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
-                    'delivered_time' => $order->delivered_time?->toISOString(),
-                    'delivery_timeline' => $order->getDeliveryTimeline(),
-                    'created_at' => $order->created_at->toISOString(),
-                    'audit_trail' => $order->getAggregatedAuditTrail(),
-                ];
-            });
+        $orders = $query->orderBy('created_at', 'desc')->paginate($perPage)->through(function ($order) {
+            return [
+                'id' => $order->id,
+                'customer' => [
+                    'name' => $order->customer->name,
+                    'email' => $order->customer->email,
+                    'contact_number' => $order->customer->contact_number,
+                ],
+                'delivery_address' => $order->address ? 
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                    null,
+                'total_amount' => $order->total_amount,
+                'delivery_status' => $order->delivery_status,
+                'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
+                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                'delivered_time' => $order->delivered_time?->toISOString(),
+                'delivery_timeline' => $order->getDeliveryTimeline(),
+                'created_at' => $order->created_at->toISOString(),
+                'audit_trail' => $order->getAggregatedAuditTrail(),
+            ];
+        });
 
         return Inertia::render('Logistic/assignedOrders', [
             'orders' => $orders,
             'currentStatus' => $status,
+            'statusCounts' => $statusCounts,
         ]);
     }
 
@@ -390,6 +408,8 @@ class LogisticController extends Controller
         $deliveryStatus = $request->get('delivery_status', 'all');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+        $search = $request->get('search');
+        $perPage = $request->get('per_page', 5);
 
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
@@ -408,24 +428,51 @@ class LogisticController extends Controller
             $query->where('delivery_status', $deliveryStatus);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
 
-        // Calculate summary statistics
+        // For exports, get all data
+        if ($format === 'csv' || $format === 'pdf') {
+            $orders = $query->orderBy('created_at', 'desc')->get();
+            
+            // Calculate summary statistics
+            $summary = [
+                'total_orders' => $orders->count(),
+                'total_revenue' => $orders->sum('total_amount'),
+                'pending_orders' => $orders->where('delivery_status', 'pending')->count(),
+                'out_for_delivery_orders' => $orders->where('delivery_status', 'out_for_delivery')->count(),
+                'delivered_orders' => $orders->where('delivery_status', 'delivered')->count(),
+                'average_order_value' => $orders->count() > 0 ? $orders->avg('total_amount') : 0,
+            ];
+
+            if ($format === 'csv') {
+                return $this->exportToCsv($orders, $summary, $display);
+            } else {
+                return $this->exportToPdf($orders, $summary, $display);
+            }
+        }
+
+        // For view, get summary from all matching records
+        $allOrders = $query->get();
         $summary = [
-            'total_orders' => $orders->count(),
-            'total_revenue' => $orders->sum('total_amount'),
-            'pending_orders' => $orders->where('delivery_status', 'pending')->count(),
-            'out_for_delivery_orders' => $orders->where('delivery_status', 'out_for_delivery')->count(),
-            'delivered_orders' => $orders->where('delivery_status', 'delivered')->count(),
-            'average_order_value' => $orders->count() > 0 ? $orders->avg('total_amount') : 0,
+            'total_orders' => $allOrders->count(),
+            'total_revenue' => $allOrders->sum('total_amount'),
+            'pending_orders' => $allOrders->where('delivery_status', 'pending')->count(),
+            'out_for_delivery_orders' => $allOrders->where('delivery_status', 'out_for_delivery')->count(),
+            'delivered_orders' => $allOrders->where('delivery_status', 'delivered')->count(),
+            'average_order_value' => $allOrders->count() > 0 ? $allOrders->avg('total_amount') : 0,
         ];
 
-        // If export is requested
-        if ($format === 'csv') {
-            return $this->exportToCsv($orders, $summary, $display);
-        } elseif ($format === 'pdf') {
-            return $this->exportToPdf($orders, $summary, $display);
-        }
+        // Paginate for view
+        $orders = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         // Return view for display
         return Inertia::render('Logistic/report', [
@@ -435,6 +482,7 @@ class LogisticController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'delivery_status' => $deliveryStatus,
+                'search' => $search,
             ],
         ]);
     }

@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { LogisticHeader } from '@/components/logistic-header';
+import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
 import { CheckCircle, Eye, Truck, Package, Clock, TrendingUp, ArrowRight, MapPin, Calendar } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -35,8 +35,23 @@ interface Order {
   }>;
 }
 
+interface PaginatedOrders {
+  data: Order[];
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  from: number;
+  to: number;
+  total: number;
+}
+
 interface LogisticDashboardProps {
-  assignedOrders: Order[];
+  assignedOrders: PaginatedOrders;
   stats: {
     pending: number;
     ready_to_pickup: number;
@@ -66,7 +81,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
 
   return (
     <div className="min-h-screen bg-background">
-      <LogisticHeader />
+      <LogisticsHeader />
       <Head title={t('logistic.dashboard')} />
       
       <div className="p-6 pt-25 space-y-8">
@@ -77,7 +92,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
@@ -89,13 +104,13 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-yellow-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.pending')}</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
+              <Clock className="h-4 w-4 text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{stats.pending}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.awaiting_preparation')}</p>
             </CardContent>
           </Card>
@@ -111,24 +126,24 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-blue-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-accent">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
-              <Truck className="h-4 w-4 text-blue-600" />
+              <Truck className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{stats.out_for_delivery}</div>
+              <div className="text-3xl font-bold text-accent">{stats.out_for_delivery}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.in_transit')}</p>
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-green-500">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-secondary">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.delivered')}</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{stats.delivered}</div>
+              <div className="text-3xl font-bold text-secondary">{stats.delivered}</div>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.successfully_delivered')}</p>
             </CardContent>
           </Card>
@@ -137,7 +152,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
         {/* Assigned Orders */}
         <Card className="hover:shadow-lg transition-shadow duration-200">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <CardTitle className="text-foreground flex items-center gap-2">
                   <Package className="h-5 w-5" />
@@ -145,24 +160,16 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">{t('logistic.latest_assigned_orders')}</p>
               </div>
-              <div className="flex space-x-2">
-                <Link href={route('logistic.report')}>
-                  <Button variant="outline" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    {t('logistic.generate_report')}
-                  </Button>
-                </Link>
-                <Link href={route('logistic.orders.index')}>
-                  <Button variant="outline" className="group">
-                    {t('logistic.view_all_orders')}
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
+              <Link href={route('logistic.report')} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  {t('logistic.generate_report')}
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent>
-            {assignedOrders.length === 0 ? (
+            {assignedOrders.data.length === 0 ? (
               <div className="text-center py-12">
                 <div className="p-4 bg-muted/50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <Package className="h-8 w-8 text-muted-foreground" />
@@ -172,38 +179,38 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
               </div>
             ) : (
               <div className="space-y-4">
-                {assignedOrders.slice(0, 5).map((order) => (
-                  <div key={order.id} className="border border-border rounded-lg p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
-                    <div className="flex items-center justify-between">
+                {assignedOrders.data.map((order) => (
+                  <div key={order.id} className="border border-border rounded-lg p-4 sm:p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center flex-wrap gap-2 mb-3">
                           <h3 className="font-semibold text-foreground text-lg">{t('logistic.order_number', { id: order.id })}</h3>
                           {getDeliveryStatusBadge(order.delivery_status)}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 text-sm">
                           <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.customer')}:</span>
-                            <span className="font-medium text-foreground">{order.customer.name}</span>
+                            <span className="font-medium text-foreground truncate">{order.customer.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.date')}:</span>
                             <span className="font-medium text-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="text-muted-foreground">{t('logistic.total')}:</span>
                             <span className="font-medium text-foreground">₱{order.total_amount.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Link href={route('logistic.orders.show', order.id)}>
+                      <div className="flex items-center">
+                        <Link href={route('logistic.orders.show', order.id)} className="w-full lg:w-auto">
                           <Button 
                             variant="outline" 
                             size="sm"
-                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                            className="w-full lg:w-auto group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             {t('logistic.view_details')}
@@ -213,12 +220,12 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
                     </div>
                   </div>
                 ))}
-                {assignedOrders.length > 5 && (
-                  <div className="text-center pt-4">
+                {assignedOrders.total > 5 && (
+                  <div className="flex justify-center pt-4">
                     <Link href={route('logistic.orders.index')}>
-                      <Button variant="ghost" className="text-primary hover:text-primary/80">
-                        {t('logistic.view_more_orders', { count: assignedOrders.length - 5 })}
-                        <ArrowRight className="h-4 w-4 ml-2" />
+                      <Button variant="outline" className="group">
+                        {t('logistic.view_all_orders')}
+                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
                   </div>

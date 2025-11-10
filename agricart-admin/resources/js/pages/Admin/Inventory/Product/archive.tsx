@@ -1,7 +1,7 @@
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { PermissionGate } from '@/components/permission-gate';
-import { FlashMessage } from '@/components/flash-message';
+import { PermissionGate } from '@/components/common/permission-gate';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
