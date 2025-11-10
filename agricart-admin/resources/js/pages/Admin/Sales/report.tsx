@@ -26,6 +26,7 @@ interface Sale {
   cogs: number;
   gross_profit: number;
   created_at: string;
+  delivered_at?: string;
   admin?: {
     name: string;
     id: number;
@@ -497,7 +498,7 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                         <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.revenue_column')}</th>
                         <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.cogs')}</th>
                         <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.gross_profit')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.date')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">Delivered Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -540,8 +541,8 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                             </Badge>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="text-sm text-foreground">{dayjs(sale.created_at).format('MMM DD, YYYY')}</div>
-                            <div className="text-xs text-muted-foreground">{dayjs(sale.created_at).format('HH:mm')}</div>
+                            <div className="text-sm text-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('MMM DD, YYYY') : 'N/A'}</div>
+                            <div className="text-xs text-muted-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('HH:mm') : ''}</div>
                           </td>
                         </tr>
                       ))}
