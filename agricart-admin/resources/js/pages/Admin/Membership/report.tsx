@@ -168,9 +168,6 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       case 'name':
         comparison = a.name.localeCompare(b.name);
         break;
-      case 'contact_number':
-        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-        break;
       case 'registration_date':
         const dateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
         const dateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
@@ -687,13 +684,7 @@ function MemberTable({
               </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button 
-                onClick={() => onSort('contact_number')} 
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                {t('admin.contact_number')}
-                {getSortIcon('contact_number')}
-              </button>
+              {t('admin.contact_number')}
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
