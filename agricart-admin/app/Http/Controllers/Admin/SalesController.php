@@ -117,6 +117,8 @@ class SalesController extends Controller
         $search = $request->get('search');
         $minAmount = $request->get('min_amount');
         $maxAmount = $request->get('max_amount');
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -153,7 +155,6 @@ class SalesController extends Controller
 
         // Optimize: Load only essential fields for reporting
         $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
-            ->orderBy('delivered_at', 'desc')
             ->get();
 
         // Calculate summary statistics from filtered results only
@@ -202,6 +203,18 @@ class SalesController extends Controller
                 ] : null,
             ];
         });
+
+        // Apply sorting
+        $sales = $sales->sortBy(function ($sale) use ($sortBy) {
+            switch ($sortBy) {
+                case 'customer':
+                    return $sale['customer']['name'];
+                case 'delivered_at':
+                    return $sale['delivered_at'] ? $sale['delivered_at']->timestamp : 0;
+                default:
+                    return $sale[$sortBy] ?? 0;
+            }
+        }, SORT_REGULAR, $sortOrder === 'desc')->values();
 
         // If export is requested - same pattern as Orders Report
         if ($format === 'csv') {
