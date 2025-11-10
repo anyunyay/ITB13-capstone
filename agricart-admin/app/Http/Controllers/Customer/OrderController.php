@@ -196,7 +196,7 @@ class OrderController extends Controller
         $total = $allOrders->count();
         $paginatedOrders = $allOrders->forPage($page, $perPage)->values();
 
-        return Inertia::render('Customer/Order History/index', [
+        return Inertia::render('Customer/OrderHistory/index', [
             'orders' => $paginatedOrders,
             'currentStatus' => $status,
             'currentDeliveryStatus' => $deliveryStatus,
@@ -357,7 +357,7 @@ class OrderController extends Controller
         }
 
         // Return view for display
-        return Inertia::render('Customer/Order History/report', [
+        return Inertia::render('Customer/OrderHistory/report', [
             'orders' => $allOrders,
             'summary' => $summary,
             'filters' => [

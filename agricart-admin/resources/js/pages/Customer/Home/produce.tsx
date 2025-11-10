@@ -391,7 +391,7 @@ export default function CustomerHome() {
   };
 
   return (
-    <CustomerHeaderLayout>
+    <AppHeaderLayout>
       <Head title="Produce" />
 
       <div id="produce-sections" className="flex flex-col items-center justify-center gap-2 px-2 sm:px-4 py-12 sm:py-16 mt-10 bg-background">

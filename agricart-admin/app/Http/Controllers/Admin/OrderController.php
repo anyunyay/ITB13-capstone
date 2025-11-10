@@ -326,6 +326,13 @@ class OrderController extends Controller
         // Notify logistic about delivery task
         $logistic->notify(new DeliveryTaskNotification($order));
 
+        // Send delivery status notification to customer now that logistic is assigned
+        $order->customer?->notify(new \App\Notifications\DeliveryStatusUpdate(
+            $order->id,
+            'pending',
+            'Your order is being prepared for delivery.'
+        ));
+
         return redirect()->route('admin.orders.show', $order->id)
             ->with('message', "Order assigned to {$logistic->name} successfully");
     }
@@ -510,13 +517,6 @@ class OrderController extends Controller
 
         // Notify the customer with status update
         $order->customer?->notify(new OrderStatusUpdate($order->id, 'approved', 'Your order has been approved and is being processed.'));
-
-        // Send delivery status notification for "Preparing" stage
-        $order->customer?->notify(new \App\Notifications\DeliveryStatusUpdate(
-            $order->id,
-            'pending',
-            'Your order is being prepared for delivery.'
-        ));
 
         // Send order receipt email to customer
         $order->customer?->notify(new OrderReceipt($order));

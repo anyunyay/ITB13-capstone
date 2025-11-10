@@ -3,10 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
 import { OrderItemsTable } from '@/components/orders/order-items-table';
@@ -237,8 +234,13 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
       onSuccess: () => {
         setApproveDialogOpen(false);
         approveForm.reset();
-        // Auto-open logistics assignment dialog after approval
-        setAssignLogisticDialogOpen(true);
+        // Reload to get updated order data, then auto-open logistics assignment dialog
+        router.reload({
+          only: ['order'],
+          onSuccess: () => {
+            setAssignLogisticDialogOpen(true);
+          }
+        });
       },
     });
   };
@@ -499,7 +501,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
               <img
                 src={currentOrder.delivery_proof_image}
                 alt={t('admin.delivery_proof')}
-                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                 className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm border"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;

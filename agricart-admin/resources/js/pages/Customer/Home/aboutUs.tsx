@@ -115,7 +115,7 @@ export default function AboutUs({ }: PageProps) {
   ];
 
   return (
-    <CustomerHeaderLayout>
+    <AppHeaderLayout>
       <Head title="About Us - SMMC Cooperative" />
 
       {/* Hero Section - Fixed outside scroll container */}

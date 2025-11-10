@@ -105,7 +105,7 @@ export default function CustomerHome({ products }: PageProps) {
   ];
 
   return (
-    <CustomerHeaderLayout>
+    <AppHeaderLayout>
       <Head title="Home - SMMC Cooperative" />
 
       {/* Hero Section - Fixed outside scroll container */}
