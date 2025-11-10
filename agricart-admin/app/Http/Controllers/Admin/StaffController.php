@@ -361,12 +361,8 @@ class StaffController extends Controller
             switch ($sortBy) {
                 case 'name':
                     return $member->name;
-                case 'email':
-                    return $member->email;
-                case 'contact_number':
-                    return $member->contact_number ?? '';
-                case 'permissions':
-                    return $member->permissions->count();
+                case 'status':
+                    return $member->email_verified_at ? 1 : 0; // Active = 1, Inactive = 0
                 case 'created_at':
                     return $member->created_at->timestamp;
                 default:

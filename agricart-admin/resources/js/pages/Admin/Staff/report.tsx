@@ -226,14 +226,8 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       case 'name':
         comparison = a.name.localeCompare(b.name);
         break;
-      case 'email':
-        comparison = a.email.localeCompare(b.email);
-        break;
-      case 'contact_number':
-        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-        break;
-      case 'permissions':
-        comparison = a.permissions.length - b.permissions.length;
+      case 'status':
+        comparison = (a.email_verified_at ? 1 : 0) - (b.email_verified_at ? 1 : 0);
         break;
       case 'created_at':
         comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -679,33 +673,23 @@ function StaffTable({ staff, sortBy, sortOrder, onSort, getSortIcon }: StaffTabl
               </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button
-                onClick={() => onSort('email')}
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                Email
-                {getSortIcon('email')}
-              </button>
+              Email
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              Contact
+            </th>
+            <th className="text-center py-3 px-4 font-semibold text-foreground">
+              Permissions
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
               <button
-                onClick={() => onSort('contact_number')}
+                onClick={() => onSort('status')}
                 className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
-                Contact
-                {getSortIcon('contact_number')}
+                Status
+                {getSortIcon('status')}
               </button>
             </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button
-                onClick={() => onSort('permissions')}
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                Permissions
-                {getSortIcon('permissions')}
-              </button>
-            </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
               <button
                 onClick={() => onSort('created_at')}
