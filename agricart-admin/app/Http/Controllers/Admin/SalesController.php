@@ -27,7 +27,7 @@ class SalesController extends Controller
         }
 
         // Optimize: Load only essential fields for pagination
-        $salesRaw = $query->select('id', 'customer_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
+        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
             ->orderBy('delivered_at', 'desc')
             ->get();
 
@@ -81,7 +81,6 @@ class SalesController extends Controller
                     'contact_number' => $sale->logistic->contact_number,
                 ] : null,
                 'delivered_at' => $sale->delivered_at?->toISOString(),
-                'created_at' => $sale->created_at?->toISOString(),
                 'customer_received' => $sale->customer_received,
                 'customer_rate' => $sale->customer_rate,
                 'customer_feedback' => $sale->customer_feedback,
@@ -153,7 +152,7 @@ class SalesController extends Controller
         }
 
         // Optimize: Load only essential fields for reporting
-        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at', 'created_at')
+        $salesRaw = $query->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'delivered_at')
             ->orderBy('delivered_at', 'desc')
             ->get();
 
@@ -177,16 +176,43 @@ class SalesController extends Controller
             'total_customers' => $salesRaw->unique('customer_id')->count(),
         ];
 
+        // Map sales with COGS and gross profit calculations
+        $sales = $salesRaw->map(function ($sale) {
+            $cogs = ($sale->member_share / 1.3) * 0.7;
+            $grossProfit = $sale->member_share - $cogs;
+
+            return [
+                'id' => $sale->id,
+                'customer' => [
+                    'name' => $sale->customer->name ?? 'N/A',
+                    'email' => $sale->customer->email ?? 'N/A',
+                ],
+                'total_amount' => $sale->total_amount,
+                'subtotal' => $sale->subtotal,
+                'coop_share' => $sale->coop_share,
+                'member_share' => $sale->member_share,
+                'cogs' => $cogs,
+                'gross_profit' => $grossProfit,
+                'delivered_at' => $sale->delivered_at,
+                'admin' => $sale->admin ? [
+                    'name' => $sale->admin->name,
+                ] : null,
+                'logistic' => $sale->logistic ? [
+                    'name' => $sale->logistic->name,
+                ] : null,
+            ];
+        });
+
         // If export is requested - same pattern as Orders Report
         if ($format === 'csv') {
-            return $this->exportToCsv($salesRaw, $summary, $display);
+            return $this->exportToCsv($sales, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($salesRaw, $summary, $display);
+            return $this->exportToPdf($sales, $summary, $display);
         }
 
         // Return Inertia page for report view
         return Inertia::render('Admin/Sales/report', [
-            'sales' => $salesRaw,
+            'sales' => $sales,
             'summary' => $summary,
             'filters' => [
                 'start_date' => $startDate,
@@ -234,19 +260,16 @@ class SalesController extends Controller
             fputcsv($file, ['Sale ID', 'Customer', 'Email', 'Total Amount', 'Coop Share', 'Member Share', 'COGS', 'Gross Profit', 'Delivered Date']);
 
             foreach ($salesRaw as $sale) {
-                $cogs = ($sale->member_share / 1.3) * 0.7;
-                $grossProfit = $sale->member_share - $cogs;
-
                 fputcsv($file, [
-                    $sale->id,
-                    $sale->customer?->name ?? 'N/A',
-                    $sale->customer?->email ?? 'N/A',
-                    number_format($sale->total_amount, 2),
-                    number_format($sale->coop_share, 2),
-                    number_format($sale->member_share, 2),
-                    number_format($cogs, 2),
-                    number_format($grossProfit, 2),
-                    $sale->delivered_at ? $sale->delivered_at->format('Y-m-d H:i:s') : 'N/A'
+                    $sale['id'],
+                    $sale['customer']['name'] ?? 'N/A',
+                    $sale['customer']['email'] ?? 'N/A',
+                    number_format($sale['total_amount'], 2),
+                    number_format($sale['coop_share'], 2),
+                    number_format($sale['member_share'], 2),
+                    number_format($sale['cogs'], 2),
+                    number_format($sale['gross_profit'], 2),
+                    $sale['delivered_at'] ? $sale['delivered_at']->format('Y-m-d H:i:s') : 'N/A'
                 ]);
             }
 
