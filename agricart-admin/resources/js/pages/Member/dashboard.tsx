@@ -127,45 +127,45 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 mb-2 lg:mb-4">
                     {/* Available Stock Card */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.available_stock')}</CardTitle>
                             <Package className="h-3 w-3 lg:h-4 lg:w-4 text-green-400 flex-shrink-0" />
                         </CardHeader>
-                        <CardContent className="pt-2">
-                            <div className="text-xl lg:text-2xl font-bold text-green-400">{summary.availableStocks}</div>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-green-400">{summary.availableStocks}</div>
                             <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.units_ready_for_sale', { units: summary.availableQuantity })}</p>
                         </CardContent>
                     </Card>
                     {/* Sold Out Stock Card */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.completely_sold')}</CardTitle>
                             <CheckCircle className="h-3 w-3 lg:h-4 lg:w-4 text-purple-400 flex-shrink-0" />
                         </CardHeader>
-                        <CardContent className="pt-2">
-                            <div className="text-xl lg:text-2xl font-bold text-purple-400">{summary.completelySoldStocks}</div>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-purple-400">{summary.completelySoldStocks}</div>
                             <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.stocks_fully_sold_out')}</p>
                         </CardContent>
                     </Card>
                     {/* Total Available Stock Card */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_stock')}</CardTitle>
                             <Package className="h-3 w-3 lg:h-4 lg:w-4 text-muted-foreground flex-shrink-0" />
                         </CardHeader>
-                        <CardContent className="pt-2">
-                            <div className="text-xl lg:text-2xl font-bold text-foreground">{summary.totalStocks}</div>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-foreground">{summary.totalStocks}</div>
                             <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_units', { units: summary.totalQuantity })}</p>
                         </CardContent>
                     </Card>
                     {/* Total Revenue Card */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-2">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_revenue')}</CardTitle>
                             <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-400 flex-shrink-0" />
                         </CardHeader>
-                        <CardContent className="pt-2">
-                            <div className="text-xl lg:text-2xl font-bold text-yellow-400">₱{summary.totalRevenue.toLocaleString()}</div>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-yellow-400">₱{summary.totalRevenue.toLocaleString()}</div>
                             <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.from_sales', { sales: summary.totalSales })}</p>
                         </CardContent>
                     </Card>
