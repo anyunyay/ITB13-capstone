@@ -12,9 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Users } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 interface Permission {
   id: number;
@@ -56,7 +57,15 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  
+
+  // Sorting state
+  const [sortBy, setSortBy] = useState('id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -110,7 +119,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
     if (localFilters.end_date) params.end_date = localFilters.end_date;
     if (localFilters.status !== 'all') params.status = localFilters.status;
     if (localFilters.search) params.search = localFilters.search;
-    
+
     router.get(route('admin.staff.report'), params);
   };
 
@@ -121,7 +130,9 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
     if (localFilters.status !== 'all') params.append('status', localFilters.status);
     if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
-    
+    params.append('sort_by', sortBy);
+    params.append('sort_order', sortOrder);
+
     if (format === 'csv') {
       // For CSV: just download, no display
       const downloadUrl = `${route('admin.staff.report')}?${params.toString()}`;
@@ -134,7 +145,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
     } else {
       // For PDF: download and display
       const downloadUrl = `${route('admin.staff.report')}?${params.toString()}`;
-      
+
       // Create display URL for viewing
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
@@ -142,9 +153,11 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       if (localFilters.status !== 'all') displayParams.append('status', localFilters.status);
       if (localFilters.search) displayParams.append('search', localFilters.search);
       displayParams.append('format', format);
+      displayParams.append('sort_by', sortBy);
+      displayParams.append('sort_order', sortOrder);
       displayParams.append('display', 'true');
       const displayUrl = `${route('admin.staff.report')}?${displayParams.toString()}`;
-      
+
       // Download the file
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
@@ -152,7 +165,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
+
       // Open display in new tab after a short delay
       setTimeout(() => {
         window.open(displayUrl, '_blank');
@@ -180,9 +193,72 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   };
 
   const hasActiveFilters = () => {
-    return localFilters.start_date || localFilters.end_date || 
-           localFilters.status !== 'all' || localFilters.search;
+    return localFilters.start_date || localFilters.end_date ||
+      localFilters.status !== 'all' || localFilters.search;
   };
+
+  // Helper to get sort icon
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ?
+      <ArrowUp className="h-4 w-4 ml-1" /> :
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Sort staff data
+  const sortedStaff = [...staff].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'name':
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case 'email':
+        comparison = a.email.localeCompare(b.email);
+        break;
+      case 'contact_number':
+        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
+        break;
+      case 'permissions':
+        comparison = a.permissions.length - b.permissions.length;
+        break;
+      case 'created_at':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedStaff.length / itemsPerPage);
+  const paginatedStaff = sortedStaff.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [staff.length]);
 
   return (
     <AppSidebarLayout>
@@ -227,7 +303,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                 <p className="text-xs text-muted-foreground mt-1">{t('staff.all_staff_members')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.active_staff')}</CardTitle>
@@ -237,7 +313,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                 <p className="text-xs text-muted-foreground mt-1">{t('staff.verified_accounts')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.with_permissions')}</CardTitle>
@@ -247,7 +323,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                 <p className="text-xs text-muted-foreground mt-1">{t('staff.have_assigned_permissions')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('staff.total_permissions')}</CardTitle>
@@ -378,9 +454,9 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                             selected={endDate}
                             onSelect={handleEndDateChange}
                             initialFocus
-                            disabled={(date) => 
-                              date > new Date() || 
-                              date < new Date("1900-01-01") || 
+                            disabled={(date) =>
+                              date > new Date() ||
+                              date < new Date("1900-01-01") ||
                               (startDate ? date < startDate : false)
                             }
                           />
@@ -419,7 +495,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                 <CardTitle className="text-xl">Staff Report ({staff.length} members)</CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground">
-                    {staff.length > 0 ? `Showing ${staff.length} staff members` : 'No members found'}
+                    {staff.length > 0 ? `Showing ${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, sortedStaff.length)} of ${sortedStaff.length}` : 'No members found'}
                   </div>
                   <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                 </div>
@@ -430,12 +506,25 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                 <>
                   {currentView === 'cards' ? (
                     <div className="space-y-4">
-                      {staff.map((member) => (
+                      {paginatedStaff.map((member) => (
                         <StaffCard key={member.id} staff={member} />
                       ))}
                     </div>
                   ) : (
-                    <StaffTable staff={staff} />
+                    <StaffTable staff={paginatedStaff} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} getSortIcon={getSortIcon} />
+                  )}
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="mt-6">
+                      <PaginationControls
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={sortedStaff.length}
+                      />
+                    </div>
                   )}
                 </>
               ) : (
@@ -446,7 +535,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                     </div>
                     <h3 className="text-lg font-medium text-foreground mb-2">No staff found</h3>
                     <p className="text-muted-foreground max-w-md">
-                      {hasActiveFilters() 
+                      {hasActiveFilters()
                         ? 'No staff match your current filter criteria. Try adjusting your filters to see more results.'
                         : 'No staff data available for the selected time period.'
                       }
@@ -505,20 +594,20 @@ function StaffCard({ staff }: { staff: Staff }) {
             </h4>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium text-foreground">Email:</span> 
+                <span className="font-medium text-foreground">Email:</span>
                 <span className="text-muted-foreground ml-2">{staff.email}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Contact:</span> 
+                <span className="font-medium text-foreground">Contact:</span>
                 <span className="text-muted-foreground ml-2">{staff.contact_number || 'N/A'}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Created:</span> 
+                <span className="font-medium text-foreground">Created:</span>
                 <span className="text-muted-foreground ml-2">{dayjs(staff.created_at).format('MMM DD, YYYY')}</span>
               </p>
             </div>
           </div>
-          
+
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
@@ -549,54 +638,15 @@ function StaffCard({ staff }: { staff: Staff }) {
   );
 }
 
-function StaffTable({ staff }: { staff: Staff[] }) {
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+interface StaffTableProps {
+  staff: Staff[];
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+  onSort: (field: string) => void;
+  getSortIcon: (field: string) => React.ReactElement;
+}
 
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('desc');
-    }
-  };
-
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
-  // Sort staff
-  const sortedStaff = [...staff].sort((a, b) => {
-    let comparison = 0;
-    switch (sortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'name':
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case 'email':
-        comparison = a.email.localeCompare(b.email);
-        break;
-      case 'contact_number':
-        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-        break;
-      case 'permissions':
-        comparison = a.permissions.length - b.permissions.length;
-        break;
-      case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      default:
-        return 0;
-    }
-    return sortOrder === 'asc' ? comparison : -comparison;
-  });
-
+function StaffTable({ staff, sortBy, sortOrder, onSort, getSortIcon }: StaffTableProps) {
   const getStatusBadge = (staff: Staff) => {
     if (staff.email_verified_at) {
       return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
@@ -611,70 +661,64 @@ function StaffTable({ staff }: { staff: Staff[] }) {
         <thead>
           <tr className="border-b border-border bg-muted/50">
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('id')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('id')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Staff ID
                 {getSortIcon('id')}
-              </Button>
+              </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('name')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('name')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Name
                 {getSortIcon('name')}
-              </Button>
+              </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('email')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('email')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Email
                 {getSortIcon('email')}
-              </Button>
+              </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('contact_number')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('contact_number')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Contact
                 {getSortIcon('contact_number')}
-              </Button>
+              </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('permissions')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('permissions')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Permissions
                 {getSortIcon('permissions')}
-              </Button>
+              </button>
             </th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">Status</th>
             <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('created_at')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              <button
+                onClick={() => onSort('created_at')}
+                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
               >
                 Created
                 {getSortIcon('created_at')}
-              </Button>
+              </button>
             </th>
           </tr>
         </thead>
         <tbody>
-          {sortedStaff.map((member, index) => (
+          {staff.map((member, index) => (
             <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
