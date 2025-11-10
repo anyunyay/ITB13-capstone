@@ -87,19 +87,19 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
       <div className="p-6 pt-25 space-y-8">
         {/* Welcome Section */}
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">{t('logistic.welcome_back')}</h1>
+          <h3 className="text-4xl font-bold text-foreground">{t('logistic.welcome_back')}</h3>
           <p className="text-lg text-muted-foreground">{t('logistic.whats_happening_today')}</p>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-5">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.total}</div>
+              <h3 className="text-3xl font-bold text-foreground">{stats.total}</h3>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.all_time_orders')}</p>
             </CardContent>
           </Card>
@@ -110,7 +110,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
               <Clock className="h-4 w-4 text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{stats.pending}</div>
+              <h3 className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{stats.pending}</h3>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.awaiting_preparation')}</p>
             </CardContent>
           </Card>
@@ -121,7 +121,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
               <Package className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{stats.ready_to_pickup}</div>
+              <h3 className="text-3xl font-bold text-primary">{stats.ready_to_pickup}</h3>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.ready_for_collection')}</p>
             </CardContent>
           </Card>
@@ -132,18 +132,18 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
               <Truck className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent">{stats.out_for_delivery}</div>
+              <h3 className="text-3xl font-bold text-accent">{stats.out_for_delivery}</h3>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.in_transit')}</p>
             </CardContent>
           </Card>
           
-          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-secondary">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-secondary col-span-2 lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.delivered')}</CardTitle>
               <CheckCircle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-secondary">{stats.delivered}</div>
+              <h3 className="text-3xl font-bold text-secondary">{stats.delivered}</h3>
               <p className="text-xs text-muted-foreground mt-1">{t('logistic.successfully_delivered')}</p>
             </CardContent>
           </Card>
@@ -154,7 +154,7 @@ export default function LogisticDashboard({ assignedOrders, stats }: LogisticDas
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-lg lg:text-xl text-foreground flex items-center gap-2">
                   <Package className="h-5 w-5" />
                   {t('logistic.recent_orders')}
                 </CardTitle>
