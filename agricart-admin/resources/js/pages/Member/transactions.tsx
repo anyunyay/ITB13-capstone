@@ -98,6 +98,52 @@ export default function MemberTransactions({ transactions, availableProducts, su
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
     const [perPage, setPerPage] = useState(filters.per_page || 10);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Detect viewport size changes and update pagination
+    useEffect(() => {
+        const checkMobile = () => {
+            const mobile = window.innerWidth < 768;
+            const wasChanged = mobile !== isMobile;
+            setIsMobile(mobile);
+            
+            // Update perPage based on viewport if it hasn't been manually changed
+            if (wasChanged && (perPage === 5 || perPage === 10 || perPage === 15)) {
+                const newPerPage = mobile ? 5 : 15;
+                setPerPage(newPerPage);
+                
+                // Reset to page 1 and reload data with new pagination limits
+                const params = new URLSearchParams();
+                if (searchTerm) params.set('search', searchTerm);
+                if (productFilter && productFilter !== 'all') params.set('product', productFilter);
+                if (dateFrom) params.set('date_from', dateFrom);
+                if (dateTo) params.set('date_to', dateTo);
+                params.set('per_page', newPerPage.toString());
+                params.set('page', '1'); // Reset to page 1
+                
+                router.get(route('member.transactions'), Object.fromEntries(params), {
+                    preserveState: true,
+                    preserveScroll: true,
+                });
+            }
+        };
+
+        // Initial check
+        checkMobile();
+
+        // Add resize listener with debounce
+        let timeoutId: NodeJS.Timeout;
+        const handleResize = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(checkMobile, 300);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(timeoutId);
+        };
+    }, [isMobile, perPage, searchTerm, productFilter, dateFrom, dateTo]);
 
     useEffect(() => {
         if (!auth?.user) {

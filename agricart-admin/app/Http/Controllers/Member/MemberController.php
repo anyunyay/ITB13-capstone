@@ -30,7 +30,13 @@ class MemberController extends Controller
         // Pagination parameters
         $availablePage = $request->get('available_page', 1);
         $soldPage = $request->get('sold_page', 1);
-        $perPage = 3;
+        
+        // Detect mobile device based on user agent
+        $userAgent = $request->header('User-Agent');
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
+        
+        // Set per page limits based on device
+        $perPage = $isMobile ? 5 : 10;
         
         // Get all stocks for statistics (before pagination)
         $allAvailableStocks = Stock::hasAvailableQuantity()
@@ -116,7 +122,13 @@ class MemberController extends Controller
         
         // Pagination parameters
         $page = $request->get('page', 1);
-        $perPage = 3;
+        
+        // Detect mobile device based on user agent
+        $userAgent = $request->header('User-Agent');
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
+        
+        // Set per page limits based on device
+        $perPage = $isMobile ? 5 : 10;
         
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
@@ -150,7 +162,13 @@ class MemberController extends Controller
         
         // Pagination parameters
         $page = $request->get('page', 1);
-        $perPage = 3;
+        
+        // Detect mobile device based on user agent
+        $userAgent = $request->header('User-Agent');
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
+        
+        // Set per page limits based on device
+        $perPage = $isMobile ? 5 : 10;
         
         // Get all available stocks for total count
         $allAvailableStocks = Stock::hasAvailableQuantity()
@@ -180,7 +198,15 @@ class MemberController extends Controller
         
         // Get pagination parameters
         $stockPage = $request->get('stock_page', 1);
-        $stockPerPage = 10;
+        $transactionPage = $request->get('transaction_page', 1);
+        
+        // Detect mobile device based on user agent
+        $userAgent = $request->header('User-Agent');
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
+        
+        // Set per page limits based on device
+        $stockPerPage = $isMobile ? 5 : 10;
+        $transactionPerPage = $isMobile ? 5 : 15;
         
         // Get all stocks for the member using scopes
         $availableStocks = Stock::hasAvailableQuantity()
@@ -202,16 +228,33 @@ class MemberController extends Controller
             ->values()
             ->toArray();
         
-        // Get transaction data for the toggle view
-        $transactions = AuditTrail::with(['product', 'sale.customer'])
+        // Get transaction data for the toggle view with pagination
+        $transactionsQuery = AuditTrail::with(['product', 'sale.customer'])
             ->whereHas('stock', function($q) use ($user) {
                 $q->where('member_id', $user->id);
             })
             ->whereHas('sale', function($q) {
                 $q->whereNotNull('delivered_time'); // Only show delivered transactions
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->orderBy('created_at', 'desc');
+        
+        // Manual pagination for transactions
+        $totalTransactions = $transactionsQuery->count();
+        $transactions = $transactionsQuery
+            ->skip(($transactionPage - 1) * $transactionPerPage)
+            ->take($transactionPerPage)
+            ->get();
+        
+        // Build transaction pagination data
+        $transactionPagination = [
+            'current_page' => (int) $transactionPage,
+            'per_page' => $transactionPerPage,
+            'total' => $totalTransactions,
+            'last_page' => (int) ceil($totalTransactions / $transactionPerPage),
+            'from' => (($transactionPage - 1) * $transactionPerPage) + 1,
+            'to' => min($transactionPage * $transactionPerPage, $totalTransactions),
+            'data' => $transactions,
+        ];
         
         // Calculate transaction summary
         $summary = $this->calculateTransactionSummary($user->id);
@@ -221,7 +264,17 @@ class MemberController extends Controller
             'salesData' => $salesData,
             'comprehensiveStockData' => $paginatedComprehensiveStockData,
             'allComprehensiveStockData' => $allComprehensiveStockData, // For totals calculation
-            'transactions' => $transactions,
+            'transactions' => [
+                'data' => $transactions,
+                'meta' => [
+                    'current_page' => $transactionPagination['current_page'],
+                    'per_page' => $transactionPagination['per_page'],
+                    'total' => $transactionPagination['total'],
+                    'last_page' => $transactionPagination['last_page'],
+                    'from' => $transactionPagination['from'],
+                    'to' => $transactionPagination['to'],
+                ],
+            ],
             'summary' => $summary,
             'stockPagination' => [
                 'current_page' => (int) $stockPage,
@@ -464,7 +517,14 @@ class MemberController extends Controller
         $productFilter = $request->get('product', '');
         $dateFrom = $request->get('date_from', '');
         $dateTo = $request->get('date_to', '');
-        $perPage = $request->get('per_page', 15);
+        
+        // Detect mobile device based on user agent
+        $userAgent = $request->header('User-Agent');
+        $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
+        
+        // Set per page limits based on device (allow override via request)
+        $defaultPerPage = $isMobile ? 5 : 15;
+        $perPage = $request->get('per_page', $defaultPerPage);
         
         // Build query for member's transactions
         $query = AuditTrail::with(['product', 'sale.customer'])
