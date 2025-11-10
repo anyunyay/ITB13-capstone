@@ -39,7 +39,7 @@ export default function ProfileWrapper({ children, breadcrumbs = [], title }: Pr
             );
         case 'customer':
             return (
-                <CustomerHeaderLayout>
+                <AppHeaderLayout>
                     {profileContent}
                 </AppHeaderLayout>
             );
@@ -57,7 +57,7 @@ export default function ProfileWrapper({ children, breadcrumbs = [], title }: Pr
             );
         default:
             return (
-                <CustomerHeaderLayout>
+                <AppHeaderLayout>
                     {profileContent}
                 </AppHeaderLayout>
             );
