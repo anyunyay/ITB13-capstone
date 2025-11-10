@@ -16,7 +16,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class MemberController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = Auth::user();
         
@@ -27,17 +27,21 @@ class MemberController extends Controller
             ['ip_address' => request()->ip()]
         );
         
-        // Get stocks using scopes
-        $availableStocks = Stock::hasAvailableQuantity()
+        // Pagination parameters
+        $availablePage = $request->get('available_page', 1);
+        $soldPage = $request->get('sold_page', 1);
+        $perPage = 3;
+        
+        // Get all stocks for statistics (before pagination)
+        $allAvailableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
             
-        $soldStocks = Stock::sold()
+        $allSoldStocks = Stock::sold()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
-            
             
         // Get all stocks for debugging
         $allStocks = Stock::where('member_id', $user->id)->get();
@@ -48,11 +52,11 @@ class MemberController extends Controller
         // Calculate summary statistics using already fetched data with clear separation
         $summary = [
             'totalStocks' => $allStocks->count(),
-            'availableStocks' => $availableStocks->count(),
-            'soldStocks' => $soldStocks->count(),
+            'availableStocks' => $allAvailableStocks->count(),
+            'soldStocks' => $allSoldStocks->count(),
             'removedStocks' => Stock::removed()->where('member_id', $user->id)->count(),
             'totalQuantity' => $allStocks->sum('quantity') + $allStocks->sum('sold_quantity'),
-            'availableQuantity' => $availableStocks->sum('quantity'),
+            'availableQuantity' => $allAvailableStocks->sum('quantity'),
             'soldQuantity' => $allStocks->sum('sold_quantity'),
             'completelySoldStocks' => $allStocks->where('quantity', 0)->where('sold_quantity', '>', 0)->count(),
             'totalRevenue' => $salesData['totalRevenue'],
@@ -61,41 +65,95 @@ class MemberController extends Controller
             'totalSales' => $salesData['totalSales'],
         ];
         
+        // Paginate available stocks
+        $availableTotal = $allAvailableStocks->count();
+        $paginatedAvailableStocks = $allAvailableStocks->forPage($availablePage, $perPage)->values();
+        
+        // Paginate sold stocks
+        $soldTotal = $allSoldStocks->count();
+        $paginatedSoldStocks = $allSoldStocks->forPage($soldPage, $perPage)->values();
+        
         return Inertia::render('Member/dashboard', [
-            'availableStocks' => $availableStocks,
-            'soldStocks' => $soldStocks,
+            'availableStocks' => $paginatedAvailableStocks,
+            'soldStocks' => $paginatedSoldStocks,
             'salesData' => $salesData,
-            'summary' => $summary
+            'summary' => $summary,
+            'availablePagination' => [
+                'current_page' => (int) $availablePage,
+                'per_page' => $perPage,
+                'total' => $availableTotal,
+                'last_page' => (int) ceil($availableTotal / $perPage),
+            ],
+            'soldPagination' => [
+                'current_page' => (int) $soldPage,
+                'per_page' => $perPage,
+                'total' => $soldTotal,
+                'last_page' => (int) ceil($soldTotal / $perPage),
+            ],
         ]);
     }
 
-    public function soldStocks()
+    public function soldStocks(Request $request)
     {
         $user = Auth::user();
+        
+        // Pagination parameters
+        $page = $request->get('page', 1);
+        $perPage = 3;
         
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
+        
+        // Paginate sales breakdown
+        $totalSales = count($salesData['salesBreakdown']);
+        $paginatedSalesBreakdown = collect($salesData['salesBreakdown'])
+            ->forPage($page, $perPage)
+            ->values()
+            ->toArray();
+        
+        // Update salesData with paginated breakdown
+        $salesData['salesBreakdown'] = $paginatedSalesBreakdown;
             
         return Inertia::render('Member/soldStocks', [
-            'salesData' => $salesData
+            'salesData' => $salesData,
+            'pagination' => [
+                'current_page' => (int) $page,
+                'per_page' => $perPage,
+                'total' => $totalSales,
+                'last_page' => (int) ceil($totalSales / $perPage),
+            ],
         ]);
     }
 
 
 
-    public function availableStocks()
+    public function availableStocks(Request $request)
     {
         $user = Auth::user();
         
-        // Get available stocks (ready for sale) using scope
-        $availableStocks = Stock::hasAvailableQuantity()
+        // Pagination parameters
+        $page = $request->get('page', 1);
+        $perPage = 3;
+        
+        // Get all available stocks for total count
+        $allAvailableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        // Paginate available stocks
+        $total = $allAvailableStocks->count();
+        $paginatedStocks = $allAvailableStocks->forPage($page, $perPage)->values();
             
         return Inertia::render('Member/availableStocks', [
-            'availableStocks' => $availableStocks
+            'availableStocks' => $paginatedStocks,
+            'pagination' => [
+                'current_page' => (int) $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => (int) ceil($total / $perPage),
+            ],
         ]);
     }
 
