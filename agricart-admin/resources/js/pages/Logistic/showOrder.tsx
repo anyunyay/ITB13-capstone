@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
 import { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -65,6 +65,10 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const [confirmationText, setConfirmationText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for mobile collapsible sections
+  const [isOrderInfoExpanded, setIsOrderInfoExpanded] = useState(false);
+  const [isCustomerInfoExpanded, setIsCustomerInfoExpanded] = useState(false);
   
   // Get current user from page props
   const { auth } = usePage().props as any;
@@ -268,11 +272,23 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Order Information */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-foreground">{t('logistic.order_information')}</CardTitle>
+            <CardHeader 
+              className="md:cursor-default cursor-pointer"
+              onClick={() => setIsOrderInfoExpanded(!isOrderInfoExpanded)}
+            >
+              <CardTitle className="text-foreground flex items-center justify-between">
+                <span>{t('logistic.order_information')}</span>
+                <span className="md:hidden">
+                  {isOrderInfoExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CardContent className={`${isOrderInfoExpanded ? 'block' : 'hidden md:block'}`}>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{t('logistic.order_id')}</p>
                   <p className="text-sm text-foreground">#{currentOrder.id}</p>
@@ -321,30 +337,44 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
           {/* Customer Information */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-foreground">{t('logistic.customer_information')}</CardTitle>
+            <CardHeader 
+              className="md:cursor-default cursor-pointer"
+              onClick={() => setIsCustomerInfoExpanded(!isCustomerInfoExpanded)}
+            >
+              <CardTitle className="text-foreground flex items-center justify-between">
+                <span>{t('logistic.customer_information')}</span>
+                <span className="md:hidden">
+                  {isCustomerInfoExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t('logistic.customer_name')}</p>
-                <p className="text-sm text-foreground">{currentOrder.customer.name}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t('logistic.email')}</p>
-                <p className="text-sm text-foreground">{displayEmail}</p>
-              </div>
-              {currentOrder.customer.contact_number && (
+            <CardContent className={`${isCustomerInfoExpanded ? 'block' : 'hidden md:block'}`}>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.contact_number')}</p>
-                  <p className="text-sm text-foreground">{currentOrder.customer.contact_number}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.customer_name')}</p>
+                  <p className="text-sm text-foreground">{currentOrder.customer.name}</p>
                 </div>
-              )}
-              {currentOrder.delivery_address && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivery_address')}</p>
-                  <p className="text-sm text-foreground">{currentOrder.delivery_address}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('logistic.email')}</p>
+                  <p className="text-sm text-foreground break-all">{displayEmail}</p>
                 </div>
-              )}
+                {currentOrder.customer.contact_number && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t('logistic.contact_number')}</p>
+                    <p className="text-sm text-foreground">{currentOrder.customer.contact_number}</p>
+                  </div>
+                )}
+                {currentOrder.delivery_address && (
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium text-muted-foreground">{t('logistic.delivery_address')}</p>
+                    <p className="text-sm text-foreground">{currentOrder.delivery_address}</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -370,73 +400,73 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             {/* Progressive Status Line */}
             <div className="space-y-4">
               {/* Status Steps */}
-              <div className="flex items-center justify-between overflow-x-auto pb-2">
+              <div className="flex items-center justify-between px-1 sm:px-2 md:px-0">
                 {/* Step 1: Pending */}
-                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'pending' ? 'text-accent' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'pending' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex flex-col items-center min-w-[50px] sm:min-w-[60px] md:min-w-[60px] ${currentOrder.delivery_status === 'pending' ? 'text-accent' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${currentOrder.delivery_status === 'pending' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'pending' ? '1' : '✓'}
                   </div>
-                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.preparing')}</span>
+                  <span className="text-[10px] sm:text-xs md:text-xs mt-1 text-center leading-tight">{t('logistic.preparing')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
+                <div className={`flex-1 h-0.5 mx-1 sm:mx-2 md:mx-2 min-w-[15px] sm:min-w-[20px] md:min-w-[20px] ${currentOrder.delivery_status === 'ready_to_pickup' || currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 2: Ready to Pick Up */}
-                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'ready_to_pickup' ? 'text-secondary' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-secondary text-secondary-foreground' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex flex-col items-center min-w-[50px] sm:min-w-[60px] md:min-w-[60px] ${currentOrder.delivery_status === 'ready_to_pickup' ? 'text-secondary' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${currentOrder.delivery_status === 'ready_to_pickup' ? 'bg-secondary text-secondary-foreground' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'ready_to_pickup' ? '2' : currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? '✓' : '2'}
                   </div>
-                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.ready')}</span>
+                  <span className="text-[10px] sm:text-xs md:text-xs mt-1 text-center leading-tight">{t('logistic.ready')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
+                <div className={`flex-1 h-0.5 mx-1 sm:mx-2 md:mx-2 min-w-[15px] sm:min-w-[20px] md:min-w-[20px] ${currentOrder.delivery_status === 'out_for_delivery' || currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 3: Out for Delivery */}
-                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'out_for_delivery' ? 'text-accent' : currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex flex-col items-center min-w-[50px] sm:min-w-[60px] md:min-w-[60px] ${currentOrder.delivery_status === 'out_for_delivery' ? 'text-accent' : currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${currentOrder.delivery_status === 'out_for_delivery' ? 'bg-accent text-accent-foreground' : currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'out_for_delivery' ? '3' : currentOrder.delivery_status === 'delivered' ? '✓' : '3'}
                   </div>
-                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.out_for_delivery')}</span>
+                  <span className="text-[10px] sm:text-xs md:text-xs mt-1 text-center leading-tight">{t('logistic.out_for_delivery')}</span>
                 </div>
 
                 {/* Connector Line */}
-                <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
+                <div className={`flex-1 h-0.5 mx-1 sm:mx-2 md:mx-2 min-w-[15px] sm:min-w-[20px] md:min-w-[20px] ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary' : 'bg-border'}`}></div>
 
                 {/* Step 4: Delivered */}
-                <div className={`flex flex-col items-center min-w-[60px] ${currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex flex-col items-center min-w-[50px] sm:min-w-[60px] md:min-w-[60px] ${currentOrder.delivery_status === 'delivered' ? 'text-secondary' : 'text-muted-foreground'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${currentOrder.delivery_status === 'delivered' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     {currentOrder.delivery_status === 'delivered' ? '✓' : '4'}
                   </div>
-                  <span className="text-xs mt-1 text-center whitespace-nowrap">{t('logistic.delivered')}</span>
+                  <span className="text-[10px] sm:text-xs md:text-xs mt-1 text-center leading-tight">{t('logistic.delivered')}</span>
                 </div>
               </div>
 
               {/* Current Status Message */}
               <div className="mt-4">
                 {currentOrder.delivery_status === 'pending' && (
-                  <p className="text-sm text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] flex items-center gap-1">
-                    <AlertTriangle className="h-4 w-4" />
-                    {t('logistic.order_pending_preparation')}
+                  <p className="text-xs sm:text-sm md:text-sm text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] flex items-center gap-1">
+                    <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 flex-shrink-0" />
+                    <span>{t('logistic.order_pending_preparation')}</span>
                   </p>
                 )}
                 {currentOrder.delivery_status === 'ready_to_pickup' && (
-                  <p className="text-sm text-primary flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4" />
-                    {t('logistic.order_ready_pickup')}
+                  <p className="text-xs sm:text-sm md:text-sm text-primary flex items-center gap-1">
+                    <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 flex-shrink-0" />
+                    <span>{t('logistic.order_ready_pickup')}</span>
                   </p>
                 )}
                 {currentOrder.delivery_status === 'out_for_delivery' && (
-                  <p className="text-sm text-accent flex items-center gap-1">
-                    <Truck className="h-4 w-4" />
-                    {t('logistic.order_out_delivery')}
+                  <p className="text-xs sm:text-sm md:text-sm text-accent flex items-center gap-1">
+                    <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 flex-shrink-0" />
+                    <span>{t('logistic.order_out_delivery')}</span>
                   </p>
                 )}
                 {currentOrder.delivery_status === 'delivered' && (
-                  <p className="text-sm text-secondary flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4" />
-                    {t('logistic.order_delivered_completed')}
+                  <p className="text-xs sm:text-sm md:text-sm text-secondary flex items-center gap-1">
+                    <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 flex-shrink-0" />
+                    <span>{t('logistic.order_delivered_completed')}</span>
                   </p>
                 )}
               </div>
@@ -508,7 +538,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             <CardTitle className="text-foreground">{t('logistic.order_items')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            {/* Mobile & Tablet: Card Layout */}
+            <div className="space-y-3 md:hidden">
               {currentOrder.audit_trail.map((item, index) => {
                 // Get the appropriate price based on category
                 const getPrice = () => {
@@ -527,7 +558,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                       return null;
                   }
                   
-                  // Convert to number if it's a string, return null if invalid
                   if (rawPrice === null || rawPrice === undefined) {
                     return null;
                   }
@@ -540,26 +570,28 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 const totalPrice = (price && typeof price === 'number') ? price * item.quantity : null;
 
                 return (
-                  <div key={`${item.product.name}-${item.category}-${index}`} className="p-4 border border-border rounded-lg bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{item.product.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Category: <span className="capitalize text-foreground">{item.category}</span>
-                        </p>
-                        {price && typeof price === 'number' && (
-                          <p className="text-sm text-muted-foreground">
-                            Price per {item.category.toLowerCase()}: ₱{price.toFixed(2)}
+                  <div key={`${item.product.name}-${item.category}-${index}`} className="p-3 sm:p-4 border border-border rounded-lg bg-muted/50">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm sm:text-base text-foreground">{item.product.name}</h4>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 sm:mt-1">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
+                            Category: <span className="capitalize text-foreground font-medium">{item.category}</span>
                           </p>
-                        )}
+                          {price && typeof price === 'number' && (
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              ₱{price.toFixed(2)}/{item.category.toLowerCase()}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-foreground">
-                          Quantity: {formatQuantity(item.quantity, item.category)}
+                      <div className="flex justify-between sm:block sm:text-right sm:flex-shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0">
+                        <p className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">
+                          Qty: {formatQuantity(item.quantity, item.category)}
                         </p>
                         {totalPrice && typeof totalPrice === 'number' && (
-                          <p className="text-sm text-muted-foreground">
-                            Subtotal: ₱{totalPrice.toFixed(2)}
+                          <p className="text-xs sm:text-sm font-semibold text-foreground sm:mt-1">
+                            ₱{totalPrice.toFixed(2)}
                           </p>
                         )}
                       </div>
@@ -567,6 +599,67 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Desktop: Table Layout */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Product</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Category</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Unit Price</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentOrder.audit_trail.map((item, index) => {
+                    const getPrice = () => {
+                      let rawPrice;
+                      switch (item.category.toLowerCase()) {
+                        case 'kilo':
+                          rawPrice = item.product.price_kilo;
+                          break;
+                        case 'pc':
+                          rawPrice = item.product.price_pc;
+                          break;
+                        case 'tali':
+                          rawPrice = item.product.price_tali;
+                          break;
+                        default:
+                          return null;
+                      }
+                      
+                      if (rawPrice === null || rawPrice === undefined) {
+                        return null;
+                      }
+                      
+                      const numPrice = typeof rawPrice === 'string' ? parseFloat(rawPrice) : rawPrice;
+                      return isNaN(numPrice) ? null : numPrice;
+                    };
+
+                    const price = getPrice();
+                    const totalPrice = (price && typeof price === 'number') ? price * item.quantity : null;
+
+                    return (
+                      <tr key={`${item.product.name}-${item.category}-${index}`} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                        <td className="py-3 px-4 text-sm text-foreground font-medium">{item.product.name}</td>
+                        <td className="py-3 px-4 text-sm text-foreground capitalize">{item.category}</td>
+                        <td className="py-3 px-4 text-sm text-foreground text-right">
+                          {price && typeof price === 'number' ? `₱${price.toFixed(2)}` : '-'}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-foreground text-right font-medium">
+                          {formatQuantity(item.quantity, item.category)}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-foreground text-right font-semibold">
+                          {totalPrice && typeof totalPrice === 'number' ? `₱${totalPrice.toFixed(2)}` : '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
