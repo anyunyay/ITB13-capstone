@@ -4,17 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
-import { ViewToggle } from '@/components/inventory/view-toggle';
 import { Pagination } from '@/components/common/pagination';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { BarChart3, Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Truck } from 'lucide-react';
+import { Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, CalendarIcon, Truck } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
@@ -26,7 +24,7 @@ interface Order {
   };
   delivery_address?: string;
   total_amount: number;
-  delivery_status: 'pending' | 'out_for_delivery' | 'delivered';
+  delivery_status: 'pending' | 'ready_to_pickup' | 'out_for_delivery' | 'delivered';
   delivery_packed_time?: string;
   delivered_time?: string;
   delivery_timeline?: {
@@ -85,8 +83,8 @@ interface ReportPageProps {
 export default function LogisticReport({ orders, summary, filters }: ReportPageProps) {
   const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
-  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -95,6 +93,35 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   const [endDate, setEndDate] = useState<Date | undefined>(
     localFilters.end_date ? new Date(localFilters.end_date) : undefined
   );
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Apply mobile pagination on initial load if needed
+  useEffect(() => {
+    if (isMobile && orders.per_page !== 5) {
+      const params: Record<string, any> = {};
+      if (localFilters.start_date) params.start_date = localFilters.start_date;
+      if (localFilters.end_date) params.end_date = localFilters.end_date;
+      if (localFilters.delivery_status !== 'all') params.delivery_status = localFilters.delivery_status;
+      if (localFilters.search) params.search = localFilters.search;
+      params.per_page = 5;
+
+      router.get(route('logistic.report'), params, {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    }
+  }, [isMobile]);
 
   const handleFilterChange = (key: keyof ReportFilters, value: string) => {
     setLocalFilters(prev => ({ ...prev, [key]: value }));
@@ -141,8 +168,18 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
     if (localFilters.end_date) params.end_date = localFilters.end_date;
     if (localFilters.delivery_status !== 'all') params.delivery_status = localFilters.delivery_status;
     if (localFilters.search) params.search = localFilters.search;
+    
+    // Set per_page based on screen size
+    if (isMobile) {
+      params.per_page = 5;
+    }
 
-    router.get(route('logistic.report'), params);
+    setIsLoading(true);
+    router.get(route('logistic.report'), params, {
+      preserveState: true,
+      preserveScroll: true,
+      onFinish: () => setIsLoading(false),
+    });
   };
 
   const clearFilters = () => {
@@ -153,6 +190,19 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
       end_date: '',
       delivery_status: 'all',
       search: ''
+    });
+    
+    const params: Record<string, any> = {};
+    // Maintain per_page for mobile even when clearing filters
+    if (isMobile) {
+      params.per_page = 5;
+    }
+    
+    setIsLoading(true);
+    router.get(route('logistic.report'), params, {
+      preserveState: true,
+      preserveScroll: true,
+      onFinish: () => setIsLoading(false),
     });
   };
 
@@ -210,28 +260,46 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
       <LogisticsHeader />
       <Head title={t('logistic.logistics_report')} />
 
-      <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8 pt-25">
+      <div className="p-6 pt-25 space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-2">
-              <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
-                <Truck className="h-8 w-8" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
-                <p className="text-muted-foreground mt-1">
-                  {t('logistic.logistics_report_description')}
-                </p>
-              </div>
+        <div className="flex flex-col gap-4">
+          {/* Mobile Layout */}
+          <div className="block md:hidden space-y-4">
+            {/* Back to Dashboard Button */}
+            <Link href={route('logistic.dashboard')}>
+              <Button variant="outline" className="w-1/2 mb-4">
+                {t('logistic.back_to_dashboard')}
+              </Button>
+            </Link>
+            
+            {/* Title */}
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
+              <p className="text-muted-foreground">{t('logistic.logistics_report_description')}</p>
             </div>
-            <div className="flex gap-2 items-center">
+            
+            {/* Export Buttons Row */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" />
+                {t('logistic.export_csv')}
+              </Button>
+              <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-2">
+                <FileText className="h-4 w-4" />
+                {t('logistic.export_pdf')}
+              </Button>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
+              <p className="text-muted-foreground">{t('logistic.logistics_report_description')}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
               <Link href={route('logistic.dashboard')}>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
+                <Button variant="outline">
                   {t('logistic.back_to_dashboard')}
                 </Button>
               </Link>
@@ -247,63 +315,42 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
           </div>
         </div>
 
-        {/* Advanced Filters - Collapsible */}
-        <Card className="shadow-sm">
-          <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-xl">{t('admin.filters')}</CardTitle>
-                    {hasActiveFilters() && (
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        Active
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {hasActiveFilters() && (
-                      <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
-                        <X className="h-4 w-4" />
-                        Clear Filters
-                      </Button>
-                    )}
-                    <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
-                  </div>
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent>
-                {/* Search Bar */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="Search orders by customer, order ID, or items..."
-                      value={localFilters.search || ''}
-                      onChange={(e) => handleFilterChange('search', e.target.value)}
-                      className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
-                    />
-                  </div>
-                </div>
-
+        {/* Filters */}
+        <Card>
+          <CardHeader className='gap-0'>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                <CardTitle className="text-xl font-semibold">{t('admin.filters')}</CardTitle>
+                {hasActiveFilters() && (
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                    Active
+                  </Badge>
+                )}
+              </div>
+              {hasActiveFilters() && (
+                <Button onClick={clearFilters} variant="outline" size="sm" className="h-8 text-xs">
+                  <X className="h-3 w-3 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
                 {/* Date Range Summary */}
                 {(startDate || endDate) && (
-                  <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
-                        <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                  <div className="mb-3 p-2.5 bg-primary/5 border border-primary/20 rounded-md">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium text-primary">{getDateRangeDisplay()}</p>
                         {getDurationDisplay() && (
-                          <p className="text-xs text-primary/70 mt-1">
-                            Duration: {getDurationDisplay()}
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {getDurationDisplay()}
                           </p>
                         )}
                       </div>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => {
                           setStartDate(undefined);
@@ -314,27 +361,34 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                             end_date: ''
                           }));
                         }}
-                        className="text-xs"
+                        className="h-7 px-2 text-xs flex-shrink-0"
                       >
-                        <X className="h-3 w-3 mr-1" />
-                        Clear
+                        <X className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
                 )}
 
-                {/* Filter Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('admin.start_date')}</Label>
+                {/* Filter Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  <div className="relative lg:col-span-1">
+                    <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                    <Input
+                      placeholder="Order ID, customer..."
+                      value={localFilters.search || ''}
+                      onChange={(e) => handleFilterChange('search', e.target.value)}
+                      className="pl-9 pr-3 h-9 text-sm"
+                    />
+                  </div>
+                  <div>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          className="w-full justify-start text-left font-normal h-9 text-sm"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                          <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                          {startDate ? format(startDate, "MMM dd, yyyy") : "Start date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -348,16 +402,15 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('admin.end_date')}</Label>
+                  <div>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                          className="w-full justify-start text-left font-normal h-9 text-sm"
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                          <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                          {endDate ? format(endDate, "MMM dd, yyyy") : "End date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -375,127 +428,65 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="delivery_status" className="text-sm font-medium">{t('logistic.delivery_status')}</Label>
+                  <div>
                     <Select
                       value={localFilters.delivery_status}
                       onValueChange={(value) => handleFilterChange('delivery_status', value)}
                     >
-                      <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                      <SelectTrigger className="h-9 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">{t('admin.all_status')}</SelectItem>
                         <SelectItem value="pending">{t('logistic.pending')}</SelectItem>
+                        <SelectItem value="ready_to_pickup">{t('logistic.ready_to_pickup')}</SelectItem>
                         <SelectItem value="out_for_delivery">{t('logistic.out_for_delivery')}</SelectItem>
                         <SelectItem value="delivered">{t('logistic.delivered')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button onClick={applyFilters} className="bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] px-6 py-2">
-                    {t('admin.apply_filters')}
-                  </Button>
+                  <div>
+                    <Button 
+                      onClick={applyFilters} 
+                      disabled={isLoading}
+                      className="w-full h-9 text-sm disabled:opacity-50"
+                    >
+                      {isLoading ? t('admin.loading') || 'Loading...' : t('admin.apply_filters')}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
         </Card>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.total_orders')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{summary.total_orders}</div>
-              <p className="text-xs text-muted-foreground mt-1">All orders assigned</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_revenue')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                ₱{Number(summary.total_revenue).toFixed(2)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Total order value</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)]">{summary.pending_orders}</div>
-              <p className="text-xs text-muted-foreground mt-1">Awaiting pickup</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('logistic.out_for_delivery')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-accent">{summary.out_for_delivery_orders}</div>
-              <p className="text-xs text-muted-foreground mt-1">Currently delivering</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-secondary">{summary.delivered_orders}</div>
-              <p className="text-xs text-muted-foreground mt-1">Successfully delivered</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.average_order_value')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-secondary">
-                ₱{Number(summary.average_order_value).toFixed(2)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Average per order</p>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Orders List */}
-        <Card className="shadow-sm">
+        <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">{t('logistic.orders')} ({orders.total})</CardTitle>
-              <div className="flex items-center gap-2">
-                <div className="text-sm text-muted-foreground">
-                  {orders.total > 0 ? `Showing ${orders.from} to ${orders.to} of ${orders.total} orders` : 'No orders found'}
-                </div>
-                <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
-              </div>
-            </div>
+            <CardTitle className="text-lg lg:text-xl">{t('logistic.orders')} ({orders.total})</CardTitle>
           </CardHeader>
           <CardContent>
-            {orders.data.length > 0 ? (
-              <>
-                {currentView === 'cards' ? (
-                  <div className="space-y-4">
-                    {orders.data.map((order) => (
-                      <OrderCard key={order.id} order={order} t={t} />
-                    ))}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4 animate-pulse">
+                    <Truck className="w-8 h-8 text-muted-foreground" />
                   </div>
-                ) : (
+                  <p className="text-muted-foreground">Loading orders...</p>
+                </div>
+              </div>
+            ) : orders.data.length > 0 ? (
+              <>
+                {/* Mobile: Card View */}
+                <div className="block md:hidden space-y-3">
+                  {orders.data.map((order) => (
+                    <MobileOrderCard key={order.id} order={order} t={t} />
+                  ))}
+                </div>
+                
+                {/* Desktop: Table View */}
+                <div className="hidden md:block">
                   <OrderTable orders={orders.data} t={t} />
-                )}
+                </div>
+                
                 <Pagination
                   links={orders.links}
                   from={orders.from}
@@ -534,140 +525,65 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   );
 }
 
-function OrderCard({ order, t }: { order: Order; t: (key: string, params?: any) => string }) {
+function MobileOrderCard({ order, t }: { order: Order; t: (key: string, params?: any) => string }) {
   const getDeliveryStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      out_for_delivery: { variant: 'outline' as const, className: 'bg-blue-100 text-blue-800 border-blue-200' },
-      delivered: { variant: 'outline' as const, className: 'bg-green-100 text-green-800 border-green-200' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return (
-      <Badge variant={config.variant} className={config.className}>
-        {t(`logistic.${status}`)}
-      </Badge>
-    );
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+      case 'ready_to_pickup':
+        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+      case 'out_for_delivery':
+        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+      case 'delivered':
+        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   return (
-    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
-              <Truck className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-foreground">Order #{order.id}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Created {dayjs(order.created_at).format('MMM DD, YYYY HH:mm')}
-              </p>
-            </div>
+    <div className="border border-border rounded-lg p-4 bg-card">
+      <div className="space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="font-semibold text-foreground">Order #{order.id}</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {dayjs(order.created_at).format('MMM DD, YYYY')}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            {getDeliveryStatusBadge(order.delivery_status)}
-            {(order as any).ready_for_pickup ? (
-              <Badge className="bg-secondary text-secondary-foreground text-xs">✓ {t('logistic.ready')}</Badge>
-            ) : (
-              <Badge variant="secondary" className="bg-[color-mix(in_srgb,var(--destructive)_70%,yellow_30%)] text-white text-xs">{t('admin.not_ready')}</Badge>
-            )}
-            {(order as any).picked_up ? (
-              <Badge className="bg-accent text-accent-foreground text-xs">✓ {t('admin.picked_up')}</Badge>
-            ) : (
-              <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">{t('admin.not_picked_up')}</Badge>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              {t('logistic.customer_information')}
-            </h4>
-            <div className="space-y-2">
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.name')}:</span>
-                <span className="text-muted-foreground ml-2">{order.customer.name}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('logistic.email')}:</span>
-                <span className="text-muted-foreground ml-2">{order.customer.email}</span>
-              </p>
-              {order.customer.contact_number && (
-                <p className="text-sm">
-                  <span className="font-medium text-foreground">Contact:</span>
-                  <span className="text-muted-foreground ml-2">{order.customer.contact_number}</span>
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              {t('admin.order_summary')}
-            </h4>
-            <div className="space-y-2">
-              <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">{t('logistic.total_amount')}:</span>
-                <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
-                  ₱{Number(order.total_amount).toFixed(2)}
-                </Badge>
-              </p>
-              <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">{t('admin.items')}:</span>
-                <Badge variant="outline" className="ml-2 bg-secondary/10 text-secondary border-secondary/20">
-                  {order.audit_trail?.length || 0} items
-                </Badge>
-              </p>
-            </div>
-          </div>
+          {getDeliveryStatusBadge(order.delivery_status)}
         </div>
 
-        <div className="mt-6 p-4 bg-muted/50 border border-border rounded-lg">
-          <h5 className="font-semibold text-sm mb-2 text-foreground flex items-center gap-2">
-            <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-            {t('logistic.order_items')}
-          </h5>
-          <div className="space-y-2">
-            {(() => {
-              // Group items by product ID and combine quantities
-              const groupedItems = order.audit_trail?.reduce((acc, item) => {
-                const key = `${item.product.id}-${item.category}`;
-                if (!acc[key]) {
-                  acc[key] = {
-                    id: item.id,
-                    product: item.product,
-                    category: item.category,
-                    quantity: 0
-                  };
-                }
-                acc[key].quantity += Number(item.quantity);
-                return acc;
-              }, {} as Record<string, any>) || {};
-
-              const combinedItems = Object.values(groupedItems);
-
-              return combinedItems.length > 0 ? (
-                combinedItems.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-foreground">{item.product.name} ({item.category})</span>
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                      {item.quantity} {item.category}
-                    </Badge>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">{t('admin.no_items_found')}</p>
-              );
-            })()}
-          </div>
+        {/* Customer Info */}
+        <div className="space-y-1">
+          <p className="text-sm">
+            <span className="font-medium text-foreground">{order.customer.name}</span>
+          </p>
+          <p className="text-xs text-muted-foreground">{order.customer.email}</p>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Order Details */}
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+          <div>
+            <p className="text-xs text-muted-foreground">Amount</p>
+            <p className="text-sm font-semibold text-foreground">₱{Number(order.total_amount).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Items</p>
+            <p className="text-sm font-medium text-foreground">{order.audit_trail?.length || 0} items</p>
+          </div>
+          {order.delivered_time && (
+            <div className="col-span-2">
+              <p className="text-xs text-muted-foreground">Delivered</p>
+              <p className="text-sm font-medium text-foreground">
+                {dayjs(order.delivered_time).format('MMM DD, YYYY')}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -722,26 +638,26 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
   });
 
   const getDeliveryStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      out_for_delivery: { variant: 'outline' as const, className: 'bg-blue-100 text-blue-800 border-blue-200' },
-      delivered: { variant: 'outline' as const, className: 'bg-green-100 text-green-800 border-green-200' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return (
-      <Badge variant={config.variant} className={config.className}>
-        {t(`logistic.${status}`)}
-      </Badge>
-    );
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+      case 'ready_to_pickup':
+        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+      case 'out_for_delivery':
+        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+      case 'delivered':
+        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
+      <table className="w-full">
         <thead>
-          <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
+          <tr className="border-b border-border">
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('id')}
@@ -751,7 +667,7 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
                 {getSortIcon('id')}
               </Button>
             </th>
-            <th className="text-left py-3 px-4 font-semibold text-foreground">
+            <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('customer')}
@@ -761,18 +677,18 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
                 {getSortIcon('customer')}
               </Button>
             </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">Items</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
+            <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('total_amount')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-end w-full"
               >
                 Amount
                 {getSortIcon('total_amount')}
               </Button>
             </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
+            <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Items</th>
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('delivery_status')}
@@ -782,17 +698,17 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
                 {getSortIcon('delivery_status')}
               </Button>
             </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('created_at')}
                 className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
               >
-                Created
+                Assigned
                 {getSortIcon('created_at')}
               </Button>
             </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('delivered_time')}
@@ -805,36 +721,26 @@ function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: 
           </tr>
         </thead>
         <tbody>
-          {sortedOrders.map((order, index) => (
-            <tr key={order.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
-              <td className="py-3 px-4 text-center">
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                  #{order.id}
-                </Badge>
-              </td>
+          {sortedOrders.map((order) => (
+            <tr key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+              <td className="py-3 px-4 text-sm text-foreground font-medium text-center">#{order.id}</td>
               <td className="py-3 px-4">
-                <div>
-                  <div className="font-medium text-foreground">{order.customer.name}</div>
-                  <div className="text-sm text-muted-foreground">{order.customer.email}</div>
-                </div>
+                <div className="text-sm text-foreground font-medium">{order.customer.name}</div>
+                <div className="text-sm text-muted-foreground">{order.customer.email}</div>
               </td>
-              <td className="py-3 px-4 text-center">
-                <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
-                  {order.audit_trail?.length || 0} items
-                </Badge>
+              <td className="py-3 px-4 text-sm text-foreground text-right font-semibold">
+                ₱{Number(order.total_amount).toFixed(2)}
               </td>
-              <td className="py-3 px-4 text-center">
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                  ₱{Number(order.total_amount).toFixed(2)}
-                </Badge>
+              <td className="py-3 px-4 text-sm text-foreground text-right">
+                {order.audit_trail?.length || 0} items
               </td>
               <td className="py-3 px-4 text-center">
                 {getDeliveryStatusBadge(order.delivery_status)}
               </td>
-              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
+              <td className="py-3 px-4 text-sm text-muted-foreground text-center">
                 {dayjs(order.created_at).format('MMM DD, YYYY')}
               </td>
-              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
+              <td className="py-3 px-4 text-sm text-muted-foreground text-center">
                 {order.delivered_time ? dayjs(order.delivered_time).format('MMM DD, YYYY') : 'N/A'}
               </td>
             </tr>

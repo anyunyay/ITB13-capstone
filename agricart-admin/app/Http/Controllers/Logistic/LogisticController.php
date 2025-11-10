@@ -22,22 +22,24 @@ class LogisticController extends Controller
         $logistic = Auth::user();
         $perPage = $request->get('per_page', 5);
         
-        // Get assigned orders for this logistic - show all orders including delivered for auditing
-        $query = SalesAudit::where('logistic_id', $logistic->id)
+        // Get base query for this logistic
+        $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered'])
+            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']);
+
+        // Get stats using efficient count queries
+        $pendingCount = (clone $baseQuery)->where('delivery_status', 'pending')->count();
+        $readyToPickupCount = (clone $baseQuery)->where('delivery_status', 'ready_to_pickup')->count();
+        $outForDeliveryCount = (clone $baseQuery)->where('delivery_status', 'out_for_delivery')->count();
+        $deliveredCount = (clone $baseQuery)->where('delivery_status', 'delivered')->count();
+        $totalCount = $baseQuery->count();
+
+        // Paginate orders with relationships
+        $assignedOrders = $baseQuery
             ->with(['customer', 'address', 'auditTrail.product'])
-            ->orderBy('created_at', 'desc');
-
-        // Get stats before pagination
-        $allOrders = $query->get();
-        $pendingCount = $allOrders->where('delivery_status', 'pending')->count();
-        $readyToPickupCount = $allOrders->where('delivery_status', 'ready_to_pickup')->count();
-        $outForDeliveryCount = $allOrders->where('delivery_status', 'out_for_delivery')->count();
-        $deliveredCount = $allOrders->where('delivery_status', 'delivered')->count();
-
-        // Paginate orders
-        $assignedOrders = $query->paginate($perPage)->through(function ($order) {
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->through(function ($order) {
             return [
                 'id' => $order->id,
                 'customer' => [
@@ -66,7 +68,7 @@ class LogisticController extends Controller
                 'ready_to_pickup' => $readyToPickupCount,
                 'out_for_delivery' => $outForDeliveryCount,
                 'delivered' => $deliveredCount,
-                'total' => $allOrders->count(),
+                'total' => $totalCount,
             ],
         ]);
     }
@@ -75,26 +77,24 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         $status = $request->get('status', 'all');
-        $perPage = $request->get('per_page', 5);
+        $perPage = $request->get('per_page', 10);
         
         // Get base query for all orders
         $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
             ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']);
 
-        // Get counts for each status
+        // Get counts for each status using efficient queries
         $statusCounts = [
-            'all' => $baseQuery->count(),
+            'all' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('delivery_status', 'pending')->count(),
             'ready_to_pickup' => (clone $baseQuery)->where('delivery_status', 'ready_to_pickup')->count(),
             'out_for_delivery' => (clone $baseQuery)->where('delivery_status', 'out_for_delivery')->count(),
             'delivered' => (clone $baseQuery)->where('delivery_status', 'delivered')->count(),
         ];
         
-        $query = SalesAudit::where('logistic_id', $logistic->id)
-            ->where('status', 'approved')
-            ->whereIn('delivery_status', ['pending', 'ready_to_pickup', 'out_for_delivery', 'delivered']) // Show all orders including delivered for auditing
-            ->with(['customer', 'address', 'auditTrail.product']);
+        // Build query for paginated results
+        $query = (clone $baseQuery)->with(['customer', 'address', 'auditTrail.product']);
 
         // Filter by delivery status
         if ($status !== 'all') {
@@ -409,7 +409,7 @@ class LogisticController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
         $search = $request->get('search');
-        $perPage = $request->get('per_page', 5);
+        $perPage = $request->get('per_page', 10);
 
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
