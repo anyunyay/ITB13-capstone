@@ -23,19 +23,17 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
   const { props } = usePage<SharedData>();
   const { createStaffs, editStaffs, deleteStaffs } = props.permissions || {};
 
-  // State for search and pagination
-  const [searchTerm, setSearchTerm] = useState(filters.search);
-  const [currentPage, setCurrentPage] = useState(staff.current_page);
-  const [sortBy, setSortBy] = useState(filters.sort_by);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(filters.sort_order);
+  // State for search and pagination (client-side)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [processing, setProcessing] = useState(false);
   const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
 
-  const itemsPerPage = staff.per_page;
-  const totalPages = staff.last_page;
-  const totalStaff = staff.total;
+  const itemsPerPage = 10;
 
   // Helper function to determine staff category based on permissions
   const getStaffCategory = (member: Staff): string => {
@@ -59,8 +57,8 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
     return 'general';
   };
 
-  // Filter and sort staff data
-  const filteredAndSortedStaff = useMemo(() => {
+  // Filter staff data
+  const filteredStaff = useMemo(() => {
     let filtered = staff.data;
 
     // Apply category filter
@@ -77,92 +75,62 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
       );
     }
 
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
-      
+    return filtered;
+  }, [staff.data, selectedCategory, searchTerm]);
+
+  // Sort staff data (client-side)
+  const sortedStaff = useMemo(() => {
+    return [...filteredStaff].sort((a, b) => {
+      let comparison = 0;
       switch (sortBy) {
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
+        case 'id':
+          comparison = a.id - b.id;
           break;
-        case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'status':
+          comparison = (a.email_verified_at ? 1 : 0) - (b.email_verified_at ? 1 : 0);
           break;
         case 'created_at':
-          aValue = new Date(a.created_at);
-          bValue = new Date(b.created_at);
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
           break;
         default:
-          aValue = a.id;
-          bValue = b.id;
+          return 0;
       }
-
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
+  }, [filteredStaff, sortBy, sortOrder]);
 
-    return filtered;
-  }, [staff.data, searchTerm, sortBy, sortOrder, selectedCategory]);
-
-  // Paginate the filtered results
+  // Paginate the sorted results (client-side)
+  const totalPages = Math.ceil(sortedStaff.length / itemsPerPage);
   const paginatedStaff = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredAndSortedStaff.slice(startIndex, endIndex);
-  }, [filteredAndSortedStaff, currentPage, itemsPerPage]);
+    return sortedStaff.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [sortedStaff, currentPage, itemsPerPage]);
 
-  // Handle search with debouncing
+  // Handle search (client-side)
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
     setCurrentPage(1);
-    
-    // Update URL with search parameter
-    router.get(route('staff.index'), {
-      search: term,
-      sort_by: sortBy,
-      sort_order: sortOrder,
-      per_page: itemsPerPage,
-    }, {
-      preserveState: true,
-      replace: true,
-    });
   };
 
-  // Handle page change
+  // Handle page change (client-side)
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    
-    router.get(route('staff.index'), {
-      search: searchTerm,
-      sort_by: sortBy,
-      sort_order: sortOrder,
-      per_page: itemsPerPage,
-      page: page,
-    }, {
-      preserveState: true,
-      replace: true,
-    });
   };
 
-  // Handle sorting
+  // Handle sorting (client-side)
   const handleSortChange = (field: string) => {
-    const newSortOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortBy(field);
-    setSortOrder(newSortOrder);
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
     setCurrentPage(1);
-    
-    router.get(route('staff.index'), {
-      search: searchTerm,
-      sort_by: field,
-      sort_order: newSortOrder,
-      per_page: itemsPerPage,
-    }, {
-      preserveState: true,
-      replace: true,
-    });
   };
 
   // Handle staff deletion
@@ -238,12 +206,12 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
               setSearchTerm={handleSearchChange}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              filteredAndSortedStaff={filteredAndSortedStaff}
+              filteredStaff={filteredStaff}
               paginatedStaff={paginatedStaff}
               currentPage={currentPage}
               setCurrentPage={handlePageChange}
               totalPages={totalPages}
-              totalStaff={totalStaff}
+              totalStaff={sortedStaff.length}
               itemsPerPage={itemsPerPage}
               processing={processing}
               onDelete={handleDeleteStaff}

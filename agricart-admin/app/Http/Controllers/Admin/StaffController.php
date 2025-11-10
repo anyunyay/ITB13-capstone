@@ -29,25 +29,26 @@ class StaffController extends Controller
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
 
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        $allowedSortFields = ['id', 'name', 'email', 'created_at'];
-        if (in_array($sortBy, $allowedSortFields)) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
+        // Get all staff (no server-side sorting/pagination - handled client-side)
+        $staff = $query->orderBy('created_at', 'desc')->get();
 
-        // Pagination
-        $perPage = $request->get('per_page', 10);
-        $staff = $query->paginate($perPage);
+        // Create pagination structure for compatibility
+        $perPage = 10;
+        $currentPage = 1;
+        $total = $staff->count();
+
+        $paginatedStaff = new \Illuminate\Pagination\LengthAwarePaginator(
+            $staff,
+            $total,
+            $perPage,
+            $currentPage,
+            ['path' => $request->url()]
+        );
 
         // Calculate stats
         $totalStaff = User::where('type', 'staff')->count();
@@ -67,12 +68,12 @@ class StaffController extends Controller
         ];
 
         return Inertia::render('Admin/Staff/index', [
-            'staff' => $staff,
+            'staff' => $paginatedStaff,
             'staffStats' => $staffStats,
             'filters' => [
-                'search' => $request->get('search', ''),
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
+                'search' => '',
+                'sort_by' => 'id',
+                'sort_order' => 'desc',
                 'per_page' => $perPage,
             ],
         ]);
@@ -85,9 +86,17 @@ class StaffController extends Controller
     {
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
-            'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'deactivate members', 'reactivate members',
-            'generate staff report', 'generate membership report'
+            'view staffs',
+            'create staffs',
+            'edit staffs',
+            'delete staffs',
+            'view membership',
+            'create members',
+            'edit members',
+            'deactivate members',
+            'reactivate members',
+            'generate staff report',
+            'generate membership report'
         ])->get();
 
         return Inertia::render('Admin/Staff/create', [
@@ -175,9 +184,17 @@ class StaffController extends Controller
 
         // Get all permissions except staff and member management
         $availablePermissions = Permission::whereNotIn('name', [
-            'view staffs', 'create staffs', 'edit staffs', 'delete staffs',
-            'view membership', 'create members', 'edit members', 'deactivate members', 'reactivate members',
-            'generate staff report', 'generate membership report'
+            'view staffs',
+            'create staffs',
+            'edit staffs',
+            'delete staffs',
+            'view membership',
+            'create members',
+            'edit members',
+            'deactivate members',
+            'reactivate members',
+            'generate staff report',
+            'generate membership report'
         ])->get();
 
         return Inertia::render('Admin/Staff/edit', [
@@ -333,13 +350,13 @@ class StaffController extends Controller
 
         // Search functionality
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%")
-                  ->orWhereHas('permissions', function($permQuery) use ($search) {
-                      $permQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhereHas('permissions', function ($permQuery) use ($search) {
+                        $permQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -396,7 +413,7 @@ class StaffController extends Controller
     private function exportToCsv($staff, $summary, $display = false)
     {
         $filename = 'staff_report_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -411,9 +428,9 @@ class StaffController extends Controller
             ];
         }
 
-        $callback = function() use ($staff, $summary) {
+        $callback = function () use ($staff, $summary) {
             $file = fopen('php://output', 'w');
-            
+
             // Write headers
             fputcsv($file, [
                 'Staff ID',
@@ -423,7 +440,7 @@ class StaffController extends Controller
                 'Created At',
                 'Email Verified'
             ]);
-            
+
             foreach ($staff as $member) {
                 $permissions = $member->permissions->pluck('name')->join(', ');
                 fputcsv($file, [
@@ -435,7 +452,7 @@ class StaffController extends Controller
                     $member->email_verified_at ? 'Yes' : 'No'
                 ]);
             }
-            
+
             fclose($file);
         };
 
@@ -455,9 +472,9 @@ class StaffController extends Controller
 
         $pdf = Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
+
         $filename = 'staff_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
@@ -496,4 +513,4 @@ class StaffController extends Controller
 
         return array_unique($finalPermissions);
     }
-} 
+}

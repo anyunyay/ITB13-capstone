@@ -18,7 +18,7 @@ interface StaffManagementProps {
     setSearchTerm: (term: string) => void;
     selectedCategory: string;
     setSelectedCategory: (category: string) => void;
-    filteredAndSortedStaff: Staff[];
+    filteredStaff: Staff[];
     paginatedStaff: Staff[];
     currentPage: number;
     setCurrentPage: (page: number) => void;
@@ -42,7 +42,7 @@ export const StaffManagement = ({
     setSearchTerm,
     selectedCategory,
     setSelectedCategory,
-    filteredAndSortedStaff,
+    filteredStaff,
     paginatedStaff,
     currentPage,
     setCurrentPage,
@@ -203,7 +203,7 @@ export const StaffManagement = ({
                     <span className="text-sm text-muted-foreground font-medium">
                         {t('staff.showing_staff', { 
                             count: paginatedStaff.length, 
-                            total: filteredAndSortedStaff.length 
+                            total: filteredStaff.length 
                         })}
                         {selectedCategory !== 'all' && ` ${t('staff.staff_category_filter', { category: selectedCategory })}`}
                     </span>
@@ -247,6 +247,14 @@ export const StaffManagement = ({
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.contact')}</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.address')}</th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.permissions')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
+                                    <button
+                                        onClick={() => handleSort('status')}
+                                        className="flex items-center gap-1 hover:text-foreground"
+                                    >
+                                        {t('staff.status')} {getSortIcon('status')}
+                                    </button>
+                                </th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                     <button
                                         onClick={() => handleSort('created_at')}
@@ -317,6 +325,17 @@ export const StaffManagement = ({
                                                 </TooltipProvider>
                                             )}
                                         </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-sm">
+                                        {staffMember.email_verified_at ? (
+                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                                                {t('staff.active')}
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
+                                                {t('staff.inactive')}
+                                            </Badge>
+                                        )}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground">
                                         {new Date(staffMember.created_at).toLocaleDateString()}

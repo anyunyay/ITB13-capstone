@@ -4,6 +4,7 @@ export interface Staff {
     email: string;
     contact_number?: string;
     created_at: string;
+    email_verified_at?: string;
     permissions: Array<{ name: string }>;
     default_address?: {
         id: number;
