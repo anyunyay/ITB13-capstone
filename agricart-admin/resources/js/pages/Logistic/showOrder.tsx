@@ -2,16 +2,16 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
+import { ImageLightbox } from '@/components/customer/products/ImageLightbox';
 
 interface Order {
   id: number;
@@ -65,6 +65,9 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const [confirmationText, setConfirmationText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for image lightbox
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   
   // State for mobile collapsible sections
   const [isOrderInfoExpanded, setIsOrderInfoExpanded] = useState(false);
@@ -507,23 +510,55 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
               {/* Delivered Status Display */}
               {currentOrder.delivery_status === 'delivered' && (
-                <div className="mt-4 p-3 bg-[color-mix(in_srgb,var(--secondary)_10%,transparent)] border border-secondary/20 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="h-4 w-4 text-secondary" />
-                    <span className="text-sm font-medium text-secondary">{t('admin.order_delivered')}</span>
-                  </div>
-                  <p className="text-sm text-secondary/80">
-                    {t('logistic.order_delivered_note')}
-                  </p>
+                <div className="mt-4 p-4 sm:p-5 md:p-6 bg-gradient-to-br from-secondary/5 via-secondary/10 to-secondary/5 border-2 border-secondary/30 rounded-xl shadow-sm">
                   {currentOrder.delivery_proof_image && (
-                    <div className="mt-3">
-                      <p className="text-sm font-medium text-foreground mb-2">{t('logistic.delivery_proof')}:</p>
-                      <img 
-                        src={currentOrder.delivery_proof_image} 
-                        alt="Delivery proof"
-                        onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
-                        className="w-32 h-32 object-cover rounded-lg border border-border"
-                      />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                        <p className="text-sm sm:text-base font-semibold text-foreground">{t('logistic.delivery_proof')}</p>
+                      </div>
+                      
+                      {/* Centered Fixed-Size Image Container with Lightbox */}
+                      <div className="flex justify-center">
+                        <div 
+                          className="relative group w-full max-w-md cursor-pointer"
+                          onClick={() => setLightboxOpen(true)}
+                        >
+                          <div className="relative overflow-hidden rounded-lg border-2 border-secondary/20 shadow-md hover:shadow-lg transition-all duration-300 bg-muted/30">
+                            <div className="w-full h-64 sm:h-72 md:h-80 flex items-center justify-center">
+                              <img 
+                                src={currentOrder.delivery_proof_image} 
+                                alt="Delivery proof"
+                                onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
+                                className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            {/* Overlay on hover */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-background/90 rounded-full p-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Click to view hint */}
+                          <p className="text-xs text-center text-muted-foreground mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            Click to view full size
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Image Info */}
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="leading-tight">
+                          Uploaded in {currentOrder.delivered_time && format(new Date(currentOrder.delivered_time), 'MMM dd, yyyy HH:mm')}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -759,6 +794,14 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Image Lightbox */}
+        <ImageLightbox
+          src={currentOrder.delivery_proof_image || ''}
+          alt="Delivery Proof"
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
       </div>
     </div>
   );
