@@ -307,6 +307,8 @@ class StaffController extends Controller
         $endDate = $request->get('end_date');
         $status = $request->get('status', 'all');
         $search = $request->get('search');
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -341,17 +343,32 @@ class StaffController extends Controller
             });
         }
 
-        $staff = $query->orderBy('created_at', 'desc')->get();
+        // Get all staff for summary calculations
+        $allStaff = $query->get();
 
-        // Calculate summary statistics
+        // Calculate summary statistics from filtered results
         $summary = [
-            'total_staff' => $staff->count(),
+            'total_staff' => $allStaff->count(),
             'total_permissions' => Permission::count(),
-            'active_staff' => $staff->where('email_verified_at', '!=', null)->count(),
-            'staff_with_permissions' => $staff->filter(function ($member) {
+            'active_staff' => $allStaff->where('email_verified_at', '!=', null)->count(),
+            'staff_with_permissions' => $allStaff->filter(function ($member) {
                 return $member->permissions->count() > 0;
             })->count(),
         ];
+
+        // Apply sorting
+        $staff = $allStaff->sortBy(function ($member) use ($sortBy) {
+            switch ($sortBy) {
+                case 'name':
+                    return $member->name;
+                case 'status':
+                    return $member->email_verified_at ? 1 : 0; // Active = 1, Inactive = 0
+                case 'created_at':
+                    return $member->created_at->timestamp;
+                default:
+                    return $member->id;
+            }
+        }, SORT_REGULAR, $sortOrder === 'desc')->values();
 
         // If export is requested
         if ($format === 'csv') {
