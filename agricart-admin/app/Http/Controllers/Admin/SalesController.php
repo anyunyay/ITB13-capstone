@@ -15,7 +15,8 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit']);
+        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit'])
+            ->whereNotNull('delivered_at'); // Only show delivered orders
 
         // Filter by date range if provided
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -30,50 +31,24 @@ class SalesController extends Controller
             ->orderBy('delivered_at', 'desc')
             ->get();
 
-        // Get pending orders from sales_audit with optimized loading
-        $salesAuditQuery = SalesAudit::with([
-            'customer' => function ($query) {
-                $query->select('id', 'name', 'email');
-            },
-            'admin' => function ($query) {
-                $query->select('id', 'name');
-            },
-            'logistic' => function ($query) {
-                $query->select('id', 'name');
-            }
-        ])
-            ->select('id', 'customer_id', 'admin_id', 'logistic_id', 'total_amount', 'subtotal', 'coop_share', 'member_share', 'status', 'created_at')
-            ->where('status', '!=', 'cancelled');
-
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $salesAuditQuery->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
-            ]);
-        }
-
-        $pendingOrders = $salesAuditQuery->orderBy('created_at', 'desc')
-            ->limit(500) // Limit pending orders
-            ->get();
-
-        // Calculate summary statistics from both delivered and pending orders
-        $totalMemberShare = $salesRaw->sum('member_share') + $pendingOrders->sum('member_share');
+        // Calculate summary statistics from delivered orders only
+        $totalMemberShare = $salesRaw->sum('member_share');
         $totalCogs = ($totalMemberShare / 1.3) * 0.7;
         $totalGrossProfit = $totalMemberShare - $totalCogs;
 
         $summary = [
-            'total_revenue' => $salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount'),
-            'total_subtotal' => $salesRaw->sum('subtotal') + $pendingOrders->sum('subtotal'),
-            'total_coop_share' => $salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share'),
+            'total_revenue' => $salesRaw->sum('total_amount'),
+            'total_subtotal' => $salesRaw->sum('subtotal'),
+            'total_coop_share' => $salesRaw->sum('coop_share'),
             'total_member_share' => $totalMemberShare,
             'total_cogs' => $totalCogs,
             'total_gross_profit' => $totalGrossProfit,
-            'total_orders' => $salesRaw->count() + $pendingOrders->count(),
-            'average_order_value' => ($salesRaw->count() + $pendingOrders->count()) > 0 ?
-                ($salesRaw->sum('total_amount') + $pendingOrders->sum('total_amount')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
-            'average_coop_share' => ($salesRaw->count() + $pendingOrders->count()) > 0 ?
-                ($salesRaw->sum('coop_share') + $pendingOrders->sum('coop_share')) / ($salesRaw->count() + $pendingOrders->count()) : 0,
-            'total_customers' => $salesRaw->unique('customer_id')->count() + $pendingOrders->unique('customer_id')->count(),
+            'total_orders' => $salesRaw->count(),
+            'average_order_value' => $salesRaw->count() > 0 ?
+                $salesRaw->sum('total_amount') / $salesRaw->count() : 0,
+            'average_coop_share' => $salesRaw->count() > 0 ?
+                $salesRaw->sum('coop_share') / $salesRaw->count() : 0,
+            'total_customers' => $salesRaw->unique('customer_id')->count(),
         ];
 
         // Map sales with customer confirmation data
@@ -120,7 +95,6 @@ class SalesController extends Controller
 
         return Inertia::render('Admin/Sales/index', [
             'sales' => $sales,
-            'pendingOrders' => $pendingOrders,
             'summary' => $summary,
             'memberSales' => $memberSales,
             'filters' => $request->only(['start_date', 'end_date']),
@@ -147,7 +121,8 @@ class SalesController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit']);
+        $query = Sales::with(['customer', 'admin', 'logistic', 'salesAudit'])
+            ->whereNotNull('delivered_at'); // Only show delivered orders
 
         // Filter by date range with timezone (Asia/Manila)
         if ($startDate) {
@@ -245,7 +220,7 @@ class SalesController extends Controller
             $file = fopen('php://output', 'w');
 
             // Add summary header
-            fputcsv($file, ['Sales Report Summary']);
+            fputcsv($file, ['Sales Report Summary - Delivered Orders Only']);
             fputcsv($file, ['Total Orders', $summary['total_orders']]);
             fputcsv($file, ['Total Revenue', number_format($summary['total_revenue'], 2)]);
             fputcsv($file, ['Total Coop Share', number_format($summary['total_coop_share'], 2)]);
@@ -256,7 +231,7 @@ class SalesController extends Controller
             fputcsv($file, []); // Empty row
 
             // Sales data
-            fputcsv($file, ['Sale ID', 'Customer', 'Email', 'Total Amount', 'Coop Share', 'Member Share', 'COGS', 'Gross Profit', 'Date']);
+            fputcsv($file, ['Sale ID', 'Customer', 'Email', 'Total Amount', 'Coop Share', 'Member Share', 'COGS', 'Gross Profit', 'Delivered Date']);
 
             foreach ($salesRaw as $sale) {
                 $cogs = ($sale->member_share / 1.3) * 0.7;
@@ -271,7 +246,7 @@ class SalesController extends Controller
                     number_format($sale->member_share, 2),
                     number_format($cogs, 2),
                     number_format($grossProfit, 2),
-                    $sale->delivered_at ? $sale->delivered_at->format('Y-m-d H:i:s') : ($sale->created_at ? $sale->created_at->format('Y-m-d H:i:s') : 'N/A')
+                    $sale->delivered_at ? $sale->delivered_at->format('Y-m-d H:i:s') : 'N/A'
                 ]);
             }
 
@@ -307,6 +282,7 @@ class SalesController extends Controller
             ->join('users as members', 'stocks.member_id', '=', 'members.id')
             ->join('products', 'audit_trails.product_id', '=', 'products.id')
             ->where('members.type', 'member')
+            ->whereNotNull('sales.delivered_at') // Only include delivered orders
             ->select(
                 'members.id as member_id',
                 'members.name as member_name',
