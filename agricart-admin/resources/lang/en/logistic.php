@@ -38,7 +38,7 @@ return [
     'status' => 'Status',
     
     // Assigned Orders Page
-    'manage_assigned_orders' => 'Manage your assigned orders and update delivery status',
+    'manage_assigned_orders' => 'Manage orders and update delivery status',
     'back_to_dashboard' => 'Back to Dashboard',
     'all_orders' => 'All Orders',
     'no_orders_assigned_yet' => 'No orders assigned to you yet.',

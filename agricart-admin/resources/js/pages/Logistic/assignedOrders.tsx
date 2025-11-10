@@ -123,7 +123,7 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
       <div className="p-6 pt-25 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{t('logistic.assigned_orders')}</h1>
+            <h1 className="text-[27px] lg:text-3xl font-bold text-foreground">{t('logistic.assigned_orders')}</h1>
             <p className="text-muted-foreground">{t('logistic.manage_assigned_orders')}</p>
           </div>
           <Link href={route('logistic.dashboard')}>
@@ -134,39 +134,39 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
         </div>
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
-          <TabsList className="h-auto flex-wrap lg:flex-nowrap lg:h-10 inline-flex p-1">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 h-auto lg:h-10 p-1 gap-1">
             <TabsTrigger 
               value="all" 
               disabled={isLoading}
-              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+              className="text-xs sm:text-sm col-span-2 sm:col-span-1"
             >
               <span className="truncate">{t('logistic.all_orders')} ({statusCounts.all})</span>
             </TabsTrigger>
             <TabsTrigger 
               value="pending" 
               disabled={isLoading}
-              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+              className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.pending')} ({statusCounts.pending})</span>
             </TabsTrigger>
             <TabsTrigger 
               value="ready_to_pickup" 
               disabled={isLoading}
-              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+              className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.ready_to_pickup')} ({statusCounts.ready_to_pickup})</span>
             </TabsTrigger>
             <TabsTrigger 
               value="out_for_delivery" 
               disabled={isLoading}
-              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+              className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.out_for_delivery')} ({statusCounts.out_for_delivery})</span>
             </TabsTrigger>
             <TabsTrigger 
               value="delivered" 
               disabled={isLoading}
-              className="flex-1 min-w-[calc(50%-0.25rem)] lg:min-w-0 text-xs sm:text-sm lg:text-sm"
+              className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.delivered')} ({statusCounts.delivered})</span>
             </TabsTrigger>
@@ -349,76 +349,55 @@ function OrderCard({ order, getDeliveryStatusBadge, formatQuantity, t }: {
   formatQuantity: (quantity: number, category: string) => string;
   t: (key: string, params?: any) => string;
 }) {
-  // Backend now provides aggregated quantities
-  
   return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-4">
-          {/* Header - Stack on mobile, side-by-side on desktop */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center flex-wrap gap-2">
-              <h3 className="font-semibold text-foreground">{t('logistic.order_number', { id: order.id })}</h3>
-              {getDeliveryStatusBadge(order.delivery_status)}
-            </div>
-            {/* Button hidden on mobile, shown on desktop */}
-            <Link href={route('logistic.orders.show', order.id)} className="hidden sm:block">
-              <Button 
-                variant="outline" 
-                size="sm"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                {t('logistic.view_details')}
-              </Button>
-            </Link>
+    <div className="border border-border rounded-lg p-4 sm:p-6 bg-muted/30 hover:bg-muted/50 transition-colors group">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center flex-wrap gap-2 mb-3">
+            <h3 className="font-semibold text-foreground text-lg">{t('logistic.order_number', { id: order.id })}</h3>
+            {getDeliveryStatusBadge(order.delivery_status)}
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{t('logistic.customer')}:</span> {order.customer.name}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{t('logistic.email')}:</span> {order.customer.email}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{t('logistic.date')}:</span> {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{t('logistic.total')}:</span> ₱{order.total_amount.toFixed(2)}
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{t('logistic.customer')}:</span>
+              <span className="font-medium text-foreground truncate">{order.customer.name}</span>
             </div>
-            
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">{t('logistic.products_in_order')}:</p>
-              <div className="space-y-1">
-                {order.audit_trail.slice(0, 3).map((item, index) => (
-                  <div key={`${item.product.name}-${item.category}-${index}`} className="text-sm text-muted-foreground">
-                    • {item.product.name} - {formatQuantity(item.quantity, item.category)}
-                  </div>
-                ))}
-                {order.audit_trail.length > 3 && (
-                  <div className="text-sm text-muted-foreground/70">
-                    {t('logistic.more_items', { count: order.audit_trail.length - 3 })}
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{t('logistic.date')}:</span>
+              <span className="font-medium text-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{t('logistic.total')}:</span>
+              <span className="font-medium text-foreground">₱{order.total_amount.toFixed(2)}</span>
             </div>
           </div>
-
-          {/* Button shown on mobile at bottom, hidden on desktop */}
-          <Link href={route('logistic.orders.show', order.id)} className="block sm:hidden">
+          {order.audit_trail.length > 0 && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              {order.audit_trail.slice(0, 2).map((item, index) => (
+                <span key={`${item.product.name}-${item.category}-${index}`}>
+                  {item.product.name} ({formatQuantity(item.quantity, item.category)})
+                  {index < Math.min(order.audit_trail.length, 2) - 1 && ' • '}
+                </span>
+              ))}
+              {order.audit_trail.length > 2 && (
+                <span> • {t('logistic.more_items', { count: order.audit_trail.length - 2 })}</span>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center">
+          <Link href={route('logistic.orders.show', order.id)} className="w-full lg:w-auto">
             <Button 
               variant="outline" 
               size="sm"
-              className="w-full"
+              className="w-full lg:w-auto group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
             >
               <Eye className="h-4 w-4 mr-1" />
               {t('logistic.view_details')}
             </Button>
           </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 } 
