@@ -226,7 +226,10 @@ export const MemberManagement = ({
                                             {member.default_address ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` : t('admin.not_available')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            {member.registration_date || t('admin.not_available')}
+                                            {member.registration_date ? 
+                                                new Date(member.registration_date).toLocaleDateString() 
+                                                : t('admin.not_available')
+                                            }
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
                                             {member.active ? (

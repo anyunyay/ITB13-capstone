@@ -32,7 +32,7 @@ class MembershipController extends Controller
                     'name' => $member->name,
                     'member_id' => $member->member_id,
                     'contact_number' => $member->contact_number,
-                    'registration_date' => $member->registration_date,
+                    'registration_date' => $member->registration_date ? $member->registration_date->format('Y-m-d') : null,
                     'document' => $member->document ? $fileService->getFileUrl($member->document, 'documents') : null,
                     'type' => $member->type,
                     'active' => $member->active,
