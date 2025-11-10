@@ -171,7 +171,14 @@ export const LogisticManagement = ({
                                         {t('admin.registration_date')} {getSortIcon('registration_date')}
                                     </button>
                                 </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.status')}</th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
+                                    <button
+                                        onClick={() => handleSort('active')}
+                                        className="flex items-center gap-1 hover:text-foreground"
+                                    >
+                                        {t('admin.status')} {getSortIcon('active')}
+                                    </button>
+                                </th>
                                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</th>
                             </tr>
                         </thead>

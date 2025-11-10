@@ -25,21 +25,21 @@ interface PageProps extends SharedData {
 export default function Index() {
     const t = useTranslation();
     const { logistics = [], flash, auth } = usePage<PageProps>().props;
-    
+
     // State management
     const [searchTerm, setSearchTerm] = useState('');
     const [showSearch, setShowSearch] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState('name');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [sortBy, setSortBy] = useState('id');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [showDeactivated, setShowDeactivated] = useState(false);
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
-    
+
     const itemsPerPage = 10;
-    
+
     // Check if the user is authenticated
     useEffect(() => {
         if (!auth?.user) {
@@ -53,7 +53,7 @@ export default function Index() {
     const logisticStats: LogisticStats = useMemo(() => {
         const activeLogistics = logistics.filter(l => l.active);
         const deactivatedLogistics = logistics.filter(l => !l.active);
-        
+
         return {
             totalLogistics: logistics.length,
             activeLogistics: activeLogistics.length,
@@ -65,33 +65,39 @@ export default function Index() {
     // Filter and sort logistics
     const filteredAndSortedLogistics = useMemo(() => {
         let filtered = logistics.filter(logistic => {
-            const matchesSearch = !searchTerm || 
+            const matchesSearch = !searchTerm ||
                 logistic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 logistic.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 logistic.id.toString().includes(searchTerm) ||
                 (logistic.contact_number && logistic.contact_number.includes(searchTerm));
-            
+
             const matchesStatus = showDeactivated ? !logistic.active : logistic.active;
-            
+
             return matchesSearch && matchesStatus;
         });
 
         // Sort logistics
         filtered.sort((a, b) => {
-            let aValue: any = a[sortBy as keyof Logistic];
-            let bValue: any = b[sortBy as keyof Logistic];
-            
-            if (sortBy === 'registration_date') {
-                aValue = new Date(aValue || 0).getTime();
-                bValue = new Date(bValue || 0).getTime();
-            } else if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
+            let comparison = 0;
+
+            switch (sortBy) {
+                case 'id':
+                    comparison = a.id - b.id;
+                    break;
+                case 'name':
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case 'active':
+                    comparison = (a.active ? 1 : 0) - (b.active ? 1 : 0);
+                    break;
+                case 'registration_date':
+                    comparison = new Date(a.registration_date || 0).getTime() - new Date(b.registration_date || 0).getTime();
+                    break;
+                default:
+                    return 0;
             }
-            
-            if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-            if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-            return 0;
+
+            return sortOrder === 'asc' ? comparison : -comparison;
         });
 
         return filtered;
@@ -156,7 +162,7 @@ export default function Index() {
     };
 
     return (
-        <PermissionGuard 
+        <PermissionGuard
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
             pageTitle={t('admin.access_denied')}
         >
@@ -166,10 +172,10 @@ export default function Index() {
                     <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
                         {/* Flash Messages */}
                         <FlashMessage flash={flash} />
-                        
+
                         {/* Dashboard Header */}
                         <DashboardHeader logisticStats={logisticStats} />
-                        
+
                         {/* Logistics Management */}
                         <LogisticManagement
                             logistics={logistics}
@@ -195,7 +201,7 @@ export default function Index() {
                             sortOrder={sortOrder}
                             setSortOrder={setSortOrder}
                         />
-                        
+
                         {/* Deactivation Modal */}
                         <DeactivationModal
                             isOpen={showDeactivationModal}
