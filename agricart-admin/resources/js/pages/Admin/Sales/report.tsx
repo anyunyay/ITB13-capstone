@@ -8,11 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, DollarSign, ShoppingCart, TrendingUp, Users, Search } from 'lucide-react';
+import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, DollarSign, ShoppingCart, TrendingUp, Users, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 interface Sale {
   id: number;
@@ -26,6 +27,7 @@ interface Sale {
   cogs: number;
   gross_profit: number;
   created_at: string;
+  delivered_at?: string;
   admin?: {
     name: string;
     id: number;
@@ -67,6 +69,14 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
   const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Sorting state
+  const [sortBy, setSortBy] = useState('id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -131,8 +141,13 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
+    if (localFilters.min_amount) params.append('min_amount', localFilters.min_amount);
+    if (localFilters.max_amount) params.append('max_amount', localFilters.max_amount);
+    if (localFilters.search) params.append('search', localFilters.search);
     params.append('format', format);
     params.append('export_type', exportType);
+    params.append('sort_by', sortBy);
+    params.append('sort_order', sortOrder);
 
     const filename = exportType === 'members' ? 'member_sales_report' : 'sales_report';
 
@@ -150,8 +165,13 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
+      if (localFilters.min_amount) displayParams.append('min_amount', localFilters.min_amount);
+      if (localFilters.max_amount) displayParams.append('max_amount', localFilters.max_amount);
+      if (localFilters.search) displayParams.append('search', localFilters.search);
       displayParams.append('format', format);
       displayParams.append('export_type', exportType);
+      displayParams.append('sort_by', sortBy);
+      displayParams.append('sort_order', sortOrder);
       displayParams.append('display', 'true');
       const displayUrl = `${route('admin.sales.report')}?${displayParams.toString()}`;
 
@@ -185,6 +205,75 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
       localFilters.min_amount || localFilters.max_amount ||
       localFilters.search;
   };
+
+  // Helper to get sort icon
+  const getSortIcon = (field: string) => {
+    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === 'asc' ?
+      <ArrowUp className="h-4 w-4 ml-1" /> :
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setCurrentPage(1);
+  };
+
+  // Sort sales data
+  const sortedSales = [...sales].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'total_amount':
+        comparison = a.total_amount - b.total_amount;
+        break;
+      case 'coop_share':
+        comparison = (a.coop_share || 0) - (b.coop_share || 0);
+        break;
+      case 'member_share':
+        comparison = a.member_share - b.member_share;
+        break;
+      case 'cogs':
+        comparison = a.cogs - b.cogs;
+        break;
+      case 'gross_profit':
+        comparison = a.gross_profit - b.gross_profit;
+        break;
+      case 'customer':
+        comparison = a.customer.name.localeCompare(b.customer.name);
+        break;
+      case 'delivered_at':
+        comparison = new Date(a.delivered_at || 0).getTime() - new Date(b.delivered_at || 0).getTime();
+        break;
+      default:
+        return 0;
+    }
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedSales.length / itemsPerPage);
+  const paginatedSales = sortedSales.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sales.length]);
 
   return (
     <AppLayout>
@@ -490,18 +579,58 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b border-border bg-muted/50">
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.id_column')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.customer')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.total_amount')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.coop_share')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.revenue_column')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.cogs')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.gross_profit')}</th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.date')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('id')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.id_column')}
+                            {getSortIcon('id')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('customer')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.customer')}
+                            {getSortIcon('customer')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('total_amount')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.total_amount')}
+                            {getSortIcon('total_amount')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('coop_share')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.coop_share')}
+                            {getSortIcon('coop_share')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('member_share')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.revenue_column')}
+                            {getSortIcon('member_share')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('cogs')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.cogs')}
+                            {getSortIcon('cogs')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.gross_profit')}
+                            {getSortIcon('gross_profit')}
+                          </button>
+                        </th>
+                        <th className="text-center py-3 px-4 font-semibold text-foreground">
+                          <button onClick={() => handleSort('delivered_at')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                            {t('admin.delivered_date')}
+                            {getSortIcon('delivered_at')}
+                          </button>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sales.map((sale, index) => (
+                      {paginatedSales.map((sale, index) => (
                         <tr key={sale.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
                           <td className="py-3 px-4">
                             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono">
@@ -540,13 +669,24 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                             </Badge>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="text-sm text-foreground">{dayjs(sale.created_at).format('MMM DD, YYYY')}</div>
-                            <div className="text-xs text-muted-foreground">{dayjs(sale.created_at).format('HH:mm')}</div>
+                            <div className="text-sm text-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('MMM DD, YYYY') : 'N/A'}</div>
+                            <div className="text-xs text-muted-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('HH:mm') : ''}</div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      itemsPerPage={itemsPerPage}
+                      totalItems={sortedSales.length}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12">

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 import { PermissionGate } from '@/components/common/permission-gate';
@@ -26,8 +25,7 @@ interface Sale {
   member_share: number;
   cogs: number;
   gross_profit: number;
-  status?: string;
-  created_at: string;
+  delivered_at: string;
   admin?: {
     name: string;
   };
@@ -51,7 +49,6 @@ interface MemberSale {
 
 interface SalesPageProps {
   sales: Sale[];
-  pendingOrders: Sale[];
   summary: {
     total_revenue: number;
     total_subtotal: number;
@@ -71,18 +68,13 @@ interface SalesPageProps {
   };
 }
 
-export default function SalesIndex({ sales, pendingOrders, summary, memberSales }: SalesPageProps) {
+export default function SalesIndex({ sales, summary, memberSales }: SalesPageProps) {
   const t = useTranslation();
   
   // Sales table sorting and pagination state
   const [salesSortBy, setSalesSortBy] = useState('id');
   const [salesSortOrder, setSalesSortOrder] = useState<'asc' | 'desc'>('desc');
   const [salesCurrentPage, setSalesCurrentPage] = useState(1);
-  
-  // Pending orders table sorting and pagination state
-  const [pendingSortBy, setPendingSortBy] = useState('id');
-  const [pendingSortOrder, setPendingSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
   
   // Member sales table sorting and pagination state
   const [memberSortBy, setMemberSortBy] = useState('total_revenue');
@@ -91,19 +83,10 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
   
   const itemsPerPage = 10;
   
-
-  
   // Helper to get sort icon for different tables
   const getSalesSortIcon = (field: string) => {
     if (salesSortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
     return salesSortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
-  const getPendingSortIcon = (field: string) => {
-    if (pendingSortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return pendingSortOrder === 'asc' ? 
       <ArrowUp className="h-4 w-4 ml-1" /> : 
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
@@ -140,8 +123,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
       case 'customer':
         comparison = a.customer.name.localeCompare(b.customer.name);
         break;
-      case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'delivered_at':
+        comparison = new Date(a.delivered_at).getTime() - new Date(b.delivered_at).getTime();
         break;
       default:
         return 0;
@@ -153,43 +136,6 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
   const paginatedSales = sortedSales.slice(
     (salesCurrentPage - 1) * itemsPerPage,
     salesCurrentPage * itemsPerPage
-  );
-
-  // Sort and paginate pending orders
-  const sortedPendingOrders = [...pendingOrders].sort((a, b) => {
-    let comparison = 0;
-    switch (pendingSortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'total_amount':
-        comparison = a.total_amount - b.total_amount;
-        break;
-      case 'coop_share':
-        comparison = (a.coop_share || 0) - (b.coop_share || 0);
-        break;
-      case 'member_share':
-        comparison = a.member_share - b.member_share;
-        break;
-      case 'customer':
-        comparison = a.customer.name.localeCompare(b.customer.name);
-        break;
-      case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      case 'status':
-        comparison = (a.status || '').localeCompare(b.status || '');
-        break;
-      default:
-        return 0;
-    }
-    return pendingSortOrder === 'asc' ? comparison : -comparison;
-  });
-
-  const pendingTotalPages = Math.ceil(sortedPendingOrders.length / itemsPerPage);
-  const paginatedPendingOrders = sortedPendingOrders.slice(
-    (pendingCurrentPage - 1) * itemsPerPage,
-    pendingCurrentPage * itemsPerPage
   );
 
   // Sort and paginate member sales
@@ -237,10 +183,6 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
     setSalesCurrentPage(page);
   };
 
-  const handlePendingPageChange = (page: number) => {
-    setPendingCurrentPage(page);
-  };
-
   const handleMemberPageChange = (page: number) => {
     setMemberCurrentPage(page);
   };
@@ -254,16 +196,6 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
       setSalesSortOrder('desc');
     }
     setSalesCurrentPage(1);
-  };
-
-  const handlePendingSort = (field: string) => {
-    if (pendingSortBy === field) {
-      setPendingSortOrder(pendingSortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setPendingSortBy(field);
-      setPendingSortOrder('desc');
-    }
-    setPendingCurrentPage(1);
   };
 
   const handleMemberSort = (field: string) => {
@@ -280,10 +212,6 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
   useEffect(() => {
     setSalesCurrentPage(1);
   }, [sales.length]);
-
-  useEffect(() => {
-    setPendingCurrentPage(1);
-  }, [pendingOrders.length]);
 
   useEffect(() => {
     setMemberCurrentPage(1);
@@ -441,9 +369,8 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
           </div>
 
           <Tabs defaultValue="sales" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-auto">
+            <TabsList className="grid w-full grid-cols-2 h-auto">
               <TabsTrigger value="sales" className="text-xs sm:text-sm">{t('admin.all_sales')}</TabsTrigger>
-              <TabsTrigger value="pending" className="text-xs sm:text-sm">{t('admin.pending_orders_label')}</TabsTrigger>
               <TabsTrigger value="members" className="text-xs sm:text-sm">{t('admin.member_sales_tab')}</TabsTrigger>
             </TabsList>
 
@@ -503,9 +430,9 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                             </button>
                           </TableHead>
                           <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.date')}
-                              {getSalesSortIcon('created_at')}
+                            <button onClick={() => handleSalesSort('delivered_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                              {t('admin.delivered_date')}
+                              {getSalesSortIcon('delivered_at')}
                             </button>
                           </TableHead>
                           <TableHead className="text-center whitespace-nowrap">{t('admin.processed_by')}</TableHead>
@@ -527,7 +454,7 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                           <TableCell className="text-blue-600 font-medium text-right">₱{Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-orange-600 font-medium text-right">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell>{format(new Date(sale.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
+                          <TableCell>{format(new Date(sale.delivered_at), 'MMM dd, yyyy HH:mm')}</TableCell>
                           <TableCell>{sale.admin?.name || t('admin.not_available')}</TableCell>
                           <TableCell>{sale.logistic?.name || t('admin.not_available')}</TableCell>
                         </TableRow>
@@ -557,121 +484,12 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
               </Card>
             </TabsContent>
 
-            <TabsContent value="pending" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('admin.pending_orders_label')} ({sortedPendingOrders.length} {t('admin.total')})</CardTitle>
-                  <CardDescription>
-                    {t('admin.awaiting_approval_or_processing')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table className="min-w-[900px]">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.order_id')}
-                              {getPendingSortIcon('id')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.customer')}
-                              {getPendingSortIcon('customer')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.total_amount')}
-                              {getPendingSortIcon('total_amount')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.subtotal')}</TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.coop_share')}
-                              {getPendingSortIcon('coop_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.revenue_column')}
-                              {getPendingSortIcon('member_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.cogs')}</TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.gross_profit')}</TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('created_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.date')}
-                              {getPendingSortIcon('created_at')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handlePendingSort('status')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.status')}
-                              {getPendingSortIcon('status')}
-                            </button>
-                          </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedPendingOrders.map((order) => (
-                        <TableRow key={order.id}>
-                          <TableCell className="font-medium">#{order.id}</TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{order.customer.name}</div>
-                              <div className="text-sm text-muted-foreground">{order.customer.email}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium text-right">₱{Number(order.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="font-medium text-right">₱{Number(order.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number(order.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium text-right">₱{Number(order.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium text-right">₱{Number(((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number((order.member_share || 0) - ((order.member_share || 0) / 1.3) * 0.7).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</TableCell>
-                          <TableCell>
-                            <Badge variant={order.status === 'pending' ? 'secondary' : order.status === 'approved' ? 'default' : 'destructive'}>
-                              {order.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {paginatedPendingOrders.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={10} className="text-center text-muted-foreground">
-                              {t('admin.no_pending_orders_found')}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {/* Pagination Controls */}
-                  {pendingTotalPages > 1 && (
-                    <PaginationControls
-                      currentPage={pendingCurrentPage}
-                      totalPages={pendingTotalPages}
-                      onPageChange={handlePendingPageChange}
-                      itemsPerPage={itemsPerPage}
-                      totalItems={sortedPendingOrders.length}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             <TabsContent value="members" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('admin.member_sales_page_title')} ({sortedMemberSales.length} {t('admin.members')})</CardTitle>
+                  <CardTitle>{t('admin.member_sales_tab')} ({sortedMemberSales.length} {t('admin.total')})</CardTitle>
                   <CardDescription>
-                    {t('admin.member_sales_performance_analytics')}
+                    {t('admin.member_sales_description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -681,19 +499,19 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                         <TableRow>
                           <TableHead className="text-center whitespace-nowrap">
                             <button onClick={() => handleMemberSort('member_name')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.member')}
+                              {t('admin.member_name')}
                               {getMemberSortIcon('member_name')}
                             </button>
                           </TableHead>
                           <TableHead className="text-center whitespace-nowrap">
                             <button onClick={() => handleMemberSort('total_orders')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.total_orders')}
+                              {t('admin.total_orders_label')}
                               {getMemberSortIcon('total_orders')}
                             </button>
                           </TableHead>
                           <TableHead className="text-center whitespace-nowrap">
                             <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center justify-center hover:text-foreground transition-colors">
-                              {t('admin.total_revenue')}
+                              {t('admin.total_revenue_label')}
                               {getMemberSortIcon('total_revenue')}
                             </button>
                           </TableHead>
@@ -727,32 +545,30 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
                               {getMemberSortIcon('total_quantity_sold')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.average_revenue')}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedMemberSales.map((member) => (
-                        <TableRow key={member.member_id}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{member.member_name}</div>
-                              <div className="text-sm text-muted-foreground">{member.member_email}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">{member.total_orders}</TableCell>
-                          <TableCell className="font-medium text-right">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium text-right">₱{Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium text-right">₱{Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-center">{member.total_quantity_sold}</TableCell>
-                          <TableCell className="text-right">₱{member.total_orders > 0 ? (Number(member.total_revenue || 0) / member.total_orders).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</TableCell>
                         </TableRow>
-                      ))}
-                      {paginatedMemberSales.length === 0 && (
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedMemberSales.map((member) => (
+                          <TableRow key={member.member_id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{member.member_name}</div>
+                                <div className="text-sm text-muted-foreground">{member.member_email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">{member.total_orders}</TableCell>
+                            <TableCell className="font-medium text-right">₱{Number(member.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                            <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                            <TableCell className="text-blue-600 font-medium text-right">₱{Number(member.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                            <TableCell className="text-orange-600 font-medium text-right">₱{Number(member.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                            <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                            <TableCell className="text-center">{Number(member.total_quantity_sold).toLocaleString('en-US')}</TableCell>
+                          </TableRow>
+                        ))}
+                        {paginatedMemberSales.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={9} className="text-center text-muted-foreground">
-                              {t('admin.no_member_sales_data_found')}
+                            <TableCell colSpan={8} className="text-center text-muted-foreground">
+                              {t('admin.no_member_sales_found')}
                             </TableCell>
                           </TableRow>
                         )}
@@ -774,9 +590,9 @@ export default function SalesIndex({ sales, pendingOrders, summary, memberSales 
               </Card>
             </TabsContent>
           </Tabs>
-          </div>
         </div>
-      </AppLayout>
-    </PermissionGuard>
+      </div>
+    </AppLayout>
+  </PermissionGuard>
   );
 }

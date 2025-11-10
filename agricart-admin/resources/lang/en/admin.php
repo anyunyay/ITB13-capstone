@@ -323,6 +323,7 @@ return [
     'total_amount' => 'Total Amount',
     'member_share' => 'Member Share',
     'date' => 'Date',
+    'delivered_date' => 'Delivered Date',
     'processed_by' => 'Processed By',
     'logistic' => 'Logistic',
     'order_id' => 'Order ID',
