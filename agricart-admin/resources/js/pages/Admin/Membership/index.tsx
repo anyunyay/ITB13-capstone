@@ -54,7 +54,7 @@ export default function Index() {
         setCurrentPage(1); // Reset to first page when switching views
     };
 
-    // Reset pagination when sorting changes
+    // Handle sorting with pagination reset
     const handleSortChange = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -289,7 +289,7 @@ export default function Index() {
                             showDeactivated={showDeactivated}
                             setShowDeactivated={toggleDeactivatedView}
                             sortBy={sortBy}
-                            setSortBy={setSortBy}
+                            setSortBy={handleSortChange}
                             sortOrder={sortOrder}
                             setSortOrder={setSortOrder}
                         />

@@ -33,7 +33,7 @@ interface MemberManagementProps {
     showDeactivated: boolean;
     setShowDeactivated: (show: boolean) => void;
     sortBy: string;
-    setSortBy: (sort: string) => void;
+    setSortBy: (field: string) => void;
     sortOrder: 'asc' | 'desc';
     setSortOrder: (order: 'asc' | 'desc') => void;
 }
@@ -63,18 +63,9 @@ export const MemberManagement = ({
     setSortOrder
 }: MemberManagementProps) => {
     const t = useTranslation();
-    // Handle sorting
+    // Handle sorting - delegate to parent component
     const handleSort = (field: string) => {
-        if (sortBy === field) {
-            // Toggle sort order if same field
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            // Set new sort field with default ascending order
-            setSortBy(field);
-            setSortOrder('asc');
-        }
-        // Reset to first page when sorting changes
-        setCurrentPage(1);
+        setSortBy(field);
     };
 
     // Handle search toggle
@@ -91,8 +82,8 @@ export const MemberManagement = ({
         if (sortBy !== field) {
             return <ArrowUpDown className="h-4 w-4" />;
         }
-        return sortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4" /> : 
+        return sortOrder === 'asc' ?
+            <ArrowUp className="h-4 w-4" /> :
             <ArrowDown className="h-4 w-4" />;
     };
 
@@ -159,27 +150,54 @@ export const MemberManagement = ({
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleSort('id')}
-                                            className="h-auto p-0 font-medium hover:bg-transparent"
+                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
                                         >
                                             {t('admin.id_column')}
                                             {getSortIcon('id')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.member_id')}</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.name')}</TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact_number')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleSort('member_id')}
+                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
+                                        >
+                                            {t('admin.member_id')}
+                                            {getSortIcon('member_id')}
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleSort('name')}
+                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
+                                        >
+                                            {t('admin.name')}
+                                            {getSortIcon('name')}
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleSort('contact_number')}
+                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
+                                        >
+                                            {t('admin.contact_number')}
+                                            {getSortIcon('contact_number')}
+                                        </Button>
+                                    </TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
                                         <Button
                                             variant="ghost"
                                             onClick={() => handleSort('registration_date')}
-                                            className="h-auto p-0 font-medium hover:bg-transparent"
+                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
                                         >
                                             {t('admin.registration_date_label')}
                                             {getSortIcon('registration_date')}
                                         </Button>
                                     </TableHead>
-                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.type')}</TableHead>
+                                    <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.status')}</TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.document_upload_label')}</TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</TableHead>
                                 </TableRow>
@@ -189,9 +207,8 @@ export const MemberManagement = ({
                                     <TableRow
                                         key={member.id}
                                         id={`member-row-${member.id}`}
-                                        className={`border-b border-border transition-colors duration-150 hover:bg-muted/30 ${
-                                            highlightMemberId === member.id ? styles.highlighted : ''
-                                        }`}
+                                        className={`border-b border-border transition-colors duration-150 hover:bg-muted/30 ${highlightMemberId === member.id ? styles.highlighted : ''
+                                            }`}
                                     >
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
                                             <Badge variant="outline">#{idx + 1}</Badge>
@@ -212,21 +229,20 @@ export const MemberManagement = ({
                                             {member.registration_date || t('admin.not_available')}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <div className="flex flex-col gap-1">
-                                                <Badge variant="secondary">
-                                                    {member.type || t('admin.regular')}
+                                            {member.active ? (
+                                                <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                                                    {t('admin.active')}
                                                 </Badge>
-                                                {!member.active && (
-                                                    <Badge variant="destructive" className="text-xs">
-                                                        {t('admin.deactivated')}
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                            ) : (
+                                                <Badge variant="destructive">
+                                                    {t('admin.deactivated')}
+                                                </Badge>
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-sm text-foreground">
-                                            <SafeImage 
-                                                src={member.document} 
-                                                alt={`Document for ${member.name}`} 
+                                            <SafeImage
+                                                src={member.document}
+                                                alt={`Document for ${member.name}`}
                                                 className="max-w-24 object-cover rounded"
                                             />
                                         </TableCell>
@@ -243,9 +259,9 @@ export const MemberManagement = ({
                                                 {member.active ? (
                                                     member.can_be_deactivated && (
                                                         <PermissionGate permission="deactivate members">
-                                                            <Button 
-                                                                disabled={processing} 
-                                                                onClick={() => onDeactivate(member)} 
+                                                            <Button
+                                                                disabled={processing}
+                                                                onClick={() => onDeactivate(member)}
                                                                 size="sm"
                                                                 variant="destructive"
                                                                 className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
@@ -256,9 +272,9 @@ export const MemberManagement = ({
                                                     )
                                                 ) : (
                                                     <PermissionGate permission="edit members">
-                                                        <Button 
-                                                            disabled={processing} 
-                                                            onClick={() => onReactivate(member)} 
+                                                        <Button
+                                                            disabled={processing}
+                                                            onClick={() => onReactivate(member)}
                                                             size="sm"
                                                             className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
                                                         >
