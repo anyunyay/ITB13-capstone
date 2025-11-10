@@ -177,14 +177,7 @@ export const MemberManagement = ({
                                         </Button>
                                     </TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => handleSort('contact_number')}
-                                            className="h-auto p-0 font-medium hover:bg-transparent flex items-center gap-1"
-                                        >
-                                            {t('admin.contact_number')}
-                                            {getSortIcon('contact_number')}
-                                        </Button>
+                                        {t('admin.contact_number')}
                                     </TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</TableHead>
                                     <TableHead className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">

@@ -119,9 +119,6 @@ export default function Index() {
                 case 'member_id':
                     comparison = (a.member_id || '').localeCompare(b.member_id || '');
                     break;
-                case 'contact_number':
-                    comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-                    break;
                 default:
                     comparison = a.name?.localeCompare(b.name || '') || 0;
             }
