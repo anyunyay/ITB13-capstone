@@ -744,6 +744,8 @@ class OrderController extends Controller
         $search = $request->get('search');
         $minAmount = $request->get('min_amount');
         $maxAmount = $request->get('max_amount');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
@@ -796,7 +798,21 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        $orders = $query->get();
+
+        // Apply sorting
+        $orders = $orders->sortBy(function ($order) use ($sortBy) {
+            switch ($sortBy) {
+                case 'customer':
+                    return $order->customer->name ?? '';
+                case 'admin':
+                    return $order->admin->name ?? '';
+                case 'logistic':
+                    return $order->logistic->name ?? '';
+                default:
+                    return $order->{$sortBy} ?? '';
+            }
+        }, SORT_REGULAR, $sortOrder === 'desc')->values();
 
         // Calculate summary statistics
         $summary = [

@@ -16,7 +16,8 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -128,6 +129,10 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   const [logisticsOpen, setLogisticsOpen] = useState(false);
   const [adminsOpen, setAdminsOpen] = useState(false);
   
+  // Sort state for table view
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -186,7 +191,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
     if (localFilters.search) params.search = localFilters.search;
     if (localFilters.min_amount) params.min_amount = localFilters.min_amount;
     if (localFilters.max_amount) params.max_amount = localFilters.max_amount;
-    
+
     router.get(route('admin.orders.report'), params);
   };
 
@@ -205,8 +210,10 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
     if (localFilters.search) params.append('search', localFilters.search);
     if (localFilters.min_amount) params.append('min_amount', localFilters.min_amount);
     if (localFilters.max_amount) params.append('max_amount', localFilters.max_amount);
+    params.append('sort_by', sortBy);
+    params.append('sort_order', sortOrder);
     params.append('format', format);
-    
+
     if (format === 'csv') {
       // For CSV: just download, no display
       const downloadUrl = `${route('admin.orders.report')}?${params.toString()}`;
@@ -219,7 +226,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
     } else {
       // For PDF: download and display
       const downloadUrl = `${route('admin.orders.report')}?${params.toString()}`;
-      
+
       // Create display URL for viewing
       const displayParams = new URLSearchParams();
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
@@ -235,10 +242,12 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
       if (localFilters.search) displayParams.append('search', localFilters.search);
       if (localFilters.min_amount) displayParams.append('min_amount', localFilters.min_amount);
       if (localFilters.max_amount) displayParams.append('max_amount', localFilters.max_amount);
+      displayParams.append('sort_by', sortBy);
+      displayParams.append('sort_order', sortOrder);
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('admin.orders.report')}?${displayParams.toString()}`;
-      
+
       // Download the file
       const downloadLink = document.createElement('a');
       downloadLink.href = downloadUrl;
@@ -246,7 +255,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      
+
       // Open display in new tab after a short delay
       setTimeout(() => {
         window.open(displayUrl, '_blank');
@@ -303,10 +312,10 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   };
 
   const hasActiveFilters = () => {
-    return localFilters.start_date || localFilters.end_date || 
-           localFilters.status !== 'all' || localFilters.delivery_status !== 'all' ||
-           localFilters.logistic_ids.length > 0 || localFilters.admin_ids.length > 0 ||
-           localFilters.search || localFilters.min_amount || localFilters.max_amount;
+    return localFilters.start_date || localFilters.end_date ||
+      localFilters.status !== 'all' || localFilters.delivery_status !== 'all' ||
+      localFilters.logistic_ids.length > 0 || localFilters.admin_ids.length > 0 ||
+      localFilters.search || localFilters.min_amount || localFilters.max_amount;
   };
 
   const handleLogisticToggle = (logisticId: string) => {
@@ -394,7 +403,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 <p className="text-xs text-muted-foreground mt-1">All orders</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.total_revenue')}</CardTitle>
@@ -404,8 +413,8 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.gross_revenue')}</p>
               </CardContent>
             </Card>
-            
-            
+
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.pending_orders_label')}</CardTitle>
@@ -415,7 +424,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.awaiting_approval')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.approved_orders_label')}</CardTitle>
@@ -425,7 +434,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.approved_orders_desc')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.rejected_orders_label')}</CardTitle>
@@ -435,7 +444,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 <p className="text-xs text-muted-foreground mt-1">{t('admin.rejected_orders_desc')}</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.delivered_orders_label')}</CardTitle>
@@ -774,7 +783,15 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                       ))}
                     </div>
                   ) : (
-                    <OrderTable orders={orders} />
+                    <OrderTable 
+                      orders={orders} 
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      onSortChange={(field, order) => {
+                        setSortBy(field);
+                        setSortOrder(order);
+                      }}
+                    />
                   )}
                 </>
               ) : (
@@ -785,7 +802,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                     </div>
                     <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
                     <p className="text-muted-foreground max-w-md">
-                      {hasActiveFilters() 
+                      {hasActiveFilters()
                         ? 'No orders match your current filter criteria. Try adjusting your filters to see more results.'
                         : 'No order data available for the selected time period.'
                       }
@@ -870,22 +887,22 @@ function OrderCard({ order }: { order: Order }) {
             </h4>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.name')}:</span> 
+                <span className="font-medium text-foreground">{t('admin.name')}:</span>
                 <span className="text-muted-foreground ml-2">{order.customer.name}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.email')}:</span> 
+                <span className="font-medium text-foreground">{t('admin.email')}:</span>
                 <span className="text-muted-foreground ml-2">{order.customer.email}</span>
               </p>
               {order.customer.contact_number && (
                 <p className="text-sm">
-                  <span className="font-medium text-foreground">{t('admin.contact_number')}:</span> 
+                  <span className="font-medium text-foreground">{t('admin.contact_number')}:</span>
                   <span className="text-muted-foreground ml-2">{order.customer.contact_number}</span>
                 </p>
               )}
             </div>
           </div>
-          
+
           <div className="space-y-3">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <div className="w-2 h-2 bg-secondary rounded-full"></div>
@@ -893,28 +910,28 @@ function OrderCard({ order }: { order: Order }) {
             </h4>
             <div className="space-y-2">
               <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">{t('admin.total_amount')}:</span> 
+                <span className="font-medium text-foreground">{t('admin.total_amount')}:</span>
                 <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-200">
                   ₱{Number(order.total_amount).toFixed(2)}
                 </Badge>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Subtotal:</span> 
+                <span className="font-medium text-foreground">Subtotal:</span>
                 <span className="text-muted-foreground ml-2">₱{Number(order.subtotal || 0).toFixed(2)}</span>
               </p>
               <p className="text-sm">
-                <span className="font-medium text-foreground">Items:</span> 
+                <span className="font-medium text-foreground">Items:</span>
                 <span className="text-muted-foreground ml-2">{order.audit_trail?.length || 0}</span>
               </p>
               {order.admin && (
                 <p className="text-sm">
-                  <span className="font-medium text-foreground">Processed by:</span> 
+                  <span className="font-medium text-foreground">Processed by:</span>
                   <span className="text-muted-foreground ml-2">{order.admin.name}</span>
                 </p>
               )}
               {order.logistic && (
                 <p className="text-sm">
-                  <span className="font-medium text-foreground">Assigned to:</span> 
+                  <span className="font-medium text-foreground">Assigned to:</span>
                   <span className="text-muted-foreground ml-2">{order.logistic.name}</span>
                   {order.logistic.contact_number && (
                     <span className="text-muted-foreground ml-2">({order.logistic.contact_number})</span>
@@ -924,7 +941,7 @@ function OrderCard({ order }: { order: Order }) {
             </div>
           </div>
         </div>
-        
+
         {order.admin_notes && (
           <div className="mt-4 p-3 bg-muted rounded-lg">
             <h5 className="font-semibold text-sm mb-1 text-foreground">Admin Notes:</h5>
@@ -971,24 +988,46 @@ function OrderCard({ order }: { order: Order }) {
   );
 }
 
-function OrderTable({ orders }: { orders: Order[] }) {
+function OrderTable({ 
+  orders, 
+  sortBy, 
+  sortOrder, 
+  onSortChange 
+}: { 
+  orders: Order[];
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+  onSortChange: (field: string, order: 'asc' | 'desc') => void;
+}) {
   const t = useTranslation();
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      onSortChange(field, newOrder);
     } else {
-      setSortBy(field);
-      setSortOrder('desc');
+      onSortChange(field, 'desc');
     }
+    setCurrentPage(1); // Reset to first page when sorting changes
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset pagination when orders change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [orders.length]);
 
   const getSortIcon = (field: string) => {
     if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
+    return sortOrder === 'asc' ?
+      <ArrowUp className="h-4 w-4 ml-1" /> :
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
@@ -1029,6 +1068,13 @@ function OrderTable({ orders }: { orders: Order[] }) {
     }
     return sortOrder === 'asc' ? comparison : -comparison;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedOrders.length / itemsPerPage);
+  const paginatedOrders = sortedOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -1150,7 +1196,7 @@ function OrderTable({ orders }: { orders: Order[] }) {
           </tr>
         </thead>
         <tbody>
-          {sortedOrders.map((order, index) => (
+          {paginatedOrders.map((order, index) => (
             <tr key={order.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
               <td className="py-3 px-4">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
@@ -1199,6 +1245,17 @@ function OrderTable({ orders }: { orders: Order[] }) {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          totalItems={sortedOrders.length}
+        />
+      )}
     </div>
   );
 }
