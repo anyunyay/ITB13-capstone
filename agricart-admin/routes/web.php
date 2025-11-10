@@ -354,6 +354,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/notifications', [LogisticNotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [LogisticNotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
         Route::post('/notifications/mark-all-read', [LogisticNotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
+        Route::post('/notifications/{id}/hide-from-header', [LogisticNotificationController::class, 'hideFromHeader'])->name('logistic.notifications.hideFromHeader');
+        Route::post('/notifications/hide-all-from-header', [LogisticNotificationController::class, 'hideAllFromHeader'])->name('logistic.notifications.hideAllFromHeader');
         
         // Profile Notification page
         Route::get('/profile/notifications', [LogisticNotificationController::class, 'profileIndex'])->name('logistic.profile.notifications');

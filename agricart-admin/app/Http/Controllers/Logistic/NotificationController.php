@@ -17,7 +17,9 @@ class NotificationController extends Controller
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\DeliveryTaskNotification',
-                'App\\Notifications\\OrderStatusUpdate'
+                'App\\Notifications\\OrderStatusUpdate',
+                'App\\Notifications\\LogisticOrderReadyNotification',
+                'App\\Notifications\\LogisticOrderPickedUpNotification'
             ])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -47,7 +49,9 @@ class NotificationController extends Controller
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\DeliveryTaskNotification',
-                'App\\Notifications\\OrderStatusUpdate'
+                'App\\Notifications\\OrderStatusUpdate',
+                'App\\Notifications\\LogisticOrderReadyNotification',
+                'App\\Notifications\\LogisticOrderPickedUpNotification'
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(5)
@@ -94,6 +98,39 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $user->unreadNotifications()->update(['read_at' => now()]);
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->back(303, [], true);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Hide a specific notification from header (mark as hidden, not deleted)
+     */
+    public function hideFromHeader(Request $request, $id)
+    {
+        $user = $request->user();
+        $user->notifications()->where('id', $id)->update(['hidden_from_header' => true]);
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->back(303, [], true);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Hide all notifications from header (mark as hidden, not deleted)
+     */
+    public function hideAllFromHeader(Request $request)
+    {
+        $user = $request->user();
+        // Hide ALL notifications that are not already hidden
+        $user->notifications()
+            ->where('hidden_from_header', false)
+            ->update(['hidden_from_header' => true]);
 
         if ($request->header('X-Inertia')) {
             return redirect()->back(303, [], true);

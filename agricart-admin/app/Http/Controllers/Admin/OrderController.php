@@ -710,9 +710,9 @@ class OrderController extends Controller
             'Your order is out for delivery and on its way to you.'
         ));
 
-        // Send notification to logistic
+        // Send notification to logistic about pickup confirmation
         if ($order->logistic_id) {
-            $order->logistic->notify(new OrderPickedUpNotification($order));
+            $order->logistic->notify(new \App\Notifications\LogisticOrderPickedUpNotification($order));
         }
 
         return redirect()->route('admin.orders.show', $order->id)

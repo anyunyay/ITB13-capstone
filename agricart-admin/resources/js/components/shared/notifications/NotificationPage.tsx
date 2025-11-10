@@ -109,6 +109,10 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return <AlertTriangle className="h-5 w-5 text-red-600" />;
       case 'delivery_task':
         return <Truck className="h-5 w-5 text-blue-600" />;
+      case 'logistic_order_ready':
+        return <Package className="h-5 w-5 text-green-600" />;
+      case 'logistic_order_picked_up':
+        return <Truck className="h-5 w-5 text-blue-600" />;
       case 'order_confirmation':
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'order_status_update':
@@ -140,6 +144,10 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return t('ui.low_stock_alert');
       case 'delivery_task':
         return t('ui.delivery_task');
+      case 'logistic_order_ready':
+        return 'Order Ready for Pickup';
+      case 'logistic_order_picked_up':
+        return 'Pickup Confirmed';
       case 'order_confirmation':
         return t('ui.order_confirmed');
       case 'order_status_update':
@@ -157,6 +165,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
     switch (type) {
       case 'new_order':
       case 'delivery_task':
+      case 'logistic_order_ready':
+      case 'logistic_order_picked_up':
         return 'border-l-primary bg-primary/5';
       case 'low_stock_alert':
       case 'order_rejection':
@@ -237,7 +247,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                 !notification.read_at ? getNotificationColor(notification.type) : 'bg-white'
               } ${
                 (notification.data?.order_id && 
-                ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) ||
+                ['order_confirmation', 'order_status_update', 'delivery_status_update', 'delivery_task', 'logistic_order_ready', 'logistic_order_picked_up'].includes(notification.type)) ||
                 (userType === 'admin' || userType === 'staff') && notification.action_url
                   ? 'cursor-pointer hover:bg-gray-50' : ''
               }`}
@@ -248,6 +258,14 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                   if (notification.data?.order_id && 
                       ['order_confirmation', 'order_status_update', 'delivery_status_update'].includes(notification.type)) {
                     router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+                  }
+                } else if (userType === 'logistic') {
+                  // For logistic notifications, navigate to specific order details
+                  if (notification.data?.order_id && 
+                      ['delivery_task', 'order_status_update', 'delivery_status_update', 'logistic_order_ready', 'logistic_order_picked_up'].includes(notification.type)) {
+                    router.visit(`/logistic/orders/${notification.data.order_id}`);
+                  } else if (notification.action_url) {
+                    router.visit(notification.action_url);
                   }
                 } else if (userType === 'admin' || userType === 'staff') {
                   // For admin/staff notifications, navigate to appropriate admin pages
@@ -315,6 +333,14 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
                                   router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
                                 } else {
                                   router.visit(notification.action_url!);
+                                }
+                              } else if (userType === 'logistic') {
+                                // For logistic notifications, navigate to specific order details
+                                if (notification.data?.order_id && 
+                                    ['delivery_task', 'order_status_update', 'delivery_status_update', 'logistic_order_ready', 'logistic_order_picked_up'].includes(notification.type)) {
+                                  router.visit(`/logistic/orders/${notification.data.order_id}`);
+                                } else if (notification.action_url) {
+                                  router.visit(notification.action_url);
                                 }
                               } else if (userType === 'admin' || userType === 'staff') {
                                 // For admin/staff notifications, navigate to appropriate admin pages

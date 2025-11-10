@@ -114,7 +114,9 @@ class HandleInertiaRequests extends Middleware
                 case 'logistic':
                     $notificationTypes = [
                         'App\\Notifications\\DeliveryTaskNotification',
-                        'App\\Notifications\\OrderStatusUpdate'
+                        'App\\Notifications\\OrderStatusUpdate',
+                        'App\\Notifications\\LogisticOrderReadyNotification',
+                        'App\\Notifications\\LogisticOrderPickedUpNotification'
                     ];
                     break;
             }

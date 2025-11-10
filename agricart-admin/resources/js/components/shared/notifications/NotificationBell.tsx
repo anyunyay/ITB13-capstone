@@ -78,11 +78,10 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
           router.visit(notification.action_url);
         }
       } else if (userType === 'logistic') {
-        // For logistic notifications, navigate to appropriate logistic pages
-        if (notification.type === 'delivery_task') {
-          router.visit('/logistic/orders');
-        } else if (notification.type === 'order_status_update') {
-          router.visit('/logistic/orders');
+        // For logistic notifications, navigate to specific order details
+        if (notification.data?.order_id && 
+            ['delivery_task', 'order_status_update', 'delivery_status_update', 'logistic_order_ready', 'logistic_order_picked_up'].includes(notification.type)) {
+          router.visit(`/logistic/orders/${notification.data.order_id}`);
         } else if (notification.action_url) {
           router.visit(notification.action_url);
         }
@@ -204,6 +203,10 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         return '⚠️';
       case 'delivery_task':
         return '🚚';
+      case 'logistic_order_ready':
+        return '📦';
+      case 'logistic_order_picked_up':
+        return '🚛';
       case 'order_confirmation':
         return '✅';
       case 'order_status_update':
@@ -221,6 +224,8 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
     switch (type) {
       case 'new_order':
       case 'delivery_task':
+      case 'logistic_order_ready':
+      case 'logistic_order_picked_up':
         return 'text-green-600';
       case 'low_stock_alert':
         return 'text-green-600';
@@ -290,7 +295,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
             No notifications
           </div>
         ) : (
-          <div className="max-h-96 overflow-y-auto">
+          <div>
             {notifications.slice(0, 4).map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
