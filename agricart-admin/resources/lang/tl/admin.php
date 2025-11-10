@@ -322,6 +322,7 @@ return [
     'total_amount' => 'Kabuuang Halaga',
     'member_share' => 'Member Share',
     'date' => 'Petsa',
+    'delivered_date' => 'Petsa ng Paghatid',
     'processed_by' => 'Pinroseso ni',
     'logistic' => 'Logistik',
     'order_id' => 'Order ID',
