@@ -49,6 +49,20 @@ class MemberController extends Controller
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
             
+        // Calculate category-specific totals
+        $totalKilo = $allStocks->where('category', 'Kilo')
+            ->sum(function($stock) {
+                return $stock->quantity + $stock->sold_quantity;
+            });
+        $totalPiece = $allStocks->where('category', 'Pc')
+            ->sum(function($stock) {
+                return $stock->quantity + $stock->sold_quantity;
+            });
+        $totalTali = $allStocks->where('category', 'Tali')
+            ->sum(function($stock) {
+                return $stock->quantity + $stock->sold_quantity;
+            });
+        
         // Calculate summary statistics using already fetched data with clear separation
         $summary = [
             'totalStocks' => $allStocks->count(),
@@ -63,6 +77,9 @@ class MemberController extends Controller
             'totalCogs' => $salesData['totalCogs'],
             'totalGrossProfit' => $salesData['totalGrossProfit'],
             'totalSales' => $salesData['totalSales'],
+            'totalKilo' => $totalKilo,
+            'totalPiece' => $totalPiece,
+            'totalTali' => $totalTali,
         ];
         
         // Paginate available stocks
@@ -157,9 +174,13 @@ class MemberController extends Controller
         ]);
     }
 
-    public function allStocks()
+    public function allStocks(Request $request)
     {
         $user = Auth::user();
+        
+        // Get pagination parameters
+        $stockPage = $request->get('stock_page', 1);
+        $stockPerPage = 10;
         
         // Get all stocks for the member using scopes
         $availableStocks = Stock::hasAvailableQuantity()
@@ -171,7 +192,15 @@ class MemberController extends Controller
         $salesData = $this->calculateSalesData($user->id);
         
         // Calculate comprehensive stock data with total, sold, and available quantities
-        $comprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
+        $allComprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
+        
+        // Paginate comprehensive stock data
+        $comprehensiveStockDataCollection = collect($allComprehensiveStockData);
+        $totalStocks = $comprehensiveStockDataCollection->count();
+        $paginatedComprehensiveStockData = $comprehensiveStockDataCollection
+            ->forPage($stockPage, $stockPerPage)
+            ->values()
+            ->toArray();
         
         // Get transaction data for the toggle view
         $transactions = AuditTrail::with(['product', 'sale.customer'])
@@ -190,9 +219,18 @@ class MemberController extends Controller
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
             'salesData' => $salesData,
-            'comprehensiveStockData' => $comprehensiveStockData,
+            'comprehensiveStockData' => $paginatedComprehensiveStockData,
+            'allComprehensiveStockData' => $allComprehensiveStockData, // For totals calculation
             'transactions' => $transactions,
-            'summary' => $summary
+            'summary' => $summary,
+            'stockPagination' => [
+                'current_page' => (int) $stockPage,
+                'per_page' => $stockPerPage,
+                'total' => $totalStocks,
+                'last_page' => (int) ceil($totalStocks / $stockPerPage),
+                'from' => (($stockPage - 1) * $stockPerPage) + 1,
+                'to' => min($stockPage * $stockPerPage, $totalStocks),
+            ],
         ]);
     }
 

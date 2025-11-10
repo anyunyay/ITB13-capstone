@@ -131,11 +131,13 @@ interface PageProps {
     availableStocks: Stock[];
     salesData: SalesData;
     comprehensiveStockData: ComprehensiveStockData[];
+    allComprehensiveStockData: ComprehensiveStockData[];
     transactions: TransactionsData;
     summary: Summary;
+    stockPagination: PaginationData;
 }
 
-export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, transactions, summary }: PageProps) {
+export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, allComprehensiveStockData, transactions, summary, stockPagination }: PageProps) {
     const { auth } = usePage<SharedData>().props;
     const t = useTranslation();
     const [showTransactions, setShowTransactions] = useState(false);
@@ -146,22 +148,39 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         }
     }, [auth]);
 
-    // Calculate summary statistics from comprehensive data
-    const totalProducts = comprehensiveStockData.length;
-    const totalSold = comprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0);
-    const totalAvailable = comprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0);
-    const totalRevenue = comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0);
+    // Calculate summary statistics from ALL comprehensive data (not paginated)
+    const totalProducts = allComprehensiveStockData.length;
+    const totalSold = allComprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0);
+    const totalAvailable = allComprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0);
+    const totalRevenue = allComprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0);
     
-    // Calculate totals by category
-    const totalKilo = comprehensiveStockData
+    // Calculate totals by category from ALL data
+    const totalKilo = allComprehensiveStockData
         .filter(item => item.category === 'Kilo')
         .reduce((sum, item) => sum + item.total_quantity, 0);
-    const totalPiece = comprehensiveStockData
+    const totalPiece = allComprehensiveStockData
         .filter(item => item.category === 'Pc')
         .reduce((sum, item) => sum + item.total_quantity, 0);
-    const totalTali = comprehensiveStockData
+    const totalTali = allComprehensiveStockData
         .filter(item => item.category === 'Tali')
         .reduce((sum, item) => sum + item.total_quantity, 0);
+
+    // Pagination handler for stock overview
+    const handleStockPageChange = (page: number) => {
+        router.get(route('member.allStocks'), { stock_page: page }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                // Use setTimeout to ensure DOM has updated before scrolling
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        });
+    };
 
     // Transaction helper functions
     const calculateMemberRevenue = (transaction: Transaction): number => {
@@ -247,7 +266,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-4">
                     {showTransactions ? (
                         <>
                             <Card className="">
@@ -319,69 +338,109 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         </>
                     ) : (
                         <>
+                            {/* 1. Total Stock */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_products')}</CardTitle>
-                                    <Package className="h-4 w-4 text-muted-foreground" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold text-foreground">{totalProducts}</div>
-                                    <p className="text-xs text-muted-foreground">{t('member.different_products')}</p>
-                                </CardContent>
-                            </Card>
-                            {/* Total Kilo Card */}
-                            <Card className="">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_kilo')}</CardTitle>
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_stock_label')}</CardTitle>
                                     <Package className="h-4 w-4 text-blue-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-blue-400">{totalKilo}</div>
-                                    <p className="text-xs text-muted-foreground">{t('member.total_in_kilos')}</p>
+                                    <div className="text-2xl font-bold text-blue-400">
+                                        {allComprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('member.total_items_added')}</p>
                                 </CardContent>
                             </Card>
-                            {/* Total Piece Card */}
+
+                            {/* 2. Sold Quantity */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_piece')}</CardTitle>
-                                    <Package className="h-4 w-4 text-purple-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_quantity')}</CardTitle>
+                                    <XCircle className="h-4 w-4 text-red-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-purple-400">{totalPiece}</div>
-                                    <p className="text-xs text-muted-foreground">{t('member.total_pieces')}</p>
+                                    <div className="text-2xl font-bold text-red-400">{totalSold}</div>
+                                    <p className="text-xs text-muted-foreground">{t('member.items_sold')}</p>
                                 </CardContent>
                             </Card>
-                            {/* Total Tali Card */}
+
+                            {/* 3. Available (Balance) */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_tali')}</CardTitle>
-                                    <Package className="h-4 w-4 text-green-400" />
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold text-green-400">{totalTali}</div>
-                                    <p className="text-xs text-muted-foreground">{t('member.total_in_tali')}</p>
-                                </CardContent>
-                            </Card>
-                            {/* Available Stock Card */}
-                            <Card className="">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.available_stock')}</CardTitle>
-                                    <Package className="h-4 w-4 text-green-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.available_balance')}</CardTitle>
+                                    <CheckCircle className="h-4 w-4 text-green-400" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold text-green-400">{totalAvailable}</div>
                                     <p className="text-xs text-muted-foreground">{t('member.items_ready_for_sale')}</p>
                                 </CardContent>
                             </Card>
-                            {/* Sold Stock Card */}
+
+                            {/* 4. Total Revenue */}
                             <Card className="">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_stock')}</CardTitle>
-                                    <TrendingUp className="h-4 w-4 text-blue-400" />
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.total_revenue')}</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-yellow-400" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-blue-400">{totalSold}</div>
-                                    <p className="text-xs text-muted-foreground">{t('member.items_sold')}</p>
+                                    <div className="text-2xl font-bold text-yellow-400">{formatCurrency(totalRevenue)}</div>
+                                    <p className="text-xs text-muted-foreground">{t('member.gross_sales')}</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* 5. COGS */}
+                            <Card className="">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.cogs')}</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-orange-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-orange-400">
+                                        {formatCurrency(allComprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0))}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('member.cost_of_goods_sold_label')}</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* 6. Gross Profit */}
+                            <Card className="">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.gross_profit')}</CardTitle>
+                                    <TrendingUp className="h-4 w-4 text-green-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-green-400">
+                                        {formatCurrency(allComprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0))}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('member.revenue_minus_cogs')}</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* 7. Available Stock (based on status) */}
+                            <Card className="">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.available_stock')}</CardTitle>
+                                    <CheckCircle className="h-4 w-4 text-green-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-green-400">
+                                        {allComprehensiveStockData.filter(item => item.balance_quantity > 0).length}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('member.products_in_stock')}</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* 8. Sold Out Stock (based on status) */}
+                            <Card className="">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-foreground">{t('member.sold_out')}</CardTitle>
+                                    <XCircle className="h-4 w-4 text-red-400" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-red-400">
+                                        {allComprehensiveStockData.filter(item => item.balance_quantity === 0 && item.sold_quantity > 0).length}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('member.products_sold_out')}</p>
                                 </CardContent>
                             </Card>
                         </>
@@ -467,10 +526,9 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             <div className="space-y-4">
                                 {/* Stock Details Table */}
                                 <Table>
-                                    <TableCaption>{t('member.detailed_breakdown')}</TableCaption>
                                     <TableHeader>
                                         <TableRow className="">
-                                            <TableHead className="text-foreground">{t('member.product_name')}</TableHead>
+                                            <TableHead className="text-foreground">{t('member.stock_name')}</TableHead>
                                             <TableHead className="text-foreground">{t('member.category')}</TableHead>
                                             <TableHead className="text-foreground">{t('member.total_stock_label')}</TableHead>
                                             <TableHead className="text-foreground">{t('member.sold_quantity')}</TableHead>
@@ -495,38 +553,36 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                 <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <Package className="h-4 w-4 text-blue-400" />
-                                                        <span className="font-semibold">{item.total_quantity}</span>
+                                                        <span className="font-semibold text-black dark:text-white">{item.total_quantity}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <XCircle className="h-4 w-4 text-red-400" />
-                                                        <span className="font-semibold text-red-300">{item.sold_quantity}</span>
+                                                        <span className="font-semibold text-black dark:text-white">{item.sold_quantity}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-foreground">
                                                     <div className="flex items-center gap-2">
                                                         <CheckCircle className="h-4 w-4 text-green-400" />
-                                                        <span className={`font-semibold ${
-                                                            item.balance_quantity > 0 ? 'text-green-300' : 'text-muted-foreground'
-                                                        }`}>
+                                                        <span className="font-semibold text-black dark:text-white">
                                                             {item.balance_quantity}
                                                         </span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-foreground text-right">
-                                                    <span className="font-semibold text-yellow-300">
-                                                        ₱{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    <span className="font-semibold text-black dark:text-white">
+                                                        <span className="text-yellow-500">₱</span>{item.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-foreground text-right">
-                                                    <span className="font-semibold text-orange-300">
-                                                        ₱{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    <span className="font-semibold text-black dark:text-white">
+                                                        <span className="text-yellow-500">₱</span>{((item.total_cogs || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-foreground text-right">
-                                                    <span className="font-semibold text-green-300">
-                                                        ₱{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    <span className="font-semibold text-black dark:text-white">
+                                                        <span className="text-yellow-500">₱</span>{((item.total_gross_profit || 0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>
@@ -549,53 +605,67 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                                 </TableCell>
                                             </TableRow>
                                         ))}
-                                        {/* Totals Row */}
-                                        <TableRow className="bg-muted font-bold">
-                                            <TableCell className="text-foreground">{t('member.total_label')}</TableCell>
-                                            <TableCell className="text-foreground">-</TableCell>
-                                            <TableCell className="text-foreground">
-                                                <div className="flex items-center gap-2">
-                                                    <Package className="h-4 w-4 text-blue-400" />
-                                                    <span className="font-semibold">
-                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
-                                                    </span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-foreground">
-                                                <div className="flex items-center gap-2">
-                                                    <XCircle className="h-4 w-4 text-red-400" />
-                                                    <span className="font-semibold text-red-300">
-                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.sold_quantity, 0)}
-                                                    </span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-foreground">
-                                                <div className="flex items-center gap-2">
-                                                    <CheckCircle className="h-4 w-4 text-green-400" />
-                                                    <span className="font-semibold text-green-300">
-                                                        {comprehensiveStockData.reduce((sum, item) => sum + item.balance_quantity, 0)}
-                                                    </span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-foreground text-right">
-                                                <span className="font-semibold text-yellow-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + item.total_revenue, 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="text-foreground text-right">
-                                                <span className="font-semibold text-orange-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="text-foreground text-right">
-                                                <span className="font-semibold text-green-300">
-                                                    ₱{comprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="text-foreground">-</TableCell>
-                                        </TableRow>
                                     </TableBody>
                                 </Table>
+
+                                {/* Pagination Controls */}
+                                {stockPagination && stockPagination.last_page > 1 && (
+                                    <div className="flex items-center justify-between mt-4">
+                                        <div className="text-sm text-muted-foreground">
+                                            {t('member.showing_entries', {
+                                                from: stockPagination.from,
+                                                to: stockPagination.to,
+                                                total: stockPagination.total
+                                            })}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleStockPageChange(stockPagination.current_page - 1)}
+                                                disabled={stockPagination.current_page === 1}
+                                            >
+                                                {t('member.previous')}
+                                            </Button>
+                                            <div className="flex items-center gap-1">
+                                                {Array.from({ length: stockPagination.last_page }, (_, i) => i + 1).map((page) => {
+                                                    // Show first page, last page, current page, and pages around current
+                                                    if (
+                                                        page === 1 ||
+                                                        page === stockPagination.last_page ||
+                                                        (page >= stockPagination.current_page - 1 && page <= stockPagination.current_page + 1)
+                                                    ) {
+                                                        return (
+                                                            <Button
+                                                                key={page}
+                                                                variant={page === stockPagination.current_page ? 'default' : 'outline'}
+                                                                size="sm"
+                                                                onClick={() => handleStockPageChange(page)}
+                                                                className="min-w-[40px]"
+                                                            >
+                                                                {page}
+                                                            </Button>
+                                                        );
+                                                    } else if (
+                                                        page === stockPagination.current_page - 2 ||
+                                                        page === stockPagination.current_page + 2
+                                                    ) {
+                                                        return <span key={page} className="px-2 text-muted-foreground">...</span>;
+                                                    }
+                                                    return null;
+                                                })}
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleStockPageChange(stockPagination.current_page + 1)}
+                                                disabled={stockPagination.current_page === stockPagination.last_page}
+                                            >
+                                                {t('member.next')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">

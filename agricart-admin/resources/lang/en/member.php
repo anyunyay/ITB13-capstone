@@ -87,7 +87,6 @@ return [
     // Stock Overview Table
     'stock_quantity_overview' => 'Stock Quantity Overview',
     'complete_breakdown' => 'Complete breakdown of your stock quantities: Total, Sold, and Available (Balance)',
-    'detailed_breakdown' => 'Detailed breakdown of all your stock quantities',
     'product_name' => 'Product Name',
     'total_stock_label' => 'Total Stock',
     'sold_quantity' => 'Sold Quantity',
@@ -99,6 +98,13 @@ return [
     'no_stock' => 'No Stock',
     'no_stocks_found' => 'No Stocks Found',
     'no_stocks_message' => 'You don\'t have any stocks at the moment.',
+    'showing_entries' => 'Showing :from to :to of :total entries',
+    'total_items_added' => 'Total items added',
+    'products_in_stock' => 'Products in stock',
+    'products_sold_out' => 'Products sold out',
+    'previous' => 'Previous',
+    'next' => 'Next',
+    'stock_name' => 'Stock Name',
     
     // Transaction Table
     'transaction_history_table' => 'Transaction History',

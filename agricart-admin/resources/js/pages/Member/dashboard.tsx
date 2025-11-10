@@ -68,6 +68,9 @@ interface Summary {
     totalCogs: number;
     totalGrossProfit: number;
     totalQuantitySold: number;
+    totalKilo?: number;
+    totalPiece?: number;
+    totalTali?: number;
 }
 
 interface PageProps {
@@ -102,6 +105,11 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
         );
     }
 
+    // Use category totals from backend summary
+    const totalKilo = summary.totalKilo || 0;
+    const totalPiece = summary.totalPiece || 0;
+    const totalTali = summary.totalTali || 0;
+
     return (
         <div className="min-h-screen bg-background">
             <MemberHeader />
@@ -124,7 +132,40 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                     </div>
                 </div>
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 mb-2 lg:mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-4 mb-2 lg:mb-4">
+                    {/* Total Kilo Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_kilo')}</CardTitle>
+                            <Package className="h-3 w-3 lg:h-4 lg:w-4 text-blue-400 flex-shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-blue-400">{totalKilo}</div>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_in_kilos')}</p>
+                        </CardContent>
+                    </Card>
+                    {/* Total Piece Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_piece')}</CardTitle>
+                            <Package className="h-3 w-3 lg:h-4 lg:w-4 text-purple-400 flex-shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-purple-400">{totalPiece}</div>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_pieces')}</p>
+                        </CardContent>
+                    </Card>
+                    {/* Total Tali Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_tali')}</CardTitle>
+                            <Package className="h-3 w-3 lg:h-4 lg:w-4 text-green-400 flex-shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl lg:text-3xl font-bold text-green-400">{totalTali}</div>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_in_tali')}</p>
+                        </CardContent>
+                    </Card>
                     {/* Available Stock Card */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -132,22 +173,22 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                             <Package className="h-3 w-3 lg:h-4 lg:w-4 text-green-400 flex-shrink-0" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl lg:text-3xl font-bold text-green-400">{summary.availableStocks}</div>
-                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.units_ready_for_sale', { units: summary.availableQuantity })}</p>
+                            <div className="text-2xl lg:text-3xl font-bold text-green-400">{summary.availableQuantity}</div>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.items_ready_for_sale')}</p>
                         </CardContent>
                     </Card>
-                    {/* Sold Out Stock Card */}
+                    {/* Sold Stock Card */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.completely_sold')}</CardTitle>
-                            <CheckCircle className="h-3 w-3 lg:h-4 lg:w-4 text-purple-400 flex-shrink-0" />
+                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.sold_stock')}</CardTitle>
+                            <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-blue-400 flex-shrink-0" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl lg:text-3xl font-bold text-purple-400">{summary.completelySoldStocks}</div>
-                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.stocks_fully_sold_out')}</p>
+                            <div className="text-2xl lg:text-3xl font-bold text-blue-400">{summary.soldQuantity}</div>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.items_sold')}</p>
                         </CardContent>
                     </Card>
-                    {/* Total Available Stock Card */}
+                    {/* Total Stocks Card */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_stock')}</CardTitle>
@@ -155,18 +196,7 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl lg:text-3xl font-bold text-foreground">{summary.totalStocks}</div>
-                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_units', { units: summary.totalQuantity })}</p>
-                        </CardContent>
-                    </Card>
-                    {/* Total Revenue Card */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                            <CardTitle className="text-xs lg:text-sm font-medium text-foreground leading-tight">{t('member.total_revenue')}</CardTitle>
-                            <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-400 flex-shrink-0" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl lg:text-3xl font-bold text-yellow-400">₱{summary.totalRevenue.toLocaleString()}</div>
-                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.from_sales', { sales: summary.totalSales })}</p>
+                            <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">{t('member.total_stock_entries')}</p>
                         </CardContent>
                     </Card>
                 </div>

@@ -87,7 +87,6 @@ return [
     // Stock Overview Table
     'stock_quantity_overview' => 'Stock Quantity Overview',
     'complete_breakdown' => 'Kumpletong breakdown ng inyong stock quantities: Total, Sold, at Available (Balance)',
-    'detailed_breakdown' => 'Detalyadong breakdown ng lahat ng inyong stock quantities',
     'product_name' => 'Pangalan ng Produkto',
     'total_stock_label' => 'Kabuuang Stock',
     'sold_quantity' => 'Dami na Nabenta',
@@ -99,6 +98,13 @@ return [
     'no_stock' => 'Walang Stock',
     'no_stocks_found' => 'Walang Nahanap na Stocks',
     'no_stocks_message' => 'Wala kayong stocks sa ngayon.',
+    'showing_entries' => 'Nagpapakita ng :from hanggang :to ng :total entries',
+    'total_items_added' => 'Kabuuang items na idinagdag',
+    'products_in_stock' => 'Mga produkto na may stock',
+    'products_sold_out' => 'Mga produktong sold out',
+    'previous' => 'Nakaraan',
+    'next' => 'Susunod',
+    'stock_name' => 'Pangalan ng Stock',
     
     // Transaction Table
     'transaction_history_table' => 'Transaction History',
