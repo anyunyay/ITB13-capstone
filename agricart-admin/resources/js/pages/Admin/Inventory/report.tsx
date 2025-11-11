@@ -45,8 +45,16 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   const [endDate, setEndDate] = useState<Date | undefined>(
     localFilters.end_date ? new Date(localFilters.end_date) : undefined
   );
+  const [isMobile, setIsMobile] = useState(false);
 
-  const itemsPerPage = currentView === 'cards' ? 8 : 10;
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const itemsPerPage = currentView === 'cards' ? 4 : (isMobile ? 4 : 10);
 
   const paginatedStocks = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -148,7 +156,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
           <Card className="shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">{t('admin.stock_report')} ({stocks.length} {t('admin.items')})</CardTitle>
+                <CardTitle className="text-xl">{t('admin.stock_report')}</CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground">
                     {stocks.length > 0 ? t('admin.showing_stock_items_count', { count: stocks.length }) : t('admin.no_items_found')}
