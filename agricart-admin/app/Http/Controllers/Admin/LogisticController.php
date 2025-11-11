@@ -69,7 +69,7 @@ class LogisticController extends Controller
             'city' => 'required|string|max:255',
             'province' => 'required|string|max:255',
         ]);
-            
+
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -147,7 +147,7 @@ class LogisticController extends Controller
                 ]);
             }
         }
-        
+
         $logistic->save();
         return redirect()->route('logistics.index')->with('message', 'Logistic Details updated successfully');
     }
@@ -155,12 +155,12 @@ class LogisticController extends Controller
     public function destroy($id)
     {
         $logistic = User::where('type', 'logistic')->findOrFail($id);
-        
+
         // Check if logistic has pending assigned orders
         if ($logistic->hasPendingOrders()) {
             return redirect()->route('logistics.index')->with('error', 'Cannot deactivate: logistic has pending assigned orders.');
         }
-        
+
         // Deactivate instead of deleting
         $logistic->update(['active' => false]);
         return redirect()->route('logistics.index')->with('message', 'Logistic deactivated successfully');
@@ -186,8 +186,21 @@ class LogisticController extends Controller
     {
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+        $verificationStatus = $request->get('verification_status', 'all');
+        $search = $request->get('search');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+
+        // Validate sort parameters
+        $allowedSortFields = ['id', 'name', 'status', 'registration_date', 'email_verified_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'created_at';
+        }
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
 
         $query = User::where('type', 'logistic');
 
@@ -199,7 +212,42 @@ class LogisticController extends Controller
             $query->whereDate('registration_date', '<=', $endDate);
         }
 
-        $logistics = $query->orderBy('created_at', 'desc')->get();
+        // Filter by verification status
+        if ($verificationStatus !== 'all') {
+            if ($verificationStatus === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($verificationStatus === 'pending') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        // Search filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%");
+            });
+        }
+
+        $logistics = $query->get();
+
+        // Apply sorting using collection methods (same pattern as sales report)
+        $logistics = $logistics->sortBy(function ($logistic) use ($sortBy) {
+            switch ($sortBy) {
+                case 'name':
+                    return $logistic->name;
+                case 'status':
+                    return $logistic->email_verified_at ? 'verified' : 'pending';
+                case 'registration_date':
+                    return $logistic->registration_date ? $logistic->registration_date->timestamp : 0;
+                case 'email_verified_at':
+                    return $logistic->email_verified_at ? $logistic->email_verified_at->timestamp : 0;
+                default:
+                    return $logistic->{$sortBy} ?? 0;
+            }
+        }, SORT_REGULAR, $sortOrder === 'desc')->values();
 
         // Calculate summary statistics
         $summary = [
@@ -223,6 +271,8 @@ class LogisticController extends Controller
             'filters' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'verification_status' => $verificationStatus,
+                'search' => $search,
             ],
         ]);
     }
@@ -230,7 +280,7 @@ class LogisticController extends Controller
     private function exportToCsv($logistics, $display = false)
     {
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -245,9 +295,9 @@ class LogisticController extends Controller
             ];
         }
 
-        $callback = function() use ($logistics) {
+        $callback = function () use ($logistics) {
             $file = fopen('php://output', 'w');
-            
+
             // Write headers
             fputcsv($file, [
                 'ID',
@@ -289,9 +339,9 @@ class LogisticController extends Controller
 
         $pdf = Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
+
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 }

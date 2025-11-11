@@ -137,12 +137,23 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
            localFilters.verification_status !== 'all' || localFilters.search;
   };
 
-  const exportReport = (format: 'csv' | 'pdf') => {
+  // Sorting state
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const exportReport = (format: 'csv' | 'pdf', sortByParam?: string, sortOrderParam?: 'asc' | 'desc') => {
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.verification_status !== 'all') params.append('verification_status', localFilters.verification_status);
     if (localFilters.search) params.append('search', localFilters.search);
+    
+    // Use the passed parameters or fall back to current state
+    const finalSortBy = sortByParam || sortBy;
+    const finalSortOrder = sortOrderParam || sortOrder;
+    
+    if (finalSortBy) params.append('sort_by', finalSortBy);
+    if (finalSortOrder) params.append('sort_order', finalSortOrder);
     params.append('format', format);
     
     if (format === 'csv') {
@@ -164,6 +175,8 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       if (localFilters.verification_status !== 'all') displayParams.append('verification_status', localFilters.verification_status);
       if (localFilters.search) displayParams.append('search', localFilters.search);
+      if (finalSortBy) displayParams.append('sort_by', finalSortBy);
+      if (finalSortOrder) displayParams.append('sort_order', finalSortOrder);
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('logistics.report')}?${displayParams.toString()}`;
@@ -207,11 +220,11 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                  <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
                     <Download className="h-4 w-4" />
                     {t('admin.export_csv')}
                   </Button>
-                  <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                  <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
                     {t('admin.export_pdf')}
                   </Button>
@@ -466,7 +479,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
                         ))}
                       </div>
                     ) : (
-                      <LogisticTable logistics={logistics} />
+                      <LogisticTable logistics={logistics} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
                     )}
                   </>
                 ) : (
@@ -585,10 +598,14 @@ function LogisticCard({ logistic }: { logistic: Logistic }) {
   );
 }
 
-function LogisticTable({ logistics }: { logistics: Logistic[] }) {
+function LogisticTable({ logistics, sortBy, setSortBy, sortOrder, setSortOrder }: { 
+  logistics: Logistic[];
+  sortBy: string;
+  setSortBy: (field: string) => void;
+  sortOrder: 'asc' | 'desc';
+  setSortOrder: (order: 'asc' | 'desc') => void;
+}) {
   const t = useTranslation();
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -615,15 +632,6 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
         break;
       case 'name':
         comparison = a.name.localeCompare(b.name);
-        break;
-      case 'email':
-        comparison = a.email.localeCompare(b.email);
-        break;
-      case 'contact_number':
-        comparison = (a.contact_number || '').localeCompare(b.contact_number || '');
-        break;
-      case 'address':
-        comparison = (a.address || '').localeCompare(b.address || '');
         break;
       case 'status':
         const statusA = a.email_verified_at ? 'verified' : 'pending';
@@ -680,34 +688,13 @@ function LogisticTable({ logistics }: { logistics: Logistic[] }) {
               </Button>
             </th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('email')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
-              >
-                {t('admin.email')}
-                {getSortIcon('email')}
-              </Button>
+              {t('admin.email')}
             </th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('contact_number')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
-              >
-                {t('admin.contact')}
-                {getSortIcon('contact_number')}
-              </Button>
+              {t('admin.contact')}
             </th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('address')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
-              >
-                {t('admin.address')}
-                {getSortIcon('address')}
-              </Button>
+              {t('admin.address')}
             </th>
             <th className="text-left py-3 px-4 font-semibold text-foreground">
               <Button
