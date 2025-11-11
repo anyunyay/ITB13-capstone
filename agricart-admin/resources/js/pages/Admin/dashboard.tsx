@@ -171,7 +171,7 @@ export default function Dashboard({
                         </div>
 
                     {/* Key Metrics Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                         {/* Orders Today */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -300,14 +300,14 @@ export default function Dashboard({
                     {/* Main Content Tabs */}
                     <Tabs defaultValue="overview" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-                            <TabsTrigger value="overview" className="text-xs sm:text-sm">{t('admin.overview_tab')}</TabsTrigger>
-                            <TabsTrigger value="performance" className="text-xs sm:text-sm">{t('admin.performance_tab')}</TabsTrigger>
-                            <TabsTrigger value="inventory" className="text-xs sm:text-sm">{t('admin.inventory_tab')}</TabsTrigger>
-                            <TabsTrigger value="activity" className="text-xs sm:text-sm">{t('admin.activity_tab')}</TabsTrigger>
+                            <TabsTrigger value="overview" className="text-base">{t('admin.overview_tab')}</TabsTrigger>
+                            <TabsTrigger value="performance" className="text-base">{t('admin.performance_tab')}</TabsTrigger>
+                            <TabsTrigger value="inventory" className="text-base">{t('admin.inventory_tab')}</TabsTrigger>
+                            <TabsTrigger value="activity" className="text-base">{t('admin.activity_tab')}</TabsTrigger>
                         </TabsList>
 
                         {/* Overview Tab */}
-                        <TabsContent value="overview" className="space-y-6">
+                        <TabsContent value="overview" className="space-y-2">
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Order Status Breakdown */}
                                 <Card>
@@ -347,7 +347,7 @@ export default function Dashboard({
                             </div>
 
                             {/* Growth Metrics */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export default function Dashboard({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-3xl font-bold">
+                                        <div className="text-2xl lg:text-3xl font-bold">
                                             {ordersStats.orderGrowth > 0 ? '+' : ''}{ordersStats.orderGrowth}%
                                         </div>
                                         <p className="text-sm text-muted-foreground">
@@ -373,7 +373,7 @@ export default function Dashboard({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-3xl font-bold">
+                                        <div className="text-2xl lg:text-3xl font-bold">
                                             {ordersStats.revenueGrowth > 0 ? '+' : ''}{ordersStats.revenueGrowth}%
                                         </div>
                                         <p className="text-sm text-muted-foreground">
@@ -385,7 +385,7 @@ export default function Dashboard({
                         </TabsContent>
 
                         {/* Performance Tab */}
-                        <TabsContent value="performance" className="space-y-6">
+                        <TabsContent value="performance" className="space-y-2">
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Top Selling Products */}
                                 <Card>
@@ -396,19 +396,25 @@ export default function Dashboard({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-3">
-                                            {topSellingProducts.slice(0, 5).map((product, index) => (
-                                                <div key={product.id} className="flex items-center justify-between">
-                                                    <div>
-                                                        <div className="font-medium">{product.name}</div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {product.produce_type} • {product.order_count} {t('admin.orders')}
+                                        {topSellingProducts.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {topSellingProducts.slice(0, 5).map((product, index) => (
+                                                    <div key={product.id} className="flex items-center justify-between gap-3">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="font-medium truncate">{product.name}</div>
+                                                            <div className="text-sm text-muted-foreground">
+                                                                {product.produce_type} • {product.order_count} {t('admin.orders')}
+                                                            </div>
                                                         </div>
+                                                        <Badge variant="outline" className="flex-shrink-0">{product.total_quantity} {t('admin.sold')}</Badge>
                                                     </div>
-                                                    <Badge variant="outline">{product.total_quantity} {t('admin.sold')}</Badge>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <p>{t('admin.no_top_selling_products')}</p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
 
@@ -421,24 +427,32 @@ export default function Dashboard({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-3">
-                                            {memberPerformance.slice(0, 5).map((member, index) => (
-                                                <div key={member.id} className="flex items-center justify-between">
-                                                    <div>
-                                                        <div className="font-medium">{member.name}</div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {member.sold_stocks}/{member.total_stocks} {t('admin.stocks_sold')}
+                                        {memberPerformance.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {memberPerformance.slice(0, 5).map((member, index) => (
+                                                    <div key={member.id} className="flex items-center justify-between gap-3">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="font-medium truncate">{member.name}</div>
+                                                            <div className="text-sm text-muted-foreground">
+                                                                {member.sold_stocks || 0}/{member.total_stocks || 0} {t('admin.stocks_sold')}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right flex-shrink-0">
+                                                            <div className="font-medium">{formatCurrency(member.total_earnings || 0)}</div>
+                                                            {member.available_earnings > 0 && (
+                                                                <div className="text-sm text-muted-foreground whitespace-nowrap">
+                                                                    {formatCurrency(member.available_earnings)} {t('admin.available')}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <div className="font-medium">{formatCurrency(member.total_earnings)}</div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {formatCurrency(member.available_earnings)} {t('admin.available')}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <p>{t('admin.no_member_performance')}</p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </div>
@@ -452,25 +466,31 @@ export default function Dashboard({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                        {logisticsPerformance.slice(0, 6).map((logistic) => (
-                                            <div key={logistic.id} className="border rounded-lg p-4">
-                                                <div className="font-medium">{logistic.name}</div>
-                                                <div className="text-sm text-muted-foreground mt-1">
-                                                    {logistic.delivered_orders}/{logistic.total_orders} {t('admin.delivered')}
+                                    {logisticsPerformance.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {logisticsPerformance.slice(0, 6).map((logistic) => (
+                                                <div key={logistic.id} className="border rounded-lg p-4">
+                                                    <div className="font-medium truncate">{logistic.name}</div>
+                                                    <div className="text-sm text-muted-foreground mt-1">
+                                                        {logistic.delivered_orders || 0}/{logistic.total_orders || 0} {t('admin.delivered')}
+                                                    </div>
+                                                    <div className="text-lg font-bold text-green-600 mt-2">
+                                                        {logistic.delivery_rate || 0}%
+                                                    </div>
                                                 </div>
-                                                <div className="text-lg font-bold text-green-600 mt-2">
-                                                    {logistic.delivery_rate}%
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-muted-foreground">
+                                            <p>{t('admin.no_logistics_performance')}</p>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>
 
                         {/* Inventory Tab */}
-                        <TabsContent value="inventory" className="space-y-6">
+                        <TabsContent value="inventory" className="space-y-2">
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Stock Overview */}
                                 <Card>
@@ -549,7 +569,7 @@ export default function Dashboard({
                         </TabsContent>
 
                         {/* Recent Activity Tab */}
-                        <TabsContent value="activity" className="space-y-6">
+                        <TabsContent value="activity" className="space-y-2">
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
                                 {/* Recent Orders */}
                                 <Card>
@@ -557,24 +577,30 @@ export default function Dashboard({
                                         <CardTitle>{t('admin.pending_orders')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-3">
-                                            {pendingOrders.slice(0, 5).map((order) => (
-                                                <div key={order.id} className="flex items-center justify-between border rounded p-3">
-                                                    <div>
-                                                        <div className="font-medium">Order #{order.id}</div>
-                                                        <div className="text-sm text-muted-foreground">
-                                                            {order.customer.name} • {formatCurrency(order.total_amount)}
+                                        {pendingOrders.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {pendingOrders.slice(0, 5).map((order) => (
+                                                    <div key={order.id} className="flex items-center justify-between border rounded p-3">
+                                                        <div>
+                                                            <div className="font-medium">Order #{order.id}</div>
+                                                            <div className="text-sm text-muted-foreground">
+                                                                {order.customer.name} • {formatCurrency(order.total_amount)}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            {getStatusBadge(order.status)}
+                                                            <div className="text-xs text-muted-foreground mt-1">
+                                                                {format(new Date(order.created_at), 'MMM dd, HH:mm')}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className="text-right">
-                                                        {getStatusBadge(order.status)}
-                                                        <div className="text-xs text-muted-foreground mt-1">
-                                                            {format(new Date(order.created_at), 'MMM dd, HH:mm')}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <p>{t('admin.no_pending_orders')}</p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
 
@@ -584,19 +610,25 @@ export default function Dashboard({
                                         <CardTitle>{t('admin.recent_activity')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-3">
-                                            {recentActivity.slice(0, 8).map((activity) => (
-                                                <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-2">
-                                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
-                                                    <div className="flex-1">
-                                                        <div className="text-sm">{activity.description}</div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            {format(new Date(activity.created_at), 'MMM dd, HH:mm')}
+                                        {recentActivity.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {recentActivity.slice(0, 8).map((activity) => (
+                                                    <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
+                                                        <div className="flex-1">
+                                                            <div className="text-sm">{activity.description}</div>
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {format(new Date(activity.created_at), 'MMM dd, HH:mm')}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <p>{t('admin.no_recent_activity')}</p>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </div>

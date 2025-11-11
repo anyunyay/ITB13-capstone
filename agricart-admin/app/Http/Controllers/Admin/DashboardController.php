@@ -379,67 +379,100 @@ class DashboardController extends Controller
 
     private function getMemberPerformance()
     {
-        return DB::table('users')
-            ->join('stocks', 'users.id', '=', 'stocks.member_id')
-            ->join('audit_trails', 'stocks.id', '=', 'audit_trails.stock_id')
-            ->join('sales_audit', 'audit_trails.sale_id', '=', 'sales_audit.id')
-            ->join('sales', 'sales_audit.id', '=', 'sales.sales_audit_id')
-            ->where('users.type', 'member')
-            ->select(
-                'users.id',
-                'users.name',
-                DB::raw('COUNT(DISTINCT stocks.id) as total_stocks'),
-                DB::raw('COUNT(DISTINCT sales.id) as delivered_orders'),
-                DB::raw('SUM(
-                    CASE 
-                        WHEN audit_trails.category = "Kilo" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_kilo IS NOT NULL)
-                        THEN audit_trails.quantity * (SELECT price_kilo FROM products WHERE id = audit_trails.product_id)
-                        WHEN audit_trails.category = "Pc" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_pc IS NOT NULL)
-                        THEN audit_trails.quantity * (SELECT price_pc FROM products WHERE id = audit_trails.product_id)
-                        WHEN audit_trails.category = "Tali" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_tali IS NOT NULL)
-                        THEN audit_trails.quantity * (SELECT price_tali FROM products WHERE id = audit_trails.product_id)
-                        WHEN audit_trails.category = "order" AND audit_trails.product_id IN (SELECT id FROM products WHERE price_kilo IS NOT NULL)
-                        THEN audit_trails.quantity * (SELECT price_kilo FROM products WHERE id = audit_trails.product_id)
-                        ELSE 0
-                    END
-                ) as total_revenue')
-            )
-            ->groupBy('users.id', 'users.name')
-            ->orderBy('delivered_orders', 'desc')
-            ->limit(10)
+        $thisMonth = Carbon::now()->startOfMonth();
+        
+        // Get all members with their stock and sales data
+        $members = User::where('type', 'member')
+            ->with(['stocks' => function($query) use ($thisMonth) {
+                $query->with('product')
+                    ->where('updated_at', '>=', $thisMonth);
+            }])
             ->get()
-            ->map(function ($member) {
+            ->map(function ($member) use ($thisMonth) {
+                // Count total stocks
+                $totalStocks = $member->stocks->count();
+                
+                // Count stocks that have been sold (sold_quantity > 0)
+                $soldStocks = $member->stocks->where('sold_quantity', '>', 0)->count();
+                
+                // Calculate earnings from sold stocks
+                $totalEarnings = 0;
+                $commissionRate = 0.10; // 10% commission
+                
+                foreach ($member->stocks as $stock) {
+                    if ($stock->sold_quantity > 0 && $stock->product) {
+                        $price = 0;
+                        
+                        // Get price based on category
+                        if ($stock->category === 'Kilo' && $stock->product->price_kilo) {
+                            $price = $stock->product->price_kilo;
+                        } elseif ($stock->category === 'Pc' && $stock->product->price_pc) {
+                            $price = $stock->product->price_pc;
+                        } elseif ($stock->category === 'Tali' && $stock->product->price_tali) {
+                            $price = $stock->product->price_tali;
+                        }
+                        
+                        // Calculate earnings (commission on sold quantity)
+                        $salesAmount = $price * $stock->sold_quantity;
+                        $totalEarnings += $salesAmount * $commissionRate;
+                    }
+                }
+                
+                // Get available earnings from member_earnings table (latest record)
+                $earningsRecord = MemberEarnings::where('member_id', $member->id)
+                    ->latest()
+                    ->first();
+                
+                $availableEarnings = $earningsRecord ? (float) $earningsRecord->available_earnings : 0;
+                
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
-                    'total_stocks' => $member->total_stocks,
-                    'delivered_orders' => $member->delivered_orders,
-                    'total_revenue' => $member->total_revenue ?? 0,
+                    'total_stocks' => $totalStocks,
+                    'sold_stocks' => $soldStocks,
+                    'total_earnings' => round($totalEarnings, 2),
+                    'available_earnings' => $availableEarnings,
                 ];
-            });
+            })
+            ->sortByDesc('total_earnings')
+            ->take(10)
+            ->values();
+        
+        return $members;
     }
 
     private function getLogisticsPerformance()
     {
+        $thisMonth = Carbon::now()->startOfMonth();
+        
         return DB::table('users')
-            ->leftJoin('sales', 'users.id', '=', 'sales.logistic_id')
+            ->leftJoin('sales_audit', function($join) use ($thisMonth) {
+                $join->on('users.id', '=', 'sales_audit.logistic_id')
+                     ->where('sales_audit.created_at', '>=', $thisMonth);
+            })
             ->where('users.type', 'logistic')
             ->select(
                 'users.id',
                 'users.name',
-                DB::raw('COUNT(sales.id) as delivered_orders'),
-                DB::raw('SUM(sales.total_amount) as total_revenue')
+                DB::raw('COUNT(sales_audit.id) as total_orders'),
+                DB::raw('SUM(CASE WHEN sales_audit.delivery_status = "delivered" THEN 1 ELSE 0 END) as delivered_orders')
             )
             ->groupBy('users.id', 'users.name')
+            ->having('total_orders', '>', 0)
             ->orderBy('delivered_orders', 'desc')
             ->limit(10)
             ->get()
             ->map(function ($logistic) {
+                $deliveryRate = $logistic->total_orders > 0 
+                    ? round(($logistic->delivered_orders / $logistic->total_orders) * 100, 2) 
+                    : 0;
+                    
                 return [
                     'id' => $logistic->id,
                     'name' => $logistic->name,
-                    'delivered_orders' => $logistic->delivered_orders,
-                    'total_revenue' => $logistic->total_revenue ?? 0,
+                    'total_orders' => (int) $logistic->total_orders,
+                    'delivered_orders' => (int) $logistic->delivered_orders,
+                    'delivery_rate' => (float) $deliveryRate,
                 ];
             });
     }
