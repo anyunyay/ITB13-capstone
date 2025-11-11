@@ -365,7 +365,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     Route::prefix('/member')->middleware(['role:member'])->group(function () {
         Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('member.dashboard');
         Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');
-        Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
         
         // Member Profile routes
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('member.profile.info');

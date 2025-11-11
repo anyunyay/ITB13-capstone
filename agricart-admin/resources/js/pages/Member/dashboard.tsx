@@ -5,7 +5,7 @@ import { type SharedData } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, History, TrendingUp, FileText, CheckCircle, DollarSign } from 'lucide-react';
+import { Package, History, TrendingUp, CheckCircle, DollarSign } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { useTranslation } from '@/hooks/use-translation';
@@ -117,19 +117,9 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
             <div className="p-4 lg:p-6 pt-20 lg:pt-30">
                 <Head title={t('member.dashboard')} />
                 <div className="mb-2 lg:mb-8">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">{t('member.welcome', { name: auth?.user?.name })}</h1>
-                            <p className="text-sm lg:text-base text-muted-foreground mt-1 lg:mt-2">{t('member.track_stocks_and_activity')}</p>
-                        </div>
-                        {/* Member-specific revenue report: member sees only their own revenue */}
-                        <Button asChild variant="outline" size="sm" className="w-full lg:w-auto">
-                            <Link href={route('member.revenueReport')}>
-                                <FileText className="h-4 w-4 mr-2" />
-                                {/* Make this label explicit for members */}
-                                Your Revenue Report
-                            </Link>
-                        </Button>
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">{t('member.welcome', { name: auth?.user?.name })}</h1>
+                        <p className="text-sm lg:text-base text-muted-foreground mt-1 lg:mt-2">{t('member.track_stocks_and_activity')}</p>
                     </div>
                 </div>
                 {/* Summary Cards */}
