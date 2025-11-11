@@ -168,6 +168,10 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     // Read view state from URL parameters on initial load
     const urlParams = new URLSearchParams(window.location.search);
     const initialView = urlParams.get('view') === 'transactions';
+    const highlightStockId = urlParams.get('highlight_stock');
+    const highlightTransactionId = urlParams.get('highlight_transaction');
+    const highlightProductId = urlParams.get('highlight_product');
+    const highlightCategory = urlParams.get('highlight_category');
 
     const [showTransactions, setShowTransactions] = useState(initialView);
     const [isMobile, setIsMobile] = useState(false);
@@ -230,6 +234,71 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
             clearTimeout(timeoutId);
         };
     }, [isMobile, showTransactions]);
+
+    // Highlight and scroll to specific stock or transaction from notification
+    useEffect(() => {
+        if ((highlightStockId || (highlightProductId && highlightCategory)) || highlightTransactionId) {
+            console.log('Highlight params:', {
+                highlightStockId,
+                highlightProductId,
+                highlightCategory,
+                highlightTransactionId,
+                showTransactions
+            });
+            
+            // Wait for the page to render
+            setTimeout(() => {
+                let targetElement: HTMLElement | null = null;
+                
+                if ((highlightStockId || (highlightProductId && highlightCategory)) && !showTransactions) {
+                    // Try to find by product_id and category (for comprehensive view)
+                    if (highlightProductId && highlightCategory) {
+                        const selector = `[data-product-id="${highlightProductId}"][data-category="${highlightCategory}"]`;
+                        console.log('Looking for stock with selector:', selector);
+                        targetElement = document.querySelector(selector);
+                        console.log('Stock element found:', targetElement);
+                    }
+                    // Fallback to stock_id if available
+                    if (!targetElement && highlightStockId) {
+                        const selector = `[data-stock-id="${highlightStockId}"]`;
+                        console.log('Looking for stock with selector:', selector);
+                        targetElement = document.querySelector(selector);
+                        console.log('Stock element found:', targetElement);
+                    }
+                } else if (highlightTransactionId && showTransactions) {
+                    // Find transaction row by data attribute
+                    const selector = `[data-transaction-id="${highlightTransactionId}"]`;
+                    console.log('Looking for transaction with selector:', selector);
+                    targetElement = document.querySelector(selector);
+                    console.log('Transaction element found:', targetElement);
+                }
+                
+                if (targetElement) {
+                    console.log('Applying highlight to element:', targetElement);
+                    // Add highlight class
+                    targetElement.classList.add('highlight-row');
+                    
+                    // Scroll to element with offset for header
+                    const rect = targetElement.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const offset = window.innerWidth < 768 ? 120 : 140;
+                    const targetPosition = rect.top + scrollTop - offset;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Remove highlight after animation
+                    setTimeout(() => {
+                        targetElement?.classList.remove('highlight-row');
+                    }, 3000);
+                } else {
+                    console.log('No target element found for highlighting');
+                }
+            }, 500);
+        }
+    }, [highlightStockId, highlightProductId, highlightCategory, highlightTransactionId, showTransactions, comprehensiveStockData, transactions]);
 
     // Calculate summary statistics from ALL comprehensive data (not paginated)
     const totalProducts = allComprehensiveStockData.length;

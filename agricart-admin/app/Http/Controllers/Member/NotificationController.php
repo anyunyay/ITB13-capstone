@@ -17,6 +17,7 @@ class NotificationController extends Controller
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\ProductSaleNotification',
+                'App\\Notifications\\StockAddedNotification',
                 'App\\Notifications\\EarningsUpdateNotification',
                 'App\\Notifications\\LowStockAlertNotification'
             ])
@@ -48,6 +49,7 @@ class NotificationController extends Controller
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\ProductSaleNotification',
+                'App\\Notifications\\StockAddedNotification',
                 'App\\Notifications\\EarningsUpdateNotification',
                 'App\\Notifications\\LowStockAlertNotification'
             ])

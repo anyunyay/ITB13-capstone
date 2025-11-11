@@ -103,7 +103,11 @@ export function TransactionHistoryTable({
                 </TableHeader>
                 <TableBody>
                     {transactions.map((transaction) => (
-                        <TableRow key={transaction.id} className=" hover:bg-muted/50">
+                        <TableRow 
+                            key={transaction.id} 
+                            className=" hover:bg-muted/50"
+                            data-transaction-id={transaction.id}
+                        >
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-left">

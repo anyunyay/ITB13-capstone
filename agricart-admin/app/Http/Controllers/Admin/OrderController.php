@@ -470,7 +470,7 @@ class OrderController extends Controller
                 }
 
                 // Notify member about product sale
-                $trail->stock->member->notify(new ProductSaleNotification($trail->stock, $order, $order->customer));
+                $trail->stock->member->notify(new ProductSaleNotification($trail->stock, $order, $order->customer, $trail));
             }
         }
 

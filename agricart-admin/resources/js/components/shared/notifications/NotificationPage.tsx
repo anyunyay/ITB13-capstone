@@ -103,6 +103,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return <CheckCircle className="h-5 w-5 text-orange-600" />;
       case 'product_sale':
         return <DollarSign className="h-5 w-5 text-green-600" />;
+      case 'stock_added':
+        return <Package className="h-5 w-5 text-blue-600" />;
       case 'earnings_update':
         return <DollarSign className="h-5 w-5 text-green-600" />;
       case 'low_stock_alert':
@@ -138,6 +140,8 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
         return t('ui.password_change_request');
       case 'product_sale':
         return t('ui.product_sale');
+      case 'stock_added':
+        return t('ui.stock_added');
       case 'earnings_update':
         return t('ui.earnings_update');
       case 'low_stock_alert':
@@ -172,6 +176,7 @@ export function NotificationPage({ notifications, userType }: NotificationPagePr
       case 'order_rejection':
         return 'border-l-destructive bg-destructive/5';
       case 'product_sale':
+      case 'stock_added':
       case 'earnings_update':
       case 'order_confirmation':
         return 'border-l-primary bg-primary/5';

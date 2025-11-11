@@ -81,7 +81,12 @@ export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverv
                 </TableHeader>
                 <TableBody>
                     {data.map((item) => (
-                        <TableRow key={`${item.product_id}-${item.category}`} className=" hover:bg-muted">
+                        <TableRow 
+                            key={`${item.product_id}-${item.category}`} 
+                            className=" hover:bg-muted"
+                            data-product-id={item.product_id}
+                            data-category={item.category}
+                        >
                             <TableCell className="whitespace-nowrap">
                                 <div className="flex justify-center min-h-[40px] py-2 w-full">
                                     <div className="w-full max-w-[120px] text-left">

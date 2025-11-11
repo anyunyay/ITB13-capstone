@@ -303,6 +303,7 @@ return [
     'membership_update' => 'Update sa Membership',
     'password_change_request' => 'Request para sa Password Change',
     'product_sale' => 'Pagbenta ng Produkto',
+    'stock_added' => 'Idinagdag na Stock',
     'earnings_update' => 'Update sa Kita',
     'low_stock_alert' => 'Alert sa Mababang Stock',
     'delivery_task' => 'Delivery Task',

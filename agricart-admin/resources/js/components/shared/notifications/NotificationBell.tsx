@@ -67,15 +67,17 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         }
       } else if (userType === 'member') {
         // For member notifications, navigate to appropriate member pages
-        if (notification.type === 'product_sale') {
-          router.visit('/member/sold-stocks');
+        // Use action_url if available (includes highlight parameters)
+        if (notification.action_url) {
+          router.visit(notification.action_url);
+        } else if (notification.type === 'product_sale') {
+          router.visit('/member/all-stocks?view=transactions');
+        } else if (notification.type === 'stock_added') {
+          router.visit('/member/all-stocks?view=stocks');
         } else if (notification.type === 'earnings_update') {
           router.visit('/member/dashboard');
         } else if (notification.type === 'low_stock_alert') {
-          // Navigate to available stocks for low stock alerts
           router.visit('/member/available-stocks');
-        } else if (notification.action_url) {
-          router.visit(notification.action_url);
         }
       } else if (userType === 'logistic') {
         // For logistic notifications, navigate to specific order details

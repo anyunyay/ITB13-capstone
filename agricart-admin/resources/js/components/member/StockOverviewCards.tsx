@@ -39,7 +39,12 @@ export function StockOverviewCards({ data }: StockOverviewCardsProps) {
     return (
         <div className="block md:hidden space-y-4">
             {data.map((item) => (
-                <Card key={`${item.product_id}-${item.category}`} className="relative overflow-hidden">
+                <Card 
+                    key={`${item.product_id}-${item.category}`} 
+                    className="relative overflow-hidden"
+                    data-product-id={item.product_id}
+                    data-category={item.category}
+                >
                     {/* Status Badge - Top Right */}
                     <div className="absolute top-3 right-3 z-10">
                         {item.balance_quantity > 0 ? (

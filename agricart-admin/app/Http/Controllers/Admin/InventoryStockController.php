@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Stock;
 use App\Models\StockTrail;
 use App\Notifications\InventoryUpdateNotification;
+use App\Notifications\StockAddedNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -104,6 +105,9 @@ class InventoryStockController extends Controller
                 'product_name' => $product->name
             ]
         );
+
+        // Notify the member about the new stock added
+        $stock->member->notify(new StockAddedNotification($stock, $request->user()));
 
         // Notify admin and staff about inventory update (optimized with caching)
         $adminUsers = cache()->remember('admin_staff_users', 300, function () {

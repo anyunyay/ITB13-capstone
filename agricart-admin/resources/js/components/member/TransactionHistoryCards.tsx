@@ -61,7 +61,11 @@ export function TransactionHistoryCards({
     return (
         <div className="block md:hidden space-y-4">
             {transactions.map((transaction) => (
-                <Card key={transaction.id} className="relative overflow-hidden">
+                <Card 
+                    key={transaction.id} 
+                    className="relative overflow-hidden"
+                    data-transaction-id={transaction.id}
+                >
                     {/* Category Badge - Top Right */}
                     <div className="absolute top-3 right-3 z-10">
                         <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">

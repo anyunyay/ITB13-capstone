@@ -107,6 +107,7 @@ class HandleInertiaRequests extends Middleware
                 case 'member':
                     $notificationTypes = [
                         'App\\Notifications\\ProductSaleNotification',
+                        'App\\Notifications\\StockAddedNotification',
                         'App\\Notifications\\EarningsUpdateNotification',
                         'App\\Notifications\\LowStockAlertNotification'
                     ];

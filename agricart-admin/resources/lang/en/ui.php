@@ -303,6 +303,7 @@ return [
     'membership_update' => 'Membership Update',
     'password_change_request' => 'Password Change Request',
     'product_sale' => 'Product Sale',
+    'stock_added' => 'Stock Added',
     'earnings_update' => 'Earnings Update',
     'low_stock_alert' => 'Low Stock Alert',
     'delivery_task' => 'Delivery Task',
