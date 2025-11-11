@@ -39,16 +39,17 @@ return [
     'revenue_minus_cogs' => 'Revenue - COGS',
     
     // Dashboard Segments
-    'available_stocks' => 'Available na Stocks',
+    'available_stocks' => 'Kamakailang Idinagdag na Stock',
     'ready_for_sale' => 'Handa para sa benta',
     'view_all' => 'Tingnan Lahat',
     'available' => 'Available',
     'category' => 'kategorya',
     'available_label' => 'available',
+    'added' => 'Idinagdag noong',
     'sold' => 'nabenta',
     'more_items' => '+:count pa',
     'no_available_stocks' => 'Walang available na stocks',
-    'sold_stocks' => 'Nabentang Stocks',
+    'sold_stocks' => 'Kamakailang Nabentang Stocks',
     'sales_performance' => 'Performance ng benta',
     'customers' => 'customer',
     'customers_plural' => 'mga customer',
@@ -56,7 +57,7 @@ return [
     'no_sales_recorded' => 'Walang narecord na benta',
     
     // All Stocks Page
-    'all_stocks' => 'Lahat ng Stocks',
+    'all_stocks' => 'Tingnan Lahat ng Stocks',
     'all_stocks_description' => 'Kumpletong overview ng lahat ng inyong stock assignments',
     'transaction_history' => 'Transaction History',
     'transaction_history_description' => 'Tingnan ang lahat ng transactions na related sa inyong stocks',

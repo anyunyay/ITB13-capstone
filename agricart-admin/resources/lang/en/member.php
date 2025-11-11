@@ -39,16 +39,17 @@ return [
     'revenue_minus_cogs' => 'Revenue - COGS',
     
     // Dashboard Segments
-    'available_stocks' => 'Available Stocks',
+    'available_stocks' => 'Recent Added Stocks',
     'ready_for_sale' => 'Ready for sale',
     'view_all' => 'View All',
     'available' => 'Available',
     'category' => 'category',
     'available_label' => 'available',
+    'added' => 'Added on',
     'sold' => 'sold',
     'more_items' => '+:count more',
     'no_available_stocks' => 'No available stocks',
-    'sold_stocks' => 'Sold Stocks',
+    'sold_stocks' => 'Recent Sold Stocks',
     'sales_performance' => 'Sales performance',
     'customers' => 'customer',
     'customers_plural' => 'customers',
@@ -56,7 +57,7 @@ return [
     'no_sales_recorded' => 'No sales recorded',
     
     // All Stocks Page
-    'all_stocks' => 'All Stocks',
+    'all_stocks' => 'View All Stocks',
     'all_stocks_description' => 'Complete overview of all your stock assignments',
     'transaction_history' => 'Transaction History',
     'transaction_history_description' => 'View all transactions related to your stocks',
