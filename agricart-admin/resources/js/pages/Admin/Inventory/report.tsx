@@ -158,9 +158,6 @@ export default function InventoryReport({ stocks, summary, members, productTypes
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">{t('admin.stock_report')}</CardTitle>
                 <div className="flex items-center gap-2">
-                  <div className="text-sm text-muted-foreground">
-                    {stocks.length > 0 ? t('admin.showing_stock_items_count', { count: stocks.length }) : t('admin.no_items_found')}
-                  </div>
                   <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
                 </div>
               </div>
