@@ -9,6 +9,7 @@ import { Package, History, TrendingUp, FileText, CheckCircle, DollarSign } from 
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { useTranslation } from '@/hooks/use-translation';
+import { format } from 'date-fns';
 
 interface Product {
     id: number;
@@ -218,13 +219,14 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                                                 <p className="text-xs text-muted-foreground">
                                                     {stock.quantity} {stock.category} {t('member.available_label')}
                                                 </p>
-                                                {stock.sold_quantity > 0 && (
-                                                    <p className="text-xs text-blue-400">
-                                                        {stock.sold_quantity} {stock.category} {t('member.sold')}
-                                                    </p>
-                                                )}
+                                                <p className="text-xs text-muted-foreground">
+                                                    {t('member.added')}: {format(new Date(stock.created_at), 'MMM dd, yyyy HH:mm')}
+                                                </p>
                                             </div>
-                                            <Badge variant="default" className="text-xs">{t('member.available')}</Badge>
+                                            <Badge className="bg-green-600 text-white shadow-md text-xs">
+                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                                {t('member.available')}
+                                            </Badge>
                                         </div>
                                     ))}
                                 </div>
@@ -258,8 +260,11 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <Badge variant="default" className="text-xs mb-1">{t('member.sold')}</Badge>
-                                                <p className="text-xs text-green-400">₱{sale.total_revenue.toLocaleString()}</p>
+                                                <Badge className="bg-red-600 text-white shadow-md text-xs mb-1">
+                                                    <TrendingUp className="h-3 w-3 mr-1" />
+                                                    Sold
+                                                </Badge>
+                                                <p className="text-xs text-green-400">₱{sale.total_revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</p>
                                             </div>
                                         </div>
                                     ))}

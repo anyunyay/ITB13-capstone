@@ -39,14 +39,17 @@ class MemberController extends Controller
         $perPage = $isMobile ? 5 : 10;
         
         // Get all stocks for statistics (before pagination)
+        // Sort by created_at descending to show most recent first
         $allAvailableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
+            ->orderBy('created_at', 'desc')
             ->get();
             
         $allSoldStocks = Stock::sold()
             ->with(['product'])
             ->where('member_id', $user->id)
+            ->orderBy('updated_at', 'desc') // Use updated_at for sold stocks as they're updated when sold
             ->get();
             
         // Get all stocks for debugging
@@ -275,7 +278,8 @@ class MemberController extends Controller
                             'total_gross_profit' => 0,
                             'category' => $audit->category,
                             'sales_count' => 0,
-                            'customers' => []
+                            'customers' => [],
+                            'latest_sale_date' => $sale->delivered_at
                         ];
                     }
 
@@ -285,6 +289,11 @@ class MemberController extends Controller
                     $productSales[$productId]['total_cogs'] += $itemCogs;
                     $productSales[$productId]['total_gross_profit'] += $itemGrossProfit;
                     $productSales[$productId]['sales_count']++;
+
+                    // Update latest sale date if this sale is more recent
+                    if ($sale->delivered_at > $productSales[$productId]['latest_sale_date']) {
+                        $productSales[$productId]['latest_sale_date'] = $sale->delivered_at;
+                    }
 
                     // Add customer if not already in the list
                     if (!in_array($sale->customer->name, $productSales[$productId]['customers'])) {
@@ -303,10 +312,10 @@ class MemberController extends Controller
             }
         }
 
-        // Convert to array and sort by total revenue (highest first)
+        // Convert to array and sort by latest sale date (most recent first)
         $salesBreakdown = array_values($productSales);
         usort($salesBreakdown, function($a, $b) {
-            return $b['total_revenue'] <=> $a['total_revenue'];
+            return strtotime($b['latest_sale_date']) <=> strtotime($a['latest_sale_date']);
         });
 
         return [
