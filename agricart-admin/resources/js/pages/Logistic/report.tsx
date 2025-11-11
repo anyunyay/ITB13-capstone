@@ -85,6 +85,8 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -211,12 +213,21 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
       localFilters.delivery_status !== 'all' || localFilters.search;
   };
 
-  const exportReport = (format: 'csv' | 'pdf') => {
+  const exportReport = (format: 'csv' | 'pdf', sortByParam?: string, sortOrderParam?: 'asc' | 'desc') => {
     const params = new URLSearchParams();
     if (localFilters.start_date) params.append('start_date', localFilters.start_date);
     if (localFilters.end_date) params.append('end_date', localFilters.end_date);
     if (localFilters.delivery_status !== 'all') params.append('delivery_status', localFilters.delivery_status);
+    
+    // Use the passed parameters or fall back to current state
+    const finalSortBy = sortByParam || sortBy;
+    const finalSortOrder = sortOrderParam || sortOrder;
+    
+    if (finalSortBy) params.append('sort_by', finalSortBy);
+    if (finalSortOrder) params.append('sort_order', finalSortOrder);
     params.append('format', format);
+    
+    console.log('Export params:', { sortBy: finalSortBy, sortOrder: finalSortOrder, format });
 
     if (format === 'csv') {
       // For CSV: just download, no display
@@ -236,6 +247,8 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
       if (localFilters.start_date) displayParams.append('start_date', localFilters.start_date);
       if (localFilters.end_date) displayParams.append('end_date', localFilters.end_date);
       if (localFilters.delivery_status !== 'all') displayParams.append('delivery_status', localFilters.delivery_status);
+      if (finalSortBy) displayParams.append('sort_by', finalSortBy);
+      if (finalSortOrder) displayParams.append('sort_order', finalSortOrder);
       displayParams.append('format', format);
       displayParams.append('display', 'true');
       const displayUrl = `${route('logistic.report')}?${displayParams.toString()}`;
@@ -280,11 +293,11 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
             
             {/* Export Buttons Row */}
             <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-2">
+              <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-2">
                 <Download className="h-4 w-4" />
                 {t('logistic.export_csv')}
               </Button>
-              <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-2">
+              <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-2">
                 <FileText className="h-4 w-4" />
                 {t('logistic.export_pdf')}
               </Button>
@@ -303,11 +316,11 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                   {t('logistic.back_to_dashboard')}
                 </Button>
               </Link>
-              <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+              <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 {t('logistic.export_csv')}
               </Button>
-              <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+              <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 {t('logistic.export_pdf')}
               </Button>
@@ -484,7 +497,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
                 
                 {/* Desktop: Table View */}
                 <div className="hidden md:block">
-                  <OrderTable orders={orders.data} t={t} />
+                  <OrderTable orders={orders.data} t={t} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
                 </div>
                 
                 <Pagination
@@ -587,9 +600,14 @@ function MobileOrderCard({ order, t }: { order: Order; t: (key: string, params?:
   );
 }
 
-function OrderTable({ orders, t }: { orders: Order[]; t: (key: string, params?: any) => string }) {
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder }: { 
+  orders: Order[]; 
+  t: (key: string, params?: any) => string;
+  sortBy: string;
+  setSortBy: (field: string) => void;
+  sortOrder: 'asc' | 'desc';
+  setSortOrder: (order: 'asc' | 'desc') => void;
+}) {
 
   const handleSort = (field: string) => {
     if (sortBy === field) {

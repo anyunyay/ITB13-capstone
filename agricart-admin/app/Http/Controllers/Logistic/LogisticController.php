@@ -21,7 +21,7 @@ class LogisticController extends Controller
     {
         $logistic = Auth::user();
         $perPage = $request->get('per_page', 5);
-        
+
         // Get base query for this logistic
         $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
@@ -40,26 +40,26 @@ class LogisticController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->through(function ($order) {
-            return [
-                'id' => $order->id,
-                'customer' => [
-                    'name' => $order->customer->name,
-                    'email' => $order->customer->email,
-                    'contact_number' => $order->customer->contact_number,
-                ],
-                'delivery_address' => $order->address ? 
-                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
-                    null,
-                'total_amount' => $order->total_amount,
-                'delivery_status' => $order->delivery_status,
-                'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
-                'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
-                'delivered_time' => $order->delivered_time?->toISOString(),
-                'delivery_timeline' => $order->getDeliveryTimeline(),
-                'created_at' => $order->created_at->toISOString(),
-                'audit_trail' => $order->getAggregatedAuditTrail(),
-            ];
-        });
+                return [
+                    'id' => $order->id,
+                    'customer' => [
+                        'name' => $order->customer->name,
+                        'email' => $order->customer->email,
+                        'contact_number' => $order->customer->contact_number,
+                    ],
+                    'delivery_address' => $order->address ?
+                        $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
+                        null,
+                    'total_amount' => $order->total_amount,
+                    'delivery_status' => $order->delivery_status,
+                    'delivery_ready_time' => $order->delivery_ready_time?->toISOString(),
+                    'delivery_packed_time' => $order->delivery_packed_time?->toISOString(),
+                    'delivered_time' => $order->delivered_time?->toISOString(),
+                    'delivery_timeline' => $order->getDeliveryTimeline(),
+                    'created_at' => $order->created_at->toISOString(),
+                    'audit_trail' => $order->getAggregatedAuditTrail(),
+                ];
+            });
 
         return Inertia::render('Logistic/dashboard', [
             'assignedOrders' => $assignedOrders,
@@ -78,7 +78,7 @@ class LogisticController extends Controller
         $logistic = Auth::user();
         $status = $request->get('status', 'all');
         $perPage = $request->get('per_page', 10);
-        
+
         // Get base query for all orders
         $baseQuery = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
@@ -92,7 +92,7 @@ class LogisticController extends Controller
             'out_for_delivery' => (clone $baseQuery)->where('delivery_status', 'out_for_delivery')->count(),
             'delivered' => (clone $baseQuery)->where('delivery_status', 'delivered')->count(),
         ];
-        
+
         // Build query for paginated results
         $query = (clone $baseQuery)->with(['customer', 'address', 'auditTrail.product']);
 
@@ -109,8 +109,8 @@ class LogisticController extends Controller
                     'email' => $order->customer->email,
                     'contact_number' => $order->customer->contact_number,
                 ],
-                'delivery_address' => $order->address ? 
-                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+                'delivery_address' => $order->address ?
+                    $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
                     null,
                 'total_amount' => $order->total_amount,
                 'delivery_status' => $order->delivery_status,
@@ -147,8 +147,8 @@ class LogisticController extends Controller
                 'email' => $order->customer->email,
                 'contact_number' => $order->customer->contact_number,
             ],
-            'delivery_address' => $order->address ? 
-                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province : 
+            'delivery_address' => $order->address ?
+                $order->address->street . ', ' . $order->address->barangay . ', ' . $order->address->city . ', ' . $order->address->province :
                 null,
             'total_amount' => $order->total_amount,
             'delivery_status' => $order->delivery_status,
@@ -191,7 +191,7 @@ class LogisticController extends Controller
 
         // Get the new delivery status
         $newStatus = $request->input('delivery_status');
-        
+
         // Get the old status for comparison
         $oldStatus = $order->delivery_status;
 
@@ -200,7 +200,7 @@ class LogisticController extends Controller
             abort(403, 'Order must be marked as "Out for Delivery" before it can be marked as delivered. Current status: ' . $oldStatus);
         }
 
-        
+
         // Update the delivery status using unified method
         $order->updateDeliveryStatus($newStatus);
 
@@ -209,10 +209,10 @@ class LogisticController extends Controller
             // Get the delivery address as plain text
             $deliveryAddress = null;
             if ($order->address) {
-                $deliveryAddress = $order->address->street . ', ' . 
-                                 $order->address->barangay . ', ' . 
-                                 $order->address->city . ', ' . 
-                                 $order->address->province;
+                $deliveryAddress = $order->address->street . ', ' .
+                    $order->address->barangay . ', ' .
+                    $order->address->city . ', ' .
+                    $order->address->province;
             }
 
             // Use financial data from sales_audit (already calculated during checkout)
@@ -220,7 +220,7 @@ class LogisticController extends Controller
             $coopShare = $order->coop_share ?? ($subtotal * 0.10);
             $memberShare = $order->member_share ?? $subtotal;
             $totalAmount = $order->total_amount; // Already includes co-op share
-            
+
             // Create a Sales record for the delivered order
             $sale = Sales::create([
                 'customer_id' => $order->customer_id,
@@ -294,7 +294,7 @@ class LogisticController extends Controller
         if ($order->status !== 'approved') {
             abort(403, 'Order must be approved before it can be marked as delivered.');
         }
-        
+
         if ($order->delivery_status !== 'out_for_delivery') {
             abort(403, 'Order must be marked as "Out for Delivery" before it can be marked as delivered. Current status: ' . $order->delivery_status);
         }
@@ -304,7 +304,7 @@ class LogisticController extends Controller
             'delivery_proof_image' => FileUploadService::getValidationRules('delivery-proofs', true),
             'confirmation_text' => 'required|string|in:I Confirm',
         ];
-        
+
         $request->validate($validationRules);
 
         // Handle image upload using FileUploadService
@@ -326,10 +326,10 @@ class LogisticController extends Controller
         // Get the delivery address as plain text
         $deliveryAddress = null;
         if ($order->address) {
-            $deliveryAddress = $order->address->street . ', ' . 
-                             $order->address->barangay . ', ' . 
-                             $order->address->city . ', ' . 
-                             $order->address->province;
+            $deliveryAddress = $order->address->street . ', ' .
+                $order->address->barangay . ', ' .
+                $order->address->city . ', ' .
+                $order->address->province;
         }
 
         // Use financial data from sales_audit (already calculated during checkout)
@@ -337,7 +337,7 @@ class LogisticController extends Controller
         $coopShare = $order->coop_share ?? ($subtotal * 0.10);
         $memberShare = $order->member_share ?? $subtotal;
         $totalAmount = $order->total_amount; // Already includes co-op share
-        
+
         // Update the order with delivery proof and confirmation using unified method
         $order->markAsDelivered();
         $order->update([
@@ -410,6 +410,17 @@ class LogisticController extends Controller
         $display = $request->get('display', false); // true for display mode
         $search = $request->get('search');
         $perPage = $request->get('per_page', 10);
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        // Validate sort parameters
+        $allowedSortFields = ['id', 'customer', 'total_amount', 'delivery_status', 'created_at', 'delivered_time'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'created_at';
+        }
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
 
         $query = SalesAudit::where('logistic_id', $logistic->id)
             ->where('status', 'approved')
@@ -430,19 +441,34 @@ class LogisticController extends Controller
 
         // Search filter
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('customer', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
         // For exports, get all data
         if ($format === 'csv' || $format === 'pdf') {
-            $orders = $query->orderBy('created_at', 'desc')->get();
-            
+            // Get all orders without database sorting
+            $orders = $query->get();
+
+            // Apply sorting using collection methods (same pattern as sales report)
+            $orders = $orders->sortBy(function ($order) use ($sortBy) {
+                switch ($sortBy) {
+                    case 'customer':
+                        return $order->customer->name ?? '';
+                    case 'delivered_time':
+                        return $order->delivered_time ? $order->delivered_time->timestamp : 0;
+                    case 'created_at':
+                        return $order->created_at->timestamp;
+                    default:
+                        return $order->{$sortBy} ?? 0;
+                }
+            }, SORT_REGULAR, $sortOrder === 'desc')->values();
+
             // Calculate summary statistics
             $summary = [
                 'total_orders' => $orders->count(),
@@ -460,8 +486,8 @@ class LogisticController extends Controller
             }
         }
 
-        // For view, get summary from all matching records
-        $allOrders = $query->get();
+        // For view, get summary from all matching records (before applying sorting)
+        $allOrders = (clone $query)->get();
         $summary = [
             'total_orders' => $allOrders->count(),
             'total_revenue' => $allOrders->sum('total_amount'),
@@ -471,8 +497,29 @@ class LogisticController extends Controller
             'average_order_value' => $allOrders->count() > 0 ? $allOrders->avg('total_amount') : 0,
         ];
 
-        // Paginate for view
-        $orders = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        // Apply sorting using collection methods (same pattern as sales report)
+        $sortedOrders = $allOrders->sortBy(function ($order) use ($sortBy) {
+            switch ($sortBy) {
+                case 'customer':
+                    return $order->customer->name ?? '';
+                case 'delivered_time':
+                    return $order->delivered_time ? $order->delivered_time->timestamp : 0;
+                case 'created_at':
+                    return $order->created_at->timestamp;
+                default:
+                    return $order->{$sortBy} ?? 0;
+            }
+        }, SORT_REGULAR, $sortOrder === 'desc')->values();
+
+        // Paginate the sorted collection
+        $currentPage = $request->get('page', 1);
+        $orders = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sortedOrders->forPage($currentPage, $perPage),
+            $sortedOrders->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         // Return view for display
         return Inertia::render('Logistic/report', [
@@ -490,7 +537,7 @@ class LogisticController extends Controller
     private function exportToCsv($orders, $summary, $display = false)
     {
         $filename = 'logistic_orders_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -505,9 +552,9 @@ class LogisticController extends Controller
             ];
         }
 
-        $callback = function() use ($orders, $summary) {
+        $callback = function () use ($orders, $summary) {
             $file = fopen('php://output', 'w');
-            
+
             // Write headers
             fputcsv($file, [
                 'Order ID',
@@ -526,7 +573,7 @@ class LogisticController extends Controller
                 foreach ($aggregatedTrail as $item) {
                     $items[] = $item['product']['name'] . ' (' . $item['category'] . ') - ' . $item['quantity'];
                 }
-                
+
                 fputcsv($file, [
                     $order->id,
                     $order->customer->name,
@@ -537,7 +584,7 @@ class LogisticController extends Controller
                     implode('; ', $items)
                 ]);
             }
-            
+
             fclose($file);
         };
 
@@ -556,9 +603,9 @@ class LogisticController extends Controller
 
         $pdf = Pdf::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
-        
+
         $filename = 'logistic_orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 }
