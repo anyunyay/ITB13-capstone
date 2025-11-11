@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import { type SharedData } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, ArrowLeft, History, BarChart3, Filter } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Package, ArrowLeft, History, BarChart3, Filter, Download, FileText, CalendarIcon, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
@@ -167,6 +171,15 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
 
     const [showTransactions, setShowTransactions] = useState(initialView);
     const [isMobile, setIsMobile] = useState(false);
+    
+    // Date range state for transaction exports
+    const [exportStartDate, setExportStartDate] = useState<Date | undefined>(undefined);
+    const [exportEndDate, setExportEndDate] = useState<Date | undefined>(undefined);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [dateRangeError, setDateRangeError] = useState<string>('');
+    const [startDatePopoverOpen, setStartDatePopoverOpen] = useState(false);
+    const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
+    const exportInProgressRef = useRef(false);
 
     useEffect(() => {
         if (!auth?.user) {
@@ -469,6 +482,127 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         return format(new Date(dateString), 'MMM dd, yyyy HH:mm');
     };
 
+    // Export handlers
+    const handleExportClick = (format: 'csv' | 'pdf', view: 'stocks' | 'transactions') => {
+        // For transactions, show date picker modal
+        if (view === 'transactions') {
+            setShowDatePicker(true);
+            setDateRangeError('');
+            // Store the format for later use
+            (window as any).pendingExportFormat = format;
+        } else {
+            // For stocks, export directly
+            handleExport(format, view);
+        }
+    };
+
+    const handleExport = (exportFormat: 'csv' | 'pdf', view: 'stocks' | 'transactions') => {
+        const params = new URLSearchParams();
+        
+        // Add current pagination
+        params.append('stock_page', String(stockPagination?.current_page || 1));
+        params.append('transaction_page', String(transactions?.meta?.current_page || 1));
+        
+        // Add sorting
+        params.append('stock_sort_by', sorting.stock_sort_by);
+        params.append('stock_sort_dir', sorting.stock_sort_dir);
+        params.append('transaction_sort_by', sorting.transaction_sort_by);
+        params.append('transaction_sort_dir', sorting.transaction_sort_dir);
+        
+        // Add filters
+        params.append('stock_category', filters.stock_category);
+        params.append('stock_status', filters.stock_status);
+        params.append('transaction_category', filters.transaction_category);
+        
+        // Add date range for transactions
+        if (view === 'transactions' && exportStartDate && exportEndDate) {
+            params.append('start_date', format(exportStartDate, 'yyyy-MM-dd'));
+            params.append('end_date', format(exportEndDate, 'yyyy-MM-dd'));
+        }
+        
+        // Add view and format
+        params.append('view', view);
+        params.append('format', exportFormat);
+        
+        const downloadUrl = `${route('member.allStocks')}?${params.toString()}`;
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        downloadLink.download = `member_${view}_${new Date().toISOString().slice(0, 10)}.${exportFormat}`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        // For PDF, also open in new tab
+        if (exportFormat === 'pdf') {
+            setTimeout(() => {
+                window.open(downloadUrl, '_blank');
+            }, 500);
+        }
+    };
+
+    const handleConfirmExport = () => {
+        // Prevent duplicate exports
+        if (exportInProgressRef.current) {
+            return;
+        }
+
+        // Validate date range only if one date is selected
+        if ((exportStartDate && !exportEndDate) || (!exportStartDate && exportEndDate)) {
+            setDateRangeError('Please select both start and end dates, or leave both empty');
+            return;
+        }
+
+        if (exportStartDate && exportEndDate && exportStartDate > exportEndDate) {
+            setDateRangeError('Start date must be before or equal to end date');
+            return;
+        }
+
+        // Mark export as in progress
+        exportInProgressRef.current = true;
+
+        // Get the pending format
+        const exportFormat = (window as any).pendingExportFormat || 'csv';
+        
+        // Perform export first
+        handleExport(exportFormat, 'transactions');
+        
+        // Then close modal and reset everything
+        resetModalState();
+        
+        // Reset export flag after a short delay to allow download to start
+        setTimeout(() => {
+            exportInProgressRef.current = false;
+        }, 1000);
+    };
+
+    const handleCancelExport = () => {
+        resetModalState();
+    };
+
+    const resetModalState = () => {
+        // Close modal
+        setShowDatePicker(false);
+        
+        // Reset all state
+        setDateRangeError('');
+        setExportStartDate(undefined);
+        setExportEndDate(undefined);
+        setStartDatePopoverOpen(false);
+        setEndDatePopoverOpen(false);
+        
+        // Clear pending format
+        delete (window as any).pendingExportFormat;
+    };
+
+    const handleDialogOpenChange = (open: boolean) => {
+        if (!open) {
+            // Modal is being closed - reset everything
+            resetModalState();
+        } else {
+            setShowDatePicker(open);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background scroll-pt-24 lg:scroll-pt-32">
             <MemberHeader />
@@ -509,17 +643,179 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                         </div>
                     </div>
 
-                    {/* Title and Description */}
-                    <h1 className="text-3xl font-bold text-foreground">
-                        {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        {showTransactions
-                            ? t('member.transaction_history_description')
-                            : t('member.all_stocks_description')
-                        }
-                    </p>
+                    {/* Title, Description, and Export Buttons */}
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-foreground">
+                                {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
+                            </h1>
+                            <p className="text-muted-foreground mt-2">
+                                {showTransactions
+                                    ? t('member.transaction_history_description')
+                                    : t('member.all_stocks_description')
+                                }
+                            </p>
+                        </div>
+                        
+                        {/* Export Buttons - Desktop: right side, Mobile: below description */}
+                        <div className="flex gap-2 lg:mt-0">
+                            <Button 
+                                onClick={() => handleExportClick('csv', showTransactions ? 'transactions' : 'stocks')} 
+                                variant="outline" 
+                                size="sm"
+                                className="flex items-center gap-2"
+                            >
+                                <Download className="h-4 w-4" />
+                                <span className="hidden sm:inline">Export CSV</span>
+                                <span className="sm:hidden">CSV</span>
+                            </Button>
+                            <Button 
+                                onClick={() => handleExportClick('pdf', showTransactions ? 'transactions' : 'stocks')} 
+                                variant="outline" 
+                                size="sm"
+                                className="flex items-center gap-2"
+                            >
+                                <FileText className="h-4 w-4" />
+                                <span className="hidden sm:inline">Export PDF</span>
+                                <span className="sm:hidden">PDF</span>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Date Range Picker Dialog for Transaction Exports */}
+                <Dialog open={showDatePicker} onOpenChange={handleDialogOpenChange}>
+                    <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle>Select Date Range for Export</DialogTitle>
+                            <DialogDescription>
+                                Choose the start and end dates for your transaction export (optional). Leave empty to export all transactions.
+                            </DialogDescription>
+                        </DialogHeader>
+                        
+                        <div className="grid gap-4 py-4">
+                            {/* Selected Date Range Display - Moved to Top */}
+                            {exportStartDate && exportEndDate && (
+                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <CalendarIcon className="h-4 w-4 text-green-600" />
+                                        <p className="text-sm font-semibold text-green-900">Selected Date Range</p>
+                                    </div>
+                                    <p className="text-base font-medium text-green-800 ml-6">
+                                        {format(exportStartDate, "MMM dd, yyyy")} - {format(exportEndDate, "MMM dd, yyyy")}
+                                    </p>
+                                </div>
+                            )}
+                            
+                            {/* Error Alert */}
+                            {dateRangeError && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription>{dateRangeError}</AlertDescription>
+                                </Alert>
+                            )}
+                            
+                            {/* Date Pickers */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium">
+                                        Start Date <span className="text-muted-foreground font-normal">(Optional)</span>
+                                    </Label>
+                                    <Popover modal={true} open={startDatePopoverOpen} onOpenChange={setStartDatePopoverOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                                type="button"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {exportStartDate ? format(exportStartDate, "MMM dd, yyyy") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent 
+                                            className="w-auto p-0 pointer-events-auto" 
+                                            align="start"
+                                            side="bottom"
+                                            sideOffset={4}
+                                            style={{ zIndex: 9999 }}
+                                            onOpenAutoFocus={(e) => e.preventDefault()}
+                                        >
+                                            <Calendar
+                                                mode="single"
+                                                selected={exportStartDate}
+                                                onSelect={(date) => {
+                                                    setExportStartDate(date);
+                                                    setStartDatePopoverOpen(false);
+                                                }}
+                                                disabled={(date) => date > new Date() || date < new Date("2000-01-01")}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-medium">
+                                        End Date <span className="text-muted-foreground font-normal">(Optional)</span>
+                                    </Label>
+                                    <Popover modal={true} open={endDatePopoverOpen} onOpenChange={setEndDatePopoverOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full justify-start text-left font-normal"
+                                                type="button"
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {exportEndDate ? format(exportEndDate, "MMM dd, yyyy") : "Pick a date"}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent 
+                                            className="w-auto p-0 pointer-events-auto" 
+                                            align="start"
+                                            side="bottom"
+                                            sideOffset={4}
+                                            style={{ zIndex: 9999 }}
+                                            onOpenAutoFocus={(e) => e.preventDefault()}
+                                        >
+                                            <Calendar
+                                                mode="single"
+                                                selected={exportEndDate}
+                                                onSelect={(date) => {
+                                                    setExportEndDate(date);
+                                                    setEndDatePopoverOpen(false);
+                                                }}
+                                                disabled={(date) => 
+                                                    date > new Date() || 
+                                                    date < new Date("2000-01-01") ||
+                                                    (exportStartDate ? date < exportStartDate : false)
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            
+                            {/* Info Message */}
+                            {!exportStartDate && !exportEndDate && (
+                                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                    <p className="text-sm text-blue-800">
+                                        <span className="font-semibold">No date range selected.</span> All transactions will be exported.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <DialogFooter>
+                            <Button variant="outline" onClick={handleCancelExport}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleConfirmExport} className="bg-green-600 hover:bg-green-700">
+                                Export
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
                 {/* Summary Cards */}
                 <div className={`grid gap-2 mb-4 ${showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>

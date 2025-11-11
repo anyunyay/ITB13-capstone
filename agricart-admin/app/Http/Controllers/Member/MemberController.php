@@ -39,7 +39,7 @@ class MemberController extends Controller
         $perPage = $isMobile ? 5 : 10;
         
         // Get all stocks for statistics (before pagination)
-        // Sort by created_at descending to show most recent first
+        // Sort by created_at descending to show most recent first  
         $allAvailableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
@@ -123,6 +123,10 @@ class MemberController extends Controller
     {
         $user = Auth::user();
         
+        // Check if export is requested
+        $format = $request->get('format');
+        $view = $request->get('view', 'stocks');
+        
         // Get pagination parameters
         $stockPage = $request->get('stock_page', 1);
         $transactionPage = $request->get('transaction_page', 1);
@@ -137,6 +141,10 @@ class MemberController extends Controller
         $stockCategoryFilter = $request->get('stock_category', 'all');
         $stockStatusFilter = $request->get('stock_status', 'all');
         $transactionCategoryFilter = $request->get('transaction_category', 'all');
+        
+        // Get date range parameters for transaction exports
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
         
         // Detect mobile device based on user agent
         $userAgent = $request->header('User-Agent');
@@ -177,8 +185,16 @@ class MemberController extends Controller
             ->whereHas('stock', function($q) use ($user) {
                 $q->where('member_id', $user->id);
             })
-            ->whereHas('sale', function($q) {
+            ->whereHas('sale', function($q) use ($startDate, $endDate) {
                 $q->whereNotNull('delivered_time'); // Only show delivered transactions
+                
+                // Apply date range filter if provided (for exports)
+                if ($startDate) {
+                    $q->whereDate('delivered_time', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $q->whereDate('delivered_time', '<=', $endDate);
+                }
             });
         
         // Apply category filter to transactions
@@ -209,6 +225,43 @@ class MemberController extends Controller
         
         // Calculate transaction summary
         $summary = $this->calculateTransactionSummary($user->id);
+        
+        // Handle export requests - export ALL filtered data, not just current page
+        if ($format === 'csv') {
+            if ($view === 'transactions') {
+                // Validate date range - both must be provided or both empty
+                if (($startDate && !$endDate) || (!$startDate && $endDate)) {
+                    return response()->json([
+                        'error' => 'Please provide both start and end dates, or leave both empty'
+                    ], 400);
+                }
+                
+                // Get all filtered transactions (not paginated)
+                $allFilteredTransactions = $transactionsQuery->get();
+                return $this->exportTransactionsToCsv($allFilteredTransactions, $summary, $startDate, $endDate);
+            } else {
+                // Use all filtered stock data (not paginated)
+                $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
+                return $this->exportStocksToCsv($allFilteredStockData, $allComprehensiveStockData);
+            }
+        } elseif ($format === 'pdf') {
+            if ($view === 'transactions') {
+                // Validate date range - both must be provided or both empty
+                if (($startDate && !$endDate) || (!$startDate && $endDate)) {
+                    return response()->json([
+                        'error' => 'Please provide both start and end dates, or leave both empty'
+                    ], 400);
+                }
+                
+                // Get all filtered transactions (not paginated)
+                $allFilteredTransactions = $transactionsQuery->get();
+                return $this->exportTransactionsToPdf($allFilteredTransactions, $summary, $startDate, $endDate);
+            } else {
+                // Use all filtered stock data (not paginated)
+                $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
+                return $this->exportStocksToPdf($allFilteredStockData, $allComprehensiveStockData);
+            }
+        }
             
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
@@ -937,5 +990,229 @@ class MemberController extends Controller
             'total_cogs' => $totalCogs,
             'total_gross_profit' => $totalGrossProfit,
         ];
+    }
+
+    /**
+     * Export stocks to CSV
+     */
+    private function exportStocksToCsv($paginatedData, $allData)
+    {
+        $filename = 'member_stock_overview_' . date('Y-m-d_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($paginatedData, $allData) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for Excel UTF-8 support
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Add summary header
+            fputcsv($file, ['Stock Overview Report']);
+            fputcsv($file, ['Generated:', date('F d, Y H:i:s')]);
+            fputcsv($file, ['']);
+            
+            // Add summary statistics
+            $totalStock = array_sum(array_column($allData, 'total_quantity'));
+            $totalSold = array_sum(array_column($allData, 'sold_quantity'));
+            $totalAvailable = array_sum(array_column($allData, 'balance_quantity'));
+            $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
+            $totalCogs = array_sum(array_column($allData, 'total_cogs'));
+            $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
+            
+            fputcsv($file, ['Summary Statistics']);
+            fputcsv($file, ['Total Stock:', $totalStock]);
+            fputcsv($file, ['Total Sold:', $totalSold]);
+            fputcsv($file, ['Total Available:', $totalAvailable]);
+            fputcsv($file, ['Total Revenue:', '₱' . number_format($totalRevenue, 2)]);
+            fputcsv($file, ['Total COGS:', '₱' . number_format($totalCogs, 2)]);
+            fputcsv($file, ['Total Gross Profit:', '₱' . number_format($totalGrossProfit, 2)]);
+            fputcsv($file, ['']);
+            
+            // Add column headers
+            fputcsv($file, [
+                'Product Name',
+                'Category',
+                'Total Quantity',
+                'Sold Quantity',
+                'Available Quantity',
+                'Unit Price',
+                'Total Revenue',
+                'Total COGS',
+                'Gross Profit'
+            ]);
+            
+            // Add data rows (only paginated data)
+            foreach ($paginatedData as $item) {
+                fputcsv($file, [
+                    $item['product_name'],
+                    $item['category'],
+                    $item['total_quantity'],
+                    $item['sold_quantity'],
+                    $item['balance_quantity'],
+                    '₱' . number_format($item['unit_price'], 2),
+                    '₱' . number_format($item['total_revenue'], 2),
+                    '₱' . number_format($item['total_cogs'], 2),
+                    '₱' . number_format($item['total_gross_profit'], 2)
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export stocks to PDF
+     */
+    private function exportStocksToPdf($paginatedData, $allData)
+    {
+        $filename = 'member_stock_overview_' . date('Y-m-d_His') . '.pdf';
+        
+        // Calculate summary statistics
+        $totalStock = array_sum(array_column($allData, 'total_quantity'));
+        $totalSold = array_sum(array_column($allData, 'sold_quantity'));
+        $totalAvailable = array_sum(array_column($allData, 'balance_quantity'));
+        $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
+        $totalCogs = array_sum(array_column($allData, 'total_cogs'));
+        $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
+        
+        $data = [
+            'title' => 'Stock Overview Report',
+            'date' => date('F d, Y H:i:s'),
+            'summary' => [
+                'total_stock' => $totalStock,
+                'total_sold' => $totalSold,
+                'total_available' => $totalAvailable,
+                'total_revenue' => $totalRevenue,
+                'total_cogs' => $totalCogs,
+                'total_gross_profit' => $totalGrossProfit,
+            ],
+            'stocks' => $paginatedData,
+        ];
+
+        $pdf = Pdf::loadView('exports.member-stocks-pdf', $data);
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export transactions to CSV - exports all filtered data with date range
+     */
+    private function exportTransactionsToCsv($transactions, $summary, $startDate, $endDate)
+    {
+        $filename = 'member_transactions_' . date('Y-m-d_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($transactions, $summary, $startDate, $endDate) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for Excel UTF-8 support
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Add summary header
+            fputcsv($file, ['Transaction History Report']);
+            fputcsv($file, ['Generated:', date('F d, Y H:i:s')]);
+            
+            // Add date range if provided
+            if ($startDate && $endDate) {
+                fputcsv($file, ['Date Range:', date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate))]);
+            } else {
+                fputcsv($file, ['Date Range:', 'All Transactions']);
+            }
+            
+            fputcsv($file, ['Total Records:', count($transactions)]);
+            fputcsv($file, ['']);
+            
+            // Add summary statistics
+            fputcsv($file, ['Summary Statistics']);
+            fputcsv($file, ['Total Transactions:', $summary['total_transactions']]);
+            fputcsv($file, ['Total Quantity:', $summary['total_quantity']]);
+            fputcsv($file, ['Total Revenue:', '₱' . number_format($summary['total_revenue'], 2)]);
+            fputcsv($file, ['Total COGS:', '₱' . number_format($summary['total_cogs'], 2)]);
+            fputcsv($file, ['Total Gross Profit:', '₱' . number_format($summary['total_gross_profit'], 2)]);
+            fputcsv($file, ['']);
+            
+            // Add column headers
+            fputcsv($file, [
+                'Date',
+                'Product Name',
+                'Category',
+                'Quantity',
+                'Unit Price',
+                'Revenue',
+                'Customer',
+                'Status'
+            ]);
+            
+            // Add data rows
+            foreach ($transactions as $transaction) {
+                $price = 0;
+                switch ($transaction->category) {
+                    case 'Kilo':
+                        $price = $transaction->price_kilo ?? 0;
+                        break;
+                    case 'Pc':
+                        $price = $transaction->price_pc ?? 0;
+                        break;
+                    case 'Tali':
+                        $price = $transaction->price_tali ?? 0;
+                        break;
+                    default:
+                        $price = $transaction->unit_price ?? 0;
+                }
+                
+                $revenue = $transaction->quantity * $price;
+                
+                fputcsv($file, [
+                    date('M d, Y H:i', strtotime($transaction->created_at)),
+                    $transaction->product->name ?? 'N/A',
+                    $transaction->category,
+                    $transaction->quantity,
+                    '₱' . number_format($price, 2),
+                    '₱' . number_format($revenue, 2),
+                    $transaction->sale->customer->name ?? 'N/A',
+                    $transaction->sale->delivery_status ?? 'N/A'
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export transactions to PDF - exports all filtered data with optional date range
+     */
+    private function exportTransactionsToPdf($transactions, $summary, $startDate, $endDate)
+    {
+        $filename = 'member_transactions_' . date('Y-m-d_His') . '.pdf';
+        
+        $data = [
+            'title' => 'Transaction History Report',
+            'date' => date('F d, Y H:i:s'),
+            'total_records' => count($transactions),
+            'summary' => $summary,
+            'transactions' => $transactions,
+        ];
+        
+        // Add date range if provided
+        if ($startDate && $endDate) {
+            $data['date_range'] = [
+                'start' => date('M d, Y', strtotime($startDate)),
+                'end' => date('M d, Y', strtotime($endDate)),
+            ];
+        }
+
+        $pdf = Pdf::loadView('exports.member-transactions-pdf', $data);
+        return $pdf->download($filename);
     }
 } 
