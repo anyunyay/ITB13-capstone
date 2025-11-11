@@ -333,9 +333,192 @@ export const StockManagement = ({
             );
         };
 
+        const renderMobileCard = (item: any, index: number) => {
+            if (dataType === 'trail') {
+                return (
+                    <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <div className="font-semibold text-foreground">{item.product}</div>
+                                <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
+                            </div>
+                            <Badge 
+                                variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
+                                className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
+                            >
+                                {item.action}
+                            </Badge>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.date')}:</span>
+                                <span className="font-medium">{new Date(item.date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.quantity')}:</span>
+                                <span className="font-semibold">
+                                    {item.category === 'Kilo'
+                                        ? `${item.quantity} kg`
+                                        : item.category
+                                        ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                        : item.quantity
+                                    }
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.member')}:</span>
+                                <span>{item.member}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
+                                <span className="font-semibold">₱{(item.totalAmount || 0).toFixed(2)}</span>
+                            </div>
+                            {item.notes && (
+                                <div className="pt-2 border-t border-border">
+                                    <span className="text-xs text-muted-foreground">{item.notes}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (dataType === 'sold') {
+                let totalAmount = 0;
+                if (item.product) {
+                    let price = 0;
+                    if (item.category === 'Kilo') {
+                        price = item.product.price_kilo || 0;
+                    } else if (item.category === 'Pc') {
+                        price = item.product.price_pc || 0;
+                    } else if (item.category === 'Tali') {
+                        price = item.product.price_tali || 0;
+                    }
+                    totalAmount = (item.sold_quantity || 0) * price;
+                }
+                
+                return (
+                    <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <Badge variant="outline" className="mb-2">#{item.id}</Badge>
+                                <div className="font-semibold text-foreground">{item.product?.name || '-'}</div>
+                            </div>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.quantity_sold')}:</span>
+                                <span className="font-semibold">
+                                    {item.category === 'Kilo'
+                                        ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
+                                        : item.category
+                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                        : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                    }
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.assigned_to')}:</span>
+                                <span>{item.member?.name || t('admin.unassigned')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
+                                <span className="font-semibold">₱{totalAmount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            // For regular stocks
+            return (
+                <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <Badge variant="outline" className="mb-2">#{item.id}</Badge>
+                            <div className="font-semibold text-foreground">{item.product?.name || '-'}</div>
+                            <Badge variant="secondary" className="text-xs mt-1">{item.category || '-'}</Badge>
+                        </div>
+                        <Badge 
+                            variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
+                            className={
+                                item.quantity > 10 
+                                    ? "bg-primary/10 text-primary" 
+                                    : item.quantity > 0 
+                                        ? "bg-secondary/10 text-secondary" 
+                                        : "bg-destructive/10 text-destructive"
+                            }
+                        >
+                            {item.quantity > 10 ? t('admin.available') : 
+                             item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
+                        </Badge>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t('admin.quantity')}:</span>
+                            <span className="font-semibold">
+                                {dataType === 'stocks' && item.quantity === 0 ? (
+                                    <span>
+                                        {item.category === 'Kilo'
+                                            ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
+                                            : item.category
+                                            ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                            : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                        }
+                                    </span>
+                                ) : (
+                                    <span>
+                                        {item.category === 'Kilo'
+                                            ? `${item.quantity} kg`
+                                            : item.category
+                                            ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                            : item.quantity
+                                        }
+                                    </span>
+                                )}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t('admin.assigned_to')}:</span>
+                            <span>{item.member?.name || t('admin.unassigned')}</span>
+                        </div>
+                    </div>
+                    {dataType === 'stocks' && (
+                        <div className="flex gap-2 pt-2 border-t border-border">
+                            <PermissionGate permission="edit stocks">
+                                <Button asChild size="sm" className="text-xs flex-1">
+                                    <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
+                                        <Edit className="h-3 w-3 mr-1" />
+                                        {t('ui.edit')}
+                                    </Link>
+                                </Button>
+                            </PermissionGate>
+                            <PermissionGate permission="delete stocks">
+                                <Button 
+                                    disabled={processing} 
+                                    onClick={() => handleRemovePerishedStock(item)} 
+                                    size="sm"
+                                    variant="destructive"
+                                    className="text-xs"
+                                >
+                                    <Trash2 className="h-3 w-3" />
+                                </Button>
+                            </PermissionGate>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
         return data.length > 0 ? (
             <>
-                <div className="rounded-md border">
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3 mb-4">
+                    {paginatedData?.map((item, index) => renderMobileCard(item, index))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block rounded-md border">
                     <Table className="w-full border-collapse">
                         <TableHeader className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
                             {getTableHeaders()}
@@ -591,12 +774,12 @@ export const StockManagement = ({
             <div>
                 {currentView === 'stocks' ? (
                     <Tabs defaultValue="all" className="w-full" onValueChange={() => setStockCurrentPage(1)}>
-                        <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger value="all">{t('admin.current_stocks')}</TabsTrigger>
-                            <TabsTrigger value="available">{t('admin.available')}</TabsTrigger>
-                            <TabsTrigger value="low">{t('admin.low_stock')}</TabsTrigger>
-                            <TabsTrigger value="out">{t('admin.out_of_stock')}</TabsTrigger>
-                            <TabsTrigger value="sold">{t('admin.sold_items')}</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2 gap-2 h-auto sm:grid-cols-3 md:grid-cols-5">
+                            <TabsTrigger value="all" className="text-sm">{t('admin.current_stocks')}</TabsTrigger>
+                            <TabsTrigger value="available" className="text-sm">{t('admin.available')}</TabsTrigger>
+                            <TabsTrigger value="low" className="text-sm">{t('admin.low_stock')}</TabsTrigger>
+                            <TabsTrigger value="out" className="text-sm">{t('admin.out_of_stock')}</TabsTrigger>
+                            <TabsTrigger value="sold" className="text-sm col-span-2 sm:col-span-1">{t('admin.sold_items')}</TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="all">

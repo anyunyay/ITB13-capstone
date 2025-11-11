@@ -101,7 +101,145 @@ export const ProductTable = ({
     }
 
     return (
-        <div className="rounded-md border">
+        <>
+            {/* Mobile Card View - Hidden on md and up */}
+            <div className="md:hidden space-y-3">
+                {products.map((product) => (
+                    <div 
+                        key={product.id}
+                        className={`bg-card border border-border rounded-lg p-4 shadow-sm transition-all duration-200 hover:shadow-md ${product.archived_at ? 'opacity-70 bg-muted/20' : ''}`}
+                    >
+                        <div className="flex gap-3 mb-3">
+                            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                <img 
+                                    src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
+                                    alt={product.name}
+                                    onError={(e) => handleImageError(e, product.name)}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                    <h3 className="font-semibold text-foreground text-sm line-clamp-2">{product.name}</h3>
+                                    {getStatusBadge(product.archived_at || null)}
+                                </div>
+                                <Badge variant="secondary" className="text-xs mb-2">
+                                    {product.produce_type}
+                                </Badge>
+                                <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-2 mb-3 pb-3 border-b border-border">
+                            {product.price_kilo && (
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground">{t('admin.price_per_kilo')}:</span>
+                                    <span className="font-medium">₱{product.price_kilo}</span>
+                                </div>
+                            )}
+                            {product.price_pc && (
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground">{t('admin.price_per_piece')}:</span>
+                                    <span className="font-medium">₱{product.price_pc}</span>
+                                </div>
+                            )}
+                            {product.price_tali && (
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground">{t('admin.price_per_tali')}:</span>
+                                    <span className="font-medium">₱{product.price_tali}</span>
+                                </div>
+                            )}
+                            {!product.price_kilo && !product.price_pc && !product.price_tali && (
+                                <span className="text-xs text-muted-foreground">{t('admin.no_prices_set')}</span>
+                            )}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2">
+                            {!product.archived_at && (
+                                <PermissionGate permission="create stocks">
+                                    <Button asChild variant="default" size="sm" className="text-xs flex-1">
+                                        <Link href={route('inventory.addStock', product.id)}>
+                                            <Plus className="h-3 w-3 mr-1" />
+                                            {t('admin.add_stock')}
+                                        </Link>
+                                    </Button>
+                                </PermissionGate>
+                            )}
+                            
+                            {!product.archived_at && (
+                                <PermissionGate permission="edit products">
+                                    <Button asChild variant="outline" size="sm" className="text-xs">
+                                        <Link href={route('inventory.edit', product.id)}>
+                                            <Edit className="h-3 w-3" />
+                                        </Link>
+                                    </Button>
+                                </PermissionGate>
+                            )}
+                            
+                            {!product.archived_at ? (
+                                <PermissionGate permission="archive products">
+                                    {product.has_stock ? (
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <span>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm"
+                                                        className="text-xs opacity-60 cursor-not-allowed"
+                                                        disabled={true}
+                                                    >
+                                                        <Archive className="h-3 w-3" />
+                                                    </Button>
+                                                </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{t('admin.cannot_archive_product_has_stock')}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ) : (
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            className="text-xs"
+                                            disabled={processing || archivingProduct === product.id}
+                                            onClick={() => handleArchive(product.id, product.name)}
+                                        >
+                                            <Archive className="h-3 w-3" />
+                                        </Button>
+                                    )}
+                                </PermissionGate>
+                            ) : (
+                                <PermissionGate permission="unarchive products">
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        className="text-xs"
+                                        disabled={processing || restoringProduct === product.id}
+                                        onClick={() => handleRestore(product.id, product.name)}
+                                    >
+                                        <Archive className="h-3 w-3" />
+                                    </Button>
+                                </PermissionGate>
+                            )}
+                            
+                            <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
+                                <Button 
+                                    variant="destructive" 
+                                    size="sm"
+                                    className="text-xs"
+                                    disabled={processing}
+                                    onClick={() => handleDelete(product.id, product.name)}
+                                >
+                                    <Trash2 className="h-3 w-3" />
+                                </Button>
+                            </PermissionGate>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="hidden md:block rounded-md border overflow-x-auto">
             <Table className="w-full border-collapse text-sm">
                 <TableHeader className={styles.inventoryTableHeader}>
                     <TableRow>
@@ -285,6 +423,7 @@ export const ProductTable = ({
                     ))}
                 </TableBody>
             </Table>
-        </div>
+            </div>
+        </>
     );
 };

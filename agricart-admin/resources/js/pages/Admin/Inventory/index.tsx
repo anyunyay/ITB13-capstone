@@ -48,10 +48,21 @@ export default function InventoryIndex() {
     const [currentPage, setCurrentPage] = useState(1);
     const [productView, setProductView] = useState<'cards' | 'table'>('cards');
     const [stockCurrentPage, setStockCurrentPage] = useState(1);
-    const [stockItemsPerPage, setStockItemsPerPage] = useState(10); // 10 stocks per page for better focus
     
-    // Dynamic items per page based on view type
-    const itemsPerPage = productView === 'cards' ? 8 : 10;
+    // Track window size for responsive items per page
+    const [isMobile, setIsMobile] = useState(false);
+    
+    // Dynamic items per page based on view type and screen size
+    const getItemsPerPage = () => {
+        if (productView === 'cards') {
+            return isMobile ? 4 : 8; // 4 on mobile, 8 on desktop
+        }
+        return isMobile ? 5 : 10; // Table view: 5 on mobile, 10 on desktop
+    };
+    const itemsPerPage = getItemsPerPage();
+    
+    // Dynamic stock items per page based on screen size
+    const stockItemsPerPage = isMobile ? 5 : 10; // 5 on mobile, 10 on desktop
 
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
@@ -83,6 +94,27 @@ export default function InventoryIndex() {
     useEffect(() => {
         setCurrentPage(1);
     }, [productView]);
+
+    // Detect mobile screen size
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768); // 768px is the md breakpoint
+        };
+        
+        // Check on mount
+        checkMobile();
+        
+        // Add resize listener
+        window.addEventListener('resize', checkMobile);
+        
+        // Cleanup
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Reset to first page when switching between mobile and desktop
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [isMobile]);
 
 
     // Form for archive and delete operations
@@ -367,12 +399,12 @@ export default function InventoryIndex() {
                             }
                         }} className="w-full">
                             <TabsList className="grid w-full grid-cols-2 h-auto">
-                                <TabsTrigger value="products" className="flex items-center gap-2 text-xs sm:text-sm">
+                                <TabsTrigger value="products" className="flex items-center gap-2 text-sm lg:text-base">
                                     <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                                     <span className="hidden sm:inline">{t('admin.products_tab')}</span>
                                     <span className="sm:hidden">{t('admin.products')}</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="stocks" className="flex items-center gap-2 text-xs sm:text-sm">
+                                <TabsTrigger value="stocks" className="flex items-center gap-2 text-sm lg:text-base">
                                     <Warehouse className="h-3 w-3 sm:h-4 sm:w-4" />
                                     <span className="hidden sm:inline">{t('admin.stocks_tab')}</span>
                                     <span className="sm:hidden">{t('admin.stocks')}</span>
