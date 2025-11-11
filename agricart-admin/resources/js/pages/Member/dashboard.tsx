@@ -204,14 +204,9 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Available Stocks */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle className="text-foreground">{t('member.available_stocks')}</CardTitle>
-                                <CardDescription className="text-muted-foreground">{t('member.ready_for_sale')}</CardDescription>
-                            </div>
-                            <Button asChild size="sm" variant="outline">
-                                <Link href={route('member.availableStocks')}>{t('member.view_all')}</Link>
-                            </Button>
+                        <CardHeader>
+                            <CardTitle className="text-foreground">{t('member.available_stocks')}</CardTitle>
+                            <CardDescription className="text-muted-foreground">{t('member.ready_for_sale')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {availableStocks.length > 0 ? (
@@ -244,14 +239,9 @@ export default function MemberDashboard({ availableStocks, soldStocks, salesData
 
                     {/* Sold Stocks */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle className="text-foreground">{t('member.sold_stocks')}</CardTitle>
-                                <CardDescription className="text-muted-foreground">{t('member.sales_performance')}</CardDescription>
-                            </div>
-                            <Button asChild size="sm" variant="outline">
-                                <Link href={route('member.soldStocks')}>{t('member.view_all')}</Link>
-                            </Button>
+                        <CardHeader>
+                            <CardTitle className="text-foreground">{t('member.sold_stocks')}</CardTitle>
+                            <CardDescription className="text-muted-foreground">{t('member.sales_performance')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {salesData.salesBreakdown.length > 0 ? (
