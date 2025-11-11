@@ -399,15 +399,13 @@ export default function InventoryIndex() {
                             }
                         }} className="w-full">
                             <TabsList className="grid w-full grid-cols-2 h-auto">
-                                <TabsTrigger value="products" className="flex items-center gap-2 text-sm lg:text-base">
+                                <TabsTrigger value="products" className="flex items-center gap-2 text-xs sm:text-sm">
                                     <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">{t('admin.products_tab')}</span>
-                                    <span className="sm:hidden">{t('admin.products')}</span>
+                                    {t('admin.products_tab')}
                                 </TabsTrigger>
-                                <TabsTrigger value="stocks" className="flex items-center gap-2 text-sm lg:text-base">
+                                <TabsTrigger value="stocks" className="flex items-center gap-2 text-xs sm:text-sm">
                                     <Warehouse className="h-3 w-3 sm:h-4 sm:w-4" />
-                                    <span className="hidden sm:inline">{t('admin.stocks_tab')}</span>
-                                    <span className="sm:hidden">{t('admin.stocks')}</span>
+                                    {t('admin.stocks_tab')}
                                 </TabsTrigger>
                             </TabsList>
 

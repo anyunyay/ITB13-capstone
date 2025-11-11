@@ -620,56 +620,84 @@ export const StockManagement = ({
 
     return (
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-            <div className="flex flex-col gap-3 mb-6 pb-4 border-b border-border md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
-                        <ShoppingCart className="h-6 w-6" />
+            {/* Header Section */}
+            <div className="flex flex-col gap-3 mb-6 pb-4 border-b border-border">
+                {/* First Row: Title and Search Button */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <ShoppingCart className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.stock_management')}</h2>
+                            <p className="text-sm text-muted-foreground m-0">
+                                {t('admin.monitor_stock_levels')}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.stock_management')}</h2>
-                        <p className="text-sm text-muted-foreground m-0">
-                            {t('admin.monitor_stock_levels')}
-                        </p>
+                    <div className="flex md:hidden">
+                        <Button
+                            variant={showStockSearch ? "default" : "outline"}
+                            onClick={() => {
+                                if (showStockSearch) {
+                                    setStockSearchTerm('');
+                                }
+                                setShowStockSearch(!showStockSearch);
+                            }}
+                            size="sm"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md w-full"
+                        >
+                            <Search className="h-4 w-4 mr-2" />
+                            {showStockSearch ? t('ui.hide_search') : t('ui.search')}
+                        </Button>
                     </div>
                 </div>
-                <div className="flex gap-3 flex-wrap items-center">
-                    <Button
-                        variant={showStockSearch ? "default" : "outline"}
-                        onClick={() => {
-                            if (showStockSearch) {
-                                setStockSearchTerm('');
-                            }
-                            setShowStockSearch(!showStockSearch);
-                        }}
-                        size="sm"
-                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                        <Search className="h-4 w-4 mr-2" />
-                        {showStockSearch ? t('ui.hide_search') : t('ui.search')}
-                    </Button>
+                
+                {/* Second Row: Action Buttons (Mobile) / All Buttons (Desktop) */}
+                <div className="flex gap-2 flex-wrap items-center md:justify-end">
+                    {/* Search button - Desktop only */}
+                    <div className="hidden md:block">
+                        <Button
+                            variant={showStockSearch ? "default" : "outline"}
+                            onClick={() => {
+                                if (showStockSearch) {
+                                    setStockSearchTerm('');
+                                }
+                                setShowStockSearch(!showStockSearch);
+                            }}
+                            size="sm"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                            <Search className="h-4 w-4 mr-2" />
+                            {showStockSearch ? t('ui.hide_search') : t('ui.search')}
+                        </Button>
+                    </div>
+                    
                     <Button 
                         disabled={processing} 
                         variant={currentView === 'stocks' ? "default" : "outline"} 
-                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
+                        size="sm"
                         onClick={() => {
                             setCurrentView('stocks');
                             setStockCurrentPage(1);
                         }}
                     >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         {t('admin.current_stocks')}
                     </Button>
                     <PermissionGate permission="view stock trail">
                         <Button 
                             disabled={processing} 
                             variant={currentView === 'trail' ? "default" : "outline"} 
-                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
+                            size="sm"
                             onClick={() => {
                                 setCurrentView('trail');
                                 setStockCurrentPage(1);
                             }}
                         >
-                            <History className="h-4 w-4 mr-2" />
+                            <History className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             {t('admin.stock_trail')}
                         </Button>
                     </PermissionGate>
@@ -677,13 +705,14 @@ export const StockManagement = ({
                         <Button 
                             disabled={processing} 
                             variant={currentView === 'sold' ? "default" : "outline"} 
-                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
+                            size="sm"
                             onClick={() => {
                                 setCurrentView('sold');
                                 setStockCurrentPage(1);
                             }}
                         >
-                            <Eye className="h-4 w-4 mr-2" />
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             {t('admin.sold_history')}
                         </Button>
                     </PermissionGate>
