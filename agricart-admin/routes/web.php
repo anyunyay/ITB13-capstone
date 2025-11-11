@@ -364,10 +364,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     // Member routes
     Route::prefix('/member')->middleware(['role:member'])->group(function () {
         Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('member.dashboard');
-        Route::get('/available-stocks', [MemberController::class, 'availableStocks'])->name('member.availableStocks');
         Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');
-        Route::get('/sold-stocks', [MemberController::class, 'soldStocks'])->name('member.soldStocks');
-        Route::get('/transactions', [MemberController::class, 'transactions'])->name('member.transactions');
         Route::get('/revenue-report', [MemberController::class, 'generateRevenueReport'])->name('member.revenueReport');
         
         // Member Profile routes
