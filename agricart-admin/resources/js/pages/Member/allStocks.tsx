@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Package, ArrowLeft, History, BarChart3 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Package, ArrowLeft, History, BarChart3, Filter } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
@@ -131,6 +132,19 @@ interface Summary {
     total_gross_profit: number;
 }
 
+interface SortingState {
+    stock_sort_by: string;
+    stock_sort_dir: string;
+    transaction_sort_by: string;
+    transaction_sort_dir: string;
+}
+
+interface FilterState {
+    stock_category: string;
+    stock_status: string;
+    transaction_category: string;
+}
+
 interface PageProps {
     availableStocks: Stock[];
     salesData: SalesData;
@@ -139,9 +153,11 @@ interface PageProps {
     transactions: TransactionsData;
     summary: Summary;
     stockPagination: PaginationData;
+    sorting: SortingState;
+    filters: FilterState;
 }
 
-export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, allComprehensiveStockData, transactions, summary, stockPagination }: PageProps) {
+export default function AllStocks({ availableStocks, salesData, comprehensiveStockData, allComprehensiveStockData, transactions, summary, stockPagination, sorting, filters }: PageProps) {
     const { auth } = usePage<SharedData>().props;
     const t = useTranslation();
 
@@ -164,11 +180,18 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
             const mobile = window.innerWidth < 768;
             if (mobile !== isMobile) {
                 setIsMobile(mobile);
-                // Preserve current pagination and view state when viewport changes
+                // Preserve current pagination, view state, sorting, and filters when viewport changes
                 router.get(route('member.allStocks'), {
                     stock_page: stockPagination?.current_page || 1,
                     transaction_page: transactions?.meta?.current_page || 1,
-                    view: showTransactions ? 'transactions' : 'stocks'
+                    view: showTransactions ? 'transactions' : 'stocks',
+                    stock_sort_by: sorting.stock_sort_by,
+                    stock_sort_dir: sorting.stock_sort_dir,
+                    transaction_sort_by: sorting.transaction_sort_by,
+                    transaction_sort_dir: sorting.transaction_sort_dir,
+                    stock_category: filters.stock_category,
+                    stock_status: filters.stock_status,
+                    transaction_category: filters.transaction_category
                 }, {
                     preserveState: true,
                     preserveScroll: true,
@@ -217,19 +240,24 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         router.get(route('member.allStocks'), {
             stock_page: page,
             transaction_page: transactions?.meta?.current_page || 1,
-            view: showTransactions ? 'transactions' : 'stocks'
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
         }, {
             preserveState: true,
             preserveScroll: true,
-            replace: true, // Replace history to maintain URL state on refresh
+            replace: true,
             onSuccess: () => {
-                // Smooth scroll to stock overview section with proper padding
                 setTimeout(() => {
                     const stockSection = document.querySelector('[data-stock-overview]');
                     if (stockSection) {
                         const rect = stockSection.getBoundingClientRect();
                         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        // Add 100px offset on mobile (screens < 768px), 120px on desktop for better visibility
                         const offset = window.innerWidth < 768 ? 100 : 120;
                         const targetPosition = rect.top + scrollTop - offset;
 
@@ -248,19 +276,24 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         router.get(route('member.allStocks'), {
             stock_page: stockPagination?.current_page || 1,
             transaction_page: page,
-            view: showTransactions ? 'transactions' : 'stocks'
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
         }, {
             preserveState: true,
             preserveScroll: true,
-            replace: true, // Replace history to maintain URL state on refresh
+            replace: true,
             onSuccess: () => {
-                // Smooth scroll to transactions table with proper padding
                 setTimeout(() => {
                     const tableElement = document.querySelector('[data-transactions-table]');
                     if (tableElement) {
                         const rect = tableElement.getBoundingClientRect();
                         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        // Add 100px offset on mobile (screens < 768px), 120px on desktop for better visibility
                         const offset = window.innerWidth < 768 ? 100 : 120;
                         const targetPosition = rect.top + scrollTop - offset;
 
@@ -277,11 +310,121 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     // Handle view toggle change
     const handleViewToggle = (checked: boolean) => {
         setShowTransactions(checked);
-        // Update URL to persist view state on refresh
         router.get(route('member.allStocks'), {
             stock_page: stockPagination?.current_page || 1,
             transaction_page: transactions?.meta?.current_page || 1,
-            view: checked ? 'transactions' : 'stocks'
+            view: checked ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Handle stock sorting
+    const handleStockSort = (column: string) => {
+        const newSortDir = sorting.stock_sort_by === column && sorting.stock_sort_dir === 'asc' ? 'desc' : 'asc';
+        
+        router.get(route('member.allStocks'), {
+            stock_page: 1,
+            transaction_page: transactions?.meta?.current_page || 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: column,
+            stock_sort_dir: newSortDir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Handle transaction sorting
+    const handleTransactionSort = (column: string) => {
+        const newSortDir = sorting.transaction_sort_by === column && sorting.transaction_sort_dir === 'asc' ? 'desc' : 'asc';
+        
+        router.get(route('member.allStocks'), {
+            stock_page: stockPagination?.current_page || 1,
+            transaction_page: 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: column,
+            transaction_sort_dir: newSortDir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Handle stock category filter
+    const handleStockCategoryFilter = (value: string) => {
+        router.get(route('member.allStocks'), {
+            stock_page: 1,
+            transaction_page: transactions?.meta?.current_page || 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: value,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Handle stock status filter
+    const handleStockStatusFilter = (value: string) => {
+        router.get(route('member.allStocks'), {
+            stock_page: 1,
+            transaction_page: transactions?.meta?.current_page || 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: value,
+            transaction_category: filters.transaction_category
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Handle transaction category filter
+    const handleTransactionCategoryFilter = (value: string) => {
+        router.get(route('member.allStocks'), {
+            stock_page: stockPagination?.current_page || 1,
+            transaction_page: 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: value
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -405,28 +548,81 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     /* Transaction View */
                     <Card className="" data-transactions-table>
                         <CardHeader>
-                            <CardTitle className="text-foreground">{t('member.transaction_history_table')}</CardTitle>
-                            <CardDescription className="text-muted-foreground">
-                                {transactions?.meta ?
-                                    t('member.showing_entries', {
-                                        from: transactions.meta.from,
-                                        to: transactions.meta.to,
-                                        total: transactions.meta.total
-                                    }) :
-                                    t('member.showing_transactions', {
-                                        from: 0,
-                                        to: 0,
-                                        total: 0
-                                    })
-                                }
-                            </CardDescription>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <CardTitle className="text-foreground">{t('member.transaction_history_table')}</CardTitle>
+                                    <CardDescription className="text-muted-foreground mt-1.5">
+                                        {transactions?.meta ?
+                                            t('member.showing_entries', {
+                                                from: transactions.meta.from,
+                                                to: transactions.meta.to,
+                                                total: transactions.meta.total
+                                            }) :
+                                            t('member.showing_transactions', {
+                                                from: 0,
+                                                to: 0,
+                                                total: 0
+                                            })
+                                        }
+                                    </CardDescription>
+                                </div>
+                                
+                                {/* Transaction Filters */}
+                                <div className="flex items-center gap-2">
+                                    <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
+                                    <Select value={filters.transaction_category} onValueChange={handleTransactionCategoryFilter}>
+                                        <SelectTrigger className="w-[140px] h-9">
+                                            <SelectValue placeholder="Category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Categories</SelectItem>
+                                            <SelectItem value="Kilo">Kilo</SelectItem>
+                                            <SelectItem value="Pc">Piece</SelectItem>
+                                            <SelectItem value="Tali">Tali</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {!transactions?.data || transactions.data.length === 0 ? (
                                 <div className="text-center py-12">
                                     <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-foreground mb-2">{t('member.no_transactions_found')}</h3>
-                                    <p className="text-muted-foreground">{t('member.no_transactions_match_filters')}</p>
+                                    <h3 className="text-lg font-medium text-foreground mb-2">
+                                        {filters.transaction_category !== 'all' 
+                                            ? 'No transactions match your filter' 
+                                            : t('member.no_transactions_found')}
+                                    </h3>
+                                    <p className="text-muted-foreground">
+                                        {filters.transaction_category !== 'all' 
+                                            ? `No ${filters.transaction_category} transactions found. Try adjusting your filter.`
+                                            : t('member.no_transactions_match_filters')}
+                                    </p>
+                                    {filters.transaction_category !== 'all' && (
+                                        <Button 
+                                            onClick={() => {
+                                                router.get(route('member.allStocks'), {
+                                                    stock_page: stockPagination?.current_page || 1,
+                                                    transaction_page: 1,
+                                                    view: 'transactions',
+                                                    stock_sort_by: sorting.stock_sort_by,
+                                                    stock_sort_dir: sorting.stock_sort_dir,
+                                                    transaction_sort_by: sorting.transaction_sort_by,
+                                                    transaction_sort_dir: sorting.transaction_sort_dir,
+                                                    stock_category: filters.stock_category,
+                                                    stock_status: filters.stock_status,
+                                                    transaction_category: 'all'
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: true,
+                                                    replace: true
+                                                });
+                                            }}
+                                            className="mt-4 bg-green-600 hover:bg-green-700"
+                                        >
+                                            Clear Filter
+                                        </Button>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="space-y-4">
@@ -441,6 +637,9 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         formatCurrency={formatCurrency}
                                         formatDateTime={formatDateTime}
                                         calculateMemberRevenue={calculateMemberRevenue}
+                                        sortBy={sorting.transaction_sort_by}
+                                        sortDir={sorting.transaction_sort_dir}
+                                        onSort={handleTransactionSort}
                                     />
                                 </div>
                             )}
@@ -458,16 +657,51 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     /* Stock Overview */
                     <Card className="" data-stock-overview>
                         <CardHeader>
-                            <CardTitle className="text-foreground">{t('member.stock_quantity_overview')}</CardTitle>
-                            <CardDescription className="text-muted-foreground">
-                                {t('member.complete_breakdown')}
-                            </CardDescription>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <CardTitle className="text-foreground">{t('member.stock_quantity_overview')}</CardTitle>
+                                    <CardDescription className="text-muted-foreground mt-1.5">
+                                        {t('member.complete_breakdown')}
+                                    </CardDescription>
+                                </div>
+                                
+                                {/* Stock Filters */}
+                                <div className="flex items-center gap-2">
+                                    <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
+                                    <Select value={filters.stock_category} onValueChange={handleStockCategoryFilter}>
+                                        <SelectTrigger className="w-[140px] h-9">
+                                            <SelectValue placeholder="Category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Categories</SelectItem>
+                                            <SelectItem value="Kilo">Kilo</SelectItem>
+                                            <SelectItem value="Pc">Piece</SelectItem>
+                                            <SelectItem value="Tali">Tali</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Select value={filters.stock_status} onValueChange={handleStockStatusFilter}>
+                                        <SelectTrigger className="w-[140px] h-9">
+                                            <SelectValue placeholder="Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Status</SelectItem>
+                                            <SelectItem value="available">Available</SelectItem>
+                                            <SelectItem value="sold_out">Sold Out</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {comprehensiveStockData.length > 0 ? (
                                 <div className="space-y-4">
                                     <StockOverviewCards data={comprehensiveStockData} />
-                                    <StockOverviewTable data={comprehensiveStockData} />
+                                    <StockOverviewTable 
+                                        data={comprehensiveStockData}
+                                        sortBy={sorting.stock_sort_by}
+                                        sortDir={sorting.stock_sort_dir}
+                                        onSort={handleStockSort}
+                                    />
 
                                     {/* Pagination Controls */}
                                     {stockPagination && (
@@ -480,11 +714,45 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             ) : (
                                 <div className="text-center py-12 text-muted-foreground">
                                     <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
-                                    <h3 className="text-lg font-medium mb-2">{t('member.no_stocks_found')}</h3>
-                                    <p className="text-sm">{t('member.no_stocks_message')}</p>
-                                    <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
-                                        <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
-                                    </Button>
+                                    <h3 className="text-lg font-medium mb-2">
+                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all' 
+                                            ? 'No stocks match your filters' 
+                                            : t('member.no_stocks_found')}
+                                    </h3>
+                                    <p className="text-sm">
+                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all' 
+                                            ? `No ${filters.stock_status !== 'all' ? filters.stock_status.replace('_', ' ') : ''} ${filters.stock_category !== 'all' ? filters.stock_category : ''} stocks found. Try adjusting your filters.`
+                                            : t('member.no_stocks_message')}
+                                    </p>
+                                    {filters.stock_category === 'all' && filters.stock_status === 'all' ? (
+                                        <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
+                                            <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
+                                        </Button>
+                                    ) : (
+                                        <Button 
+                                            onClick={() => {
+                                                router.get(route('member.allStocks'), {
+                                                    stock_page: 1,
+                                                    transaction_page: transactions?.meta?.current_page || 1,
+                                                    view: 'stocks',
+                                                    stock_sort_by: sorting.stock_sort_by,
+                                                    stock_sort_dir: sorting.stock_sort_dir,
+                                                    transaction_sort_by: sorting.transaction_sort_by,
+                                                    transaction_sort_dir: sorting.transaction_sort_dir,
+                                                    stock_category: 'all',
+                                                    stock_status: 'all',
+                                                    transaction_category: filters.transaction_category
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: true,
+                                                    replace: true
+                                                });
+                                            }}
+                                            className="mt-4 bg-green-600 hover:bg-green-700"
+                                        >
+                                            Clear Filters
+                                        </Button>
+                                    )}
                                 </div>
                             )}
                         </CardContent>

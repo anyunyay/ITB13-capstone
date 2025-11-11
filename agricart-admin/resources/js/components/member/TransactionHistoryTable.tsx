@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Package } from 'lucide-react';
+import { Package, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { Button } from '@/components/ui/button';
 
 interface Product {
     id: number;
@@ -48,27 +49,56 @@ interface TransactionHistoryTableProps {
     formatCurrency: (amount: number) => string;
     formatDateTime: (dateString: string) => string;
     calculateMemberRevenue: (transaction: Transaction) => number;
+    sortBy?: string;
+    sortDir?: string;
+    onSort?: (column: string) => void;
 }
 
 export function TransactionHistoryTable({ 
     transactions, 
     formatCurrency, 
     formatDateTime, 
-    calculateMemberRevenue 
+    calculateMemberRevenue,
+    sortBy,
+    sortDir,
+    onSort
 }: TransactionHistoryTableProps) {
     const t = useTranslation();
+
+    const getSortIcon = (column: string) => {
+        if (sortBy !== column) {
+            return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />;
+        }
+        return sortDir === 'asc' 
+            ? <ArrowUp className="h-3 w-3 ml-1" />
+            : <ArrowDown className="h-3 w-3 ml-1" />;
+    };
+
+    const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => (
+        <TableHead className="text-foreground text-center whitespace-nowrap">
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 hover:bg-transparent font-semibold"
+                onClick={() => onSort?.(column)}
+            >
+                {children}
+                {getSortIcon(column)}
+            </Button>
+        </TableHead>
+    );
 
     return (
         <div className="hidden md:block overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow className="">
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.product')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.category')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.quantity')}</TableHead>
+                        <SortableHeader column="product_name">{t('member.product')}</SortableHeader>
+                        <SortableHeader column="category">{t('member.category')}</SortableHeader>
+                        <SortableHeader column="quantity">{t('member.quantity')}</SortableHeader>
                         <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.subtotal')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.buyer')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.date')}</TableHead>
+                        <SortableHeader column="customer_name">{t('member.buyer')}</SortableHeader>
+                        <SortableHeader column="created_at">{t('member.date')}</SortableHeader>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

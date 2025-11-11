@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Package, XCircle, CheckCircle, AlertCircle } from 'lucide-react';
+import { Package, XCircle, CheckCircle, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { Button } from '@/components/ui/button';
 
 interface Product {
     id: number;
@@ -31,24 +32,50 @@ interface ComprehensiveStockData {
 
 interface StockOverviewTableProps {
     data: ComprehensiveStockData[];
+    sortBy?: string;
+    sortDir?: string;
+    onSort?: (column: string) => void;
 }
 
-export function StockOverviewTable({ data }: StockOverviewTableProps) {
+export function StockOverviewTable({ data, sortBy, sortDir, onSort }: StockOverviewTableProps) {
     const t = useTranslation();
+
+    const getSortIcon = (column: string) => {
+        if (sortBy !== column) {
+            return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />;
+        }
+        return sortDir === 'asc' 
+            ? <ArrowUp className="h-3 w-3 ml-1" />
+            : <ArrowDown className="h-3 w-3 ml-1" />;
+    };
+
+    const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => (
+        <TableHead className="text-foreground text-center whitespace-nowrap">
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 hover:bg-transparent font-semibold"
+                onClick={() => onSort?.(column)}
+            >
+                {children}
+                {getSortIcon(column)}
+            </Button>
+        </TableHead>
+    );
 
     return (
         <div className="hidden md:block overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow className="">
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.stock_name')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.category')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.total_stock_label')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.sold_quantity')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.available_balance')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.total_revenue')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.cogs')}</TableHead>
-                        <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.gross_profit')}</TableHead>
+                        <SortableHeader column="product_name">{t('member.stock_name')}</SortableHeader>
+                        <SortableHeader column="category">{t('member.category')}</SortableHeader>
+                        <SortableHeader column="total_quantity">{t('member.total_stock_label')}</SortableHeader>
+                        <SortableHeader column="sold_quantity">{t('member.sold_quantity')}</SortableHeader>
+                        <SortableHeader column="balance_quantity">{t('member.available_balance')}</SortableHeader>
+                        <SortableHeader column="total_revenue">{t('member.total_revenue')}</SortableHeader>
+                        <SortableHeader column="total_cogs">{t('member.cogs')}</SortableHeader>
+                        <SortableHeader column="total_gross_profit">{t('member.gross_profit')}</SortableHeader>
                         <TableHead className="text-foreground text-center whitespace-nowrap">{t('member.status')}</TableHead>
                     </TableRow>
                 </TableHeader>

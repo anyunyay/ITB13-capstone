@@ -127,13 +127,24 @@ class MemberController extends Controller
         $stockPage = $request->get('stock_page', 1);
         $transactionPage = $request->get('transaction_page', 1);
         
+        // Get sorting parameters
+        $stockSortBy = $request->get('stock_sort_by', 'product_name');
+        $stockSortDir = $request->get('stock_sort_dir', 'asc');
+        $transactionSortBy = $request->get('transaction_sort_by', 'created_at');
+        $transactionSortDir = $request->get('transaction_sort_dir', 'desc');
+        
+        // Get filter parameters
+        $stockCategoryFilter = $request->get('stock_category', 'all');
+        $stockStatusFilter = $request->get('stock_status', 'all');
+        $transactionCategoryFilter = $request->get('transaction_category', 'all');
+        
         // Detect mobile device based on user agent
         $userAgent = $request->header('User-Agent');
         $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
         
         // Set per page limits based on device
         $stockPerPage = $isMobile ? 5 : 10;
-        $transactionPerPage = $isMobile ? 5 : 15;
+        $transactionPerPage = $isMobile ? 5 : 10;
         
         // Get all stocks for the member using scopes
         $availableStocks = Stock::hasAvailableQuantity()
@@ -147,23 +158,36 @@ class MemberController extends Controller
         // Calculate comprehensive stock data with total, sold, and available quantities
         $allComprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
         
-        // Paginate comprehensive stock data
+        // Apply filters to comprehensive stock data
         $comprehensiveStockDataCollection = collect($allComprehensiveStockData);
+        $comprehensiveStockDataCollection = $this->applyStockFilters($comprehensiveStockDataCollection, $stockCategoryFilter, $stockStatusFilter);
+        
+        // Apply sorting to comprehensive stock data
+        $comprehensiveStockDataCollection = $this->applySorting($comprehensiveStockDataCollection, $stockSortBy, $stockSortDir);
+        
+        // Paginate comprehensive stock data
         $totalStocks = $comprehensiveStockDataCollection->count();
         $paginatedComprehensiveStockData = $comprehensiveStockDataCollection
             ->forPage($stockPage, $stockPerPage)
             ->values()
             ->toArray();
         
-        // Get transaction data for the toggle view with pagination
+        // Get transaction data for the toggle view with pagination and sorting
         $transactionsQuery = AuditTrail::with(['product', 'sale.customer'])
             ->whereHas('stock', function($q) use ($user) {
                 $q->where('member_id', $user->id);
             })
             ->whereHas('sale', function($q) {
                 $q->whereNotNull('delivered_time'); // Only show delivered transactions
-            })
-            ->orderBy('created_at', 'desc');
+            });
+        
+        // Apply category filter to transactions
+        if ($transactionCategoryFilter !== 'all') {
+            $transactionsQuery->where('category', $transactionCategoryFilter);
+        }
+        
+        // Apply sorting to transactions
+        $transactionsQuery = $this->applyTransactionSorting($transactionsQuery, $transactionSortBy, $transactionSortDir);
         
         // Manual pagination for transactions
         $totalTransactions = $transactionsQuery->count();
@@ -211,7 +235,132 @@ class MemberController extends Controller
                 'from' => (($stockPage - 1) * $stockPerPage) + 1,
                 'to' => min($stockPage * $stockPerPage, $totalStocks),
             ],
+            'sorting' => [
+                'stock_sort_by' => $stockSortBy,
+                'stock_sort_dir' => $stockSortDir,
+                'transaction_sort_by' => $transactionSortBy,
+                'transaction_sort_dir' => $transactionSortDir,
+            ],
+            'filters' => [
+                'stock_category' => $stockCategoryFilter,
+                'stock_status' => $stockStatusFilter,
+                'transaction_category' => $transactionCategoryFilter,
+            ],
         ]);
+    }
+
+    /**
+     * Apply filters to stock data collection
+     */
+    private function applyStockFilters($collection, $categoryFilter, $statusFilter)
+    {
+        // Apply category filter
+        if ($categoryFilter !== 'all') {
+            $collection = $collection->filter(function($item) use ($categoryFilter) {
+                return $item['category'] === $categoryFilter;
+            });
+        }
+        
+        // Apply status filter
+        if ($statusFilter !== 'all') {
+            $collection = $collection->filter(function($item) use ($statusFilter) {
+                if ($statusFilter === 'available') {
+                    // Has available balance
+                    return $item['balance_quantity'] > 0;
+                } elseif ($statusFilter === 'sold_out') {
+                    // No balance remaining AND has sold some quantity
+                    return $item['balance_quantity'] <= 0 && $item['sold_quantity'] > 0;
+                }
+                return true;
+            });
+        }
+        
+        // Re-index the collection after filtering
+        return $collection->values();
+    }
+
+    /**
+     * Apply sorting to comprehensive stock data collection
+     */
+    private function applySorting($collection, $sortBy, $sortDir)
+    {
+        $ascending = $sortDir === 'asc';
+        
+        switch ($sortBy) {
+            case 'product_name':
+                return $ascending 
+                    ? $collection->sortBy('product_name', SORT_NATURAL | SORT_FLAG_CASE)
+                    : $collection->sortByDesc('product_name', SORT_NATURAL | SORT_FLAG_CASE);
+            
+            case 'category':
+                return $ascending 
+                    ? $collection->sortBy('category')
+                    : $collection->sortByDesc('category');
+            
+            case 'total_quantity':
+                return $ascending 
+                    ? $collection->sortBy('total_quantity')
+                    : $collection->sortByDesc('total_quantity');
+            
+            case 'sold_quantity':
+                return $ascending 
+                    ? $collection->sortBy('sold_quantity')
+                    : $collection->sortByDesc('sold_quantity');
+            
+            case 'balance_quantity':
+                return $ascending 
+                    ? $collection->sortBy('balance_quantity')
+                    : $collection->sortByDesc('balance_quantity');
+            
+            case 'total_revenue':
+                return $ascending 
+                    ? $collection->sortBy('total_revenue')
+                    : $collection->sortByDesc('total_revenue');
+            
+            case 'total_cogs':
+                return $ascending 
+                    ? $collection->sortBy('total_cogs')
+                    : $collection->sortByDesc('total_cogs');
+            
+            case 'total_gross_profit':
+                return $ascending 
+                    ? $collection->sortBy('total_gross_profit')
+                    : $collection->sortByDesc('total_gross_profit');
+            
+            default:
+                return $collection;
+        }
+    }
+
+    /**
+     * Apply sorting to transaction query
+     */
+    private function applyTransactionSorting($query, $sortBy, $sortDir)
+    {
+        switch ($sortBy) {
+            case 'product_name':
+                return $query->join('products', 'audit_trails.product_id', '=', 'products.id')
+                    ->orderBy('products.name', $sortDir)
+                    ->select('audit_trails.*');
+            
+            case 'category':
+                return $query->orderBy('category', $sortDir);
+            
+            case 'quantity':
+                return $query->orderBy('quantity', $sortDir);
+            
+            case 'created_at':
+                return $query->orderBy('created_at', $sortDir);
+            
+            case 'customer_name':
+                return $query->join('sales', 'audit_trails.sale_id', '=', 'sales.id')
+                    ->join('users', 'sales.customer_id', '=', 'users.id')
+                    ->orderBy('users.name', $sortDir)
+                    ->select('audit_trails.*');
+            
+            default:
+                return $query->orderBy('created_at', 'desc');
+        }
     }
 
     /**
