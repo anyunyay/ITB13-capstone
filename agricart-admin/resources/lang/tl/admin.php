@@ -497,7 +497,10 @@ return [
     'actions' => 'Mga Aksyon',
     'all' => 'Lahat',
     'select_all' => 'Piliin Lahat',
+    'remove_all' => 'Tanggalin Lahat',
     'deselect_all' => 'Tanggalin Lahat',
+    'selected' => 'napili',
+    'stock_status' => 'Katayuan ng Stock',
     'error' => 'Error',
 
     // Report pages

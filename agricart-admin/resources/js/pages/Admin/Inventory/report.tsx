@@ -80,10 +80,30 @@ export default function InventoryReport({ stocks, summary, members, productTypes
     if (localFilters.max_quantity) params.max_quantity = localFilters.max_quantity;
     if (localFilters.search) params.search = localFilters.search;
 
-    router.get(route('inventory.report'), params);
+    router.get(route('inventory.report'), params, {
+      preserveScroll: true,
+      only: ['stocks', 'filters'], // Only reload stocks and filters, keep summary cards unchanged
+      onSuccess: () => {
+        // Scroll to Stock Report section after filters are applied
+        setTimeout(() => {
+          const stockReportElement = document.getElementById('stock-report-section');
+          if (stockReportElement) {
+            const offset = 80; // Offset for fixed headers/navbar
+            const elementPosition = stockReportElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
+      }
+    });
   };
 
   const clearFilters = () => {
+    // Reset local state
     setStartDate(undefined);
     setEndDate(undefined);
     setLocalFilters({
@@ -96,6 +116,28 @@ export default function InventoryReport({ stocks, summary, members, productTypes
       min_quantity: '',
       max_quantity: '',
       search: ''
+    });
+
+    // Navigate to report page without any query parameters to show all data
+    router.get(route('inventory.report'), {}, {
+      preserveScroll: true,
+      only: ['stocks', 'filters'], // Only reload stocks and filters, keep summary cards unchanged
+      onSuccess: () => {
+        // Scroll to Stock Report section to show refreshed unfiltered data
+        setTimeout(() => {
+          const stockReportElement = document.getElementById('stock-report-section');
+          if (stockReportElement) {
+            const offset = 80; // Offset for fixed headers/navbar
+            const elementPosition = stockReportElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
+      }
     });
   };
 
@@ -153,7 +195,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
             hasActiveFilters={!!hasActiveFilters()}
           />
 
-          <Card className="shadow-sm">
+          <Card id="stock-report-section" className="shadow-sm scroll-mt-20">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">{t('admin.stock_report')}</CardTitle>

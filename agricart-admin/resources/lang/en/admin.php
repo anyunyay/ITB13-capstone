@@ -498,7 +498,10 @@ return [
     'actions' => 'Actions',
     'all' => 'All',
     'select_all' => 'Select All',
+    'remove_all' => 'Remove All',
     'deselect_all' => 'Deselect All',
+    'selected' => 'selected',
+    'stock_status' => 'Stock Status',
     'error' => 'Error',
 
     // Report pages
