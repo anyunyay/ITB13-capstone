@@ -19,25 +19,25 @@ class MemberController extends Controller
     public function dashboard(Request $request)
     {
         $user = Auth::user();
-        
+
         // Log member dashboard access
         SystemLogger::logMemberActivity(
             'dashboard_access',
             $user->id,
             ['ip_address' => request()->ip()]
         );
-        
+
         // Pagination parameters
         $availablePage = $request->get('available_page', 1);
         $soldPage = $request->get('sold_page', 1);
-        
+
         // Detect mobile device based on user agent
         $userAgent = $request->header('User-Agent');
         $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
-        
+
         // Set per page limits based on device
         $perPage = $isMobile ? 5 : 10;
-        
+
         // Get all stocks for statistics (before pagination)
         // Sort by created_at descending to show most recent first  
         $allAvailableStocks = Stock::hasAvailableQuantity()
@@ -45,33 +45,33 @@ class MemberController extends Controller
             ->where('member_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
-            
+
         $allSoldStocks = Stock::sold()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->orderBy('updated_at', 'desc') // Use updated_at for sold stocks as they're updated when sold
             ->get();
-            
+
         // Get all stocks for debugging
         $allStocks = Stock::where('member_id', $user->id)->get();
-            
+
         // Calculate sales data from Sales and AuditTrail tables
         $salesData = $this->calculateSalesData($user->id);
-            
+
         // Calculate category-specific totals
         $totalKilo = $allStocks->where('category', 'Kilo')
-            ->sum(function($stock) {
+            ->sum(function ($stock) {
                 return $stock->quantity + $stock->sold_quantity;
             });
         $totalPiece = $allStocks->where('category', 'Pc')
-            ->sum(function($stock) {
+            ->sum(function ($stock) {
                 return $stock->quantity + $stock->sold_quantity;
             });
         $totalTali = $allStocks->where('category', 'Tali')
-            ->sum(function($stock) {
+            ->sum(function ($stock) {
                 return $stock->quantity + $stock->sold_quantity;
             });
-        
+
         // Calculate summary statistics using already fetched data with clear separation
         $summary = [
             'totalStocks' => $allStocks->count(),
@@ -90,15 +90,15 @@ class MemberController extends Controller
             'totalPiece' => $totalPiece,
             'totalTali' => $totalTali,
         ];
-        
+
         // Paginate available stocks
         $availableTotal = $allAvailableStocks->count();
         $paginatedAvailableStocks = $allAvailableStocks->forPage($availablePage, $perPage)->values();
-        
+
         // Paginate sold stocks
         $soldTotal = $allSoldStocks->count();
         $paginatedSoldStocks = $allSoldStocks->forPage($soldPage, $perPage)->values();
-        
+
         return Inertia::render('Member/dashboard', [
             'availableStocks' => $paginatedAvailableStocks,
             'soldStocks' => $paginatedSoldStocks,
@@ -122,72 +122,72 @@ class MemberController extends Controller
     public function allStocks(Request $request)
     {
         $user = Auth::user();
-        
+
         // Check if export is requested
         $format = $request->get('format');
         $view = $request->get('view', 'stocks');
-        
+
         // Get pagination parameters
         $stockPage = $request->get('stock_page', 1);
         $transactionPage = $request->get('transaction_page', 1);
-        
+
         // Get sorting parameters
         $stockSortBy = $request->get('stock_sort_by', 'product_name');
         $stockSortDir = $request->get('stock_sort_dir', 'asc');
         $transactionSortBy = $request->get('transaction_sort_by', 'created_at');
         $transactionSortDir = $request->get('transaction_sort_dir', 'desc');
-        
+
         // Get filter parameters
         $stockCategoryFilter = $request->get('stock_category', 'all');
         $stockStatusFilter = $request->get('stock_status', 'all');
         $transactionCategoryFilter = $request->get('transaction_category', 'all');
-        
+
         // Get date range parameters for transaction exports
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
-        
+
         // Detect mobile device based on user agent
         $userAgent = $request->header('User-Agent');
         $isMobile = preg_match('/(android|iphone|ipad|mobile)/i', $userAgent);
-        
+
         // Set per page limits based on device
         $stockPerPage = $isMobile ? 5 : 10;
         $transactionPerPage = $isMobile ? 5 : 10;
-        
+
         // Get all stocks for the member using scopes
         $availableStocks = Stock::hasAvailableQuantity()
             ->with(['product'])
             ->where('member_id', $user->id)
             ->get();
-            
+
         // Calculate sales data for sold stocks
         $salesData = $this->calculateSalesData($user->id);
-        
+
         // Calculate comprehensive stock data with total, sold, and available quantities
         $allComprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
-        
+
         // Apply filters to comprehensive stock data
         $comprehensiveStockDataCollection = collect($allComprehensiveStockData);
         $comprehensiveStockDataCollection = $this->applyStockFilters($comprehensiveStockDataCollection, $stockCategoryFilter, $stockStatusFilter);
-        
+
         // Apply sorting to comprehensive stock data
         $comprehensiveStockDataCollection = $this->applySorting($comprehensiveStockDataCollection, $stockSortBy, $stockSortDir);
-        
+
         // Paginate comprehensive stock data
         $totalStocks = $comprehensiveStockDataCollection->count();
         $paginatedComprehensiveStockData = $comprehensiveStockDataCollection
             ->forPage($stockPage, $stockPerPage)
             ->values()
             ->toArray();
-        
+
         // Get transaction data for the toggle view with pagination and sorting
         $transactionsQuery = AuditTrail::with(['product', 'sale.customer'])
-            ->whereHas('stock', function($q) use ($user) {
+            ->whereHas('stock', function ($q) use ($user) {
                 $q->where('member_id', $user->id);
             })
-            ->whereHas('sale', function($q) use ($startDate, $endDate) {
+            ->whereHas('sale', function ($q) use ($startDate, $endDate) {
                 $q->whereNotNull('delivered_time'); // Only show delivered transactions
-                
+
                 // Apply date range filter if provided (for exports)
                 if ($startDate) {
                     $q->whereDate('delivered_time', '>=', $startDate);
@@ -196,22 +196,22 @@ class MemberController extends Controller
                     $q->whereDate('delivered_time', '<=', $endDate);
                 }
             });
-        
+
         // Apply category filter to transactions
         if ($transactionCategoryFilter !== 'all') {
             $transactionsQuery->where('category', $transactionCategoryFilter);
         }
-        
+
         // Apply sorting to transactions
         $transactionsQuery = $this->applyTransactionSorting($transactionsQuery, $transactionSortBy, $transactionSortDir);
-        
+
         // Manual pagination for transactions
         $totalTransactions = $transactionsQuery->count();
         $transactions = $transactionsQuery
             ->skip(($transactionPage - 1) * $transactionPerPage)
             ->take($transactionPerPage)
             ->get();
-        
+
         // Build transaction pagination data
         $transactionPagination = [
             'current_page' => (int) $transactionPage,
@@ -222,47 +222,24 @@ class MemberController extends Controller
             'to' => min($transactionPage * $transactionPerPage, $totalTransactions),
             'data' => $transactions,
         ];
-        
+
         // Calculate transaction summary
         $summary = $this->calculateTransactionSummary($user->id);
-        
-        // Handle export requests - export ALL filtered data, not just current page
+
+        // Get display parameter for PDF viewing
+        $display = $request->get('display', false);
+
+        // Handle export requests - Stock overview only
         if ($format === 'csv') {
-            if ($view === 'transactions') {
-                // Validate date range - both must be provided or both empty
-                if (($startDate && !$endDate) || (!$startDate && $endDate)) {
-                    return response()->json([
-                        'error' => 'Please provide both start and end dates, or leave both empty'
-                    ], 400);
-                }
-                
-                // Get all filtered transactions (not paginated)
-                $allFilteredTransactions = $transactionsQuery->get();
-                return $this->exportTransactionsToCsv($allFilteredTransactions, $summary, $startDate, $endDate);
-            } else {
-                // Use all filtered stock data (not paginated)
-                $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
-                return $this->exportStocksToCsv($allFilteredStockData, $allComprehensiveStockData);
-            }
+            // Use all filtered stock data (not paginated)
+            $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
+            return $this->exportStocksToCsv($allFilteredStockData, $allComprehensiveStockData);
         } elseif ($format === 'pdf') {
-            if ($view === 'transactions') {
-                // Validate date range - both must be provided or both empty
-                if (($startDate && !$endDate) || (!$startDate && $endDate)) {
-                    return response()->json([
-                        'error' => 'Please provide both start and end dates, or leave both empty'
-                    ], 400);
-                }
-                
-                // Get all filtered transactions (not paginated)
-                $allFilteredTransactions = $transactionsQuery->get();
-                return $this->exportTransactionsToPdf($allFilteredTransactions, $summary, $startDate, $endDate);
-            } else {
-                // Use all filtered stock data (not paginated)
-                $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
-                return $this->exportStocksToPdf($allFilteredStockData, $allComprehensiveStockData);
-            }
+            // Use all filtered stock data (not paginated)
+            $allFilteredStockData = $comprehensiveStockDataCollection->toArray();
+            return $this->exportStocksToPdf($allFilteredStockData, $allComprehensiveStockData, $display);
         }
-            
+
         return Inertia::render('Member/allStocks', [
             'availableStocks' => $availableStocks,
             'salesData' => $salesData,
@@ -309,14 +286,14 @@ class MemberController extends Controller
     {
         // Apply category filter
         if ($categoryFilter !== 'all') {
-            $collection = $collection->filter(function($item) use ($categoryFilter) {
+            $collection = $collection->filter(function ($item) use ($categoryFilter) {
                 return $item['category'] === $categoryFilter;
             });
         }
-        
+
         // Apply status filter
         if ($statusFilter !== 'all') {
-            $collection = $collection->filter(function($item) use ($statusFilter) {
+            $collection = $collection->filter(function ($item) use ($statusFilter) {
                 if ($statusFilter === 'available') {
                     // Has available balance
                     return $item['balance_quantity'] > 0;
@@ -327,7 +304,7 @@ class MemberController extends Controller
                 return true;
             });
         }
-        
+
         // Re-index the collection after filtering
         return $collection->values();
     }
@@ -338,48 +315,48 @@ class MemberController extends Controller
     private function applySorting($collection, $sortBy, $sortDir)
     {
         $ascending = $sortDir === 'asc';
-        
+
         switch ($sortBy) {
             case 'product_name':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('product_name', SORT_NATURAL | SORT_FLAG_CASE)
                     : $collection->sortByDesc('product_name', SORT_NATURAL | SORT_FLAG_CASE);
-            
+
             case 'category':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('category')
                     : $collection->sortByDesc('category');
-            
+
             case 'total_quantity':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('total_quantity')
                     : $collection->sortByDesc('total_quantity');
-            
+
             case 'sold_quantity':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('sold_quantity')
                     : $collection->sortByDesc('sold_quantity');
-            
+
             case 'balance_quantity':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('balance_quantity')
                     : $collection->sortByDesc('balance_quantity');
-            
+
             case 'total_revenue':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('total_revenue')
                     : $collection->sortByDesc('total_revenue');
-            
+
             case 'total_cogs':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('total_cogs')
                     : $collection->sortByDesc('total_cogs');
-            
+
             case 'total_gross_profit':
-                return $ascending 
+                return $ascending
                     ? $collection->sortBy('total_gross_profit')
                     : $collection->sortByDesc('total_gross_profit');
-            
+
             default:
                 return $collection;
         }
@@ -395,22 +372,22 @@ class MemberController extends Controller
                 return $query->join('products', 'audit_trails.product_id', '=', 'products.id')
                     ->orderBy('products.name', $sortDir)
                     ->select('audit_trails.*');
-            
+
             case 'category':
                 return $query->orderBy('category', $sortDir);
-            
+
             case 'quantity':
                 return $query->orderBy('quantity', $sortDir);
-            
+
             case 'created_at':
                 return $query->orderBy('created_at', $sortDir);
-            
+
             case 'customer_name':
                 return $query->join('sales', 'audit_trails.sale_id', '=', 'sales.id')
                     ->join('users', 'sales.customer_id', '=', 'users.id')
                     ->orderBy('users.name', $sortDir)
                     ->select('audit_trails.*');
-            
+
             default:
                 return $query->orderBy('created_at', 'desc');
         }
@@ -424,8 +401,8 @@ class MemberController extends Controller
         // Get only delivered sales that involve stocks from this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail.product', 'customer'])
             ->whereNotNull('delivered_at')
-            ->whereHas('salesAudit.auditTrail', function($query) use ($memberId) {
-                $query->whereHas('stock', function($stockQuery) use ($memberId) {
+            ->whereHas('salesAudit.auditTrail', function ($query) use ($memberId) {
+                $query->whereHas('stock', function ($stockQuery) use ($memberId) {
                     $stockQuery->where('member_id', $memberId);
                 });
             })
@@ -454,13 +431,13 @@ class MemberController extends Controller
                 if ($stock) {
                     $hasMemberItems = true;
                     $orderQuantity += $audit->quantity;
-                    
+
                     // Calculate member's revenue share for this item
                     // Use the audit trail's stored sale price (member gets 100% of product price)
                     $price = $audit->getSalePrice();
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
                     $orderRevenue += $itemRevenue;
-                    
+
                     // Calculate COGS and Gross Profit for this item
                     $itemCogs = ($itemRevenue / 1.3) * 0.7;
                     $itemGrossProfit = $itemRevenue - $itemCogs;
@@ -516,7 +493,7 @@ class MemberController extends Controller
 
         // Convert to array and sort by latest sale date (most recent first)
         $salesBreakdown = array_values($productSales);
-        usort($salesBreakdown, function($a, $b) {
+        usort($salesBreakdown, function ($a, $b) {
             return strtotime($b['latest_sale_date']) <=> strtotime($a['latest_sale_date']);
         });
 
@@ -544,8 +521,8 @@ class MemberController extends Controller
         // Calculate revenue from delivered sales for this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail'])
             ->whereNotNull('delivered_at')
-            ->whereHas('salesAudit.auditTrail', function($query) use ($memberId) {
-                $query->whereHas('stock', function($stockQuery) use ($memberId) {
+            ->whereHas('salesAudit.auditTrail', function ($query) use ($memberId) {
+                $query->whereHas('stock', function ($stockQuery) use ($memberId) {
                     $stockQuery->where('member_id', $memberId);
                 });
             })
@@ -571,13 +548,13 @@ class MemberController extends Controller
                     'product' => $stock->product
                 ];
             }
-            
+
             // Add to total quantity (available + sold)
             $stockGroups[$key]['total_quantity'] += $stock->quantity + $stock->sold_quantity;
-            
+
             // Add available quantity (current quantity that can be sold)
             $stockGroups[$key]['available_quantity'] += $stock->quantity;
-            
+
             // Add sold quantity (total sold from this stock)
             $stockGroups[$key]['sold_quantity'] += $stock->sold_quantity;
         }
@@ -596,7 +573,7 @@ class MemberController extends Controller
                         $itemRevenue = $audit->getTotalAmount();
                         $itemCogs = ($itemRevenue / 1.3) * 0.7;
                         $itemGrossProfit = $itemRevenue - $itemCogs;
-                        
+
                         $stockGroups[$key]['total_revenue'] += $itemRevenue;
                         $stockGroups[$key]['total_cogs'] += $itemCogs;
                         $stockGroups[$key]['total_gross_profit'] += $itemGrossProfit;
@@ -612,7 +589,7 @@ class MemberController extends Controller
 
         // Convert to array and sort by product name
         $result = array_values($stockGroups);
-        usort($result, function($a, $b) {
+        usort($result, function ($a, $b) {
             return strcmp($a['product_name'], $b['product_name']);
         });
 
@@ -660,8 +637,8 @@ class MemberController extends Controller
         // Get only delivered sales that involve stocks from this member
         $query = Sales::with(['salesAudit.auditTrail.product', 'customer'])
             ->whereNotNull('delivered_at')
-            ->whereHas('salesAudit.auditTrail', function($q) use ($user) {
-                $q->whereHas('stock', function($stockQuery) use ($user) {
+            ->whereHas('salesAudit.auditTrail', function ($q) use ($user) {
+                $q->whereHas('stock', function ($stockQuery) use ($user) {
                     $stockQuery->where('member_id', $user->id);
                 });
             });
@@ -678,7 +655,7 @@ class MemberController extends Controller
 
         // Calculate detailed sales data
         $salesData = $this->calculateDetailedSalesData($user->id, $sales);
-        
+
         // Calculate summary statistics
         $summary = [
             'total_revenue' => $salesData['totalRevenue'],
@@ -739,13 +716,13 @@ class MemberController extends Controller
                 if ($stock) {
                     $hasMemberItems = true;
                     $orderQuantity += $audit->quantity;
-                    
+
                     // Calculate member's revenue share for this item
                     // Use the audit trail's stored sale price (member gets 100% of product price)
                     $price = $audit->getSalePrice();
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price (member's share)
                     $orderTotal += $itemRevenue;
-                    
+
                     // Calculate COGS and Gross Profit for this item
                     $itemCogs = ($itemRevenue / 1.3) * 0.7;
                     $itemGrossProfit = $itemRevenue - $itemCogs;
@@ -818,7 +795,7 @@ class MemberController extends Controller
 
         // Convert to array and sort by total revenue (highest first)
         $productSalesArray = array_values($productSales);
-        usort($productSalesArray, function($a, $b) {
+        usort($productSalesArray, function ($a, $b) {
             return $b['total_revenue'] <=> $a['total_revenue'];
         });
 
@@ -836,7 +813,7 @@ class MemberController extends Controller
     private function exportRevenueToCsv($salesData, $summary, $display = false)
     {
         $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -851,7 +828,7 @@ class MemberController extends Controller
             ];
         }
 
-        $callback = function() use ($salesData, $summary) {
+        $callback = function () use ($salesData, $summary) {
             $file = fopen('php://output', 'w');
 
             // Write main table headers
@@ -905,9 +882,9 @@ class MemberController extends Controller
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        
+
         $filename = 'member_revenue_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
@@ -919,12 +896,12 @@ class MemberController extends Controller
         // Get delivered sales for this member through the proper relationship
         $query = Sales::with(['salesAudit.auditTrail'])
             ->whereNotNull('delivered_at')
-            ->whereHas('salesAudit.auditTrail', function($q) use ($memberId) {
-                $q->whereHas('stock', function($stockQuery) use ($memberId) {
+            ->whereHas('salesAudit.auditTrail', function ($q) use ($memberId) {
+                $q->whereHas('stock', function ($stockQuery) use ($memberId) {
                     $stockQuery->where('member_id', $memberId);
                 });
             });
-        
+
         // Apply date filters if provided
         if ($dateFrom) {
             $query->whereDate('delivered_at', '>=', $dateFrom);
@@ -932,9 +909,9 @@ class MemberController extends Controller
         if ($dateTo) {
             $query->whereDate('delivered_at', '<=', $dateTo);
         }
-        
+
         $sales = $query->get();
-        
+
         $totalTransactions = 0;
         $totalQuantity = 0;
         $totalRevenue = 0.0;
@@ -958,11 +935,11 @@ class MemberController extends Controller
                 if ($stock) {
                     $hasMemberItems = true;
                     $orderQuantity += $audit->quantity;
-                    
+
                     // Calculate member's revenue share (100% of product price)
                     $itemRevenue = $audit->getTotalAmount(); // quantity * price
                     $orderMemberRevenue += $itemRevenue;
-                    
+
                     // Calculate COGS and Gross Profit for this item
                     $itemCogs = ($itemRevenue / 1.3) * 0.7;
                     $itemGrossProfit = $itemRevenue - $itemCogs;
@@ -981,7 +958,7 @@ class MemberController extends Controller
                 $totalGrossProfit += $orderGrossProfit;
             }
         }
-        
+
         return [
             'total_transactions' => $totalTransactions,
             'total_quantity' => $totalQuantity,
@@ -998,23 +975,23 @@ class MemberController extends Controller
     private function exportStocksToCsv($paginatedData, $allData)
     {
         $filename = 'member_stock_overview_' . date('Y-m-d_His') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($paginatedData, $allData) {
+        $callback = function () use ($paginatedData, $allData) {
             $file = fopen('php://output', 'w');
-            
+
             // Add BOM for Excel UTF-8 support
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             // Add summary header
             fputcsv($file, ['Stock Overview Report']);
             fputcsv($file, ['Generated:', date('F d, Y H:i:s')]);
             fputcsv($file, ['']);
-            
+
             // Add summary statistics
             $totalStock = array_sum(array_column($allData, 'total_quantity'));
             $totalSold = array_sum(array_column($allData, 'sold_quantity'));
@@ -1022,7 +999,7 @@ class MemberController extends Controller
             $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
             $totalCogs = array_sum(array_column($allData, 'total_cogs'));
             $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
-            
+
             fputcsv($file, ['Summary Statistics']);
             fputcsv($file, ['Total Stock:', $totalStock]);
             fputcsv($file, ['Total Sold:', $totalSold]);
@@ -1031,7 +1008,7 @@ class MemberController extends Controller
             fputcsv($file, ['Total COGS:', '₱' . number_format($totalCogs, 2)]);
             fputcsv($file, ['Total Gross Profit:', '₱' . number_format($totalGrossProfit, 2)]);
             fputcsv($file, ['']);
-            
+
             // Add column headers
             fputcsv($file, [
                 'Product Name',
@@ -1044,7 +1021,7 @@ class MemberController extends Controller
                 'Total COGS',
                 'Gross Profit'
             ]);
-            
+
             // Add data rows (only paginated data)
             foreach ($paginatedData as $item) {
                 fputcsv($file, [
@@ -1059,7 +1036,7 @@ class MemberController extends Controller
                     '₱' . number_format($item['total_gross_profit'], 2)
                 ]);
             }
-            
+
             fclose($file);
         };
 
@@ -1069,10 +1046,10 @@ class MemberController extends Controller
     /**
      * Export stocks to PDF
      */
-    private function exportStocksToPdf($paginatedData, $allData)
+    private function exportStocksToPdf($paginatedData, $allData, $display = false)
     {
         $filename = 'member_stock_overview_' . date('Y-m-d_His') . '.pdf';
-        
+
         // Calculate summary statistics
         $totalStock = array_sum(array_column($allData, 'total_quantity'));
         $totalSold = array_sum(array_column($allData, 'sold_quantity'));
@@ -1080,7 +1057,7 @@ class MemberController extends Controller
         $totalRevenue = array_sum(array_column($allData, 'total_revenue'));
         $totalCogs = array_sum(array_column($allData, 'total_cogs'));
         $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
-        
+
         $data = [
             'title' => 'Stock Overview Report',
             'date' => date('F d, Y H:i:s'),
@@ -1096,7 +1073,9 @@ class MemberController extends Controller
         ];
 
         $pdf = Pdf::loadView('exports.member-stocks-pdf', $data);
-        return $pdf->download($filename);
+        $pdf->setPaper('A4', 'landscape');
+
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
     /**
@@ -1105,32 +1084,32 @@ class MemberController extends Controller
     private function exportTransactionsToCsv($transactions, $summary, $startDate, $endDate)
     {
         $filename = 'member_transactions_' . date('Y-m-d_His') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($transactions, $summary, $startDate, $endDate) {
+        $callback = function () use ($transactions, $summary, $startDate, $endDate) {
             $file = fopen('php://output', 'w');
-            
+
             // Add BOM for Excel UTF-8 support
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             // Add summary header
             fputcsv($file, ['Transaction History Report']);
             fputcsv($file, ['Generated:', date('F d, Y H:i:s')]);
-            
+
             // Add date range if provided
             if ($startDate && $endDate) {
                 fputcsv($file, ['Date Range:', date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate))]);
             } else {
                 fputcsv($file, ['Date Range:', 'All Transactions']);
             }
-            
+
             fputcsv($file, ['Total Records:', count($transactions)]);
             fputcsv($file, ['']);
-            
+
             // Add summary statistics
             fputcsv($file, ['Summary Statistics']);
             fputcsv($file, ['Total Transactions:', $summary['total_transactions']]);
@@ -1139,7 +1118,7 @@ class MemberController extends Controller
             fputcsv($file, ['Total COGS:', '₱' . number_format($summary['total_cogs'], 2)]);
             fputcsv($file, ['Total Gross Profit:', '₱' . number_format($summary['total_gross_profit'], 2)]);
             fputcsv($file, ['']);
-            
+
             // Add column headers
             fputcsv($file, [
                 'Date',
@@ -1151,7 +1130,7 @@ class MemberController extends Controller
                 'Customer',
                 'Status'
             ]);
-            
+
             // Add data rows
             foreach ($transactions as $transaction) {
                 $price = 0;
@@ -1168,9 +1147,9 @@ class MemberController extends Controller
                     default:
                         $price = $transaction->unit_price ?? 0;
                 }
-                
+
                 $revenue = $transaction->quantity * $price;
-                
+
                 fputcsv($file, [
                     date('M d, Y H:i', strtotime($transaction->created_at)),
                     $transaction->product->name ?? 'N/A',
@@ -1182,7 +1161,7 @@ class MemberController extends Controller
                     $transaction->sale->delivery_status ?? 'N/A'
                 ]);
             }
-            
+
             fclose($file);
         };
 
@@ -1192,10 +1171,10 @@ class MemberController extends Controller
     /**
      * Export transactions to PDF - exports all filtered data with optional date range
      */
-    private function exportTransactionsToPdf($transactions, $summary, $startDate, $endDate)
+    private function exportTransactionsToPdf($transactions, $summary, $startDate, $endDate, $display = false)
     {
         $filename = 'member_transactions_' . date('Y-m-d_His') . '.pdf';
-        
+
         $data = [
             'title' => 'Transaction History Report',
             'date' => date('F d, Y H:i:s'),
@@ -1203,7 +1182,7 @@ class MemberController extends Controller
             'summary' => $summary,
             'transactions' => $transactions,
         ];
-        
+
         // Add date range if provided
         if ($startDate && $endDate) {
             $data['date_range'] = [
@@ -1213,6 +1192,8 @@ class MemberController extends Controller
         }
 
         $pdf = Pdf::loadView('exports.member-transactions-pdf', $data);
-        return $pdf->download($filename);
+        $pdf->setPaper('A4', 'landscape');
+
+        return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
-} 
+}
