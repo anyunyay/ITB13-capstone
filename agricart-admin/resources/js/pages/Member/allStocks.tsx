@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { type SharedData } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,11 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Package, ArrowLeft, History, BarChart3, Filter, Download, FileText, CalendarIcon, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Package, ArrowLeft, History, BarChart3, Filter, Download, FileText } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
@@ -175,15 +171,6 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
 
     const [showTransactions, setShowTransactions] = useState(initialView);
     const [isMobile, setIsMobile] = useState(false);
-    
-    // Date range state for transaction exports
-    const [exportStartDate, setExportStartDate] = useState<Date | undefined>(undefined);
-    const [exportEndDate, setExportEndDate] = useState<Date | undefined>(undefined);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [dateRangeError, setDateRangeError] = useState<string>('');
-    const [startDatePopoverOpen, setStartDatePopoverOpen] = useState(false);
-    const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
-    const exportInProgressRef = useRef(false);
 
     useEffect(() => {
         if (!auth?.user) {
@@ -245,11 +232,11 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                 highlightTransactionId,
                 showTransactions
             });
-            
+
             // Wait for the page to render
             setTimeout(() => {
                 let targetElement: HTMLElement | null = null;
-                
+
                 if ((highlightStockId || (highlightProductId && highlightCategory)) && !showTransactions) {
                     // Try to find by product_id and category (for comprehensive view)
                     if (highlightProductId && highlightCategory) {
@@ -272,23 +259,23 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                     targetElement = document.querySelector(selector);
                     console.log('Transaction element found:', targetElement);
                 }
-                
+
                 if (targetElement) {
                     console.log('Applying highlight to element:', targetElement);
                     // Add highlight class
                     targetElement.classList.add('highlight-row');
-                    
+
                     // Scroll to element with offset for header
                     const rect = targetElement.getBoundingClientRect();
                     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                     const offset = window.innerWidth < 768 ? 120 : 140;
                     const targetPosition = rect.top + scrollTop - offset;
-                    
+
                     window.scrollTo({
                         top: targetPosition,
                         behavior: 'smooth'
                     });
-                    
+
                     // Remove highlight after animation
                     setTimeout(() => {
                         targetElement?.classList.remove('highlight-row');
@@ -413,7 +400,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     // Handle stock sorting
     const handleStockSort = (column: string) => {
         const newSortDir = sorting.stock_sort_by === column && sorting.stock_sort_dir === 'asc' ? 'desc' : 'asc';
-        
+
         router.get(route('member.allStocks'), {
             stock_page: 1,
             transaction_page: transactions?.meta?.current_page || 1,
@@ -435,7 +422,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     // Handle transaction sorting
     const handleTransactionSort = (column: string) => {
         const newSortDir = sorting.transaction_sort_by === column && sorting.transaction_sort_dir === 'asc' ? 'desc' : 'asc';
-        
+
         router.get(route('member.allStocks'), {
             stock_page: stockPagination?.current_page || 1,
             transaction_page: 1,
@@ -551,126 +538,64 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         return format(new Date(dateString), 'MMM dd, yyyy HH:mm');
     };
 
-    // Export handlers
-    const handleExportClick = (format: 'csv' | 'pdf', view: 'stocks' | 'transactions') => {
-        // For transactions, show date picker modal
-        if (view === 'transactions') {
-            setShowDatePicker(true);
-            setDateRangeError('');
-            // Store the format for later use
-            (window as any).pendingExportFormat = format;
-        } else {
-            // For stocks, export directly
-            handleExport(format, view);
-        }
+    // Export handlers - Stock overview only
+    const handleExportClick = (format: 'csv' | 'pdf') => {
+        // Export stocks directly (no modal needed)
+        handleExport(format);
     };
 
-    const handleExport = (exportFormat: 'csv' | 'pdf', view: 'stocks' | 'transactions') => {
+    const handleExport = (exportFormat: 'csv' | 'pdf') => {
         const params = new URLSearchParams();
-        
+
         // Add current pagination
         params.append('stock_page', String(stockPagination?.current_page || 1));
-        params.append('transaction_page', String(transactions?.meta?.current_page || 1));
-        
+
         // Add sorting
         params.append('stock_sort_by', sorting.stock_sort_by);
         params.append('stock_sort_dir', sorting.stock_sort_dir);
-        params.append('transaction_sort_by', sorting.transaction_sort_by);
-        params.append('transaction_sort_dir', sorting.transaction_sort_dir);
-        
+
         // Add filters
         params.append('stock_category', filters.stock_category);
         params.append('stock_status', filters.stock_status);
-        params.append('transaction_category', filters.transaction_category);
-        
-        // Add date range for transactions
-        if (view === 'transactions' && exportStartDate && exportEndDate) {
-            params.append('start_date', format(exportStartDate, 'yyyy-MM-dd'));
-            params.append('end_date', format(exportEndDate, 'yyyy-MM-dd'));
-        }
-        
+
         // Add view and format
-        params.append('view', view);
+        params.append('view', 'stocks');
         params.append('format', exportFormat);
-        
-        const downloadUrl = `${route('member.allStocks')}?${params.toString()}`;
-        const downloadLink = document.createElement('a');
-        downloadLink.href = downloadUrl;
-        downloadLink.download = `member_${view}_${new Date().toISOString().slice(0, 10)}.${exportFormat}`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        
-        // For PDF, also open in new tab
-        if (exportFormat === 'pdf') {
+
+        if (exportFormat === 'csv') {
+            // CSV: Just download
+            const downloadUrl = `${route('member.allStocks')}?${params.toString()}`;
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = `member_stocks_${new Date().toISOString().slice(0, 10)}.${exportFormat}`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } else {
+            // PDF: Download first, then open in new tab with display=true
+            const downloadUrl = `${route('member.allStocks')}?${params.toString()}`;
+
+            // Create display URL with display=true parameter
+            const displayParams = new URLSearchParams(params);
+            displayParams.append('display', 'true');
+            const displayUrl = `${route('member.allStocks')}?${displayParams.toString()}`;
+
+            // Download the PDF
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = `member_stocks_${new Date().toISOString().slice(0, 10)}.${exportFormat}`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Open in new tab for viewing
             setTimeout(() => {
-                window.open(downloadUrl, '_blank');
+                window.open(displayUrl, '_blank');
             }, 500);
         }
     };
 
-    const handleConfirmExport = () => {
-        // Prevent duplicate exports
-        if (exportInProgressRef.current) {
-            return;
-        }
 
-        // Validate date range only if one date is selected
-        if ((exportStartDate && !exportEndDate) || (!exportStartDate && exportEndDate)) {
-            setDateRangeError('Please select both start and end dates, or leave both empty');
-            return;
-        }
-
-        if (exportStartDate && exportEndDate && exportStartDate > exportEndDate) {
-            setDateRangeError('Start date must be before or equal to end date');
-            return;
-        }
-
-        // Mark export as in progress
-        exportInProgressRef.current = true;
-
-        // Get the pending format
-        const exportFormat = (window as any).pendingExportFormat || 'csv';
-        
-        // Perform export first
-        handleExport(exportFormat, 'transactions');
-        
-        // Then close modal and reset everything
-        resetModalState();
-        
-        // Reset export flag after a short delay to allow download to start
-        setTimeout(() => {
-            exportInProgressRef.current = false;
-        }, 1000);
-    };
-
-    const handleCancelExport = () => {
-        resetModalState();
-    };
-
-    const resetModalState = () => {
-        // Close modal
-        setShowDatePicker(false);
-        
-        // Reset all state
-        setDateRangeError('');
-        setExportStartDate(undefined);
-        setExportEndDate(undefined);
-        setStartDatePopoverOpen(false);
-        setEndDatePopoverOpen(false);
-        
-        // Clear pending format
-        delete (window as any).pendingExportFormat;
-    };
-
-    const handleDialogOpenChange = (open: boolean) => {
-        if (!open) {
-            // Modal is being closed - reset everything
-            resetModalState();
-        } else {
-            setShowDatePicker(open);
-        }
-    };
 
     return (
         <div className="min-h-screen bg-background scroll-pt-24 lg:scroll-pt-32">
@@ -725,173 +650,41 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 }
                             </p>
                         </div>
-                        
-                        {/* Export Buttons - Desktop: right side, Mobile: below description */}
-                        <div className="flex gap-2 lg:mt-0">
-                            <Button 
-                                onClick={() => handleExportClick('csv', showTransactions ? 'transactions' : 'stocks')} 
-                                variant="outline" 
-                                size="sm"
-                                className="flex items-center gap-2"
-                            >
-                                <Download className="h-4 w-4" />
-                                <span className="hidden sm:inline">Export CSV</span>
-                                <span className="sm:hidden">CSV</span>
-                            </Button>
-                            <Button 
-                                onClick={() => handleExportClick('pdf', showTransactions ? 'transactions' : 'stocks')} 
-                                variant="outline" 
-                                size="sm"
-                                className="flex items-center gap-2"
-                            >
-                                <FileText className="h-4 w-4" />
-                                <span className="hidden sm:inline">Export PDF</span>
-                                <span className="sm:hidden">PDF</span>
-                            </Button>
-                        </div>
+
+                        {/* Export Buttons - Only show for Stock Overview */}
+                        {!showTransactions && (
+                            <div className="flex gap-2 lg:mt-0">
+                                <Button
+                                    onClick={() => handleExportClick('csv')}
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Export CSV</span>
+                                    <span className="sm:hidden">CSV</span>
+                                </Button>
+                                <Button
+                                    onClick={() => handleExportClick('pdf')}
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2"
+                                >
+                                    <FileText className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Export PDF</span>
+                                    <span className="sm:hidden">PDF</span>
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
-
-                {/* Date Range Picker Dialog for Transaction Exports */}
-                <Dialog open={showDatePicker} onOpenChange={handleDialogOpenChange}>
-                    <DialogContent className="sm:max-w-[500px]">
-                        <DialogHeader>
-                            <DialogTitle>Select Date Range for Export</DialogTitle>
-                            <DialogDescription>
-                                Choose the start and end dates for your transaction export (optional). Leave empty to export all transactions.
-                            </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="grid gap-4 py-4">
-                            {/* Selected Date Range Display - Moved to Top */}
-                            {exportStartDate && exportEndDate && (
-                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <CalendarIcon className="h-4 w-4 text-green-600" />
-                                        <p className="text-sm font-semibold text-green-900">Selected Date Range</p>
-                                    </div>
-                                    <p className="text-base font-medium text-green-800 ml-6">
-                                        {format(exportStartDate, "MMM dd, yyyy")} - {format(exportEndDate, "MMM dd, yyyy")}
-                                    </p>
-                                </div>
-                            )}
-                            
-                            {/* Error Alert */}
-                            {dateRangeError && (
-                                <Alert variant="destructive">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertDescription>{dateRangeError}</AlertDescription>
-                                </Alert>
-                            )}
-                            
-                            {/* Date Pickers */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium">
-                                        Start Date <span className="text-muted-foreground font-normal">(Optional)</span>
-                                    </Label>
-                                    <Popover modal={true} open={startDatePopoverOpen} onOpenChange={setStartDatePopoverOpen}>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
-                                                type="button"
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {exportStartDate ? format(exportStartDate, "MMM dd, yyyy") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent 
-                                            className="w-auto p-0 pointer-events-auto" 
-                                            align="start"
-                                            side="bottom"
-                                            sideOffset={4}
-                                            style={{ zIndex: 9999 }}
-                                            onOpenAutoFocus={(e) => e.preventDefault()}
-                                        >
-                                            <Calendar
-                                                mode="single"
-                                                selected={exportStartDate}
-                                                onSelect={(date) => {
-                                                    setExportStartDate(date);
-                                                    setStartDatePopoverOpen(false);
-                                                }}
-                                                disabled={(date) => date > new Date() || date < new Date("2000-01-01")}
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-medium">
-                                        End Date <span className="text-muted-foreground font-normal">(Optional)</span>
-                                    </Label>
-                                    <Popover modal={true} open={endDatePopoverOpen} onOpenChange={setEndDatePopoverOpen}>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal"
-                                                type="button"
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {exportEndDate ? format(exportEndDate, "MMM dd, yyyy") : "Pick a date"}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent 
-                                            className="w-auto p-0 pointer-events-auto" 
-                                            align="start"
-                                            side="bottom"
-                                            sideOffset={4}
-                                            style={{ zIndex: 9999 }}
-                                            onOpenAutoFocus={(e) => e.preventDefault()}
-                                        >
-                                            <Calendar
-                                                mode="single"
-                                                selected={exportEndDate}
-                                                onSelect={(date) => {
-                                                    setExportEndDate(date);
-                                                    setEndDatePopoverOpen(false);
-                                                }}
-                                                disabled={(date) => 
-                                                    date > new Date() || 
-                                                    date < new Date("2000-01-01") ||
-                                                    (exportStartDate ? date < exportStartDate : false)
-                                                }
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                            </div>
-                            
-                            {/* Info Message */}
-                            {!exportStartDate && !exportEndDate && (
-                                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                    <p className="text-sm text-blue-800">
-                                        <span className="font-semibold">No date range selected.</span> All transactions will be exported.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                        
-                        <DialogFooter>
-                            <Button variant="outline" onClick={handleCancelExport}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleConfirmExport} className="bg-green-600 hover:bg-green-700">
-                                Export
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
 
                 {/* Summary Cards */}
                 <div className={`grid gap-2 mb-4 ${showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>
                     {showTransactions ? (
-                        <TransactionSummaryCards 
-                            summary={summary} 
-                            formatCurrency={formatCurrency} 
+                        <TransactionSummaryCards
+                            summary={summary}
+                            formatCurrency={formatCurrency}
                         />
                     ) : (
                         <StockSummaryCards
@@ -931,7 +724,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         }
                                     </CardDescription>
                                 </div>
-                                
+
                                 {/* Transaction Filters */}
                                 <div className="flex items-center gap-2">
                                     <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
@@ -954,17 +747,17 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 <div className="text-center py-12">
                                     <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                     <h3 className="text-lg font-medium text-foreground mb-2">
-                                        {filters.transaction_category !== 'all' 
-                                            ? 'No transactions match your filter' 
+                                        {filters.transaction_category !== 'all'
+                                            ? 'No transactions match your filter'
                                             : t('member.no_transactions_found')}
                                     </h3>
                                     <p className="text-muted-foreground">
-                                        {filters.transaction_category !== 'all' 
+                                        {filters.transaction_category !== 'all'
                                             ? `No ${filters.transaction_category} transactions found. Try adjusting your filter.`
                                             : t('member.no_transactions_match_filters')}
                                     </p>
                                     {filters.transaction_category !== 'all' && (
-                                        <Button 
+                                        <Button
                                             onClick={() => {
                                                 router.get(route('member.allStocks'), {
                                                     stock_page: stockPagination?.current_page || 1,
@@ -1029,7 +822,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         {t('member.complete_breakdown')}
                                     </CardDescription>
                                 </div>
-                                
+
                                 {/* Stock Filters */}
                                 <div className="flex items-center gap-2">
                                     <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
@@ -1061,7 +854,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             {comprehensiveStockData.length > 0 ? (
                                 <div className="space-y-4">
                                     <StockOverviewCards data={comprehensiveStockData} />
-                                    <StockOverviewTable 
+                                    <StockOverviewTable
                                         data={comprehensiveStockData}
                                         sortBy={sorting.stock_sort_by}
                                         sortDir={sorting.stock_sort_dir}
@@ -1080,12 +873,12 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                 <div className="text-center py-12 text-muted-foreground">
                                     <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
                                     <h3 className="text-lg font-medium mb-2">
-                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all' 
-                                            ? 'No stocks match your filters' 
+                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all'
+                                            ? 'No stocks match your filters'
                                             : t('member.no_stocks_found')}
                                     </h3>
                                     <p className="text-sm">
-                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all' 
+                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all'
                                             ? `No ${filters.stock_status !== 'all' ? filters.stock_status.replace('_', ' ') : ''} ${filters.stock_category !== 'all' ? filters.stock_category : ''} stocks found. Try adjusting your filters.`
                                             : t('member.no_stocks_message')}
                                     </p>
@@ -1094,7 +887,7 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                             <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
                                         </Button>
                                     ) : (
-                                        <Button 
+                                        <Button
                                             onClick={() => {
                                                 router.get(route('member.allStocks'), {
                                                     stock_page: 1,
