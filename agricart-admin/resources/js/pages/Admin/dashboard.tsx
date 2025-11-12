@@ -16,10 +16,13 @@ import {
     BarChart3,
     UserCheck,
     Truck,
-    Star
+    Star,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
+import { useState } from 'react';
 
 interface DashboardProps {
     ordersStats: {
@@ -106,6 +109,9 @@ export default function Dashboard({
     logisticsPerformance
 }: DashboardProps) {
     const t = useTranslation();
+    const [lowStockPage, setLowStockPage] = useState(1);
+    const [pendingOrdersPage, setPendingOrdersPage] = useState(1);
+    const itemsPerPage = 5;
     
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-PH', {
@@ -113,6 +119,23 @@ export default function Dashboard({
             currency: 'PHP'
         }).format(amount);
     };
+
+    // Pagination logic for low stock alerts
+    const totalLowStockPages = Math.ceil(lowStockAlerts.length / itemsPerPage);
+    const paginatedLowStockAlerts = lowStockAlerts.slice(
+        (lowStockPage - 1) * itemsPerPage,
+        lowStockPage * itemsPerPage
+    );
+
+    // Pagination logic for pending orders
+    const totalPendingOrdersPages = Math.ceil(pendingOrders.length / itemsPerPage);
+    const paginatedPendingOrders = pendingOrders.slice(
+        (pendingOrdersPage - 1) * itemsPerPage,
+        pendingOrdersPage * itemsPerPage
+    );
+
+    // Limit recent activity to 5 most recent entries
+    const recentActivityLimited = recentActivity.slice(0, 5);
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
@@ -551,7 +574,7 @@ export default function Dashboard({
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2">
-                                            {lowStockAlerts.slice(0, 10).map((stock) => (
+                                            {paginatedLowStockAlerts.map((stock) => (
                                                 <div key={stock.id} className="flex items-center justify-between border rounded p-2">
                                                     <div>
                                                         <div className="font-medium">{stock.product.name}</div>
@@ -563,6 +586,36 @@ export default function Dashboard({
                                                 </div>
                                             ))}
                                         </div>
+
+                                        {/* Pagination Controls */}
+                                        {totalLowStockPages > 1 && (
+                                            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                                                <div className="text-sm text-muted-foreground">
+                                                    Showing {((lowStockPage - 1) * itemsPerPage) + 1}-{Math.min(lowStockPage * itemsPerPage, lowStockAlerts.length)} of {lowStockAlerts.length}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setLowStockPage(prev => Math.max(1, prev - 1))}
+                                                        disabled={lowStockPage === 1}
+                                                    >
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </Button>
+                                                    <span className="text-sm">
+                                                        Page {lowStockPage} of {totalLowStockPages}
+                                                    </span>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setLowStockPage(prev => Math.min(totalLowStockPages, prev + 1))}
+                                                        disabled={lowStockPage === totalLowStockPages}
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             )}
@@ -571,31 +624,63 @@ export default function Dashboard({
                         {/* Recent Activity Tab */}
                         <TabsContent value="activity" className="space-y-2">
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
-                                {/* Recent Orders */}
+                                {/* Pending Orders */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>{t('admin.pending_orders')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         {pendingOrders.length > 0 ? (
-                                            <div className="space-y-3">
-                                                {pendingOrders.slice(0, 5).map((order) => (
-                                                    <div key={order.id} className="flex items-center justify-between border rounded p-3">
-                                                        <div>
-                                                            <div className="font-medium">Order #{order.id}</div>
-                                                            <div className="text-sm text-muted-foreground">
-                                                                {order.customer.name} • {formatCurrency(order.total_amount)}
+                                            <>
+                                                <div className="space-y-3">
+                                                    {paginatedPendingOrders.map((order) => (
+                                                        <div key={order.id} className="flex items-center justify-between border rounded p-3">
+                                                            <div>
+                                                                <div className="font-medium">Order #{order.id}</div>
+                                                                <div className="text-sm text-muted-foreground">
+                                                                    {order.customer.name} • {formatCurrency(order.total_amount)}
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                {getStatusBadge(order.status)}
+                                                                <div className="text-xs text-muted-foreground mt-1">
+                                                                    {format(new Date(order.created_at), 'MMM dd, HH:mm')}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            {getStatusBadge(order.status)}
-                                                            <div className="text-xs text-muted-foreground mt-1">
-                                                                {format(new Date(order.created_at), 'MMM dd, HH:mm')}
-                                                            </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Pagination Controls */}
+                                                {totalPendingOrdersPages > 1 && (
+                                                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                                                        <div className="text-sm text-muted-foreground">
+                                                            Showing {((pendingOrdersPage - 1) * itemsPerPage) + 1}-{Math.min(pendingOrdersPage * itemsPerPage, pendingOrders.length)} of {pendingOrders.length}
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setPendingOrdersPage(prev => Math.max(1, prev - 1))}
+                                                                disabled={pendingOrdersPage === 1}
+                                                            >
+                                                                <ChevronLeft className="h-4 w-4" />
+                                                            </Button>
+                                                            <span className="text-sm">
+                                                                Page {pendingOrdersPage} of {totalPendingOrdersPages}
+                                                            </span>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setPendingOrdersPage(prev => Math.min(totalPendingOrdersPages, prev + 1))}
+                                                                disabled={pendingOrdersPage === totalPendingOrdersPages}
+                                                            >
+                                                                <ChevronRight className="h-4 w-4" />
+                                                            </Button>
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
+                                                )}
+                                            </>
                                         ) : (
                                             <div className="text-center py-8 text-muted-foreground">
                                                 <p>{t('admin.no_pending_orders')}</p>
@@ -610,9 +695,9 @@ export default function Dashboard({
                                         <CardTitle>{t('admin.recent_activity')}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        {recentActivity.length > 0 ? (
+                                        {recentActivityLimited.length > 0 ? (
                                             <div className="space-y-3">
-                                                {recentActivity.slice(0, 8).map((activity) => (
+                                                {recentActivityLimited.map((activity) => (
                                                     <div key={`${activity.type}-${activity.id}`} className="flex items-start gap-2">
                                                         <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
                                                         <div className="flex-1">
