@@ -1,13 +1,14 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { type SharedData } from '@/types';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { OctagonAlert } from 'lucide-react';
+import { OctagonAlert, PackageOpen, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -100,15 +101,28 @@ export default function Edit({product}: Props) {
     return (
         <AppLayout>
             <Head title={t('admin.update_product')}/>
-            <div className='w-8/12 p-4'>
-                <form onSubmit={handleUpdate} className='space-y-4'>
+            <div className='bg-background'>
+                <div className='w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8'>
+                    {/* Page Header */}
+                    <div className="mb-2 sm:mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                                <PackageOpen className="h-6 w-6 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('admin.update_product')}</h1>
+                                <p className="text-sm text-muted-foreground mt-1 truncate">{t('admin.edit_product_description')}: {product.name}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Display Error */}
                     {Object.keys(errors).length > 0 && (
-                        <Alert variant="destructive">
+                        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
                             <OctagonAlert className='h-4 w-4' />
                             <AlertTitle>{t('admin.error_title')}</AlertTitle>
                             <AlertDescription>
-                                <ul className="list-disc pl-4">
+                                <ul className="list-disc pl-4 space-y-1">
                                     {Object.entries(errors).map(([key, value]) => (
                                         <li key={key} className="text-sm">
                                             {typeof value === 'string' ? value : Array.isArray(value) ? value[0] : t('admin.an_error_occurred')}
@@ -119,78 +133,218 @@ export default function Edit({product}: Props) {
                         </Alert>
                     )}
 
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product name">{t('admin.product_name_label')}</Label>
-                        <Input placeholder={t('admin.product_name_placeholder')} value={data.name} onChange={(e) => setData('name', e.target.value)}/>
-                    </div>
-                    
-                    <div className='gap-1.5'>
-                        <p className="text-sm text-gray-600 mb-2">{t('admin.at_least_one_price_required')}</p>
-                        <Label htmlFor="product price_kilo">{t('admin.price_per_kilo')}</Label>
-                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_kilo')} value={data.price_kilo} onChange={(e) => setData('price_kilo', e.target.value)}/>
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product price_pc">{t('admin.price_per_piece')}</Label>
-                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_piece')} value={data.price_pc} onChange={(e) => setData('price_pc', e.target.value)}/>
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product price_tali">{t('admin.price_per_tali')}</Label>
-                        <Input type="number" min="0" step="0.01" placeholder={t('admin.price_per_tali')} value={data.price_tali} onChange={(e) => setData('price_tali', e.target.value)}/>
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product description">{t('ui.description')}</Label>
-                        <Textarea placeholder={t('ui.description')} value={data.description} onChange={(e) => setData('description', e.target.value)}/>
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product produce_type">{t('admin.produce_type')}</Label>
-                        <select
-                            id="produce_type"
-                            name="produce_type"
-                            value={data.produce_type}
-                            onChange={e => setData('produce_type', e.target.value)}
-                            className="block w-full border rounded px-3 py-2"
-                        >
-                            <option value="fruit">{t('admin.fruit')}</option>
-                            <option value="vegetable">{t('admin.vegetable')}</option>
-                        </select>
-                    </div>
-                    <div className='gap-1.5'>
-                        <Label htmlFor="product image">{t('admin.image_upload')}</Label>
-                        
-                        {/* Show current image only if no new image is selected */}
-                        {!selectedImage && product.image_url && (
-                            <div className="mb-4">
-                                <Label className="text-sm text-gray-600 mb-2 block">{t('admin.current_image')}:</Label>
-                                <img 
-                                  src={product.image_url || '/storage/fallback-photo.png'} 
-                                  alt={product.name}
-                                  onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
-                                  className="w-32 h-32 object-cover rounded-lg border"
-                                  onError={(e) => handleImageError(e, product.name)}
-                                />
+                    <form onSubmit={handleUpdate} className='space-y-3'>
+
+                        {/* Two Column Layout on Large Screens */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                            {/* Left Column - Main Information */}
+                            <div className="lg:col-span-2 space-y-3">
+                                <Card className="shadow-sm">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-lg">{t('admin.product_information')}</CardTitle>
+                                        <CardDescription>{t('admin.update_product_details')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="product_name" className="text-sm font-medium">
+                                                {t('admin.product_name_label')} <span className="text-destructive">*</span>
+                                            </Label>
+                                            <Input 
+                                                id="product_name"
+                                                placeholder={t('admin.product_name_placeholder')} 
+                                                value={data.name} 
+                                                onChange={(e) => setData('name', e.target.value)}
+                                                className="w-full"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="produce_type" className="text-sm font-medium">
+                                                {t('admin.produce_type')} <span className="text-destructive">*</span>
+                                            </Label>
+                                            <select
+                                                id="produce_type"
+                                                name="produce_type"
+                                                value={data.produce_type}
+                                                onChange={e => setData('produce_type', e.target.value)}
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                required
+                                            >
+                                                <option value="fruit">{t('admin.fruit')}</option>
+                                                <option value="vegetable">{t('admin.vegetable')}</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="description" className="text-sm font-medium">{t('ui.description')}</Label>
+                                            <Textarea 
+                                                id="description"
+                                                placeholder={t('ui.description')} 
+                                                value={data.description} 
+                                                onChange={(e) => setData('description', e.target.value)}
+                                                className="w-full min-h-[100px] resize-none"
+                                            />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="shadow-sm">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-lg">{t('admin.pricing_information')}</CardTitle>
+                                        <CardDescription>{t('admin.at_least_one_price_required')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            <div className='space-y-2'>
+                                                <Label htmlFor="price_kilo" className="text-sm font-medium">{t('admin.price_per_kilo')}</Label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                                                    <Input 
+                                                        id="price_kilo"
+                                                        type="number" 
+                                                        min="0" 
+                                                        step="0.01" 
+                                                        placeholder="0.00" 
+                                                        value={data.price_kilo} 
+                                                        onChange={(e) => setData('price_kilo', e.target.value)}
+                                                        className="w-full pl-7"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label htmlFor="price_pc" className="text-sm font-medium">{t('admin.price_per_piece')}</Label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                                                    <Input 
+                                                        id="price_pc"
+                                                        type="number" 
+                                                        min="0" 
+                                                        step="0.01" 
+                                                        placeholder="0.00" 
+                                                        value={data.price_pc} 
+                                                        onChange={(e) => setData('price_pc', e.target.value)}
+                                                        className="w-full pl-7"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label htmlFor="price_tali" className="text-sm font-medium">{t('admin.price_per_tali')}</Label>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                                                    <Input 
+                                                        id="price_tali"
+                                                        type="number" 
+                                                        min="0" 
+                                                        step="0.01" 
+                                                        placeholder="0.00" 
+                                                        value={data.price_tali} 
+                                                        onChange={(e) => setData('price_tali', e.target.value)}
+                                                        className="w-full pl-7"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
-                        )}
-                        
-                        {/* Show new image preview if selected */}
-                        {selectedImage && imagePreview && (
-                            <div className="mb-4">
-                                <Label className="text-sm text-gray-600 mb-2 block">{t('admin.new_image_preview')}:</Label>
-                                <img 
-                                  src={imagePreview} 
-                                  alt={t('admin.new_image_preview')}
-                                  onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }} 
-                                  className="w-32 h-32 object-cover rounded-lg border"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    {t('admin.current_image_will_be_replaced')}
-                                </p>
+
+                            {/* Right Column - Image Upload & Actions */}
+                            <div className="lg:col-span-1 space-y-3">
+                                <Card className="shadow-sm lg:sticky lg:top-4">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <ImageIcon className="h-5 w-5" />
+                                            {t('admin.product_image')}
+                                        </CardTitle>
+                                        <CardDescription>{t('admin.upload_product_image_description')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                        {/* Show current image only if no new image is selected */}
+                                        {!selectedImage && product.image_url && (
+                                            <div className="p-3 bg-muted/30 rounded-lg border">
+                                                <Label className="text-xs font-medium mb-2 block text-muted-foreground text-center">{t('admin.current_image')}</Label>
+                                                <div className="w-full h-48 flex items-center justify-center bg-background rounded-lg border">
+                                                    <img 
+                                                      src={product.image_url || '/storage/fallback-photo.png'} 
+                                                      alt={product.name}
+                                                      className="max-w-full max-h-full object-contain rounded-lg"
+                                                      onError={(e) => handleImageError(e, product.name)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Show new image preview if selected */}
+                                        {selectedImage && imagePreview && (
+                                            <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                                                <Label className="text-xs font-medium mb-2 block text-primary text-center">{t('admin.new_image_preview')}</Label>
+                                                <div className="w-full h-48 flex items-center justify-center bg-background rounded-lg border">
+                                                    <img 
+                                                      src={imagePreview} 
+                                                      alt={t('admin.new_image_preview')}
+                                                      className="max-w-full max-h-full object-contain rounded-lg"
+                                                    />
+                                                </div>
+                                                <p className="text-xs text-muted-foreground mt-2 text-center">
+                                                    {t('admin.current_image_will_be_replaced')}
+                                                </p>
+                                            </div>
+                                        )}
+                                        
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="image" className="text-sm font-medium">
+                                                {selectedImage ? t('admin.change_image') : t('admin.upload_new_image')}
+                                            </Label>
+                                            <div className="relative">
+                                                <Input 
+                                                    onChange={handleFileUpload} 
+                                                    id='image' 
+                                                    name='image' 
+                                                    type='file' 
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                />
+                                                <label 
+                                                    htmlFor="image"
+                                                    className="flex items-center justify-center w-full h-10 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md border border-input cursor-pointer hover:bg-primary/90 transition-colors"
+                                                >
+                                                    <ImageIcon className="h-4 w-4 mr-2" />
+                                                    {selectedImage ? t('admin.change_image') : t('admin.upload_new_image')}
+                                                </label>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">{t('admin.supported_formats')}: JPG, PNG, GIF (Max 2MB)</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Action Buttons */}
+                                <Card className="shadow-sm">
+                                    <CardContent className="pt-4 pb-4">
+                                        <div className="flex flex-col gap-3">
+                                            <Button 
+                                                disabled={processing} 
+                                                type="submit"
+                                                className="w-full"
+                                            >
+                                                {processing ? t('admin.updating') : t('admin.update_product_button')}
+                                            </Button>
+                                            <Button 
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => router.visit(route('inventory.index'))}
+                                                className="w-full"
+                                                disabled={processing}
+                                            >
+                                                {t('ui.cancel')}
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
-                        )}
-                        
-                        <Input onChange={handleFileUpload} id='image' name='image' type='file' accept="image/*"/>
-                    </div>
-                    <Button disabled={processing} type="submit">{t('admin.update_product_button')}</Button>
-                </form>
+                        </div>
+                    </form>
+                </div>
             </div>
         </AppLayout>
     );

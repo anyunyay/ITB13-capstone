@@ -1263,4 +1263,18 @@ return [
     // Image fallback messages
     'image_not_available' => 'Image not available',
     'no_image' => 'No image',
+    
+    // Product Form - Additional Keys
+    'add_new_product_description' => 'Add a new product to your inventory',
+    'fill_product_details' => 'Fill in the product details below',
+    'product_information' => 'Product Information',
+    'pricing_information' => 'Pricing Information',
+    'product_image' => 'Product Image',
+    'upload_product_image_description' => 'Upload an image for this product',
+    'supported_formats' => 'Supported formats',
+    'change_image' => 'Change Image',
+    'upload_new_image' => 'Upload New Image',
+    'edit_product_description' => 'Edit product',
+    'update_product_details' => 'Update the product details below',
+    'updating' => 'Updating...',
 ];

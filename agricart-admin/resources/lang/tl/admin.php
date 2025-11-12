@@ -1311,4 +1311,18 @@ return [
     // Image fallback messages
     'image_not_available' => 'Walang makuhang larawan',
     'no_image' => 'Walang larawan',
+    
+    // Product Form - Additional Keys
+    'add_new_product_description' => 'Magdagdag ng bagong produkto sa inyong imbentaryo',
+    'fill_product_details' => 'Punan ang mga detalye ng produkto sa ibaba',
+    'product_information' => 'Impormasyon ng Produkto',
+    'pricing_information' => 'Impormasyon ng Presyo',
+    'product_image' => 'Larawan ng Produkto',
+    'upload_product_image_description' => 'Mag-upload ng larawan para sa produktong ito',
+    'supported_formats' => 'Suportadong format',
+    'change_image' => 'Palitan ang Larawan',
+    'upload_new_image' => 'Mag-upload ng Bagong Larawan',
+    'edit_product_description' => 'I-edit ang produkto',
+    'update_product_details' => 'I-update ang mga detalye ng produkto sa ibaba',
+    'updating' => 'Nag-uupdate...',
 ];
