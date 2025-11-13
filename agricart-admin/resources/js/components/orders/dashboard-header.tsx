@@ -13,7 +13,7 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ orderStats }: DashboardHeaderProps) => {
     const t = useTranslation();
-    
+
     return (
         <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-5 shadow-lg flex flex-col gap-3">
             <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
@@ -30,7 +30,7 @@ export const DashboardHeader = ({ orderStats }: DashboardHeaderProps) => {
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
                     <PermissionGate permission="generate order report">
-                        <Button asChild variant="outline" className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                        <Button asChild variant="outline" className="w-full md:w-auto transition-all duration-200 hover:scale-105 hover:shadow-lg">
                             <Link href={route('admin.orders.report')}>
                                 <BarChart3 className="h-4 w-4 mr-2" />
                                 {t('admin.generate_report')}

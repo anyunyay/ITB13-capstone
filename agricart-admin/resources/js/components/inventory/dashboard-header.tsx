@@ -27,9 +27,9 @@ export const DashboardHeader = ({ stockStats }: DashboardHeaderProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-2 items-center">
+<div className="flex flex-row gap-2 items-center">
                     <PermissionGate permission="create products">
-                        <Button asChild size="sm" className="bg-primary text-primary-foreground border border-primary hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] hover:border-[color-mix(in_srgb,var(--primary)_90%,black_10%)] transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                        <Button asChild size="sm" className="flex-1 sm:flex-none sm:w-auto bg-primary text-primary-foreground border border-primary hover:bg-[color-mix(in_srgb,var(--primary)_90%,black_10%)] hover:border-[color-mix(in_srgb,var(--primary)_90%,black_10%)] transition-all duration-200 hover:scale-105 hover:shadow-lg">
                             <Link href={route('inventory.create')}>
                                 <Plus className="h-4 w-4 mr-2" />
                                 {t('admin.add_product')}
@@ -37,7 +37,7 @@ export const DashboardHeader = ({ stockStats }: DashboardHeaderProps) => {
                         </Button>
                     </PermissionGate>
                     <PermissionGate permission="generate inventory report">
-                        <Button asChild variant="outline" className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                        <Button asChild variant="outline" className="flex-1 sm:flex-none sm:w-auto transition-all duration-200 hover:scale-105 hover:shadow-lg">
                             <Link href={route('inventory.report')}>
                                 <BarChart3 className="h-4 w-4 mr-2" />
                                 {t('admin.generate_report')}
