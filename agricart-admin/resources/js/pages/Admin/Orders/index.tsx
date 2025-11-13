@@ -21,9 +21,24 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const [currentPage, setCurrentPage] = useState(1);
   const [showSearch, setShowSearch] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
-  // Dynamic items per page based on view type
-  const itemsPerPage = currentView === 'cards' ? 8 : 10;
+  // Dynamic items per page based on view type and screen size
+  const itemsPerPage = currentView === 'cards' 
+    ? (isMobile ? 4 : 8) 
+    : (isMobile ? 5 : 10);
 
   // Handle highlighting effect when coming from notification
   useEffect(() => {
@@ -105,10 +120,10 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     setCurrentPage(1);
   }, [searchTerm, selectedStatus, selectedDeliveryStatus, showSearch]);
 
-  // Reset pagination when view changes (cards vs table)
+  // Reset pagination when view changes (cards vs table) or screen size changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [currentView]);
+  }, [currentView, isMobile]);
 
   return (
     <PermissionGuard 

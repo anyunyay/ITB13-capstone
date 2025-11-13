@@ -121,16 +121,16 @@ export const OrderManagement = ({
     return (
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
             <div className="flex flex-col gap-3 pb-4 border-b border-border md:flex-row md:items-center md:justify-between mb-4">
-                <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 text-primary p-3 rounded-lg">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="bg-primary/10 text-primary p-3 rounded-lg flex-shrink-0">
                         <Package className="h-6 w-6" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                         <h2 className="text-2xl font-semibold text-foreground mb-1">{t('admin.order_management')}</h2>
                         <p className="text-sm text-muted-foreground">{t('admin.order_management_description')}</p>
                     </div>
                 </div>
-                <div className="flex gap-3 flex-wrap items-center">
+                <div className="flex gap-3 items-center justify-end flex-shrink-0 ml-auto">
                     <Button
                         variant={showSearch ? "default" : "outline"}
                         onClick={() => {
@@ -165,12 +165,16 @@ export const OrderManagement = ({
                 />
 
                 <Tabs value={currentStatus} onValueChange={onStatusChange} className="w-full">
-                    <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="all">{t('admin.all_orders_label')} ({allOrders.length})</TabsTrigger>
-                        <TabsTrigger value="pending">{t('admin.pending_orders_label')} ({pendingOrders.length})</TabsTrigger>
-                        <TabsTrigger value="approved">{t('admin.approved_orders_label')} ({approvedOrders.length})</TabsTrigger>
-                        <TabsTrigger value="rejected">{t('admin.rejected_orders_label')} ({rejectedOrders.length})</TabsTrigger>
-                        <TabsTrigger value="delayed">{t('admin.delayed_orders_label')} ({delayedOrders.length})</TabsTrigger>
+                    <TabsList className="grid w-full gap-2 h-auto p-2 grid-cols-1 md:grid-cols-5 md:gap-0 md:p-1">
+                        <TabsTrigger value="all" className="text-sm w-full md:col-span-1">{t('admin.all_orders_label')} ({allOrders.length})</TabsTrigger>
+                        <div className="grid grid-cols-2 gap-2 md:contents">
+                            <TabsTrigger value="pending" className="text-sm w-full">{t('admin.pending_orders_label')} ({pendingOrders.length})</TabsTrigger>
+                            <TabsTrigger value="approved" className="text-sm w-full">{t('admin.approved_orders_label')} ({approvedOrders.length})</TabsTrigger>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 md:contents">
+                            <TabsTrigger value="rejected" className="text-sm w-full">{t('admin.rejected_orders_label')} ({rejectedOrders.length})</TabsTrigger>
+                            <TabsTrigger value="delayed" className="text-sm w-full">{t('admin.delayed_orders_label')} ({delayedOrders.length})</TabsTrigger>
+                        </div>
                     </TabsList>
 
                     <TabsContent value="all" className="mt-2">

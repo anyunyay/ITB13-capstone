@@ -72,15 +72,6 @@ export const OrderTable = ({
             case 'total_amount':
                 comparison = a.total_amount - b.total_amount;
                 break;
-            case 'subtotal':
-                comparison = ((a as any).subtotal || 0) - ((b as any).subtotal || 0);
-                break;
-            case 'coop_share':
-                comparison = ((a as any).coop_share || 0) - ((b as any).coop_share || 0);
-                break;
-            case 'member_share':
-                comparison = ((a as any).member_share || 0) - ((b as any).member_share || 0);
-                break;
             case 'customer':
                 comparison = a.customer.name.localeCompare(b.customer.name);
                 break;
@@ -147,7 +138,106 @@ export const OrderTable = ({
     const ordersToDisplay = sortedOrders;
 
     return (
-        <div className="rounded-md border">
+        <>
+            {/* Mobile Card View - Hidden on md and up */}
+            <div className="md:hidden space-y-3">
+                {ordersToDisplay.map((order) => {
+                    const urgent = isUrgent(order);
+                    const highlighted = isHighlighted(order);
+                    const combinedItems = order.audit_trail || [];
+                    const totalItems = combinedItems.length;
+
+                    return (
+                        <div 
+                            key={order.id}
+                            className={`bg-card border border-border rounded-lg p-4 shadow-sm transition-all duration-200 hover:shadow-md ${highlighted ? 'bg-primary/10 border-l-4 border-l-primary' : ''} ${urgent ? 'bg-orange-50 border-l-4 border-l-orange-500' : ''}`}
+                        >
+                            <div className="flex items-start justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <Badge variant="outline" className="font-mono text-xs">
+                                        #{order.id}
+                                    </Badge>
+                                    {urgent && (
+                                        <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse text-xs">
+                                            Urgent
+                                        </Badge>
+                                    )}
+                                </div>
+                                {getStatusBadge(order.status)}
+                            </div>
+
+                            <div className="space-y-2 mb-3 pb-3 border-b border-border">
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
+                                </div>
+                                
+                                <div className="flex items-start gap-2 text-xs">
+                                    <User className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-foreground">{order.customer.name}</div>
+                                        {order.customer.contact_number && (
+                                            <div className="text-muted-foreground">{order.customer.contact_number}</div>
+                                        )}
+                                        {!compact && (
+                                            <div className="text-muted-foreground truncate">{order.customer.email}</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-xs">
+                                    <Package className="h-3 w-3 text-muted-foreground" />
+                                    <span className="font-medium">{totalItems} items</span>
+                                    {combinedItems.length > 0 && (
+                                        <span className="text-muted-foreground truncate">
+                                            - {combinedItems[0].product.name}
+                                            {combinedItems.length > 1 && ` +${combinedItems.length - 1} more`}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {!compact && order.status === 'approved' && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <Truck className="h-3 w-3 text-muted-foreground" />
+                                        {getDeliveryStatusBadge(order.delivery_status)}
+                                    </div>
+                                )}
+
+                                {!compact && order.logistic && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <Truck className="h-3 w-3 text-muted-foreground" />
+                                        <span className="font-medium">{order.logistic.name}</span>
+                                        {order.logistic.contact_number && (
+                                            <span className="text-muted-foreground">- {order.logistic.contact_number}</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mb-3">
+                                <div className="flex justify-between text-sm font-semibold">
+                                    <span>{t('admin.total_amount')}:</span>
+                                    <span>₱{Number(order.total_amount).toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            {showActions && (
+                                <PermissionGate permission="view orders">
+                                    <Button asChild variant="outline" size="sm" className="w-full text-xs">
+                                        <Link href={route('admin.orders.show', order.id)}>
+                                            <Eye className="h-3 w-3 mr-1" />
+                                            View Details
+                                        </Link>
+                                    </Button>
+                                </PermissionGate>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="hidden md:block rounded-md border">
             <Table className="w-full border-collapse text-sm">
                 <TableHeader className="bg-muted/50 border-b-2">
                     <TableRow>
@@ -185,27 +275,6 @@ export const OrderTable = ({
                                 <DollarSign className="h-4 w-4" />
                                 {t('admin.total_amount')}
                                 {getSortIcon('total_amount')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('subtotal')} className="flex items-center gap-2 hover:text-foreground transition-colors">
-                                <DollarSign className="h-4 w-4" />
-                                {t('admin.subtotal')}
-                                {getSortIcon('subtotal')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
-                                <DollarSign className="h-4 w-4" />
-                                {t('admin.co_op_share')}
-                                {getSortIcon('coop_share')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors">
-                                <DollarSign className="h-4 w-4" />
-                                {t('admin.revenue')}
-                                {getSortIcon('member_share')}
                             </button>
                         </TableHead>
                         <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
@@ -305,24 +374,6 @@ export const OrderTable = ({
                                 
                                 <TableCell className="p-3 text-sm text-foreground align-top border-b">
                                     <div className="text-sm">
-                                        ₱{Number((order as any).subtotal || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm text-primary">
-                                        ₱{Number((order as any).coop_share || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm">
-                                        ₱{Number((order as any).member_share || 0).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm">
                                         <div className="font-medium">{totalItems} items</div>
                                         <div className="text-muted-foreground text-xs">
                                             {combinedItems.slice(0, 2).map((item: any, index) => (
@@ -386,6 +437,7 @@ export const OrderTable = ({
                     })}
                 </TableBody>
             </Table>
-        </div>
+            </div>
+        </>
     );
 };

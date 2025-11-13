@@ -1,7 +1,9 @@
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import styles from '../../pages/Admin/Orders/orders-animations.module.css';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface SearchFilterProps {
     searchTerm: string;
@@ -26,46 +28,40 @@ export const SearchFilter = ({
     filteredResults,
     isVisible = true
 }: SearchFilterProps) => {
-    const clearSearch = () => {
-        setSearchTerm('');
-        setSelectedStatus('all');
-        setSelectedDeliveryStatus('all');
-    };
-
-    const hasActiveFilters = searchTerm || selectedStatus !== 'all' || selectedDeliveryStatus !== 'all';
+    const t = useTranslation();
 
     return (
         <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
             isVisible ? styles.expanded : styles.collapsed
         }`}>
-            <div className="flex flex-col gap-4 mb-4 md:flex-row md:items-center">
-                <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
+                <div className="relative flex-1 flex items-center">
+                    <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
                     <Input
                         type="text"
                         placeholder="Search orders by customer name, email, or order ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-10 w-full py-3 border-border rounded-lg bg-background text-foreground text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20"
+                        className="w-full pl-9 pr-9 py-2 border border-border rounded-lg bg-background text-foreground text-sm transition-all duration-200 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
                     />
                     {searchTerm && (
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setSearchTerm('')}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded"
-                            type="button"
+                            className="absolute right-2 p-1 min-w-auto h-6 w-6 rounded-full bg-muted text-muted-foreground border-none hover:bg-destructive hover:text-destructive-foreground"
                         >
-                            <X className="h-4 w-4" />
-                        </button>
+                            ×
+                        </Button>
                     )}
                 </div>
-                
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-2 flex-shrink-0 flex-row w-full md:w-auto">
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                        <SelectTrigger className="min-w-[150px] bg-background border-border rounded-lg py-3 text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20">
-                            <SelectValue placeholder="All Statuses" />
+                        <SelectTrigger className="flex-1 min-w-0 md:min-w-[140px] bg-background border border-border rounded-lg py-2 px-2 md:px-3 text-foreground text-xs md:text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                            <SelectValue placeholder="Order Status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
+                            <SelectItem value="all">All Order Status</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="approved">Approved</SelectItem>
                             <SelectItem value="rejected">Rejected</SelectItem>
@@ -75,11 +71,11 @@ export const SearchFilter = ({
                     </Select>
                     
                     <Select value={selectedDeliveryStatus} onValueChange={setSelectedDeliveryStatus}>
-                        <SelectTrigger className="min-w-[150px] bg-background border-border rounded-lg py-3 text-sm transition-all focus:border-primary focus:ring-4 focus:ring-primary/20">
-                            <SelectValue placeholder="All Delivery Statuses" />
+                        <SelectTrigger className="flex-1 min-w-0 md:min-w-[160px] bg-background border border-border rounded-lg py-2 px-2 md:px-3 text-foreground text-xs md:text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                            <SelectValue placeholder="Delivery Status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Delivery Statuses</SelectItem>
+                            <SelectItem value="all">All Delivery Status</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
                             <SelectItem value="delivered">Delivered</SelectItem>
@@ -87,23 +83,10 @@ export const SearchFilter = ({
                     </Select>
                 </div>
             </div>
-            
             <div className="flex items-center justify-between pt-4 border-t border-border">
                 <span className="text-sm text-muted-foreground font-medium">
-                    {filteredResults === totalResults 
-                        ? `${totalResults} orders found`
-                        : `${filteredResults} of ${totalResults} orders`
-                    }
+                    {filteredResults} {t('admin.of')} {totalResults} {t('admin.orders') || 'orders'}
                 </span>
-                {hasActiveFilters && (
-                    <button
-                        onClick={clearSearch}
-                        className="text-sm text-primary hover:text-primary/80 transition-colors"
-                        type="button"
-                    >
-                        Clear all filters
-                    </button>
-                )}
             </div>
         </div>
     );
