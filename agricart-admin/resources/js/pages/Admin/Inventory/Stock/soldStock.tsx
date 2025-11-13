@@ -89,14 +89,40 @@ export default function soldIndex() {
                             <TableBody>
                                 {stocks.map((stock) => (
                                     <TableRow key={stock.id}>
-                                        <TableCell className="text-center">{stock.id ?? 'N/A'}</TableCell>
-                                        <TableCell className="text-center">{stock.product?.name}</TableCell>
-                                        <TableCell className="text-center">{stock.category}</TableCell>
-                                        <TableCell className="text-center">
-                                            {t('admin.sold_status')}
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center">
+                                                    {stock.id ?? 'N/A'}
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            {new Date(stock.updated_at).toLocaleString()}
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[180px] text-left">
+                                                    {stock.product?.name}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center">
+                                                    {stock.category}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center">
+                                                    {t('admin.sold_status')}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[150px] text-center">
+                                                    {new Date(stock.updated_at).toLocaleString()}
+                                                </div>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}

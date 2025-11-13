@@ -101,29 +101,63 @@ export default function RemovedStockIndex() {
                             <TableBody>
                                 {stocks.map((stock) => (
                                     <TableRow key={stock.id}>
-                                        <TableCell className="text-center">{stock.id}</TableCell>
-                                        <TableCell className="text-center">{stock.product?.name}</TableCell>
-                                        <TableCell className="text-center">{
-                                            stock.category === 'Kilo'
-                                                ? stock.quantity
-                                                : Math.floor(stock.quantity)
-                                        }</TableCell>
-                                        <TableCell className="text-center">{stock.category}</TableCell>
-                                        <TableCell className="text-center max-w-xs truncate" title={stock.notes}>
-                                            {stock.notes || t('admin.no_notes')}
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center">
+                                                    {stock.id}
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            {new Date(stock.removed_at).toLocaleString()}
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[180px] text-left">
+                                                    {stock.product?.name}
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell className="text-center">
-                                            <Button
-                                                onClick={() => handleRestore(stock.id)}
-                                                disabled={processing}
-                                                variant="outline"
-                                                size="sm"
-                                            >
-                                                {t('admin.restore')}
-                                            </Button>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-right">
+                                                    {stock.category === 'Kilo'
+                                                        ? stock.quantity
+                                                        : Math.floor(stock.quantity)}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center">
+                                                    {stock.category}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[200px] text-left truncate" title={stock.notes}>
+                                                    {stock.notes || t('admin.no_notes')}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[150px] text-center">
+                                                    {new Date(stock.removed_at).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                <div className="w-full max-w-[120px] text-center flex justify-center">
+                                                    <Button
+                                                        onClick={() => handleRestore(stock.id)}
+                                                        disabled={processing}
+                                                        variant="outline"
+                                                        size="sm"
+                                                    >
+                                                        {t('admin.restore')}
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}

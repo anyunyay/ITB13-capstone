@@ -162,39 +162,69 @@ export function StockTable({ stocks }: StockTableProps) {
             {sortedStocks.map((stock, index) => (
               <tr key={stock.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
                 <td className="py-3 px-4">
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">#{stock.id}</Badge>
-                </td>
-                <td className="py-3 px-4">
-                  <div>
-                    <div className="font-medium text-foreground">{stock.product.name}</div>
-                    <div className="text-sm text-muted-foreground">{stock.product.produce_type}</div>
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">#{stock.id}</Badge>
+                    </div>
                   </div>
                 </td>
                 <td className="py-3 px-4">
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    {t('admin.quantity_units', { quantity: stock.quantity })}
-                  </Badge>
-                </td>
-                <td className="py-3 px-4">
-                  <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
-                    {stock.category === 'Kilo' ? t('admin.category_kilo') : stock.category === 'Pc' ? t('admin.category_pc') : t('admin.category_tali')}
-                  </Badge>
-                </td>
-                <td className="py-3 px-4">
-                  <div>
-                    <div className="font-medium text-foreground">{stock.member.name}</div>
-                    <div className="text-sm text-muted-foreground">{stock.member.email}</div>
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[180px] text-left">
+                      <div className="font-medium text-foreground">{stock.product.name}</div>
+                      <div className="text-sm text-muted-foreground">{stock.product.produce_type}</div>
+                    </div>
                   </div>
                 </td>
-                <td className="py-3 px-4">{getStatusBadge(stock)}</td>
-                <td className="py-3 px-4 text-sm text-muted-foreground">{dayjs(stock.created_at).format('MMM DD, YYYY')}</td>
                 <td className="py-3 px-4">
-                  <div className="max-w-xs">
-                    {stock.notes ? (
-                      <p className="text-sm text-muted-foreground truncate" title={stock.notes}>{stock.notes}</p>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                        {t('admin.quantity_units', { quantity: stock.quantity })}
+                      </Badge>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
+                        {stock.category === 'Kilo' ? t('admin.category_kilo') : stock.category === 'Pc' ? t('admin.category_pc') : t('admin.category_tali')}
+                      </Badge>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[180px] text-left">
+                      <div className="font-medium text-foreground">{stock.member.name}</div>
+                      <div className="text-sm text-muted-foreground">{stock.member.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      {getStatusBadge(stock)}
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center">
+                      <span className="text-sm text-muted-foreground">{dayjs(stock.created_at).format('MMM DD, YYYY')}</span>
+                    </div>
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[200px] text-left">
+                      {stock.notes ? (
+                        <p className="text-sm text-muted-foreground truncate" title={stock.notes}>{stock.notes}</p>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>

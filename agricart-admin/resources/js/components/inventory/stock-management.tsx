@@ -93,14 +93,14 @@ export const StockManagement = ({
             if (dataType === 'trail') {
                 return (
                     <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.date')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.category')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.notes')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.date')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.category')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.notes')}</TableHead>
                     </TableRow>
                 );
             }
@@ -108,11 +108,11 @@ export const StockManagement = ({
             if (dataType === 'sold') {
                 return (
                     <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.stock_id')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product_name')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-borderINESS whitespace-nowrap">{t('admin.quantity_sold')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.stock_id')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product_name')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity_sold')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
                     </TableRow>
                 );
             }
@@ -120,33 +120,33 @@ export const StockManagement = ({
             // For regular stocks view
             return (
                 <TableRow>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                        <button onClick={() => handleStockSort('id')} className="flex items-center hover:text-foreground transition-colors">
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('id')} className="flex items-center hover:text-foreground transition-colors mx-auto">
                             {t('admin.stock_id')}
                             {getStockSortIcon('id')}
                         </button>
                     </TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                        <button onClick={() => handleStockSort('product')} className="flex items-center hover:text-foreground alternate-colors">
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('product')} className="flex items-center hover:text-foreground transition-colors mx-auto">
                             {t('admin.product_name')}
                             {getStockSortIcon('product')}
                         </button>
                     </TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                        <button onClick={() => handleStockSort('quantity')} className="flex items-center hover:text-foreground transition-colors">
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('quantity')} className="flex items-center hover:text-foreground transition-colors mx-auto">
                             {t('admin.quantity')}
                             {getStockSortIcon('quantity')}
                         </button>
                     </TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                        <button onClick={() => handleStockSort('category')} className="flex items-center hover:text-foreground transition-colors">
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('category')} className="flex items-center hover:text-foreground transition-colors mx-auto">
                             {t('admin.category')}
                             {getStockSortIcon('category')}
                         </button>
                     </TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
-                    {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>}
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                    {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>}
                 </TableRow>
             );
         };
@@ -155,49 +155,81 @@ export const StockManagement = ({
             if (dataType === 'trail') {
                 return (
                     <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="text-sm">
-                                {new Date(item.date).toLocaleDateString()}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                                {new Date(item.date).toLocaleTimeString()}
-                            </div>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-medium">{item.product}</div>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-semibold">
-                                {item.category === 'Kilo'
-                                    ? `${item.quantity} kg`
-                                    : item.category
-                                    ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                    : item.quantity
-                                }
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center">
+                                    <div className="text-sm">
+                                        {new Date(item.date).toLocaleDateString()}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {new Date(item.date).toLocaleTimeString()}
+                                    </div>
+                                </div>
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <Badge variant="secondary">{item.category}</Badge>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            {item.member}
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <Badge 
-                                variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
-                                className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
-                            >
-                                {item.action}
-                            </Badge>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-semibold">
-                                ₱{(item.totalAmount || 0).toFixed(2)}
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[180px] text-left">
+                                    <div className="font-medium">{item.product}</div>
+                                </div>
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="max-w-xs truncate" title={item.notes}>
-                                {item.notes}
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                    <div className="font-semibold">
+                                        {item.category === 'Kilo'
+                                            ? `${item.quantity} kg`
+                                            : item.category
+                                            ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                            : item.quantity
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center flex justify-center">
+                                    <Badge variant="secondary">{item.category}</Badge>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[150px] text-left">
+                                    {item.member}
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center flex justify-center">
+                                    <Badge 
+                                        variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
+                                        className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
+                                    >
+                                        {item.action}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                    <div className="font-semibold">
+                                        ₱{(item.totalAmount || 0).toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[200px] text-left">
+                                    <div className="truncate" title={item.notes}>
+                                        {item.notes}
+                                    </div>
+                                </div>
                             </div>
                         </TableCell>
                     </TableRow>
@@ -222,28 +254,48 @@ export const StockManagement = ({
                 
                 return (
                     <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <Badge variant="outline">#{item.id}</Badge>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-medium">{item.product?.name || '-'}</div>
-                        </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-semibold">
-                                {item.category === 'Kilo'
-                                    ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
-                                    : item.category
-                                    ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                    : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
-                                }
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center flex justify-center">
+                                    <Badge variant="outline">#{item.id}</Badge>
+                                </div>
                             </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            {item.member?.name || t('admin.unassigned')}
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[180px] text-left">
+                                    <div className="font-medium">{item.product?.name || '-'}</div>
+                                </div>
+                            </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="font-semibold">
-                                ₱{totalAmount.toFixed(2)}
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                    <div className="font-semibold">
+                                        {item.category === 'Kilo'
+                                            ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
+                                            : item.category
+                                            ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                            : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[150px] text-left">
+                                    {item.member?.name || t('admin.unassigned')}
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                    <div className="font-semibold">
+                                        ₱{totalAmount.toFixed(2)}
+                                    </div>
+                                </div>
                             </div>
                         </TableCell>
                     </TableRow>
@@ -253,79 +305,107 @@ export const StockManagement = ({
             // For regular stocks
             return (
                 <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        <Badge variant="outline">#{item.id}</Badge>
-                    </TableCell>
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        <div className="font-medium">{item.product?.name || '-'}</div>
-                    </TableCell>
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        <div className="font-semibold">
-                            {dataType === 'stocks' && item.quantity === 0 ? (
-                                <div>
-                                    {item.category === 'Kilo'
-                                        ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
-                                        : item.category
-                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                        : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
-                                    }
-                                </div>
-                            ) : (
-                                <div>
-                                    {item.category === 'Kilo'
-                                        ? `${item.quantity} kg`
-                                        : item.category
-                                        ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                        : item.quantity
-                                    }
-                                </div>
-                            )}
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-center flex justify-center">
+                                <Badge variant="outline">#{item.id}</Badge>
+                            </div>
                         </div>
                     </TableCell>
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        <Badge variant="secondary">{item.category || '-'}</Badge>
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[180px] text-left">
+                                <div className="font-medium">{item.product?.name || '-'}</div>
+                            </div>
+                        </div>
                     </TableCell>
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        {item.member?.name || t('admin.unassigned')}
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold">
+                                    {dataType === 'stocks' && item.quantity === 0 ? (
+                                        <div>
+                                            {item.category === 'Kilo'
+                                                ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
+                                                : item.category
+                                                ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                                : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                            }
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            {item.category === 'Kilo'
+                                                ? `${item.quantity} kg`
+                                                : item.category
+                                                ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                                : item.quantity
+                                            }
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </TableCell>
-                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                        <Badge 
-                            variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
-                            className={
-                                item.quantity > 10 
-                                    ? "bg-primary/10 text-primary" 
-                                    : item.quantity > 0 
-                                        ? "bg-secondary/10 text-secondary" 
-                                        : "bg-destructive/10 text-destructive"
-                            }
-                        >
-                            {item.quantity > 10 ? t('admin.available') : 
-                             item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
-                        </Badge>
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-center flex justify-center">
+                                <Badge variant="secondary">{item.category || '-'}</Badge>
+                            </div>
+                        </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[150px] text-left">
+                                {item.member?.name || t('admin.unassigned')}
+                            </div>
+                        </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-center flex justify-center">
+                                <Badge 
+                                    variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
+                                    className={
+                                        item.quantity > 10 
+                                            ? "bg-primary/10 text-primary" 
+                                            : item.quantity > 0 
+                                                ? "bg-secondary/10 text-secondary" 
+                                                : "bg-destructive/10 text-destructive"
+                                    }
+                                >
+                                    {item.quantity > 10 ? t('admin.available') : 
+                                     item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
+                                </Badge>
+                            </div>
+                        </div>
                     </TableCell>
                     {dataType === 'stocks' && (
-                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top">
-                            <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
-                                <PermissionGate permission="edit stocks">
-                                    <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
-                                        <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
-                                            <Edit className="h-3 w-3 mr-1" />
-                                            {t('ui.edit')}
-                                        </Link>
-                                    </Button>
-                                </PermissionGate>
-                                <PermissionGate permission="delete stocks">
-                                    <Button 
-                                        disabled={processing} 
-                                        onClick={() => handleRemovePerishedStock(item)} 
-                                        size="sm"
-                                        variant="destructive"
-                                        className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
-                                    >
-                                        <Trash2 className="h-3 w-3 mr-1" />
-                                        {t('admin.remove')}
-                                    </Button>
-                                </PermissionGate>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[180px] text-center">
+                                    <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
+                                        <PermissionGate permission="edit stocks">
+                                            <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
+                                                <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
+                                                    <Edit className="h-3 w-3 mr-1" />
+                                                    {t('ui.edit')}
+                                                </Link>
+                                            </Button>
+                                        </PermissionGate>
+                                        <PermissionGate permission="delete stocks">
+                                            <Button 
+                                                disabled={processing} 
+                                                onClick={() => handleRemovePerishedStock(item)} 
+                                                size="sm"
+                                                variant="destructive"
+                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                            >
+                                                <Trash2 className="h-3 w-3 mr-1" />
+                                                {t('admin.remove')}
+                                            </Button>
+                                        </PermissionGate>
+                                    </div>
+                                </div>
                             </div>
                         </TableCell>
                     )}

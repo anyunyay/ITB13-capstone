@@ -243,38 +243,38 @@ export const ProductTable = ({
             <Table className="w-full border-collapse text-sm">
                 <TableHeader className={styles.inventoryTableHeader}>
                     <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                             <button
                                 onClick={() => handleSort('name')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
                             >
                                 <Package className="h-4 w-4" />
                                 {t('admin.product')}
                                 {getSortIcon('name')}
                             </button>
                         </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                             <button
                                 onClick={() => handleSort('type')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
                             >
                                 <Tag className="h-4 w-4" />
                                 {t('admin.category')}
                                 {getSortIcon('type')}
                             </button>
                         </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
                             <button
                                 onClick={() => handleSort('price')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors"
+                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
                             >
                                 <DollarSign className="h-4 w-4" />
                                 {t('admin.prices')}
                                 {getSortIcon('price')}
                             </button>
                         </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-left text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -283,57 +283,75 @@ export const ProductTable = ({
                             key={product.id} 
                             className={`border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md ${product.archived_at ? styles.archivedRow : ''}`}
                         >
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
-                                        <img 
-                                            src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
-                                            alt={product.name}
-                                            onError={(e) => handleImageError(e, product.name)}
-                                            className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
-                                        />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="font-medium text-foreground truncate">{product.name}</div>
-                                        <div className="text-sm text-muted-foreground line-clamp-2">{product.description}</div>
+                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full text-left">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
+                                                <img 
+                                                    src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
+                                                    alt={product.name}
+                                                    onError={(e) => handleImageError(e, product.name)}
+                                                    className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
+                                                />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="font-medium text-foreground truncate">{product.name}</div>
+                                                <div className="text-sm text-muted-foreground line-clamp-2">{product.description}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                <Badge variant="secondary" className="text-xs">
-                                    {product.produce_type}
-                                </Badge>
-                            </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                <div className="space-y-1">
-                                    {product.price_kilo && (
-                                        <div className="text-sm">
-                                            <span className="text-muted-foreground">{t('admin.price_per_kilo')}: </span>
-                                            <span className="font-medium">₱{product.price_kilo}</span>
-                                        </div>
-                                    )}
-                                    {product.price_pc && (
-                                        <div className="text-sm">
-                                            <span className="text-muted-foreground">{t('admin.price_per_piece')}: </span>
-                                            <span className="font-medium">₱{product.price_pc}</span>
-                                        </div>
-                                    )}
-                                    {product.price_tali && (
-                                        <div className="text-sm">
-                                            <span className="text-muted-foreground">{t('admin.price_per_tali')}: </span>
-                                            <span className="font-medium">₱{product.price_tali}</span>
-                                        </div>
-                                    )}
-                                    {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                        <span className="text-sm text-muted-foreground">{t('admin.no_prices_set')}</span>
-                                    )}
+                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full text-center flex justify-center">
+                                        <Badge variant="secondary" className="text-xs">
+                                            {product.produce_type}
+                                        </Badge>
+                                    </div>
                                 </div>
                             </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                {getStatusBadge(product.archived_at || null)}
+                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full text-left">
+                                        <div className="space-y-1">
+                                            {product.price_kilo && (
+                                                <div className="text-sm">
+                                                    <span className="text-muted-foreground">{t('admin.price_per_kilo')}: </span>
+                                                    <span className="float-right text-right font-medium">₱{product.price_kilo}</span>
+                                                </div>
+                                            )}
+                                            {product.price_pc && (
+                                                <div className="text-sm">
+                                                    <span className="text-muted-foreground">{t('admin.price_per_piece')}: </span>
+                                                    <span className="float-right texttext-right font-medium">₱{product.price_pc}</span>
+                                                </div>
+                                            )}
+                                            {product.price_tali && (
+                                                <div className="text-sm">
+                                                    <span className="text-muted-foreground">{t('admin.price_per_tali')}: </span>
+                                                    <span className="float-right texttext-right font-medium">₱{product.price_tali}</span>
+                                                </div>
+                                            )}
+                                            {!product.price_kilo && !product.price_pc && !product.price_tali && (
+                                                <span className="text-sm text-muted-foreground">{t('admin.no_prices_set')}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 text-sm lg:text-sm md:text-sm sm:text-xs text-foreground align-top ${styles.inventoryTableCell}`}>
-                                <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
+                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full text-center flex justify-center">
+                                        {getStatusBadge(product.archived_at || null)}
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                    <div className="w-full text-center">
+                                        <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
                                     {!product.archived_at && (
                                         <PermissionGate permission="create stocks">
                                             <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
@@ -417,6 +435,8 @@ export const ProductTable = ({
                                             {t('ui.delete')}
                                         </Button>
                                     </PermissionGate>
+                                        </div>
+                                    </div>
                                 </div>
                             </TableCell>
                         </TableRow>
