@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { OctagonAlert, PackageOpen, Image as ImageIcon } from 'lucide-react';
+import { OctagonAlert, PackageOpen, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -105,14 +105,36 @@ export default function Edit({product}: Props) {
                 <div className='w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8'>
                     {/* Page Header */}
                     <div className="mb-2 sm:mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                                <PackageOpen className="h-6 w-6 text-primary" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                    <PackageOpen className="h-6 w-6 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('admin.update_product')}</h1>
+                                    <p className="text-sm text-muted-foreground mt-1 truncate">{t('admin.edit_product_description')}: {product.name}</p>
+                                </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('admin.update_product')}</h1>
-                                <p className="text-sm text-muted-foreground mt-1 truncate">{t('admin.edit_product_description')}: {product.name}</p>
-                            </div>
+                            {/* Mobile: Icon only */}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => router.visit(route('inventory.index'))}
+                                className="sm:hidden"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            {/* Desktop: Full button with text */}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => router.visit(route('inventory.index'))}
+                                className="hidden sm:flex items-center gap-2"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                {t('admin.back_to_inventory')}
+                            </Button>
                         </div>
                     </div>
 
