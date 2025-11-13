@@ -281,46 +281,74 @@ export function ReportOrderTable({ orders }: ReportOrderTableProps) {
                 className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
               >
                 <TableCell className="py-3 px-4">
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    #{order.id}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div>
-                    <div className="font-medium text-foreground">{order.customer.name}</div>
-                    <div className="text-sm text-muted-foreground">{order.customer.email}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4 text-right">
-                  <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                    ₱{Number(order.total_amount).toFixed(2)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  {getStatusBadge(order.status)}
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  {order.delivery_status ? getDeliveryStatusBadge(order.delivery_status) : <span className="text-muted-foreground">-</span>}
-                </TableCell>
-                <TableCell className="py-3 px-4 text-sm text-muted-foreground">
-                  {format(new Date(order.created_at), 'MMM dd, yyyy')}
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="max-w-xs">
-                    {order.admin ? (
-                      <p className="text-sm text-foreground">{order.admin.name}</p>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                        #{order.id}
+                      </Badge>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-3 px-4">
-                  <div className="max-w-xs">
-                    {order.logistic ? (
-                      <p className="text-sm text-foreground">{order.logistic.name}</p>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[200px] text-left">
+                      <div>
+                        <div className="font-medium text-foreground">{order.customer.name}</div>
+                        <div className="text-sm text-muted-foreground">{order.customer.email}</div>
+                      </div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-right flex justify-end">
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                        ₱{Number(order.total_amount).toFixed(2)}
+                      </Badge>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center flex justify-center">
+                      {getStatusBadge(order.status)}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[150px] text-center flex justify-center">
+                      {order.delivery_status ? getDeliveryStatusBadge(order.delivery_status) : <span className="text-muted-foreground">-</span>}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[120px] text-center">
+                      <span className="text-sm text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[150px] text-left">
+                      {order.admin ? (
+                        <p className="text-sm text-foreground">{order.admin.name}</p>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <div className="flex justify-center min-h-[40px] py-2 w-full">
+                    <div className="w-full max-w-[150px] text-left">
+                      {order.logistic ? (
+                        <p className="text-sm text-foreground">{order.logistic.name}</p>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>

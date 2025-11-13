@@ -241,66 +241,66 @@ export const OrderTable = ({
             <Table className="w-full border-collapse text-sm">
                 <TableHeader className="bg-muted/50 border-b-2">
                     <TableRow>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                                 <Package className="h-4 w-4" />
                                 {t('admin.order_id_header')}
                                 {getSortIcon('id')}
                             </button>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('created_at')} className="flex items-center gap-2 hover:text-foreground transition-colors">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('created_at')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                                 <Calendar className="h-4 w-4" />
                                 {t('admin.date')}
                                 {getSortIcon('created_at')}
                             </button>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                                 <User className="h-4 w-4" />
                                 {t('admin.customer')}
                                 {getSortIcon('customer')}
                             </button>
                         </TableHead>
                         {!compact && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                                <div className="flex items-center gap-2">
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                <div className="flex items-center gap-2 mx-auto justify-center">
                                     <Mail className="h-4 w-4" />
                                     {t('admin.email')}
                                 </div>
                             </TableHead>
                         )}
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                                 <DollarSign className="h-4 w-4" />
                                 {t('admin.total_amount')}
                                 {getSortIcon('total_amount')}
                             </button>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <div className="flex items-center gap-2">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <div className="flex items-center gap-2 mx-auto justify-center">
                                 <Package className="h-4 w-4" />
                                 {t('admin.items_header')}
                             </div>
                         </TableHead>
-                        <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                             {t('admin.status_header')}
                         </TableHead>
                         {!compact && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 {t('admin.delivery_status_header')}
                             </TableHead>
                         )}
                         {!compact && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                                <div className="flex items-center gap-2">
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                                <div className="flex items-center gap-2 mx-auto justify-center">
                                     <Truck className="h-4 w-4" />
                                     {t('admin.logistic')}
                                 </div>
                             </TableHead>
                         )}
                         {showActions && (
-                            <TableHead className="p-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                                 {t('admin.actions_header')}
                             </TableHead>
                         )}
@@ -320,115 +320,151 @@ export const OrderTable = ({
                                 key={order.id} 
                                 className={`border-b transition-all hover:bg-muted/20 ${highlighted ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' : ''} ${urgent ? 'bg-orange-50 border-l-4 border-l-orange-500 shadow-sm' : ''}`}
                             >
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="font-mono">
-                                            #{order.id}
-                                        </Badge>
-                                        {urgent && (
-                                            <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse">
-                                                Urgent
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[150px] text-center flex justify-center gap-2">
+                                            <Badge variant="outline" className="font-mono">
+                                                #{order.id}
                                             </Badge>
-                                        )}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm">
-                                        <div className="font-medium">
-                                            {format(new Date(order.created_at), 'MMM dd, yyyy')}
-                                        </div>
-                                        <div className="text-muted-foreground">
-                                            {format(new Date(order.created_at), 'HH:mm')}
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="flex flex-col">
-                                        <div className="font-medium text-sm">
-                                            {order.customer.name}
-                                        </div>
-                                        {order.customer.contact_number && (
-                                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <Phone className="h-3 w-3" />
-                                                {order.customer.contact_number}
-                                            </div>
-                                        )}
-                                    </div>
-                                </TableCell>
-                                
-                                {!compact && (
-                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                        <div className="text-sm text-muted-foreground">
-                                            {order.customer.email}
-                                        </div>
-                                    </TableCell>
-                                )}
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="font-semibold text-sm">
-                                        ₱{Number(order.total_amount).toFixed(2)}
-                                    </div>
-                                </TableCell>
-                                
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    <div className="text-sm">
-                                        <div className="font-medium">{totalItems} items</div>
-                                        <div className="text-muted-foreground text-xs">
-                                            {combinedItems.slice(0, 2).map((item: any, index) => (
-                                                <span key={item.id}>
-                                                    {item.product.name}
-                                                    {index < Math.min(2, combinedItems.length - 1) ? ', ' : ''}
-                                                </span>
-                                            ))}
-                                            {combinedItems.length > 2 && (
-                                                <span className="text-muted-foreground">
-                                                    +{combinedItems.length - 2} more
-                                                </span>
+                                            {urgent && (
+                                                <Badge variant="destructive" className="bg-red-100 text-red-800 animate-pulse">
+                                                    Urgent
+                                                </Badge>
                                             )}
                                         </div>
                                     </div>
                                 </TableCell>
                                 
-                                <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                    {getStatusBadge(order.status)}
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[180px] text-left">
+                                            <div className="text-sm">
+                                                <div className="font-medium">
+                                                    {format(new Date(order.created_at), 'MMM dd, yyyy')}
+                                                </div>
+                                                <div className="text-muted-foreground">
+                                                    {format(new Date(order.created_at), 'HH:mm')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[180px] text-left">
+                                            <div className="flex flex-col">
+                                                <div className="font-medium text-sm">
+                                                    {order.customer.name}
+                                                </div>
+                                                {order.customer.contact_number && (
+                                                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                        <Phone className="h-3 w-3" />
+                                                        {order.customer.contact_number}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </TableCell>
                                 
                                 {!compact && (
-                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                        {order.status === 'approved' ? getDeliveryStatusBadge(order.delivery_status) : '-'}
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[200px] text-left">
+                                                <div className="text-sm text-muted-foreground">
+                                                    {order.customer.email}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                )}
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[120px] text-right">
+                                            <div className="font-semibold text-sm">
+                                                ₱{Number(order.total_amount).toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[200px] text-left">
+                                            <div className="text-sm">
+                                                <div className="font-medium">{totalItems} items</div>
+                                                <div className="text-muted-foreground text-xs">
+                                                    {combinedItems.slice(0, 2).map((item: any, index) => (
+                                                        <span key={item.id}>
+                                                            {item.product.name}
+                                                            {index < Math.min(2, combinedItems.length - 1) ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                                    {combinedItems.length > 2 && (
+                                                        <span className="text-muted-foreground">
+                                                            +{combinedItems.length - 2} more
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 align-top border-b">
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full max-w-[120px] text-center flex justify-center">
+                                            {getStatusBadge(order.status)}
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                
+                                {!compact && (
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[150px] text-center flex justify-center">
+                                                {order.status === 'approved' ? getDeliveryStatusBadge(order.delivery_status) : '-'}
+                                            </div>
+                                        </div>
                                     </TableCell>
                                 )}
                                 
                                 {!compact && (
-                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                        {order.logistic ? (
-                                            <div className="text-sm">
-                                                <div className="font-medium">{order.logistic.name}</div>
-                                                {order.logistic.contact_number && (
-                                                    <div className="text-xs text-muted-foreground">
-                                                        {order.logistic.contact_number}
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[150px] text-left">
+                                                {order.logistic ? (
+                                                    <div className="text-sm">
+                                                        <div className="font-medium">{order.logistic.name}</div>
+                                                        {order.logistic.contact_number && (
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {order.logistic.contact_number}
+                                                            </div>
+                                                        )}
                                                     </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground text-sm">Unassigned</span>
                                                 )}
                                             </div>
-                                        ) : (
-                                            <span className="text-muted-foreground text-sm">Unassigned</span>
-                                        )}
+                                        </div>
                                     </TableCell>
                                 )}
                                 
                                 {showActions && (
-                                    <TableCell className="p-3 text-sm text-foreground align-top border-b">
-                                        <div className="flex gap-2 items-center">
-                                            <PermissionGate permission="view orders">
-                                                <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:shadow-lg hover:opacity-90">
-                                                    <Link href={route('admin.orders.show', order.id)}>
-                                                        <Eye className="h-3 w-3 mr-1" />
-                                                        View
-                                                    </Link>
-                                                </Button>
-                                            </PermissionGate>
+                                    <TableCell className="p-3 align-top border-b">
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full max-w-[120px] text-center flex justify-center">
+                                                <PermissionGate permission="view orders">
+                                                    <Button asChild variant="outline" size="sm" className="transition-all text-xs px-3 py-2 hover:shadow-lg hover:opacity-90">
+                                                        <Link href={route('admin.orders.show', order.id)}>
+                                                            <Eye className="h-3 w-3 mr-1" />
+                                                            View
+                                                        </Link>
+                                                    </Button>
+                                                </PermissionGate>
+                                            </div>
                                         </div>
                                     </TableCell>
                                 )}

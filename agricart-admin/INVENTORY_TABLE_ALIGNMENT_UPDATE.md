@@ -97,5 +97,41 @@ All table headers have been updated to use `text-center` for consistent visual p
 
 Sortable header buttons now include `mx-auto` class to ensure proper centering within the header cells.
 
+## Orders Tables Updated
+
+### 6. Order Table Component
+**File:** `resources/js/components/orders/order-table.tsx`
+- Order ID: centered (badges)
+- Date: centered
+- Customer: left-aligned
+- Email: left-aligned
+- Total Amount: right-aligned
+- Items: left-aligned
+- Status: centered (badges)
+- Delivery Status: centered (badges)
+- Logistic: left-aligned
+- Actions: centered
+
+### 7. Report Order Table Component
+**File:** `resources/js/components/orders/report-order-table.tsx`
+- Order ID: centered (badges)
+- Customer: left-aligned
+- Total Amount: right-aligned (badges)
+- Status: centered (badges)
+- Delivery Status: centered (badges)
+- Created: centered
+- Processed By: left-aligned
+- Logistic: left-aligned
+
+### 8. Order Items Table Component
+**File:** `resources/js/components/orders/order-items-table.tsx`
+- #: centered
+- Product: left-aligned
+- Quantity: right-aligned
+- Unit Price: right-aligned
+- Subtotal: right-aligned
+- Co-op Share: right-aligned
+- Available Stock: left-aligned
+
 ## Testing
 All files passed TypeScript diagnostics with no errors.
