@@ -10,54 +10,50 @@ export const StatsOverview = ({ orderStats }: StatsOverviewProps) => {
         {
             label: 'Total Orders',
             value: orderStats.totalOrders,
-            icon: Package,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50'
+            icon: Package
         },
         {
             label: 'Pending',
             value: orderStats.pendingOrders,
-            icon: Clock,
-            color: 'text-yellow-600',
-            bgColor: 'bg-yellow-50'
+            icon: Clock
         },
         {
             label: 'Approved',
             value: orderStats.approvedOrders,
-            icon: CheckCircle,
-            color: 'text-green-600',
-            bgColor: 'bg-green-50'
+            icon: CheckCircle
         },
         {
             label: 'Rejected',
             value: orderStats.rejectedOrders,
-            icon: XCircle,
-            color: 'text-red-600',
-            bgColor: 'bg-red-50'
+            icon: XCircle
         },
         {
             label: 'Delayed',
             value: orderStats.delayedOrders,
-            icon: AlertTriangle,
-            color: 'text-orange-600',
-            bgColor: 'bg-orange-50'
+            icon: AlertTriangle
         }
     ];
 
     return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-5">
             {stats.map((stat, index) => {
                 const IconComponent = stat.icon;
+                const isLastCard = index === stats.length - 1;
                 return (
-                    <div key={index} className="bg-card border border-border rounded-lg p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md hover:border-primary">
-                        <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                            <IconComponent className="h-6 w-6" />
+                    <div 
+                        key={index} 
+                        className={`bg-card border border-border rounded-lg p-3 sm:p-5 flex items-center gap-2 sm:gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-primary ${
+                            isLastCard ? 'col-span-2 md:col-span-1' : ''
+                        }`}
+                    >
+                        <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 sm:p-3 rounded-lg flex items-center justify-center shrink-0">
+                            <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
-                        <div className="flex-1">
-                            <div className="text-2xl font-bold text-foreground leading-none">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-lg sm:text-xl font-bold text-foreground leading-none">
                                 {stat.value.toLocaleString()}
                             </div>
-                            <div className="text-sm text-muted-foreground mt-1">
+                            <div className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                                 {stat.label}
                             </div>
                         </div>

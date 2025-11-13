@@ -15,24 +15,22 @@ export const DashboardHeader = ({ orderStats }: DashboardHeaderProps) => {
     const t = useTranslation();
     
     return (
-        <div className="bg-gradient-to-br from-card to-card/95 border border-border rounded-xl p-6 shadow-lg flex flex-col gap-4">
-            <div className="flex flex-col gap-3 mb-1 md:flex-row md:items-center md:justify-between">
+        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-5 shadow-lg flex flex-col gap-3">
+            <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 text-primary p-2.5 rounded-lg">
-                            <Package className="h-6 w-6" />
-                        </div>
+                        <Package className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground leading-tight">{t('admin.order_management')}</h1>
-                            <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                            <h1 className="text-2xl font-bold text-foreground m-0 leading-tight">{t('admin.order_management')}</h1>
+                            <p className="text-sm text-muted-foreground mt-1 mb-0 leading-snug">
                                 {t('admin.order_management_description')}
                             </p>
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2 flex-wrap items-center">
+                <div className="flex flex-wrap gap-2 items-center">
                     <PermissionGate permission="generate order report">
-                        <Button asChild variant="outline" className="bg-background text-foreground border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                        <Button asChild variant="outline" className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
                             <Link href={route('admin.orders.report')}>
                                 <BarChart3 className="h-4 w-4 mr-2" />
                                 {t('admin.generate_report')}
