@@ -143,7 +143,8 @@ export const ProductManagement = ({
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                         >
                             <Search className="h-4 w-4 mr-2" />
-                            {showSearch ? t('ui.hide_search') : t('ui.search')}
+                            <span className="hidden sm:inline">{showSearch ? t('ui.hide_search') : t('ui.search')}</span>
+                            <span className="inline sm:hidden">{showSearch ? t('ui.hide') : t('ui.search')}</span>
                         </Button>
                         <PermissionGate permission="view archive">
                             <Button

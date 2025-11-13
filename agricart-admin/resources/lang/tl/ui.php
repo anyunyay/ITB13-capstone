@@ -16,6 +16,7 @@ return [
     'confirm' => 'Kumpirmahin',
     'close' => 'Isara',
     'search' => 'Maghanap',
+    'hide' => 'Itago',
     'filter' => 'I-filter',
     'reset' => 'I-reset',
     'clear' => 'I-clear',

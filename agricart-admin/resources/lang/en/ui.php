@@ -16,6 +16,7 @@ return [
     'confirm' => 'Confirm',
     'close' => 'Close',
     'search' => 'Search',
+    'hide' => 'Hide',
     'filter' => 'Filter',
     'reset' => 'Reset',
     'clear' => 'Clear',
