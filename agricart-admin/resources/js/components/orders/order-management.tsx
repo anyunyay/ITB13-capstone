@@ -87,7 +87,7 @@ export const OrderManagement = ({
         return (
             <>
                 {currentView === 'cards' ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
                         {ordersToRender.map((order) => (
                             <OrderCard 
                                 key={order.id} 
@@ -119,35 +119,37 @@ export const OrderManagement = ({
     };
 
     return (
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-            <div className="flex flex-col gap-3 pb-4 border-b border-border md:flex-row md:items-center md:justify-between mb-4">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="bg-primary/10 text-primary p-3 rounded-lg flex-shrink-0">
-                        <Package className="h-6 w-6" />
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <div className="mb-4 pb-3 border-b border-border">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-3">
+                        <Package className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                        <div>
+                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.order_management')}</h2>
+                            <p className="text-sm text-muted-foreground m-0 leading-snug">{t('admin.order_management_description')}</p>
+                        </div>
                     </div>
-                    <div className="min-w-0">
-                        <h2 className="text-2xl font-semibold text-foreground mb-1">{t('admin.order_management')}</h2>
-                        <p className="text-sm text-muted-foreground">{t('admin.order_management_description')}</p>
+                    <div className="flex gap-2 flex-shrink-0 items-center">
+                        <Button
+                            variant={showSearch ? "default" : "outline"}
+                            onClick={() => {
+                                if (showSearch) {
+                                    setSearchTerm('');
+                                }
+                                setShowSearch(!showSearch);
+                            }}
+                            size="sm"
+                            className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                            <Search className="h-4 w-4 mr-2" />
+                            <span className="hidden sm:inline">{showSearch ? t('ui.hide_search') : t('ui.search')}</span>
+                            <span className="inline sm:hidden">{showSearch ? t('ui.hide') : t('ui.search')}</span>
+                        </Button>
+                        <ViewToggle 
+                            currentView={currentView} 
+                            onViewChange={setCurrentView} 
+                        />
                     </div>
-                </div>
-                <div className="flex gap-3 items-center justify-end flex-shrink-0 ml-auto">
-                    <Button
-                        variant={showSearch ? "default" : "outline"}
-                        onClick={() => {
-                            if (showSearch) {
-                                setSearchTerm('');
-                            }
-                            setShowSearch(!showSearch);
-                        }}
-                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                        <Search className="h-4 w-4 mr-2" />
-                        {showSearch ? t('ui.hide_search') : t('ui.search')}
-                    </Button>
-                    <ViewToggle 
-                        currentView={currentView} 
-                        onViewChange={setCurrentView} 
-                    />
                 </div>
             </div>
 

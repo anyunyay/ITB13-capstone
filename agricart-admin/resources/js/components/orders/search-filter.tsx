@@ -55,9 +55,9 @@ export const SearchFilter = ({
                         </Button>
                     )}
                 </div>
-                <div className="flex gap-2 flex-shrink-0 flex-row w-full md:w-auto">
+                <div className="flex gap-3 flex-shrink-0">
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                        <SelectTrigger className="flex-1 min-w-0 md:min-w-[140px] bg-background border border-border rounded-lg py-2 px-2 md:px-3 text-foreground text-xs md:text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                        <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                             <SelectValue placeholder="Order Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -71,7 +71,7 @@ export const SearchFilter = ({
                     </Select>
                     
                     <Select value={selectedDeliveryStatus} onValueChange={setSelectedDeliveryStatus}>
-                        <SelectTrigger className="flex-1 min-w-0 md:min-w-[160px] bg-background border border-border rounded-lg py-2 px-2 md:px-3 text-foreground text-xs md:text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                        <SelectTrigger className="min-w-[160px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                             <SelectValue placeholder="Delivery Status" />
                         </SelectTrigger>
                         <SelectContent>
