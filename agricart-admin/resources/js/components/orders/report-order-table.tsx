@@ -1,44 +1,11 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { format } from 'date-fns';
-import { useState } from 'react';
+import { Package } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
-
-interface Order {
-  id: number;
-  customer: {
-    name: string;
-    email: string;
-    contact_number?: string;
-  };
-  total_amount: number;
-  subtotal: number;
-  status: string;
-  delivery_status: string;
-  created_at: string;
-  admin?: {
-    name: string;
-  };
-  logistic?: {
-    id: number;
-    name: string;
-    contact_number?: string;
-  };
-  audit_trail: Array<{
-    id: number;
-    product: {
-      id: number;
-      name: string;
-    };
-    category: string;
-    quantity: number;
-  }>;
-}
+import { BaseTable } from '@/components/common/base-table';
+import { createReportOrderTableColumns, ReportOrderMobileCard, ReportOrder } from './report-order-table-columns';
 
 interface ReportOrderTableProps {
-  orders: Order[];
+  orders: ReportOrder[];
 }
 
 export function ReportOrderTable({ orders }: ReportOrderTableProps) {
@@ -55,14 +22,8 @@ export function ReportOrderTable({ orders }: ReportOrderTableProps) {
     }
   };
 
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ?
-      <ArrowUp className="h-4 w-4 ml-1" /> :
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
-  const sortedOrders = [...orders].sort((a, b) => {
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
     let comparison = 0;
     switch (sortBy) {
       case 'id':
@@ -97,7 +58,11 @@ export function ReportOrderTable({ orders }: ReportOrderTableProps) {
         return 0;
     }
     return sortOrder === 'asc' ? comparison : -comparison;
-  });
+    });
+  }, [orders, sortBy, sortOrder]);
+
+  // Create column definitions
+  const columns = useMemo(() => createReportOrderTableColumns(t), [t]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -132,230 +97,21 @@ export function ReportOrderTable({ orders }: ReportOrderTableProps) {
   };
 
   return (
-    <>
-      {/* Mobile Card View - Hidden on md and up */}
-      <div className="md:hidden space-y-3">
-        {sortedOrders.map((order) => (
-          <div 
-            key={order.id}
-            className="bg-card border border-border rounded-lg p-4 shadow-sm transition-all duration-200 hover:shadow-md"
-          >
-            <div className="flex items-start justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="font-mono text-xs bg-primary/10 text-primary border-primary/20">
-                  #{order.id}
-                </Badge>
-              </div>
-              <div className="flex flex-col gap-1 items-end">
-                {getStatusBadge(order.status)}
-                {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
-              </div>
-            </div>
-
-            <div className="space-y-2 mb-3 pb-3 border-b border-border">
-              <div className="text-xs text-muted-foreground">
-                {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-              </div>
-              
-              <div className="text-sm">
-                <div className="font-medium text-foreground">{order.customer.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{order.customer.email}</div>
-              </div>
-
-              {order.admin && (
-                <div className="text-xs">
-                  <span className="text-muted-foreground">{t('admin.processed_by')}: </span>
-                  <span className="text-foreground">{order.admin.name}</span>
-                </div>
-              )}
-
-              {order.logistic && (
-                <div className="text-xs">
-                  <span className="text-muted-foreground">{t('admin.logistic')}: </span>
-                  <span className="text-foreground">{order.logistic.name}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">{t('admin.total_amount')}:</span>
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                ₱{Number(order.total_amount).toFixed(2)}
-              </Badge>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Table View - Hidden on mobile */}
-      <div className="hidden md:block overflow-x-auto">
-        <Table className="w-full border-collapse">
-          <TableHeader>
-            <TableRow className="border-b border-border bg-muted/50">
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('id')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.order_id_header')}
-                  {getSortIcon('id')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('customer')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.customer')}
-                  {getSortIcon('customer')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('total_amount')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.total_amount')}
-                  {getSortIcon('total_amount')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('status')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.status')}
-                  {getSortIcon('status')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('delivery_status')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.delivery_status')}
-                  {getSortIcon('delivery_status')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('created_at')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.created')}
-                  {getSortIcon('created_at')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('admin')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.processed_by')}
-                  {getSortIcon('admin')}
-                </Button>
-              </TableHead>
-              <TableHead className="text-center py-3 px-4 font-semibold text-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('logistic')}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
-                >
-                  {t('admin.logistic')}
-                  {getSortIcon('logistic')}
-                </Button>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedOrders.map((order, index) => (
-              <TableRow 
-                key={order.id} 
-                className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
-              >
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[120px] text-center flex justify-center">
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                        #{order.id}
-                      </Badge>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[200px] text-left">
-                      <div>
-                        <div className="font-medium text-foreground">{order.customer.name}</div>
-                        <div className="text-sm text-muted-foreground">{order.customer.email}</div>
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[120px] text-right flex justify-end">
-                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                        ₱{Number(order.total_amount).toFixed(2)}
-                      </Badge>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[120px] text-center flex justify-center">
-                      {getStatusBadge(order.status)}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[150px] text-center flex justify-center">
-                      {order.delivery_status ? getDeliveryStatusBadge(order.delivery_status) : <span className="text-muted-foreground">-</span>}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[120px] text-center">
-                      <span className="text-sm text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[150px] text-left">
-                      {order.admin ? (
-                        <p className="text-sm text-foreground">{order.admin.name}</p>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 px-4">
-                  <div className="flex justify-center min-h-[40px] py-2 w-full">
-                    <div className="w-full max-w-[150px] text-left">
-                      {order.logistic ? (
-                        <p className="text-sm text-foreground">{order.logistic.name}</p>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
-                    </div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </>
+    <BaseTable
+      data={sortedOrders}
+      columns={columns}
+      keyExtractor={(order) => order.id}
+      sortBy={sortBy}
+      sortOrder={sortOrder}
+      onSort={handleSort}
+      renderMobileCard={(order) => <ReportOrderMobileCard order={order} t={t} />}
+      emptyState={
+        <div className="text-center py-12">
+          <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
+          <p className="text-muted-foreground">{t('admin.no_orders_match_filters')}</p>
+        </div>
+      }
+    />
   );
 }
