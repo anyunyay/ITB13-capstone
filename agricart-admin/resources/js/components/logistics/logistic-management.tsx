@@ -1,17 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Link } from '@inertiajs/react';
-import { route } from 'ziggy-js';
-import { IdCard, Search, Edit, UserMinus, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
-import { PermissionGate } from '@/components/common/permission-gate';
+import { IdCard, Search, Eye, EyeOff } from 'lucide-react';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { AdminSearchBar } from '@/components/ui/admin-search-bar';
 import { Logistic } from '../../types/logistics';
-import styles from './logistic-highlights.module.css';
 import { useTranslation } from '@/hooks/use-translation';
+import { BaseTable } from '@/components/common/base-table';
+import { createLogisticsTableColumns, LogisticsMobileCard } from './logistics-table-columns';
+import { useMemo } from 'react';
 
 interface LogisticManagementProps {
     logistics: Logistic[];
@@ -63,6 +58,7 @@ export const LogisticManagement = ({
     setSortOrder
 }: LogisticManagementProps) => {
     const t = useTranslation();
+    
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -72,12 +68,10 @@ export const LogisticManagement = ({
         }
     };
 
-    const getSortIcon = (field: string) => {
-        if (sortBy !== field) return <ArrowUpDown className="h-4 w-4" />;
-        return sortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4" /> : 
-            <ArrowDown className="h-4 w-4" />;
-    };
+    // Create column definitions
+    const logisticsColumns = useMemo(() => {
+        return createLogisticsTableColumns(t, processing, onDeactivate, onReactivate);
+    }, [t, processing, onDeactivate, onReactivate]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
@@ -139,162 +133,41 @@ export const LogisticManagement = ({
             />
 
             {/* Logistics Table */}
-            {paginatedLogistics.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('id')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        ID {getSortIcon('id')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('name')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('admin.name')} {getSortIcon('name')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.email')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('registration_date')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('admin.registration_date')} {getSortIcon('registration_date')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('active')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('admin.status')} {getSortIcon('active')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedLogistics.map((logistic) => (
-                                <tr
-                                    key={logistic.id}
-                                    className={`border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)] ${
-                                        highlightLogisticId === logistic.id ? styles.highlighted : ''
-                                    }`}
-                                >
-                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.id}</td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        <div className="font-medium">{logistic.name}</div>
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        {logistic.contact_number || t('admin.not_available')}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        {logistic.default_address ? 
-                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                            : t('admin.not_available')
-                                        }
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        {logistic.registration_date ? 
-                                            new Date(logistic.registration_date).toLocaleDateString() 
-                                            : t('admin.not_available')
-                                        }
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        <Badge variant={logistic.can_be_deactivated ? "default" : "secondary"}>
-                                            {logistic.can_be_deactivated ? t('admin.active') : t('admin.protected')}
-                                        </Badge>
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        <div className="flex gap-2">
-                                            <PermissionGate permission="edit logistics">
-                                                <Button
-                                                    asChild
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                >
-                                                    <Link href={route('logistics.edit', logistic.id)}>
-                                                        <Edit className="h-4 w-4" />
-                                                        {t('ui.edit')}
-                                                    </Link>
-                                                </Button>
-                                            </PermissionGate>
-                                            {logistic.active ? (
-                                                <PermissionGate permission="deactivate logistics">
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <div>
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        size="sm"
-                                                                        onClick={() => onDeactivate(logistic)}
-                                                                        disabled={processing || !logistic.can_be_deactivated}
-                                                                        className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
-                                                                            !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
-                                                                        }`}
-                                                                    >
-                                                                        <UserMinus className="h-4 w-4" />
-                                                                        {t('admin.deactivate')}
-                                                                    </Button>
-                                                                </div>
-                                                            </TooltipTrigger>
-                                                            {!logistic.can_be_deactivated && logistic.deactivation_reason && (
-                                                                <TooltipContent>
-                                                                    <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
-                                                                </TooltipContent>
-                                                            )}
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-                                                </PermissionGate>
-                                            ) : (
-                                                <PermissionGate permission="reactivate logistics">
-                                                    <Button
-                                                        variant="default"
-                                                        size="sm"
-                                                        onClick={() => onReactivate(logistic)}
-                                                        disabled={processing}
-                                                        className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                    >
-                                                        <RotateCcw className="h-4 w-4" />
-                                                        {t('admin.reactivate')}
-                                                    </Button>
-                                                </PermissionGate>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="text-center py-8">
-                    <IdCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? t('admin.no_logistics_found') : t('admin.no_logistics_available')}
-                    </h3>
-                    <p className="text-muted-foreground">
-                        {searchTerm 
-                            ? t('admin.no_logistics_match_search', { search: searchTerm })
-                            : showDeactivated 
+            <BaseTable
+                data={paginatedLogistics}
+                columns={logisticsColumns}
+                keyExtractor={(logistic) => logistic.id}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                getRowClassName={(logistic) => 
+                    highlightLogisticId === logistic.id ? 'bg-yellow-50 dark:bg-yellow-900/20' : ''
+                }
+                renderMobileCard={(logistic) => (
+                    <LogisticsMobileCard
+                        logistic={logistic}
+                        t={t}
+                        processing={processing}
+                        onDeactivate={onDeactivate}
+                        onReactivate={onReactivate}
+                    />
+                )}
+                emptyState={
+                    <div className="text-center py-8">
+                        <IdCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">
+                            {searchTerm ? t('admin.no_logistics_found') : t('admin.no_logistics_available')}
+                        </h3>
+                        <p className="text-muted-foreground">
+                            {searchTerm
+                                ? t('admin.no_logistics_match_search', { search: searchTerm })
+                                : showDeactivated
                                 ? t('admin.no_deactivated_logistics')
-                                : t('admin.no_logistics_registered')
-                        }
-                    </p>
-                </div>
-            )}
+                                : t('admin.no_logistics_registered')}
+                        </p>
+                    </div>
+                }
+            />
 
             {/* Pagination */}
             {totalPages > 1 && (
