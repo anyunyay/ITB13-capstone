@@ -1,52 +1,17 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-
 import { PermissionGate } from '@/components/common/permission-gate';
 import { PermissionGuard } from '@/components/common/permission-guard';
-import { DollarSign, ShoppingCart, Users, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, ShoppingCart, Users, TrendingUp, Package } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { PaginationControls } from '@/components/inventory/pagination-controls';
-
-interface Sale {
-  id: number;
-  customer: {
-    name: string;
-    email: string;
-  };
-  total_amount: number;
-  subtotal?: number;
-  coop_share?: number;
-  member_share: number;
-  cogs: number;
-  gross_profit: number;
-  delivered_at: string;
-  admin?: {
-    name: string;
-  };
-  logistic?: {
-    name: string;
-  };
-}
-
-interface MemberSale {
-  member_id: number;
-  member_name: string;
-  member_email: string;
-  total_orders: number;
-  total_revenue: number;
-  total_coop_share: number;
-  total_member_share: number;
-  total_cogs: number;
-  total_gross_profit: number;
-  total_quantity_sold: number;
-}
+import { BaseTable } from '@/components/common/base-table';
+import { createSalesTableColumns, SalesMobileCard, Sale } from '@/components/sales/sales-table-columns';
+import { createMemberSalesTableColumns, MemberSalesMobileCard, MemberSale } from '@/components/sales/member-sales-table-columns';
 
 interface SalesPageProps {
   sales: Sale[];
@@ -83,101 +48,105 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
   const [memberCurrentPage, setMemberCurrentPage] = useState(1);
   
   const itemsPerPage = 10;
-  
-  // Helper to get sort icon for different tables
-  const getSalesSortIcon = (field: string) => {
-    if (salesSortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return salesSortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
 
-  const getMemberSortIcon = (field: string) => {
-    if (memberSortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return memberSortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
+  // Calculate total revenue for member sales
+  const totalRevenue = useMemo(() => {
+    return memberSales.reduce((sum, member) => sum + Number(member.total_revenue || 0), 0);
+  }, [memberSales]);
+
+  // Create column definitions
+  const salesColumns = useMemo(() => createSalesTableColumns(t), [t]);
+  const memberSalesColumns = useMemo(() => {
+    return createMemberSalesTableColumns(t, totalRevenue);
+  }, [t, totalRevenue]);
   
   // Sort and paginate sales data
-  const sortedSales = [...sales].sort((a, b) => {
-    let comparison = 0;
-    switch (salesSortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'total_amount':
-        comparison = a.total_amount - b.total_amount;
-        break;
-      case 'coop_share':
-        comparison = (a.coop_share || 0) - (b.coop_share || 0);
-        break;
-      case 'member_share':
-        comparison = a.member_share - b.member_share;
-        break;
-      case 'cogs':
-        comparison = a.cogs - b.cogs;
-        break;
-      case 'gross_profit':
-        comparison = a.gross_profit - b.gross_profit;
-        break;
-      case 'customer':
-        comparison = a.customer.name.localeCompare(b.customer.name);
-        break;
-      case 'delivered_at':
-        comparison = new Date(a.delivered_at).getTime() - new Date(b.delivered_at).getTime();
-        break;
-      default:
-        return 0;
-    }
-    return salesSortOrder === 'asc' ? comparison : -comparison;
-  });
+  const sortedSales = useMemo(() => {
+    return [...sales].sort((a, b) => {
+      let comparison = 0;
+      switch (salesSortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'total_amount':
+          comparison = a.total_amount - b.total_amount;
+          break;
+        case 'coop_share':
+          comparison = (a.coop_share || 0) - (b.coop_share || 0);
+          break;
+        case 'member_share':
+          comparison = a.member_share - b.member_share;
+          break;
+        case 'cogs':
+          comparison = a.cogs - b.cogs;
+          break;
+        case 'gross_profit':
+          comparison = a.gross_profit - b.gross_profit;
+          break;
+        case 'customer':
+          comparison = a.customer.name.localeCompare(b.customer.name);
+          break;
+        case 'delivered_at':
+          comparison = new Date(a.delivered_at).getTime() - new Date(b.delivered_at).getTime();
+          break;
+        default:
+          return 0;
+      }
+      return salesSortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [sales, salesSortBy, salesSortOrder]);
 
   const salesTotalPages = Math.ceil(sortedSales.length / itemsPerPage);
-  const paginatedSales = sortedSales.slice(
-    (salesCurrentPage - 1) * itemsPerPage,
-    salesCurrentPage * itemsPerPage
-  );
+  const paginatedSales = useMemo(() => {
+    return sortedSales.slice(
+      (salesCurrentPage - 1) * itemsPerPage,
+      salesCurrentPage * itemsPerPage
+    );
+  }, [sortedSales, salesCurrentPage, itemsPerPage]);
 
   // Sort and paginate member sales
-  const sortedMemberSales = [...memberSales].sort((a, b) => {
-    let comparison = 0;
-    switch (memberSortBy) {
-      case 'member_name':
-        comparison = a.member_name.localeCompare(b.member_name);
-        break;
-      case 'total_orders':
-        comparison = a.total_orders - b.total_orders;
-        break;
-      case 'total_revenue':
-        comparison = a.total_revenue - b.total_revenue;
-        break;
-      case 'total_coop_share':
-        comparison = a.total_coop_share - b.total_coop_share;
-        break;
-      case 'total_member_share':
-        comparison = a.total_member_share - b.total_member_share;
-        break;
-      case 'total_cogs':
-        comparison = a.total_cogs - b.total_cogs;
-        break;
-      case 'total_gross_profit':
-        comparison = a.total_gross_profit - b.total_gross_profit;
-        break;
-      case 'total_quantity_sold':
-        comparison = a.total_quantity_sold - b.total_quantity_sold;
-        break;
-      default:
-        return 0;
-    }
-    return memberSortOrder === 'asc' ? comparison : -comparison;
-  });
+  const sortedMemberSales = useMemo(() => {
+    return [...memberSales].sort((a, b) => {
+      let comparison = 0;
+      switch (memberSortBy) {
+        case 'member_name':
+          comparison = a.member_name.localeCompare(b.member_name);
+          break;
+        case 'total_orders':
+          comparison = a.total_orders - b.total_orders;
+          break;
+        case 'total_revenue':
+          comparison = a.total_revenue - b.total_revenue;
+          break;
+        case 'total_coop_share':
+          comparison = a.total_coop_share - b.total_coop_share;
+          break;
+        case 'total_member_share':
+          comparison = a.total_member_share - b.total_member_share;
+          break;
+        case 'total_cogs':
+          comparison = a.total_cogs - b.total_cogs;
+          break;
+        case 'total_gross_profit':
+          comparison = a.total_gross_profit - b.total_gross_profit;
+          break;
+        case 'total_quantity_sold':
+          comparison = a.total_quantity_sold - b.total_quantity_sold;
+          break;
+        default:
+          return 0;
+      }
+      return memberSortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [memberSales, memberSortBy, memberSortOrder]);
 
   const memberTotalPages = Math.ceil(sortedMemberSales.length / itemsPerPage);
-  const paginatedMemberSales = sortedMemberSales.slice(
-    (memberCurrentPage - 1) * itemsPerPage,
-    memberCurrentPage * itemsPerPage
-  );
+  const paginatedMemberSales = useMemo(() => {
+    return sortedMemberSales.slice(
+      (memberCurrentPage - 1) * itemsPerPage,
+      memberCurrentPage * itemsPerPage
+    );
+  }, [sortedMemberSales, memberCurrentPage, itemsPerPage]);
 
   // Handle page changes for different tables
   const handleSalesPageChange = (page: number) => {
@@ -384,148 +353,22 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-md border">
-                    <Table className="w-full border-collapse text-sm">
-                      <TableHeader className="bg-muted/50 border-b-2">
-                        <TableRow>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.sale_id')}
-                              {getSalesSortIcon('id')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.customer')}
-                              {getSalesSortIcon('customer')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.total_amount')}
-                              {getSalesSortIcon('total_amount')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.coop_share')}
-                              {getSalesSortIcon('coop_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.revenue_column')}
-                              {getSalesSortIcon('member_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('cogs')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.cogs')}
-                              {getSalesSortIcon('cogs')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('gross_profit')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.gross_profit')}
-                              {getSalesSortIcon('gross_profit')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleSalesSort('delivered_at')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.delivered_date')}
-                              {getSalesSortIcon('delivered_at')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.processed_by')}</TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.logistic')}</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedSales.map((sale) => (
-                        <TableRow key={sale.id} className="border-b transition-all hover:bg-muted/20">
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[100px] text-center">
-                                <Badge variant="outline" className="font-mono">#{sale.id}</Badge>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[180px] text-left">
-                                <div className="font-medium text-sm">{sale.customer.name}</div>
-                                <div className="text-xs text-muted-foreground">{sale.customer.email}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-right">
-                                <div className="font-semibold text-sm">₱{Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-right">
-                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-right">
-                                <div className="font-semibold text-sm text-blue-600">₱{Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-right">
-                                <div className="font-semibold text-sm text-orange-600">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-right">
-                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[150px] text-left">
-                                <div className="text-sm">{format(new Date(sale.delivered_at), 'MMM dd, yyyy HH:mm')}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-center">
-                                <div className="text-sm">{sale.admin?.name || t('admin.not_available')}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="p-3 align-top border-b">
-                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                              <div className="w-full max-w-[120px] text-center">
-                                <div className="text-sm">{sale.logistic?.name || t('admin.not_available')}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {paginatedSales.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={10} className="text-center text-muted-foreground p-8">
-                              {t('admin.no_sales_found')}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <BaseTable
+                    data={paginatedSales}
+                    columns={salesColumns}
+                    keyExtractor={(sale) => sale.id}
+                    sortBy={salesSortBy}
+                    sortOrder={salesSortOrder}
+                    onSort={handleSalesSort}
+                    renderMobileCard={(sale) => <SalesMobileCard sale={sale} t={t} />}
+                    emptyState={
+                      <div className="text-center py-12">
+                        <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_sales_found')}</h3>
+                        <p className="text-muted-foreground">{t('admin.no_sales_data')}</p>
+                      </div>
+                    }
+                  />
 
                   {/* Pagination Controls */}
                   {salesTotalPages > 1 && (
@@ -550,132 +393,29 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-md border">
-                    <Table className="w-full border-collapse text-sm">
-                      <TableHeader className="bg-muted/50 border-b-2">
-                        <TableRow>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('member_name')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.member_name')}
-                              {getMemberSortIcon('member_name')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_orders')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.total_orders_label')}
-                              {getMemberSortIcon('total_orders')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.total_revenue_label')}
-                              {getMemberSortIcon('total_revenue')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.coop_share')}
-                              {getMemberSortIcon('total_coop_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.revenue_column')}
-                              {getMemberSortIcon('total_member_share')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_cogs')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.cogs')}
-                              {getMemberSortIcon('total_cogs')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_gross_profit')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.gross_profit')}
-                              {getMemberSortIcon('total_gross_profit')}
-                            </button>
-                          </TableHead>
-                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                            <button onClick={() => handleMemberSort('total_quantity_sold')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
-                              {t('admin.quantity_sold')}
-                              {getMemberSortIcon('total_quantity_sold')}
-                            </button>
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {paginatedMemberSales.map((member) => (
-                          <TableRow key={member.member_id} className="border-b transition-all hover:bg-muted/20">
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[180px] text-left">
-                                  <div className="font-medium text-sm">{member.member_name}</div>
-                                  <div className="text-xs text-muted-foreground">{member.member_email}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[100px] text-center">
-                                  <div className="text-sm">{member.total_orders}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                  <div className="font-semibold text-sm">₱{Number(member.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                  <div className="font-semibold text-sm text-green-600">₱{Number(member.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                  <div className="font-semibold text-sm text-blue-600">₱{Number(member.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                  <div className="font-semibold text-sm text-orange-600">₱{Number(member.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[120px] text-right">
-                                  <div className="font-semibold text-sm text-green-600">₱{Number(member.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="p-3 align-top border-b">
-                              <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                <div className="w-full max-w-[100px] text-center">
-                                  <div className="text-sm">{Number(member.total_quantity_sold).toLocaleString('en-US')}</div>
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        {paginatedMemberSales.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={8} className="text-center text-muted-foreground p-8">
-                              {t('admin.no_member_sales_found')}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <BaseTable
+                    data={paginatedMemberSales}
+                    columns={memberSalesColumns}
+                    keyExtractor={(member) => member.member_id}
+                    sortBy={memberSortBy}
+                    sortOrder={memberSortOrder}
+                    onSort={handleMemberSort}
+                    renderMobileCard={(member, index) => (
+                      <MemberSalesMobileCard 
+                        member={member} 
+                        index={index + (memberCurrentPage - 1) * itemsPerPage} 
+                        totalRevenue={totalRevenue} 
+                        t={t} 
+                      />
+                    )}
+                    emptyState={
+                      <div className="text-center py-12">
+                        <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_member_sales_found')}</h3>
+                        <p className="text-muted-foreground">{t('admin.no_member_sales_data')}</p>
+                      </div>
+                    }
+                  />
 
                   {/* Pagination Controls */}
                   {memberTotalPages > 1 && (
