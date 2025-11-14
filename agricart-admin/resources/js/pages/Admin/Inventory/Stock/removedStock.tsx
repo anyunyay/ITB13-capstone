@@ -4,15 +4,8 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
+import { Package, Hash, Weight, Tag, FileText, Calendar, Settings } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -70,6 +63,91 @@ export default function RemovedStockIndex() {
         });
     };
 
+    // Define table columns
+    const columns: BaseTableColumn<RemovedStockItem>[] = [
+        {
+            key: 'id',
+            label: t('admin.stock_id'),
+            icon: Hash,
+            align: 'center',
+            maxWidth: '120px',
+            render: (stock) => stock.id,
+        },
+        {
+            key: 'product_name',
+            label: t('admin.product_name'),
+            icon: Package,
+            align: 'left',
+            maxWidth: '180px',
+            render: (stock) => stock.product?.name || 'N/A',
+        },
+        {
+            key: 'quantity',
+            label: t('admin.quantity'),
+            icon: Weight,
+            align: 'right',
+            maxWidth: '120px',
+            render: (stock) => stock.category === 'Kilo' ? stock.quantity : Math.floor(stock.quantity),
+        },
+        {
+            key: 'category',
+            label: t('admin.category'),
+            icon: Tag,
+            align: 'center',
+            maxWidth: '120px',
+            render: (stock) => stock.category,
+        },
+        {
+            key: 'notes',
+            label: t('admin.removal_notes'),
+            icon: FileText,
+            align: 'left',
+            maxWidth: '200px',
+            render: (stock) => (
+                <span className="truncate" title={stock.notes}>
+                    {stock.notes || t('admin.no_notes')}
+                </span>
+            ),
+        },
+        {
+            key: 'removed_at',
+            label: t('admin.removed_at'),
+            icon: Calendar,
+            align: 'center',
+            maxWidth: '150px',
+            render: (stock) => new Date(stock.removed_at).toLocaleString(),
+        },
+        {
+            key: 'actions',
+            label: t('admin.actions'),
+            icon: Settings,
+            align: 'center',
+            maxWidth: '120px',
+            render: (stock) => (
+                <Button
+                    onClick={() => handleRestore(stock.id)}
+                    disabled={processing}
+                    variant="outline"
+                    size="sm"
+                >
+                    {t('admin.restore')}
+                </Button>
+            ),
+        },
+    ];
+
+    // Empty state component
+    const emptyState = (
+        <div className="w-full pt-8 flex justify-center">
+            <Alert>
+                <AlertTitle>{t('admin.no_removed_stock_data')}</AlertTitle>
+                <AlertDescription>
+                    {t('admin.no_removed_stock_records')}
+                </AlertDescription>
+            </Alert>
+        </div>
+    );
+
     return (
         <AppLayout>
             <Head title={t('admin.removed_stock')} />
@@ -78,102 +156,25 @@ export default function RemovedStockIndex() {
 
                 {flash.message && (
                     <Alert className="mt-4">
-                            <AlertTitle>{t('admin.success')}</AlertTitle>
+                        <AlertTitle>{t('admin.success')}</AlertTitle>
                         <AlertDescription>{flash.message}</AlertDescription>
                     </Alert>
                 )}
 
-                {stocks.length > 0 ? (
-                    <div className='w-full pt-8'>
-                        <Table>
-                            <TableCaption>{t('admin.list_recently_removed_stocks')}</TableCaption>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-center">{t('admin.stock_id')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.product_name')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.quantity')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.category')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.removal_notes')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.removed_at')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.actions')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stocks.map((stock) => (
-                                    <TableRow key={stock.id}>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center">
-                                                    {stock.id}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[180px] text-left">
-                                                    {stock.product?.name}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-right">
-                                                    {stock.category === 'Kilo'
-                                                        ? stock.quantity
-                                                        : Math.floor(stock.quantity)}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center">
-                                                    {stock.category}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[200px] text-left truncate" title={stock.notes}>
-                                                    {stock.notes || t('admin.no_notes')}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[150px] text-center">
-                                                    {new Date(stock.removed_at).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center flex justify-center">
-                                                    <Button
-                                                        onClick={() => handleRestore(stock.id)}
-                                                        disabled={processing}
-                                                        variant="outline"
-                                                        size="sm"
-                                                    >
-                                                        {t('admin.restore')}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                <div className='w-full pt-8'>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-muted-foreground">
+                            {t('admin.list_recently_removed_stocks')}
+                        </h2>
                     </div>
-                ) : (
-                    <div className="w-full pt-8 flex justify-center">
-                        <Alert>
-                            <AlertTitle>{t('admin.no_removed_stock_data')}</AlertTitle>
-                            <AlertDescription>
-                                {t('admin.no_removed_stock_records')}
-                            </AlertDescription>
-                        </Alert>
-                    </div>
-                )}
+                    <BaseTable
+                        data={stocks}
+                        columns={columns}
+                        keyExtractor={(stock) => stock.id.toString()}
+                        emptyState={emptyState}
+                        hideMobileCards={true}
+                    />
+                </div>
             </div>
         </AppLayout>
     )

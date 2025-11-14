@@ -1,21 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
+import { Package, Hash, Tag, CheckCircle, Calendar } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
@@ -63,9 +53,63 @@ export default function soldIndex() {
         }
     }, [auth]);
 
-    console.log('sold stocks:', stocks); // Debug output
-
     const { processing, delete: destroy, post } = useForm();
+
+    // Define table columns
+    const columns: BaseTableColumn<SoldStock>[] = [
+        {
+            key: 'id',
+            label: t('admin.stock_id'),
+            icon: Hash,
+            align: 'center',
+            maxWidth: '120px',
+            render: (stock) => stock.id ?? 'N/A',
+        },
+        {
+            key: 'product_name',
+            label: t('admin.product_name'),
+            icon: Package,
+            align: 'left',
+            maxWidth: '180px',
+            render: (stock) => stock.product?.name || 'N/A',
+        },
+        {
+            key: 'category',
+            label: t('admin.category'),
+            icon: Tag,
+            align: 'center',
+            maxWidth: '120px',
+            render: (stock) => stock.category,
+        },
+        {
+            key: 'status',
+            label: t('admin.status'),
+            icon: CheckCircle,
+            align: 'center',
+            maxWidth: '120px',
+            render: () => t('admin.sold_status'),
+        },
+        {
+            key: 'updated_at',
+            label: t('admin.sold_at'),
+            icon: Calendar,
+            align: 'center',
+            maxWidth: '150px',
+            render: (stock) => new Date(stock.updated_at).toLocaleString(),
+        },
+    ];
+
+    // Empty state component
+    const emptyState = (
+        <div className="w-full pt-8 flex justify-center">
+            <Alert>
+                <AlertTitle>{t('admin.no_sold_stock_data')}</AlertTitle>
+                <AlertDescription>
+                    {t('admin.no_sold_stock_records')}
+                </AlertDescription>
+            </Alert>
+        </div>
+    );
 
     return (
         <AppLayout>
@@ -73,72 +117,20 @@ export default function soldIndex() {
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>{t('admin.back_to_inventory')}</Button></Link>
 
-                {stocks.length > 0 ? (
-                    <div className='w-full pt-8'>
-                        <Table>
-                            <TableCaption>{t('admin.list_of_sold_stocks')}</TableCaption>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-center">{t('admin.stock_id')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.product_name')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.category')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.status')}</TableHead>
-                                    <TableHead className="text-center">{t('admin.sold_at')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stocks.map((stock) => (
-                                    <TableRow key={stock.id}>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center">
-                                                    {stock.id ?? 'N/A'}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[180px] text-left">
-                                                    {stock.product?.name}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center">
-                                                    {stock.category}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[120px] text-center">
-                                                    {t('admin.sold_status')}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                                <div className="w-full max-w-[150px] text-center">
-                                                    {new Date(stock.updated_at).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                <div className='w-full pt-8'>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-muted-foreground">
+                            {t('admin.list_of_sold_stocks')}
+                        </h2>
                     </div>
-                ) : (
-                    <div className="w-full pt-8 flex justify-center">
-                        <Alert>
-                            <AlertTitle>{t('admin.no_sold_stock_data')}</AlertTitle>
-                            <AlertDescription>
-                                {t('admin.no_sold_stock_records')}
-                            </AlertDescription>
-                        </Alert>
-                    </div>
-                )}
+                    <BaseTable
+                        data={stocks}
+                        columns={columns}
+                        keyExtractor={(stock) => stock.id.toString()}
+                        emptyState={emptyState}
+                        hideMobileCards={true}
+                    />
+                </div>
             </div>
         </AppLayout>
     )

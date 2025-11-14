@@ -4,19 +4,11 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
+import { BellDot, RotateCcw, CheckCircle, Hash, User, Phone, MapPin, Calendar, FileImage, Settings } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { SafeImage } from '@/lib/image-utils';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import {
     Dialog,
     DialogContent,
@@ -88,6 +80,100 @@ export default function Deactivated() {
         setSelectedMember(null);
     };
 
+    // Define table columns
+    const columns: BaseTableColumn<Member>[] = [
+        {
+            key: 'index',
+            label: t('admin.id'),
+            icon: Hash,
+            align: 'center',
+            maxWidth: '80px',
+            render: (member, index) => index + 1,
+        },
+        {
+            key: 'member_id',
+            label: t('admin.member_id'),
+            icon: Hash,
+            align: 'center',
+            maxWidth: '120px',
+            render: (member) => member.member_id || 'N/A',
+        },
+        {
+            key: 'name',
+            label: t('admin.name'),
+            icon: User,
+            align: 'left',
+            maxWidth: '180px',
+            render: (member) => member.name,
+        },
+        {
+            key: 'contact_number',
+            label: t('admin.contact_number'),
+            icon: Phone,
+            align: 'center',
+            maxWidth: '150px',
+            render: (member) => member.contact_number || 'N/A',
+        },
+        {
+            key: 'address',
+            label: t('admin.address'),
+            icon: MapPin,
+            align: 'left',
+            maxWidth: '250px',
+            render: (member) => member.default_address 
+                ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
+                : 'N/A',
+        },
+        {
+            key: 'registration_date',
+            label: t('admin.registration_date'),
+            icon: Calendar,
+            align: 'center',
+            maxWidth: '150px',
+            render: (member) => member.registration_date || 'N/A',
+        },
+        {
+            key: 'document',
+            label: t('admin.document'),
+            icon: FileImage,
+            align: 'center',
+            maxWidth: '120px',
+            render: (member) => (
+                <SafeImage 
+                    src={member.document} 
+                    alt={`Document for ${member.name}`} 
+                    className="max-w-24 object-cover rounded mx-auto"
+                />
+            ),
+        },
+        {
+            key: 'actions',
+            label: t('admin.actions'),
+            icon: Settings,
+            align: 'center',
+            maxWidth: '150px',
+            render: (member) => (
+                <PermissionGate permission="edit members">
+                    <Button 
+                        disabled={processing} 
+                        onClick={() => handleReactivateClick(member)} 
+                        className='bg-green-600 hover:bg-green-700 text-white'
+                    >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        {t('admin.reactivate')}
+                    </Button>
+                </PermissionGate>
+            ),
+        },
+    ];
+
+    // Empty state component
+    const emptyState = (
+        <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">{t('admin.no_deactivated_members_found')}</p>
+        </div>
+    );
+
     return (
         <PermissionGuard 
             permissions={['view membership', 'edit members']}
@@ -122,67 +208,20 @@ export default function Deactivated() {
                     </div>
                 </div>
 
-            {deactivatedMembers.length > 0 && (
                 <div className='w-full pt-8'>
-                    <Table>
-                        <TableCaption>{t('admin.total_list_deactivated_members')}</TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="text-center">{t('admin.id')}</TableHead>
-                                <TableHead className="text-center">{t('admin.member_id')}</TableHead>
-                                <TableHead className="text-center">{t('admin.name')}</TableHead>
-                                <TableHead className="text-center">{t('admin.contact_number')}</TableHead>
-                                <TableHead className="text-center">{t('admin.address')}</TableHead>
-                                <TableHead className="text-center">{t('admin.registration_date')}</TableHead>
-                                <TableHead className="text-center">{t('admin.document')}</TableHead>
-                                <TableHead className="text-center">{t('admin.actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {deactivatedMembers.map((member, idx) => (
-                                <TableRow className="text-center" key={member.id}>
-                                    <TableCell>{idx + 1}</TableCell>
-                                    <TableCell>{member.member_id || 'N/A'}</TableCell>
-                                    <TableCell>{member.name}</TableCell>
-                                    <TableCell>{member.contact_number}</TableCell>
-                                    <TableCell>
-                                        {member.default_address ? 
-                                            `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
-                                            : 'N/A'
-                                        }
-                                    </TableCell>
-                                    <TableCell>{member.registration_date}</TableCell>
-                                    <TableCell className="flex justify-center">
-                                        <SafeImage 
-                                            src={member.document} 
-                                            alt={`Document for ${member.name}`} 
-                                            className="max-w-24 object-cover rounded"
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <PermissionGate permission="edit members">
-                                            <Button 
-                                                disabled={processing} 
-                                                onClick={() => handleReactivateClick(member)} 
-                                                className='bg-green-600 hover:bg-green-700 text-white'
-                                            >
-                                                <RotateCcw className="h-4 w-4 mr-1" />
-                                                {t('admin.reactivate')}
-                                            </Button>
-                                        </PermissionGate>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold text-muted-foreground">
+                            {t('admin.total_list_deactivated_members')}
+                        </h2>
+                    </div>
+                    <BaseTable
+                        data={deactivatedMembers}
+                        columns={columns}
+                        keyExtractor={(member) => member.id.toString()}
+                        emptyState={emptyState}
+                        hideMobileCards={true}
+                    />
                 </div>
-            )}
-
-            {deactivatedMembers.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-gray-500 text-lg">{t('admin.no_deactivated_members_found')}</p>
-                </div>
-            )}
 
             {/* Reactivation Confirmation Modal */}
             <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
