@@ -4,19 +4,11 @@ import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { BellDot, RotateCcw, CheckCircle } from 'lucide-react';
+import { BellDot, RotateCcw, CheckCircle, Hash, User, Mail, Phone, MapPin, Calendar, Settings } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { FlashMessage } from '@/components/common/feedback/flash-message';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import {
     Dialog,
     DialogContent,
@@ -68,6 +60,92 @@ export default function Deactivated() {
         setShowConfirmationModal(false);
         setSelectedLogistic(null);
     };
+
+    // Define table columns
+    const columns: BaseTableColumn<Logistic>[] = [
+        {
+            key: 'index',
+            label: 'ID',
+            icon: Hash,
+            align: 'left',
+            maxWidth: '80px',
+            render: (logistic, index) => index + 1,
+        },
+        {
+            key: 'name',
+            label: t('admin.name'),
+            icon: User,
+            align: 'left',
+            maxWidth: '180px',
+            render: (logistic) => <div className="font-medium">{logistic.name}</div>,
+        },
+        {
+            key: 'email',
+            label: t('admin.email'),
+            icon: Mail,
+            align: 'left',
+            maxWidth: '200px',
+            render: (logistic) => logistic.email,
+        },
+        {
+            key: 'contact_number',
+            label: t('admin.contact_number'),
+            icon: Phone,
+            align: 'left',
+            maxWidth: '150px',
+            render: (logistic) => logistic.contact_number || t('admin.not_available'),
+        },
+        {
+            key: 'address',
+            label: t('admin.address'),
+            icon: MapPin,
+            align: 'left',
+            maxWidth: '250px',
+            render: (logistic) => logistic.default_address 
+                ? `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
+                : t('admin.not_available'),
+        },
+        {
+            key: 'registration_date',
+            label: t('admin.registration_date'),
+            icon: Calendar,
+            align: 'left',
+            maxWidth: '150px',
+            render: (logistic) => logistic.registration_date 
+                ? new Date(logistic.registration_date).toLocaleDateString() 
+                : t('admin.not_available'),
+        },
+        {
+            key: 'actions',
+            label: t('admin.actions'),
+            icon: Settings,
+            align: 'left',
+            maxWidth: '150px',
+            render: (logistic) => (
+                <PermissionGate permission="edit logistics">
+                    <Button 
+                        disabled={processing} 
+                        onClick={() => handleReactivateClick(logistic)} 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        {t('admin.reactivate')}
+                    </Button>
+                </PermissionGate>
+            ),
+        },
+    ];
+
+    // Empty state component
+    const emptyState = (
+        <div className="text-center py-8">
+            <RotateCcw className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_deactivated_logistics_found')}</h3>
+            <p className="text-muted-foreground">
+                {t('admin.no_deactivated_logistics')}
+            </p>
+        </div>
+    );
 
     return (
         <PermissionGuard 
@@ -122,71 +200,13 @@ export default function Deactivated() {
                                 </div>
                             </div>
 
-                            {deactivatedLogistics.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full border-collapse">
-                                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
-                                            <tr>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">ID</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.name')}</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.email')}</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.contact_number')}</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.address')}</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.registration_date')}</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('admin.actions')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {deactivatedLogistics.map((logistic, idx) => (
-                                                <tr key={logistic.id} className="border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)]">
-                                                    <td className="px-4 py-3 text-sm text-foreground">{idx + 1}</td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">
-                                                        <div className="font-medium">{logistic.name}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">{logistic.email}</td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">
-                                                        {logistic.contact_number || t('admin.not_available')}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">
-                                                        {logistic.default_address ? 
-                                                            `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}` 
-                                                            : t('admin.not_available')
-                                                        }
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">
-                                                        {logistic.registration_date ? 
-                                                            new Date(logistic.registration_date).toLocaleDateString() 
-                                                            : t('admin.not_available')
-                                                        }
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-foreground">
-                                                        <div className="flex gap-2">
-                                                            <PermissionGate permission="edit logistics">
-                                                                <Button 
-                                                                    disabled={processing} 
-                                                                    onClick={() => handleReactivateClick(logistic)} 
-                                                                    className="bg-green-600 hover:bg-green-700 text-white"
-                                                                >
-                                                                    <RotateCcw className="h-4 w-4 mr-1" />
-                                                                    {t('admin.reactivate')}
-                                                                </Button>
-                                                            </PermissionGate>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <div className="text-center py-8">
-                                    <RotateCcw className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                                    <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_deactivated_logistics_found')}</h3>
-                                    <p className="text-muted-foreground">
-                                        {t('admin.no_deactivated_logistics')}
-                                    </p>
-                                </div>
-                            )}
+                            <BaseTable
+                                data={deactivatedLogistics}
+                                columns={columns}
+                                keyExtractor={(logistic) => logistic.id.toString()}
+                                emptyState={emptyState}
+                                hideMobileCards={true}
+                            />
                         </div>
 
                         {/* Reactivation Confirmation Modal */}
