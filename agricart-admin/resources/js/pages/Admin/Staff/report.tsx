@@ -9,28 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Users } from 'lucide-react';
+import { Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
 import { PaginationControls } from '@/components/inventory/pagination-controls';
-
-interface Permission {
-  id: number;
-  name: string;
-}
-
-interface Staff {
-  id: number;
-  name: string;
-  email: string;
-  contact_number?: string;
-  created_at: string;
-  email_verified_at?: string;
-  permissions: Permission[];
-}
+import { BaseTable } from '@/components/common/base-table';
+import { createStaffReportTableColumns, StaffReportMobileCard, StaffMember } from '@/components/reports/staff-report-table-columns';
 
 interface ReportSummary {
   total_staff: number;
@@ -47,7 +34,7 @@ interface ReportFilters {
 }
 
 interface ReportPageProps {
-  staff: Staff[];
+  staff: StaffMember[];
   summary: ReportSummary;
   filters: ReportFilters;
 }
@@ -65,6 +52,9 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Create column definitions
+  const staffColumns = useMemo(() => createStaffReportTableColumns(t), [t]);
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -173,7 +163,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
     }
   };
 
-  const getStatusBadge = (staff: Staff) => {
+  const getStatusBadge = (staff: StaffMember) => {
     if (staff.email_verified_at) {
       return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
     } else {
@@ -197,14 +187,6 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       localFilters.status !== 'all' || localFilters.search;
   };
 
-  // Helper to get sort icon
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ?
-      <ArrowUp className="h-4 w-4 ml-1" /> :
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
   // Handle sorting
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -217,33 +199,37 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   };
 
   // Sort staff data
-  const sortedStaff = [...staff].sort((a, b) => {
-    let comparison = 0;
-    switch (sortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'name':
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case 'status':
-        comparison = (a.email_verified_at ? 1 : 0) - (b.email_verified_at ? 1 : 0);
-        break;
-      case 'created_at':
-        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        break;
-      default:
-        return 0;
-    }
-    return sortOrder === 'asc' ? comparison : -comparison;
-  });
+  const sortedStaff = useMemo(() => {
+    return [...staff].sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'status':
+          comparison = (a.email_verified_at ? 1 : 0) - (b.email_verified_at ? 1 : 0);
+          break;
+        case 'created_at':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [staff, sortBy, sortOrder]);
 
   // Pagination calculations
   const totalPages = Math.ceil(sortedStaff.length / itemsPerPage);
-  const paginatedStaff = sortedStaff.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedStaff = useMemo(() => {
+    return sortedStaff.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [sortedStaff, currentPage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -505,7 +491,22 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
                       ))}
                     </div>
                   ) : (
-                    <StaffTable staff={paginatedStaff} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} getSortIcon={getSortIcon} />
+                    <BaseTable
+                      data={paginatedStaff}
+                      columns={staffColumns}
+                      keyExtractor={(staff) => staff.id}
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      onSort={handleSort}
+                      renderMobileCard={(staff) => <StaffReportMobileCard staff={staff} t={t} />}
+                      emptyState={
+                        <div className="text-center py-12">
+                          <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium text-foreground mb-2">No staff found</h3>
+                          <p className="text-muted-foreground">No staff data available</p>
+                        </div>
+                      }
+                    />
                   )}
 
                   {/* Pagination Controls */}
@@ -550,8 +551,8 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
   );
 }
 
-function StaffCard({ staff }: { staff: Staff }) {
-  const getStatusBadge = (staff: Staff) => {
+function StaffCard({ staff }: { staff: StaffMember }) {
+  const getStatusBadge = (staff: StaffMember) => {
     if (staff.email_verified_at) {
       return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
     } else {
@@ -633,7 +634,7 @@ function StaffCard({ staff }: { staff: Staff }) {
 }
 
 interface StaffTableProps {
-  staff: Staff[];
+  staff: StaffMember[];
   sortBy: string;
   sortOrder: 'asc' | 'desc';
   onSort: (field: string) => void;
@@ -641,7 +642,7 @@ interface StaffTableProps {
 }
 
 function StaffTable({ staff, sortBy, sortOrder, onSort, getSortIcon }: StaffTableProps) {
-  const getStatusBadge = (staff: Staff) => {
+  const getStatusBadge = (staff: StaffMember) => {
     if (staff.email_verified_at) {
       return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
     } else {
