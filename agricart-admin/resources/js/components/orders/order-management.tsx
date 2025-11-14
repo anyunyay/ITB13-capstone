@@ -129,7 +129,7 @@ export const OrderManagement = ({
                             <p className="text-sm text-muted-foreground m-0 leading-snug">{t('admin.order_management_description')}</p>
                         </div>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0 items-center">
+                    <div className="flex gap-2 flex-shrink-0 items-center self-end md:self-auto">
                         <Button
                             variant={showSearch ? "default" : "outline"}
                             onClick={() => {
