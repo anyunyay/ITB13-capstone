@@ -122,6 +122,7 @@ export interface SoldStock {
     id: number;
     product_id: number;
     quantity: number;
+    sold_quantity: number;
     member_id: number;
     category: string;
     status: string;
@@ -134,6 +135,9 @@ export interface SoldStock {
         description: string;
         image: string;
         image_url: string;
+        price_kilo?: number;
+        price_pc?: number;
+        price_tali?: number;
     };
     member?: {
         id: number;

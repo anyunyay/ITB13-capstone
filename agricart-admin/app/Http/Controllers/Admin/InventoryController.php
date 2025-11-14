@@ -71,7 +71,7 @@ class InventoryController extends Controller
         $soldStocks = Stock::sold()
             ->with([
                 'product' => function($query) {
-                    $query->select('id', 'name');
+                    $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
                 },
                 'member' => function($query) {
                     $query->select('id', 'name');
@@ -85,7 +85,7 @@ class InventoryController extends Controller
         // Drastically reduce stock trails for initial load
         $stockTrails = StockTrail::with([
                 'product' => function($query) {
-                    $query->select('id', 'name');
+                    $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
                 },
                 'member' => function($query) {
                     $query->select('id', 'name');

@@ -13,7 +13,7 @@ class SoldStockController extends Controller
         // Optimize: Load only essential fields and limit results
         $stocks = Stock::with([
                 'product' => function($query) {
-                    $query->select('id', 'name', 'produce_type');
+                    $query->select('id', 'name', 'produce_type', 'price_kilo', 'price_pc', 'price_tali');
                 },
                 'member' => function($query) {
                     $query->select('id', 'name');
