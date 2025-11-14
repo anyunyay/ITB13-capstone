@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -76,132 +75,141 @@ export function ReportOrderCard({ order }: ReportOrderCardProps) {
   };
 
   return (
-    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
+    <Card className="bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+      <CardContent className="p-4">
+        {/* Row 1: Header - Order ID, Date, Status */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
-              <BarChart3 className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-foreground">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-sm text-foreground">
                 {t('admin.order_number', { id: order.id })}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
+              </div>
+              <div className="text-xs text-muted-foreground">
                 {format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}
-              </p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-end">
+          <div className="shrink-0 self-start sm:self-center flex items-center gap-2 flex-wrap">
             {getStatusBadge(order.status)}
             {order.delivery_status && getDeliveryStatusBadge(order.delivery_status)}
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              {t('admin.customer_information')}
-            </h4>
-            <div className="space-y-2">
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.name')}:</span>
-                <span className="text-muted-foreground ml-2">{order.customer.name}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.email')}:</span>
-                <span className="text-muted-foreground ml-2">{order.customer.email}</span>
-              </p>
-              {order.customer.contact_number && (
-                <p className="text-sm">
-                  <span className="font-medium text-foreground">{t('admin.contact_number')}:</span>
-                  <span className="text-muted-foreground ml-2">{order.customer.contact_number}</span>
-                </p>
-              )}
+
+        {/* Row 2: All Details Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-3">
+          {/* Customer Name */}
+          <div className="space-y-1 col-span-2 sm:col-span-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.customer')}</div>
+            <div className="text-sm text-foreground line-clamp-1" title={order.customer.name}>
+              {order.customer.name}
             </div>
           </div>
 
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              {t('admin.order_summary')}
-            </h4>
-            <div className="space-y-2">
-              <p className="text-sm flex items-center">
-                <span className="font-medium text-foreground">{t('admin.total_amount')}:</span>
-                <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-200">
-                  ₱{Number(order.total_amount).toFixed(2)}
-                </Badge>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.subtotal')}:</span>
-                <span className="text-muted-foreground ml-2">₱{Number(order.subtotal || 0).toFixed(2)}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">{t('admin.items')}:</span>
-                <span className="text-muted-foreground ml-2">{order.audit_trail?.length || 0}</span>
-              </p>
-              {order.admin && (
-                <p className="text-sm">
-                  <span className="font-medium text-foreground">{t('admin.processed_by')}:</span>
-                  <span className="text-muted-foreground ml-2">{order.admin.name}</span>
-                </p>
-              )}
-              {order.logistic && (
-                <p className="text-sm">
-                  <span className="font-medium text-foreground">{t('admin.assigned_to')}:</span>
-                  <span className="text-muted-foreground ml-2">{order.logistic.name}</span>
-                  {order.logistic.contact_number && (
-                    <span className="text-muted-foreground ml-2">({order.logistic.contact_number})</span>
-                  )}
-                </p>
-              )}
+          {/* Email */}
+          <div className="space-y-1 col-span-2 sm:col-span-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.email')}</div>
+            <div className="text-sm text-foreground line-clamp-1" title={order.customer.email}>
+              {order.customer.email}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.contact_number')}</div>
+            <div className="text-sm text-foreground line-clamp-1" title={order.customer.contact_number || '-'}>
+              {order.customer.contact_number || '-'}
+            </div>
+          </div>
+
+          {/* Total Amount */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.total_amount')}</div>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs w-fit">
+              ₱{Number(order.total_amount).toFixed(2)}
+            </Badge>
+          </div>
+
+          {/* Items Count */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.items')}</div>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs w-fit">
+              {order.audit_trail?.length || 0}
+            </Badge>
+          </div>
+
+          {/* Processed By */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">{t('admin.processed_by')}</div>
+            <div className="text-sm text-foreground line-clamp-1" title={order.admin?.name || '-'}>
+              {order.admin?.name || '-'}
             </div>
           </div>
         </div>
 
-        {order.admin_notes && (
-          <div className="mt-4 p-3 bg-muted rounded-lg">
-            <h5 className="font-semibold text-sm mb-1 text-foreground">{t('admin.admin_notes')}:</h5>
-            <p className="text-sm text-muted-foreground">{order.admin_notes}</p>
+        {/* Additional Info: Logistic and/or Admin Notes */}
+        {(order.logistic || order.admin_notes) && (
+          <div className="mt-3 pt-3 border-t border-border flex flex-col sm:flex-row gap-2">
+            {order.logistic && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-md flex-1">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full shrink-0"></div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-medium text-foreground">{t('admin.assigned_to')}: </span>
+                  <span className="text-xs text-foreground">
+                    {order.logistic.name}
+                    {order.logistic.contact_number && (
+                      <span className="text-muted-foreground ml-1">({order.logistic.contact_number})</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {order.admin_notes && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 border border-border rounded-md flex-1">
+                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full shrink-0"></div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-medium text-foreground">{t('admin.notes')}: </span>
+                  <span className="text-xs text-muted-foreground line-clamp-1" title={order.admin_notes}>
+                    {order.admin_notes}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        <div className="mt-4">
-          <h4 className="font-semibold mb-2 text-foreground">{t('admin.order_items')}</h4>
-          <div className="space-y-2">
-            {(() => {
-              const groupedItems = order.audit_trail?.reduce((acc, item) => {
-                const key = `${item.product.id}-${item.category}`;
-                if (!acc[key]) {
-                  acc[key] = {
-                    id: item.id,
-                    product: item.product,
-                    category: item.category,
-                    quantity: 0
-                  };
-                }
-                acc[key].quantity += Number(item.quantity);
-                return acc;
-              }, {} as Record<string, any>) || {};
+        {/* Order Items Section */}
+        {order.audit_trail && order.audit_trail.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-border">
+            <div className="text-xs font-medium text-muted-foreground mb-2">{t('admin.order_items')}</div>
+            <div className="space-y-1">
+              {(() => {
+                const groupedItems = order.audit_trail?.reduce((acc, item) => {
+                  const key = `${item.product.id}-${item.category}`;
+                  if (!acc[key]) {
+                    acc[key] = {
+                      id: item.id,
+                      product: item.product,
+                      category: item.category,
+                      quantity: 0
+                    };
+                  }
+                  acc[key].quantity += Number(item.quantity);
+                  return acc;
+                }, {} as Record<string, any>) || {};
 
-              const combinedItems = Object.values(groupedItems);
+                const combinedItems = Object.values(groupedItems);
 
-              return combinedItems.length > 0 ? (
-                combinedItems.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-foreground">{item.product.name} ({item.category})</span>
-                    <span className="text-muted-foreground">{item.quantity} {item.category}</span>
+                return combinedItems.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center text-xs py-1 px-2 bg-muted/30 rounded">
+                    <span className="text-foreground line-clamp-1 flex-1">{item.product.name} ({item.category})</span>
+                    <span className="text-muted-foreground font-medium ml-2 shrink-0">{item.quantity} {item.category}</span>
                   </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">{t('admin.no_items_found')}</p>
-              );
-            })()}
+                ));
+              })()}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
