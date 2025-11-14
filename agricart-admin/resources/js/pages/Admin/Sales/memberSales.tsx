@@ -237,22 +237,23 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
               </p>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-center">{t('admin.rank')}</TableHead>
-                    <TableHead className="text-center">{t('admin.member')}</TableHead>
-                    <TableHead className="text-center">{t('admin.total_orders')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.total_revenue')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.coop_share')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.revenue_column')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.cogs')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.gross_profit')}</TableHead>
-                    <TableHead className="text-center">{t('admin.quantity_sold')}</TableHead>
-                    <TableHead className="text-center text-right">{t('admin.average_revenue')}</TableHead>
-                    <TableHead className="text-center">{t('admin.performance')}</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <div className="rounded-md border">
+                <Table className="w-full border-collapse text-sm">
+                  <TableHeader className="bg-muted/50 border-b-2">
+                    <TableRow>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.rank')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.member')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.total_orders')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.total_revenue')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.coop_share')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.revenue_column')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.cogs')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.gross_profit')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.quantity_sold')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.average_revenue')}</TableHead>
+                      <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.performance')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
                 <TableBody>
                   {memberSales.map((member, index) => {
                     const memberRevenue = Number(member.total_revenue || 0);
@@ -261,53 +262,93 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                     const performancePercentage = totalRevenue > 0 ? (memberRevenue / totalRevenue) * 100 : 0;
                     
                     return (
-                      <TableRow key={member.member_id}>
-                        <TableCell>
-                          <Badge variant={index < 3 ? "default" : "secondary"}>
-                            #{index + 1}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{member.member_name}</div>
-                            <div className="text-sm text-muted-foreground">{member.member_email}</div>
+                      <TableRow key={member.member_id} className="border-b transition-all hover:bg-muted/20">
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[80px] text-center">
+                              <Badge variant={index < 3 ? "default" : "secondary"}>#{index + 1}</Badge>
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{member.total_orders}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium text-green-600">₱{Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium text-blue-600">₱{Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium text-orange-600">₱{Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium text-green-600">₱{Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{member.total_quantity_sold}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium">₱{Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-blue-600 h-2 rounded-full" 
-                                style={{ width: `${Math.min(performancePercentage, 100)}%` }}
-                              ></div>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[180px] text-left">
+                              <div className="font-medium text-sm">{member.member_name}</div>
+                              <div className="text-xs text-muted-foreground">{member.member_email}</div>
                             </div>
-                            <span className="text-sm text-muted-foreground">
-                              {performancePercentage.toFixed(1)}%
-                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[100px] text-center">
+                              <div className="text-sm">{member.total_orders}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm">₱{Number(member.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm text-green-600">₱{Number(member.total_coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm text-blue-600">₱{Number(member.total_member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm text-orange-600">₱{Number(member.total_cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm text-green-600">₱{Number(member.total_gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[100px] text-center">
+                              <div className="text-sm">{member.total_quantity_sold}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[120px] text-right">
+                              <div className="font-semibold text-sm">₱{Number(averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="p-3 align-top border-b">
+                          <div className="flex justify-center min-h-[40px] py-2 w-full">
+                            <div className="w-full max-w-[150px] text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-blue-600 h-2 rounded-full" 
+                                    style={{ width: `${Math.min(performancePercentage, 100)}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {performancePercentage.toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -315,13 +356,14 @@ export default function MemberSales({ memberSales, filters }: MemberSalesPagePro
                   })}
                   {memberSales.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center text-muted-foreground">
+                      <TableCell colSpan={11} className="text-center text-muted-foreground p-8">
                         {t('admin.no_member_sales_data_found')}
                       </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
-              </Table>
+                </Table>
+              </div>
             </CardContent>
           </Card>
 

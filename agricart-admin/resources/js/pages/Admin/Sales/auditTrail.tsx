@@ -266,77 +266,114 @@ export default function AuditTrail({ auditTrails, members, summary, filters }: P
                             <CardTitle>{t('admin.audit_trail_entries', { count: auditTrails.length })}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
+                            <div className="rounded-md border">
+                                <Table className="w-full border-collapse text-sm">
+                                    <TableHeader className="bg-muted/50 border-b-2">
                                         <TableRow>
-                                            <TableHead className="text-center">{t('admin.timestamp')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.order_id')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.member')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.product')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.category')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.quantity_sold')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.stock_after_sale')}</TableHead>
-                                            <TableHead className="text-center text-right">{t('admin.unit_price')}</TableHead>
-                                            <TableHead className="text-center text-right">{t('admin.total_amount')}</TableHead>
-                                            <TableHead className="text-center">{t('admin.order_status')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.timestamp')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.order_id')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.member')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.product')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.category')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.quantity_sold')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.stock_after_sale')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.unit_price')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.total_amount')}</TableHead>
+                                            <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.order_status')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {auditTrails.map((trail) => (
-                                            <TableRow key={trail.id}>
-                                                <TableCell>
-                                                    {new Date(trail.created_at).toLocaleString()}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Link 
-                                                        href={route('admin.orders.show', trail.order_id)}
-                                                        className="text-blue-600 hover:text-blue-800 font-medium"
-                                                    >
-                                                        #{trail.order_id}
-                                                    </Link>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <div className="font-medium">{trail.member?.name || t('admin.not_available')}</div>
-                                                        <div className="text-sm text-gray-500">{t('admin.id_prefix')} {trail.member_id}</div>
+                                            <TableRow key={trail.id} className="border-b transition-all hover:bg-muted/20">
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[150px] text-left">
+                                                            <div className="text-sm">{new Date(trail.created_at).toLocaleString()}</div>
+                                                        </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <div className="font-medium">{trail.product_name}</div>
-                                                        <div className="text-sm text-gray-500">{t('admin.stock_id_prefix')} {trail.stock_id}</div>
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[100px] text-center">
+                                                            <Link 
+                                                                href={route('admin.orders.show', trail.order_id)}
+                                                                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                                                            >
+                                                                #{trail.order_id}
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">{trail.category}</Badge>
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[150px] text-left">
+                                                            <div className="font-medium text-sm">{trail.member?.name || t('admin.not_available')}</div>
+                                                            <div className="text-xs text-muted-foreground">{t('admin.id_prefix')} {trail.member_id}</div>
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="font-medium">
-                                                    {trail.quantity}
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[150px] text-left">
+                                                            <div className="font-medium text-sm">{trail.product_name}</div>
+                                                            <div className="text-xs text-muted-foreground">{t('admin.stock_id_prefix')} {trail.stock_id}</div>
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="font-medium">
-                                                    {trail.available_stock_after_sale}
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[120px] text-center">
+                                                            <Badge variant="outline">{trail.category}</Badge>
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="text-right">
-                                                    {formatCurrency(trail.unit_price)}
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[100px] text-center">
+                                                            <div className="text-sm font-medium">{trail.quantity}</div>
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="font-medium text-right">
-                                                    {formatCurrency(trail.quantity * trail.unit_price)}
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[100px] text-center">
+                                                            <div className="text-sm font-medium">{trail.available_stock_after_sale}</div>
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(trail.order?.status || t('admin.not_available'))}
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[120px] text-right">
+                                                            <div className="text-sm">{formatCurrency(trail.unit_price)}</div>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[120px] text-right">
+                                                            <div className="text-sm font-semibold">{formatCurrency(trail.quantity * trail.unit_price)}</div>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="p-3 align-top border-b">
+                                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                                        <div className="w-full max-w-[120px] text-center">
+                                                            {getStatusBadge(trail.order?.status || t('admin.not_available'))}
+                                                        </div>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
+                                        {auditTrails.length === 0 && (
+                                            <TableRow>
+                                                <TableCell colSpan={10} className="text-center text-muted-foreground p-8">
+                                                    {t('admin.no_audit_trail_entries')}
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableBody>
                                 </Table>
                             </div>
-                            
-                            {auditTrails.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    {t('admin.no_audit_trail_entries')}
-                                </div>
-                            )}
                         </CardContent>
                     </Card>
                 </div>

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, DollarSign, ShoppingCart, TrendingUp, Users, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
@@ -575,107 +576,132 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
             </CardHeader>
             <CardContent>
               {sales.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-border bg-muted/50">
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('id')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                <div className="rounded-md border">
+                  <Table className="w-full border-collapse text-sm">
+                    <TableHeader className="bg-muted/50 border-b-2">
+                      <TableRow>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.id_column')}
                             {getSortIcon('id')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('customer')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.customer')}
                             {getSortIcon('customer')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('total_amount')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.total_amount')}
                             {getSortIcon('total_amount')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('coop_share')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.coop_share')}
                             {getSortIcon('coop_share')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('member_share')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.revenue_column')}
                             {getSortIcon('member_share')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('cogs')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('cogs')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.cogs')}
                             {getSortIcon('cogs')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('gross_profit')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('gross_profit')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.gross_profit')}
                             {getSortIcon('gross_profit')}
                           </button>
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-foreground">
-                          <button onClick={() => handleSort('delivered_at')} className="flex items-center justify-center hover:text-primary transition-colors mx-auto">
+                        </TableHead>
+                        <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                          <button onClick={() => handleSort('delivered_at')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                             {t('admin.delivered_date')}
                             {getSortIcon('delivered_at')}
                           </button>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedSales.map((sale, index) => (
-                        <tr key={sale.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
-                          <td className="py-3 px-4">
-                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono">
-                              #{sale.id}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div>
-                              <div className="font-medium text-foreground">{sale.customer.name}</div>
-                              <div className="text-sm text-muted-foreground">{sale.customer.email}</div>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedSales.map((sale) => (
+                        <TableRow key={sale.id} className="border-b transition-all hover:bg-muted/20">
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[100px] text-center">
+                                <Badge variant="outline" className="font-mono">#{sale.id}</Badge>
+                              </div>
                             </div>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                              ₱{Number(sale.total_amount).toFixed(2)}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                              ₱{Number(sale.coop_share || 0).toFixed(2)}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                              ₱{Number(sale.member_share || 0).toFixed(2)}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300">
-                              ₱{Number(sale.cogs || 0).toFixed(2)}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                              ₱{Number(sale.gross_profit || 0).toFixed(2)}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="text-sm text-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('MMM DD, YYYY') : 'N/A'}</div>
-                            <div className="text-xs text-muted-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('HH:mm') : ''}</div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[180px] text-left">
+                                <div className="font-medium text-sm">{sale.customer.name}</div>
+                                <div className="text-xs text-muted-foreground">{sale.customer.email}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm">₱{Number(sale.total_amount).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.coop_share || 0).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-blue-600">₱{Number(sale.member_share || 0).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-orange-600">₱{Number(sale.cogs || 0).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.gross_profit || 0).toFixed(2)}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[150px] text-left">
+                                <div className="text-sm">{sale.delivered_at ? dayjs(sale.delivered_at).format('MMM DD, YYYY') : 'N/A'}</div>
+                                <div className="text-xs text-muted-foreground">{sale.delivered_at ? dayjs(sale.delivered_at).format('HH:mm') : ''}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                      {paginatedSales.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center text-muted-foreground p-8">
+                            No sales found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
 
                   {/* Pagination Controls */}
                   {totalPages > 1 && (

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 import { PermissionGate } from '@/components/common/permission-gate';
@@ -383,85 +384,141 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table className="min-w-[800px]">
-                      <TableHeader>
+                  <div className="rounded-md border">
+                    <Table className="w-full border-collapse text-sm">
+                      <TableHeader className="bg-muted/50 border-b-2">
                         <TableRow>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('id')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('id')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.sale_id')}
                               {getSalesSortIcon('id')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('customer')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('customer')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.customer')}
                               {getSalesSortIcon('customer')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('total_amount')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('total_amount')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.total_amount')}
                               {getSalesSortIcon('total_amount')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.coop_share')}
                               {getSalesSortIcon('coop_share')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.revenue_column')}
                               {getSalesSortIcon('member_share')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('cogs')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.cogs')}
                               {getSalesSortIcon('cogs')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('gross_profit')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.gross_profit')}
                               {getSalesSortIcon('gross_profit')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleSalesSort('delivered_at')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleSalesSort('delivered_at')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.delivered_date')}
                               {getSalesSortIcon('delivered_at')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.processed_by')}</TableHead>
-                          <TableHead className="text-center whitespace-nowrap">{t('admin.logistic')}</TableHead>
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.processed_by')}</TableHead>
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">{t('admin.logistic')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {paginatedSales.map((sale) => (
-                        <TableRow key={sale.id}>
-                          <TableCell className="font-medium">#{sale.id}</TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{sale.customer.name}</div>
-                              <div className="text-sm text-muted-foreground">{sale.customer.email}</div>
+                        <TableRow key={sale.id} className="border-b transition-all hover:bg-muted/20">
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[100px] text-center">
+                                <Badge variant="outline" className="font-mono">#{sale.id}</Badge>
+                              </div>
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium text-right">₱{Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-blue-600 font-medium text-right">₱{Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-orange-600 font-medium text-right">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-green-600 font-medium text-right">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                          <TableCell>{format(new Date(sale.delivered_at), 'MMM dd, yyyy HH:mm')}</TableCell>
-                          <TableCell>{sale.admin?.name || t('admin.not_available')}</TableCell>
-                          <TableCell>{sale.logistic?.name || t('admin.not_available')}</TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[180px] text-left">
+                                <div className="font-medium text-sm">{sale.customer.name}</div>
+                                <div className="text-xs text-muted-foreground">{sale.customer.email}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm">₱{Number(sale.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.coop_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-blue-600">₱{Number(sale.member_share || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-orange-600">₱{Number(sale.cogs || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-right">
+                                <div className="font-semibold text-sm text-green-600">₱{Number(sale.gross_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[150px] text-left">
+                                <div className="text-sm">{format(new Date(sale.delivered_at), 'MMM dd, yyyy HH:mm')}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-center">
+                                <div className="text-sm">{sale.admin?.name || t('admin.not_available')}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="p-3 align-top border-b">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                              <div className="w-full max-w-[120px] text-center">
+                                <div className="text-sm">{sale.logistic?.name || t('admin.not_available')}</div>
+                              </div>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                       {paginatedSales.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={10} className="text-center text-muted-foreground">
+                            <TableCell colSpan={10} className="text-center text-muted-foreground p-8">
                               {t('admin.no_sales_found')}
                             </TableCell>
                           </TableRow>
@@ -493,54 +550,54 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table className="min-w-[1000px]">
-                      <TableHeader>
+                  <div className="rounded-md border">
+                    <Table className="w-full border-collapse text-sm">
+                      <TableHeader className="bg-muted/50 border-b-2">
                         <TableRow>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('member_name')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('member_name')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.member_name')}
                               {getMemberSortIcon('member_name')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_orders')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_orders')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.total_orders_label')}
                               {getMemberSortIcon('total_orders')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_revenue')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.total_revenue_label')}
                               {getMemberSortIcon('total_revenue')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_coop_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_coop_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.coop_share')}
                               {getMemberSortIcon('total_coop_share')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_member_share')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_member_share')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.revenue_column')}
                               {getMemberSortIcon('total_member_share')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_cogs')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_cogs')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.cogs')}
                               {getMemberSortIcon('total_cogs')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_gross_profit')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_gross_profit')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.gross_profit')}
                               {getMemberSortIcon('total_gross_profit')}
                             </button>
                           </TableHead>
-                          <TableHead className="text-center whitespace-nowrap">
-                            <button onClick={() => handleMemberSort('total_quantity_sold')} className="flex items-center justify-center hover:text-foreground transition-colors">
+                          <TableHead className="p-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
+                            <button onClick={() => handleMemberSort('total_quantity_sold')} className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto">
                               {t('admin.quantity_sold')}
                               {getMemberSortIcon('total_quantity_sold')}
                             </button>
@@ -549,25 +606,69 @@ export default function SalesIndex({ sales, summary, memberSales }: SalesPagePro
                       </TableHeader>
                       <TableBody>
                         {paginatedMemberSales.map((member) => (
-                          <TableRow key={member.member_id}>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{member.member_name}</div>
-                                <div className="text-sm text-muted-foreground">{member.member_email}</div>
+                          <TableRow key={member.member_id} className="border-b transition-all hover:bg-muted/20">
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[180px] text-left">
+                                  <div className="font-medium text-sm">{member.member_name}</div>
+                                  <div className="text-xs text-muted-foreground">{member.member_email}</div>
+                                </div>
                               </div>
                             </TableCell>
-                            <TableCell className="text-center">{member.total_orders}</TableCell>
-                            <TableCell className="font-medium text-right">₱{Number(member.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                            <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                            <TableCell className="text-blue-600 font-medium text-right">₱{Number(member.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                            <TableCell className="text-orange-600 font-medium text-right">₱{Number(member.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                            <TableCell className="text-green-600 font-medium text-right">₱{Number(member.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                            <TableCell className="text-center">{Number(member.total_quantity_sold).toLocaleString('en-US')}</TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[100px] text-center">
+                                  <div className="text-sm">{member.total_orders}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                  <div className="font-semibold text-sm">₱{Number(member.total_revenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                  <div className="font-semibold text-sm text-green-600">₱{Number(member.total_coop_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                  <div className="font-semibold text-sm text-blue-600">₱{Number(member.total_member_share).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                  <div className="font-semibold text-sm text-orange-600">₱{Number(member.total_cogs).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-right">
+                                  <div className="font-semibold text-sm text-green-600">₱{Number(member.total_gross_profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="p-3 align-top border-b">
+                              <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[100px] text-center">
+                                  <div className="text-sm">{Number(member.total_quantity_sold).toLocaleString('en-US')}</div>
+                                </div>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         ))}
                         {paginatedMemberSales.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={8} className="text-center text-muted-foreground">
+                            <TableCell colSpan={8} className="text-center text-muted-foreground p-8">
                               {t('admin.no_member_sales_found')}
                             </TableCell>
                           </TableRow>
