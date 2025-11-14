@@ -1,10 +1,7 @@
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState, useMemo } from 'react';
-import { BellDot } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { DashboardHeader } from '@/components/logistics/dashboard-header';
@@ -27,18 +24,10 @@ export default function Index() {
     const { logistics = [], flash, auth } = usePage<PageProps>().props;
 
     // State management
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showSearch, setShowSearch] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState('id');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [showDeactivated, setShowDeactivated] = useState(false);
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
-    const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
-
-    const itemsPerPage = 10;
 
     // Check if the user is authenticated
     useEffect(() => {
@@ -58,58 +47,9 @@ export default function Index() {
             totalLogistics: logistics.length,
             activeLogistics: activeLogistics.length,
             deactivatedLogistics: deactivatedLogistics.length,
-            pendingRequests: 0 // This would come from your backend
+            pendingRequests: 0
         };
     }, [logistics]);
-
-    // Filter and sort logistics
-    const filteredAndSortedLogistics = useMemo(() => {
-        let filtered = logistics.filter(logistic => {
-            const matchesSearch = !searchTerm ||
-                logistic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                logistic.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                logistic.id.toString().includes(searchTerm) ||
-                (logistic.contact_number && logistic.contact_number.includes(searchTerm));
-
-            const matchesStatus = showDeactivated ? !logistic.active : logistic.active;
-
-            return matchesSearch && matchesStatus;
-        });
-
-        // Sort logistics
-        filtered.sort((a, b) => {
-            let comparison = 0;
-
-            switch (sortBy) {
-                case 'id':
-                    comparison = a.id - b.id;
-                    break;
-                case 'name':
-                    comparison = a.name.localeCompare(b.name);
-                    break;
-                case 'active':
-                    comparison = (a.active ? 1 : 0) - (b.active ? 1 : 0);
-                    break;
-                case 'registration_date':
-                    comparison = new Date(a.registration_date || 0).getTime() - new Date(b.registration_date || 0).getTime();
-                    break;
-                default:
-                    return 0;
-            }
-
-            return sortOrder === 'asc' ? comparison : -comparison;
-        });
-
-        return filtered;
-    }, [logistics, searchTerm, showDeactivated, sortBy, sortOrder]);
-
-    // Paginate logistics
-    const paginatedLogistics = useMemo(() => {
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        return filteredAndSortedLogistics.slice(startIndex, startIndex + itemsPerPage);
-    }, [filteredAndSortedLogistics, currentPage, itemsPerPage]);
-
-    const totalPages = Math.ceil(filteredAndSortedLogistics.length / itemsPerPage);
 
     // Handle deactivation
     const handleDeactivate = (logistic: Logistic) => {
@@ -125,8 +65,6 @@ export default function Index() {
                 onSuccess: () => {
                     setShowDeactivationModal(false);
                     setSelectedLogistic(null);
-                    setHighlightLogisticId(selectedLogistic.id);
-                    setTimeout(() => setHighlightLogisticId(null), 3000);
                 }
             });
         }
@@ -149,8 +87,6 @@ export default function Index() {
                 onSuccess: () => {
                     setShowReactivationModal(false);
                     setSelectedLogistic(null);
-                    setHighlightLogisticId(selectedLogistic.id);
-                    setTimeout(() => setHighlightLogisticId(null), 3000);
                 }
             });
         }
@@ -179,27 +115,8 @@ export default function Index() {
                         {/* Logistics Management */}
                         <LogisticManagement
                             logistics={logistics}
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            showSearch={showSearch}
-                            setShowSearch={setShowSearch}
-                            filteredAndSortedLogistics={filteredAndSortedLogistics}
-                            paginatedLogistics={paginatedLogistics}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
-                            totalPages={totalPages}
-                            totalLogistics={filteredAndSortedLogistics.length}
-                            itemsPerPage={itemsPerPage}
-                            processing={processing}
-                            onDeactivate={handleDeactivate}
-                            onReactivate={handleReactivate}
-                            highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}
-                            sortBy={sortBy}
-                            setSortBy={setSortBy}
-                            sortOrder={sortOrder}
-                            setSortOrder={setSortOrder}
                         />
 
                         {/* Deactivation Modal */}
