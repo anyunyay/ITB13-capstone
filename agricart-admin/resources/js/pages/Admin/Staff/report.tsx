@@ -1,5 +1,5 @@
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users } from 'lucide-react';
+import { Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users, ArrowLeft } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
@@ -42,7 +42,6 @@ interface ReportPageProps {
 export default function StaffReport({ staff, summary, filters }: ReportPageProps) {
   const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
-  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Sorting state
@@ -246,29 +245,63 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
-                  <Users className="h-8 w-8" />
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+            {/* Mobile Layout */}
+            <div className="flex md:hidden items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                  <Users className="h-5 w-5" />
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">{t('staff.staff_report')}</h1>
-                  <p className="text-muted-foreground mt-1">
-                    {t('staff.staff_report_description')}
-                  </p>
+                <h1 className="text-lg font-bold text-foreground truncate">{t('staff.staff_report')}</h1>
+              </div>
+              <Link href={route('admin.dashboard')}>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex md:flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                    <Users className="h-8 w-8" />
+                  </div>
+                  <div className="min-w-0">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('staff.staff_report')}</h1>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t('staff.staff_report_description')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Link href={route('admin.dashboard')}>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      {t('admin.back_to_dashboard')}
+                    </Button>
+                  </Link>
+                  <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    {t('staff.export_csv')}
+                  </Button>
+                  <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {t('staff.export_pdf')}
+                  </Button>
                 </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  {t('staff.export_csv')}
-                </Button>
-                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  {t('staff.export_pdf')}
-                </Button>
-              </div>
+            </div>
+
+            {/* Mobile Export Buttons */}
+            <div className="flex md:hidden gap-2 mt-2">
+              <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <Download className="h-3.5 w-3.5" />
+                <span>CSV</span>
+              </Button>
+              <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <FileText className="h-3.5 w-3.5" />
+                <span>PDF</span>
+              </Button>
             </div>
           </div>
 
@@ -471,43 +504,27 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
           {/* Staff List */}
           <Card className="shadow-sm">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Staff Report ({staff.length} members)</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="text-sm text-muted-foreground">
-                    {staff.length > 0 ? `Showing ${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, sortedStaff.length)} of ${sortedStaff.length}` : 'No members found'}
-                  </div>
-                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
-                </div>
-              </div>
+              <CardTitle className="text-xl">Staff Report ({staff.length} members)</CardTitle>
             </CardHeader>
             <CardContent>
               {staff.length > 0 ? (
                 <>
-                  {currentView === 'cards' ? (
-                    <div className="space-y-4">
-                      {paginatedStaff.map((member) => (
-                        <StaffCard key={member.id} staff={member} />
-                      ))}
-                    </div>
-                  ) : (
-                    <BaseTable
-                      data={paginatedStaff}
-                      columns={staffColumns}
-                      keyExtractor={(staff) => staff.id}
-                      sortBy={sortBy}
-                      sortOrder={sortOrder}
-                      onSort={handleSort}
-                      renderMobileCard={(staff) => <StaffReportMobileCard staff={staff} t={t} />}
-                      emptyState={
-                        <div className="text-center py-12">
-                          <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-medium text-foreground mb-2">No staff found</h3>
-                          <p className="text-muted-foreground">No staff data available</p>
-                        </div>
-                      }
-                    />
-                  )}
+                  <BaseTable
+                    data={paginatedStaff}
+                    columns={staffColumns}
+                    keyExtractor={(staff) => staff.id}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSort={handleSort}
+                    renderMobileCard={(staff) => <StaffReportMobileCard staff={staff} t={t} />}
+                    emptyState={
+                      <div className="text-center py-12">
+                        <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">No staff found</h3>
+                        <p className="text-muted-foreground">No staff data available</p>
+                      </div>
+                    }
+                  />
 
                   {/* Pagination Controls */}
                   {totalPages > 1 && (
@@ -548,88 +565,6 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
         </div>
       </div>
     </AppSidebarLayout>
-  );
-}
-
-function StaffCard({ staff }: { staff: StaffMember }) {
-  const getStatusBadge = (staff: StaffMember) => {
-    if (staff.email_verified_at) {
-      return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">Active</Badge>;
-    } else {
-      return <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">Inactive</Badge>;
-    }
-  };
-
-  return (
-    <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg">
-              <Users className="h-4 w-4" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-foreground">{staff.name}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Staff ID: #{staff.id}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {getStatusBadge(staff)}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              Contact Information
-            </h4>
-            <div className="space-y-2">
-              <p className="text-sm">
-                <span className="font-medium text-foreground">Email:</span>
-                <span className="text-muted-foreground ml-2">{staff.email}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">Contact:</span>
-                <span className="text-muted-foreground ml-2">{staff.contact_number || 'N/A'}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium text-foreground">Created:</span>
-                <span className="text-muted-foreground ml-2">{dayjs(staff.created_at).format('MMM DD, YYYY')}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              Permissions ({staff.permissions.length})
-            </h4>
-            <div className="space-y-2">
-              {staff.permissions.length > 0 ? (
-                <div className="flex flex-wrap gap-1">
-                  {staff.permissions.slice(0, 3).map((permission) => (
-                    <Badge key={permission.id} variant="outline" className="text-xs bg-secondary/10 text-secondary border-secondary/20">
-                      {permission.name}
-                    </Badge>
-                  ))}
-                  {staff.permissions.length > 3 && (
-                    <Badge variant="outline" className="text-xs bg-muted/10 text-muted-foreground border-muted/20">
-                      +{staff.permissions.length - 3} more
-                    </Badge>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No permissions assigned</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

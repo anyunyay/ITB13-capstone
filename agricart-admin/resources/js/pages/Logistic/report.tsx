@@ -12,7 +12,7 @@ import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { Pagination } from '@/components/common/pagination';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, CalendarIcon, Truck } from 'lucide-react';
+import { Download, FileText, Search, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, CalendarIcon, Truck, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface Order {
@@ -275,56 +275,63 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
 
       <div className="p-6 pt-25 space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4">
+        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
           {/* Mobile Layout */}
-          <div className="block md:hidden space-y-4">
-            {/* Back to Dashboard Button */}
+          <div className="flex md:hidden items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                <Truck className="h-5 w-5" />
+              </div>
+              <h1 className="text-lg font-bold text-foreground truncate">{t('logistic.logistics_report')}</h1>
+            </div>
             <Link href={route('logistic.dashboard')}>
-              <Button variant="outline" className="w-1/2 mb-4">
-                {t('logistic.back_to_dashboard')}
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
-              <p className="text-muted-foreground">{t('logistic.logistics_report_description')}</p>
-            </div>
-            
-            {/* Export Buttons Row */}
-            <div className="grid grid-cols-2 gap-2">
-              <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-2">
-                <Download className="h-4 w-4" />
-                {t('logistic.export_csv')}
-              </Button>
-              <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-2">
-                <FileText className="h-4 w-4" />
-                {t('logistic.export_pdf')}
-              </Button>
-            </div>
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden md:flex md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{t('logistic.logistics_report')}</h1>
-              <p className="text-muted-foreground">{t('logistic.logistics_report_description')}</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link href={route('logistic.dashboard')}>
-                <Button variant="outline">
-                  {t('logistic.back_to_dashboard')}
+          <div className="hidden md:flex md:flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                  <Truck className="h-8 w-8" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('logistic.logistics_report')}</h1>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t('logistic.logistics_report_description')}</p>
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Link href={route('logistic.dashboard')}>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    {t('logistic.back_to_dashboard')}
+                  </Button>
+                </Link>
+                <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  {t('logistic.export_csv')}
                 </Button>
-              </Link>
-              <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                {t('logistic.export_csv')}
-              </Button>
-              <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                {t('logistic.export_pdf')}
-              </Button>
+                <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  {t('logistic.export_pdf')}
+                </Button>
+              </div>
             </div>
+          </div>
+
+          {/* Mobile Export Buttons */}
+          <div className="flex md:hidden gap-2 mt-2">
+            <Button onClick={() => exportReport('csv', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+              <Download className="h-3.5 w-3.5" />
+              <span>CSV</span>
+            </Button>
+            <Button onClick={() => exportReport('pdf', sortBy, sortOrder)} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+              <FileText className="h-3.5 w-3.5" />
+              <span>PDF</span>
+            </Button>
           </div>
         </div>
 

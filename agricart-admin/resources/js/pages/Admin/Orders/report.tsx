@@ -2,19 +2,18 @@ import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Download, FileText } from 'lucide-react';
+import { BarChart3, Download, FileText, ArrowLeft } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useState, useMemo, useEffect } from 'react';
-import { ViewToggle } from '@/components/inventory/view-toggle';
 import { useTranslation } from '@/hooks/use-translation';
 import { ReportSummaryCards } from '@/components/orders/report-summary-cards';
 import { ReportFilters } from '@/components/orders/report-filters';
-import { ReportOrderCard } from '@/components/orders/report-order-card';
 import { PaginationControls } from '@/components/orders/pagination-controls';
 import { BaseTable } from '@/components/common/base-table';
 import { createReportOrderTableColumns, ReportOrderMobileCard } from '@/components/orders/report-order-table-columns';
+import { Link } from '@inertiajs/react';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -120,7 +119,6 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   };
 
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
-  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -140,7 +138,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const itemsPerPage = currentView === 'cards' ? 4 : (isMobile ? 5 : 10);
+  const itemsPerPage = isMobile ? 5 : 10;
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -200,7 +198,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortedOrders.length, currentView, isMobile]);
+  }, [sortedOrders.length]);
 
   const columns = useMemo(() => createReportOrderTableColumns(t), [t]);
 
@@ -330,28 +328,62 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 sm:p-3 rounded-lg shrink-0">
-                  <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8" />
+            {/* Mobile Layout */}
+            <div className="flex md:hidden items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                  <BarChart3 className="h-5 w-5" />
                 </div>
-                <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.order_report')}</h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">{t('admin.order_report_description')}</p>
+                <h1 className="text-lg font-bold text-foreground truncate">{t('admin.order_report')}</h1>
+              </div>
+              <Link href={route('admin.dashboard')}>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex md:flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                    <BarChart3 className="h-8 w-8" />
+                  </div>
+                  <div className="min-w-0">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.order_report')}</h1>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t('admin.order_report_description')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Link href={route('admin.dashboard')}>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      {t('admin.back_to_dashboard')}
+                    </Button>
+                  </Link>
+                  <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    {t('admin.export_csv')}
+                  </Button>
+                  <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {t('admin.export_pdf')}
+                  </Button>
                 </div>
               </div>
-              <div className="flex gap-2 w-full md:w-auto md:shrink-0">
-                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-1.5 sm:gap-2 flex-1 md:flex-none text-xs sm:text-sm px-3 sm:px-4">
-                  <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden xs:inline">{t('admin.export_csv')}</span>
-                  <span className="xs:hidden">CSV</span>
-                </Button>
-                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 sm:gap-2 flex-1 md:flex-none text-xs sm:text-sm px-3 sm:px-4">
-                  <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden xs:inline">{t('admin.export_pdf')}</span>
-                  <span className="xs:hidden">PDF</span>
-                </Button>
-              </div>
+            </div>
+
+            {/* Mobile Export Buttons */}
+            <div className="flex md:hidden gap-2 mt-2">
+              <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <Download className="h-3.5 w-3.5" />
+                <span>CSV</span>
+              </Button>
+              <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <FileText className="h-3.5 w-3.5" />
+                <span>PDF</span>
+              </Button>
             </div>
           </div>
 
@@ -375,31 +407,20 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
 
           <Card id="order-report-section" className="shadow-sm scroll-mt-20">
             <CardHeader>
-              <div className="flex items-center justify-between gap-3">
-                <CardTitle className="text-base sm:text-lg md:text-xl truncate">{t('admin.order_report')}</CardTitle>
-                <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
-              </div>
+              <CardTitle className="text-base sm:text-lg md:text-xl truncate">{t('admin.order_report')}</CardTitle>
             </CardHeader>
             <CardContent>
               {sortedOrders.length > 0 ? (
                 <>
-                  {currentView === 'cards' ? (
-                    <div className="space-y-4">
-                      {paginatedOrders.map((order) => (
-                        <ReportOrderCard key={order.id} order={order} />
-                      ))}
-                    </div>
-                  ) : (
-                    <BaseTable
-                      data={paginatedOrders}
-                      columns={columns}
-                      keyExtractor={(order) => order.id}
-                      sortBy={sortBy}
-                      sortOrder={sortOrder}
-                      onSort={handleSort}
-                      renderMobileCard={(order) => <ReportOrderMobileCard order={order} t={t} />}
-                    />
-                  )}
+                  <BaseTable
+                    data={paginatedOrders}
+                    columns={columns}
+                    keyExtractor={(order) => order.id}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSort={handleSort}
+                    renderMobileCard={(order) => <ReportOrderMobileCard order={order} t={t} />}
+                  />
 
                   <PaginationControls
                     currentPage={currentPage}

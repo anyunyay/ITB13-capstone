@@ -221,6 +221,7 @@ return [
     'order_id' => 'Order #:id',
     'placed_on' => 'Ginawa noong :date',
     'back_to_orders' => 'Bumalik sa mga Order',
+    'back_to_dashboard' => 'Bumalik sa Dashboard',
     'approval_time_expired' => 'Nag-expire na ang Oras ng Pag-apruba',
     'urgent_manual' => 'Urgent (Manual)',
     'urgent_time_left' => 'Urgent - :hours na natitira',

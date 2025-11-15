@@ -1,5 +1,5 @@
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, LayoutGrid, Table } from 'lucide-react';
+import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, ArrowLeft } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
@@ -53,7 +53,6 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   const t = useTranslation();
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
 
   // Sorting state
   const [sortBy, setSortBy] = useState('created_at');
@@ -257,27 +256,63 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
             {/* Header */}
-            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
-                    <Users className="h-8 w-8" />
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+              {/* Mobile Layout */}
+              <div className="flex md:hidden items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                    <Users className="h-5 w-5" />
                   </div>
-                  <div>
-                    <h1 className="text-3xl font-bold text-foreground">{t('admin.membership_report')}</h1>
-                    <p className="text-muted-foreground mt-1">{t('admin.membership_report_description')}</p>
+                  <h1 className="text-lg font-bold text-foreground truncate">{t('admin.membership_report')}</h1>
+                </div>
+                <Link href={route('admin.dashboard')}>
+                  <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Desktop Layout */}
+              <div className="hidden md:flex md:flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                      <Users className="h-8 w-8" />
+                    </div>
+                    <div className="min-w-0">
+                      <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.membership_report')}</h1>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t('admin.membership_report_description')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Link href={route('admin.dashboard')}>
+                      <Button variant="outline" className="flex items-center gap-2">
+                        <ArrowLeft className="h-4 w-4" />
+                        {t('admin.back_to_dashboard')}
+                      </Button>
+                    </Link>
+                    <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
+                      <Download className="h-4 w-4" />
+                      {t('admin.export_csv')}
+                    </Button>
+                    <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      {t('admin.export_pdf')}
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2 items-center">
-                  <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
-                    <Download className="h-4 w-4" />
-                    {t('admin.export_csv')}
-                  </Button>
-                  <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    {t('admin.export_pdf')}
-                  </Button>
-                </div>
+              </div>
+
+              {/* Mobile Export Buttons */}
+              <div className="flex md:hidden gap-2 mt-2">
+                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                  <Download className="h-3.5 w-3.5" />
+                  <span>CSV</span>
+                </Button>
+                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>PDF</span>
+                </Button>
               </div>
             </div>
 
@@ -478,52 +513,25 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
             {/* Members List */}
             <Card className="shadow-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">{t('admin.members_report', { count: members.length })}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-muted-foreground">
-                      {members.length > 0 ? t('admin.showing_members', { count: members.length }) : t('admin.no_members_found')}
-                    </div>
-                    <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
-                  </div>
-                </div>
+                <CardTitle className="text-xl">{t('admin.members_report', { count: members.length })}</CardTitle>
               </CardHeader>
               <CardContent>
                 {members.length > 0 ? (
                   <>
-                    {currentView === 'cards' ? (
-                      <>
-                        <div className="space-y-4">
-                          {paginatedMembers.map((member) => (
-                            <MemberCard key={member.id} member={member} />
-                          ))}
-                        </div>
-                        <PaginationControls
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          onPageChange={handlePageChange}
-                          itemsPerPage={itemsPerPage}
-                          totalItems={sortedMembers.length}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <MemberTable 
-                          members={paginatedMembers} 
-                          sortBy={sortBy}
-                          sortOrder={sortOrder}
-                          onSort={handleSort}
-                          getSortIcon={getSortIcon}
-                        />
-                        <PaginationControls
-                          currentPage={currentPage}
-                          totalPages={totalPages}
-                          onPageChange={handlePageChange}
-                          itemsPerPage={itemsPerPage}
-                          totalItems={sortedMembers.length}
-                        />
-                      </>
-                    )}
+                    <MemberTable 
+                      members={paginatedMembers} 
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      onSort={handleSort}
+                      getSortIcon={getSortIcon}
+                    />
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      itemsPerPage={itemsPerPage}
+                      totalItems={sortedMembers.length}
+                    />
                   </>
                 ) : (
                   <div className="text-center py-12">
@@ -551,96 +559,6 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
         </div>
       </AppSidebarLayout>
     </PermissionGuard>
-  );
-}
-
-function MemberCard({ member }: { member: Member }) {
-  const t = useTranslation();
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg">{t('admin.member_with_id', { id: member.id })}</CardTitle>
-            {member.member_id && (
-              <p className="text-sm text-blue-600 font-mono font-semibold">
-                {t('admin.member_id')}: <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
-              </p>
-            )}
-            <p className="text-sm text-gray-500">
-              {dayjs(member.created_at).format('MMM DD, YYYY HH:mm')}
-            </p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div>
-            <h4 className="font-semibold mb-2">{t('admin.member_information')}</h4>
-            {member.member_id && (
-              <p className="text-sm">
-                {t('admin.member_id')}: <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
-              </p>
-            )}
-            <p className="text-sm">
-              {t('admin.name')}: {member.name}
-            </p>
-            {member.contact_number && (
-              <p className="text-sm">
-                {t('admin.contact_number')}: {member.contact_number}
-              </p>
-            )}
-            {member.address && (
-              <p className="text-sm">
-                {t('admin.address')}: {member.address}
-              </p>
-            )}
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">{t('admin.registration_details')}</h4>
-            <p className="text-sm">
-              {t('admin.registration_date_label')}: {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : t('admin.not_assigned')}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <h4 className="font-semibold mb-2">{t('admin.document')}</h4>
-          <div className="flex justify-center">
-            <SafeImage
-              src={member.document}
-              alt={`Document for ${member.name}`}
-              className="max-w-xs max-h-32 object-contain border rounded"
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ViewToggle Component
-function ViewToggle({ currentView, onViewChange }: { currentView: 'cards' | 'table'; onViewChange: (view: 'cards' | 'table') => void }) {
-  return (
-    <div className="flex gap-1 bg-muted p-1 rounded-lg border border-border">
-      <Button
-        variant={currentView === 'cards' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onViewChange('cards')}
-        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
-      >
-        <LayoutGrid className="h-4 w-4" />
-      </Button>
-      <Button
-        variant={currentView === 'table' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onViewChange('table')}
-        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
-      >
-        <Table className="h-4 w-4" />
-      </Button>
-    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, DollarSign, ShoppingCart, TrendingUp, Users, Search, Package } from 'lucide-react';
+import { BarChart3, Download, FileText, Filter, X, ChevronDown, CalendarIcon, DollarSign, ShoppingCart, TrendingUp, Users, Search, Package, ArrowLeft } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState, useEffect, useMemo } from 'react';
@@ -257,31 +257,63 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
       <div className="min-h-screen bg-background">
         <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
           {/* Dashboard Header */}
-          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
-            <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="h-4 w-4 sm:h-6 sm:w-6" />
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+            {/* Mobile Layout */}
+            <div className="flex md:hidden items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+                <h1 className="text-lg font-bold text-foreground truncate">{t('admin.sales_report_page_title')}</h1>
+              </div>
+              <Link href={route('admin.dashboard')}>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex md:flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                    <BarChart3 className="h-8 w-8" />
                   </div>
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('admin.sales_report_page_title')}</h1>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                      {t('admin.generate_comprehensive_sales_reports')}
-                    </p>
+                  <div className="min-w-0">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.sales_report_page_title')}</h1>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t('admin.generate_comprehensive_sales_reports')}</p>
                   </div>
                 </div>
+                <div className="flex gap-2 shrink-0">
+                  <Link href={route('admin.dashboard')}>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <ArrowLeft className="h-4 w-4" />
+                      {t('admin.back_to_dashboard')}
+                    </Button>
+                  </Link>
+                  <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="flex items-center gap-2">
+                    <Download className="h-4 w-4" />
+                    {t('admin.export_csv')}
+                  </Button>
+                  <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {t('admin.export_pdf')}
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                  <Download className="h-4 w-4 mr-2" />
-                  <span className="text-sm sm:text-base">{t('admin.export_csv')}</span>
-                </Button>
-                <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                  <FileText className="h-4 w-4 mr-2" />
-                  <span className="text-sm sm:text-base">{t('admin.export_pdf')}</span>
-                </Button>
-              </div>
+            </div>
+
+            {/* Mobile Export Buttons */}
+            <div className="flex md:hidden gap-2 mt-2">
+              <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <Download className="h-3.5 w-3.5" />
+                <span>CSV</span>
+              </Button>
+              <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                <FileText className="h-3.5 w-3.5" />
+                <span>PDF</span>
+              </Button>
             </div>
           </div>
 

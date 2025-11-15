@@ -551,6 +551,7 @@ return [
     'permissions' => 'Permissions',
     'back_to_inventory' => 'Back to Inventory',
     'back_to_orders' => 'Back to Orders',
+    'back_to_dashboard' => 'Back to Dashboard',
     'list_of_sold_stocks' => 'List of sold stocks',
     'stock_id' => 'Stock ID',
     'product_name' => 'Product Name',
