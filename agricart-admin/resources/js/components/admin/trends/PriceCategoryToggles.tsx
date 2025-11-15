@@ -53,7 +53,7 @@ export function PriceCategoryToggles({
                     disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_pc')}
                 />
                 <Label htmlFor="per_pc" className="text-sm cursor-pointer whitespace-nowrap">
-                    {t('admin.per_piece')}
+                    {t('admin.per_pc')}
                 </Label>
             </div>
         </div>
