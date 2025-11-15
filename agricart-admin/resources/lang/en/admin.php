@@ -413,6 +413,8 @@ return [
     'please_select_month_year_chart' => 'Please select both month and year to view the chart',
     'please_select_year_chart' => 'Please select a year to view the chart',
     'start_date_cannot_after_end' => 'Start date cannot be after end date',
+    'start_date_cannot_be_future' => 'Start date cannot be in the future',
+    'end_date_cannot_be_future' => 'End date cannot be in the future',
     'selected_month_cannot_future' => 'Selected month cannot be in the future',
     'selected_year_cannot_future' => 'Selected year cannot be in the future',
     'start_date_cannot_before_2020' => 'Start date cannot be before 2020',

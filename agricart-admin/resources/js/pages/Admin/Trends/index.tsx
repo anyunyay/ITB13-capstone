@@ -451,17 +451,35 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     // Validate dates when specific time period is selected
     const validateDates = () => {
         if (timePeriod === 'specific') {
-            if (!startDate || !endDate) {
-                setDateValidationError(t('admin.select_both_dates'));
-                return false;
+            // Only validate if both dates are selected
+            if (startDate && endDate) {
+                const today = dayjs();
+                
+                // Check if start date is in the future
+                if (dayjs(startDate).isAfter(today, 'day')) {
+                    setDateValidationError(t('admin.start_date_cannot_be_future'));
+                    return false;
+                }
+                
+                // Check if end date is in the future
+                if (dayjs(endDate).isAfter(today, 'day')) {
+                    setDateValidationError(t('admin.end_date_cannot_be_future'));
+                    return false;
+                }
+                
+                // Check if start date is after end date
+                if (dayjs(startDate).isAfter(dayjs(endDate))) {
+                    setDateValidationError(t('admin.start_date_cannot_after_end'));
+                    return false;
+                }
+                
+                // Clear error if dates are valid
+                setDateValidationError('');
+                return true;
             }
-            if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
-                setDateValidationError(t('admin.start_date_cannot_after_end'));
-                return false;
-            }
-            // Clear error if dates are valid
-            setDateValidationError('');
-            return true;
+            // If only one date is selected, don't show error yet
+            // Only show error when trying to load data without both dates
+            return false;
         }
         setDateValidationError('');
         return true;
@@ -506,7 +524,45 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         // Don't load if no products selected or no price categories enabled
         if (selectedProducts.length === 0 || !Object.values(priceCategoryToggles).some(toggle => toggle)) {
             setSeries([]);
+            // Clear validation error when no products selected
+            setDateValidationError('');
             return;
+        }
+        
+        // Validate specific time period dates when products are selected
+        if (timePeriod === 'specific') {
+            const today = dayjs();
+            
+            // Check if both dates are provided
+            if (!startDate || !endDate) {
+                setDateValidationError(t('admin.select_both_dates'));
+                setSeries([]);
+                return;
+            }
+            
+            // Check if start date is in the future
+            if (dayjs(startDate).isAfter(today, 'day')) {
+                setDateValidationError(t('admin.start_date_cannot_be_future'));
+                setSeries([]);
+                return;
+            }
+            
+            // Check if end date is in the future
+            if (dayjs(endDate).isAfter(today, 'day')) {
+                setDateValidationError(t('admin.end_date_cannot_be_future'));
+                setSeries([]);
+                return;
+            }
+            
+            // Check if start date is after end date
+            if (dayjs(startDate).isAfter(dayjs(endDate))) {
+                setDateValidationError(t('admin.start_date_cannot_after_end'));
+                setSeries([]);
+                return;
+            }
+            
+            // Clear error if dates are valid
+            setDateValidationError('');
         }
         
         // Validate time period selections before loading data
@@ -861,7 +917,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 <PopoverTrigger asChild>
                                                     <Button
                                                         variant="outline"
-                                                        className="w-full justify-start text-left font-normal h-9 md:h-10 text-sm"
+                                                        className={`w-full justify-start text-left font-normal h-9 md:h-10 text-sm ${dateValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
                                                     >
                                                         <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                                                         <span className="truncate">{startDate ? format(startDate, "PPP") : t('admin.pick_date')}</span>
@@ -873,9 +929,23 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                         selected={startDate}
                                                         onSelect={(date) => {
                                                             setStartDate(date);
-                                                            if (date) {
+                                                            // Clear error when selecting a date
+                                                            if (date && endDate) {
                                                                 validateDates();
+                                                            } else if (date) {
+                                                                setDateValidationError('');
                                                             }
+                                                        }}
+                                                        disabled={(date) => {
+                                                            // Disable future dates
+                                                            const today = new Date();
+                                                            today.setHours(23, 59, 59, 999);
+                                                            if (date > today) return true;
+                                                            
+                                                            // Disable dates after end date if end date is selected
+                                                            if (endDate && date > endDate) return true;
+                                                            
+                                                            return false;
                                                         }}
                                                         initialFocus
                                                     />
@@ -888,7 +958,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 <PopoverTrigger asChild>
                                                     <Button
                                                         variant="outline"
-                                                        className="w-full justify-start text-left font-normal h-9 md:h-10 text-sm"
+                                                        className={`w-full justify-start text-left font-normal h-9 md:h-10 text-sm ${dateValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
                                                     >
                                                         <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                                                         <span className="truncate">{endDate ? format(endDate, "PPP") : t('admin.pick_date')}</span>
@@ -900,9 +970,23 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                         selected={endDate}
                                                         onSelect={(date) => {
                                                             setEndDate(date);
-                                                            if (date) {
+                                                            // Clear error when selecting a date
+                                                            if (date && startDate) {
                                                                 validateDates();
+                                                            } else if (date) {
+                                                                setDateValidationError('');
                                                             }
+                                                        }}
+                                                        disabled={(date) => {
+                                                            // Disable future dates
+                                                            const today = new Date();
+                                                            today.setHours(23, 59, 59, 999);
+                                                            if (date > today) return true;
+                                                            
+                                                            // Disable dates before start date if start date is selected
+                                                            if (startDate && date < startDate) return true;
+                                                            
+                                                            return false;
                                                         }}
                                                         initialFocus
                                                     />
@@ -929,18 +1013,39 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                     <SelectValue placeholder={t('admin.select_month')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="0">{t('admin.january')}</SelectItem>
-                                                    <SelectItem value="1">{t('admin.february')}</SelectItem>
-                                                    <SelectItem value="2">{t('admin.march')}</SelectItem>
-                                                    <SelectItem value="3">{t('admin.april')}</SelectItem>
-                                                    <SelectItem value="4">{t('admin.may')}</SelectItem>
-                                                    <SelectItem value="5">{t('admin.june')}</SelectItem>
-                                                    <SelectItem value="6">{t('admin.july')}</SelectItem>
-                                                    <SelectItem value="7">{t('admin.august')}</SelectItem>
-                                                    <SelectItem value="8">{t('admin.september')}</SelectItem>
-                                                    <SelectItem value="9">{t('admin.october')}</SelectItem>
-                                                    <SelectItem value="10">{t('admin.november')}</SelectItem>
-                                                    <SelectItem value="11">{t('admin.december')}</SelectItem>
+                                                    {(() => {
+                                                        const currentYear = dayjs().year();
+                                                        const currentMonth = dayjs().month();
+                                                        const months = [
+                                                            { value: 0, label: t('admin.january') },
+                                                            { value: 1, label: t('admin.february') },
+                                                            { value: 2, label: t('admin.march') },
+                                                            { value: 3, label: t('admin.april') },
+                                                            { value: 4, label: t('admin.may') },
+                                                            { value: 5, label: t('admin.june') },
+                                                            { value: 6, label: t('admin.july') },
+                                                            { value: 7, label: t('admin.august') },
+                                                            { value: 8, label: t('admin.september') },
+                                                            { value: 9, label: t('admin.october') },
+                                                            { value: 10, label: t('admin.november') },
+                                                            { value: 11, label: t('admin.december') }
+                                                        ];
+                                                        
+                                                        return months.map(month => {
+                                                            // Disable future months if current year is selected
+                                                            const isDisabled = selectedYear === currentYear && month.value > currentMonth;
+                                                            
+                                                            return (
+                                                                <SelectItem 
+                                                                    key={month.value} 
+                                                                    value={month.value.toString()}
+                                                                    disabled={isDisabled}
+                                                                >
+                                                                    {month.label}
+                                                                </SelectItem>
+                                                            );
+                                                        });
+                                                    })()}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -948,17 +1053,33 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                             <Label className="text-sm">{t('admin.select_year')}</Label>
                                             <Select 
                                                 value={selectedYear?.toString() || ""} 
-                                                onValueChange={(value) => setSelectedYear(parseInt(value))}
+                                                onValueChange={(value) => {
+                                                    const year = parseInt(value);
+                                                    setSelectedYear(year);
+                                                    
+                                                    // Clear selected month if it's in the future for the selected year
+                                                    const currentYear = dayjs().year();
+                                                    const currentMonth = dayjs().month();
+                                                    if (year === currentYear && selectedMonth !== undefined && selectedMonth > currentMonth) {
+                                                        setSelectedMonth(undefined);
+                                                    }
+                                                }}
                                             >
                                                 <SelectTrigger className="w-full h-9 md:h-10">
                                                     <SelectValue placeholder={t('admin.select_year')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
-                                                        <SelectItem key={year} value={year.toString()}>
-                                                            {year}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {(() => {
+                                                        const currentYear = dayjs().year();
+                                                        const startYear = 2020;
+                                                        const yearCount = currentYear - startYear + 1;
+                                                        
+                                                        return Array.from({ length: yearCount }, (_, i) => startYear + i).map(year => (
+                                                            <SelectItem key={year} value={year.toString()}>
+                                                                {year}
+                                                            </SelectItem>
+                                                        ));
+                                                    })()}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -976,11 +1097,17 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                 <SelectValue placeholder={t('admin.select_year')} />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {Array.from({ length: 11 }, (_, i) => 2020 + i).map(year => (
-                                                    <SelectItem key={year} value={year.toString()}>
-                                                        {year}
-                                                    </SelectItem>
-                                                ))}
+                                                {(() => {
+                                                    const currentYear = dayjs().year();
+                                                    const startYear = 2020;
+                                                    const yearCount = currentYear - startYear + 1;
+                                                    
+                                                    return Array.from({ length: yearCount }, (_, i) => startYear + i).map(year => (
+                                                        <SelectItem key={year} value={year.toString()}>
+                                                            {year}
+                                                        </SelectItem>
+                                                    ));
+                                                })()}
                                             </SelectContent>
                                         </Select>
                                 </div>
@@ -1023,15 +1150,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     </div>
                                 </div>
                             </div>
-                            {selectedProducts.length === 0 && (
-                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_product_chart')}</p>
-                            )}
-                            {timePeriod === 'monthly' && (selectedMonth === undefined || selectedYear === undefined) && (
-                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_month_year_chart')}</p>
-                            )}
-                            {timePeriod === 'yearly' && selectedYear === undefined && (
-                                <p className="text-sm text-red-500 mt-2">{t('admin.please_select_year_chart')}</p>
-                            )}
+                            {/* Only show validation errors, not missing field warnings */}
                             {timePeriod === 'specific' && startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate)) && (
                                 <p className="text-sm text-red-500 mt-2">{t('admin.start_date_cannot_after_end')}</p>
                             )}

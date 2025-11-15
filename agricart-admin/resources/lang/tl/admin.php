@@ -413,6 +413,8 @@ return [
     'please_select_month_year_chart' => 'Mangyaring pumili ng parehong buwan at taon upang makita ang chart',
     'please_select_year_chart' => 'Mangyaring pumili ng taon upang makita ang chart',
     'start_date_cannot_after_end' => 'Ang start date ay hindi maaaring pagkatapos ng end date',
+    'start_date_cannot_be_future' => 'Ang start date ay hindi maaaring nasa hinaharap',
+    'end_date_cannot_be_future' => 'Ang end date ay hindi maaaring nasa hinaharap',
     'selected_month_cannot_future' => 'Ang napiling buwan ay hindi maaaring nasa hinaharap',
     'selected_year_cannot_future' => 'Ang napiling taon ay hindi maaaring nasa hinaharap',
     'start_date_cannot_before_2020' => 'Ang start date ay hindi maaaring bago ang 2020',
