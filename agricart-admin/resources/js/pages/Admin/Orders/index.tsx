@@ -22,6 +22,8 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
   const [showSearch, setShowSearch] = useState(false);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [isMobile, setIsMobile] = useState(false);
+  const [sortBy, setSortBy] = useState('id');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Detect mobile screen size
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
     };
   }, [allOrders]);
 
-  // Filter orders based on search and status
+  // Filter and sort orders based on search and status
   const filteredOrders = useMemo(() => {
     let filtered = allOrders;
 
@@ -96,8 +98,34 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
       filtered = filtered.filter(order => order.delivery_status === selectedDeliveryStatus);
     }
 
-    return filtered;
-  }, [allOrders, searchTerm, selectedStatus, selectedDeliveryStatus]);
+    // Sort orders
+    return [...filtered].sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'customer':
+          comparison = a.customer.name.localeCompare(b.customer.name);
+          break;
+        case 'total_amount':
+          comparison = a.total_amount - b.total_amount;
+          break;
+        case 'status':
+          comparison = a.status.localeCompare(b.status);
+          break;
+        case 'delivery_status':
+          comparison = a.delivery_status.localeCompare(b.delivery_status);
+          break;
+        case 'created_at':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [allOrders, searchTerm, selectedStatus, selectedDeliveryStatus, sortBy, sortOrder]);
 
   // Paginate filtered orders
   const paginatedOrders = useMemo(() => {
@@ -158,6 +186,10 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               onStatusChange={handleStatusChange}
               currentView={currentView}
               setCurrentView={setCurrentView}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
             />
           </div>
         </div>

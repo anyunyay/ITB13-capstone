@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Package, Search } from 'lucide-react';
 import { PaginationControls } from './pagination-controls';
 import { OrderCard } from './order-card';
-import { OrderTable } from './order-table';
+import { BaseTable } from '@/components/common/base-table';
+import { createOrderTableColumns, OrderMobileCard } from './order-table-columns';
 import { SearchFilter } from './search-filter';
 import { ViewToggle } from './view-toggle';
 import { Order } from '@/types/orders';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderManagementProps {
@@ -33,6 +34,10 @@ interface OrderManagementProps {
     onStatusChange: (status: string) => void;
     currentView: 'cards' | 'table';
     setCurrentView: (view: 'cards' | 'table') => void;
+    sortBy: string;
+    setSortBy: (field: string) => void;
+    sortOrder: 'asc' | 'desc';
+    setSortOrder: (order: 'asc' | 'desc') => void;
 }
 
 export const OrderManagement = ({
@@ -57,7 +62,11 @@ export const OrderManagement = ({
     itemsPerPage,
     onStatusChange,
     currentView,
-    setCurrentView
+    setCurrentView,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder
 }: OrderManagementProps) => {
     
     // Use allOrders for consistent tab counts
@@ -67,6 +76,19 @@ export const OrderManagement = ({
     const delayedOrders = allOrders.filter(order => order.status === 'delayed');
 
     const t = useTranslation();
+    
+    // Create column definitions
+    const columns = useMemo(() => createOrderTableColumns(t), [t]);
+    
+    // Handle sorting
+    const handleSort = (field: string) => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(field);
+            setSortOrder('desc');
+        }
+    };
 
     const renderOrders = (ordersToRender: Order[]) => {
         if (ordersToRender.length === 0) {
@@ -98,12 +120,14 @@ export const OrderManagement = ({
                         ))}
                     </div>
                 ) : (
-                    <OrderTable
-                        orders={ordersToRender}
-                        highlightOrderId={highlightOrderId}
-                        urgentOrders={urgentOrders}
-                        showActions={true}
-                        compact={false}
+                    <BaseTable
+                        data={ordersToRender}
+                        columns={columns}
+                        keyExtractor={(order) => order.id}
+                        sortBy={sortBy}
+                        sortOrder={sortOrder}
+                        onSort={handleSort}
+                        renderMobileCard={(order) => <OrderMobileCard order={order} t={t} />}
                     />
                 )}
                 

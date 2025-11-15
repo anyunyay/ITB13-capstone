@@ -1,15 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Link } from '@inertiajs/react';
-import { route } from 'ziggy-js';
-import { UsersRound, Search, Edit, Trash2, Eye, ArrowUpDown, ArrowUp, ArrowDown, Shield, Filter } from 'lucide-react';
-import { PermissionGate } from '@/components/common/permission-gate';
+import { UsersRound, Search, Filter } from 'lucide-react';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
 import { useTranslation } from '@/hooks/use-translation';
+import { BaseTable } from '@/components/common/base-table';
+import { createStaffTableColumns, StaffMobileCard } from './staff-table-columns';
+import { useMemo } from 'react';
 import styles from './staff-highlights.module.css';
 
 interface StaffManagementProps {
@@ -60,6 +58,7 @@ export const StaffManagement = ({
     setShowSearch
 }: StaffManagementProps) => {
     const t = useTranslation();
+    
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -69,69 +68,10 @@ export const StaffManagement = ({
         }
     };
 
-    const getSortIcon = (field: string) => {
-        if (sortBy !== field) return <ArrowUpDown className="h-4 w-4" />;
-        return sortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4" /> : 
-            <ArrowDown className="h-4 w-4" />;
-    };
-
-    const getPermissionCategory = (permission: string) => {
-        if (permission.includes('inventory') || permission.includes('products') || permission.includes('stocks') || permission.includes('archive')) {
-            return 'inventory';
-        }
-        if (permission.includes('order')) {
-            return 'orders';
-        }
-        if (permission.includes('logistic')) {
-            return 'logistics';
-        }
-        if (permission.includes('report')) {
-            return 'reports';
-        }
-        if (permission.includes('sales')) {
-            return 'sales';
-        }
-        return 'default';
-    };
-
-    const getPermissionDisplayName = (permission: string) => {
-        const permissionMap: { [key: string]: string } = {
-            'view inventory': 'View Inventory',
-            'create products': 'Create Products',
-            'edit products': 'Edit Products',
-            'view archive': 'View Archive',
-            'archive products': 'Archive Products',
-            'unarchive products': 'Unarchive Products',
-            'view stocks': 'View Stocks',
-            'create stocks': 'Create Stocks',
-            'edit stocks': 'Edit Stocks',
-            'view sold stock': 'View Sold Stock',
-            'view stock trail': 'View Stock Trail',
-            'view orders': 'View Orders',
-            'manage orders': 'Manage Orders',
-            'approve orders': 'Approve Orders',
-            'reject orders': 'Reject Orders',
-            'process orders': 'Process Orders',
-            'assign logistics': 'Assign Logistics',
-            'mark orders urgent': 'Mark Urgent',
-            'unmark orders urgent': 'Unmark Urgent',
-            'view order receipts': 'View Receipts',
-            'view sales': 'View Sales',
-            'view member sales': 'View Member Sales',
-            'export sales data': 'Export Sales',
-            'view logistics': 'View Logistics',
-            'create logistics': 'Create Logistics',
-            'edit logistics': 'Edit Logistics',
-            'deactivate logistics': 'Deactivate Logistics',
-            'reactivate logistics': 'Reactivate Logistics',
-            'generate order report': 'Order Reports',
-            'generate logistics report': 'Logistics Reports',
-            'generate inventory report': 'Inventory Reports',
-            'generate sales report': 'Sales Reports'
-        };
-        return permissionMap[permission] || permission;
-    };
+    // Create column definitions
+    const staffColumns = useMemo(() => {
+        return createStaffTableColumns(t, processing, onDelete);
+    }, [t, processing, onDelete]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
@@ -222,172 +162,38 @@ export const StaffManagement = ({
             </div>
 
             {/* Staff Table */}
-            {paginatedStaff.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)]">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('id')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('staff.id')} {getSortIcon('id')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('name')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('staff.name')} {getSortIcon('name')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.email')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.contact')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.address')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.permissions')}</th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('status')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('staff.status')} {getSortIcon('status')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">
-                                    <button
-                                        onClick={() => handleSort('created_at')}
-                                        className="flex items-center gap-1 hover:text-foreground"
-                                    >
-                                        {t('staff.created')} {getSortIcon('created_at')}
-                                    </button>
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground border-b border-border">{t('staff.actions')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedStaff.map((staffMember) => (
-                                <tr
-                                    key={staffMember.id}
-                                    className={`border-b border-border transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--muted)_30%,transparent)] ${
-                                        highlightStaffId === staffMember.id ? styles.highlighted : ''
-                                    }`}
-                                >
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">{staffMember.id}</td>
-                                    <td className="px-4 py-3 text-sm font-medium text-foreground">
-                                        <div>{staffMember.name}</div>
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">{staffMember.email}</td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        {staffMember.contact_number || t('admin.na')}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        {staffMember.default_address ? 
-                                            `${staffMember.default_address.street}, ${staffMember.default_address.barangay}, ${staffMember.default_address.city}, ${staffMember.default_address.province}` 
-                                            : t('admin.na')
-                                        }
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        <div className="flex flex-wrap gap-1">
-                                            {staffMember.permissions.length > 0 ? (
-                                                staffMember.permissions.slice(0, 3).map((permission) => (
-                                                    <Badge
-                                                        key={permission.name}
-                                                        variant="secondary"
-                                                        className="text-xs gap-1"
-                                                    >
-                                                        <Shield className="h-3 w-3" />
-                                                        {getPermissionDisplayName(permission.name)}
-                                                    </Badge>
-                                                ))
-                                            ) : (
-                                                <span className="text-muted-foreground text-sm">{t('staff.no_permissions')}</span>
-                                            )}
-                                            {staffMember.permissions.length > 3 && (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Badge variant="secondary" className="text-xs">
-                                                                +{staffMember.permissions.length - 3} more
-                                                            </Badge>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <div className="max-w-xs">
-                                                                {staffMember.permissions.slice(3).map((permission) => (
-                                                                    <div key={permission.name} className="text-sm">
-                                                                        {getPermissionDisplayName(permission.name)}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-3 text-sm">
-                                        {staffMember.email_verified_at ? (
-                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                                                {t('staff.active')}
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-                                                {t('staff.inactive')}
-                                            </Badge>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        {new Date(staffMember.created_at).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-foreground">
-                                        <div className="flex gap-2">
-                                            <PermissionGate permission="edit staffs">
-                                                <Button
-                                                    asChild
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                >
-                                                    <Link href={route('staff.edit', staffMember.id)}>
-                                                        <Edit className="h-4 w-4" />
-                                                        {t('ui.edit')}
-                                                    </Link>
-                                                </Button>
-                                            </PermissionGate>
-                                            <PermissionGate permission="delete staffs">
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    onClick={() => onDelete(staffMember)}
-                                                    disabled={processing}
-                                                    className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                    {t('ui.delete')}
-                                                </Button>
-                                            </PermissionGate>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="text-center py-8">
-                    <UsersRound className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="text-lg font-medium text-foreground mb-2">
-                        {searchTerm ? t('staff.no_staff_found') : t('staff.no_staff_available')}
-                    </h3>
-                    <p className="text-muted-foreground">
-                        {searchTerm 
-                            ? t('staff.no_staff_match_search', { search: searchTerm })
-                            : t('staff.no_staff_registered')
-                        }
-                    </p>
-                </div>
-            )}
+            <BaseTable
+                data={paginatedStaff}
+                columns={staffColumns}
+                keyExtractor={(staffMember) => staffMember.id}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+                getRowClassName={(staffMember) =>
+                    highlightStaffId === staffMember.id ? styles.highlighted : ''
+                }
+                renderMobileCard={(staffMember) => (
+                    <StaffMobileCard
+                        staff={staffMember}
+                        t={t}
+                        processing={processing}
+                        onDelete={onDelete}
+                    />
+                )}
+                emptyState={
+                    <div className="text-center py-8">
+                        <UsersRound className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                        <h3 className="text-lg font-medium text-foreground mb-2">
+                            {searchTerm ? t('staff.no_staff_found') : t('staff.no_staff_available')}
+                        </h3>
+                        <p className="text-muted-foreground">
+                            {searchTerm
+                                ? t('staff.no_staff_match_search', { search: searchTerm })
+                                : t('staff.no_staff_registered')}
+                        </p>
+                    </div>
+                }
+            />
 
             {/* Pagination */}
             {totalPages > 1 && (

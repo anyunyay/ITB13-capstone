@@ -10,12 +10,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, LayoutGrid, Table, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { useTranslation } from '@/hooks/use-translation';
+import { BaseTable } from '@/components/common/base-table';
+import { createLogisticsReportTableColumns, LogisticsReportMobileCard } from '@/components/logistics/logistics-report-table-columns';
 
 interface Logistic {
   id: number;
@@ -58,7 +60,6 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   };
   
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
-  const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
   
   // Date picker states
@@ -140,6 +141,54 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   // Sorting state
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  // Create column definitions
+  const logisticsColumns = useMemo(() => {
+    return createLogisticsReportTableColumns(t);
+  }, [t]);
+
+  // Sort logistics
+  const sortedLogistics = useMemo(() => {
+    return [...logistics].sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'status':
+          const statusA = a.email_verified_at ? 'verified' : 'pending';
+          const statusB = b.email_verified_at ? 'verified' : 'pending';
+          comparison = statusA.localeCompare(statusB);
+          break;
+        case 'registration_date':
+          const regDateA = a.registration_date ? new Date(a.registration_date).getTime() : 0;
+          const regDateB = b.registration_date ? new Date(b.registration_date).getTime() : 0;
+          comparison = regDateA - regDateB;
+          break;
+        case 'email_verified_at':
+          const verifiedA = a.email_verified_at ? new Date(a.email_verified_at).getTime() : 0;
+          const verifiedB = b.email_verified_at ? new Date(b.email_verified_at).getTime() : 0;
+          comparison = verifiedA - verifiedB;
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [logistics, sortBy, sortOrder]);
 
   const exportReport = (format: 'csv' | 'pdf', sortByParam?: string, sortOrderParam?: 'asc' | 'desc') => {
     const params = new URLSearchParams();
@@ -442,46 +491,21 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
             {/* Logistics List */}
             <Card className="shadow-sm">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">{t('admin.logistics_members_count', { count: logistics.length })}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <div className="text-sm text-muted-foreground">
-                      {logistics.length > 0 ? t('admin.showing_logistics_members_count', { count: logistics.length }) : t('admin.no_members_found')}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant={currentView === 'cards' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setCurrentView('cards')}
-                        className="flex items-center"
-                      >
-                        <LayoutGrid className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant={currentView === 'table' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setCurrentView('table')}
-                        className="flex items-center"
-                      >
-                        <Table className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <CardTitle className="text-xl">{t('admin.logistics_members_count', { count: logistics.length })}</CardTitle>
               </CardHeader>
               <CardContent>
-                {logistics.length > 0 ? (
-                  <>
-                    {currentView === 'cards' ? (
-                      <div className="space-y-4">
-                        {logistics.map((logistic) => (
-                          <LogisticCard key={logistic.id} logistic={logistic} />
-                        ))}
-                      </div>
-                    ) : (
-                      <LogisticTable logistics={logistics} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} />
+                {sortedLogistics.length > 0 ? (
+                  <BaseTable
+                    data={sortedLogistics}
+                    columns={logisticsColumns}
+                    keyExtractor={(logistic) => logistic.id}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSort={handleSort}
+                    renderMobileCard={(logistic) => (
+                      <LogisticsReportMobileCard logistic={logistic} t={t} />
                     )}
-                  </>
+                  />
                 ) : (
                   <div className="text-center py-12">
                     <div className="flex flex-col items-center">
