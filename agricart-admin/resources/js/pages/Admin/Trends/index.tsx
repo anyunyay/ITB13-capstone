@@ -3,22 +3,20 @@ import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import type { SharedData } from '@/types';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
-import { CalendarIcon, TrendingUp } from 'lucide-react';
-import { format } from 'date-fns';
+import { TrendingUp } from 'lucide-react';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useTranslation } from '@/hooks/use-translation';
+import {
+    TrendChart,
+    TimePeriodSelector,
+    DateSelector,
+    ProductSelector,
+    PriceCategoryToggles,
+} from '@/components/admin/trends';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -887,340 +885,45 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                         {t('admin.clear_filters')}
                                     </Button>
                                 )}
-                                <div className="flex items-center gap-2 lg:gap-3">
-                                    <Label className="text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">{t('admin.time_period')}</Label>
-                                    <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                                        <div className="flex items-center space-x-1.5">
-                                            <input
-                                                type="radio"
-                                                id="specific"
-                                                name="timePeriod"
-                                                value="specific"
-                                                checked={timePeriod === 'specific'}
-                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <Label htmlFor="specific" className="text-xs sm:text-sm cursor-pointer whitespace-nowrap">{t('admin.specific_date')}</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-1.5">
-                                            <input
-                                                type="radio"
-                                                id="monthly"
-                                                name="timePeriod"
-                                                value="monthly"
-                                                checked={timePeriod === 'monthly'}
-                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <Label htmlFor="monthly" className="text-xs sm:text-sm cursor-pointer whitespace-nowrap">{t('admin.monthly')}</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-1.5">
-                                            <input
-                                                type="radio"
-                                                id="yearly"
-                                                name="timePeriod"
-                                                value="yearly"
-                                                checked={timePeriod === 'yearly'}
-                                                onChange={(e) => handleTimePeriodChange(e.target.value as 'specific' | 'monthly' | 'yearly')}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <Label htmlFor="yearly" className="text-xs sm:text-sm cursor-pointer whitespace-nowrap">{t('admin.yearly')}</Label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <TimePeriodSelector
+                                    timePeriod={timePeriod}
+                                    onTimePeriodChange={handleTimePeriodChange}
+                                />
                             </div>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm">{t('admin.category')}</Label>
-                                    <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                                        <SelectTrigger className="w-full h-9 md:h-10">
-                                            <SelectValue placeholder={t('admin.all_categories')} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">{t('admin.all_categories')}</SelectItem>
-                                            <SelectItem value="fruit">{t('admin.fruit')}</SelectItem>
-                                            <SelectItem value="vegetable">{t('admin.vegetable')}</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-sm">{t('admin.products_max_3')}</Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="outline" className="w-full justify-start h-9 md:h-10 text-sm">
-                                                {selectedProducts.length === 0 
-                                                    ? t('admin.select_products_placeholder')
-                                                    : `${selectedProducts.length} ${t('admin.products_selected')}`
-                                                }
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[400px] lg:max-w-[800px] max-h-[70vh] overflow-y-auto" align="start">
-                                            <div>
-                                                {(() => {
-                                                    const groupedProducts = getGroupedProducts(availableProducts);
-                                                    const groupTitles = {
-                                                        'per_kilo_only': t('admin.per_kilo_only'),
-                                                        'per_tali_only': t('admin.per_tali_only'), 
-                                                        'per_pc_only': t('admin.per_pc_only'),
-                                                        'per_kilo_tali': t('admin.per_kilo_tali'),
-                                                        'per_kilo_pc': t('admin.per_kilo_pc'),
-                                                        'per_tali_pc': t('admin.per_tali_pc'),
-                                                        'all_units': t('admin.all_pricing_units')
-                                                    };
-                                                    
-                                                    // Count total products to determine layout
-                                                    const totalProducts = Object.values(groupedProducts).reduce((sum, group) => sum + group.length, 0);
-                                                    const hasMultipleGroups = Object.values(groupedProducts).filter(group => group.length > 0).length > 1;
-                                                    
-                                                    return (
-                                                        <div className={hasMultipleGroups ? "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2" : "space-y-4"}>
-                                                            {Object.entries(groupedProducts).map(([groupKey, groupProducts]) => {
-                                                                if (groupProducts.length === 0) return null;
-                                                                
-                                                                return (
-                                                                    <div key={groupKey} className="space-y-2">
-                                                                        <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 px-1 border-b border-gray-200 pb-1">
-                                                                            {groupTitles[groupKey as keyof typeof groupTitles]}
-                                                                        </div>
-                                                                        <div className="grid grid-cols-1 gap-1">
-                                                                            {groupProducts.map((product) => (
-                                                                                <div key={product.name} className="flex items-center space-x-2 px-2 py-1.5 hover:bg-gray-50 rounded min-h-[36px]">
-                                                        <Checkbox
-                                                            id={product.name}
-                                                            checked={selectedProducts.includes(product.name)}
-                                                            onCheckedChange={(checked) => 
-                                                                handleProductSelectionChange(product.name, checked as boolean)
-                                                            }
-                                                                                        disabled={!selectedProducts.includes(product.name) && selectedProducts.length >= 3}
-                                                        />
-                                                        <Label 
-                                                            htmlFor={product.name} 
-                                                                                        className="text-sm font-normal cursor-pointer flex-1"
-                                                        >
-                                                            {product.name}
-                                                        </Label>
-                                                    </div>
-                                                ))}
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    );
-                                                })()}
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                    {selectedProducts.length >= 3 && (
-                                        <p className="text-sm text-amber-600 mt-1">
-                                            {t('admin.maximum_products_warning')}
-                                        </p>
-                                    )}
-                                </div>
-                                {timePeriod === 'specific' && (
-                                    <div className="col-span-1 sm:col-span-2 lg:col-span-2 grid grid-cols-2 gap-3 md:gap-4">
-                                        <div className="space-y-1.5">
-                                            <Label className="text-sm">{t('admin.start_date')}</Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className={`w-full justify-start text-left font-normal h-9 md:h-10 text-sm ${dateValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                                                        <span className="truncate">{startDate ? format(startDate, "PPP") : t('admin.pick_date')}</span>
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={startDate}
-                                                        onSelect={(date) => {
-                                                            setStartDate(date);
-                                                            // Clear error when selecting a date
-                                                            if (date && endDate) {
-                                                                validateDates();
-                                                            } else if (date) {
-                                                                setDateValidationError('');
-                                                            }
-                                                        }}
-                                                        disabled={(date) => {
-                                                            // Disable future dates
-                                                            const today = new Date();
-                                                            today.setHours(23, 59, 59, 999);
-                                                            if (date > today) return true;
-                                                            
-                                                            // Disable dates after end date if end date is selected
-                                                            if (endDate && date > endDate) return true;
-                                                            
-                                                            return false;
-                                                        }}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label className="text-sm">{t('admin.end_date')}</Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        className={`w-full justify-start text-left font-normal h-9 md:h-10 text-sm ${dateValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                                                        <span className="truncate">{endDate ? format(endDate, "PPP") : t('admin.pick_date')}</span>
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={endDate}
-                                                        onSelect={(date) => {
-                                                            setEndDate(date);
-                                                            // Clear error when selecting a date
-                                                            if (date && startDate) {
-                                                                validateDates();
-                                                            } else if (date) {
-                                                                setDateValidationError('');
-                                                            }
-                                                        }}
-                                                        disabled={(date) => {
-                                                            // Disable future dates
-                                                            const today = new Date();
-                                                            today.setHours(23, 59, 59, 999);
-                                                            if (date > today) return true;
-                                                            
-                                                            // Disable dates before start date if start date is selected
-                                                            if (startDate && date < startDate) return true;
-                                                            
-                                                            return false;
-                                                        }}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                    </div>
-                                )}
+                                <ProductSelector
+                                    selectedCategory={selectedCategory}
+                                    selectedProducts={selectedProducts}
+                                    availableProducts={availableProducts}
+                                    onCategoryChange={handleCategoryChange}
+                                    onProductSelectionChange={handleProductSelectionChange}
+                                />
+                                <DateSelector
+                                    timePeriod={timePeriod}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                    dateValidationError={dateValidationError}
+                                    onStartDateChange={setStartDate}
+                                    onEndDateChange={setEndDate}
+                                    onMonthChange={setSelectedMonth}
+                                    onYearChange={(year) => {
+                                        setSelectedYear(year);
+                                        const currentYear = dayjs().year();
+                                        const currentMonth = dayjs().month();
+                                        if (year === currentYear && selectedMonth !== undefined && selectedMonth > currentMonth) {
+                                            setSelectedMonth(undefined);
+                                        }
+                                    }}
+                                    onValidateDates={validateDates}
+                                />
                                 {dateValidationError && (
                                     <div className="text-red-500 text-sm mt-2 whitespace-nowrap">
                                         {dateValidationError}
                                     </div>
-                                )}
-                                
-                                {timePeriod === 'monthly' && (
-                                    <>
-                                        <div className="space-y-1.5">
-                                            <Label className="text-sm">{t('admin.select_month')}</Label>
-                                            <Select 
-                                                value={selectedMonth?.toString() || ""} 
-                                                onValueChange={(value) => setSelectedMonth(parseInt(value))}
-                                            >
-                                                <SelectTrigger className="w-full h-9 md:h-10">
-                                                    <SelectValue placeholder={t('admin.select_month')} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {(() => {
-                                                        const currentYear = dayjs().year();
-                                                        const currentMonth = dayjs().month();
-                                                        const months = [
-                                                            { value: 0, label: t('admin.january') },
-                                                            { value: 1, label: t('admin.february') },
-                                                            { value: 2, label: t('admin.march') },
-                                                            { value: 3, label: t('admin.april') },
-                                                            { value: 4, label: t('admin.may') },
-                                                            { value: 5, label: t('admin.june') },
-                                                            { value: 6, label: t('admin.july') },
-                                                            { value: 7, label: t('admin.august') },
-                                                            { value: 8, label: t('admin.september') },
-                                                            { value: 9, label: t('admin.october') },
-                                                            { value: 10, label: t('admin.november') },
-                                                            { value: 11, label: t('admin.december') }
-                                                        ];
-                                                        
-                                                        return months.map(month => {
-                                                            // Disable future months if current year is selected
-                                                            const isDisabled = selectedYear === currentYear && month.value > currentMonth;
-                                                            
-                                                            return (
-                                                                <SelectItem 
-                                                                    key={month.value} 
-                                                                    value={month.value.toString()}
-                                                                    disabled={isDisabled}
-                                                                >
-                                                                    {month.label}
-                                                                </SelectItem>
-                                                            );
-                                                        });
-                                                    })()}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label className="text-sm">{t('admin.select_year')}</Label>
-                                            <Select 
-                                                value={selectedYear?.toString() || ""} 
-                                                onValueChange={(value) => {
-                                                    const year = parseInt(value);
-                                                    setSelectedYear(year);
-                                                    
-                                                    // Clear selected month if it's in the future for the selected year
-                                                    const currentYear = dayjs().year();
-                                                    const currentMonth = dayjs().month();
-                                                    if (year === currentYear && selectedMonth !== undefined && selectedMonth > currentMonth) {
-                                                        setSelectedMonth(undefined);
-                                                    }
-                                                }}
-                                            >
-                                                <SelectTrigger className="w-full h-9 md:h-10">
-                                                    <SelectValue placeholder={t('admin.select_year')} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {(() => {
-                                                        const currentYear = dayjs().year();
-                                                        const startYear = 2020;
-                                                        const yearCount = currentYear - startYear + 1;
-                                                        
-                                                        return Array.from({ length: yearCount }, (_, i) => startYear + i).map(year => (
-                                                            <SelectItem key={year} value={year.toString()}>
-                                                                {year}
-                                                            </SelectItem>
-                                                        ));
-                                                    })()}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </>
-                                )}
-                                
-                                {timePeriod === 'yearly' && (
-                                    <div className="space-y-1.5">
-                                        <Label className="text-sm">{t('admin.select_year')}</Label>
-                                        <Select 
-                                            value={selectedYear?.toString() || ""} 
-                                            onValueChange={(value) => setSelectedYear(parseInt(value))}
-                                        >
-                                            <SelectTrigger className="w-full h-9 md:h-10">
-                                                <SelectValue placeholder={t('admin.select_year')} />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {(() => {
-                                                    const currentYear = dayjs().year();
-                                                    const startYear = 2020;
-                                                    const yearCount = currentYear - startYear + 1;
-                                                    
-                                                    return Array.from({ length: yearCount }, (_, i) => startYear + i).map(year => (
-                                                        <SelectItem key={year} value={year.toString()}>
-                                                            {year}
-                                                        </SelectItem>
-                                                    ));
-                                                })()}
-                                            </SelectContent>
-                                        </Select>
-                                </div>
                                 )}
                             </div>
                         </CardContent>
@@ -1230,35 +933,12 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                         <CardHeader>
                             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <CardTitle className="text-base md:text-lg lg:text-xl">{t('admin.price_trend')}</CardTitle>
-                                <div className="flex items-center gap-3 sm:gap-4 lg:gap-6">
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="per_kilo"
-                                            checked={priceCategoryToggles.per_kilo}
-                                            onCheckedChange={() => handlePriceCategoryToggle('per_kilo')}
-                                            disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_kilo')}
-                                        />
-                                        <Label htmlFor="per_kilo" className="text-sm cursor-pointer whitespace-nowrap">{t('admin.per_kilo')}</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="per_tali"
-                                            checked={priceCategoryToggles.per_tali}
-                                            onCheckedChange={() => handlePriceCategoryToggle('per_tali')}
-                                            disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_tali')}
-                                        />
-                                        <Label htmlFor="per_tali" className="text-sm cursor-pointer whitespace-nowrap">{t('admin.per_tali')}</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="per_pc"
-                                            checked={priceCategoryToggles.per_pc}
-                                            onCheckedChange={() => handlePriceCategoryToggle('per_pc')}
-                                            disabled={selectedProducts.length === 0 || !availablePriceCategories.includes('per_pc')}
-                                        />
-                                        <Label htmlFor="per_pc" className="text-sm cursor-pointer whitespace-nowrap">{t('admin.per_pc')}</Label>
-                                    </div>
-                                </div>
+                                <PriceCategoryToggles
+                                    priceCategoryToggles={priceCategoryToggles}
+                                    availablePriceCategories={availablePriceCategories}
+                                    selectedProducts={selectedProducts}
+                                    onToggle={handlePriceCategoryToggle}
+                                />
                             </div>
                             {/* Only show validation errors, not missing field warnings */}
                             {timePeriod === 'specific' && startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate)) && (
@@ -1285,207 +965,15 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="w-full h-[280px] sm:h-[350px] md:h-[400px] lg:h-[420px]">
-                                {(() => {
-                                    // Check if we should show the chart based on time period requirements
-                                    const hasValidSpecificDates = timePeriod === 'specific' && startDate && endDate && 
-                                        !dayjs(startDate).isBefore(dayjs('2020-01-01')) &&
-                                        !dayjs(endDate).isBefore(dayjs('2020-01-01')) &&
-                                        !dayjs(startDate).isAfter(dayjs(endDate));
-                                    const hasValidMonthlySelection = timePeriod === 'monthly' && selectedMonth !== undefined && selectedYear !== undefined && 
-                                        !dayjs().year(selectedYear).month(selectedMonth).isAfter(dayjs()) && selectedYear >= 2020;
-                                    const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined && 
-                                        selectedYear <= dayjs().year() && selectedYear >= 2020;
-                                    
-                                    const shouldShowChart = chartData.length > 0 && (
-                                        hasValidSpecificDates || 
-                                        hasValidMonthlySelection ||
-                                        hasValidYearlySelection
-                                    );
-                                    
-                                    return shouldShowChart ? (
-                                     <div 
-                                         key={`chart-${selectedProducts.sort().join('-')}`} 
-                                         className="w-full h-full"
-                                         style={{ 
-                                             opacity: 1,
-                                             transition: 'opacity 0.3s ease-in-out',
-                                         }}
-                                     >
-                                         <ResponsiveContainer width="100%" height="100%">
-                                             <LineChart 
-                                                 data={chartData}
-                                                 margin={{ top: 10, right: 5, bottom: 50, left: -20 }}
-                                             >
-                                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
-                                             <XAxis 
-                                                 dataKey="timestamp"
-                                                 allowDataOverflow={false} 
-                                                 tickFormatter={(value) => {
-                                                     const date = dayjs(value);
-                                                     // Always use abbreviated format for better mobile display
-                                                     return date.format('MMM D');
-                                                 }}
-                                                 tick={{ fontSize: 10 }}
-                                                 angle={-45}
-                                                 textAnchor="end"
-                                                 height={60}
-                                                 ticks={(() => {
-                                                     const isMoreThanOneMonth = chartData.length > 0 && chartData[0]?.isMoreThanOneMonth;
-                                                     if (!isMoreThanOneMonth) return undefined;
-                                                     
-                                                     // For monthly view, show first day of each month plus the end date
-                                                     const monthTicks: string[] = [];
-                                                     const seenMonths = new Set<string>();
-                                                     
-                                                     chartData.forEach((item, index) => {
-                                                         const date = dayjs(item.timestamp);
-                                                         const monthKey = `${date.year()}-${date.month()}`;
-                                                         
-                                                         if (!seenMonths.has(monthKey)) {
-                                                             seenMonths.add(monthKey);
-                                                             monthTicks.push(item.timestamp);
-                                                         }
-                                                     });
-                                                     
-                                                     // Always add the last date (end date) if it's not already included
-                                                     if (chartData.length > 0) {
-                                                         const lastDate = chartData[chartData.length - 1].timestamp;
-                                                         if (!monthTicks.includes(lastDate)) {
-                                                             monthTicks.push(lastDate);
-                                                         }
-                                                     }
-                                                     
-                                                     return monthTicks;
-                                                 })()}
-                                             />
-                                             <YAxis 
-                                                 tick={{ fontSize: 10 }}
-                                                 width={40}
-                                                 allowDataOverflow={false}
-                                             />
-                                             <Tooltip
-                                                 animationDuration={200}
-                                                 animationEasing="ease-out"
-                                                 content={({ active, payload, label }) => {
-                                                     if (active && payload && payload.length) {
-                                                         return (
-                                                             <div className="bg-white p-2 sm:p-3 border border-gray-200 rounded shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 max-w-[280px] sm:max-w-none">
-                                                                 <p className="font-semibold text-gray-800 text-xs sm:text-sm mb-1">{`${t('admin.date')}: ${label ? dayjs(label).format('MMM D, YYYY') : 'Unknown'}`}</p>
-                                                                 {payload.map((entry, index) => {
-                                                                     if (entry.value && entry.dataKey) {
-                                                                         // Parse the product key to show product and category separately
-                                                                         const match = entry.dataKey.match(/^(.+?) \((.+?)\)$/);
-                                                                         const productName = match ? match[1] : entry.dataKey;
-                                                                         const priceCategory = match ? match[2] : 'Unknown';
-                                                                         
-                                                                         return (
-                                                                             <p key={index} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                                                                                 <span 
-                                                                                     className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" 
-                                                                                     style={{ backgroundColor: entry.color }}
-                                                                 ></span>
-                                                                                 <span className="font-medium text-gray-800 truncate">{productName}</span>
-                                                                                 <span className="text-gray-600 text-xs">({priceCategory})</span>
-                                                                                 <span className="ml-auto font-semibold text-green-600 whitespace-nowrap">₱{entry.value}</span>
-                                                                             </p>
-                                                                         );
-                                                                     }
-                                                                     return null;
-                                                                 })}
-                                                             </div>
-                                                         );
-                                                     }
-                                                     return null;
-                                                 }}
-                                             />
-                                             <Legend 
-                                                 wrapperStyle={{ fontSize: '11px' }}
-                                                 iconSize={10}
-                                             />
-                                             {uniqueProducts.map((product, index) => (
-                                                 <Line 
-                                                     key={product.name}
-                                                     type="linear" 
-                                                     dataKey={product.name} 
-                                                     name={product.name}
-                                                     stroke={product.color} 
-                                                     strokeWidth={3}
-                                                     strokeLinecap="square"
-                                                     strokeLinejoin="miter"
-                                                     isAnimationActive={true}
-                                                     animationDuration={500}
-                                                     animationEasing="ease-in-out"
-                                                     animationBegin={0}
-                                                     dot={(props) => {
-                                                         // Show dots before and after price changes
-                                                         const { cx, cy, payload } = props;
-                                                         if (!payload || !payload[product.name]) {
-                                                             return <circle cx={cx} cy={cy} r={0} fill="transparent" />;
-                                                         }
-                                                         
-                                                         const currentValue = payload[product.name];
-                                                         const currentIndex = chartData.findIndex(item => item.timestamp === payload.timestamp);
-                                                         
-                                                         if (currentIndex === 0) {
-                                                             // First data point - always show
-                                                             return (
-                                                                 <circle 
-                                                                     cx={cx} 
-                                                                     cy={cy} 
-                                                                     r={4} 
-                                                                     fill={product.color}
-                                                                     stroke="#fff"
-                                                                     strokeWidth={2}
-                                                                     filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
-                                                                 />
-                                                             );
-                                                         }
-                                                         
-                                                         const prevValue = chartData[currentIndex - 1]?.[product.name];
-                                                         const nextValue = chartData[currentIndex + 1]?.[product.name];
-                                                         
-                                                         // Show dot if:
-                                                         // 1. Price changed from previous (start of new price)
-                                                         // 2. Price will change to next (end of current price)
-                                                         if (prevValue !== currentValue || (nextValue && nextValue !== currentValue)) {
-                                                             return (
-                                                                 <circle 
-                                                                     cx={cx} 
-                                                                     cy={cy} 
-                                                                     r={4} 
-                                                                     fill={product.color}
-                                                                     stroke="#fff"
-                                                                     strokeWidth={2}
-                                                                     filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"
-                                                                 />
-                                                             );
-                                                         }
-                                                         
-                                                         // No price change - invisible dot
-                                                         return <circle cx={cx} cy={cy} r={0} fill="transparent" />;
-                                                     }}
-                                                     activeDot={{ 
-                                                         r: 6, 
-                                                         stroke: product.color, 
-                                                         strokeWidth: 2, 
-                                                         fill: '#fff',
-                                                         filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15))'
-                                                     }}
-                                                     connectNulls={true}
-                                                     style={{ 
-                                                         filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                                                     }}
-                                                 />
-                                             ))}
-                                         </LineChart>
-                                     </ResponsiveContainer>
-                                     </div>
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-500">
-                                            <p>{t('admin.no_data_select_products_categories')}</p>
-                                    </div>
-                                    );
-                                })()}
+                                <TrendChart
+                                    chartData={chartData}
+                                    selectedProducts={selectedProducts}
+                                    timePeriod={timePeriod}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                />
                             </div>
                         </CardContent>
                     </Card>
