@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -101,14 +101,16 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     // Check if user has access to system logs
     if (user.type !== 'admin' && user.type !== 'staff') {
         return (
-            <ProfileWrapper title={t('ui.access_denied')}>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-card-foreground mb-2">{t('ui.access_denied')}</h2>
-                        <p className="text-muted-foreground">{t('ui.admin_staff_only_page')}</p>
+            <AppSidebarLayout>
+                <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold text-card-foreground mb-2">{t('ui.access_denied')}</h2>
+                            <p className="text-muted-foreground">{t('ui.admin_staff_only_page')}</p>
+                        </div>
                     </div>
                 </div>
-            </ProfileWrapper>
+            </AppSidebarLayout>
         );
     }
     const [search, setSearch] = useState(filters.search || '');
@@ -415,14 +417,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         }
     };
 
-    return (
-        <ProfileWrapper
-            breadcrumbs={[
-                { title: t('ui.profile'), href: route('admin.profile.info') },
-                { title: t('ui.system_logs'), href: route('admin.system-logs') }
-            ]}
-            title={t('ui.system_logs')}
-        >
+    const pageContent = (
+        <>
             <Head title={t('ui.system_logs')} />
 
             {/* Header with Actions */}
@@ -887,7 +883,16 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                     </div>
                 )}
             </div>
-        </ProfileWrapper>
+        </>
+    );
+
+    // System logs is admin/staff only, so we only need AppSidebarLayout
+    return (
+        <AppSidebarLayout>
+            <div className="p-4 sm:p-6 lg:p-8">
+                {pageContent}
+            </div>
+        </AppSidebarLayout>
     );
 };
 

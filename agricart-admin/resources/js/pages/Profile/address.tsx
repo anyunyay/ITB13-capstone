@@ -7,7 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useForm, usePage, router } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { getProfileRoutes } from '@/lib/utils';
 
@@ -265,11 +268,8 @@ export default function AddressPage() {
                activeAddress.province === user.province;
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('ui.address_management')}
-        >
-            <div className="space-y-6">
+    const pageContent = (
+        <div className="space-y-6">
                 {/* Flash Messages */}
                 {flash?.success && (
                     <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-xl p-4">
@@ -543,7 +543,6 @@ export default function AddressPage() {
                         </div>
                     )}
                 </div>
-            </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-2xl">
@@ -755,6 +754,91 @@ export default function AddressPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </ProfileWrapper>
+        </div>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.address_management')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_delivery_addresses')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.address_management')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_delivery_addresses')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.address_management')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_delivery_addresses')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.address_management')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_delivery_addresses')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.address_management')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_delivery_addresses')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }

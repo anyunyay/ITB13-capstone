@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
-import { User, Edit, Mail, Phone, Calendar, Shield, MapPin, FileText, Settings, Key, Palette, HelpCircle, LogOut, Database } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import { User, Edit, Mail, Phone, Calendar, Shield, MapPin, Settings, Key, Palette, HelpCircle, LogOut, Database } from 'lucide-react';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileEditModal from '@/components/shared/profile/ProfileEditModal';
 import { getDisplayEmail, getProfileRoutes, hasFeatureAccess } from '@/lib/utils';
@@ -128,11 +131,9 @@ export default function ProfilePage() {
         return t('ui.no_address_provided');
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('ui.profile_information')}
-        >
-            <div className="space-y-6">
+    // Profile content component
+    const profileContent = (
+        <div className="space-y-6">
                 {/* Main Profile Header */}
                 <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
                     <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
@@ -386,7 +387,6 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                 )}
-            </div>
 
             {/* Profile Edit Modal */}
             <ProfileEditModal
@@ -394,6 +394,91 @@ export default function ProfilePage() {
                 onClose={() => setIsEditModalOpen(false)}
                 user={user}
             />
-        </ProfileWrapper>
+        </div>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.profile_information')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_account_settings')}
+                            </p>
+                        </div>
+                        {profileContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.profile_information')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_account_settings')}
+                            </p>
+                        </div>
+                        {profileContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.profile_information')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_account_settings')}
+                            </p>
+                        </div>
+                        {profileContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.profile_information')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_account_settings')}
+                            </p>
+                        </div>
+                        {profileContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.profile_information')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_account_settings')}
+                            </p>
+                        </div>
+                        {profileContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }

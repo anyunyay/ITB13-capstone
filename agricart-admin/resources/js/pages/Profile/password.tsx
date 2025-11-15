@@ -6,7 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useForm, usePage } from '@inertiajs/react';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { getProfileRoutes } from '@/lib/utils';
 
@@ -86,11 +89,8 @@ export default function PasswordPage() {
         });
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('ui.change_password')}
-        >
-            <div className="space-y-6">
+    const pageContent = (
+        <div className="space-y-6">
                 <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
                     <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
@@ -289,6 +289,90 @@ export default function PasswordPage() {
                     </CardContent>
                 </Card>
             </div>
-        </ProfileWrapper>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.change_password')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.update_password_secure')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.change_password')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.update_password_secure')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.change_password')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.update_password_secure')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.change_password')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.update_password_secure')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.change_password')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.update_password_secure')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }

@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
 import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useLanguage } from '@/hooks/use-language';
 import { useTranslation } from '@/hooks/use-translation';
@@ -103,11 +106,8 @@ export default function AppearancePage() {
         }
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('appearance.title')}
-        >
-            <div className="space-y-6">
+    const pageContent = (
+        <div className="space-y-6">
                 {/* Success/Error Message */}
                 {message && (
                     <div className={cn(
@@ -258,6 +258,90 @@ export default function AppearancePage() {
                 </CardContent>
             </Card>
         </div>
-    </ProfileWrapper>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('appearance.title')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('appearance.theme.description')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('appearance.title')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('appearance.theme.description')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('appearance.title')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('appearance.theme.description')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('appearance.title')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('appearance.theme.description')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('appearance.title')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('appearance.theme.description')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }

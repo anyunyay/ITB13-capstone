@@ -3,7 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useForm, usePage } from '@inertiajs/react';
 import { LogOut, AlertTriangle, CheckCircle } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { clearSessionData } from '@/lib/csrf-cleanup';
 import { useTranslation } from '@/hooks/use-translation';
 import { getProfileRoutes } from '@/lib/utils';
@@ -65,12 +68,8 @@ export default function LogoutPage() {
         }
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('ui.logout')}
-        >
-
-            <Card className="bg-card border-border">
+    const pageContent = (
+        <Card className="bg-card border-border">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-card-foreground">
                         <LogOut className="h-5 w-5" />
@@ -135,6 +134,90 @@ export default function LogoutPage() {
                     </div>
                 </CardContent>
             </Card>
-        </ProfileWrapper>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.logout')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_session_security')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.logout')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_session_security')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.logout')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_session_security')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.logout')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_session_security')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {t('ui.logout')}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {t('ui.manage_session_security')}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }

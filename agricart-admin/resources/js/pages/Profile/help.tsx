@@ -5,7 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { usePage } from '@inertiajs/react';
 import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { getProfileRoutes } from '@/lib/utils';
 
@@ -103,11 +106,8 @@ export default function HelpPage() {
         );
     };
 
-    return (
-        <ProfileWrapper 
-            title={t('ui.help_and_support')}
-        >
-            <div className="space-y-6">
+    const pageContent = (
+        <div className="space-y-6">
                 {/* FAQ Section */}
                 <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-secondary/10 transition-all duration-500 group">
                     <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
@@ -261,6 +261,90 @@ export default function HelpPage() {
                     </CardContent>
                 </Card>
             </div>
-        </ProfileWrapper>
     );
+
+    // Render with appropriate layout based on user type
+    switch (user?.type) {
+        case 'admin':
+        case 'staff':
+            return (
+                <AppSidebarLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {userContent.title}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {userContent.description}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppSidebarLayout>
+            );
+        case 'customer':
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {userContent.title}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {userContent.description}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+        case 'logistic':
+            return (
+                <LogisticLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {userContent.title}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {userContent.description}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </LogisticLayout>
+            );
+        case 'member':
+            return (
+                <MemberLayout>
+                    <div className="p-4 sm:p-6 lg:p-8">
+                        <div className="mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {userContent.title}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {userContent.description}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </MemberLayout>
+            );
+        default:
+            return (
+                <AppHeaderLayout>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+                        <div className="mb-8">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                {userContent.title}
+                            </h1>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {userContent.description}
+                            </p>
+                        </div>
+                        {pageContent}
+                    </div>
+                </AppHeaderLayout>
+            );
+    }
 }
