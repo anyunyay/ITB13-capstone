@@ -268,17 +268,18 @@ export default function AddressPage() {
                activeAddress.province === user.province;
     };
 
-    const pageContent = (
-        <div className="space-y-6">
+    const pageContent = user.type === 'customer' ? (
+        // Customer Design - Clean & Modern
+        <div className="space-y-8">
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-xl p-4">
-                        <div className="flex items-center gap-3">
+                    <div className="bg-green-50 dark:bg-green-950/20 border-2 border-green-300 dark:border-green-700 rounded-2xl p-5">
+                        <div className="flex items-center gap-4">
                             <div className="flex-shrink-0">
-                                <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
+                                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                                <p className="text-base font-semibold text-green-900 dark:text-green-100">
                                     {flash.success}
                                 </p>
                             </div>
@@ -287,13 +288,13 @@ export default function AddressPage() {
                 )}
 
                 {flash?.error && (
-                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-xl p-4">
-                        <div className="flex items-center gap-3">
+                    <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-300 dark:border-red-700 rounded-2xl p-5">
+                        <div className="flex items-center gap-4">
                             <div className="flex-shrink-0">
-                                <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
+                                <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                <p className="text-base font-semibold text-red-900 dark:text-red-100">
                                     {flash.error}
                                 </p>
                             </div>
@@ -302,17 +303,17 @@ export default function AddressPage() {
                 )}
 
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                     <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                             {t('ui.manage_delivery_addresses')}
                         </p>
                     </div>
                     <Button 
                         onClick={handleAddNew} 
-                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                        className="h-14 px-8 text-base rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
-                        <PlusCircle className="h-4 w-4" />
+                        <PlusCircle className="h-5 w-5 mr-2" />
                         {t('ui.add_new_address')}
                     </Button>
                 </div>
@@ -754,6 +755,55 @@ export default function AddressPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+        </div>
+    ) : (
+        // Admin/Staff/Logistic/Member Design - Professional & Compact (fallback, typically not used)
+        <div className="space-y-6">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                            <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
+                            <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                                {flash.success}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {flash?.error && (
+                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
+                            <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                {flash.error}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <MapPin className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-green-600 dark:text-green-400">
+                                    {t('ui.address_management')}
+                                </CardTitle>
+                                <CardDescription>
+                                    {t('ui.manage_delivery_addresses')}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                            Address management is primarily available for customers.
+                        </p>
+                    </CardContent>
+                </Card>
         </div>
     );
 

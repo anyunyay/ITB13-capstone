@@ -68,37 +68,127 @@ export default function LogoutPage() {
         }
     };
 
-    const pageContent = (
-        <Card className="bg-card border-border">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-card-foreground">
-                        <LogOut className="h-5 w-5" />
-                        {t('ui.account_security')}
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                        {t('ui.manage_session_security')}
-                    </CardDescription>
+    const pageContent = user.type === 'customer' ? (
+        // Customer Design - Clean & Modern
+        <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-br from-destructive/5 via-destructive/10 to-destructive/5 pb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-destructive/10 rounded-2xl">
+                            <LogOut className="h-7 w-7 text-destructive" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl">{t('ui.account_security')}</CardTitle>
+                            <CardDescription className="text-base mt-1">
+                                {t('ui.manage_session_security')}
+                            </CardDescription>
+                        </div>
+                    </div>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <Alert>
-                        <CheckCircle className="h-4 w-4" />
-                        <AlertDescription>
+                <CardContent className="p-8 space-y-8">
+                    <Alert className="border-2 bg-primary/5">
+                        <CheckCircle className="h-5 w-5" />
+                        <AlertDescription className="text-base">
                             {t('ui.currently_logged_in_as')} <strong>{user?.name}</strong> ({user?.email})
                         </AlertDescription>
                     </Alert>
 
-                    <div className="space-y-4">
-                        <div className="p-4 border border-border rounded-lg bg-card">
-                            <h3 className="font-semibold mb-2 text-card-foreground">{t('ui.logout_from_this_device')}</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
+                    <div className="space-y-6">
+                        <div className="p-6 border-2 rounded-2xl bg-card">
+                            <h3 className="font-bold text-lg mb-3 text-card-foreground">{t('ui.logout_from_this_device')}</h3>
+                            <p className="text-base text-muted-foreground mb-6">
                                 {t('ui.logout_this_device_desc')}
                             </p>
                             <Button 
                                 onClick={handleLogout} 
                                 disabled={logoutProcessing}
-                                className="flex items-center gap-2"
+                                className="h-12 px-6 text-base rounded-xl"
                             >
-                                <LogOut className="h-4 w-4" />
+                                <LogOut className="h-5 w-5 mr-2" />
+                                {logoutProcessing ? t('ui.logging_out') : t('ui.logout')}
+                            </Button>
+                        </div>
+
+                        <div className="p-6 border-2 border-orange-300 bg-orange-50 dark:bg-orange-950/20 rounded-2xl">
+                            <h3 className="font-bold text-lg mb-3 flex items-center gap-3 text-orange-800 dark:text-orange-200">
+                                <AlertTriangle className="h-6 w-6 text-orange-600" />
+                                {t('ui.logout_from_all_devices')}
+                            </h3>
+                            <p className="text-base text-muted-foreground mb-6">
+                                {t('ui.logout_all_devices_desc')}
+                            </p>
+                            <Button 
+                                onClick={handleLogoutAllDevices} 
+                                disabled={logoutAllProcessing}
+                                variant="destructive"
+                                className="h-12 px-6 text-base rounded-xl"
+                            >
+                                <LogOut className="h-5 w-5 mr-2" />
+                                {logoutAllProcessing ? t('ui.logging_out') : t('ui.logout_from_all_devices_btn')}
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="pt-6 border-t-2 border-border">
+                        <h3 className="font-bold text-lg mb-4 text-card-foreground">{t('ui.security_tips')}</h3>
+                        <ul className="text-base text-muted-foreground space-y-2">
+                            <li className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{t('ui.always_logout_shared_computers')}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{t('ui.use_strong_passwords')}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{t('ui.enable_two_factor')}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="text-primary mt-1">•</span>
+                                <span>{t('ui.review_account_activity')}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </CardContent>
+            </Card>
+    ) : (
+        // Admin/Staff/Logistic/Member Design - Professional & Compact
+        <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                            <LogOut className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-green-600 dark:text-green-400">
+                                {t('ui.account_security')}
+                            </CardTitle>
+                            <CardDescription>
+                                {t('ui.manage_session_security')}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Alert className="border bg-primary/5">
+                        <CheckCircle className="h-4 w-4" />
+                        <AlertDescription className="text-sm">
+                            {t('ui.currently_logged_in_as')} <strong>{user?.name}</strong> ({user?.email})
+                        </AlertDescription>
+                    </Alert>
+
+                    <div className="space-y-3">
+                        <div className="p-4 border rounded-lg bg-card">
+                            <h3 className="font-semibold mb-2 text-card-foreground">{t('ui.logout_from_this_device')}</h3>
+                            <p className="text-sm text-muted-foreground mb-3">
+                                {t('ui.logout_this_device_desc')}
+                            </p>
+                            <Button 
+                                onClick={handleLogout} 
+                                disabled={logoutProcessing}
+                                className="bg-green-600 hover:bg-green-700"
+                            >
+                                <LogOut className="h-4 w-4 mr-2" />
                                 {logoutProcessing ? t('ui.logging_out') : t('ui.logout')}
                             </Button>
                         </div>
@@ -108,28 +198,27 @@ export default function LogoutPage() {
                                 <AlertTriangle className="h-4 w-4 text-orange-600" />
                                 {t('ui.logout_from_all_devices')}
                             </h3>
-                            <p className="text-sm text-muted-foreground mb-4">
+                            <p className="text-sm text-muted-foreground mb-3">
                                 {t('ui.logout_all_devices_desc')}
                             </p>
                             <Button 
                                 onClick={handleLogoutAllDevices} 
                                 disabled={logoutAllProcessing}
                                 variant="destructive"
-                                className="flex items-center gap-2"
                             >
-                                <LogOut className="h-4 w-4" />
+                                <LogOut className="h-4 w-4 mr-2" />
                                 {logoutAllProcessing ? t('ui.logging_out') : t('ui.logout_from_all_devices_btn')}
                             </Button>
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t border-border">
-                        <h3 className="font-semibold mb-2 text-card-foreground">{t('ui.security_tips')}</h3>
-                        <ul className="text-sm text-muted-foreground space-y-1">
-                            <li>{t('ui.always_logout_shared_computers')}</li>
-                            <li>{t('ui.use_strong_passwords')}</li>
-                            <li>{t('ui.enable_two_factor')}</li>
-                            <li>{t('ui.review_account_activity')}</li>
+                    <div className="pt-4 border-t">
+                        <h3 className="font-semibold mb-2 text-card-foreground text-sm">{t('ui.security_tips')}</h3>
+                        <ul className="text-xs text-muted-foreground space-y-1">
+                            <li>• {t('ui.always_logout_shared_computers')}</li>
+                            <li>• {t('ui.use_strong_passwords')}</li>
+                            <li>• {t('ui.enable_two_factor')}</li>
+                            <li>• {t('ui.review_account_activity')}</li>
                         </ul>
                     </div>
                 </CardContent>

@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePage } from '@inertiajs/react';
 import { Sun, Moon, Monitor, Palette, Check, Languages } from 'lucide-react';
+import { useAppearance } from '@/hooks/use-appearance';
+import { useLanguage } from '@/hooks/use-language';
+import { useTranslation } from '@/hooks/use-translation';
+import { cn } from '@/lib/utils';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
 import MemberLayout from '@/layouts/member-layout';
-import { useAppearance } from '@/hooks/use-appearance';
-import { useLanguage } from '@/hooks/use-language';
-import { useTranslation } from '@/hooks/use-translation';
-import { getProfileRoutes } from '@/lib/utils';
-import { cn } from '@/lib/utils';
 
 interface User {
     id: number;
@@ -59,9 +58,6 @@ export default function AppearancePage() {
         },
     ];
 
-    // Generate dynamic routes based on user type
-    const routes = getProfileRoutes(user.type);
-
     const handleAppearanceChange = async (newAppearance: Appearance) => {
         try {
             setIsLoading(true);
@@ -106,106 +102,238 @@ export default function AppearancePage() {
         }
     };
 
-    const pageContent = (
-        <div className="space-y-6">
-                {/* Success/Error Message */}
-                {message && (
-                    <div className={cn(
-                        "p-4 rounded-lg border",
-                        message.type === 'success' 
-                            ? "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300"
-                            : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300"
-                    )}>
-                        <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4" />
-                            {message.text}
+    // Appearance page content
+    const pageContent = user.type === 'customer' ? (
+        // Customer Design - Clean & Modern
+        <div className="space-y-8">
+            {/* Success/Error Message */}
+            {message && (
+                <div className={cn(
+                    "p-4 rounded-2xl border-2 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300",
+                    message.type === 'success' 
+                        ? "bg-green-50 border-green-300 text-green-900 dark:bg-green-950/30 dark:border-green-700 dark:text-green-100"
+                        : "bg-red-50 border-red-300 text-red-900 dark:bg-red-950/30 dark:border-red-700 dark:text-red-100"
+                )}>
+                    <div className="flex items-center gap-3">
+                        <Check className="h-5 w-5" />
+                        <span className="font-medium">{message.text}</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Theme Selection - Customer Design */}
+            <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 pb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-2xl">
+                            <Palette className="h-7 w-7 text-primary" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl">{t('appearance.theme.title')}</CardTitle>
+                            <CardDescription className="text-base mt-1">
+                                {t('appearance.theme.description')}
+                            </CardDescription>
                         </div>
                     </div>
-                )}
-
-                {/* Appearance Settings Card */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                <Palette className="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-green-600 dark:text-green-400">
-                                    {t('appearance.theme.title')}
-                                </CardTitle>
-                                <CardDescription>
-                                    {t('appearance.theme.description')}
-                                </CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid gap-3">
-                            {appearanceOptions.map((option) => {
-                                const Icon = option.icon;
-                                const isSelected = appearance === option.value;
-                                
-                                return (
-                                    <Button
-                                        key={option.value}
-                                        variant={isSelected ? "default" : "outline"}
-                                        className={cn(
-                                            "h-auto p-4 justify-start text-left",
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                    <div className="grid gap-4">
+                        {appearanceOptions.map((option) => {
+                            const Icon = option.icon;
+                            const isSelected = appearance === option.value;
+                            
+                            return (
+                                <button
+                                    key={option.value}
+                                    onClick={() => handleAppearanceChange(option.value)}
+                                    disabled={isLoading}
+                                    className={cn(
+                                        "relative p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
+                                        "hover:scale-[1.02] hover:shadow-lg",
+                                        isSelected 
+                                            ? "bg-primary border-primary shadow-lg shadow-primary/20" 
+                                            : "bg-card border-border hover:border-primary/50"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "p-3 rounded-xl transition-colors",
                                             isSelected 
-                                                ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
-                                                : "hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
-                                        )}
-                                        onClick={() => handleAppearanceChange(option.value)}
-                                        disabled={isLoading}
-                                    >
-                                        <div className="flex items-center gap-3 w-full">
+                                                ? "bg-white/20" 
+                                                : "bg-primary/10 group-hover:bg-primary/20"
+                                        )}>
+                                            <Icon className={cn(
+                                                "h-6 w-6",
+                                                isSelected ? "text-white" : "text-primary"
+                                            )} />
+                                        </div>
+                                        <div className="flex-1">
                                             <div className={cn(
-                                                "p-2 rounded-lg",
-                                                isSelected 
-                                                    ? "bg-white/20" 
-                                                    : "bg-green-100 dark:bg-green-900/30"
+                                                "font-semibold text-lg mb-1",
+                                                isSelected ? "text-white" : "text-foreground"
                                             )}>
-                                                <Icon className={cn(
-                                                    "h-4 w-4",
-                                                    isSelected 
-                                                        ? "text-white" 
-                                                        : "text-green-600 dark:text-green-400"
-                                                )} />
+                                                {option.label}
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="font-medium">{option.label}</div>
-                                                <div className={cn(
-                                                    "text-sm",
-                                                    isSelected 
-                                                        ? "text-white/80" 
-                                                        : "text-muted-foreground"
-                                                )}>
-                                                    {option.description}
+                                            <div className={cn(
+                                                "text-sm",
+                                                isSelected ? "text-white/80" : "text-muted-foreground"
+                                            )}>
+                                                {option.description}
+                                            </div>
+                                        </div>
+                                        {isSelected && (
+                                            <div className="flex-shrink-0">
+                                                <div className="p-1 bg-white/20 rounded-full">
+                                                    <Check className="h-6 w-6 text-white" />
                                                 </div>
                                             </div>
-                                            {isSelected && (
-                                                <Check className="h-5 w-5 text-white" />
-                                            )}
-                                        </div>
-                                    </Button>
-                                );
-                            })}
-                        </div>
+                                        )}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </CardContent>
+            </Card>
 
-                        {/* Current Selection Info */}
-                        <div className="mt-6 p-4 bg-muted rounded-lg">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Monitor className="h-4 w-4" />
-                                <span>
-                                    {t('appearance.theme.current_selection')}: <strong className="text-foreground">
-                                        {appearanceOptions.find(opt => opt.value === appearance)?.label}
-                                    </strong>
-                                </span>
-                            </div>
+            {/* Language Selection - Customer Design */}
+            <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-br from-secondary/5 via-secondary/10 to-secondary/5 pb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-secondary/10 rounded-2xl">
+                            <Languages className="h-7 w-7 text-secondary" />
                         </div>
-                    </CardContent>
-                </Card>
+                        <div>
+                            <CardTitle className="text-2xl">{t('appearance.language.title')}</CardTitle>
+                            <CardDescription className="text-base mt-1">
+                                {t('appearance.language.description')}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                    <div className="space-y-3">
+                        <label htmlFor="language-select" className="text-sm font-semibold text-foreground">
+                            {t('appearance.language.select_language')}
+                        </label>
+                        <Select
+                            value={language}
+                            onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
+                            disabled={isLoading || isLanguageLoading}
+                        >
+                            <SelectTrigger id="language-select" className="h-14 text-base rounded-xl border-2">
+                                <SelectValue placeholder={t('appearance.language.select_language')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="en" className="text-base py-3">{t('appearance.language.english')}</SelectItem>
+                                <SelectItem value="tl" className="text-base py-3">{t('appearance.language.tagalog')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    ) : (
+        // Admin/Staff/Logistic/Member Design - Professional & Compact
+        <div className="space-y-6">
+            {/* Success/Error Message */}
+            {message && (
+                <div className={cn(
+                    "p-4 rounded-lg border",
+                    message.type === 'success' 
+                        ? "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300"
+                        : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300"
+                )}>
+                    <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4" />
+                        {message.text}
+                    </div>
+                </div>
+            )}
+
+            {/* Appearance Settings Card */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                            <Palette className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-green-600 dark:text-green-400">
+                                {t('appearance.theme.title')}
+                            </CardTitle>
+                            <CardDescription>
+                                {t('appearance.theme.description')}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid gap-3">
+                        {appearanceOptions.map((option) => {
+                            const Icon = option.icon;
+                            const isSelected = appearance === option.value;
+                            
+                            return (
+                                <Button
+                                    key={option.value}
+                                    variant={isSelected ? "default" : "outline"}
+                                    className={cn(
+                                        "h-auto p-4 justify-start text-left",
+                                        isSelected 
+                                            ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
+                                            : "hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
+                                    )}
+                                    onClick={() => handleAppearanceChange(option.value)}
+                                    disabled={isLoading}
+                                >
+                                    <div className="flex items-center gap-3 w-full">
+                                        <div className={cn(
+                                            "p-2 rounded-lg",
+                                            isSelected 
+                                                ? "bg-white/20" 
+                                                : "bg-green-100 dark:bg-green-900/30"
+                                        )}>
+                                            <Icon className={cn(
+                                                "h-4 w-4",
+                                                isSelected 
+                                                    ? "text-white" 
+                                                    : "text-green-600 dark:text-green-400"
+                                            )} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="font-medium">{option.label}</div>
+                                            <div className={cn(
+                                                "text-sm",
+                                                isSelected 
+                                                    ? "text-white/80" 
+                                                    : "text-muted-foreground"
+                                            )}>
+                                                {option.description}
+                                            </div>
+                                        </div>
+                                        {isSelected && (
+                                            <Check className="h-5 w-5 text-white" />
+                                        )}
+                                    </div>
+                                </Button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Current Selection Info */}
+                    <div className="mt-6 p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Monitor className="h-4 w-4" />
+                            <span>
+                                {t('appearance.theme.current_selection')}: <strong className="text-foreground">
+                                    {appearanceOptions.find(opt => opt.value === appearance)?.label}
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Language Settings Card */}
             <Card>

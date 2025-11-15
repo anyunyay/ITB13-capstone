@@ -89,124 +89,101 @@ export default function PasswordPage() {
         });
     };
 
-    const pageContent = (
-        <div className="space-y-6">
-                <Card className="bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/20 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group">
-                    <CardHeader className="bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm border-b border-border/50">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
-                            <div className="flex items-center space-x-6">
-                                <div className="p-2 rounded-lg bg-primary/10">
-                                    <Lock className="h-6 w-6 text-primary" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h1 className="text-2xl font-bold text-card-foreground">
-                                        {t('ui.security_settings')}
-                                    </h1>
-                                    <div className="flex items-center gap-2">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                                            <Lock className="h-3 w-3 mr-1" />
-                                            {t('ui.password_protection')}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        {t('ui.update_password_secure')}
-                                    </p>
-                                </div>
+    const pageContent = user.type === 'customer' ? (
+        // Customer Design - Clean & Modern
+        <div className="space-y-8">
+                <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
+                    <CardHeader className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 pb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-primary/10 rounded-2xl">
+                                <Lock className="h-7 w-7 text-primary" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">{t('ui.security_settings')}</CardTitle>
+                                <CardDescription className="text-base mt-1">
+                                    {t('ui.update_password_secure')}
+                                </CardDescription>
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="px-6 py-6">
+                    <CardContent className="p-8">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Current Password Section */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-secondary/10">
-                                        <Lock className="h-5 w-5 text-secondary" />
-                                    </div>
-                                    {t('ui.current_password')}
-                                </h3>
+                                <h3 className="text-xl font-bold text-card-foreground">{t('ui.current_password')}</h3>
                                 <div className="space-y-4">
-                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
-                                        <div className="space-y-3">
-                                            <Label htmlFor="current_password" className="text-sm font-medium text-card-foreground">{t('ui.current_password')}</Label>
-                                            <div className="relative">
-                                                <Input
-                                                    id="current_password"
-                                                    type={showCurrentPassword ? 'text' : 'password'}
-                                                    value={data.current_password}
-                                                    onChange={(e) => setData('current_password', e.target.value)}
-                                                    placeholder={t('ui.enter_current_password')}
-                                                    required
-                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                >
-                                                    {showCurrentPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                                    ) : (
-                                                        <Eye className="h-4 w-4 text-muted-foreground" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                            {errors.current_password && <p className="text-sm text-destructive font-medium">{errors.current_password}</p>}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="current_password" className="text-sm font-semibold text-card-foreground">{t('ui.current_password')}</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="current_password"
+                                                type={showCurrentPassword ? 'text' : 'password'}
+                                                value={data.current_password}
+                                                onChange={(e) => setData('current_password', e.target.value)}
+                                                placeholder={t('ui.enter_current_password')}
+                                                required
+                                                className="h-14 text-base rounded-xl border-2"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            >
+                                                {showCurrentPassword ? (
+                                                    <EyeOff className="h-5 w-5 text-muted-foreground" />
+                                                ) : (
+                                                    <Eye className="h-5 w-5 text-muted-foreground" />
+                                                )}
+                                            </Button>
                                         </div>
+                                        {errors.current_password && <p className="text-sm text-destructive font-medium">{errors.current_password}</p>}
                                     </div>
                                 </div>
                             </div>
 
                             {/* New Password Section */}
                             <div className="space-y-6">
-                                <h3 className="text-xl font-semibold text-card-foreground flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-primary/10">
-                                        <Lock className="h-5 w-5 text-primary" />
-                                    </div>
-                                    {t('ui.new_password')}
-                                </h3>
+                                <h3 className="text-xl font-bold text-card-foreground">{t('ui.new_password')}</h3>
                                 <div className="space-y-4">
                                     {/* New Password Field */}
-                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
-                                        <div className="space-y-3">
-                                            <Label htmlFor="password" className="text-sm font-medium text-card-foreground">{t('ui.new_password')}</Label>
-                                            <div className="relative">
-                                                <Input
-                                                    id="password"
-                                                    type={showNewPassword ? 'text' : 'password'}
-                                                    value={data.password}
-                                                    onChange={(e) => setData('password', e.target.value)}
-                                                    placeholder={t('ui.enter_new_password')}
-                                                    required
-                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                    onClick={() => setShowNewPassword(!showNewPassword)}
-                                                >
-                                                    {showNewPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                                    ) : (
-                                                        <Eye className="h-4 w-4 text-muted-foreground" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                            {errors.password && <p className="text-sm text-destructive font-medium">{errors.password}</p>}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="password" className="text-sm font-semibold text-card-foreground">{t('ui.new_password')}</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                type={showNewPassword ? 'text' : 'password'}
+                                                value={data.password}
+                                                onChange={(e) => setData('password', e.target.value)}
+                                                placeholder={t('ui.enter_new_password')}
+                                                required
+                                                className="h-14 text-base rounded-xl border-2"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                            >
+                                                {showNewPassword ? (
+                                                    <EyeOff className="h-5 w-5 text-muted-foreground" />
+                                                ) : (
+                                                    <Eye className="h-5 w-5 text-muted-foreground" />
+                                                )}
+                                            </Button>
                                         </div>
+                                        {errors.password && <p className="text-sm text-destructive font-medium">{errors.password}</p>}
                                     </div>
 
                                     {/* Password Strength Indicator */}
                                     {data.password && (
-                                        <div className="p-5 bg-muted/80 rounded-xl border border-border/50">
+                                        <div className="p-6 bg-muted/50 rounded-2xl border-2">
                                             <div className="space-y-4">
                                                 <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-medium text-card-foreground">{t('ui.password_strength')}</Label>
+                                                    <Label className="text-base font-semibold text-card-foreground">{t('ui.password_strength')}</Label>
                                                     <span className={`text-sm font-medium ${
                                                         passwordStrength <= 2 ? 'text-destructive' : 
                                                         passwordStrength <= 3 ? 'text-yellow-500 dark:text-yellow-400' : 'text-green-500 dark:text-green-400'
@@ -216,20 +193,20 @@ export default function PasswordPage() {
                                                 </div>
                                                 <Progress 
                                                     value={strengthPercentage} 
-                                                    className={`h-3 rounded-full ${
+                                                    className={`h-4 rounded-full ${
                                                         passwordStrength <= 2 ? '[&>div]:bg-red-500' : 
                                                         passwordStrength <= 3 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'
                                                     }`}
                                                 />
-                                                <div className="space-y-2">
+                                                <div className="space-y-3">
                                                     {requirements.map((req, index) => (
-                                                        <div key={index} className="flex items-center gap-3 text-sm">
+                                                        <div key={index} className="flex items-center gap-3 text-base">
                                                             {req.met ? (
-                                                                <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
+                                                                <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400 flex-shrink-0" />
                                                             ) : (
-                                                                <XCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                                                <XCircle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                                                             )}
-                                                            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
+                                                            <span className={req.met ? 'text-green-600 dark:text-green-400 font-medium' : 'text-muted-foreground'}>
                                                                 {req.text}
                                                             </span>
                                                         </div>
@@ -240,50 +217,210 @@ export default function PasswordPage() {
                                     )}
 
                                     {/* Confirm Password Field */}
-                                    <div className="p-5 bg-muted/80 rounded-xl border border-border/50 hover:bg-muted/60 transition-colors duration-200">
-                                        <div className="space-y-3">
-                                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-card-foreground">{t('ui.confirm_new_password')}</Label>
-                                            <div className="relative">
-                                                <Input
-                                                    id="password_confirmation"
-                                                    type={showConfirmPassword ? 'text' : 'password'}
-                                                    value={data.password_confirmation}
-                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                    placeholder={t('ui.confirm_your_new_password')}
-                                                    required
-                                                    className="border-2 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300 rounded-xl bg-card/50 backdrop-blur-sm text-sm py-3"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                >
-                                                    {showConfirmPassword ? (
-                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                                    ) : (
-                                                        <Eye className="h-4 w-4 text-muted-foreground" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                            {errors.password_confirmation && <p className="text-sm text-destructive font-medium">{errors.password_confirmation}</p>}
+                                    <div className="space-y-3">
+                                        <Label htmlFor="password_confirmation" className="text-sm font-semibold text-card-foreground">{t('ui.confirm_new_password')}</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="password_confirmation"
+                                                type={showConfirmPassword ? 'text' : 'password'}
+                                                value={data.password_confirmation}
+                                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                placeholder={t('ui.confirm_your_new_password')}
+                                                required
+                                                className="h-14 text-base rounded-xl border-2"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                {showConfirmPassword ? (
+                                                    <EyeOff className="h-5 w-5 text-muted-foreground" />
+                                                ) : (
+                                                    <Eye className="h-5 w-5 text-muted-foreground" />
+                                                )}
+                                            </Button>
                                         </div>
+                                        {errors.password_confirmation && <p className="text-sm text-destructive font-medium">{errors.password_confirmation}</p>}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Submit Button */}
-                        <div className="flex justify-end pt-6 border-t border-border/50">
+                        <div className="flex justify-end pt-8">
                             <Button 
                                 type="submit" 
                                 disabled={processing || passwordStrength < 3} 
-                                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                className="h-14 px-8 text-base rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                <Lock className="h-4 w-4" />
+                                <Lock className="h-5 w-5 mr-2" />
                                 {processing ? t('ui.changing_password') : t('ui.change_password')}
                             </Button>
+                        </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
+    ) : (
+        // Admin/Staff/Logistic/Member Design - Professional & Compact
+        <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-green-600 dark:text-green-400">
+                                    {t('ui.security_settings')}
+                                </CardTitle>
+                                <CardDescription>
+                                    {t('ui.update_password_secure')}
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Current Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="current_password_admin" className="text-sm font-medium">{t('ui.current_password')}</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="current_password_admin"
+                                        type={showCurrentPassword ? 'text' : 'password'}
+                                        value={data.current_password}
+                                        onChange={(e) => setData('current_password', e.target.value)}
+                                        placeholder={t('ui.enter_current_password')}
+                                        required
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                    >
+                                        {showCurrentPassword ? (
+                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                    </Button>
+                                </div>
+                                {errors.current_password && <p className="text-sm text-destructive">{errors.current_password}</p>}
+                            </div>
+
+                            {/* New Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password_admin" className="text-sm font-medium">{t('ui.new_password')}</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="password_admin"
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
+                                        placeholder={t('ui.enter_new_password')}
+                                        required
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                    >
+                                        {showNewPassword ? (
+                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                    </Button>
+                                </div>
+                                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                            </div>
+
+                            {/* Password Strength */}
+                            {data.password && (
+                                <div className="p-4 bg-muted rounded-lg space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-medium">{t('ui.password_strength')}</Label>
+                                        <span className={`text-sm font-medium ${
+                                            passwordStrength <= 2 ? 'text-destructive' : 
+                                            passwordStrength <= 3 ? 'text-yellow-500' : 'text-green-500'
+                                        }`}>
+                                            {getStrengthText(passwordStrength)}
+                                        </span>
+                                    </div>
+                                    <Progress 
+                                        value={strengthPercentage} 
+                                        className={`h-2 ${
+                                            passwordStrength <= 2 ? '[&>div]:bg-red-500' : 
+                                            passwordStrength <= 3 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'
+                                        }`}
+                                    />
+                                    <div className="space-y-1">
+                                        {requirements.map((req, index) => (
+                                            <div key={index} className="flex items-center gap-2 text-xs">
+                                                {req.met ? (
+                                                    <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                                ) : (
+                                                    <XCircle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                                )}
+                                                <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
+                                                    {req.text}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Confirm Password */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password_confirmation_admin" className="text-sm font-medium">{t('ui.confirm_new_password')}</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="password_confirmation_admin"
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        value={data.password_confirmation}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        placeholder={t('ui.confirm_your_new_password')}
+                                        required
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? (
+                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        ) : (
+                                            <Eye className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                    </Button>
+                                </div>
+                                {errors.password_confirmation && <p className="text-sm text-destructive">{errors.password_confirmation}</p>}
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="flex justify-end pt-4">
+                                <Button 
+                                    type="submit" 
+                                    disabled={processing || passwordStrength < 3} 
+                                    className="bg-green-600 hover:bg-green-700"
+                                >
+                                    <Lock className="h-4 w-4 mr-2" />
+                                    {processing ? t('ui.changing_password') : t('ui.change_password')}
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
