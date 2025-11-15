@@ -8,14 +8,15 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Users, Download, FileText, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, CalendarIcon, UserCheck, UserX, Clock, UserPlus, Search, Phone, MapPin, FileImage, ArrowLeft } from 'lucide-react';
+import { Users, Download, FileText, Filter, X, ChevronDown, CalendarIcon, UserCheck, Clock, UserPlus, Search, ArrowLeft } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PermissionGuard } from '@/components/common/permission-guard';
-import { SafeImage } from '@/lib/image-utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { PaginationControls } from '@/components/inventory/pagination-controls';
+import { BaseTable } from '@/components/common/base-table';
+import { createMembershipReportTableColumns, MembershipReportMobileCard } from '@/components/membership/membership-report-table-columns';
 
 interface Member {
   id: number;
@@ -144,14 +145,6 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       localFilters.search;
   };
 
-  // Helper to get sort icon
-  const getSortIcon = (field: string) => {
-    if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ?
-      <ArrowUp className="h-4 w-4 ml-1" /> :
-      <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
   // Handle sorting
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -162,6 +155,9 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
     }
     setCurrentPage(1);
   };
+
+  // Create column definitions
+  const columns = useMemo(() => createMembershipReportTableColumns(t), [t]);
 
   // Sort members data
   const sortedMembers = [...members].sort((a, b) => {
@@ -527,12 +523,14 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
               <CardContent>
                 {members.length > 0 ? (
                   <>
-                    <MemberTable 
-                      members={paginatedMembers} 
+                    <BaseTable
+                      data={paginatedMembers}
+                      columns={columns}
+                      keyExtractor={(member) => member.id}
                       sortBy={sortBy}
                       sortOrder={sortOrder}
                       onSort={handleSort}
-                      getSortIcon={getSortIcon}
+                      renderMobileCard={(member) => <MembershipReportMobileCard member={member} t={t} />}
                     />
                     <PaginationControls
                       currentPage={currentPage}
@@ -568,93 +566,5 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
         </div>
       </AppSidebarLayout>
     </PermissionGuard>
-  );
-}
-
-// MemberTable Component
-function MemberTable({ 
-  members, 
-  sortBy, 
-  sortOrder, 
-  onSort, 
-  getSortIcon 
-}: { 
-  members: Member[];
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-  onSort: (field: string) => void;
-  getSortIcon: (field: string) => React.ReactElement;
-}) {
-  const t = useTranslation();
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b border-border bg-muted/50">
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button 
-                onClick={() => onSort('member_id')} 
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                {t('admin.member_id')}
-                {getSortIcon('member_id')}
-              </button>
-            </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button 
-                onClick={() => onSort('name')} 
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                {t('admin.name')}
-                {getSortIcon('name')}
-              </button>
-            </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
-              {t('admin.contact_number')}
-            </th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">{t('admin.address')}</th>
-            <th className="text-center py-3 px-4 font-semibold text-foreground">
-              <button 
-                onClick={() => onSort('registration_date')} 
-                className="flex items-center justify-center hover:text-primary transition-colors mx-auto"
-              >
-                {t('admin.registration_date_label')}
-                {getSortIcon('registration_date')}
-              </button>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member, index) => (
-            <tr key={member.id} className={`border-b border-border hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}>
-              <td className="py-3 px-4 text-center">
-                {member.member_id ? (
-                  <span className="font-mono text-blue-600 font-semibold">{member.member_id}</span>
-                ) : (
-                  <span className="text-muted-foreground">{t('admin.not_assigned')}</span>
-                )}
-              </td>
-              <td className="py-3 px-4 text-center">
-                <div className="font-medium text-foreground">{member.name}</div>
-              </td>
-              <td className="py-3 px-4 text-center">
-                <div className="text-sm text-muted-foreground">
-                  {member.contact_number || t('admin.not_assigned')}
-                </div>
-              </td>
-              <td className="py-3 px-4 text-center">
-                <div className="text-sm text-muted-foreground max-w-xs truncate mx-auto">
-                  {member.address || t('admin.not_assigned')}
-                </div>
-              </td>
-              <td className="py-3 px-4 text-center text-sm text-muted-foreground">
-                {member.registration_date ? dayjs(member.registration_date).format('MMM DD, YYYY') : t('admin.not_assigned')}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 } 
