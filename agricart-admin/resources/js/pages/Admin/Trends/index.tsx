@@ -708,29 +708,33 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     
-    // Persist state to sessionStorage whenever relevant state changes
+    // Persist state to sessionStorage whenever relevant state changes (debounced)
     useEffect(() => {
-        const stateToSave = {
-            selectedCategory,
-            selectedProducts,
-            priceCategoryToggles,
-            startDate: startDate?.toISOString(),
-            endDate: endDate?.toISOString(),
-            timePeriod,
-            series,
-            availableProducts,
-            availablePriceCategories,
-            productPriceCategories,
-            selectedMonth,
-            selectedYear,
-            latestProductData,
-        };
+        const timeoutId = setTimeout(() => {
+            const stateToSave = {
+                selectedCategory,
+                selectedProducts,
+                priceCategoryToggles,
+                startDate: startDate?.toISOString(),
+                endDate: endDate?.toISOString(),
+                timePeriod,
+                series,
+                availableProducts,
+                availablePriceCategories,
+                productPriceCategories,
+                selectedMonth,
+                selectedYear,
+                latestProductData,
+            };
+            
+            try {
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+            } catch (error) {
+                console.error('Error persisting state:', error);
+            }
+        }, 300); // Debounce for 300ms
         
-        try {
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-        } catch (error) {
-            console.error('Error persisting state:', error);
-        }
+        return () => clearTimeout(timeoutId);
     }, [
         selectedCategory,
         selectedProducts,
@@ -775,6 +779,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     }, [fetchLatestProductData]);
 
     const chartData = useMemo(() => {
+        // Only recalculate when series data actually changes
+        if (series.length === 0) {
+            return [];
+        }
         
         // Get date range from time period selection
         let chartStartDate, chartEndDate;
@@ -786,10 +794,6 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
             chartEndDate = dayjs(dateRangeFromPeriod.endDate).endOf('day');
         } else {
             // Fall back to data range only if no time period dates specified
-            if (series.length === 0) {
-                // If no series data and no time period, return empty
-                return [];
-            }
             const allDates = series.map(item => dayjs(item.timestamp).format('YYYY-MM-DD'));
             const sortedDates = allDates.sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
             if (sortedDates.length === 0) return [];
@@ -803,9 +807,8 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         // Use interpolation function to fill missing data
         const interpolatedData = interpolateData(series, chartStartDate, chartEndDate);
         
-        
         return interpolatedData;
-    }, [series, timePeriod, startDate, endDate, selectedMonth, selectedYear, interpolateData, selectedProducts, priceCategoryToggles]);
+    }, [series, interpolateData]);
 
     // Generate colors for different products using theme colors
     const getProductColor = (productName: string, index: number) => {
@@ -1300,17 +1303,23 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                     );
                                     
                                     return shouldShowChart ? (
-                                     <ResponsiveContainer width="100%" height="100%">
-                                         <LineChart 
-                                             data={chartData} 
-                                             margin={{ top: 10, right: 5, bottom: 50, left: -20 }}
-                                             style={{
-                                                 transition: 'all 0.3s ease-in-out'
-                                             }}
-                                         >
-                                             <CartesianGrid strokeDasharray="3 3" />
+                                     <div 
+                                         key={`chart-${selectedProducts.sort().join('-')}`} 
+                                         className="w-full h-full"
+                                         style={{ 
+                                             opacity: 1,
+                                             transition: 'opacity 0.3s ease-in-out',
+                                         }}
+                                     >
+                                         <ResponsiveContainer width="100%" height="100%">
+                                             <LineChart 
+                                                 data={chartData}
+                                                 margin={{ top: 10, right: 5, bottom: 50, left: -20 }}
+                                             >
+                                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
                                              <XAxis 
-                                                 dataKey="timestamp" 
+                                                 dataKey="timestamp"
+                                                 allowDataOverflow={false} 
                                                  tickFormatter={(value) => {
                                                      const date = dayjs(value);
                                                      // Always use abbreviated format for better mobile display
@@ -1352,8 +1361,11 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                              <YAxis 
                                                  tick={{ fontSize: 10 }}
                                                  width={40}
+                                                 allowDataOverflow={false}
                                              />
-                                             <Tooltip 
+                                             <Tooltip
+                                                 animationDuration={200}
+                                                 animationEasing="ease-out"
                                                  content={({ active, payload, label }) => {
                                                      if (active && payload && payload.length) {
                                                          return (
@@ -1400,6 +1412,10 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                      strokeWidth={3}
                                                      strokeLinecap="square"
                                                      strokeLinejoin="miter"
+                                                     isAnimationActive={true}
+                                                     animationDuration={500}
+                                                     animationEasing="ease-in-out"
+                                                     animationBegin={0}
                                                      dot={(props) => {
                                                          // Show dots before and after price changes
                                                          const { cx, cy, payload } = props;
@@ -1456,8 +1472,6 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                                          filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15))'
                                                      }}
                                                      connectNulls={true}
-                                                     animationDuration={1500}
-                                                     animationEasing="ease-in-out"
                                                      style={{ 
                                                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                                                      }}
@@ -1465,6 +1479,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                                              ))}
                                          </LineChart>
                                      </ResponsiveContainer>
+                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-gray-500">
                                             <p>{t('admin.no_data_select_products_categories')}</p>
