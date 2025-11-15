@@ -82,8 +82,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   // Show only unread notifications - they will be removed once marked as read
   const notifications = allNotifications.filter(n => !n.read_at);
   
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [reportOpen, setReportOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
@@ -186,20 +186,24 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     });
   };
 
-  const generateReport = (format: 'csv' | 'pdf') => {
+  const generateReport = () => {
     const params = new URLSearchParams();
     if (startDate) {
-      params.append('start_date', startDate.toISOString().split('T')[0]);
+      params.append('start_date', format(startDate, 'yyyy-MM-dd'));
     }
     if (endDate) {
-      params.append('end_date', endDate.toISOString().split('T')[0]);
+      params.append('end_date', format(endDate, 'yyyy-MM-dd'));
     }
     if (currentDeliveryStatus !== 'all') {
       params.append('delivery_status', currentDeliveryStatus);
     }
-    params.append('format', format);
+    params.append('format', 'pdf');
     
-    window.open(`/customer/orders/report?${params.toString()}`, '_blank');
+    // Directly download the PDF file
+    window.location.href = `/customer/orders/report?${params.toString()}`;
+    
+    // Close the popover after initiating download
+    setReportOpen(false);
   };
 
   const handleCancelOrder = (orderId: number) => {
@@ -282,71 +286,74 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             </PopoverTrigger>
             <PopoverContent className="w-80" align="end">
               <section className="space-y-4">
-                <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground">{t('ui.generate_order_report')}</p>
+                <div>
+                  <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground mb-1">Export Order Report</p>
+                  <p className="text-xs text-muted-foreground">Select date range (optional)</p>
+                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.start_date')}</Label>
+                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.start_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-left font-normal"
+                        className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground hover:bg-muted/50 focus:border-primary"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        <span className="text-sm">{startDate ? format(startDate, "PPP") : t('ui.pick_a_date')}</span>
+                        <span className="text-sm">{startDate ? format(startDate, "MMM dd, yyyy") : "Last month (default)"}</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={startDate}
                         onSelect={setStartDate}
                         initialFocus
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.end_date')}</Label>
+                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.end_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-start text-left font-normal"
+                        className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground hover:bg-muted/50 focus:border-primary"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        <span className="text-sm">{endDate ? format(endDate, "PPP") : t('ui.pick_a_date')}</span>
+                        <span className="text-sm">{endDate ? format(endDate, "MMM dd, yyyy") : "Today (default)"}</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={endDate}
                         onSelect={setEndDate}
                         initialFocus
+                        disabled={(date) =>
+                          date > new Date() ||
+                          date < new Date("1900-01-01") ||
+                          (startDate ? date < startDate : false)
+                        }
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div className="flex gap-2 pt-2">
-                  <Button 
-                    onClick={() => generateReport('csv')} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex-1"
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    <span className="text-xs">CSV</span>
-                  </Button>
-                  <Button 
-                    onClick={() => generateReport('pdf')} 
-                    variant="outline" 
-                    size="sm"
-                    className="flex-1"
-                  >
-                    <FileText className="h-4 w-4 mr-1" />
-                    <span className="text-xs">PDF</span>
-                  </Button>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    If no dates selected, report will include orders from the last month.
+                  </p>
                 </div>
+                <Button 
+                  onClick={generateReport} 
+                  variant="default" 
+                  size="default"
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span>Export PDF Report</span>
+                </Button>
               </section>
             </PopoverContent>
           </Popover>
