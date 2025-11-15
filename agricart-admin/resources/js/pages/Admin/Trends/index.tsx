@@ -42,32 +42,56 @@ interface PageProps {
 export default function TrendsIndex({ products, dateRange }: PageProps) {
     const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
-    const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+    
+    // Storage key for persisting state
+    const STORAGE_KEY = 'trends_page_state';
+    
+    // Helper function to load persisted state
+    const loadPersistedState = useCallback(() => {
+        try {
+            const stored = sessionStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                return {
+                    ...parsed,
+                    startDate: parsed.startDate ? new Date(parsed.startDate) : undefined,
+                    endDate: parsed.endDate ? new Date(parsed.endDate) : undefined,
+                };
+            }
+        } catch (error) {
+            console.error('Error loading persisted state:', error);
+        }
+        return null;
+    }, [STORAGE_KEY]);
+    
+    const [persistedState] = useState(() => loadPersistedState());
+    
+    const [selectedCategory, setSelectedCategory] = useState<string>(persistedState?.selectedCategory || '');
+    const [selectedProducts, setSelectedProducts] = useState<string[]>(persistedState?.selectedProducts || []);
     const [priceCategoryToggles, setPriceCategoryToggles] = useState<{
         per_kilo: boolean;
         per_tali: boolean;
         per_pc: boolean;
-    }>({
+    }>(persistedState?.priceCategoryToggles || {
         per_kilo: true,
         per_tali: true,
         per_pc: true
     });
-    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-    const [timePeriod, setTimePeriod] = useState<string>('specific');
+    const [startDate, setStartDate] = useState<Date | undefined>(persistedState?.startDate || undefined);
+    const [endDate, setEndDate] = useState<Date | undefined>(persistedState?.endDate || undefined);
+    const [timePeriod, setTimePeriod] = useState<string>(persistedState?.timePeriod || 'specific');
     const [dateValidationError, setDateValidationError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingPriceCategories, setLoadingPriceCategories] = useState<boolean>(false);
-    const [series, setSeries] = useState<any[]>([]);
-    const [availableProducts, setAvailableProducts] = useState<ProductOption[]>([]);
-    const [availablePriceCategories, setAvailablePriceCategories] = useState<string[]>([]);
-    const [productPriceCategories, setProductPriceCategories] = useState<Record<string, string[]>>({});
-    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
-    const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+    const [series, setSeries] = useState<any[]>(persistedState?.series || []);
+    const [availableProducts, setAvailableProducts] = useState<ProductOption[]>(persistedState?.availableProducts || []);
+    const [availablePriceCategories, setAvailablePriceCategories] = useState<string[]>(persistedState?.availablePriceCategories || []);
+    const [productPriceCategories, setProductPriceCategories] = useState<Record<string, string[]>>(persistedState?.productPriceCategories || {});
+    const [selectedMonth, setSelectedMonth] = useState<number | undefined>(persistedState?.selectedMonth);
+    const [selectedYear, setSelectedYear] = useState<number | undefined>(persistedState?.selectedYear);
     
     // Store latest data for selected products - updates based on selected products
-    const [latestProductData, setLatestProductData] = useState<Record<string, any>>({});
+    const [latestProductData, setLatestProductData] = useState<Record<string, any>>(persistedState?.latestProductData || {});
 
     // Define product categories
     const fruitProducts = ['Pakwan', 'Mais'];
@@ -485,6 +509,36 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
         return true;
     };
 
+    // Handle clear filters
+    const handleClearFilters = () => {
+        // Clear all filters and reset to default state
+        setSelectedCategory('');
+        setSelectedProducts([]);
+        setPriceCategoryToggles({
+            per_kilo: true,
+            per_tali: true,
+            per_pc: true
+        });
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setTimePeriod('specific');
+        setSelectedMonth(undefined);
+        setSelectedYear(undefined);
+        setSeries([]);
+        setAvailableProducts(products);
+        setAvailablePriceCategories(['per_kilo', 'per_tali', 'per_pc']);
+        setProductPriceCategories({});
+        setLatestProductData({});
+        setDateValidationError('');
+        
+        // Clear persisted state
+        try {
+            sessionStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+            console.error('Error clearing persisted state:', error);
+        }
+    };
+
     // Handle price category toggle
     const handlePriceCategoryToggle = (category: keyof typeof priceCategoryToggles) => {
         if (selectedProducts.length === 1) {
@@ -637,18 +691,61 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     }, [selectedProducts, selectedCategory, priceCategoryToggles, timePeriod, startDate, endDate, selectedMonth, selectedYear]);
 
     useEffect(() => {
-        // Initialize available products and price categories
-        setAvailableProducts(products);
-        setAvailablePriceCategories(['per_kilo', 'per_tali', 'per_pc']);
-        // Initialize price category toggles to be enabled by default
-        setPriceCategoryToggles({
-            per_kilo: true,
-            per_tali: true,
-            per_pc: true
-        });
-        loadData();
+        // Only initialize if no persisted state exists
+        if (!persistedState) {
+            setAvailableProducts(products);
+            setAvailablePriceCategories(['per_kilo', 'per_tali', 'per_pc']);
+            setPriceCategoryToggles({
+                per_kilo: true,
+                per_tali: true,
+                per_pc: true
+            });
+        }
+        // Load data on mount if we have persisted state with selected products
+        if (persistedState && persistedState.selectedProducts?.length > 0) {
+            loadData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+    
+    // Persist state to sessionStorage whenever relevant state changes
+    useEffect(() => {
+        const stateToSave = {
+            selectedCategory,
+            selectedProducts,
+            priceCategoryToggles,
+            startDate: startDate?.toISOString(),
+            endDate: endDate?.toISOString(),
+            timePeriod,
+            series,
+            availableProducts,
+            availablePriceCategories,
+            productPriceCategories,
+            selectedMonth,
+            selectedYear,
+            latestProductData,
+        };
+        
+        try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+        } catch (error) {
+            console.error('Error persisting state:', error);
+        }
+    }, [
+        selectedCategory,
+        selectedProducts,
+        priceCategoryToggles,
+        startDate,
+        endDate,
+        timePeriod,
+        series,
+        availableProducts,
+        availablePriceCategories,
+        productPriceCategories,
+        selectedMonth,
+        selectedYear,
+        latestProductData,
+    ]);
 
     // Auto-load data when monthly or yearly selections are complete and valid
     useEffect(() => {
@@ -777,6 +874,16 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
                         <CardHeader>
                             <div className="flex flex-col items-center gap-3 lg:flex-row lg:gap-4">
                                 <CardTitle className="text-base md:text-lg lg:text-xl lg:mr-auto">{t('admin.filters')}</CardTitle>
+                                {(selectedProducts.length > 0 || selectedCategory || startDate || endDate || selectedMonth !== undefined || selectedYear !== undefined) && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleClearFilters}
+                                        className="text-xs sm:text-sm"
+                                    >
+                                        {t('admin.clear_filters')}
+                                    </Button>
+                                )}
                                 <div className="flex items-center gap-2 lg:gap-3">
                                     <Label className="text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">{t('admin.time_period')}</Label>
                                     <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
