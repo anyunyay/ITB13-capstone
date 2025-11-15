@@ -255,36 +255,38 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
     <AppLayout>
       <Head title={t('admin.sales_report')} />
       <div className="min-h-screen bg-background">
-        <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
-                  <BarChart3 className="h-8 w-8" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">{t('admin.sales_report_page_title')}</h1>
-                  <p className="text-muted-foreground mt-1">
-                    {t('admin.generate_comprehensive_sales_reports')}
-                  </p>
+        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+          {/* Dashboard Header */}
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+            <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('admin.sales_report_page_title')}</h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                      {t('admin.generate_comprehensive_sales_reports')}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  {t('admin.export_csv')}
+              <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                  <Download className="h-4 w-4 mr-2" />
+                  <span className="text-sm sm:text-base">{t('admin.export_csv')}</span>
                 </Button>
-                <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  {t('admin.export_pdf')}
+                <Button onClick={() => exportReport('pdf', 'sales')} variant="outline" className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span className="text-sm sm:text-base">{t('admin.export_pdf')}</span>
                 </Button>
               </div>
             </div>
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
             <Card className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
