@@ -217,20 +217,20 @@ export const ReportOrderMobileCard = ({ order, t }: { order: ReportOrder; t: (ke
   const totalItems = order.audit_trail?.length || 0;
   
   return (
-    <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
-      <div className="flex justify-between items-start mb-3">
-        <Badge variant="outline" className="font-mono">
+    <div className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex justify-between items-start mb-2.5 sm:mb-3 gap-2">
+        <Badge variant="outline" className="font-mono text-xs">
           #{order.id}
         </Badge>
         {getStatusBadge(order.status, t)}
       </div>
 
-      <div className="space-y-2 mb-3 pb-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          <User className="h-3 w-3 text-muted-foreground" />
-          <div className="flex-1">
-            <div className="font-medium text-sm">{order.customer.name}</div>
-            <div className="text-xs text-muted-foreground">{order.customer.email}</div>
+      <div className="space-y-1.5 sm:space-y-2 mb-2.5 sm:mb-3 pb-2.5 sm:pb-3 border-b border-border">
+        <div className="flex items-start gap-2">
+          <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-xs sm:text-sm truncate">{order.customer.name}</div>
+            <div className="text-xs text-muted-foreground truncate">{order.customer.email}</div>
             {order.customer.contact_number && (
               <div className="text-xs text-muted-foreground">{order.customer.contact_number}</div>
             )}
@@ -238,46 +238,48 @@ export const ReportOrderMobileCard = ({ order, t }: { order: ReportOrder; t: (ke
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
+          <Calendar className="h-3 w-3 shrink-0" />
+          <span className="truncate">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
-          <Package className="h-3 w-3 text-muted-foreground" />
-          <span className="font-medium">{totalItems} items</span>
-          {order.audit_trail && order.audit_trail.length > 0 && (
-            <span className="text-muted-foreground truncate">
-              - {order.audit_trail[0].product.name}
-              {order.audit_trail.length > 1 && ` +${order.audit_trail.length - 1} more`}
-            </span>
-          )}
+        <div className="flex items-start gap-2 text-xs">
+          <Package className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <span className="font-medium">{totalItems} items</span>
+            {order.audit_trail && order.audit_trail.length > 0 && (
+              <span className="text-muted-foreground block truncate">
+                {order.audit_trail[0].product.name}
+                {order.audit_trail.length > 1 && ` +${order.audit_trail.length - 1} more`}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-2 mb-3">
-        <div className="flex justify-between text-sm">
+      <div className="space-y-1.5 sm:space-y-2 mb-2.5 sm:mb-3">
+        <div className="flex justify-between text-xs sm:text-sm items-center">
           <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
-          <span className="font-semibold">₱{Number(order.total_amount).toFixed(2)}</span>
+          <span className="font-semibold text-sm sm:text-base">₱{Number(order.total_amount).toFixed(2)}</span>
         </div>
 
         {order.status === 'approved' && (
-          <div className="flex justify-between text-sm items-center">
-            <span className="text-muted-foreground">{t('admin.delivery_status_header')}:</span>
+          <div className="flex justify-between text-xs sm:text-sm items-center gap-2">
+            <span className="text-muted-foreground shrink-0">{t('admin.delivery_status_header')}:</span>
             {getDeliveryStatusBadge(order.delivery_status, t)}
           </div>
         )}
       </div>
 
       {(order.admin || order.logistic) && (
-        <div className="pt-3 border-t border-border text-xs space-y-1">
+        <div className="pt-2.5 sm:pt-3 border-t border-border text-xs space-y-1">
           {order.admin && (
-            <div className="text-muted-foreground">
-              {t('admin.processed_by')}: {order.admin.name}
+            <div className="text-muted-foreground truncate">
+              <span className="font-medium">{t('admin.processed_by')}:</span> {order.admin.name}
             </div>
           )}
           {order.logistic && (
-            <div className="text-muted-foreground">
-              {t('admin.logistic')}: {order.logistic.name}
+            <div className="text-muted-foreground truncate">
+              <span className="font-medium">{t('admin.logistic')}:</span> {order.logistic.name}
             </div>
           )}
         </div>

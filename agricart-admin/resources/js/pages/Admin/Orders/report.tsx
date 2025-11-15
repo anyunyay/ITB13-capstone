@@ -13,7 +13,8 @@ import { ReportSummaryCards } from '@/components/orders/report-summary-cards';
 import { ReportFilters } from '@/components/orders/report-filters';
 import { ReportOrderCard } from '@/components/orders/report-order-card';
 import { PaginationControls } from '@/components/orders/pagination-controls';
-import { ReportOrderTable } from '@/components/orders/report-order-table';
+import { BaseTable } from '@/components/common/base-table';
+import { createReportOrderTableColumns, ReportOrderMobileCard } from '@/components/orders/report-order-table-columns';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -121,8 +122,6 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
   const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [logisticsOpen, setLogisticsOpen] = useState(false);
-  const [adminsOpen, setAdminsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -131,6 +130,8 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
     localFilters.end_date ? new Date(localFilters.end_date) : undefined
   );
   const [isMobile, setIsMobile] = useState(false);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -141,17 +142,67 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
 
   const itemsPerPage = currentView === 'cards' ? 4 : (isMobile ? 5 : 10);
 
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'customer':
+          comparison = a.customer.name.localeCompare(b.customer.name);
+          break;
+        case 'total_amount':
+          comparison = a.total_amount - b.total_amount;
+          break;
+        case 'status':
+          comparison = a.status.localeCompare(b.status);
+          break;
+        case 'delivery_status':
+          comparison = a.delivery_status.localeCompare(b.delivery_status);
+          break;
+        case 'created_at':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'admin':
+          const adminA = a.admin?.name || '';
+          const adminB = b.admin?.name || '';
+          comparison = adminA.localeCompare(adminB);
+          break;
+        case 'logistic':
+          const logisticA = a.logistic?.name || '';
+          const logisticB = b.logistic?.name || '';
+          comparison = logisticA.localeCompare(logisticB);
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [orders, sortBy, sortOrder]);
+
   const paginatedOrders = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return orders.slice(startIndex, endIndex);
-  }, [orders, currentPage, itemsPerPage]);
+    return sortedOrders.slice(startIndex, endIndex);
+  }, [sortedOrders, currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedOrders.length / itemsPerPage);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [orders.length, currentView, isMobile]);
+  }, [sortedOrders.length, currentView, isMobile]);
+
+  const columns = useMemo(() => createReportOrderTableColumns(t), [t]);
 
   const applyFilters = () => {
     const params: Record<string, any> = {};
@@ -278,25 +329,27 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
       <Head title={t('admin.order_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-6 shadow-lg">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-2">
-                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg">
-                  <BarChart3 className="h-8 w-8" />
+          <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 sm:p-3 rounded-lg shrink-0">
+                  <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">{t('admin.order_report')}</h1>
-                  <p className="text-muted-foreground mt-1">{t('admin.order_report_description')}</p>
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.order_report')}</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">{t('admin.order_report_description')}</p>
                 </div>
               </div>
-              <div className="flex gap-2 w-full md:w-auto">
-                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-2 flex-1 md:flex-none">
-                  <Download className="h-4 w-4" />
-                  {t('admin.export_csv')}
+              <div className="flex gap-2 w-full md:w-auto md:shrink-0">
+                <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center justify-center gap-1.5 sm:gap-2 flex-1 md:flex-none text-xs sm:text-sm px-3 sm:px-4">
+                  <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden xs:inline">{t('admin.export_csv')}</span>
+                  <span className="xs:hidden">CSV</span>
                 </Button>
-                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-2 flex-1 md:flex-none">
-                  <FileText className="h-4 w-4" />
-                  {t('admin.export_pdf')}
+                <Button onClick={() => exportReport('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 sm:gap-2 flex-1 md:flex-none text-xs sm:text-sm px-3 sm:px-4">
+                  <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden xs:inline">{t('admin.export_pdf')}</span>
+                  <span className="xs:hidden">PDF</span>
                 </Button>
               </div>
             </div>
@@ -311,10 +364,6 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
             admins={admins}
             filtersOpen={filtersOpen}
             setFiltersOpen={setFiltersOpen}
-            logisticsOpen={logisticsOpen}
-            setLogisticsOpen={setLogisticsOpen}
-            adminsOpen={adminsOpen}
-            setAdminsOpen={setAdminsOpen}
             startDate={startDate}
             endDate={endDate}
             setStartDate={setStartDate}
@@ -326,15 +375,13 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
 
           <Card id="order-report-section" className="shadow-sm scroll-mt-20">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">{t('admin.order_report')}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
-                </div>
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-base sm:text-lg md:text-xl truncate">{t('admin.order_report')}</CardTitle>
+                <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
               </div>
             </CardHeader>
             <CardContent>
-              {orders.length > 0 ? (
+              {sortedOrders.length > 0 ? (
                 <>
                   {currentView === 'cards' ? (
                     <div className="space-y-4">
@@ -343,7 +390,15 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                       ))}
                     </div>
                   ) : (
-                    <ReportOrderTable orders={paginatedOrders} />
+                    <BaseTable
+                      data={paginatedOrders}
+                      columns={columns}
+                      keyExtractor={(order) => order.id}
+                      sortBy={sortBy}
+                      sortOrder={sortOrder}
+                      onSort={handleSort}
+                      renderMobileCard={(order) => <ReportOrderMobileCard order={order} t={t} />}
+                    />
                   )}
 
                   <PaginationControls
@@ -351,24 +406,24 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
                     itemsPerPage={itemsPerPage}
-                    totalItems={orders.length}
+                    totalItems={sortedOrders.length}
                   />
                 </>
               ) : (
-                <div className="text-center py-12">
+                <div className="text-center py-8 sm:py-12 px-4">
                   <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                      <BarChart3 className="w-8 h-8 text-muted-foreground" />
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mb-3 sm:mb-4">
+                      <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
-                    <p className="text-muted-foreground max-w-md">
+                    <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">{t('admin.no_orders_found')}</h3>
+                    <p className="text-sm sm:text-base text-muted-foreground max-w-md px-4">
                       {hasActiveFilters()
                         ? t('admin.no_orders_match_filters')
                         : t('admin.no_order_data_for_period')
                       }
                     </p>
                     {hasActiveFilters() && (
-                      <Button onClick={clearFilters} variant="outline" className="mt-4">
+                      <Button onClick={clearFilters} variant="outline" className="mt-4 text-sm">
                         {t('admin.clear_filters')}
                       </Button>
                     )}
