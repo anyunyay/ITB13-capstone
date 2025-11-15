@@ -1,216 +1,226 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>My Orders Report</title>
     <style>
+        @page {
+            size: landscape;
+            margin: 15mm;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 10px;
+            line-height: 1.3;
             color: #333;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
         }
+
         .header {
             text-align: center;
             border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
+
         .header h1 {
             margin: 0;
             color: #333;
-            font-size: 24px;
+            font-size: 20px;
         }
+
         .header p {
-            margin: 5px 0;
+            margin: 3px 0;
             color: #666;
+            font-size: 9px;
         }
-        .summary {
-            background: #f5f5f5;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .summary h2 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        .summary-grid {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .summary-item {
-            display: table-cell;
-            width: 16.66%;
-            text-align: center;
-            padding: 10px;
-        }
-        .summary-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-        .summary-label {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
-        .spent {
-            color: #059669 !important;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px;
             text-align: left;
+            vertical-align: top;
         }
+
         th {
             background-color: #f8f9fa;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 9px;
         }
+
         td {
-            font-size: 10px;
+            font-size: 8px;
         }
+
+        .col-id {
+            width: 6%;
+        }
+
+        .col-amount {
+            width: 10%;
+            text-align: right;
+        }
+
+        .col-status {
+            width: 10%;
+        }
+
+        .col-delivery {
+            width: 10%;
+        }
+
+        .col-date {
+            width: 12%;
+        }
+
+        .col-items {
+            width: 32%;
+        }
+
+        .col-notes {
+            width: 12%;
+        }
+
+        .col-logistic {
+            width: 8%;
+        }
+
         .status-pending {
             color: #d97706;
             font-weight: bold;
         }
+
         .status-approved {
             color: #059669;
             font-weight: bold;
         }
+
         .status-rejected {
             color: #dc2626;
             font-weight: bold;
         }
+
         .status-delivered {
             color: #2563eb;
             font-weight: bold;
         }
-        .order-details {
-            margin-top: 15px;
-            page-break-inside: avoid;
-        }
-        .order-header {
-            background: #f8f9fa;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-bottom: none;
-        }
-        .order-items {
-            border: 1px solid #ddd;
-            border-top: none;
-        }
-        .order-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .order-item:last-child {
-            border-bottom: none;
-        }
+
         .footer {
-            margin-top: 30px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 10px;
+            font-size: 7px;
             color: #666;
             border-top: 1px solid #ddd;
-            padding-top: 10px;
+            padding-top: 8px;
+        }
+
+        .items-list {
+            font-size: 8px;
+            line-height: 1.4;
+        }
+
+        .item-entry {
+            margin-bottom: 2px;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>My Orders Report</h1>
         <p>Generated on: {{ $generated_at }}</p>
     </div>
 
-
     <table>
         <thead>
             <tr>
-                <th>Order ID</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Delivery Status</th>
-                <th>Created Date</th>
-                <th>Admin Notes</th>
-                <th>Logistic</th>
+                <th class="col-id">Order ID</th>
+                <th class="col-date">Date</th>
+                <th class="col-items">Items</th>
+                <th class="col-amount">Amount</th>
+                <th class="col-status">Status</th>
+                <th class="col-delivery">Delivery</th>
+                <th class="col-logistic">Logistic</th>
+                <th class="col-notes">Notes</th>
             </tr>
         </thead>
         <tbody>
             @foreach($orders as $order)
+            @php
+            // Handle both array and object formats
+            $orderId = is_array($order) ? $order['id'] : $order->id;
+            $createdAt = is_array($order) ? \Carbon\Carbon::parse($order['created_at']) : $order->created_at;
+            $totalAmount = is_array($order) ? $order['total_amount'] : $order->total_amount;
+            $status = is_array($order) ? $order['status'] : $order->status;
+            $deliveryStatus = is_array($order) ? ($order['delivery_status'] ?? 'pending') : ($order->delivery_status ?? 'pending');
+            $adminNotes = is_array($order) ? ($order['admin_notes'] ?? '-') : ($order->admin_notes ?? '-');
+            $logistic = is_array($order) ? ($order['logistic'] ?? null) : ($order->logistic ?? null);
+            @endphp
             <tr>
-                <td>#{{ $order->id }}</td>
-                <td>PHP {{ number_format($order->total_amount, 2, '.', ',') }}</td>
-                <td class="status-{{ $order->status }}">{{ ucfirst($order->status) }}</td>
-                <td class="status-{{ $order->delivery_status ?? 'pending' }}">{{ ucfirst($order->delivery_status ?? 'N/A') }}</td>
-                <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                <td>{{ $order->admin_notes ?? 'N/A' }}</td>
-                <td>{{ $order->logistic->name ?? 'N/A' }}</td>
+                <td class="col-id">#{{ $orderId }}</td>
+                <td class="col-date">{{ $createdAt->format('M d, Y') }}<br><small>{{ $createdAt->format('H:i') }}</small></td>
+                <td class="col-items">
+                    <div class="items-list">
+                        @php
+                        // Handle both array and object formats
+                        if (is_array($order)) {
+                        $auditTrail = $order['audit_trail'] ?? [];
+                        } else {
+                        $auditTrail = $order->audit_trail ?? [];
+                        }
+                        @endphp
+                        @if(is_array($auditTrail) && count($auditTrail) > 0)
+                        @foreach($auditTrail as $item)
+                        @php
+                        $product = is_array($item) ? $item['product'] : (isset($item->product) ? $item->product : null);
+                        $productName = is_array($product) ? $product['name'] : (isset($product->name) ? $product->name : 'Unknown');
+                        $quantity = is_array($item) ? $item['quantity'] : (isset($item->quantity) ? $item->quantity : 0);
+                        $category = is_array($item) ? $item['category'] : (isset($item->category) ? $item->category : '');
+                        @endphp
+                        <div class="item-entry">• {{ $productName }} ({{ $quantity }} {{ $category }})</div>
+                        @endforeach
+                        @else
+                        <div class="item-entry">No items</div>
+                        @endif
+                    </div>
+                </td>
+                <td class="col-amount"><strong>PHP {{ number_format($totalAmount, 2) }}</strong></td>
+                <td class="col-status status-{{ $status }}">{{ ucfirst($status) }}</td>
+                <td class="col-delivery status-{{ $deliveryStatus }}">{{ ucfirst(str_replace('_', ' ', $deliveryStatus == 'pending' ? 'N/A' : $deliveryStatus)) }}</td>
+                <td class="col-logistic">
+                    @if($logistic)
+                    @php
+                    $logisticName = is_array($logistic) ? ($logistic['name'] ?? 'N/A') : ($logistic->name ?? 'N/A');
+                    $logisticContact = is_array($logistic) ? ($logistic['contact_number'] ?? null) : ($logistic->contact_number ?? null);
+                    @endphp
+                    {{ $logisticName }}
+                    @if($logisticContact)
+                    <br><small>{{ $logisticContact }}</small>
+                    @endif
+                    @else
+                    N/A
+                    @endif
+                </td>
+                <td class="col-notes">{{ $adminNotes }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
-
-    @if($orders->count() > 0)
-    <div style="margin-top: 30px;">
-        <h3>Order Details</h3>
-        @foreach($orders as $order)
-        <div class="order-details">
-            <div class="order-header">
-                <strong>Order #{{ $order->id }}</strong> - {{ $order->created_at->format('M d, Y H:i') }}
-                <br>
-                <span class="status-{{ $order->status }}">Status: {{ ucfirst($order->status) }}</span>
-                @if($order->delivery_status)
-                <span class="status-{{ $order->delivery_status }}"> | Delivery: {{ ucfirst($order->delivery_status) }}</span>
-                @endif
-                <span style="float: right;">Total: PHP {{ number_format($order->total_amount, 2, '.', ',') }}</span>
-            </div>
-            <div class="order-items">
-                @foreach($order->auditTrail as $item)
-                <div class="order-item">
-                    <strong>{{ $item->product->name }}</strong>
-                    <br>
-                    Quantity: {{ $item->quantity }} {{ $item->category }}
-                    @if($item->product->price_kilo && $item->category === 'Kilo')
-                        <br>Price: PHP {{ number_format($item->product->price_kilo, 2, '.', ',') }} per kilo
-                    @elseif($item->product->price_pc && $item->category === 'Pc')
-                        <br>Price: PHP {{ number_format($item->product->price_pc, 2, '.', ',') }} per piece
-                    @elseif($item->product->price_tali && $item->category === 'Tali')
-                        <br>Price: PHP {{ number_format($item->product->price_tali, 2, '.', ',') }} per tali
-                    @endif
-                </div>
-                @endforeach
-            </div>
-            @if($order->admin_notes)
-            <div style="background: #fff3cd; padding: 10px; margin-top: 10px; border-left: 4px solid #ffc107;">
-                <strong>Admin Notes:</strong> {{ $order->admin_notes }}
-            </div>
-            @endif
-            @if($order->logistic)
-            <div style="background: #d1ecf1; padding: 10px; margin-top: 10px; border-left: 4px solid #17a2b8;">
-                <strong>Delivery:</strong> {{ $order->logistic->name }}
-                @if($order->logistic->contact_number)
-                ({{ $order->logistic->contact_number }})
-                @endif
-            </div>
-            @endif
-        </div>
-        @endforeach
-    </div>
-    @endif
 
     <div class="footer">
         <p>This report was generated automatically by the Agricart Admin System.</p>
         <p>For any questions, please contact the administrator.</p>
     </div>
 </body>
-</html> 
+
+</html>
