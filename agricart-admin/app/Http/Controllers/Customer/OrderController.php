@@ -219,8 +219,11 @@ class OrderController extends Controller
     public function generateReport(Request $request)
     {
         $user = $request->user();
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
+        
+        // Set default date range to 1 month from today if not provided
+        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+        $startDate = $request->get('start_date', now()->subMonth()->format('Y-m-d'));
+        
         $status = $request->get('status', 'all');
         $deliveryStatus = $request->get('delivery_status', 'all');
         $format = $request->get('format', 'view'); // view, csv, pdf
@@ -336,7 +339,45 @@ class OrderController extends Controller
             $salesAuditQuery->where('status', $status);
         }
 
-        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')->get();
+        $salesAuditOrders = $salesAuditQuery->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sale) {
+                return [
+                    'id' => $sale->id,
+                    'total_amount' => $sale->total_amount,
+                    'status' => $sale->status,
+                    'delivery_status' => $sale->delivery_status,
+                    'created_at' => $sale->created_at,
+                    'admin_notes' => $sale->admin_notes,
+                    'logistic' => $sale->logistic,
+                    'audit_trail' => $sale->auditTrail->map(function ($trail) {
+                        // Calculate unit price based on category
+                        $unitPrice = 0;
+                        switch ($trail->category) {
+                            case 'Kilo':
+                                $unitPrice = $trail->price_kilo ?? $trail->product->price_kilo ?? 0;
+                                break;
+                            case 'Pc':
+                                $unitPrice = $trail->price_pc ?? $trail->product->price_pc ?? 0;
+                                break;
+                            case 'Tali':
+                                $unitPrice = $trail->price_tali ?? $trail->product->price_tali ?? 0;
+                                break;
+                        }
+                        
+                        return [
+                            'id' => $trail->id,
+                            'product' => [
+                                'id' => $trail->product->id,
+                                'name' => $trail->product->name,
+                            ],
+                            'category' => $trail->category,
+                            'quantity' => $trail->quantity,
+                            'unit_price' => $unitPrice,
+                        ];
+                    })->toArray(),
+                ];
+            });
         $allOrders = $allOrders->concat($salesAuditOrders);
 
         // Calculate summary statistics
@@ -349,73 +390,8 @@ class OrderController extends Controller
             'delivered_orders' => $allOrders->where('delivery_status', 'delivered')->count(),
         ];
 
-        // If export is requested
-        if ($format === 'csv') {
-            return $this->exportToCsv($allOrders, $summary);
-        } elseif ($format === 'pdf') {
-            return $this->exportToPdf($allOrders, $summary);
-        }
-
-        // Return view for display
-        return Inertia::render('Customer/OrderHistory/report', [
-            'orders' => $allOrders,
-            'summary' => $summary,
-            'filters' => [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'status' => $status,
-                'delivery_status' => $deliveryStatus,
-            ],
-        ]);
-    }
-
-    private function exportToCsv($orders, $summary)
-    {
-        $filename = 'my_orders_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($orders, $summary) {
-            $file = fopen('php://output', 'w');
-            
-            // Write headers
-            fputcsv($file, [
-                'Order ID',
-                'Total Amount',
-                'Status',
-                'Delivery Status',
-                'Created Date',
-                'Admin Notes',
-                'Logistic',
-                'Items'
-            ]);
-
-            // Write order data
-            foreach ($orders as $order) {
-                $aggregatedTrail = $order->getAggregatedAuditTrail();
-                $items = collect($aggregatedTrail)->map(function($item) {
-                    return $item['product']['name'] . ' (' . $item['category'] . ' x' . $item['quantity'] . ')';
-                })->join('; ');
-
-                fputcsv($file, [
-                    $order->id,
-                    '₱' . number_format($order->total_amount, 2),
-                    $order->status,
-                    $order->delivery_status ?? 'N/A',
-                    $order->created_at->format('Y-m-d H:i:s'),
-                    $order->admin_notes ?? 'N/A',
-                    $order->logistic->name ?? 'N/A',
-                    $items
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return Response::stream($callback, 200, $headers);
+        // Always export as PDF
+        return $this->exportToPdf($allOrders, $summary);
     }
 
     private function exportToPdf($orders, $summary)
@@ -426,7 +402,8 @@ class OrderController extends Controller
             'generated_at' => now()->format('Y-m-d H:i:s')
         ])->render();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+            ->setPaper('a4', 'landscape');
         
         $filename = 'my_orders_report_' . date('Y-m-d_H-i-s') . '.pdf';
         
