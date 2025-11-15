@@ -57,7 +57,16 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const itemsPerPage = isMobile ? 5 : 10;
 
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
