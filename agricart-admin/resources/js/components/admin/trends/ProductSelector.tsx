@@ -99,7 +99,7 @@ export function ProductSelector({
                             </span>
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 max-h-96 overflow-y-auto" align="start">
+                    <PopoverContent className="w-[600px]" align="start">
                         <div className="space-y-4">
                             {Object.entries(groupedProducts).map(([groupKey, products]) => {
                                 if (products.length === 0) return null;
@@ -119,7 +119,7 @@ export function ProductSelector({
                                         <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                                             {groupLabels[groupKey]}
                                         </p>
-                                        <div className="space-y-2">
+                                        <div className="grid grid-cols-3 gap-2">
                                             {products.map((product) => (
                                                 <div key={product.name} className="flex items-center space-x-2">
                                                     <Checkbox
