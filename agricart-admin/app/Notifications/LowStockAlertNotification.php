@@ -30,7 +30,7 @@ class LowStockAlertNotification extends Notification implements ShouldQueue
     {
         $product = $this->stock->product;
         $stockType = 'Available Stock';
-        $actionUrl = '/member/available-stocks';
+        $actionUrl = '/member/all-stocks?view=stocks';
         
         return (new MailMessage)
             ->subject('Low Stock Alert - ' . $stockType)
@@ -49,7 +49,7 @@ class LowStockAlertNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         $stockType = 'available';
-        $actionUrl = '/member/available-stocks';
+        $actionUrl = '/member/all-stocks?view=stocks';
         
         return [
             'stock_id' => $this->stock->id,

@@ -77,7 +77,7 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
         } else if (notification.type === 'earnings_update') {
           router.visit('/member/dashboard');
         } else if (notification.type === 'low_stock_alert') {
-          router.visit('/member/available-stocks');
+          router.visit('/member/all-stocks?view=stocks');
         }
       } else if (userType === 'logistic') {
         // For logistic notifications, navigate to specific order details

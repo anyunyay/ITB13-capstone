@@ -37,7 +37,7 @@ class EarningsUpdateNotification extends Notification implements ShouldQueue
             ->line('Amount: ₱' . number_format($this->amount, 2))
             ->line('Period: ' . $this->period)
             ->line('Update Date: ' . now()->format('F j, Y g:i A'))
-            ->action('View Earnings', url('/member/earnings'))
+            ->action('View Dashboard', url('/member/dashboard'))
             ->line('Thank you for your continued partnership!');
     }
 
@@ -49,7 +49,7 @@ class EarningsUpdateNotification extends Notification implements ShouldQueue
             'period' => $this->period,
             'details' => $this->details,
             'message' => 'Earnings update: ₱' . number_format($this->amount, 2) . ' for ' . $this->period,
-            'action_url' => '/member/earnings',
+            'action_url' => '/member/dashboard',
         ];
     }
 }

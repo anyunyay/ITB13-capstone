@@ -203,16 +203,30 @@ export default function AllNotificationsPage() {
         // For member notifications, navigate to appropriate member pages
         if (notification.type === 'product_sale') {
           // For product sale, highlight the transaction if available
-          const transactionId = notification.data?.transaction_id || notification.data?.id;
+          const transactionId = notification.data?.audit_trail_id || notification.data?.transaction_id || notification.data?.id;
           const params = new URLSearchParams({ view: 'transactions' });
           if (transactionId) {
             params.append('highlight_transaction', transactionId);
           }
           router.visit(`/member/all-stocks?${params.toString()}`);
         } else if (notification.type === 'earnings_update') {
+          // Navigate to dashboard for earnings updates
           router.visit(`/member/dashboard?highlight_notification=${notification.id}`);
         } else if (notification.type === 'low_stock_alert') {
           // For low stock alert, highlight the stock if available
+          const stockId = notification.data?.stock_id;
+          const productId = notification.data?.product_id;
+          const category = notification.data?.stock_type || notification.data?.category;
+          const params = new URLSearchParams({ view: 'stocks' });
+          if (stockId) {
+            params.append('highlight_stock', stockId);
+          } else if (productId && category) {
+            params.append('highlight_product', productId);
+            params.append('highlight_category', category);
+          }
+          router.visit(`/member/all-stocks?${params.toString()}`);
+        } else if (notification.type === 'stock_added') {
+          // For stock added, highlight the specific stock/product
           const stockId = notification.data?.stock_id;
           const productId = notification.data?.product_id;
           const category = notification.data?.category;
@@ -282,6 +296,8 @@ export default function AllNotificationsPage() {
         return <DollarSign className="h-5 w-5 text-green-600" />;
       case 'low_stock_alert':
         return <AlertTriangle className="h-5 w-5 text-red-600" />;
+      case 'stock_added':
+        return <Package className="h-5 w-5 text-green-600" />;
       case 'delivery_task':
         return <Truck className="h-5 w-5 text-blue-600" />;
       case 'order_confirmation':
@@ -313,6 +329,8 @@ export default function AllNotificationsPage() {
         return 'Earnings Update';
       case 'low_stock_alert':
         return 'Low Stock Alert';
+      case 'stock_added':
+        return 'Stock Added';
       case 'delivery_task':
         return 'Delivery Task';
       case 'order_confirmation':
@@ -339,6 +357,7 @@ export default function AllNotificationsPage() {
       case 'product_sale':
       case 'earnings_update':
       case 'order_confirmation':
+      case 'stock_added':
         return 'border-l-green-500';
       case 'inventory_update':
       case 'membership_update':
@@ -565,7 +584,7 @@ export default function AllNotificationsPage() {
               (userType === 'customer' && notification.data?.order_id && 
                 ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type)) ||
               (userType === 'member' && 
-                ['product_sale', 'earnings_update', 'low_stock_alert'].includes(notification.type)) ||
+                ['product_sale', 'earnings_update', 'low_stock_alert', 'stock_added'].includes(notification.type)) ||
               (userType === 'logistic' && 
                 ['delivery_task', 'order_status_update'].includes(notification.type)) ||
               ((userType === 'admin' || userType === 'staff') && 

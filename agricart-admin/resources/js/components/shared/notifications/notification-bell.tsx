@@ -49,12 +49,11 @@ export function NotificationBell({ notifications, userType }: NotificationBellPr
       } else if (userType === 'member') {
         // For member notifications, navigate to appropriate member pages
         if (notification.type === 'product_sale') {
-          router.visit('/member/sold-stocks');
+          router.visit('/member/all-stocks?view=transactions');
         } else if (notification.type === 'earnings_update') {
           router.visit('/member/dashboard');
         } else if (notification.type === 'low_stock_alert') {
-          // Navigate to available stocks for low stock alerts
-          router.visit('/member/available-stocks');
+          router.visit('/member/all-stocks?view=stocks');
         } else if (notification.action_url) {
           router.visit(notification.action_url);
         }
