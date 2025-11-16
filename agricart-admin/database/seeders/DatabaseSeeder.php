@@ -99,6 +99,7 @@ class DatabaseSeeder extends Seeder
             PriceTrendSeeder::class,
             ComprehensiveSalesSeeder::class,
             MemberEarningsSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

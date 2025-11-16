@@ -79,9 +79,6 @@ export default function AllNotificationsPage() {
   const highlightedNotificationId = urlParams.get('highlight_notification');
   const notificationRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   
-  console.log('🔍 [Notification Debug] URL:', window.location.href);
-  console.log('🔍 [Notification Debug] Highlighted ID from URL:', highlightedNotificationId);
-  
   // Guard: Redirect if no authenticated user
   if (!currentUser) {
     router.visit('/login');
@@ -96,22 +93,12 @@ export default function AllNotificationsPage() {
   const perPage = paginatedNotifications.per_page;
   const totalItems = paginatedNotifications.total;
 
-  console.log('🔍 [Notification Debug] Total notifications:', notificationData.length);
-  console.log('🔍 [Notification Debug] Notification IDs:', notificationData.map(n => n.id));
-
   // Scroll to and highlight notification if specified in URL
   useEffect(() => {
-    console.log('🔍 [Notification Debug] useEffect triggered');
-    console.log('🔍 [Notification Debug] highlightedNotificationId:', highlightedNotificationId);
-    console.log('🔍 [Notification Debug] notificationRefs.current:', Object.keys(notificationRefs.current));
-    
     if (highlightedNotificationId) {
-      console.log('🔍 [Notification Debug] Looking for notification:', highlightedNotificationId);
       const element = notificationRefs.current[highlightedNotificationId];
-      console.log('🔍 [Notification Debug] Found element:', element);
       
       if (element) {
-        console.log('✅ [Notification Debug] Scrolling to notification:', highlightedNotificationId);
         // Scroll to the notification with smooth behavior
         setTimeout(() => {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -119,16 +106,11 @@ export default function AllNotificationsPage() {
         
         // Remove highlight parameter from URL after 3 seconds
         setTimeout(() => {
-          console.log('🔍 [Notification Debug] Removing highlight parameter from URL');
           const newUrl = new URL(window.location.href);
           newUrl.searchParams.delete('highlight_notification');
           window.history.replaceState({}, '', newUrl.toString());
         }, 3000);
-      } else {
-        console.log('❌ [Notification Debug] Element not found in refs');
       }
-    } else {
-      console.log('❌ [Notification Debug] No highlighted notification ID');
     }
   }, [highlightedNotificationId, notificationData]);
 
@@ -206,11 +188,6 @@ export default function AllNotificationsPage() {
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    console.log('🔔 [Notification Click] Notification:', notification);
-    console.log('🔔 [Notification Click] Type:', notification.type);
-    console.log('🔔 [Notification Click] Data:', notification.data);
-    console.log('🔔 [Notification Click] User Type:', userType);
-    
     try {
       // Handle navigation based on user type and notification type
       if (userType === 'customer') {
@@ -436,19 +413,12 @@ export default function AllNotificationsPage() {
               
               const isHighlighted = highlightedNotificationId === notification.id;
               
-              if (isHighlighted) {
-                console.log('🎯 [Notification Debug] Rendering HIGHLIGHTED notification:', notification.id);
-              }
-              
               return (
                 <Card 
                   key={notification.id}
                   ref={(el) => {
                     if (el) {
                       notificationRefs.current[notification.id] = el;
-                      if (isHighlighted) {
-                        console.log('📌 [Notification Debug] Ref set for highlighted notification:', notification.id);
-                      }
                     }
                   }}
                   className={`border-l-4 border-2 rounded-2xl transition-all hover:shadow-xl group ${
@@ -603,19 +573,12 @@ export default function AllNotificationsPage() {
             
             const isHighlighted = highlightedNotificationId === notification.id;
             
-            if (isHighlighted) {
-              console.log('🎯 [Notification Debug] Rendering HIGHLIGHTED notification:', notification.id);
-            }
-            
             return (
               <Card 
                 key={notification.id}
                 ref={(el) => {
                   if (el) {
                     notificationRefs.current[notification.id] = el;
-                    if (isHighlighted) {
-                      console.log('📌 [Notification Debug] Ref set for highlighted notification:', notification.id);
-                    }
                   }
                 }}
                 className={`bg-card border border-border rounded-xl shadow-sm transition-all duration-200 ${
