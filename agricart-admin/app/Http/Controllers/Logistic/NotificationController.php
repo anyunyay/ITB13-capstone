@@ -46,6 +46,12 @@ class NotificationController extends Controller
     public function profileIndex(Request $request)
     {
         $user = $request->user();
+        
+        // AUTHORIZATION: Ensure only logistics can access this endpoint
+        if ($user->type !== 'logistic') {
+            abort(403, 'Unauthorized access. This page is only accessible to logistics personnel.');
+        }
+        
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\DeliveryTaskNotification',

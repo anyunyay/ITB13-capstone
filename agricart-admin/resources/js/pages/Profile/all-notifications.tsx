@@ -19,7 +19,10 @@ import {
   TruckIcon,
   X
 } from 'lucide-react';
-import ProfileWrapper from './profile-wrapper';
+import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppHeaderLayout from '@/layouts/app/app-header-layout';
+import LogisticLayout from '@/layouts/logistic-layout';
+import MemberLayout from '@/layouts/member-layout';
 import { PaginationControls } from '@/components/shared/notifications/pagination-controls';
 
 interface Notification {
@@ -51,17 +54,33 @@ interface PaginatedNotifications {
 
 interface AllNotificationsPageProps {
   paginatedNotifications: PaginatedNotifications;
-  user: {
-    type: string;
-    [key: string]: any;
+  auth: {
+    user: {
+      id: number;
+      name: string;
+      email: string;
+      type: 'admin' | 'staff' | 'customer' | 'member' | 'logistic';
+      [key: string]: any;
+    };
   };
   [key: string]: any;
 }
 
 export default function AllNotificationsPage() {
-  const { paginatedNotifications, user } = usePage<AllNotificationsPageProps>().props;
+  const page = usePage<AllNotificationsPageProps>();
+  const { paginatedNotifications } = page.props;
+  // CRITICAL: Always use auth.user from Inertia props, not a separate user prop
+  // This ensures we're using the current authenticated user, not a stale/incorrect prop
+  const currentUser = page.props.auth?.user;
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
-  const userType = user?.type || 'customer';
+  
+  // Guard: Redirect if no authenticated user
+  if (!currentUser) {
+    router.visit('/login');
+    return null;
+  }
+  
+  const userType = currentUser.type;
 
   const notificationData = paginatedNotifications.data;
   const currentPage = paginatedNotifications.current_page;
@@ -569,9 +588,88 @@ export default function AllNotificationsPage() {
     </div>
   );
 
-  return (
-    <ProfileWrapper title="All Notifications">
-      {userType === 'customer' ? customerContent : adminContent}
-    </ProfileWrapper>
-  );
+  // Render with appropriate layout based on user type
+  switch (userType) {
+    case 'admin':
+    case 'staff':
+      return (
+        <AppSidebarLayout>
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                All Notifications
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                View and manage all your notifications
+              </p>
+            </div>
+            {adminContent}
+          </div>
+        </AppSidebarLayout>
+      );
+    case 'customer':
+      return (
+        <AppHeaderLayout>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+            <div className="mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                All Notifications
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                View and manage all your notifications
+              </p>
+            </div>
+            {customerContent}
+          </div>
+        </AppHeaderLayout>
+      );
+    case 'logistic':
+      return (
+        <LogisticLayout>
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                All Notifications
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                View and manage all your notifications
+              </p>
+            </div>
+            {adminContent}
+          </div>
+        </LogisticLayout>
+      );
+    case 'member':
+      return (
+        <MemberLayout>
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                All Notifications
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                View and manage all your notifications
+              </p>
+            </div>
+            {adminContent}
+          </div>
+        </MemberLayout>
+      );
+    default:
+      return (
+        <AppHeaderLayout>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
+            <div className="mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                All Notifications
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                View and manage all your notifications
+              </p>
+            </div>
+            {customerContent}
+          </div>
+        </AppHeaderLayout>
+      );
+  }
 }

@@ -115,6 +115,12 @@ class NotificationController extends Controller
     public function profileIndex(Request $request)
     {
         $user = $request->user();
+        
+        // AUTHORIZATION: Ensure only admin/staff can access this endpoint
+        if (!in_array($user->type, ['admin', 'staff'])) {
+            abort(403, 'Unauthorized access. This page is only accessible to administrators and staff.');
+        }
+        
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\NewOrderNotification',

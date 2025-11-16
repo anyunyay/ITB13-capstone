@@ -46,6 +46,12 @@ class NotificationController extends Controller
     public function profileIndex(Request $request)
     {
         $user = $request->user();
+        
+        // AUTHORIZATION: Ensure only members can access this endpoint
+        if ($user->type !== 'member') {
+            abort(403, 'Unauthorized access. This page is only accessible to members.');
+        }
+        
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\ProductSaleNotification',
