@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { router, usePage } from '@inertiajs/react';
+import { router, usePage, Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { 
   Bell, 
@@ -17,7 +17,8 @@ import {
   CheckCircle,
   FileText,
   TruckIcon,
-  X
+  X,
+  ArrowLeft
 } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
@@ -639,11 +640,6 @@ export default function AllNotificationsPage() {
                           ? 'Order Approved - Processing' 
                           : getNotificationTitle(notification.type)}
                       </h3>
-                      {!notification.read_at && (
-                        <Badge variant="secondary" className="text-xs bg-green-600 text-white shrink-0 px-1.5 py-0">
-                          New
-                        </Badge>
-                      )}
                     </div>
                     
                     <p className="text-foreground mb-1 text-sm break-words leading-snug">
@@ -722,11 +718,6 @@ export default function AllNotificationsPage() {
                       </p>
                     </div>
                   </div>
-                  {unreadCount > 0 && (
-                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
-                      {unreadCount} New
-                    </Badge>
-                  )}
                 </div>
               </div>
               {adminContent}
@@ -739,12 +730,22 @@ export default function AllNotificationsPage() {
         <AppHeaderLayout>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
             <div className="mb-8">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                All Notifications
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                View and manage all your notifications
-              </p>
+              <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    All Notifications
+                  </h1>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    View and manage all your notifications
+                  </p>
+                </div>
+                <Link href="/customer/home">
+                  <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                    <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Back</span>
+                  </Button>
+                </Link>
+              </div>
             </div>
             {customerContent}
           </div>
@@ -757,27 +758,31 @@ export default function AllNotificationsPage() {
             <div className="w-full flex flex-col gap-2 px-2 pt-22 py-2 lg:px-8 lg:pt-25">
               {/* Dashboard Header */}
               <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
-                      <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
-                    </div>
-                    <div>
-                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
-                        All Notifications
-                      </h1>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                        {unreadCount > 0 
-                          ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
-                          : "You're all caught up. You have no unread notifications."}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center shrink-0">
+                    <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                      All Notifications
+                    </h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                      {unreadCount > 0 
+                        ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                        : "You're all caught up. You have no unread notifications."}
+                    </p>
                   </div>
                   {unreadCount > 0 && (
-                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
+                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0 hidden sm:flex">
                       {unreadCount} New
                     </Badge>
                   )}
+                  <Link href="/logistic/dashboard">
+                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                      <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Back to Dashboard</span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
               {adminContent}
@@ -792,27 +797,31 @@ export default function AllNotificationsPage() {
             <div className="w-full flex flex-col gap-2 px-2 pt-15 py-2 lg:px-8 lg:pt-17">
               {/* Dashboard Header */}
               <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
-                      <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
-                    </div>
-                    <div>
-                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
-                        All Notifications
-                      </h1>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                        {unreadCount > 0 
-                          ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
-                          : "You're all caught up. You have no unread notifications."}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center shrink-0">
+                    <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                      All Notifications
+                    </h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                      {unreadCount > 0 
+                        ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                        : "You're all caught up. You have no unread notifications."}
+                    </p>
                   </div>
                   {unreadCount > 0 && (
-                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
+                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0 hidden sm:flex">
                       {unreadCount} New
                     </Badge>
                   )}
+                  <Link href="/member/dashboard">
+                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                      <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Back to Dashboard</span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
               {adminContent}

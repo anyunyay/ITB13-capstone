@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { useForm, usePage } from '@inertiajs/react';
-import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
+import { useForm, usePage, Link } from '@inertiajs/react';
+import { Lock, Eye, EyeOff, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
@@ -481,12 +481,22 @@ export default function PasswordPage() {
                 <AppHeaderLayout>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
                         <div className="mb-8">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.change_password')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.update_password_secure')}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {t('ui.change_password')}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {t('ui.update_password_secure')}
+                                    </p>
+                                </div>
+                                <Link href="/customer/home">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('ui.back')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
@@ -495,15 +505,15 @@ export default function PasswordPage() {
         case 'logistic':
             return (
                 <LogisticLayout>
-                    <div className="h-screen overflow-hidden bg-background">
-                        <div className="w-full h-full overflow-y-auto flex flex-col gap-2 px-2 pt-22 py-2 lg:px-8 lg:pt-25 pb-8">
+                    <div className="min-h-screen bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 pt-22 py-2 lg:px-8 lg:pt-25 pb-8">
                             {/* Page Header */}
                             <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-                                <div className="flex items-center gap-2">
-                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center shrink-0">
                                         <Lock className="h-4 w-4 sm:h-6 sm:w-6" />
                                     </div>
-                                    <div>
+                                    <div className="flex-1 min-w-0">
                                         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
                                             {t('ui.change_password')}
                                         </h1>
@@ -511,6 +521,12 @@ export default function PasswordPage() {
                                             {t('ui.update_password_secure')}
                                         </p>
                                     </div>
+                                    <Link href="/logistic/dashboard">
+                                        <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                            <span className="hidden sm:inline">{t('logistic.back_to_dashboard')}</span>
+                                        </Button>
+                                    </Link>
                                 </div>
                             </div>
                             {pageContent}
@@ -521,15 +537,15 @@ export default function PasswordPage() {
         case 'member':
             return (
                 <MemberLayout>
-                    <div className="h-screen overflow-hidden bg-background">
-                        <div className="w-full h-full overflow-y-auto flex flex-col gap-2 px-2 pt-15 py-2 lg:px-8 lg:pt-17 pb-8">
+                    <div className="min-h-screen bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 pt-15 py-2 lg:px-8 lg:pt-17 pb-8">
                             {/* Page Header */}
                             <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-                                <div className="flex items-center gap-2">
-                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center shrink-0">
                                         <Lock className="h-4 w-4 sm:h-6 sm:w-6" />
                                     </div>
-                                    <div>
+                                    <div className="flex-1 min-w-0">
                                         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
                                             {t('ui.change_password')}
                                         </h1>
@@ -537,6 +553,12 @@ export default function PasswordPage() {
                                             {t('ui.update_password_secure')}
                                         </p>
                                     </div>
+                                    <Link href="/member/dashboard">
+                                        <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                            <span className="hidden sm:inline">{t('member.back_to_dashboard')}</span>
+                                        </Button>
+                                    </Link>
                                 </div>
                             </div>
                             {pageContent}

@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { usePage } from '@inertiajs/react';
-import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { usePage, Link } from '@inertiajs/react';
+import { HelpCircle, Mail, Phone, Search, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
@@ -401,12 +402,22 @@ export default function HelpPage() {
                 <AppHeaderLayout>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
                         <div className="mb-8">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {userContent.title}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {userContent.description}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {userContent.title}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {userContent.description}
+                                    </p>
+                                </div>
+                                <Link href="/customer/home">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('ui.back')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
@@ -417,12 +428,22 @@ export default function HelpPage() {
                 <LogisticLayout>
                     <div className="px-2 pt-22 py-2 lg:px-8 lg:pt-25">
                         <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {userContent.title}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {userContent.description}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {userContent.title}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {userContent.description}
+                                    </p>
+                                </div>
+                                <Link href="/logistic/dashboard">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('logistic.back_to_dashboard')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
@@ -433,12 +454,22 @@ export default function HelpPage() {
                 <MemberLayout>
                     <div className="px-2 pt-15 py-2 lg:px-8 lg:pt-17">
                         <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {userContent.title}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {userContent.description}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {userContent.title}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {userContent.description}
+                                    </p>
+                                </div>
+                                <Link href="/member/dashboard">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('member.back_to_dashboard')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>

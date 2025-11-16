@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useForm, usePage, router } from '@inertiajs/react';
-import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock } from 'lucide-react';
+import { useForm, usePage, router, Link } from '@inertiajs/react';
+import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock, ArrowLeft } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
@@ -831,12 +831,22 @@ export default function AddressPage() {
                 <AppHeaderLayout>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
                         <div className="mb-8">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.address_management')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.manage_delivery_addresses')}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {t('ui.address_management')}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {t('ui.manage_delivery_addresses')}
+                                    </p>
+                                </div>
+                                <Link href="/customer/home">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('ui.back')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
@@ -847,12 +857,22 @@ export default function AddressPage() {
                 <LogisticLayout>
                     <div className="px-2 pt-22 py-2 lg:px-8 lg:pt-25">
                         <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.address_management')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.manage_delivery_addresses')}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {t('ui.address_management')}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {t('ui.manage_delivery_addresses')}
+                                    </p>
+                                </div>
+                                <Link href="/logistic/dashboard">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('logistic.back_to_dashboard')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
@@ -863,12 +883,22 @@ export default function AddressPage() {
                 <MemberLayout>
                     <div className="px-2 pt-15 py-2 lg:px-8 lg:pt-17">
                         <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.address_management')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.manage_delivery_addresses')}
-                            </p>
+                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                                        {t('ui.address_management')}
+                                    </h1>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        {t('ui.manage_delivery_addresses')}
+                                    </p>
+                                </div>
+                                <Link href="/member/dashboard">
+                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
+                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:inline">{t('member.back_to_dashboard')}</span>
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                         {pageContent}
                     </div>
