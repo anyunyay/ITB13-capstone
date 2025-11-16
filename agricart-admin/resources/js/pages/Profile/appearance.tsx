@@ -234,12 +234,12 @@ export default function AppearancePage() {
             </Card>
         </div>
     ) : (
-        // Admin/Staff/Logistic/Member Design - Professional & Compact
-        <div className="space-y-6">
+        // Admin/Staff/Logistic/Member Design - Matching Profile Page Pattern
+        <div className="space-y-2">
             {/* Success/Error Message */}
             {message && (
                 <div className={cn(
-                    "p-4 rounded-lg border",
+                    "p-4 rounded-lg border mb-4",
                     message.type === 'success' 
                         ? "bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300"
                         : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300"
@@ -252,79 +252,66 @@ export default function AppearancePage() {
             )}
 
             {/* Appearance Settings Card */}
-            <Card>
+            <Card className="gap-2">
                 <CardHeader>
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <Palette className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <CardTitle className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-green-500/10">
+                            <Palette className="h-5 w-5 text-green-600" />
                         </div>
-                        <div>
-                            <CardTitle className="text-green-600 dark:text-green-400">
-                                {t('appearance.theme.title')}
-                            </CardTitle>
-                            <CardDescription>
-                                {t('appearance.theme.description')}
-                            </CardDescription>
-                        </div>
-                    </div>
+                        {t('appearance.theme.title')}
+                    </CardTitle>
+                    <CardDescription>
+                        {t('appearance.theme.description')}
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid gap-3">
+                <CardContent className="p-6">
+                    <div className="space-y-3">
                         {appearanceOptions.map((option) => {
                             const Icon = option.icon;
                             const isSelected = appearance === option.value;
                             
                             return (
-                                <Button
+                                <button
                                     key={option.value}
-                                    variant={isSelected ? "default" : "outline"}
-                                    className={cn(
-                                        "h-auto p-4 justify-start text-left",
-                                        isSelected 
-                                            ? "bg-green-600 hover:bg-green-700 text-white border-green-600" 
-                                            : "hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
-                                    )}
                                     onClick={() => handleAppearanceChange(option.value)}
                                     disabled={isLoading}
+                                    className={cn(
+                                        "w-full p-4 rounded-lg border border-border transition-all text-left",
+                                        "hover:border-primary/50 hover:bg-muted/50",
+                                        isSelected && "bg-primary/5 border-primary"
+                                    )}
                                 >
-                                    <div className="flex items-center gap-3 w-full">
+                                    <div className="flex items-center gap-3">
                                         <div className={cn(
-                                            "p-2 rounded-lg",
+                                            "p-1.5 rounded-md",
                                             isSelected 
-                                                ? "bg-white/20" 
-                                                : "bg-green-100 dark:bg-green-900/30"
+                                                ? "bg-primary/10" 
+                                                : "bg-muted"
                                         )}>
                                             <Icon className={cn(
                                                 "h-4 w-4",
-                                                isSelected 
-                                                    ? "text-white" 
-                                                    : "text-green-600 dark:text-green-400"
+                                                isSelected ? "text-primary" : "text-muted-foreground"
                                             )} />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="font-medium">{option.label}</div>
-                                            <div className={cn(
-                                                "text-sm",
-                                                isSelected 
-                                                    ? "text-white/80" 
-                                                    : "text-muted-foreground"
-                                            )}>
+                                            <div className="font-medium text-sm text-foreground">{option.label}</div>
+                                            <div className="text-xs text-muted-foreground mt-0.5">
                                                 {option.description}
                                             </div>
                                         </div>
                                         {isSelected && (
-                                            <Check className="h-5 w-5 text-white" />
+                                            <Check className="h-4 w-4 text-primary flex-shrink-0" />
                                         )}
                                     </div>
-                                </Button>
+                                </button>
                             );
                         })}
                     </div>
 
                     {/* Current Selection Info */}
-                    <div className="mt-6 p-4 bg-muted rounded-lg">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Monitor className="h-4 w-4" />
+                    <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-border">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Monitor className="h-3 w-3" />
                             <span>
                                 {t('appearance.theme.current_selection')}: <strong className="text-foreground">
                                     {appearanceOptions.find(opt => opt.value === appearance)?.label}
@@ -336,51 +323,51 @@ export default function AppearancePage() {
             </Card>
 
             {/* Language Settings Card */}
-            <Card>
+            <Card className="gap-2">
                 <CardHeader>
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <Languages className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <CardTitle className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-blue-500/10">
+                            <Languages className="h-5 w-5 text-blue-600" />
                         </div>
-                        <div>
-                            <CardTitle className="text-green-600 dark:text-green-400">
-                                {t('appearance.language.title')}
-                            </CardTitle>
-                            <CardDescription>
-                                {t('appearance.language.description')}
-                            </CardDescription>
-                        </div>
-                    </div>
+                        {t('appearance.language.title')}
+                    </CardTitle>
+                    <CardDescription>
+                        {t('appearance.language.description')}
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <label htmlFor="language-select" className="text-sm font-medium">
-                            {t('appearance.language.select_language')}
-                        </label>
-                        <Select
-                            value={language}
-                            onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
-                            disabled={isLoading || isLanguageLoading}
-                        >
-                            <SelectTrigger id="language-select" className="w-full">
-                                <SelectValue placeholder={t('appearance.language.select_language')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="en">{t('appearance.language.english')}</SelectItem>
-                                <SelectItem value="tl">{t('appearance.language.tagalog')}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <CardContent className="p-6">
+                    <div className="space-y-3">
+                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                            <div className="space-y-2">
+                                <label htmlFor="language-select" className="text-sm font-medium">
+                                    {t('appearance.language.select_language')}
+                                </label>
+                                <Select
+                                    value={language}
+                                    onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
+                                    disabled={isLoading || isLanguageLoading}
+                                >
+                                    <SelectTrigger id="language-select" className="w-full">
+                                        <SelectValue placeholder={t('appearance.language.select_language')} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="en">{t('appearance.language.english')}</SelectItem>
+                                        <SelectItem value="tl">{t('appearance.language.tagalog')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
 
-                    {/* Current Selection Info */}
-                    <div className="mt-6 p-4 bg-muted rounded-lg">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Languages className="h-4 w-4" />
-                            <span>
-                                {t('appearance.language.current_selection')}: <strong className="text-foreground">
-                                    {language === 'en' ? t('appearance.language.english') : t('appearance.language.tagalog')}
-                                </strong>
-                            </span>
+                        {/* Current Selection Info */}
+                        <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Languages className="h-3 w-3" />
+                                <span>
+                                    {t('appearance.language.current_selection')}: <strong className="text-foreground">
+                                        {language === 'en' ? t('appearance.language.english') : t('appearance.language.tagalog')}
+                                    </strong>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
@@ -394,16 +381,26 @@ export default function AppearancePage() {
         case 'staff':
             return (
                 <AppSidebarLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('appearance.title')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('appearance.theme.description')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Palette className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('appearance.title')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('appearance.theme.description')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </AppSidebarLayout>
             );
@@ -426,32 +423,52 @@ export default function AppearancePage() {
         case 'logistic':
             return (
                 <LogisticLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('appearance.title')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('appearance.theme.description')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Palette className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('appearance.title')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('appearance.theme.description')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </LogisticLayout>
             );
         case 'member':
             return (
                 <MemberLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('appearance.title')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('appearance.theme.description')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Palette className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('appearance.title')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('appearance.theme.description')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </MemberLayout>
             );
