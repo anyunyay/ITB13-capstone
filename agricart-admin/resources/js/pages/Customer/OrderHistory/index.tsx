@@ -115,7 +115,40 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   // Disable Next if: on last page OR no more orders available
   const isLastPage = currentPage >= totalPages || orders.length < (pagination?.per_page || 5);
 
+  // Close export modal smoothly when user starts scrolling
+  useEffect(() => {
+    if (!reportOpen) return;
 
+    let rafId: number | null = null;
+    let hasScrolled = false;
+
+    const handleScroll = () => {
+      // Only trigger once per scroll session
+      if (hasScrolled) return;
+      hasScrolled = true;
+
+      // Cancel any pending animation frame
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+
+      // Use requestAnimationFrame for smooth visual updates
+      rafId = requestAnimationFrame(() => {
+        setReportOpen(false);
+        rafId = null;
+      });
+    };
+
+    // Listen to scroll events with passive for performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [reportOpen]);
 
   // Mark all unread notifications as read when user navigates OUT of the page
   useEffect(() => {
@@ -299,7 +332,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 <span className="text-xs sm:text-sm">Export</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
+            <PopoverContent className="w-80 mt-2" align="end" side="bottom" sideOffset={8} alignOffset={0} avoidCollisions={true} collisionPadding={20}>
               <section className="space-y-4">
                 <div>
                   <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground mb-1">Export Order Report</p>
