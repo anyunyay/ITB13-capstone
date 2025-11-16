@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +74,14 @@ export default function AllNotificationsPage() {
   const currentUser = page.props.auth?.user;
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
   
+  // Get highlighted notification ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const highlightedNotificationId = urlParams.get('highlight_notification');
+  const notificationRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  
+  console.log('🔍 [Notification Debug] URL:', window.location.href);
+  console.log('🔍 [Notification Debug] Highlighted ID from URL:', highlightedNotificationId);
+  
   // Guard: Redirect if no authenticated user
   if (!currentUser) {
     router.visit('/login');
@@ -87,6 +95,42 @@ export default function AllNotificationsPage() {
   const totalPages = paginatedNotifications.last_page;
   const perPage = paginatedNotifications.per_page;
   const totalItems = paginatedNotifications.total;
+
+  console.log('🔍 [Notification Debug] Total notifications:', notificationData.length);
+  console.log('🔍 [Notification Debug] Notification IDs:', notificationData.map(n => n.id));
+
+  // Scroll to and highlight notification if specified in URL
+  useEffect(() => {
+    console.log('🔍 [Notification Debug] useEffect triggered');
+    console.log('🔍 [Notification Debug] highlightedNotificationId:', highlightedNotificationId);
+    console.log('🔍 [Notification Debug] notificationRefs.current:', Object.keys(notificationRefs.current));
+    
+    if (highlightedNotificationId) {
+      console.log('🔍 [Notification Debug] Looking for notification:', highlightedNotificationId);
+      const element = notificationRefs.current[highlightedNotificationId];
+      console.log('🔍 [Notification Debug] Found element:', element);
+      
+      if (element) {
+        console.log('✅ [Notification Debug] Scrolling to notification:', highlightedNotificationId);
+        // Scroll to the notification with smooth behavior
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        
+        // Remove highlight parameter from URL after 3 seconds
+        setTimeout(() => {
+          console.log('🔍 [Notification Debug] Removing highlight parameter from URL');
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete('highlight_notification');
+          window.history.replaceState({}, '', newUrl.toString());
+        }, 3000);
+      } else {
+        console.log('❌ [Notification Debug] Element not found in refs');
+      }
+    } else {
+      console.log('❌ [Notification Debug] No highlighted notification ID');
+    }
+  }, [highlightedNotificationId, notificationData]);
 
   const handleSelectNotification = (id: string) => {
     setSelectedNotifications(prev => 
@@ -162,52 +206,79 @@ export default function AllNotificationsPage() {
   };
 
   const handleNotificationClick = (notification: Notification) => {
+    console.log('🔔 [Notification Click] Notification:', notification);
+    console.log('🔔 [Notification Click] Type:', notification.type);
+    console.log('🔔 [Notification Click] Data:', notification.data);
+    console.log('🔔 [Notification Click] User Type:', userType);
+    
     try {
       // Handle navigation based on user type and notification type
       if (userType === 'customer') {
         // For customer order-related notifications, navigate to order history with hash
         if (notification.data?.order_id && 
             ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type)) {
-          router.visit(`/customer/orders/history#order-${notification.data.order_id}`);
+          router.visit(`/customer/orders/history?highlight_notification=${notification.id}#order-${notification.data.order_id}`);
         } else if (notification.action_url) {
-          router.visit(notification.action_url);
+          const separator = notification.action_url.includes('?') ? '&' : '?';
+          router.visit(`${notification.action_url}${separator}highlight_notification=${notification.id}`);
         }
       } else if (userType === 'member') {
         // For member notifications, navigate to appropriate member pages
         if (notification.type === 'product_sale') {
-          router.visit('/member/sold-stocks');
+          // For product sale, highlight the transaction if available
+          const transactionId = notification.data?.transaction_id || notification.data?.id;
+          const params = new URLSearchParams({ view: 'transactions' });
+          if (transactionId) {
+            params.append('highlight_transaction', transactionId);
+          }
+          router.visit(`/member/all-stocks?${params.toString()}`);
         } else if (notification.type === 'earnings_update') {
-          router.visit('/member/dashboard');
+          router.visit(`/member/dashboard?highlight_notification=${notification.id}`);
         } else if (notification.type === 'low_stock_alert') {
-          router.visit('/member/available-stocks');
+          // For low stock alert, highlight the stock if available
+          const stockId = notification.data?.stock_id;
+          const productId = notification.data?.product_id;
+          const category = notification.data?.category;
+          const params = new URLSearchParams({ view: 'stocks' });
+          if (stockId) {
+            params.append('highlight_stock', stockId);
+          } else if (productId && category) {
+            params.append('highlight_product', productId);
+            params.append('highlight_category', category);
+          }
+          router.visit(`/member/all-stocks?${params.toString()}`);
         } else if (notification.action_url) {
-          router.visit(notification.action_url);
+          const separator = notification.action_url.includes('?') ? '&' : '?';
+          router.visit(`${notification.action_url}${separator}highlight_notification=${notification.id}`);
         }
       } else if (userType === 'logistic') {
         // For logistic notifications, navigate to appropriate logistic pages
         if (notification.type === 'delivery_task') {
-          router.visit('/logistic/orders');
+          router.visit(`/logistic/orders?highlight_notification=${notification.id}`);
         } else if (notification.type === 'order_status_update') {
-          router.visit('/logistic/orders');
+          router.visit(`/logistic/orders?highlight_notification=${notification.id}`);
         } else if (notification.action_url) {
-          router.visit(notification.action_url);
+          const separator = notification.action_url.includes('?') ? '&' : '?';
+          router.visit(`${notification.action_url}${separator}highlight_notification=${notification.id}`);
         }
       } else if (userType === 'admin' || userType === 'staff') {
         // For admin/staff notifications, navigate to appropriate admin pages
         if (notification.type === 'new_order' && notification.data?.order_id) {
-          router.visit(`/admin/orders?highlight_order=${notification.data.order_id}&status=pending`);
+          router.visit(`/admin/orders?highlight_order=${notification.data.order_id}&status=pending&highlight_notification=${notification.id}`);
         } else if (notification.type === 'inventory_update') {
-          router.visit('/admin/inventory');
+          router.visit(`/admin/inventory?highlight_notification=${notification.id}`);
         } else if (notification.type === 'membership_update') {
-          router.visit('/admin/membership');
+          router.visit(`/admin/membership?highlight_notification=${notification.id}`);
         } else if (notification.type === 'password_change_request') {
-          router.visit('/admin/membership');
+          router.visit(`/admin/membership?highlight_notification=${notification.id}`);
         } else if (notification.action_url) {
-          router.visit(notification.action_url);
+          const separator = notification.action_url.includes('?') ? '&' : '?';
+          router.visit(`${notification.action_url}${separator}highlight_notification=${notification.id}`);
         }
       } else if (notification.action_url) {
         // Fallback for other user types
-        router.visit(notification.action_url);
+        const separator = notification.action_url.includes('?') ? '&' : '?';
+        router.visit(`${notification.action_url}${separator}highlight_notification=${notification.id}`);
       }
     } catch (error) {
       console.error('Error handling notification click:', error);
@@ -357,24 +428,48 @@ export default function AllNotificationsPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-            {notificationData.map((notification) => (
-              <Card 
-                key={notification.id} 
-                className={`border-l-4 border-2 rounded-2xl transition-all hover:shadow-xl group ${
-                  !notification.read_at ? getNotificationColor(notification.type) : 'bg-white border-l-gray-300'
-                } ${
-                  notification.action_url || 
-                  (notification.data?.order_id && 
-                  ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type))
-                    ? 'cursor-pointer hover:bg-gray-50' : ''
-                }`}
-                onClick={() => {
-                  if (!notification.read_at) {
-                    handleMarkAsRead([notification.id]);
-                  }
-                  handleNotificationClick(notification);
-                }}
-              >
+            {notificationData.map((notification) => {
+              // Determine if notification is clickable
+              const isClickable = notification.action_url || 
+                (notification.data?.order_id && 
+                ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type));
+              
+              const isHighlighted = highlightedNotificationId === notification.id;
+              
+              if (isHighlighted) {
+                console.log('🎯 [Notification Debug] Rendering HIGHLIGHTED notification:', notification.id);
+              }
+              
+              return (
+                <Card 
+                  key={notification.id}
+                  ref={(el) => {
+                    if (el) {
+                      notificationRefs.current[notification.id] = el;
+                      if (isHighlighted) {
+                        console.log('📌 [Notification Debug] Ref set for highlighted notification:', notification.id);
+                      }
+                    }
+                  }}
+                  className={`border-l-4 border-2 rounded-2xl transition-all hover:shadow-xl group ${
+                    !notification.read_at ? getNotificationColor(notification.type) : 'bg-white border-l-gray-300'
+                  } ${
+                    isClickable ? 'cursor-pointer hover:bg-gray-50' : ''
+                  } ${
+                    isHighlighted ? 'ring-4 ring-yellow-400 ring-opacity-50 bg-yellow-50 animate-pulse' : ''
+                  }`}
+                  onClick={() => {
+                    // Only navigate if clickable
+                    if (!isClickable) {
+                      return;
+                    }
+                    
+                    if (!notification.read_at) {
+                      handleMarkAsRead([notification.id]);
+                    }
+                    handleNotificationClick(notification);
+                  }}
+                >
                 <CardContent className="p-4 sm:p-5">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 mt-0.5">
@@ -428,7 +523,8 @@ export default function AllNotificationsPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -493,31 +589,61 @@ export default function AllNotificationsPage() {
         </Card>
       ) : (
         <div className="space-y-2">
-          {notificationData.map((notification) => (
-            <Card 
-              key={notification.id} 
-              className={`bg-card border border-border rounded-xl shadow-sm transition-all duration-200 ${
-                !notification.read_at ? 'border-l-4 ' + getNotificationColor(notification.type) : 'border-l-4 border-l-border'
-              } ${
-                notification.action_url || 
-                (notification.data?.order_id && 
-                ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type))
-                  ? 'cursor-pointer hover:shadow-md hover:bg-muted/30' : ''
-              }`}
-              onClick={(e) => {
-                // Don't trigger if clicking on checkbox
-                const target = e.target as HTMLElement;
-                if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
-                  return;
-                }
-                
-                // Mark as read and navigate
-                if (!notification.read_at) {
-                  handleMarkAsRead([notification.id]);
-                }
-                handleNotificationClick(notification);
-              }}
-            >
+          {notificationData.map((notification) => {
+            // Determine if notification is clickable based on user type and notification type
+            const isClickable = notification.action_url || 
+              (userType === 'customer' && notification.data?.order_id && 
+                ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type)) ||
+              (userType === 'member' && 
+                ['product_sale', 'earnings_update', 'low_stock_alert'].includes(notification.type)) ||
+              (userType === 'logistic' && 
+                ['delivery_task', 'order_status_update'].includes(notification.type)) ||
+              ((userType === 'admin' || userType === 'staff') && 
+                ['new_order', 'inventory_update', 'membership_update', 'password_change_request'].includes(notification.type));
+            
+            const isHighlighted = highlightedNotificationId === notification.id;
+            
+            if (isHighlighted) {
+              console.log('🎯 [Notification Debug] Rendering HIGHLIGHTED notification:', notification.id);
+            }
+            
+            return (
+              <Card 
+                key={notification.id}
+                ref={(el) => {
+                  if (el) {
+                    notificationRefs.current[notification.id] = el;
+                    if (isHighlighted) {
+                      console.log('📌 [Notification Debug] Ref set for highlighted notification:', notification.id);
+                    }
+                  }
+                }}
+                className={`bg-card border border-border rounded-xl shadow-sm transition-all duration-200 ${
+                  !notification.read_at ? 'border-l-4 ' + getNotificationColor(notification.type) : 'border-l-4 border-l-border'
+                } ${
+                  isClickable ? 'cursor-pointer hover:shadow-md hover:bg-muted/30' : ''
+                } ${
+                  isHighlighted ? 'ring-4 ring-yellow-400 ring-opacity-50 bg-yellow-50 animate-pulse' : ''
+                }`}
+                onClick={(e) => {
+                  // Don't trigger if clicking on checkbox
+                  const target = e.target as HTMLElement;
+                  if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
+                    return;
+                  }
+                  
+                  // Only navigate if clickable
+                  if (!isClickable) {
+                    return;
+                  }
+                  
+                  // Mark as read and navigate
+                  if (!notification.read_at) {
+                    handleMarkAsRead([notification.id]);
+                  }
+                  handleNotificationClick(notification);
+                }}
+              >
               <CardContent className="p-2.5 sm:p-3">
                 <div className="flex items-start gap-2.5">
                   <div className="flex-shrink-0 mt-0.5">
@@ -571,7 +697,8 @@ export default function AllNotificationsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
