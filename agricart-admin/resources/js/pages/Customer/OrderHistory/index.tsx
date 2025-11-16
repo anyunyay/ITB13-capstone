@@ -80,7 +80,22 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const allNotifications = page.props.notifications || [];
   
   // Show only unread notifications - they will be removed once marked as read
-  const notifications = allNotifications.filter(n => !n.read_at);
+  const unreadNotifications = allNotifications.filter(n => !n.read_at);
+  
+  // Track the initial top 3 notification IDs to prevent refilling
+  const [initialTop3Ids, setInitialTop3Ids] = useState<number[]>([]);
+  
+  // Initialize the top 3 IDs only once on mount
+  useEffect(() => {
+    if (initialTop3Ids.length === 0 && unreadNotifications.length > 0) {
+      const top3Ids = unreadNotifications.slice(0, 3).map(n => n.id);
+      setInitialTop3Ids(top3Ids);
+    }
+  }, []);
+  
+  // Only show notifications that are in the initial top 3 AND still unread
+  const highlightedNotifications = unreadNotifications.filter(n => initialTop3Ids.includes(n.id));
+  const remainingNotifications = unreadNotifications.slice(3);
   
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -359,13 +374,27 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
           </Popover>
         </header>
 
-        {notifications.length > 0 && (
+        {/* Highlighted Section: Top 3 Most Recent Notifications */}
+        {highlightedNotifications.length > 0 && (
           <aside className="mb-3 sm:mb-4 space-y-2" role="alert" aria-live="polite">
-            {notifications.map(n => (
-              <article key={n.id} className={`relative p-2 sm:p-3 pr-10 rounded ${
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm sm:text-base font-semibold text-foreground">Recent Updates</h3>
+              {remainingNotifications.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.visit('/customer/notifications')}
+                  className="text-xs sm:text-sm"
+                >
+                  Show All ({unreadNotifications.length})
+                </Button>
+              )}
+            </div>
+            {highlightedNotifications.map(n => (
+              <article key={n.id} className={`relative p-3 sm:p-4 pr-10 rounded-lg shadow-md border-2 ${
                 n.data?.delivery_status ? 
-                  (n.data.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground') :
-                  (n.data?.status === 'approved' ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground')
+                  (n.data.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground border-primary' : 'bg-accent text-accent-foreground border-accent') :
+                  (n.data?.status === 'approved' ? 'bg-primary text-primary-foreground border-primary' : 'bg-destructive text-destructive-foreground border-destructive')
               }`}>
                 <button
                   onClick={() => handleDismissNotification(n.id)}
@@ -374,8 +403,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <p className="text-xs sm:text-sm md:text-base break-words">
-                  <span className="font-semibold">Order #{n.data?.order_id}:</span> {n.message}
+                <p className="text-xs sm:text-sm md:text-base break-words font-medium">
+                  <span className="font-bold">Order #{n.data?.order_id}:</span> {n.message}
                 </p>
                 {n.data?.sub_message && (
                   <p className="text-xs sm:text-sm opacity-90 mt-1 break-words">{n.data.sub_message}</p>
