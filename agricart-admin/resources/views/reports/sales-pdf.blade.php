@@ -170,7 +170,7 @@
     @endif
 
     <div class="footer">
-        <p>This sales report was generated automatically by the Agricart Admin System.</p>
+        <p>This sales report was generated automatically by the SMMC Admin System.</p>
         <p>For any questions, please contact the administrator.</p>
     </div>
 </body>
