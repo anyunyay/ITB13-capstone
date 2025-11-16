@@ -772,11 +772,6 @@ export default function AllNotificationsPage() {
                         : "You're all caught up. You have no unread notifications."}
                     </p>
                   </div>
-                  {unreadCount > 0 && (
-                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0 hidden sm:flex">
-                      {unreadCount} New
-                    </Badge>
-                  )}
                   <Link href="/logistic/dashboard">
                     <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
                       <ArrowLeft className="h-4 w-4 sm:mr-2" />
@@ -811,11 +806,6 @@ export default function AllNotificationsPage() {
                         : "You're all caught up. You have no unread notifications."}
                     </p>
                   </div>
-                  {unreadCount > 0 && (
-                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0 hidden sm:flex">
-                      {unreadCount} New
-                    </Badge>
-                  )}
                   <Link href="/member/dashboard">
                     <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
                       <ArrowLeft className="h-4 w-4 sm:mr-2" />
