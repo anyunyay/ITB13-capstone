@@ -359,6 +359,7 @@ return [
     'entries' => 'entries',
     'showing' => 'Showing',
     'logs' => 'logs',
+    'items_per_page' => 'Items per page',
     'admin_staff_only_page' => 'This page is only available for Admin and Staff users.',
 
     // Product Pages

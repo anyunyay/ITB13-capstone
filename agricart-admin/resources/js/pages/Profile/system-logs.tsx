@@ -90,7 +90,6 @@ interface SystemLogsProps {
         user_type: string;
         date_from: string;
         date_to: string;
-        per_page: number;
     };
     summary: {
         total_logs: number;
@@ -127,7 +126,6 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [userType, setUserType] = useState(filters.user_type || 'all');
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
-    const [perPage, setPerPage] = useState(filters.per_page || 5);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>(
         filters.date_from ? new Date(filters.date_from) : undefined
@@ -138,6 +136,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
+
+    const perPage = 10; // Fixed items per page
 
     // Date handling functions
     const handleStartDateChange = (date: Date | undefined) => {
@@ -175,9 +175,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         setDateTo('');
         setStartDate(undefined);
         setEndDate(undefined);
-        router.get('/admin/system-logs', {
-            per_page: perPage
-        });
+        router.get('/admin/system-logs');
     };
 
     const eventTypes = [
@@ -224,8 +222,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             event_type: eventType,
             user_type: userType,
             date_from: dateFrom,
-            date_to: dateTo,
-            per_page: perPage
+            date_to: dateTo
         }, {
             preserveState: true,
             onFinish: () => setIsLoading(false)
@@ -911,21 +908,28 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
                         {/* Pagination */}
                         {logs.last_page > 1 && (
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
-                                <div className="text-sm text-muted-foreground">
-                                    {t('ui.showing')} <span className="font-medium">{((logs.current_page - 1) * logs.per_page) + 1}</span> {t('ui.to')}{' '}
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 pt-4 border-t">
+                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                                    {t('ui.showing')} <span className="font-medium">{((logs.current_page - 1) * logs.per_page) + 1}</span>-
                                     <span className="font-medium">{Math.min(logs.current_page * logs.per_page, logs.total)}</span> {t('ui.of')}{' '}
-                                    <span className="font-medium">{logs.total}</span> {t('ui.logs')}
+                                    <span className="font-medium">{logs.total}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                
+                                <div className="flex items-center gap-1">
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => router.get('/admin/system-logs', {
-                                            ...filters,
+                                            search,
+                                            level,
+                                            event_type: eventType,
+                                            user_type: userType,
+                                            date_from: dateFrom,
+                                            date_to: dateTo,
                                             page: 1
                                         })}
                                         disabled={logs.current_page === 1}
+                                        className="h-9 px-3"
                                     >
                                         {t('ui.first')}
                                     </Button>
@@ -933,14 +937,22 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         variant="outline"
                                         size="sm"
                                         onClick={() => router.get('/admin/system-logs', {
-                                            ...filters,
+                                            search,
+                                            level,
+                                            event_type: eventType,
+                                            user_type: userType,
+                                            date_from: dateFrom,
+                                            date_to: dateTo,
                                             page: logs.current_page - 1
                                         })}
                                         disabled={logs.current_page === 1}
+                                        className="h-9 px-3"
                                     >
                                         {t('ui.previous')}
                                     </Button>
-                                    <div className="flex items-center gap-1">
+                                    
+                                    {/* Page numbers - hidden on mobile */}
+                                    <div className="hidden sm:flex items-center gap-1">
                                         {Array.from({ length: Math.min(5, logs.last_page) }, (_, i) => {
                                             let pageNum;
                                             if (logs.last_page <= 5) {
@@ -958,24 +970,41 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     variant={logs.current_page === pageNum ? "default" : "outline"}
                                                     size="sm"
                                                     onClick={() => router.get('/admin/system-logs', {
-                                                        ...filters,
+                                                        search,
+                                                        level,
+                                                        event_type: eventType,
+                                                        user_type: userType,
+                                                        date_from: dateFrom,
+                                                        date_to: dateTo,
                                                         page: pageNum
                                                     })}
-                                                    className="w-9 h-9 p-0"
+                                                    className="h-9 w-9 p-0"
                                                 >
                                                     {pageNum}
                                                 </Button>
                                             );
                                         })}
                                     </div>
+
+                                    {/* Current page indicator - visible on mobile */}
+                                    <div className="sm:hidden px-3 py-1.5 text-sm font-medium">
+                                        {logs.current_page} / {logs.last_page}
+                                    </div>
+                                    
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => router.get('/admin/system-logs', {
-                                            ...filters,
+                                            search,
+                                            level,
+                                            event_type: eventType,
+                                            user_type: userType,
+                                            date_from: dateFrom,
+                                            date_to: dateTo,
                                             page: logs.current_page + 1
                                         })}
                                         disabled={logs.current_page === logs.last_page}
+                                        className="h-9 px-3"
                                     >
                                         {t('ui.next')}
                                     </Button>
@@ -983,10 +1012,16 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         variant="outline"
                                         size="sm"
                                         onClick={() => router.get('/admin/system-logs', {
-                                            ...filters,
+                                            search,
+                                            level,
+                                            event_type: eventType,
+                                            user_type: userType,
+                                            date_from: dateFrom,
+                                            date_to: dateTo,
                                             page: logs.last_page
                                         })}
                                         disabled={logs.current_page === logs.last_page}
+                                        className="h-9 px-3"
                                     >
                                         {t('ui.last')}
                                     </Button>

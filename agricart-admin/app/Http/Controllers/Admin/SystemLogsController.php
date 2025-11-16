@@ -28,8 +28,7 @@ class SystemLogsController extends Controller
             'event_type' => $request->get('event_type', 'all'),
             'user_type' => $request->get('user_type', 'all'),
             'date_from' => $request->get('date_from', ''),
-            'date_to' => $request->get('date_to', ''),
-            'per_page' => $request->get('per_page', 5)
+            'date_to' => $request->get('date_to', '')
         ];
 
         // Get logs from database
@@ -155,8 +154,8 @@ class SystemLogsController extends Controller
             $query->dateRange($filters['date_from'], $filters['date_to']);
         }
         
-        // Paginate results
-        $perPage = (int) $filters['per_page'];
+        // Paginate results with fixed per page value
+        $perPage = 10;
         $logs = $query->orderBy('performed_at', 'desc')->paginate($perPage);
         
         // Format logs for frontend compatibility
