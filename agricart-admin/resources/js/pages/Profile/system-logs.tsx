@@ -151,9 +151,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     };
 
     const getDateRangeDisplay = () => {
-        if (!startDate && !endDate) return 'No date range selected';
-        if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-        if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+        if (!startDate && !endDate) return t('ui.no_date_range');
+        if (startDate && !endDate) return `${t('ui.from')} ${format(startDate, 'MMM dd, yyyy')}`;
+        if (!startDate && endDate) return `${t('ui.until')} ${format(endDate, 'MMM dd, yyyy')}`;
         return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
     };
 
@@ -315,7 +315,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     };
 
     const formatTimestamp = (timestamp: string) => {
-        if (!timestamp) return 'Unknown time';
+        if (!timestamp) return t('ui.unknown_time');
         try {
             return new Date(timestamp).toLocaleString('en-US', {
                 year: 'numeric',
@@ -327,23 +327,23 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 hour12: true
             });
         } catch (e) {
-            return 'Invalid time';
+            return t('ui.invalid_time');
         }
     };
 
     const formatRelativeTime = (timestamp: string) => {
-        if (!timestamp) return 'Unknown time';
+        if (!timestamp) return t('ui.unknown_time');
         try {
             const now = new Date();
             const logTime = new Date(timestamp);
             const diffInSeconds = Math.floor((now.getTime() - logTime.getTime()) / 1000);
 
-            if (diffInSeconds < 60) return 'Just now';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-            return `${Math.floor(diffInSeconds / 86400)}d ago`;
+            if (diffInSeconds < 60) return t('ui.just_now');
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}${t('ui.minutes_ago')}`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}${t('ui.hours_ago')}`;
+            return `${Math.floor(diffInSeconds / 86400)}${t('ui.days_ago')}`;
         } catch (e) {
-            return 'Unknown time';
+            return t('ui.unknown_time');
         }
     };
 
@@ -384,7 +384,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // Action
         if (log.context.action) {
             details.push({
-                label: 'Action',
+                label: t('ui.action'),
                 value: log.context.action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
                 icon: <Settings className="h-4 w-4" />
             });
@@ -393,7 +393,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // Admin ID
         if (log.context.admin_id) {
             details.push({
-                label: 'Admin ID',
+                label: t('ui.admin_id'),
                 value: log.context.admin_id.toString(),
                 icon: <User className="h-4 w-4" />
             });
@@ -402,7 +402,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // User Type
         if (log.context.user_type) {
             details.push({
-                label: 'User Type',
+                label: t('ui.user_type'),
                 value: log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1),
                 icon: <Users className="h-4 w-4" />
             });
@@ -411,7 +411,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // Event Type
         if (log.context.event_type) {
             details.push({
-                label: 'Event Type',
+                label: t('ui.event_type'),
                 value: log.context.event_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
                 icon: <Activity className="h-4 w-4" />
             });
@@ -420,7 +420,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // IP Address
         if (log.context.ip_address) {
             details.push({
-                label: 'IP Address',
+                label: t('ui.ip_address'),
                 value: log.context.ip_address,
                 icon: <Shield className="h-4 w-4" />
             });
@@ -432,8 +432,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 .map(([key, value]) => `${key}: ${value}`)
                 .join(', ');
             details.push({
-                label: 'Filters Applied',
-                value: filters || 'None',
+                label: t('ui.filters_applied'),
+                value: filters || t('ui.none'),
                 icon: <Filter className="h-4 w-4" />
             });
         }
@@ -441,7 +441,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         // Total Logs Viewed
         if (log.context.total_logs_viewed !== undefined) {
             details.push({
-                label: 'Total Logs Viewed',
+                label: t('ui.total_logs_viewed'),
                 value: log.context.total_logs_viewed.toString(),
                 icon: <Database className="h-4 w-4" />
             });
@@ -579,7 +579,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         <CardTitle className="text-xl">{t('ui.advanced_filters')}</CardTitle>
                                         {hasActiveFilters() && (
                                             <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                                                Active
+                                                {t('ui.active')}
                                             </Badge>
                                         )}
                                     </div>
@@ -587,7 +587,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         {hasActiveFilters() && (
                                             <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
                                                 <X className="h-4 w-4" />
-                                                Clear Filters
+                                                {t('ui.clear_filters')}
                                             </Button>
                                         )}
                                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
@@ -615,7 +615,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                                                <h4 className="font-semibold text-primary mb-1">{t('ui.selected_date_range')}</h4>
                                                 <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                                             </div>
                                             <Button
@@ -630,7 +630,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 className="text-xs"
                                             >
                                                 <X className="h-3 w-3 mr-1" />
-                                                Clear
+                                                {t('ui.clear')}
                                             </Button>
                                         </div>
                                     </div>
@@ -640,7 +640,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                     {/* Start Date */}
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-medium">Start Date</Label>
+                                        <Label className="text-sm font-medium">{t('ui.start_date')}</Label>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
@@ -648,7 +648,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                                                    {startDate ? format(startDate, "MMM dd, yyyy") : t('ui.pick_start_date')}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -665,7 +665,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
                                     {/* End Date */}
                                     <div className="space-y-2">
-                                        <Label className="text-sm font-medium">End Date</Label>
+                                        <Label className="text-sm font-medium">{t('ui.end_date')}</Label>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
@@ -673,7 +673,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                                                    {endDate ? format(endDate, "MMM dd, yyyy") : t('ui.pick_end_date')}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -783,7 +783,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     >
                                                         {getEventTypeIcon(log.context.event_type || '')}
                                                         <span className="text-xs font-medium">
-                                                            {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown Event'}
+                                                            {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_event')}
                                                         </span>
                                                     </Badge>
                                                 </div>
@@ -804,10 +804,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                User
+                                                                {t('ui.user')}
                                                             </div>
                                                             <div className="text-sm font-medium text-foreground truncate">
-                                                                {log.context.user_email || `User #${log.context.user_id}` || 'System'}
+                                                                {log.context.user_email || (log.context.user_id ? `${t('ui.user')} #${log.context.user_id}` : t('ui.system'))}
                                                             </div>
                                                             {log.context.user_type && (
                                                                 <Badge variant="secondary" className="mt-1 text-xs">
@@ -824,10 +824,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                Action
+                                                                {t('ui.action')}
                                                             </div>
                                                             <div className="text-sm font-medium text-foreground">
-                                                                {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown Action'}
+                                                                {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_action')}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -842,7 +842,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                Date & Time
+                                                                {t('ui.date_time')}
                                                             </div>
                                                             <div className="text-sm font-medium text-foreground">
                                                                 {formatTimestamp(log.context.timestamp || log.created_at)}
@@ -858,7 +858,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                    Location (IP Address)
+                                                                    {t('ui.location_ip')}
                                                                 </div>
                                                                 <div className="text-sm font-medium text-foreground font-mono">
                                                                     {log.context.ip_address}
@@ -877,10 +877,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                                                            Details
+                                                            {t('ui.details')}
                                                         </div>
                                                         <div className="text-sm text-foreground leading-relaxed">
-                                                            {log.message || 'No additional details available'}
+                                                            {log.message || t('ui.no_details_available')}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -913,9 +913,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         {logs.last_page > 1 && (
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
                                 <div className="text-sm text-muted-foreground">
-                                    Showing <span className="font-medium">{((logs.current_page - 1) * logs.per_page) + 1}</span> to{' '}
-                                    <span className="font-medium">{Math.min(logs.current_page * logs.per_page, logs.total)}</span> of{' '}
-                                    <span className="font-medium">{logs.total}</span> logs
+                                    {t('ui.showing')} <span className="font-medium">{((logs.current_page - 1) * logs.per_page) + 1}</span> {t('ui.to')}{' '}
+                                    <span className="font-medium">{Math.min(logs.current_page * logs.per_page, logs.total)}</span> {t('ui.of')}{' '}
+                                    <span className="font-medium">{logs.total}</span> {t('ui.logs')}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button
@@ -927,7 +927,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         })}
                                         disabled={logs.current_page === 1}
                                     >
-                                        First
+                                        {t('ui.first')}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -938,7 +938,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         })}
                                         disabled={logs.current_page === 1}
                                     >
-                                        Previous
+                                        {t('ui.previous')}
                                     </Button>
                                     <div className="flex items-center gap-1">
                                         {Array.from({ length: Math.min(5, logs.last_page) }, (_, i) => {
@@ -977,7 +977,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         })}
                                         disabled={logs.current_page === logs.last_page}
                                     >
-                                        Next
+                                        {t('ui.next')}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -988,7 +988,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         })}
                                         disabled={logs.current_page === logs.last_page}
                                     >
-                                        Last
+                                        {t('ui.last')}
                                     </Button>
                                 </div>
                             </div>
@@ -1027,7 +1027,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                     variant="outline"
                                                     className={`${getEventTypeColor(selectedLog.context.event_type || '')}`}
                                                 >
-                                                    {selectedLog.context.event_type?.replace('_', ' ') || 'Unknown Event'}
+                                                    {selectedLog.context.event_type?.replace('_', ' ') || t('ui.unknown_event')}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -1040,7 +1040,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         <div>
                                             <label className="text-sm font-medium text-muted-foreground">{t('ui.user_type')}</label>
                                             <p className="mt-1 text-sm text-foreground">
-                                                {selectedLog.context.user_type || 'N/A'}
+                                                {selectedLog.context.user_type || t('ui.not_available')}
                                             </p>
                                         </div>
                                     </div>
