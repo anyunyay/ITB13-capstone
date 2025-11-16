@@ -60,10 +60,12 @@ Successfully refactored the System Logs page (`resources/js/pages/Profile/system
 
 The main `system-logs.tsx` file now:
 - Imports all components from `@/components/system-logs/`
+- Uses Dashboard Header component matching admin interface design
 - Maintains all state management logic
 - Handles all event handlers (filter, export, refresh, view change)
 - Passes props to child components
 - Remains fully functional with identical behavior
+- Follows the same layout pattern as other admin pages
 
 ## Key Features Preserved
 
@@ -115,6 +117,8 @@ The main `system-logs.tsx` file now:
 4. **Readability** - Main file reduced from ~1000+ lines to ~400 lines
 5. **Scalability** - Easy to add new features or modify existing ones
 6. **Type Safety** - All components are fully typed with TypeScript
+7. **Consistency** - Matches the admin dashboard header design pattern
+8. **Professional UI** - Gradient header with icon, responsive layout, and hover effects
 
 ## File Structure
 
@@ -159,3 +163,38 @@ All existing functionality remains unchanged:
 - Same user interactions
 - Same visual design
 - Same responsive behavior
+
+
+## Dashboard Header Update
+
+The System Logs page now uses the same Dashboard Header pattern as other admin pages:
+
+### Header Features:
+- **Gradient Background** - Subtle gradient from card color to primary-tinted card
+- **Icon Badge** - FileText icon in a rounded badge with primary color background
+- **Title & Description** - Large title with descriptive subtitle
+- **Action Buttons** - Refresh and Export buttons with hover effects
+- **Responsive Design** - Adapts to mobile, tablet, and desktop screens
+- **Consistent Styling** - Matches the admin dashboard interface
+
+### Visual Improvements:
+- Professional gradient background with shadow
+- Icon badge with primary color accent
+- Hover effects on buttons (translate-y and shadow)
+- Proper spacing and padding for all screen sizes
+- Consistent border radius and border styling
+
+### Layout Structure:
+```
+min-h-screen bg-background
+└── w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8
+    ├── Dashboard Header (gradient card)
+    │   ├── Icon Badge + Title + Description
+    │   └── Action Buttons (Refresh, Export)
+    ├── Summary Cards
+    ├── Log Filters
+    ├── Logs Display (Card/Table)
+    └── Log Details Modal
+```
+
+This update ensures the System Logs page feels like a native part of the admin interface rather than a separate profile page.

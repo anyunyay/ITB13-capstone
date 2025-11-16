@@ -4,7 +4,7 @@ import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, RefreshCw, Activity, Database, LayoutGrid, Table as TableIcon } from 'lucide-react';
+import { Download, RefreshCw, Activity, Database, LayoutGrid, Table as TableIcon, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { SummaryCards } from '@/components/system-logs/summary-cards';
 import { LogFilters } from '@/components/system-logs/log-filters';
@@ -263,34 +263,37 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         <>
             <Head title={t('ui.system_logs')} />
 
-            {/* Header with Actions */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-foreground">{t('ui.system_logs')}</h2>
-                    <p className="text-sm text-muted-foreground">{t('ui.monitor_system_activities')}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRefresh}
-                        disabled={isLoading}
-                    >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                        {t('ui.refresh')}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleExport}
-                    >
-                        <Download className="h-4 w-4 mr-2" />
-                        {t('ui.export')}
-                    </Button>
+            {/* Dashboard Header */}
+            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
+                <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                <FileText className="h-4 w-4 sm:h-6 sm:w-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">{t('ui.system_logs')}</h1>
+                                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                    {t('ui.monitor_system_activities')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                        <Button 
+                            variant="outline" 
+                            className="bg-background text-foreground border border-border px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg"
+                            onClick={handleRefresh}
+                            disabled={isLoading}
+                        >
+                            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                            <span className="text-sm sm:text-base">{t('ui.refresh')}</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-4 md:space-y-6">
+            <div className="space-y-2">
                 {/* Summary Cards */}
                 <SummaryCards summary={summary} />
 
@@ -424,8 +427,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     // System logs is admin/staff only, so we only need AppSidebarLayout
     return (
         <AppSidebarLayout>
-            <div className="p-4 sm:p-6 lg:p-8">
-                {pageContent}
+            <div className="min-h-screen bg-background">
+                <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+                    {pageContent}
+                </div>
             </div>
         </AppSidebarLayout>
     );
