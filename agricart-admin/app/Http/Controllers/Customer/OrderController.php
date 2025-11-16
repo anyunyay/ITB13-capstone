@@ -396,10 +396,19 @@ class OrderController extends Controller
 
     private function exportToPdf($orders, $summary)
     {
+        // Encode logo as base64 for PDF embedding
+        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $imageData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+        }
+
         $html = view('reports.customer-orders-pdf', [
             'orders' => $orders,
             'summary' => $summary,
-            'generated_at' => now()->format('Y-m-d H:i:s')
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'logo_base64' => $logoBase64
         ])->render();
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
