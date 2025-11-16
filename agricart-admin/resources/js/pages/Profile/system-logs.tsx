@@ -14,6 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import {
     Search,
@@ -305,6 +306,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         setCurrentView(view);
         const newPerPage = view === 'cards' ? 4 : 10;
         setIsLoading(true);
+        
+        // Save current scroll position
+        const scrollPosition = window.scrollY;
+        
         router.get('/admin/system-logs', {
             search,
             level,
@@ -316,7 +321,12 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             page: 1 // Reset to first page when changing view
         }, {
             preserveState: true,
-            onFinish: () => setIsLoading(false)
+            preserveScroll: true,
+            onFinish: () => {
+                setIsLoading(false);
+                // Restore scroll position after view change
+                window.scrollTo(0, scrollPosition);
+            }
         });
     };
 
@@ -541,6 +551,12 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             default:
                 return 'bg-muted text-foreground border-border';
         }
+    };
+
+    const truncateMessage = (message: string, maxLength: number = 50) => {
+        if (!message) return '';
+        if (message.length <= maxLength) return message;
+        return message.substring(0, maxLength) + '…';
     };
 
     const pageContent = (
@@ -1066,12 +1082,31 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         key: 'message',
                                         label: t('ui.message'),
                                         align: 'left',
-                                        className: 'min-w-[250px] max-w-[400px]',
-                                        render: (log) => (
-                                            <div className="text-sm text-foreground line-clamp-2">
-                                                {log.message || t('ui.no_details_available')}
-                                            </div>
-                                        )
+                                        className: 'min-w-[180px] max-w-[250px]',
+                                        render: (log) => {
+                                            const message = log.message || t('ui.no_details_available');
+                                            const truncated = truncateMessage(message, 50);
+                                            const needsTooltip = message.length > 50;
+
+                                            return needsTooltip ? (
+                                                <TooltipProvider>
+                                                    <Tooltip delayDuration={200}>
+                                                        <TooltipTrigger asChild>
+                                                            <div className="text-sm text-foreground cursor-help hover:text-primary transition-colors">
+                                                                {truncated}
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top" className="max-w-md p-3">
+                                                            <p className="text-sm whitespace-pre-wrap">{message}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            ) : (
+                                                <div className="text-sm text-foreground">
+                                                    {message}
+                                                </div>
+                                            );
+                                        }
                                     },
                                     {
                                         key: 'timestamp',
