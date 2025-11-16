@@ -18,9 +18,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class InventoryController extends Controller
 {
     public function index()
-    { 
+    {
         // Optimize queries with selective loading and limits
-        
+
         // Load products with only essential fields, defer expensive stock calculations
         $products = Product::active()
             ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
@@ -33,33 +33,33 @@ class InventoryController extends Controller
                 });
                 return $product;
             });
-            
+
         $archivedProducts = Product::archived()
             ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
             ->orderBy('name')
             ->get();
-            
+
         // Optimize stock loading with selective fields and efficient relations
         $stocks = Stock::active()
             ->with([
-                'product' => function($query) {
+                'product' => function ($query) {
                     $query->select('id', 'name', 'produce_type');
                 },
-                'member' => function($query) {
+                'member' => function ($query) {
                     $query->select('id', 'name');
                 }
             ])
             ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'notes', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
-            
+
         // Significantly reduce historical data payload
         $removedStocks = Stock::removed()
             ->with([
-                'product' => function($query) {
+                'product' => function ($query) {
                     $query->select('id', 'name');
                 },
-                'member' => function($query) {
+                'member' => function ($query) {
                     $query->select('id', 'name');
                 }
             ])
@@ -67,13 +67,13 @@ class InventoryController extends Controller
             ->orderBy('removed_at', 'desc')
             ->limit(20) // Reduced from 50
             ->get();
-            
+
         $soldStocks = Stock::sold()
             ->with([
-                'product' => function($query) {
+                'product' => function ($query) {
                     $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
                 },
-                'member' => function($query) {
+                'member' => function ($query) {
                     $query->select('id', 'name');
                 }
             ])
@@ -81,32 +81,32 @@ class InventoryController extends Controller
             ->orderBy('updated_at', 'desc')
             ->limit(20) // Reduced from 50
             ->get();
-            
+
         // Drastically reduce stock trails for initial load
         $stockTrails = StockTrail::with([
-                'product' => function($query) {
-                    $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
-                },
-                'member' => function($query) {
-                    $query->select('id', 'name');
-                },
-                'performedByUser' => function($query) {
-                    $query->select('id', 'name');
-                }
-            ])
+            'product' => function ($query) {
+                $query->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali');
+            },
+            'member' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'performedByUser' => function ($query) {
+                $query->select('id', 'name');
+            }
+        ])
             ->select('id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'created_at')
             ->orderBy('created_at', 'desc')
             ->limit(30) // Reduced from 200
             ->get();
-            
+
         // Cache categories to avoid repeated queries
         $categories = cache()->remember('product_categories', 3600, function () {
             return Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
         });
-        
+
         // Pass empty array for auditTrails to maintain compatibility with frontend
         $auditTrails = [];
-        
+
         return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
     }
 
@@ -144,8 +144,8 @@ class InventoryController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 $fullImagePath = $fileService->uploadFile(
-                    $request->file('image'), 
-                    'products', 
+                    $request->file('image'),
+                    'products',
                     $request->input('name')
                 );
                 // Store only the filename, not the full path
@@ -189,7 +189,6 @@ class InventoryController extends Controller
                 'type' => 'success',
                 'message' => 'Inventory item created successfully'
             ]);
-
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
                 'image' => 'Failed to upload image: ' . $e->getMessage()
@@ -295,7 +294,6 @@ class InventoryController extends Controller
                 'type' => 'success',
                 'message' => 'Product updated successfully'
             ]);
-
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
                 'image' => 'Failed to update image: ' . $e->getMessage()
@@ -329,7 +327,7 @@ class InventoryController extends Controller
 
         // Delete the image file using the file service
         $product->deleteImageFile();
-        
+
         $product->delete();
         return redirect()->route('inventory.index')->with('flash', [
             'type' => 'success',
@@ -354,13 +352,15 @@ class InventoryController extends Controller
         $search = $request->get('search');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+        $paperSize = $request->get('paper_size', 'A4'); // A4, Letter, Legal, A3
+        $orientation = $request->get('orientation', 'landscape'); // portrait, landscape
 
         // Optimize: Load only essential fields for reporting
         $query = Stock::with([
-            'product' => function($query) {
+            'product' => function ($query) {
                 $query->select('id', 'name', 'produce_type');
             },
-            'member' => function($query) {
+            'member' => function ($query) {
                 $query->select('id', 'name');
             }
         ])->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'created_at', 'removed_at', 'notes');
@@ -385,7 +385,7 @@ class InventoryController extends Controller
 
         // Filter by product type
         if ($productType !== 'all') {
-            $query->whereHas('product', function($q) use ($productType) {
+            $query->whereHas('product', function ($q) use ($productType) {
                 $q->where('produce_type', $productType);
             });
         }
@@ -400,13 +400,13 @@ class InventoryController extends Controller
 
         // Search functionality
         if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->whereHas('product', function($productQuery) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('product', function ($productQuery) use ($search) {
                     $productQuery->where('name', 'like', "%{$search}%")
-                                 ->orWhere('description', 'like', "%{$search}%");
-                })->orWhereHas('member', function($memberQuery) use ($search) {
+                        ->orWhere('description', 'like', "%{$search}%");
+                })->orWhereHas('member', function ($memberQuery) use ($search) {
                     $memberQuery->where('name', 'like', "%{$search}%")
-                               ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             });
         }
@@ -446,7 +446,7 @@ class InventoryController extends Controller
         if ($format === 'csv') {
             return $this->exportToCsv($stocks, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($stocks, $summary, $display);
+            return $this->exportToPdf($stocks, $summary, $display, $paperSize, $orientation);
         }
 
         // Get unique values for filter dropdowns (cached for performance)
@@ -480,7 +480,7 @@ class InventoryController extends Controller
     private function exportToCsv($stocks, $summary, $display = false)
     {
         $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         if ($display) {
             // For display mode, return as plain text to show in browser
             $headers = [
@@ -495,7 +495,7 @@ class InventoryController extends Controller
             ];
         }
 
-        $callback = function() use ($stocks, $summary) {
+        $callback = function () use ($stocks, $summary) {
             $file = fopen('php://output', 'w');
 
             // Write stock data headers
@@ -526,19 +526,30 @@ class InventoryController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($stocks, $summary, $display = false)
+    private function exportToPdf($stocks, $summary, $display = false, $paperSize = 'A4', $orientation = 'landscape')
     {
+        // Encode logo as base64 for PDF embedding
+        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $imageData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+        }
+
         $html = view('reports.inventory-pdf', [
             'stocks' => $stocks,
             'summary' => $summary,
-            'generated_at' => now()->format('Y-m-d H:i:s')
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'logo_base64' => $logoBase64
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        $pdf->setPaper('A4', 'landscape');
-        
+
+        // Set paper size and orientation (supports: A4, Letter, Legal, A3, etc.)
+        $pdf->setPaper($paperSize, $orientation);
+
         $filename = 'inventory_report_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
     }
 
@@ -550,7 +561,7 @@ class InventoryController extends Controller
         // For the first update, use immediate original prices
         // For subsequent updates, we need to find the truly original prices
         // by looking at the first price history record that was created at product creation time
-        
+
         // Get all price history records ordered by creation time
         $allPriceHistories = $product->priceHistories()
             ->orderBy('created_at', 'asc')
@@ -566,13 +577,15 @@ class InventoryController extends Controller
         // that was created when the product was first created.
         // We can identify this by checking if it matches the immediate original prices
         // (which represent the prices before the current update)
-        
+
         // If the first record matches the immediate original prices, then the immediate original
         // prices are the truly original prices
         $firstRecord = $allPriceHistories->first();
-        if ($firstRecord->price_kilo == $immediateOriginal['price_kilo'] &&
+        if (
+            $firstRecord->price_kilo == $immediateOriginal['price_kilo'] &&
             $firstRecord->price_pc == $immediateOriginal['price_pc'] &&
-            $firstRecord->price_tali == $immediateOriginal['price_tali']) {
+            $firstRecord->price_tali == $immediateOriginal['price_tali']
+        ) {
             return $immediateOriginal;
         }
 
@@ -590,7 +603,7 @@ class InventoryController extends Controller
     private function getPreviousDayPrices(Product $product)
     {
         $yesterday = now()->subDay()->toDateString();
-        
+
         // Get the most recent price trend record from yesterday
         $yesterdayPriceTrend = PriceTrend::where('product_name', $product->name)
             ->whereDate('date', $yesterday)
@@ -627,7 +640,7 @@ class InventoryController extends Controller
     private function handlePriceTrendUpdate(Product $product, array $originalPrices)
     {
         $today = now()->toDateString();
-        
+
         // Check if there are price trend records for today
         $todayPriceTrends = PriceTrend::where('product_name', $product->name)
             ->whereDate('date', $today)
@@ -635,7 +648,7 @@ class InventoryController extends Controller
 
         // Only check for reversion if there are existing price trend records for today
         $shouldCheckReversion = $todayPriceTrends->isNotEmpty();
-        
+
         if ($shouldCheckReversion) {
             // For same-day reversion detection, get the previous day's prices as reference
             $previousDayPrices = $this->getPreviousDayPrices($product);
