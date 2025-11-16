@@ -75,6 +75,9 @@ export default function AllNotificationsPage() {
   const currentUser = page.props.auth?.user;
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
   
+  // Local state to track read notifications for immediate UI updates
+  const [localNotifications, setLocalNotifications] = useState<Notification[]>(paginatedNotifications.data);
+  
   // Get highlighted notification ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const highlightedNotificationId = urlParams.get('highlight_notification');
@@ -88,7 +91,29 @@ export default function AllNotificationsPage() {
   
   const userType = currentUser.type;
 
-  const notificationData = paginatedNotifications.data;
+  // Update local notifications when props change, but preserve local read states
+  useEffect(() => {
+    setLocalNotifications(prevLocal => {
+      // Create a map of locally read notifications
+      const localReadMap = new Map(
+        prevLocal
+          .filter(n => n.read_at)
+          .map(n => [n.id, n.read_at])
+      );
+      
+      // Merge server data with local read states
+      return paginatedNotifications.data.map(serverNotif => {
+        const localReadAt = localReadMap.get(serverNotif.id);
+        // Use server's read_at if it exists, otherwise use local read_at
+        return {
+          ...serverNotif,
+          read_at: serverNotif.read_at || localReadAt
+        };
+      });
+    });
+  }, [paginatedNotifications.data]);
+
+  const notificationData = localNotifications;
   const currentPage = paginatedNotifications.current_page;
   const totalPages = paginatedNotifications.last_page;
   const perPage = paginatedNotifications.per_page;
@@ -190,6 +215,47 @@ export default function AllNotificationsPage() {
 
   const handleNotificationClick = (notification: Notification) => {
     try {
+      // Mark notification as read immediately in local state for instant UI feedback
+      if (!notification.read_at) {
+        setLocalNotifications(prev => 
+          prev.map(n => 
+            n.id === notification.id 
+              ? { ...n, read_at: new Date().toISOString() }
+              : n
+          )
+        );
+        
+        // Mark as read in the backend using Inertia
+        const routePrefix = userType === 'admin' || userType === 'staff' 
+          ? '/admin/notifications'
+          : userType === 'member'
+          ? '/member/notifications'
+          : userType === 'logistic'
+          ? '/logistic/notifications'
+          : '/customer/notifications';
+        
+        // Use Inertia router to mark as read (this ensures proper state management)
+        router.post(`${routePrefix}/mark-read`, 
+          { ids: [notification.id] },
+          {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['paginatedNotifications'], // Only reload notification data
+            onError: (errors) => {
+              console.error('Error marking notification as read:', errors);
+              // Revert local state on error
+              setLocalNotifications(prev => 
+                prev.map(n => 
+                  n.id === notification.id 
+                    ? { ...n, read_at: undefined }
+                    : n
+                )
+              );
+            }
+          }
+        );
+      }
+      
       // Handle navigation based on user type and notification type
       if (userType === 'customer') {
         // For customer order-related notifications, navigate to order history with hash
@@ -454,9 +520,6 @@ export default function AllNotificationsPage() {
                       return;
                     }
                     
-                    if (!notification.read_at) {
-                      handleMarkAsRead([notification.id]);
-                    }
                     handleNotificationClick(notification);
                   }}
                 >
@@ -620,10 +683,6 @@ export default function AllNotificationsPage() {
                     return;
                   }
                   
-                  // Mark as read and navigate
-                  if (!notification.read_at) {
-                    handleMarkAsRead([notification.id]);
-                  }
                   handleNotificationClick(notification);
                 }}
               >
