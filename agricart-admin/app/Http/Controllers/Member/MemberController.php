@@ -20,13 +20,6 @@ class MemberController extends Controller
     {
         $user = Auth::user();
 
-        // Log member dashboard access
-        SystemLogger::logMemberActivity(
-            'dashboard_access',
-            $user->id,
-            ['ip_address' => request()->ip()]
-        );
-
         // Pagination parameters
         $availablePage = $request->get('available_page', 1);
         $soldPage = $request->get('sold_page', 1);
@@ -620,19 +613,6 @@ class MemberController extends Controller
         $endDate = $request->get('end_date');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
-
-        // Log report generation
-        SystemLogger::logReportGeneration(
-            'member_revenue_report',
-            $user->id,
-            'member',
-            [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'format' => $format,
-                'display_mode' => $display
-            ]
-        );
 
         // Get only delivered sales that involve stocks from this member
         $query = Sales::with(['salesAudit.auditTrail.product', 'customer'])

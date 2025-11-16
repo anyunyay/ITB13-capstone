@@ -2,32 +2,32 @@
 
 namespace App\Helpers;
 
+use App\Models\SystemLog;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class SystemLogger
 {
     /**
-     * Determine if an action should be logged based on importance and suspiciousness
+     * Determine if an action should be logged based on importance
+     * Only log critical user activities: data changes, security events, and unauthorized access
      */
     private static function shouldLogAction($eventType, $action, $context = [])
     {
-        // Always log security events
+        // Always log security events (password changes, email changes, phone changes, etc.)
         if ($eventType === 'security_event') {
             return true;
         }
         
-        // Always log authentication failures and account lockouts
+        // Only log authentication failures and wrong portal attempts (security concerns)
         if ($eventType === 'authentication') {
             $event = $context['event'] ?? '';
-            if (in_array($event, ['login_failed', 'logout'])) {
+            // Log failed logins and wrong portal access (unauthorized access attempts)
+            if (in_array($event, ['login_failed', 'login_failed_wrong_portal'])) {
                 return true;
             }
-            // Only log successful logins if they're suspicious (multiple attempts, unusual location, etc.)
-            if ($event === 'login_success') {
-                $isLocked = $context['is_locked'] ?? false;
-                $attemptsRemaining = $context['attempts_remaining'] ?? null;
-                return $isLocked || ($attemptsRemaining !== null && $attemptsRemaining < 3);
-            }
+            // Don't log successful logins or logouts (routine activities)
+            return false;
         }
         
         // Always log critical errors
@@ -35,73 +35,49 @@ class SystemLogger
             return true;
         }
         
-        // Log important business transactions
+        // Log important business transactions (data changes)
         if (in_array($eventType, ['checkout', 'order_status_change', 'stock_update'])) {
             return true;
         }
         
-        // Log user management actions (create, delete, role changes)
+        // Log user management actions - only create, delete, and permission changes (data changes)
         if ($eventType === 'user_management') {
-            $importantActions = ['create', 'delete', 'role_change', 'activate', 'deactivate'];
+            $importantActions = ['create', 'delete', 'create_staff', 'delete_staff', 'update_staff', 'role_change', 'permission_change'];
             return in_array($action, $importantActions);
         }
         
-        // Log product management actions (create, delete, significant updates)
+        // Log product management actions - only create, delete, and updates (data changes)
         if ($eventType === 'product_management') {
-            $importantActions = ['create', 'delete', 'price_change', 'stock_critical'];
-            return in_array($action, $importantActions);
+            return true; // All product changes are important
         }
         
-        // Log delivery status changes
+        // Log delivery status changes (data changes)
         if ($eventType === 'delivery_status_change') {
             return true;
         }
         
-        // Log maintenance activities
+        // Log maintenance activities (system changes)
         if ($eventType === 'maintenance') {
             return true;
         }
         
-        // Log report generation and data export
-        if (in_array($eventType, ['report_generation', 'data_export'])) {
+        // Log data exports (sensitive data access)
+        if ($eventType === 'data_export') {
             return true;
         }
         
-        // Log admin activities only for important actions
-        if ($eventType === 'admin_activity') {
-            $importantActions = [
-                'system_logs_access', 'user_management', 'product_management', 
-                'order_management', 'financial_reports', 'system_settings',
-                'backup_created', 'maintenance_mode', 'security_settings'
-            ];
-            return in_array($action, $importantActions);
+        // Don't log report generation (routine activity)
+        if ($eventType === 'report_generation') {
+            return false;
         }
         
-        // Log member activities only for important actions
-        if ($eventType === 'member_activity') {
-            $importantActions = ['transactions_access', 'financial_data_access', 'sensitive_operations'];
-            return in_array($action, $importantActions);
+        // Don't log routine admin, member, staff, customer, or logistic activities
+        // (dashboard access, page views, etc. are not important)
+        if (in_array($eventType, ['admin_activity', 'member_activity', 'staff_activity', 'customer_activity', 'logistic_activity'])) {
+            return false;
         }
         
-        // Log staff activities only for important actions
-        if ($eventType === 'staff_activity') {
-            $importantActions = ['order_processing', 'inventory_management', 'customer_support', 'financial_operations'];
-            return in_array($action, $importantActions);
-        }
-        
-        // Log customer activities only for important actions
-        if ($eventType === 'customer_activity') {
-            $importantActions = ['checkout', 'payment', 'sensitive_data_access'];
-            return in_array($action, $importantActions);
-        }
-        
-        // Log logistic activities only for important actions
-        if ($eventType === 'logistic_activity') {
-            $importantActions = ['delivery_management', 'inventory_management', 'financial_operations'];
-            return in_array($action, $importantActions);
-        }
-        
-        // Don't log routine page access, dashboard views, or normal browsing
+        // Don't log anything else by default
         return false;
     }
     
@@ -296,26 +272,55 @@ class SystemLogger
     }
     
     /**
-     * Log with human-readable formatting (only if action is important)
+     * Log with human-readable formatting and save to database (only if action is important)
      */
     private static function logFormatted($level, $message, $context = [])
     {
         $eventType = $context['event_type'] ?? '';
-        $action = $context['action'] ?? '';
+        $action = $context['action'] ?? $context['event'] ?? '';
         
         // Check if this action should be logged
         if (!self::shouldLogAction($eventType, $action, $context)) {
             return; // Skip logging for routine actions
         }
         
+        // Format the human-readable details
         $formattedContext = self::formatLogContext($context, $message);
-        $formattedMessage = $message;
+        $details = !empty($formattedContext) ? $formattedContext[0] : $message;
         
+        // Extract user information
+        $userId = $context['user_id'] ?? $context['admin_id'] ?? $context['staff_id'] ?? $context['member_id'] ?? $context['customer_id'] ?? $context['logistic_id'] ?? null;
+        $userEmail = $context['user_email'] ?? null;
+        
+        // Get user email from database if not provided
+        if ($userId && !$userEmail) {
+            $user = User::find($userId);
+            $userEmail = $user ? $user->email : null;
+        }
+        
+        // Save to database
+        try {
+            SystemLog::create([
+                'user_id' => $userId,
+                'user_email' => $userEmail,
+                'user_type' => $context['user_type'] ?? $context['performed_by_user_type'] ?? null,
+                'action' => $action,
+                'event_type' => $eventType,
+                'details' => $details,
+                'ip_address' => $context['ip_address'] ?? request()->ip(),
+                'context' => $context,
+                'performed_at' => isset($context['timestamp']) ? \Carbon\Carbon::parse($context['timestamp']) : now(),
+            ]);
+        } catch (\Exception $e) {
+            // If database logging fails, fall back to file logging
+            Log::channel('system')->error('Failed to save log to database: ' . $e->getMessage());
+        }
+        
+        // Also log to file for backup
+        $formattedMessage = $message;
         if (!empty($formattedContext)) {
             $formattedMessage .= " | " . implode(' | ', $formattedContext);
         }
-        
-        // Log only the formatted message without JSON context
         Log::channel('system')->$level($formattedMessage);
     }
     /**

@@ -208,14 +208,6 @@ class AuthenticatedSessionController extends Controller
 
         $user->ensurePermissions();
 
-        // Log successful customer login
-        SystemLogger::logAuthentication(
-            'login_success',
-            $user->id,
-            'customer',
-            ['ip_address' => $request->ip()]
-        );
-
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
             // User already has an active session, redirect to restriction page
@@ -269,14 +261,6 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user->ensurePermissions();
-
-        // Log successful admin/staff login
-        SystemLogger::logAuthentication(
-            'login_success',
-            $user->id,
-            $user->type,
-            ['ip_address' => $request->ip()]
-        );
 
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
@@ -333,13 +317,6 @@ class AuthenticatedSessionController extends Controller
         $user->ensurePermissions();
 
         // Log successful member login
-        SystemLogger::logAuthentication(
-            'login_success',
-            $user->id,
-            'member',
-            ['ip_address' => $request->ip()]
-        );
-
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
             // User already has an active session, redirect to restriction page
@@ -395,13 +372,6 @@ class AuthenticatedSessionController extends Controller
         $user->ensurePermissions();
 
         // Log successful logistic login
-        SystemLogger::logAuthentication(
-            'login_success',
-            $user->id,
-            'logistic',
-            ['ip_address' => $request->ip()]
-        );
-
         // Check if user already has an active session
         if ($user->hasActiveSession() && $user->isSessionValid()) {
             // User already has an active session, redirect to restriction page
@@ -426,16 +396,8 @@ class AuthenticatedSessionController extends Controller
     {
         $user = Auth::user();
         
-        // Log logout event
+        // Clear the current session ID from the user record
         if ($user) {
-            SystemLogger::logAuthentication(
-                'logout',
-                $user->id,
-                $user->type,
-                ['ip_address' => $request->ip()]
-            );
-            
-            // Clear the current session ID from the user record
             $user->clearCurrentSession();
         }
 

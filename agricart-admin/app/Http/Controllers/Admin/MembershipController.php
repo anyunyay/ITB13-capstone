@@ -347,22 +347,6 @@ class MembershipController extends Controller
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
 
-        // Log report generation
-        SystemLogger::logReportGeneration(
-            'membership_report',
-            request()->user()->id,
-            request()->user()->type,
-            [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'search' => $search,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
-                'format' => $format,
-                'display' => $display
-            ]
-        );
-
         $query = User::where('type', 'member');
 
         // Filter by registration date range
