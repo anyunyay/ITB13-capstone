@@ -138,7 +138,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
-    
+
     // Initialize view based on backend per_page value
     const initialView = logs.per_page === 10 ? 'table' : 'cards';
     const [currentView, setCurrentView] = useState<'cards' | 'table'>(initialView);
@@ -156,23 +156,23 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             const mobile = window.innerWidth < 768;
             const wasDesktop = !previousMobile;
             const isNowMobile = mobile;
-            
+
             setIsMobile(mobile);
             setPreviousMobile(mobile);
-            
+
             // Only force card view when transitioning from desktop to mobile
             // and currently in table view
             if (wasDesktop && isNowMobile && currentView === 'table') {
                 setCurrentView('cards');
             }
         };
-        
+
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        
+
         return () => window.removeEventListener('resize', checkMobile);
     }, []); // Empty dependency array - only set up once
-    
+
     // Separate effect to handle view changes when mobile state changes
     useEffect(() => {
         // Force card view on mobile
@@ -200,12 +200,12 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     };
 
     const hasActiveFilters = () => {
-        return search !== '' || 
-               level !== 'all' || 
-               eventType !== 'all' || 
-               userType !== 'all' || 
-               dateFrom !== '' || 
-               dateTo !== '';
+        return search !== '' ||
+            level !== 'all' ||
+            eventType !== 'all' ||
+            userType !== 'all' ||
+            dateFrom !== '' ||
+            dateTo !== '';
     };
 
     const clearFilters = () => {
@@ -574,65 +574,65 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card className="border-l-4 border-l-blue-500">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.total_logs')}</p>
-                                    <p className="text-3xl font-bold text-foreground">{summary.total_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.all_system_activities')}</p>
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+                    <Card className="border-l-2 md:border-l-4 border-l-blue-500">
+                        <CardContent className="p-2 sm:p-4 md:p-6">
+                            <div className="flex flex-col gap-1.5 sm:gap-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground truncate pr-1">{t('ui.total_logs')}</p>
+                                    <div className="p-1.5 sm:p-2 md:p-3 rounded-full bg-blue-100 flex-shrink-0">
+                                        <Database className="h-3.5 w-3.5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-blue-600" />
+                                    </div>
                                 </div>
-                                <div className="p-3 rounded-full bg-blue-100">
-                                    <Database className="h-6 w-6 text-blue-600" />
-                                </div>
+                                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground leading-none">{summary.total_logs.toLocaleString()}</p>
+                                <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">{t('ui.all_system_activities')}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-green-500">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.todays_activity')}</p>
-                                    <p className="text-3xl font-bold text-foreground">{summary.today_logs.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.recent_activity')}</p>
+                    <Card className="border-l-2 md:border-l-4 border-l-green-500">
+                        <CardContent className="p-2 sm:p-4 md:p-6">
+                            <div className="flex flex-col gap-1.5 sm:gap-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground truncate pr-1">{t('ui.todays_activity')}</p>
+                                    <div className="p-1.5 sm:p-2 md:p-3 rounded-full bg-green-100 flex-shrink-0">
+                                        <Activity className="h-3.5 w-3.5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-green-600" />
+                                    </div>
                                 </div>
-                                <div className="p-3 rounded-full bg-green-100">
-                                    <Activity className="h-6 w-6 text-green-600" />
-                                </div>
+                                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground leading-none">{summary.today_logs.toLocaleString()}</p>
+                                <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">{t('ui.recent_activity')}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-red-500">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.errors')}</p>
-                                    <p className="text-3xl font-bold text-red-600">{summary.error_count.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.issues_detected')}</p>
+                    <Card className="border-l-2 md:border-l-4 border-l-red-500">
+                        <CardContent className="p-2 sm:p-4 md:p-6">
+                            <div className="flex flex-col gap-1.5 sm:gap-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground truncate pr-1">{t('ui.errors')}</p>
+                                    <div className="p-1.5 sm:p-2 md:p-3 rounded-full bg-red-100 flex-shrink-0">
+                                        <AlertCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-red-600" />
+                                    </div>
                                 </div>
-                                <div className="p-3 rounded-full bg-red-100">
-                                    <AlertCircle className="h-6 w-6 text-red-600" />
-                                </div>
+                                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-red-600 leading-none">{summary.error_count.toLocaleString()}</p>
+                                <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">{t('ui.issues_detected')}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-purple-500">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground mb-1">{t('ui.active_users')}</p>
-                                    <p className="text-3xl font-bold text-foreground">{summary.unique_users.toLocaleString()}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">{t('ui.unique_users')}</p>
+                    <Card className="border-l-2 md:border-l-4 border-l-purple-500">
+                        <CardContent className="p-2 sm:p-4 md:p-6">
+                            <div className="flex flex-col gap-1.5 sm:gap-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground truncate pr-1">{t('ui.active_users')}</p>
+                                    <div className="p-1.5 sm:p-2 md:p-3 rounded-full bg-purple-100 flex-shrink-0">
+                                        <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-purple-600" />
+                                    </div>
                                 </div>
-                                <div className="p-3 rounded-full bg-purple-100">
-                                    <Users className="h-6 w-6 text-purple-600" />
-                                </div>
+                                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground leading-none">{summary.unique_users.toLocaleString()}</p>
+                                <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">{t('ui.unique_users')}</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -707,95 +707,100 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                 )}
 
                                 {/* Filter Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                    {/* Start Date */}
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-medium">{t('ui.start_date')}</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? format(startDate, "MMM dd, yyyy") : t('ui.pick_start_date')}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <CalendarComponent
-                                                    mode="single"
-                                                    selected={startDate}
-                                                    onSelect={handleStartDateChange}
-                                                    initialFocus
-                                                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
+                                <div className="space-y-4 mb-6">
+                                    {/* Date Range Row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Start Date */}
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">{t('ui.start_date')}</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {startDate ? format(startDate, "MMM dd, yyyy") : t('ui.pick_start_date')}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <CalendarComponent
+                                                        mode="single"
+                                                        selected={startDate}
+                                                        onSelect={handleStartDateChange}
+                                                        initialFocus
+                                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+
+                                        {/* End Date */}
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">{t('ui.end_date')}</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {endDate ? format(endDate, "MMM dd, yyyy") : t('ui.pick_end_date')}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <CalendarComponent
+                                                        mode="single"
+                                                        selected={endDate}
+                                                        onSelect={handleEndDateChange}
+                                                        initialFocus
+                                                        disabled={(date) => {
+                                                            if (date > new Date()) return true;
+                                                            if (startDate && date < startDate) return true;
+                                                            return false;
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
                                     </div>
 
-                                    {/* End Date */}
-                                    <div className="space-y-2">
-                                        <Label className="text-sm font-medium">{t('ui.end_date')}</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? format(endDate, "MMM dd, yyyy") : t('ui.pick_end_date')}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <CalendarComponent
-                                                    mode="single"
-                                                    selected={endDate}
-                                                    onSelect={handleEndDateChange}
-                                                    initialFocus
-                                                    disabled={(date) => {
-                                                        if (date > new Date()) return true;
-                                                        if (startDate && date < startDate) return true;
-                                                        return false;
-                                                    }}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
+                                    {/* Event Type and User Type Row - 2 columns on mobile, 2 columns on desktop */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Event Type */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="event_type" className="text-sm font-medium">{t('ui.event_type')}</Label>
+                                            <Select value={eventType} onValueChange={setEventType}>
+                                                <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {eventTypes.map((type) => (
+                                                        <SelectItem key={type.value} value={type.value}>
+                                                            {type.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                    {/* Event Type */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="event_type" className="text-sm font-medium">{t('ui.event_type')}</Label>
-                                        <Select value={eventType} onValueChange={setEventType}>
-                                            <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {eventTypes.map((type) => (
-                                                    <SelectItem key={type.value} value={type.value}>
-                                                        {type.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        {/* User Type */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="user_type" className="text-sm font-medium">{t('ui.user_type')}</Label>
+                                            <Select value={userType} onValueChange={setUserType}>
+                                                <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {userTypes.map((type) => (
+                                                        <SelectItem key={type.value} value={type.value}>
+                                                            {type.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
-
-                                    {/* User Type */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="user_type" className="text-sm font-medium">{t('ui.user_type')}</Label>
-                                        <Select value={userType} onValueChange={setUserType}>
-                                            <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {userTypes.map((type) => (
-                                                    <SelectItem key={type.value} value={type.value}>
-                                                        {type.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
                                 </div>
 
                                 {/* Apply Filters Button */}
@@ -811,7 +816,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 </Card>
 
                 {/* Logs Display */}
-                <Card>
+                <Card className="gap-2">
                     <CardHeader>
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
@@ -857,141 +862,141 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                             </div>
                         ) : currentView === 'cards' || isMobile ? (
                             /* Card View */
-                            <div className="space-y-3">
+                            <div className="space-y-2">
                                 {logs.data.map((log) => (
-                                        <div key={log.id} className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white">
-                                            {/* Header with badges and time */}
-                                            <div className="flex items-center justify-between mb-3 pb-2 border-b">
-                                                <div className="flex items-center space-x-2">
-                                                    {getLevelIcon(log.level)}
-                                                    {getLevelBadge(log.level)}
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={`flex items-center gap-1 ${getEventTypeColor(log.context.event_type || '')}`}
-                                                    >
-                                                        {getEventTypeIcon(log.context.event_type || '')}
-                                                        <span className="text-xs font-medium">
-                                                            {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_event')}
-                                                        </span>
-                                                    </Badge>
-                                                </div>
-                                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                    <Clock className="h-3 w-3" />
-                                                    <span>{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
-                                                </div>
+                                    <div key={log.id} className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white">
+                                        {/* Header with badges and time */}
+                                        <div className="flex items-center justify-between mb-3 pb-2 border-b">
+                                            <div className="flex items-center space-x-2">
+                                                {getLevelIcon(log.level)}
+                                                {getLevelBadge(log.level)}
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`flex items-center gap-1 ${getEventTypeColor(log.context.event_type || '')}`}
+                                                >
+                                                    {getEventTypeIcon(log.context.event_type || '')}
+                                                    <span className="text-xs font-medium">
+                                                        {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_event')}
+                                                    </span>
+                                                </Badge>
                                             </div>
-
-                                            {/* Two-column layout for compact display */}
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                                                {/* Column 1: User and Action */}
-                                                <div className="space-y-3">
-                                                    {/* User */}
-                                                    <div className="flex items-start gap-2">
-                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-100 text-blue-600 flex-shrink-0">
-                                                            <User className="h-3.5 w-3.5" />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                {t('ui.user')}
-                                                            </div>
-                                                            <div className="text-sm font-medium text-foreground truncate">
-                                                                {log.context.user_email || (log.context.user_id ? `${t('ui.user')} #${log.context.user_id}` : t('ui.system'))}
-                                                            </div>
-                                                            {log.context.user_type && (
-                                                                <Badge variant="secondary" className="mt-1 text-xs">
-                                                                    {log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1)}
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Action */}
-                                                    <div className="flex items-start gap-2">
-                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-green-100 text-green-600 flex-shrink-0">
-                                                            <Activity className="h-3.5 w-3.5" />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                {t('ui.action')}
-                                                            </div>
-                                                            <div className="text-sm font-medium text-foreground">
-                                                                {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_action')}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Column 2: Date & Time and Location */}
-                                                <div className="space-y-3">
-                                                    {/* Date & Time */}
-                                                    <div className="flex items-start gap-2">
-                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-purple-100 text-purple-600 flex-shrink-0">
-                                                            <Calendar className="h-3.5 w-3.5" />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                {t('ui.date_time')}
-                                                            </div>
-                                                            <div className="text-sm font-medium text-foreground">
-                                                                {formatTimestamp(log.context.timestamp || log.created_at)}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Location (IP Address) */}
-                                                    {log.context.ip_address && (
-                                                        <div className="flex items-start gap-2">
-                                                            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-orange-100 text-orange-600 flex-shrink-0">
-                                                                <MapPin className="h-3.5 w-3.5" />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
-                                                                    {t('ui.location_ip')}
-                                                                </div>
-                                                                <div className="text-sm font-medium text-foreground font-mono">
-                                                                    {log.context.ip_address}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
+                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                <Clock className="h-3 w-3" />
+                                                <span>{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
                                             </div>
+                                        </div>
 
-                                            {/* Full-width Details section */}
-                                            <div className="pt-3 border-t">
+                                        {/* Two-column layout for compact display */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                            {/* Column 1: User and Action */}
+                                            <div className="space-y-3">
+                                                {/* User */}
                                                 <div className="flex items-start gap-2">
-                                                    <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gray-100 text-gray-600 flex-shrink-0">
-                                                        <FileText className="h-3.5 w-3.5" />
+                                                    <div className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-100 text-blue-600 flex-shrink-0">
+                                                        <User className="h-3.5 w-3.5" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                                                            {t('ui.details')}
+                                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                            {t('ui.user')}
                                                         </div>
-                                                        <div className="text-sm text-foreground leading-relaxed">
-                                                            {log.message || t('ui.no_details_available')}
+                                                        <div className="text-sm font-medium text-foreground truncate">
+                                                            {log.context.user_email || (log.context.user_id ? `${t('ui.user')} #${log.context.user_id}` : t('ui.system'))}
+                                                        </div>
+                                                        {log.context.user_type && (
+                                                            <Badge variant="secondary" className="mt-1 text-xs">
+                                                                {log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1)}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Action */}
+                                                <div className="flex items-start gap-2">
+                                                    <div className="flex items-center justify-center w-7 h-7 rounded-md bg-green-100 text-green-600 flex-shrink-0">
+                                                        <Activity className="h-3.5 w-3.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                            {t('ui.action')}
+                                                        </div>
+                                                        <div className="text-sm font-medium text-foreground">
+                                                            {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_action')}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* View Technical Details Button */}
-                                            {Object.keys(log.context).length > 6 && (
-                                                <div className="mt-3 pt-3 border-t">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            setSelectedLog(log);
-                                                            setShowDetails(true);
-                                                        }}
-                                                        className="w-full text-xs"
-                                                    >
-                                                        <Eye className="h-3.5 w-3.5 mr-1.5" />
-                                                        {t('ui.view_technical_details')}
-                                                    </Button>
+                                            {/* Column 2: Date & Time and Location */}
+                                            <div className="space-y-3">
+                                                {/* Date & Time */}
+                                                <div className="flex items-start gap-2">
+                                                    <div className="flex items-center justify-center w-7 h-7 rounded-md bg-purple-100 text-purple-600 flex-shrink-0">
+                                                        <Calendar className="h-3.5 w-3.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                            {t('ui.date_time')}
+                                                        </div>
+                                                        <div className="text-sm font-medium text-foreground">
+                                                            {formatTimestamp(log.context.timestamp || log.created_at)}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            )}
+
+                                                {/* Location (IP Address) */}
+                                                {log.context.ip_address && (
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-orange-100 text-orange-600 flex-shrink-0">
+                                                            <MapPin className="h-3.5 w-3.5" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                                {t('ui.location_ip')}
+                                                            </div>
+                                                            <div className="text-sm font-medium text-foreground font-mono">
+                                                                {log.context.ip_address}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+
+                                        {/* Full-width Details section */}
+                                        <div className="pt-3 border-t">
+                                            <div className="flex items-start gap-2">
+                                                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gray-100 text-gray-600 flex-shrink-0">
+                                                    <FileText className="h-3.5 w-3.5" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                                                        {t('ui.details')}
+                                                    </div>
+                                                    <div className="text-sm text-foreground leading-relaxed">
+                                                        {log.message || t('ui.no_details_available')}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* View Technical Details Button */}
+                                        {Object.keys(log.context).length > 6 && (
+                                            <div className="mt-3 pt-3 border-t">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setSelectedLog(log);
+                                                        setShowDetails(true);
+                                                    }}
+                                                    className="w-full text-xs"
+                                                >
+                                                    <Eye className="h-3.5 w-3.5 mr-1.5" />
+                                                    {t('ui.view_technical_details')}
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -1121,9 +1126,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     }
                                 ]}
                                 keyExtractor={(log) => log.id}
-                                getRowClassName={(log) => 
-                                    log.level === 'error' ? 'bg-red-50/50' : 
-                                    log.level === 'warning' ? 'bg-yellow-50/50' : ''
+                                getRowClassName={(log) =>
+                                    log.level === 'error' ? 'bg-red-50/50' :
+                                        log.level === 'warning' ? 'bg-yellow-50/50' : ''
                                 }
                             />
                         )}
@@ -1136,7 +1141,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     <span className="font-medium">{Math.min(logs.current_page * logs.per_page, logs.total)}</span> {t('ui.of')}{' '}
                                     <span className="font-medium">{logs.total}</span>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-1">
                                     <Button
                                         variant="outline"
@@ -1174,7 +1179,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     >
                                         {t('ui.previous')}
                                     </Button>
-                                    
+
                                     {/* Page numbers - hidden on mobile */}
                                     <div className="hidden sm:flex items-center gap-1">
                                         {Array.from({ length: Math.min(5, logs.last_page) }, (_, i) => {
@@ -1215,7 +1220,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     <div className="sm:hidden px-3 py-1.5 text-sm font-medium">
                                         {logs.current_page} / {logs.last_page}
                                     </div>
-                                    
+
                                     <Button
                                         variant="outline"
                                         size="sm"
