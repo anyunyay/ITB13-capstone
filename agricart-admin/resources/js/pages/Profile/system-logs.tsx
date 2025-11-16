@@ -138,25 +138,48 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
-    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+    
+    // Initialize view based on backend per_page value
+    const initialView = logs.per_page === 10 ? 'table' : 'cards';
+    const [currentView, setCurrentView] = useState<'cards' | 'table'>(initialView);
     const [isMobile, setIsMobile] = useState(false);
+    const [previousMobile, setPreviousMobile] = useState(false);
 
-    // Detect mobile screen size
+    // Dynamic items per page based on view type and screen size
+    // Desktop: 4 cards in card view, 10 rows in table view
+    // Mobile: 4 cards only (table view hidden)
+    const perPage = currentView === 'cards' ? 4 : 10;
+
+    // Detect mobile screen size and handle view changes
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
+            const mobile = window.innerWidth < 768;
+            const wasDesktop = !previousMobile;
+            const isNowMobile = mobile;
+            
+            setIsMobile(mobile);
+            setPreviousMobile(mobile);
+            
+            // Only force card view when transitioning from desktop to mobile
+            // and currently in table view
+            if (wasDesktop && isNowMobile && currentView === 'table') {
+                setCurrentView('cards');
+            }
         };
         
         checkMobile();
         window.addEventListener('resize', checkMobile);
         
         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    // Dynamic items per page based on view type and screen size
-    const perPage = currentView === 'cards' 
-        ? (isMobile ? 4 : 8) 
-        : (isMobile ? 5 : 10);
+    }, []); // Empty dependency array - only set up once
+    
+    // Separate effect to handle view changes when mobile state changes
+    useEffect(() => {
+        // Force card view on mobile
+        if (isMobile && currentView === 'table') {
+            setCurrentView('cards');
+        }
+    }, [isMobile]); // Only depend on isMobile, not currentView
 
     // Date handling functions
     const handleStartDateChange = (date: Date | undefined) => {
@@ -194,7 +217,9 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
         setDateTo('');
         setStartDate(undefined);
         setEndDate(undefined);
-        router.get('/admin/system-logs');
+        router.get('/admin/system-logs', {
+            per_page: perPage
+        });
     };
 
     const eventTypes = [
@@ -241,7 +266,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
             event_type: eventType,
             user_type: userType,
             date_from: dateFrom,
-            date_to: dateTo
+            date_to: dateTo,
+            per_page: perPage
         }, {
             preserveState: true,
             onFinish: () => setIsLoading(false)
@@ -261,7 +287,35 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
     const handleRefresh = () => {
         setIsLoading(true);
-        router.reload({
+        router.get('/admin/system-logs', {
+            search,
+            level,
+            event_type: eventType,
+            user_type: userType,
+            date_from: dateFrom,
+            date_to: dateTo,
+            per_page: perPage
+        }, {
+            preserveState: true,
+            onFinish: () => setIsLoading(false)
+        });
+    };
+
+    const handleViewChange = (view: 'cards' | 'table') => {
+        setCurrentView(view);
+        const newPerPage = view === 'cards' ? 4 : 10;
+        setIsLoading(true);
+        router.get('/admin/system-logs', {
+            search,
+            level,
+            event_type: eventType,
+            user_type: userType,
+            date_from: dateFrom,
+            date_to: dateTo,
+            per_page: newPerPage,
+            page: 1 // Reset to first page when changing view
+        }, {
+            preserveState: true,
             onFinish: () => setIsLoading(false)
         });
     };
@@ -775,16 +829,18 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     <Button
                                         variant={currentView === 'cards' ? 'default' : 'outline'}
                                         size="sm"
-                                        onClick={() => setCurrentView('cards')}
+                                        onClick={() => handleViewChange('cards')}
                                         className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+                                        disabled={isLoading}
                                     >
                                         <LayoutGrid className="h-4 w-4" />
                                     </Button>
                                     <Button
                                         variant={currentView === 'table' ? 'default' : 'outline'}
                                         size="sm"
-                                        onClick={() => setCurrentView('table')}
+                                        onClick={() => handleViewChange('table')}
                                         className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+                                        disabled={isLoading}
                                     >
                                         <TableIcon className="h-4 w-4" />
                                     </Button>
@@ -1092,6 +1148,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             user_type: userType,
                                             date_from: dateFrom,
                                             date_to: dateTo,
+                                            per_page: perPage,
                                             page: 1
                                         })}
                                         disabled={logs.current_page === 1}
@@ -1109,6 +1166,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             user_type: userType,
                                             date_from: dateFrom,
                                             date_to: dateTo,
+                                            per_page: perPage,
                                             page: logs.current_page - 1
                                         })}
                                         disabled={logs.current_page === 1}
@@ -1142,6 +1200,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                         user_type: userType,
                                                         date_from: dateFrom,
                                                         date_to: dateTo,
+                                                        per_page: perPage,
                                                         page: pageNum
                                                     })}
                                                     className="h-9 w-9 p-0"
@@ -1167,6 +1226,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             user_type: userType,
                                             date_from: dateFrom,
                                             date_to: dateTo,
+                                            per_page: perPage,
                                             page: logs.current_page + 1
                                         })}
                                         disabled={logs.current_page === logs.last_page}
@@ -1184,6 +1244,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                             user_type: userType,
                                             date_from: dateFrom,
                                             date_to: dateTo,
+                                            per_page: perPage,
                                             page: logs.last_page
                                         })}
                                         disabled={logs.current_page === logs.last_page}

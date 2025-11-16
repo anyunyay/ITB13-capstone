@@ -31,8 +31,16 @@ class SystemLogsController extends Controller
             'date_to' => $request->get('date_to', '')
         ];
 
+        // Get per_page parameter from request (default to 4 for card view)
+        $perPage = $request->get('per_page', 4);
+        
+        // Validate per_page value (must be 4 or 10)
+        if (!in_array($perPage, [4, 10])) {
+            $perPage = 4;
+        }
+
         // Get logs from database
-        $logs = $this->getLogsFromDatabase($filters);
+        $logs = $this->getLogsFromDatabase($filters, $perPage);
         
         // Calculate summary statistics
         $summary = $this->calculateSummary();
@@ -136,7 +144,7 @@ class SystemLogsController extends Controller
     /**
      * Get logs from database with filtering and pagination
      */
-    private function getLogsFromDatabase(array $filters)
+    private function getLogsFromDatabase(array $filters, int $perPage = 10)
     {
         $query = SystemLog::with('user');
         
@@ -154,8 +162,7 @@ class SystemLogsController extends Controller
             $query->dateRange($filters['date_from'], $filters['date_to']);
         }
         
-        // Paginate results with fixed per page value
-        $perPage = 10;
+        // Paginate results with dynamic per page value
         $logs = $query->orderBy('performed_at', 'desc')->paginate($perPage);
         
         // Format logs for frontend compatibility
