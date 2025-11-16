@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 // import { ScrollArea } from '@/components/ui/scroll-area'; // Component not available
 import {
     Search,
@@ -35,8 +38,12 @@ import {
     TrendingUp,
     Users,
     AlertCircle,
-    MapPin
+    MapPin,
+    X,
+    ChevronDown,
+    CalendarIcon
 } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface LogEntry {
     id: string;
@@ -121,9 +128,57 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
     const [perPage, setPerPage] = useState(filters.per_page || 5);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [startDate, setStartDate] = useState<Date | undefined>(
+        filters.date_from ? new Date(filters.date_from) : undefined
+    );
+    const [endDate, setEndDate] = useState<Date | undefined>(
+        filters.date_to ? new Date(filters.date_to) : undefined
+    );
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
+
+    // Date handling functions
+    const handleStartDateChange = (date: Date | undefined) => {
+        setStartDate(date);
+        setDateFrom(date ? format(date, 'yyyy-MM-dd') : '');
+    };
+
+    const handleEndDateChange = (date: Date | undefined) => {
+        setEndDate(date);
+        setDateTo(date ? format(date, 'yyyy-MM-dd') : '');
+    };
+
+    const getDateRangeDisplay = () => {
+        if (!startDate && !endDate) return 'No date range selected';
+        if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
+        if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+        return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    };
+
+    const hasActiveFilters = () => {
+        return search !== '' || 
+               level !== 'all' || 
+               eventType !== 'all' || 
+               userType !== 'all' || 
+               dateFrom !== '' || 
+               dateTo !== '';
+    };
+
+    const clearFilters = () => {
+        setSearch('');
+        setLevel('all');
+        setEventType('all');
+        setUserType('all');
+        setDateFrom('');
+        setDateTo('');
+        setStartDate(undefined);
+        setEndDate(undefined);
+        router.get('/admin/system-logs', {
+            per_page: perPage
+        });
+    };
 
     const eventTypes = [
         { value: 'all', label: t('ui.all_events') },
@@ -513,117 +568,176 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                     </Card>
                 </div>
 
-                {/* Filters */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
-                            {t('ui.filters')}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div>
-                                <Label htmlFor="search">{t('ui.search')}</Label>
-                                <Input
-                                    id="search"
-                                    placeholder={t('ui.search_logs')}
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
-                            </div>
+                {/* Advanced Filters - Collapsible */}
+                <Card className="shadow-sm">
+                    <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+                        <CollapsibleTrigger asChild>
+                            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Filter className="h-5 w-5 text-primary" />
+                                        <CardTitle className="text-xl">{t('ui.advanced_filters')}</CardTitle>
+                                        {hasActiveFilters() && (
+                                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                                                Active
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {hasActiveFilters() && (
+                                            <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                                                <X className="h-4 w-4" />
+                                                Clear Filters
+                                            </Button>
+                                        )}
+                                        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                                    </div>
+                                </div>
+                            </CardHeader>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <CardContent>
+                                {/* Search Bar */}
+                                <div className="mb-6">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                        <Input
+                                            placeholder={t('ui.search_logs')}
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
+                                        />
+                                    </div>
+                                </div>
 
-                            <div>
-                                <Label htmlFor="level">{t('ui.log_level')}</Label>
-                                <Select value={level} onValueChange={setLevel}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {levels.map((levelOption) => (
-                                            <SelectItem key={levelOption.value} value={levelOption.value}>
-                                                {levelOption.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                {/* Date Range Summary */}
+                                {(startDate || endDate) && (
+                                    <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                                                <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setStartDate(undefined);
+                                                    setEndDate(undefined);
+                                                    setDateFrom('');
+                                                    setDateTo('');
+                                                }}
+                                                className="text-xs"
+                                            >
+                                                <X className="h-3 w-3 mr-1" />
+                                                Clear
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
 
-                            <div>
-                                <Label htmlFor="event_type">{t('ui.event_type')}</Label>
-                                <Select value={eventType} onValueChange={setEventType}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {eventTypes.map((type) => (
-                                            <SelectItem key={type.value} value={type.value}>
-                                                {type.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                {/* Filter Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                    {/* Start Date */}
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium">Start Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {startDate ? format(startDate, "MMM dd, yyyy") : "Pick a start date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                    mode="single"
+                                                    selected={startDate}
+                                                    onSelect={handleStartDateChange}
+                                                    initialFocus
+                                                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="user_type">{t('ui.user_type')}</Label>
-                                <Select value={userType} onValueChange={setUserType}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {userTypes.map((type) => (
-                                            <SelectItem key={type.value} value={type.value}>
-                                                {type.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                    {/* End Date */}
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium">End Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground focus:border-primary"
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {endDate ? format(endDate, "MMM dd, yyyy") : "Pick an end date"}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <CalendarComponent
+                                                    mode="single"
+                                                    selected={endDate}
+                                                    onSelect={handleEndDateChange}
+                                                    initialFocus
+                                                    disabled={(date) => {
+                                                        if (date > new Date()) return true;
+                                                        if (startDate && date < startDate) return true;
+                                                        return false;
+                                                    }}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="date_from">{t('ui.from_date')}</Label>
-                                <Input
-                                    id="date_from"
-                                    type="date"
-                                    value={dateFrom}
-                                    onChange={(e) => setDateFrom(e.target.value)}
-                                />
-                            </div>
+                                    {/* Event Type */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="event_type" className="text-sm font-medium">{t('ui.event_type')}</Label>
+                                        <Select value={eventType} onValueChange={setEventType}>
+                                            <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {eventTypes.map((type) => (
+                                                    <SelectItem key={type.value} value={type.value}>
+                                                        {type.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="date_to">{t('ui.to_date')}</Label>
-                                <Input
-                                    id="date_to"
-                                    type="date"
-                                    value={dateTo}
-                                    onChange={(e) => setDateTo(e.target.value)}
-                                />
-                            </div>
+                                    {/* User Type */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="user_type" className="text-sm font-medium">{t('ui.user_type')}</Label>
+                                        <Select value={userType} onValueChange={setUserType}>
+                                            <SelectTrigger className="border-border rounded-lg bg-background text-foreground focus:border-primary">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {userTypes.map((type) => (
+                                                    <SelectItem key={type.value} value={type.value}>
+                                                        {type.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="per_page">{t('ui.per_page')}</Label>
-                                <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="5">5</SelectItem>
-                                        <SelectItem value="10">10</SelectItem>
-                                        <SelectItem value="25">25</SelectItem>
-                                        <SelectItem value="50">50</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                </div>
 
-                            <div className="flex items-end">
-                                <Button onClick={handleFilter} className="w-full">
-                                    <Search className="h-4 w-4 mr-2" />
-                                    {t('ui.apply_filters')}
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
+                                {/* Apply Filters Button */}
+                                <div className="flex justify-end">
+                                    <Button onClick={handleFilter} className="px-6">
+                                        <Search className="h-4 w-4 mr-2" />
+                                        {t('ui.apply_filters')}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </Card>
 
                 {/* Logs Display */}
