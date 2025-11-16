@@ -370,13 +370,13 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                         </div>
 
                         {/* Action Buttons for Email/Phone Changes */}
-                        <div className="flex flex-wrap gap-2 pt-3 border-t">
+                        <div className="grid grid-cols-2 gap-2 pt-3 border-t">
                             {user?.type !== 'member' && (
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => setIsEmailChangeModalOpen(true)}
-                                    className="flex items-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                    className="w-full flex items-center justify-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
                                 >
                                     <Mail className="h-3.5 w-3.5" />
                                     Change Email
@@ -386,7 +386,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsPhoneChangeModalOpen(true)}
-                                className="flex items-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                className={`w-full flex items-center justify-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105 ${user?.type === 'member' ? 'col-span-2' : ''}`}
                             >
                                 <Phone className="h-3.5 w-3.5" />
                                 Change Contact
