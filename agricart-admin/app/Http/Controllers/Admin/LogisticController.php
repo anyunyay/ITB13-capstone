@@ -192,6 +192,8 @@ class LogisticController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+        $paperSize = $request->get('paper_size', 'A4'); // A4, Letter, Legal, A3
+        $orientation = $request->get('orientation', 'landscape'); // portrait, landscape
 
         // Validate sort parameters
         $allowedSortFields = ['id', 'name', 'status', 'registration_date', 'email_verified_at'];
@@ -261,7 +263,7 @@ class LogisticController extends Controller
         if ($format === 'csv') {
             return $this->exportToCsv($logistics, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($logistics, $display);
+            return $this->exportToPdf($logistics, $display, $paperSize, $orientation);
         }
 
         // Return view for display
@@ -330,15 +332,26 @@ class LogisticController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportToPdf($logistics, $display = false)
+    private function exportToPdf($logistics, $display = false, $paperSize = 'A4', $orientation = 'landscape')
     {
+        // Encode logo as base64 for PDF embedding
+        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $imageData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+        }
+
         $html = view('reports.logistics-pdf', [
             'logistics' => $logistics,
-            'generated_at' => now()->format('Y-m-d H:i:s')
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'logo_base64' => $logoBase64
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        $pdf->setPaper('A4', 'landscape');
+        
+        // Set paper size and orientation (supports: A4, Letter, Legal, A3, etc.)
+        $pdf->setPaper($paperSize, $orientation);
 
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
 
