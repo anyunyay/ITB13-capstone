@@ -53,12 +53,6 @@ export default function PasswordPage() {
         return score;
     };
 
-    const getStrengthColor = (score: number) => {
-        if (score <= 2) return 'bg-red-500';
-        if (score <= 3) return 'bg-yellow-500';
-        return 'bg-green-500';
-    };
-
     const getStrengthText = (score: number) => {
         if (score <= 2) return t('ui.weak');
         if (score <= 3) return t('ui.medium');
@@ -92,23 +86,23 @@ export default function PasswordPage() {
     const pageContent = user.type === 'customer' ? (
         // Customer Design - Clean & Modern
         <div className="space-y-8">
-                <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
-                    <CardHeader className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 pb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-primary/10 rounded-2xl">
-                                <Lock className="h-7 w-7 text-primary" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-2xl">{t('ui.security_settings')}</CardTitle>
-                                <CardDescription className="text-base mt-1">
-                                    {t('ui.update_password_secure')}
-                                </CardDescription>
-                            </div>
+            <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 pb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-2xl">
+                            <Lock className="h-7 w-7 text-primary" />
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <CardTitle className="text-2xl">{t('ui.security_settings')}</CardTitle>
+                            <CardDescription className="text-base mt-1">
+                                {t('ui.update_password_secure')}
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Current Password Section */}
                             <div className="space-y-6">
                                 <h3 className="text-xl font-bold text-card-foreground">{t('ui.current_password')}</h3>
@@ -260,172 +254,197 @@ export default function PasswordPage() {
                                 {processing ? t('ui.changing_password') : t('ui.change_password')}
                             </Button>
                         </div>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     ) : (
-        // Admin/Staff/Logistic/Member Design - Professional & Compact
-        <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+        // Admin/Staff/Logistic/Member Design - Matching Profile Page Pattern
+        <div className="space-y-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-green-500/10">
+                            <Lock className="h-5 w-5 text-green-600" />
+                        </div>
+                        {t('ui.security_settings')}
+                    </CardTitle>
+                    <CardDescription>
+                        {t('ui.update_password_secure')}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {/* Current Password Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                                    <div className="p-1.5 rounded-md bg-secondary/10">
+                                        <Lock className="h-4 w-4 text-secondary" />
+                                    </div>
+                                    {t('ui.current_password')}
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="current_password_admin" className="text-sm font-medium">{t('ui.current_password')}</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="current_password_admin"
+                                                    type={showCurrentPassword ? 'text' : 'password'}
+                                                    value={data.current_password}
+                                                    onChange={(e) => setData('current_password', e.target.value)}
+                                                    placeholder={t('ui.enter_current_password')}
+                                                    required
+                                                    className="pr-10"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                >
+                                                    {showCurrentPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.current_password && <p className="text-sm text-destructive">{errors.current_password}</p>}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <CardTitle className="text-green-600 dark:text-green-400">
-                                    {t('ui.security_settings')}
-                                </CardTitle>
-                                <CardDescription>
-                                    {t('ui.update_password_secure')}
-                                </CardDescription>
+
+                            {/* New Password Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                                    <div className="p-1.5 rounded-md bg-primary/10">
+                                        <Lock className="h-4 w-4 text-primary" />
+                                    </div>
+                                    {t('ui.new_password')}
+                                </h3>
+                                <div className="space-y-3">
+                                    {/* New Password Field */}
+                                    <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password_admin" className="text-sm font-medium">{t('ui.new_password')}</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password_admin"
+                                                    type={showNewPassword ? 'text' : 'password'}
+                                                    value={data.password}
+                                                    onChange={(e) => setData('password', e.target.value)}
+                                                    placeholder={t('ui.enter_new_password')}
+                                                    required
+                                                    className="pr-10"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                >
+                                                    {showNewPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Confirm Password Field */}
+                                    <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password_confirmation_admin" className="text-sm font-medium">{t('ui.confirm_new_password')}</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password_confirmation_admin"
+                                                    type={showConfirmPassword ? 'text' : 'password'}
+                                                    value={data.password_confirmation}
+                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                    placeholder={t('ui.confirm_your_new_password')}
+                                                    required
+                                                    className="pr-10"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {errors.password_confirmation && <p className="text-sm text-destructive">{errors.password_confirmation}</p>}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Current Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="current_password_admin" className="text-sm font-medium">{t('ui.current_password')}</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="current_password_admin"
-                                        type={showCurrentPassword ? 'text' : 'password'}
-                                        value={data.current_password}
-                                        onChange={(e) => setData('current_password', e.target.value)}
-                                        placeholder={t('ui.enter_current_password')}
-                                        required
-                                        className="pr-10"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                    >
-                                        {showCurrentPassword ? (
-                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                        ) : (
-                                            <Eye className="h-4 w-4 text-muted-foreground" />
-                                        )}
-                                    </Button>
-                                </div>
-                                {errors.current_password && <p className="text-sm text-destructive">{errors.current_password}</p>}
-                            </div>
 
-                            {/* New Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password_admin" className="text-sm font-medium">{t('ui.new_password')}</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="password_admin"
-                                        type={showNewPassword ? 'text' : 'password'}
-                                        value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
-                                        placeholder={t('ui.enter_new_password')}
-                                        required
-                                        className="pr-10"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                        onClick={() => setShowNewPassword(!showNewPassword)}
-                                    >
-                                        {showNewPassword ? (
-                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                        ) : (
-                                            <Eye className="h-4 w-4 text-muted-foreground" />
-                                        )}
-                                    </Button>
+                        {/* Password Strength Indicator */}
+                        {data.password && (
+                            <div className="p-4 bg-muted/50 rounded-lg border border-border space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">{t('ui.password_strength')}</Label>
+                                    <span className={`text-sm font-medium ${
+                                        passwordStrength <= 2 ? 'text-destructive' : 
+                                        passwordStrength <= 3 ? 'text-yellow-500' : 'text-green-500'
+                                    }`}>
+                                        {getStrengthText(passwordStrength)}
+                                    </span>
                                 </div>
-                                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                            </div>
-
-                            {/* Password Strength */}
-                            {data.password && (
-                                <div className="p-4 bg-muted rounded-lg space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-sm font-medium">{t('ui.password_strength')}</Label>
-                                        <span className={`text-sm font-medium ${
-                                            passwordStrength <= 2 ? 'text-destructive' : 
-                                            passwordStrength <= 3 ? 'text-yellow-500' : 'text-green-500'
-                                        }`}>
-                                            {getStrengthText(passwordStrength)}
-                                        </span>
-                                    </div>
-                                    <Progress 
-                                        value={strengthPercentage} 
-                                        className={`h-2 ${
-                                            passwordStrength <= 2 ? '[&>div]:bg-red-500' : 
-                                            passwordStrength <= 3 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'
-                                        }`}
-                                    />
-                                    <div className="space-y-1">
-                                        {requirements.map((req, index) => (
-                                            <div key={index} className="flex items-center gap-2 text-xs">
-                                                {req.met ? (
-                                                    <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                                                ) : (
-                                                    <XCircle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                                )}
-                                                <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
-                                                    {req.text}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <Progress 
+                                    value={strengthPercentage} 
+                                    className={`h-2 ${
+                                        passwordStrength <= 2 ? '[&>div]:bg-red-500' : 
+                                        passwordStrength <= 3 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'
+                                    }`}
+                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {requirements.map((req, index) => (
+                                        <div key={index} className="flex items-center gap-2 text-xs">
+                                            {req.met ? (
+                                                <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                            ) : (
+                                                <XCircle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                            )}
+                                            <span className={req.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}>
+                                                {req.text}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
-
-                            {/* Confirm Password */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password_confirmation_admin" className="text-sm font-medium">{t('ui.confirm_new_password')}</Label>
-                                <div className="relative">
-                                    <Input
-                                        id="password_confirmation_admin"
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        value={data.password_confirmation}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        placeholder={t('ui.confirm_your_new_password')}
-                                        required
-                                        className="pr-10"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    >
-                                        {showConfirmPassword ? (
-                                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                        ) : (
-                                            <Eye className="h-4 w-4 text-muted-foreground" />
-                                        )}
-                                    </Button>
-                                </div>
-                                {errors.password_confirmation && <p className="text-sm text-destructive">{errors.password_confirmation}</p>}
                             </div>
+                        )}
 
-                            {/* Submit Button */}
-                            <div className="flex justify-end pt-4">
-                                <Button 
-                                    type="submit" 
-                                    disabled={processing || passwordStrength < 3} 
-                                    className="bg-green-600 hover:bg-green-700"
-                                >
-                                    <Lock className="h-4 w-4 mr-2" />
-                                    {processing ? t('ui.changing_password') : t('ui.change_password')}
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
+                        {/* Submit Button */}
+                        <div className="flex justify-end pt-4">
+                            <Button 
+                                type="submit" 
+                                disabled={processing || passwordStrength < 3}
+                                className="flex items-center gap-2"
+                            >
+                                <Lock className="h-4 w-4" />
+                                {processing ? t('ui.changing_password') : t('ui.change_password')}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
     );
 
     // Render with appropriate layout based on user type
@@ -434,16 +453,26 @@ export default function PasswordPage() {
         case 'staff':
             return (
                 <AppSidebarLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.change_password')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.update_password_secure')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Lock className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('ui.change_password')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('ui.update_password_secure')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </AppSidebarLayout>
             );
@@ -466,32 +495,52 @@ export default function PasswordPage() {
         case 'logistic':
             return (
                 <LogisticLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.change_password')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.update_password_secure')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Lock className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('ui.change_password')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('ui.update_password_secure')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </LogisticLayout>
             );
         case 'member':
             return (
                 <MemberLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.change_password')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.update_password_secure')}
-                            </p>
+                    <div className="bg-background">
+                        <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8 pb-8">
+                            {/* Page Header */}
+                            <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                                        <Lock className="h-4 w-4 sm:h-6 sm:w-6" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                                            {t('ui.change_password')}
+                                        </h1>
+                                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                                            {t('ui.update_password_secure')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </MemberLayout>
             );
