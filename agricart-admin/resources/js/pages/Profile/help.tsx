@@ -415,7 +415,7 @@ export default function HelpPage() {
         case 'logistic':
             return (
                 <LogisticLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="px-2 pt-22 py-2 lg:px-8 lg:pt-25">
                         <div className="mb-6">
                             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                                 {userContent.title}
@@ -431,7 +431,7 @@ export default function HelpPage() {
         case 'member':
             return (
                 <MemberLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="px-2 pt-15 py-2 lg:px-8 lg:pt-17">
                         <div className="mb-6">
                             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                                 {userContent.title}
