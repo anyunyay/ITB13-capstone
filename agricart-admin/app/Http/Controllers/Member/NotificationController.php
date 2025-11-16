@@ -60,7 +60,7 @@ class NotificationController extends Controller
                 'App\\Notifications\\LowStockAlertNotification'
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(5)
+            ->paginate(10)
             ->through(function ($notification) {
                 return [
                     'id' => $notification->id,

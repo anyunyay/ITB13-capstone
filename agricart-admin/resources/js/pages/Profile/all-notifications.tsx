@@ -23,7 +23,7 @@ import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
 import MemberLayout from '@/layouts/member-layout';
-import { PaginationControls } from '@/components/shared/notifications/pagination-controls';
+import { PaginationControls } from '@/components/inventory/pagination-controls';
 
 interface Notification {
   id: string;
@@ -96,12 +96,10 @@ export default function AllNotificationsPage() {
     );
   };
 
-  const handleSelectAll = () => {
-    const unreadIds = notificationData.filter(n => !n.read_at).map(n => n.id);
-    setSelectedNotifications(unreadIds);
-  };
-
   const handlePageChange = (page: number) => {
+    // Clear selections when changing pages
+    setSelectedNotifications([]);
+    
     const routePrefix = userType === 'admin' || userType === 'staff' 
       ? '/admin/profile/notifications'
       : userType === 'member'
@@ -118,23 +116,28 @@ export default function AllNotificationsPage() {
 
   const handleMarkAsRead = (ids?: string[]) => {
     const notificationIds = ids || selectedNotifications;
-    if (notificationIds.length > 0) {
-      const routePrefix = userType === 'admin' || userType === 'staff' 
-        ? '/admin/notifications'
-        : userType === 'member'
-        ? '/member/notifications'
-        : userType === 'logistic'
-        ? '/logistic/notifications'
-        : '/customer/notifications';
-      
-      router.post(`${routePrefix}/mark-read`, {
-        ids: notificationIds
-      }, {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => setSelectedNotifications([])
-      });
-    }
+    if (notificationIds.length === 0) return;
+    
+    const routePrefix = userType === 'admin' || userType === 'staff' 
+      ? '/admin/notifications'
+      : userType === 'member'
+      ? '/member/notifications'
+      : userType === 'logistic'
+      ? '/logistic/notifications'
+      : '/customer/notifications';
+    
+    router.post(`${routePrefix}/mark-read`, {
+      ids: notificationIds
+    }, {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        setSelectedNotifications([]);
+      },
+      onError: (errors) => {
+        console.error('Error marking notifications as read:', errors);
+      }
+    });
   };
 
   const handleMarkAllAsRead = () => {
@@ -149,6 +152,12 @@ export default function AllNotificationsPage() {
     router.post(`${routePrefix}/mark-all-read`, {}, {
       preserveState: true,
       preserveScroll: true,
+      onSuccess: () => {
+        setSelectedNotifications([]);
+      },
+      onError: (errors) => {
+        console.error('Error marking all notifications as read:', errors);
+      }
     });
   };
 
@@ -275,20 +284,20 @@ export default function AllNotificationsPage() {
     switch (type) {
       case 'new_order':
       case 'delivery_task':
-        return 'border-l-blue-500 bg-blue-50/50';
+        return 'border-l-blue-500';
       case 'low_stock_alert':
       case 'order_rejection':
-        return 'border-l-red-500 bg-red-50/50';
+        return 'border-l-red-500';
       case 'product_sale':
       case 'earnings_update':
       case 'order_confirmation':
-        return 'border-l-green-500 bg-green-50/50';
+        return 'border-l-green-500';
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':
-        return 'border-l-orange-500 bg-orange-50/50';
+        return 'border-l-orange-500';
       default:
-        return 'border-l-gray-500 bg-gray-50/50';
+        return 'border-l-primary';
     }
   };
 
@@ -306,37 +315,30 @@ export default function AllNotificationsPage() {
           </p>
         </div>
         
-        {unreadCount > 0 && (
+        {(unreadCount > 0 || selectedNotifications.length > 0) && (
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="default"
-              onClick={handleSelectAll}
-              disabled={selectedNotifications.length === unreadCount}
-              className="h-12 px-6 text-base rounded-xl flex-1 sm:flex-initial"
-            >
-              <Check className="h-5 w-5 mr-2" />
-              Select All
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => handleMarkAsRead()}
-              disabled={selectedNotifications.length === 0}
-              className="h-12 px-6 text-base rounded-xl flex-1 sm:flex-initial"
-            >
-              <Check className="h-5 w-5 mr-2" />
-              Mark Selected
-            </Button>
-            <Button
-              variant="default"
-              size="default"
-              onClick={handleMarkAllAsRead}
-              className="h-12 px-6 text-base rounded-xl bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial"
-            >
-              <CheckCheck className="h-5 w-5 mr-2" />
-              Mark All Read
-            </Button>
+            {selectedNotifications.length > 0 && (
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => handleMarkAsRead()}
+                className="h-12 px-6 text-base rounded-xl flex-1 sm:flex-initial"
+              >
+                <Check className="h-5 w-5 mr-2" />
+                Mark Selected as Read
+              </Button>
+            )}
+            {unreadCount > 0 && (
+              <Button
+                variant="default"
+                size="default"
+                onClick={handleMarkAllAsRead}
+                className="h-12 px-6 text-base rounded-xl bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial"
+              >
+                <CheckCheck className="h-5 w-5 mr-2" />
+                Mark All as Read
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -354,7 +356,7 @@ export default function AllNotificationsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {notificationData.map((notification) => (
               <Card 
                 key={notification.id} 
@@ -373,37 +375,37 @@ export default function AllNotificationsPage() {
                   handleNotificationClick(notification);
                 }}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-5">
-                    <div className="flex-shrink-0 mt-1">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 mt-0.5">
                       {getNotificationIcon(notification.type)}
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start sm:items-center gap-3 mb-3 flex-wrap">
-                        <h3 className="font-bold text-gray-900 text-lg">
+                      <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                        <h3 className="font-bold text-gray-900 text-base leading-tight">
                           {notification.type === 'order_status_update' && notification.data?.status === 'approved' 
                             ? 'Order Approved - Processing' 
                             : getNotificationTitle(notification.type)}
                         </h3>
                         {!notification.read_at && (
-                          <Badge variant="secondary" className="text-sm bg-green-600 text-white px-3 py-1 shrink-0">
+                          <Badge variant="secondary" className="text-xs bg-green-600 text-white px-2 py-0.5 shrink-0">
                             New
                           </Badge>
                         )}
                       </div>
                       
-                      <p className="text-gray-700 mb-3 text-base break-words leading-relaxed">
+                      <p className="text-gray-700 mb-2 text-sm break-words leading-snug">
                         {notification.message}
                       </p>
                       {notification.data?.sub_message && (
-                        <p className="text-sm text-gray-600 mb-3 break-words">
+                        <p className="text-xs text-gray-600 mb-2 break-words leading-snug">
                           {notification.data.sub_message}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between mt-4 gap-3 flex-wrap">
-                        <p className="text-sm text-gray-500 font-medium">
+                      <div className="flex items-center justify-between mt-2.5 gap-2 flex-wrap">
+                        <p className="text-xs text-gray-500 font-medium">
                           {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                         </p>
                         
@@ -417,7 +419,7 @@ export default function AllNotificationsPage() {
                                 handleSelectNotification(notification.id);
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              className="rounded border-gray-300 text-green-600 focus:ring-green-500 w-5 h-5"
+                              className="rounded border-gray-300 text-green-600 focus:ring-green-500 w-4 h-4"
                             />
                           )}
                         </div>
@@ -444,112 +446,109 @@ export default function AllNotificationsPage() {
 
   // Admin/Staff/Logistic/Member Design - Professional & Compact
   const adminContent = (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {unreadCount > 0 
-              ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
-              : "You're all caught up. You have no unread notifications."}
-          </p>
-        </div>
-        
-        {unreadCount > 0 && (
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSelectAll}
-              disabled={selectedNotifications.length === unreadCount}
-              className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial min-w-0"
-            >
-              <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span className="truncate">Select All</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleMarkAsRead()}
-              disabled={selectedNotifications.length === 0}
-              className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial min-w-0"
-            >
-              <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span className="truncate">Mark</span>
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleMarkAllAsRead}
-              className="flex items-center gap-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial min-w-0"
-            >
-              <CheckCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span className="truncate">All Read</span>
-            </Button>
+    <div className="space-y-2">
+      {(unreadCount > 0 || selectedNotifications.length > 0) && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          {selectedNotifications.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              {selectedNotifications.length} notification{selectedNotifications.length > 1 ? 's' : ''} selected
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-auto">
+            {selectedNotifications.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleMarkAsRead()}
+                className="flex items-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial min-w-0"
+              >
+                <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">Mark Selected as Read</span>
+              </Button>
+            )}
+            {unreadCount > 0 && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleMarkAllAsRead}
+                className="flex items-center gap-1.5 text-xs sm:text-sm bg-green-600 hover:bg-green-700 flex-1 sm:flex-initial min-w-0"
+              >
+                <CheckCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">Mark All as Read</span>
+              </Button>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {notificationData.length === 0 ? (
-        <Card>
+        <Card className="bg-card border border-border rounded-xl shadow-sm">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Bell className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No notifications</h3>
-            <p className="text-gray-500 text-center">
+            <Bell className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No notifications</h3>
+            <p className="text-muted-foreground text-center">
               You're all caught up! Check back later for new updates.
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {notificationData.map((notification) => (
             <Card 
               key={notification.id} 
-              className={`border-l-4 transition-all hover:shadow-md group ${
-                !notification.read_at ? getNotificationColor(notification.type) : 'bg-white border-l-gray-300'
+              className={`bg-card border border-border rounded-xl shadow-sm transition-all duration-200 ${
+                !notification.read_at ? 'border-l-4 ' + getNotificationColor(notification.type) : 'border-l-4 border-l-border'
               } ${
                 notification.action_url || 
                 (notification.data?.order_id && 
                 ['order_confirmation', 'order_status_update', 'delivery_status_update', 'order_rejection'].includes(notification.type))
-                  ? 'cursor-pointer hover:bg-gray-50' : ''
+                  ? 'cursor-pointer hover:shadow-md hover:bg-muted/30' : ''
               }`}
-              onClick={() => {
+              onClick={(e) => {
+                // Don't trigger if clicking on checkbox
+                const target = e.target as HTMLElement;
+                if (target.tagName === 'INPUT' && target.getAttribute('type') === 'checkbox') {
+                  return;
+                }
+                
+                // Mark as read and navigate
                 if (!notification.read_at) {
                   handleMarkAsRead([notification.id]);
                 }
                 handleNotificationClick(notification);
               }}
             >
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="flex-shrink-0 mt-0.5 sm:mt-1">
+              <CardContent className="p-2.5 sm:p-3">
+                <div className="flex items-start gap-2.5">
+                  <div className="flex-shrink-0 mt-0.5">
                     {getNotificationIcon(notification.type)}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
+                    <div className="flex items-start sm:items-center gap-1.5 mb-1 flex-wrap">
+                      <h3 className="font-semibold text-foreground text-sm leading-tight">
                         {notification.type === 'order_status_update' && notification.data?.status === 'approved' 
                           ? 'Order Approved - Processing' 
                           : getNotificationTitle(notification.type)}
                       </h3>
                       {!notification.read_at && (
-                        <Badge variant="secondary" className="text-xs bg-green-600 text-white shrink-0">
+                        <Badge variant="secondary" className="text-xs bg-green-600 text-white shrink-0 px-1.5 py-0">
                           New
                         </Badge>
                       )}
                     </div>
                     
-                    <p className="text-gray-700 mb-2 text-sm sm:text-base break-words">
+                    <p className="text-foreground mb-1 text-sm break-words leading-snug">
                       {notification.message}
                     </p>
                     {notification.data?.sub_message && (
-                      <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words">
+                      <p className="text-xs text-muted-foreground mb-1 break-words leading-snug">
                         {notification.data.sub_message}
                       </p>
                     )}
                     
-                    <div className="flex items-center justify-between mt-3 gap-2 flex-wrap">
-                      <p className="text-xs sm:text-sm text-gray-500">
+                    <div className="flex items-center justify-between mt-1.5 gap-2 flex-wrap">
+                      <p className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                       </p>
                       
@@ -563,7 +562,7 @@ export default function AllNotificationsPage() {
                               handleSelectNotification(notification.id);
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="rounded border-gray-300 text-green-600 focus:ring-green-500 w-4 h-4 sm:w-5 sm:h-5"
+                            className="rounded border-border text-green-600 focus:ring-green-500 w-4 h-4"
                           />
                         )}
                       </div>
@@ -594,16 +593,35 @@ export default function AllNotificationsPage() {
     case 'staff':
       return (
         <AppSidebarLayout>
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                All Notifications
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                View and manage all your notifications
-              </p>
+          <div className="min-h-screen bg-background">
+            <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+              {/* Dashboard Header */}
+              <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                      <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                        All Notifications
+                      </h1>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                        {unreadCount > 0 
+                          ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                          : "You're all caught up. You have no unread notifications."}
+                      </p>
+                    </div>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
+                      {unreadCount} New
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              {adminContent}
             </div>
-            {adminContent}
           </div>
         </AppSidebarLayout>
       );
@@ -626,32 +644,70 @@ export default function AllNotificationsPage() {
     case 'logistic':
       return (
         <LogisticLayout>
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                All Notifications
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                View and manage all your notifications
-              </p>
+          <div className="min-h-screen bg-background">
+            <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+              {/* Dashboard Header */}
+              <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                      <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                        All Notifications
+                      </h1>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                        {unreadCount > 0 
+                          ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                          : "You're all caught up. You have no unread notifications."}
+                      </p>
+                    </div>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
+                      {unreadCount} New
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              {adminContent}
             </div>
-            {adminContent}
           </div>
         </LogisticLayout>
       );
     case 'member':
       return (
         <MemberLayout>
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                All Notifications
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                View and manage all your notifications
-              </p>
+          <div className="min-h-screen bg-background">
+            <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+              {/* Dashboard Header */}
+              <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2 sm:p-2.5 rounded-lg flex items-center justify-center">
+                      <Bell className="h-4 w-4 sm:h-6 sm:w-6" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight m-0">
+                        All Notifications
+                      </h1>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
+                        {unreadCount > 0 
+                          ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
+                          : "You're all caught up. You have no unread notifications."}
+                      </p>
+                    </div>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Badge variant="secondary" className="bg-green-600 text-white text-sm px-3 py-1 shrink-0">
+                      {unreadCount} New
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              {adminContent}
             </div>
-            {adminContent}
           </div>
         </MemberLayout>
       );
