@@ -29,7 +29,7 @@ class SystemLogsController extends Controller
             'user_type' => $request->get('user_type', 'all'),
             'date_from' => $request->get('date_from', ''),
             'date_to' => $request->get('date_to', ''),
-            'per_page' => $request->get('per_page', 25)
+            'per_page' => $request->get('per_page', 5)
         ];
 
         // Get logs from database

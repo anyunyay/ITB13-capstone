@@ -34,7 +34,8 @@ import {
     Activity,
     TrendingUp,
     Users,
-    AlertCircle
+    AlertCircle,
+    MapPin
 } from 'lucide-react';
 
 interface LogEntry {
@@ -119,7 +120,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [userType, setUserType] = useState(filters.user_type || 'all');
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
-    const [perPage, setPerPage] = useState(filters.per_page || 10);
+    const [perPage, setPerPage] = useState(filters.per_page || 5);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
@@ -607,10 +608,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="5">5</SelectItem>
                                         <SelectItem value="10">10</SelectItem>
                                         <SelectItem value="25">25</SelectItem>
                                         <SelectItem value="50">50</SelectItem>
-                                        <SelectItem value="100">100</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -646,7 +647,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[600px] w-full overflow-y-auto">
+                        <div className="w-full">
                             <div className="space-y-3">
                                 {logs.data.length === 0 ? (
                                     <div className="text-center py-12">
@@ -656,79 +657,124 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     </div>
                                 ) : (
                                     logs.data.map((log) => (
-                                        <div key={log.id} className="border rounded-xl p-5 hover:shadow-md transition-all duration-200 bg-white">
-                                            <div className="flex items-start justify-between mb-3">
-                                                <div className="flex items-center space-x-3">
+                                        <div key={log.id} className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white">
+                                            {/* Header with badges and time */}
+                                            <div className="flex items-center justify-between mb-3 pb-2 border-b">
+                                                <div className="flex items-center space-x-2">
                                                     {getLevelIcon(log.level)}
                                                     {getLevelBadge(log.level)}
                                                     <Badge
                                                         variant="outline"
-                                                        className={`flex items-center gap-2 ${getEventTypeColor(log.context.event_type || '')}`}
+                                                        className={`flex items-center gap-1 ${getEventTypeColor(log.context.event_type || '')}`}
                                                     >
                                                         {getEventTypeIcon(log.context.event_type || '')}
-                                                        <span className="font-medium">
-                                                            {log.context.event_type?.replace('_', ' ') || 'Unknown Event'}
+                                                        <span className="text-xs font-medium">
+                                                            {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown Event'}
                                                         </span>
                                                     </Badge>
-                                                    {log.context.user_type && (
-                                                        <Badge variant="secondary">
-                                                            {log.context.user_type}
-                                                        </Badge>
-                                                    )}
                                                 </div>
-                                                <div className="text-right text-sm text-muted-foreground">
-                                                    <div className="flex items-center gap-1 mb-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span className="font-medium">{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
-                                                    </div>
-                                                    <div className="text-xs text-muted-foreground">
-                                                        {formatTimestamp(log.context.timestamp || log.created_at)}
-                                                    </div>
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                    <Clock className="h-3 w-3" />
+                                                    <span>{formatRelativeTime(log.context.timestamp || log.created_at)}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="mb-4">
-                                                <h4 className="font-semibold text-foreground text-lg mb-2">
-                                                    {log.message || 'No message'}
-                                                </h4>
-                                            </div>
-
-                                            {/* Admin Activity Logs - Special Formatting */}
-                                            {log.context.event_type === 'admin_activity' ? (
-                                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                                    <div className="flex items-center gap-2 mb-3">
-                                                        <Settings className="h-5 w-5 text-blue-600" />
-                                                        <h5 className="font-semibold text-blue-900">{t('ui.admin_activity_details')}</h5>
+                                            {/* Two-column layout for compact display */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                                {/* Column 1: User and Action */}
+                                                <div className="space-y-3">
+                                                    {/* User */}
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-100 text-blue-600 flex-shrink-0">
+                                                            <User className="h-3.5 w-3.5" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                                User
+                                                            </div>
+                                                            <div className="text-sm font-medium text-foreground truncate">
+                                                                {log.context.user_email || `User #${log.context.user_id}` || 'System'}
+                                                            </div>
+                                                            {log.context.user_type && (
+                                                                <Badge variant="secondary" className="mt-1 text-xs">
+                                                                    {log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1)}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                        {formatAdminActivityDetails(log).map((detail, index) => (
-                                                            <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-blue-100">
-                                                                <div className="text-blue-600">{detail.icon}</div>
-                                                                <div className="flex-1">
-                                                                    <div className="text-xs font-medium text-blue-600 uppercase tracking-wide">
-                                                                        {detail.label}
-                                                                    </div>
-                                                                    <div className="text-sm font-semibold text-foreground mt-1">
-                                                                        {detail.value}
-                                                                    </div>
+
+                                                    {/* Action */}
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-green-100 text-green-600 flex-shrink-0">
+                                                            <Activity className="h-3.5 w-3.5" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                                Action
+                                                            </div>
+                                                            <div className="text-sm font-medium text-foreground">
+                                                                {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown Action'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Column 2: Date & Time and Location */}
+                                                <div className="space-y-3">
+                                                    {/* Date & Time */}
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-purple-100 text-purple-600 flex-shrink-0">
+                                                            <Calendar className="h-3.5 w-3.5" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                                Date & Time
+                                                            </div>
+                                                            <div className="text-sm font-medium text-foreground">
+                                                                {formatTimestamp(log.context.timestamp || log.created_at)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Location (IP Address) */}
+                                                    {log.context.ip_address && (
+                                                        <div className="flex items-start gap-2">
+                                                            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-orange-100 text-orange-600 flex-shrink-0">
+                                                                <MapPin className="h-3.5 w-3.5" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">
+                                                                    Location (IP Address)
+                                                                </div>
+                                                                <div className="text-sm font-medium text-foreground font-mono">
+                                                                    {log.context.ip_address}
                                                                 </div>
                                                             </div>
-                                                        ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Full-width Details section */}
+                                            <div className="pt-3 border-t">
+                                                <div className="flex items-start gap-2">
+                                                    <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gray-100 text-gray-600 flex-shrink-0">
+                                                        <FileText className="h-3.5 w-3.5" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                                                            Details
+                                                        </div>
+                                                        <div className="text-sm text-foreground leading-relaxed">
+                                                            {log.message || 'No additional details available'}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            ) : formatActionDetails(log).length > 0 ? (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                                    {formatActionDetails(log).map((detail, index) => (
-                                                        <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded-lg">
-                                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                            <span className="text-foreground">{detail}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : null}
+                                            </div>
 
+                                            {/* View Technical Details Button */}
                                             {Object.keys(log.context).length > 6 && (
-                                                <div className="mt-4">
+                                                <div className="mt-3 pt-3 border-t">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -736,10 +782,10 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                             setSelectedLog(log);
                                                             setShowDetails(true);
                                                         }}
-                                                        className="w-full"
+                                                        className="w-full text-xs"
                                                     >
-                                                        <Eye className="h-4 w-4 mr-2" />
-                                                        {t('ui.view_full_details')}
+                                                        <Eye className="h-3.5 w-3.5 mr-1.5" />
+                                                        {t('ui.view_technical_details')}
                                                     </Button>
                                                 </div>
                                             )}
@@ -751,35 +797,85 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
                         {/* Pagination */}
                         {logs.last_page > 1 && (
-                            <div className="flex items-center justify-between mt-4">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
                                 <div className="text-sm text-muted-foreground">
-                                    {t('ui.showing_page')} {logs.current_page} {t('ui.of')} {logs.last_page}
+                                    Showing <span className="font-medium">{((logs.current_page - 1) * logs.per_page) + 1}</span> to{' '}
+                                    <span className="font-medium">{Math.min(logs.current_page * logs.per_page, logs.total)}</span> of{' '}
+                                    <span className="font-medium">{logs.total}</span> logs
                                 </div>
-                                <div className="flex space-x-2">
-                                    {logs.current_page > 1 && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => router.get('/admin/system-logs', {
-                                                ...filters,
-                                                page: logs.current_page - 1
-                                            })}
-                                        >
-                                            {t('ui.previous')}
-                                        </Button>
-                                    )}
-                                    {logs.current_page < logs.last_page && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => router.get('/admin/system-logs', {
-                                                ...filters,
-                                                page: logs.current_page + 1
-                                            })}
-                                        >
-                                            {t('ui.next')}
-                                        </Button>
-                                    )}
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.get('/admin/system-logs', {
+                                            ...filters,
+                                            page: 1
+                                        })}
+                                        disabled={logs.current_page === 1}
+                                    >
+                                        First
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.get('/admin/system-logs', {
+                                            ...filters,
+                                            page: logs.current_page - 1
+                                        })}
+                                        disabled={logs.current_page === 1}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <div className="flex items-center gap-1">
+                                        {Array.from({ length: Math.min(5, logs.last_page) }, (_, i) => {
+                                            let pageNum;
+                                            if (logs.last_page <= 5) {
+                                                pageNum = i + 1;
+                                            } else if (logs.current_page <= 3) {
+                                                pageNum = i + 1;
+                                            } else if (logs.current_page >= logs.last_page - 2) {
+                                                pageNum = logs.last_page - 4 + i;
+                                            } else {
+                                                pageNum = logs.current_page - 2 + i;
+                                            }
+                                            return (
+                                                <Button
+                                                    key={pageNum}
+                                                    variant={logs.current_page === pageNum ? "default" : "outline"}
+                                                    size="sm"
+                                                    onClick={() => router.get('/admin/system-logs', {
+                                                        ...filters,
+                                                        page: pageNum
+                                                    })}
+                                                    className="w-9 h-9 p-0"
+                                                >
+                                                    {pageNum}
+                                                </Button>
+                                            );
+                                        })}
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.get('/admin/system-logs', {
+                                            ...filters,
+                                            page: logs.current_page + 1
+                                        })}
+                                        disabled={logs.current_page === logs.last_page}
+                                    >
+                                        Next
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => router.get('/admin/system-logs', {
+                                            ...filters,
+                                            page: logs.last_page
+                                        })}
+                                        disabled={logs.current_page === logs.last_page}
+                                    >
+                                        Last
+                                    </Button>
                                 </div>
                             </div>
                         )}
@@ -788,8 +884,8 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
 
                 {/* Log Details Modal */}
                 {showDetails && selectedLog && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200">
                             <div className="flex items-center justify-between p-6 border-b">
                                 <h3 className="text-lg font-semibold">{t('ui.log_details')}</h3>
                                 <Button
