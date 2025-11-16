@@ -1038,6 +1038,14 @@ class MemberController extends Controller
         $totalCogs = array_sum(array_column($allData, 'total_cogs'));
         $totalGrossProfit = array_sum(array_column($allData, 'total_gross_profit'));
 
+        // Encode logo as base64 for PDF embedding
+        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $imageData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+        }
+
         $data = [
             'title' => 'Stock Overview Report',
             'date' => date('F d, Y H:i:s'),
@@ -1050,6 +1058,7 @@ class MemberController extends Controller
                 'total_gross_profit' => $totalGrossProfit,
             ],
             'stocks' => $paginatedData,
+            'logo_base64' => $logoBase64
         ];
 
         $pdf = Pdf::loadView('exports.member-stocks-pdf', $data);
