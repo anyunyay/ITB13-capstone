@@ -3,67 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Report</title>
+    <title>SMMC Staff Report</title>
     <style>
+        @page {
+            margin: 15mm;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #ffffff;
-            color: #333;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
             line-height: 1.4;
+            color: #333;
+            margin: 0;
         }
+
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #059669;
-            padding-bottom: 20px;
+            width: 100%;
+            padding-bottom: 17px;
+            margin-bottom: 26px;
+            border-bottom: 5px solid #3CB371;
+            overflow: hidden;
         }
+
+        .logo {
+            width: 85px;
+            height: 85px;
+            float: left;
+            margin-right: 21px;
+        }
+
+        .header-content {
+            overflow: hidden;
+            padding-top: 10px;
+        }
+
         .header h1 {
-            color: #059669;
-            font-size: 28px;
-            margin: 0 0 10px 0;
+            margin: 0 0 5px 0;
+            color: #3CB371;
+            font-size: 30px;
             font-weight: bold;
         }
+
         .header p {
-            color: #666;
-            font-size: 14px;
             margin: 0;
-        }
-        .generated-info {
-            text-align: right;
-            margin-bottom: 20px;
-            font-size: 12px;
             color: #666;
+            font-size: 16px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 13px;
+            font-size: 12px;
         }
-        th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: bold;
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+
+        th,
         td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #dee2e6;
-            font-size: 10px;
+            border: 1px solid #ddd;
+            padding: 8px 5px;
+            text-align: left;
+            word-wrap: break-word;
         }
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
+
+        th {
+            background-color: #3CB371;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 12px;
         }
-        tr:hover {
-            background-color: #e9ecef;
+
+        td {
+            font-size: 11px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9fff9;
         }
         .status-active {
             background-color: #d1f2eb;
@@ -86,23 +100,39 @@
             word-wrap: break-word;
         }
         .footer {
-            margin-top: 30px;
+            margin-top: 26px;
             text-align: center;
             font-size: 10px;
             color: #666;
-            border-top: 1px solid #dee2e6;
-            padding-top: 15px;
+            border-top: 3px solid #3CB371;
+            padding-top: 10px;
+        }
+
+        /* Responsive adjustments for different paper sizes */
+        @media print {
+            body {
+                font-size: 12px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            th, td {
+                padding: 7px 4px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Staff Report</h1>
-        <p>Comprehensive overview of staff members and their permissions</p>
-    </div>
-
-    <div class="generated-info">
-        <p>Generated on: {{ $generated_at }}</p>
+        @if(!empty($logo_base64))
+        <img src="{{ $logo_base64 }}" alt="SMMC Logo" class="logo">
+        @endif
+        <div class="header-content">
+            <h1>SMMC Staff Report</h1>
+            <p>Generated on: {{ $generated_at }}</p>
+        </div>
     </div>
 
     <table>

@@ -328,6 +328,8 @@ class StaffController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $format = $request->get('format', 'view'); // view, csv, pdf
         $display = $request->get('display', false); // true for display mode
+        $paperSize = $request->get('paper_size', 'A4'); // A4, Letter, Legal, A3
+        $orientation = $request->get('orientation', 'landscape'); // portrait, landscape
 
         $query = User::where('type', 'staff')->with('permissions');
 
@@ -391,7 +393,7 @@ class StaffController extends Controller
         if ($format === 'csv') {
             return $this->exportToCsv($staff, $summary, $display);
         } elseif ($format === 'pdf') {
-            return $this->exportToPdf($staff, $summary, $display);
+            return $this->exportToPdf($staff, $summary, $display, $paperSize, $orientation);
         }
 
         // Return Inertia page for report view
@@ -462,16 +464,27 @@ class StaffController extends Controller
     /**
      * Export staff report to PDF
      */
-    private function exportToPdf($staff, $summary, $display = false)
+    private function exportToPdf($staff, $summary, $display = false, $paperSize = 'A4', $orientation = 'landscape')
     {
+        // Encode logo as base64 for PDF embedding
+        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $imageData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($imageData);
+        }
+
         $html = view('reports.staff-pdf', [
             'staff' => $staff,
             'summary' => $summary,
             'generated_at' => now()->format('Y-m-d H:i:s'),
+            'logo_base64' => $logoBase64
         ])->render();
 
         $pdf = Pdf::loadHTML($html);
-        $pdf->setPaper('A4', 'landscape');
+        
+        // Set paper size and orientation (supports: A4, Letter, Legal, A3, etc.)
+        $pdf->setPaper($paperSize, $orientation);
 
         $filename = 'staff_report_' . date('Y-m-d_H-i-s') . '.pdf';
 
