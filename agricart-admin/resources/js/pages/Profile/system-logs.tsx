@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { useTranslation } from '@/hooks/use-translation';
@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// import { ScrollArea } from '@/components/ui/scroll-area'; // Component not available
+import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import {
     Search,
     Filter,
@@ -41,7 +41,9 @@ import {
     MapPin,
     X,
     ChevronDown,
-    CalendarIcon
+    CalendarIcon,
+    LayoutGrid,
+    Table as TableIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -136,8 +138,25 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
     const [isLoading, setIsLoading] = useState(false);
     const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
     const [showDetails, setShowDetails] = useState(false);
+    const [currentView, setCurrentView] = useState<'cards' | 'table'>('cards');
+    const [isMobile, setIsMobile] = useState(false);
 
-    const perPage = 10; // Fixed items per page
+    // Detect mobile screen size
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Dynamic items per page based on view type and screen size
+    const perPage = currentView === 'cards' 
+        ? (isMobile ? 4 : 8) 
+        : (isMobile ? 5 : 10);
 
     // Date handling functions
     const handleStartDateChange = (date: Date | undefined) => {
@@ -740,7 +759,7 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                 {/* Logs Display */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <CardTitle className="flex items-center gap-2">
                                     <Activity className="h-5 w-5" />
@@ -750,24 +769,40 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                     {t('ui.showing')} {logs.data.length} {t('ui.of')} {logs.total} {t('ui.logs')}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs">
-                                    {logs.data.length} {t('ui.entries')}
-                                </Badge>
+                            <div className="flex items-center gap-2 self-end md:self-auto">
+                                {/* View Toggle - Desktop Only */}
+                                <div className="hidden md:flex gap-1 bg-muted p-1 rounded-lg border border-border">
+                                    <Button
+                                        variant={currentView === 'cards' ? 'default' : 'outline'}
+                                        size="sm"
+                                        onClick={() => setCurrentView('cards')}
+                                        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+                                    >
+                                        <LayoutGrid className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant={currentView === 'table' ? 'default' : 'outline'}
+                                        size="sm"
+                                        onClick={() => setCurrentView('table')}
+                                        className="transition-all text-sm px-3 py-2 hover:-translate-y-0.5 hover:shadow-sm"
+                                    >
+                                        <TableIcon className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="w-full">
+                        {logs.data.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-foreground mb-2">{t('ui.no_logs_found')}</h3>
+                                <p className="text-muted-foreground">{t('ui.try_adjusting_filters')}</p>
+                            </div>
+                        ) : currentView === 'cards' || isMobile ? (
+                            /* Card View */
                             <div className="space-y-3">
-                                {logs.data.length === 0 ? (
-                                    <div className="text-center py-12">
-                                        <Database className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                        <h3 className="text-lg font-medium text-foreground mb-2">{t('ui.no_logs_found')}</h3>
-                                        <p className="text-muted-foreground">{t('ui.try_adjusting_filters')}</p>
-                                    </div>
-                                ) : (
-                                    logs.data.map((log) => (
+                                {logs.data.map((log) => (
                                         <div key={log.id} className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white">
                                             {/* Header with badges and time */}
                                             <div className="flex items-center justify-between mb-3 pb-2 border-b">
@@ -901,10 +936,141 @@ const SystemLogs: React.FC<SystemLogsProps> = ({ auth, logs, filters, summary })
                                                 </div>
                                             )}
                                         </div>
-                                    ))
-                                )}
+                                ))}
                             </div>
-                        </div>
+                        ) : (
+                            /* Table View - Desktop Only */
+                            <BaseTable<LogEntry>
+                                data={logs.data}
+                                columns={[
+                                    {
+                                        key: 'level',
+                                        label: t('ui.level'),
+                                        align: 'center',
+                                        className: 'w-24',
+                                        render: (log) => (
+                                            <div className="flex items-center justify-center gap-2">
+                                                {getLevelIcon(log.level)}
+                                                {getLevelBadge(log.level)}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'event_type',
+                                        label: t('ui.event_type'),
+                                        align: 'left',
+                                        className: 'min-w-[180px]',
+                                        render: (log) => (
+                                            <Badge
+                                                variant="outline"
+                                                className={`flex items-center gap-1 w-fit ${getEventTypeColor(log.context.event_type || '')}`}
+                                            >
+                                                {getEventTypeIcon(log.context.event_type || '')}
+                                                <span className="text-xs font-medium">
+                                                    {log.context.event_type?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_event')}
+                                                </span>
+                                            </Badge>
+                                        )
+                                    },
+                                    {
+                                        key: 'user',
+                                        label: t('ui.user'),
+                                        align: 'left',
+                                        className: 'min-w-[200px]',
+                                        render: (log) => (
+                                            <div className="space-y-1">
+                                                <div className="text-sm font-medium text-foreground truncate">
+                                                    {log.context.user_email || (log.context.user_id ? `${t('ui.user')} #${log.context.user_id}` : t('ui.system'))}
+                                                </div>
+                                                {log.context.user_type && (
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        {log.context.user_type.charAt(0).toUpperCase() + log.context.user_type.slice(1)}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'action',
+                                        label: t('ui.action'),
+                                        align: 'left',
+                                        className: 'min-w-[150px]',
+                                        render: (log) => (
+                                            <div className="text-sm font-medium text-foreground">
+                                                {log.context.action?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || t('ui.unknown_action')}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'message',
+                                        label: t('ui.message'),
+                                        align: 'left',
+                                        className: 'min-w-[250px] max-w-[400px]',
+                                        render: (log) => (
+                                            <div className="text-sm text-foreground line-clamp-2">
+                                                {log.message || t('ui.no_details_available')}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'timestamp',
+                                        label: t('ui.timestamp'),
+                                        align: 'center',
+                                        className: 'min-w-[180px]',
+                                        render: (log) => (
+                                            <div className="space-y-1">
+                                                <div className="text-xs text-muted-foreground">
+                                                    {formatTimestamp(log.context.timestamp || log.created_at)}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                                                    <Clock className="h-3 w-3" />
+                                                    {formatRelativeTime(log.context.timestamp || log.created_at)}
+                                                </div>
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'ip_address',
+                                        label: t('ui.ip_address'),
+                                        align: 'center',
+                                        className: 'min-w-[130px]',
+                                        hideOnMobile: true,
+                                        render: (log) => (
+                                            <div className="text-xs font-mono text-foreground">
+                                                {log.context.ip_address || '-'}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'actions',
+                                        label: t('ui.actions'),
+                                        align: 'center',
+                                        className: 'w-32',
+                                        render: (log) => (
+                                            Object.keys(log.context).length > 6 && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setSelectedLog(log);
+                                                        setShowDetails(true);
+                                                    }}
+                                                    className="text-xs"
+                                                >
+                                                    <Eye className="h-3.5 w-3.5 mr-1" />
+                                                    {t('ui.view')}
+                                                </Button>
+                                            )
+                                        )
+                                    }
+                                ]}
+                                keyExtractor={(log) => log.id}
+                                getRowClassName={(log) => 
+                                    log.level === 'error' ? 'bg-red-50/50' : 
+                                    log.level === 'warning' ? 'bg-yellow-50/50' : ''
+                                }
+                            />
+                        )}
 
                         {/* Pagination */}
                         {logs.last_page > 1 && (
