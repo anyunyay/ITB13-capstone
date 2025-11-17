@@ -38,37 +38,6 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [loginModalConfig, setLoginModalConfig] = useState({ title: '', description: '' });
-    
-    const mainNavItems: NavItem[] = [
-        {
-            title: t('customer.produce'),
-            href: '/customer/produce',
-            icon: Apple,
-        },
-        {
-            title: t('customer.about_us'),
-            href: '/customer/about',
-            icon: BookUser,
-        },
-    ];
-
-    const rightNavItems: NavItem[] = [
-        {
-            title: t('customer.cart'),
-            href: '/customer/cart',
-            icon: ShoppingBasket,
-        },
-        {
-            title: t('customer.notifications'),
-            href: '/',
-            icon: Bell,
-        },
-        {
-            title: t('customer.order_history'),
-            href: '/customer/orders/history',
-            icon: History,
-        },
-    ];
 
     useEffect(() => {
         const handleScroll = () => {
@@ -110,14 +79,14 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
         }
     };
 
-    const handleProtectedNavigation = (href: string, title: string) => {
+    const handleProtectedNavigation = (href: string, itemKey: string) => {
         if (!auth?.user) {
             let description = '';
-            if (title === t('customer.cart')) {
+            if (itemKey === 'cart') {
                 description = t('customer.login_required_cart');
-            } else if (title === t('customer.order_history')) {
+            } else if (itemKey === 'order_history') {
                 description = t('customer.login_required_orders');
-            } else if (title === t('customer.notifications')) {
+            } else if (itemKey === 'notifications') {
                 description = t('customer.login_required_notifications');
             }
             setLoginModalConfig({ title: t('customer.login_required'), description });
@@ -167,23 +136,22 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <SearchBar isScrolled={false} />
                                                 </div>
                                             )}
-                                            {mainNavItems.map((item) => (
-                                                <Link key={item.title} href={item.href} className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
-                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
-                                                </Link>
-                                            ))}
+                                            <Link href="/customer/produce" className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
+                                                <Icon iconNode={Apple} className="h-5 w-5" />
+                                                <span>{t('customer.produce')}</span>
+                                            </Link>
+                                            <Link href="/customer/about" className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
+                                                <Icon iconNode={BookUser} className="h-5 w-5" />
+                                                <span>{t('customer.about_us')}</span>
+                                            </Link>
                                             {/* Only show Order History in sidebar - Cart and Notifications are now in header */}
-                                            {rightNavItems.filter(item => item.title === t('customer.order_history')).map((item) => (
-                                                <button 
-                                                    key={item.title} 
-                                                    onClick={() => handleProtectedNavigation(item.href, item.title)}
-                                                    className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors w-full text-left"
-                                                >
-                                                    {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
-                                                    <span>{item.title}</span>
-                                                </button>
-                                            ))}
+                                            <button 
+                                                onClick={() => handleProtectedNavigation('/customer/orders/history', 'order_history')}
+                                                className="flex items-center space-x-3 font-medium text-green-600 hover:text-green-700 py-2 px-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors w-full text-left"
+                                            >
+                                                <Icon iconNode={History} className="h-5 w-5" />
+                                                <span>{t('customer.order_history')}</span>
+                                            </button>
                                         </div>
 
                                         <div className="flex flex-col space-y-4">
@@ -214,33 +182,56 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
                         <NavigationMenu className="flex h-full items-stretch">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2">
-                                {mainNavItems.map((item, index) => (
-                                    <NavigationMenuItem key={index} className="relative flex h-full items-center">
-                                        <Link
-                                            href={item.href}
-                                            className={cn(
-                                                navigationMenuTriggerStyle(),
-                                                page.url === item.href && activeItemStyles,
-                                                'cursor-pointer px-3 transition-all duration-300 ease-in-out',
-                                                isScrolled 
-                                                    ? 'h-9 text-sm text-white hover:text-white hover:bg-green-600 bg-green-700' 
-                                                    : 'h-11 text-base bg-transparent hover:bg-green-600 hover:text-white text-green-600'
-                                            )}
-                                        >
-                                            {item.icon && <Icon iconNode={item.icon} className={cn(
-                                                "mr-2 transition-all duration-300 ease-in-out",
-                                                isScrolled ? "h-4 w-4 text-white" : "h-5 w-5"
-                                            )} />}
-                                            {item.title}
-                                        </Link>
-                                        {page.url === item.href && (
-                                            <div className={cn(
-                                                "absolute bottom-0 left-0 h-0.5 w-full translate-y-px",
-                                                isScrolled ? "bg-white" : "bg-black dark:bg-white"
-                                            )}></div>
+                                <NavigationMenuItem className="relative flex h-full items-center">
+                                    <Link
+                                        href="/customer/produce"
+                                        className={cn(
+                                            navigationMenuTriggerStyle(),
+                                            page.url === '/customer/produce' && activeItemStyles,
+                                            'cursor-pointer px-3 transition-all duration-300 ease-in-out',
+                                            isScrolled 
+                                                ? 'h-9 text-sm text-white hover:text-white hover:bg-green-600 bg-green-700' 
+                                                : 'h-11 text-base bg-transparent hover:bg-green-600 hover:text-white text-green-600'
                                         )}
-                                    </NavigationMenuItem>
-                                ))}
+                                    >
+                                        <Icon iconNode={Apple} className={cn(
+                                            "mr-2 transition-all duration-300 ease-in-out",
+                                            isScrolled ? "h-4 w-4 text-white" : "h-5 w-5"
+                                        )} />
+                                        {t('customer.produce')}
+                                    </Link>
+                                    {page.url === '/customer/produce' && (
+                                        <div className={cn(
+                                            "absolute bottom-0 left-0 h-0.5 w-full translate-y-px",
+                                            isScrolled ? "bg-white" : "bg-black dark:bg-white"
+                                        )}></div>
+                                    )}
+                                </NavigationMenuItem>
+                                <NavigationMenuItem className="relative flex h-full items-center">
+                                    <Link
+                                        href="/customer/about"
+                                        className={cn(
+                                            navigationMenuTriggerStyle(),
+                                            page.url === '/customer/about' && activeItemStyles,
+                                            'cursor-pointer px-3 transition-all duration-300 ease-in-out',
+                                            isScrolled 
+                                                ? 'h-9 text-sm text-white hover:text-white hover:bg-green-600 bg-green-700' 
+                                                : 'h-11 text-base bg-transparent hover:bg-green-600 hover:text-white text-green-600'
+                                        )}
+                                    >
+                                        <Icon iconNode={BookUser} className={cn(
+                                            "mr-2 transition-all duration-300 ease-in-out",
+                                            isScrolled ? "h-4 w-4 text-white" : "h-5 w-5"
+                                        )} />
+                                        {t('customer.about_us')}
+                                    </Link>
+                                    {page.url === '/customer/about' && (
+                                        <div className={cn(
+                                            "absolute bottom-0 left-0 h-0.5 w-full translate-y-px",
+                                            isScrolled ? "bg-white" : "bg-black dark:bg-white"
+                                        )}></div>
+                                    )}
+                                </NavigationMenuItem>
                             </NavigationMenuList>
                         </NavigationMenu>
                     </div>
@@ -256,7 +247,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <button
-                                                onClick={() => handleProtectedNavigation('/customer/cart', 'Cart')}
+                                                onClick={() => handleProtectedNavigation('/customer/cart', 'cart')}
                                                 className={cn(
                                                     "group inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
                                                     isScrolled 
@@ -299,7 +290,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <button
-                                                    onClick={() => handleProtectedNavigation('/', 'Notifications')}
+                                                    onClick={() => handleProtectedNavigation('/', 'notifications')}
                                                     className={cn(
                                                         "group inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
                                                         isScrolled 
@@ -326,84 +317,105 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                             {/* Desktop Icons */}
                             <div className="hidden lg:flex">
-                                {rightNavItems.map((item) => (
-                                    item.title === 'Notifications' && auth.user ? (
-                                        <NotificationBell 
-                                            key={item.title}
-                                            notifications={notifications || []}
-                                            userType={(auth.user as any)?.type || 'customer'}
-                                            isScrolled={isScrolled}
-                                        />
-                                    ) : item.title === 'Notifications' && !auth.user ? (
-                                        <TooltipProvider key={item.title} delayDuration={0}>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <button
-                                                        onClick={() => handleProtectedNavigation(item.href, item.title)}
-                                                        className={cn(
-                                                            "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
-                                                            isScrolled 
-                                                                ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
-                                                                : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
-                                                        )}
+                                {/* Cart */}
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <button
+                                                onClick={() => handleProtectedNavigation('/customer/cart', 'cart')}
+                                                className={cn(
+                                                    "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                    isScrolled 
+                                                        ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                        : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                )}
+                                            >
+                                                <span className="sr-only">{t('customer.cart')}</span>
+                                                <Icon iconNode={ShoppingBasket} className={cn(
+                                                    "transition-all duration-300 ease-in-out",
+                                                    isScrolled 
+                                                        ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                        : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
+                                                )} />
+                                                {cartCount > 0 && (
+                                                    <Badge 
+                                                        variant="destructive" 
+                                                        className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-xs z-10"
                                                     >
-                                                        <span className="sr-only">{item.title}</span>
-                                                        {item.icon && (
-                                                            <Icon iconNode={item.icon} className={cn(
-                                                                "transition-all duration-300 ease-in-out",
-                                                                isScrolled 
-                                                                    ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
-                                                                    : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
-                                                            )} />
-                                                        )}
-                                                    </button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{item.title}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    ) : (
-                                        <TooltipProvider key={item.title} delayDuration={0}>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <button
-                                                        onClick={() => handleProtectedNavigation(item.href, item.title)}
-                                                        className={cn(
-                                                            "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
-                                                            isScrolled 
-                                                                ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
-                                                                : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
-                                                        )}
-                                                    >
-                                                        <span className="sr-only">{item.title}</span>
-                                                        {item.icon && (
-                                                            <>
-                                                                <Icon iconNode={item.icon} className={cn(
-                                                                    "transition-all duration-300 ease-in-out",
-                                                                    isScrolled 
-                                                                        ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
-                                                                        : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
-                                                                )} />
-                                                                {item.title === 'Cart' && cartCount > 0 && (
-                                                                    <Badge 
-                                                                        variant="destructive" 
-                                                                        className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-xs z-10"
-                                                                    >
-                                                                        {cartCount > 9 ? '9+' : cartCount}
-                                                                    </Badge>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{item.title}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    )
-                                ))}
+                                                        {cartCount > 9 ? '9+' : cartCount}
+                                                    </Badge>
+                                                )}
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{t('customer.cart')}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Notifications */}
+                                {auth.user ? (
+                                    <NotificationBell 
+                                        notifications={notifications || []}
+                                        userType={(auth.user as any)?.type || 'customer'}
+                                        isScrolled={isScrolled}
+                                    />
+                                ) : (
+                                    <TooltipProvider delayDuration={0}>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <button
+                                                    onClick={() => handleProtectedNavigation('/', 'notifications')}
+                                                    className={cn(
+                                                        "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                        isScrolled 
+                                                            ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                            : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                    )}
+                                                >
+                                                    <span className="sr-only">{t('customer.notifications')}</span>
+                                                    <Icon iconNode={Bell} className={cn(
+                                                        "transition-all duration-300 ease-in-out",
+                                                        isScrolled 
+                                                            ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                            : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
+                                                    )} />
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{t('customer.notifications')}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                )}
+                                
+                                {/* Order History */}
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <button
+                                                onClick={() => handleProtectedNavigation('/customer/orders/history', 'order_history')}
+                                                className={cn(
+                                                    "group ml-1 inline-flex items-center justify-center rounded-md bg-transparent p-0 font-medium ring-offset-background transition-all duration-300 ease-in-out focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 relative",
+                                                    isScrolled 
+                                                        ? "h-8 w-8 sm:h-9 sm:w-9 text-sm text-white hover:text-white hover:bg-green-600" 
+                                                        : "h-9 w-9 sm:h-11 sm:w-11 text-base text-green-600 hover:bg-green-600 hover:text-white"
+                                                )}
+                                            >
+                                                <span className="sr-only">{t('customer.order_history')}</span>
+                                                <Icon iconNode={History} className={cn(
+                                                    "transition-all duration-300 ease-in-out",
+                                                    isScrolled 
+                                                        ? "size-4 sm:size-5 text-white opacity-80 group-hover:opacity-100" 
+                                                        : "size-5 sm:size-6 opacity-80 group-hover:opacity-100"
+                                                )} />
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{t('customer.order_history')}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             </div>
                         </div>
                         {auth.user ? (
