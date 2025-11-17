@@ -376,13 +376,13 @@ export default function StaffCreate({ availablePermissions }: Props) {
                 {/* Delete Permissions */}
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">Delete Permissions (Advanced)</Label>
+                    <Label className="text-base font-medium">{t('admin.delete_permissions_advanced')}</Label>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
                       <p className="text-sm text-amber-800 mb-2">
-                        <strong>⚠️ Warning:</strong> These permissions allow staff members to permanently delete records from the database.
+                        <strong>{t('admin.delete_permissions_warning')}</strong> {t('admin.delete_permissions_description')}
                       </p>
                       <p className="text-sm text-amber-700">
-                        Only grant these permissions to trusted staff members who understand the consequences of permanently deleting data. Note: Staff and Member management use "deactivate" permissions instead of delete.
+                        {t('admin.delete_permissions_caution')}
                       </p>
                     </div>
                   </div>

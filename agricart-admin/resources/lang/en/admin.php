@@ -749,6 +749,18 @@ return [
     'selected_date_range' => 'Selected Date Range',
     'no_sales_match_filters' => 'No sales match your current filter criteria.',
     'no_sales_data_for_period' => 'No sales data available for the selected time period.',
+    
+    // Staff Pages
+    'staff_report_count' => 'Staff Report (:count members)',
+    'no_staff_found' => 'No staff found',
+    'no_staff_data_available' => 'No staff data available',
+    'no_staff_match_filters' => 'No staff match your current filter criteria. Try adjusting your filters to see more results.',
+    'no_staff_data_for_period' => 'No staff data available for the selected time period.',
+    'duration' => 'Duration',
+    'delete_permissions_advanced' => 'Delete Permissions (Advanced)',
+    'delete_permissions_warning' => '⚠️ Warning:',
+    'delete_permissions_description' => 'These permissions allow staff members to permanently delete records from the database.',
+    'delete_permissions_caution' => 'Only grant these permissions to trusted staff members who understand the consequences of permanently deleting data. Note: Staff and Member management use "deactivate" permissions instead of delete.',
     'update_logistic' => 'Update Logistic Details',
     'sold_status' => 'Sold',
     'sold_at' => 'Sold At',

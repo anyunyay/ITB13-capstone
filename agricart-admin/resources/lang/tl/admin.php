@@ -749,6 +749,18 @@ return [
     'selected_date_range' => 'Napiling Date Range',
     'no_sales_match_filters' => 'Walang sales na tumugma sa iyong filter criteria.',
     'no_sales_data_for_period' => 'Walang available na sales data para sa napiling panahon.',
+    
+    // Staff Pages
+    'staff_report_count' => 'Staff Report (:count miyembro)',
+    'no_staff_found' => 'Walang nahanap na staff',
+    'no_staff_data_available' => 'Walang available na staff data',
+    'no_staff_match_filters' => 'Walang staff na tumugma sa iyong filter criteria. Subukang ayusin ang iyong mga filter para makakita ng mas maraming resulta.',
+    'no_staff_data_for_period' => 'Walang available na staff data para sa napiling panahon.',
+    'duration' => 'Tagal',
+    'delete_permissions_advanced' => 'Mga Delete Permission (Advanced)',
+    'delete_permissions_warning' => '⚠️ Babala:',
+    'delete_permissions_description' => 'Ang mga permission na ito ay nagbibigay-daan sa mga staff member na permanenteng magtanggal ng mga record mula sa database.',
+    'delete_permissions_caution' => 'Magbigay lamang ng mga permission na ito sa mga pinagkakatiwalaang staff member na nauunawaan ang mga kahihinatnan ng permanenteng pagtanggal ng data. Tandaan: Ang Staff at Member management ay gumagamit ng "deactivate" permissions sa halip na delete.',
     'no_sold_stock_data' => 'Walang Data ng Nabentang Stock',
     'no_sold_stock_records' => 'Wala pang mga record ng nabentang stock na ipapakita',
     'stock_id' => 'Stock ID',
