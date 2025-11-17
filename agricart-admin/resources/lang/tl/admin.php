@@ -708,6 +708,42 @@ return [
     'days' => 'mga araw',
     'weeks' => 'mga linggo',
     'months' => 'mga buwan',
+    
+    // Membership Edit Page
+    'enter_street_address' => 'Ilagay ang street address',
+    'enter_barangay' => 'Ilagay ang barangay',
+    'enter_city' => 'Ilagay ang lungsod',
+    'enter_province' => 'Ilagay ang probinsya',
+    'street_address' => 'Street Address',
+    
+    // Membership Report Page
+    'no_date_range_selected' => 'Walang napiling petsa',
+    'from_date_format' => 'Mula :date',
+    'until_date_format' => 'Hanggang :date',
+    'date_range_format' => ':start - :end',
+    'search_member_placeholder' => 'Maghanap gamit ang pangalan o ID ng miyembro...',
+    'clear' => 'I-clear',
+    'members_report' => ':count Miyembro',
+    'no_members_found' => 'Walang Nahanap na Miyembro',
+    'no_members_match_filter' => 'Walang miyembro na tumugma sa inyong mga filter. Subukang ayusin ang inyong search criteria.',
+    'no_membership_data_period' => 'Walang available na membership data para sa napiling panahon.',
+    'recent_registrations_30d' => 'Mga Kamakailang Rehistrasyon (30 araw)',
+    'new_registrations' => 'Mga bagong rehistrasyon sa nakaraang 30 araw',
+    'verified_and_active' => 'Mga verified at aktibong miyembro',
+    'back_to_dashboard' => 'Bumalik sa Dashboard',
+    
+    // Membership Add Page
+    'enter_member_address_details' => 'Ilagay ang kumpletong address ng miyembro',
+    'set_registration_date_upload_documents' => 'Itakda ang petsa ng rehistrasyon at mag-upload ng mga kinakailangang dokumento',
+    'select_registration_date' => 'Pumili ng petsa ng rehistrasyon',
+    'document_upload' => 'Upload ng Dokumento',
+    'upload_valid_id_document' => 'Mag-upload ng valid ID o supporting document (JPG, PNG, o PDF)',
+    'ready_to_submit' => 'Handa nang Isumite',
+    'incomplete_form' => 'Hindi Kumpleto ang Form',
+    'create_member' => 'Gumawa ng Miyembro',
+    
+    // Common
+    'n_a' => 'N/A',
     'no_sold_stock_data' => 'Walang Data ng Nabentang Stock',
     'no_sold_stock_records' => 'Wala pang mga record ng nabentang stock na ipapakita',
     'stock_id' => 'Stock ID',

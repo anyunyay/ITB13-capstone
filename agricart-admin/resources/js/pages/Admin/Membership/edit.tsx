@@ -192,39 +192,39 @@ export default function Edit({member}: Props) {
                     </div>
                     {/* Address Fields */}
                     <div className="space-y-4">
-                        <Label className="text-base font-medium">Address Information</Label>
+                        <Label className="text-base font-medium">{t('admin.address_information')}</Label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div className='gap-1.5'>
-                                <Label htmlFor="street">Street Address</Label>
+                                <Label htmlFor="street">{t('admin.street_address')}</Label>
                                 <Input 
-                                    placeholder="Enter street address" 
+                                    placeholder={t('admin.enter_street_address')} 
                                     value={data.street} 
                                     onChange={(e) => setData('street', e.target.value)} 
                                 />
                                 {errors.street && <p className="text-sm text-red-500 mt-1">{errors.street}</p>}
                             </div>
                             <div className='gap-1.5'>
-                                <Label htmlFor="barangay">Barangay</Label>
+                                <Label htmlFor="barangay">{t('admin.barangay')}</Label>
                                 <Input 
-                                    placeholder="Enter barangay" 
+                                    placeholder={t('admin.enter_barangay')} 
                                     value={data.barangay} 
                                     onChange={(e) => setData('barangay', e.target.value)} 
                                 />
                                 {errors.barangay && <p className="text-sm text-red-500 mt-1">{errors.barangay}</p>}
                             </div>
                             <div className='gap-1.5'>
-                                <Label htmlFor="city">City</Label>
+                                <Label htmlFor="city">{t('admin.city')}</Label>
                                 <Input 
-                                    placeholder="Enter city" 
+                                    placeholder={t('admin.enter_city')} 
                                     value={data.city} 
                                     onChange={(e) => setData('city', e.target.value)} 
                                 />
                                 {errors.city && <p className="text-sm text-red-500 mt-1">{errors.city}</p>}
                             </div>
                             <div className='gap-1.5'>
-                                <Label htmlFor="province">Province</Label>
+                                <Label htmlFor="province">{t('admin.province')}</Label>
                                 <Input 
-                                    placeholder="Enter province" 
+                                    placeholder={t('admin.enter_province')} 
                                     value={data.province} 
                                     onChange={(e) => setData('province', e.target.value)} 
                                 />
@@ -233,7 +233,7 @@ export default function Edit({member}: Props) {
                         </div>
                     </div>
                     <div className='gap-1.5'>
-                        <Label htmlFor="member registration_date">Registration Date</Label>
+                        <Label htmlFor="member registration_date">{t('admin.registration_date')}</Label>
                         <div className="flex flex-col gap-2">
                             <div className="relative flex gap-2">
                                 {/*
@@ -267,7 +267,7 @@ export default function Edit({member}: Props) {
                                             <Input
                                                 id="date"
                                                 value={value}
-                                                placeholder="June 01, 2025"
+                                                placeholder={t('admin.date_placeholder')}
                                                 className="bg-background pr-10"
                                                 onChange={(e) => {
                                                     setValue(e.target.value);

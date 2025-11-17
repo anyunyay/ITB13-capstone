@@ -102,21 +102,24 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   };
 
   const getDateRangeDisplay = () => {
-    if (!startDate && !endDate) return 'No date range selected';
-    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
-    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    if (!startDate && !endDate) return t('admin.no_date_range_selected');
+    if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
+    return t('admin.date_range_format', { 
+      start: format(startDate!, 'MMM dd, yyyy'), 
+      end: format(endDate!, 'MMM dd, yyyy') 
+    });
   };
 
   const getDurationDisplay = () => {
     if (!startDate || !endDate) return '';
     const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
-    if (diffInDays === 1) return '1 day';
-    if (diffInDays === 7) return '1 week';
-    if (diffInDays === 30) return '1 month';
-    if (diffInDays < 7) return `${diffInDays} days`;
-    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
-    return `${Math.round(diffInDays / 30)} months`;
+    if (diffInDays === 1) return t('admin.one_day');
+    if (diffInDays === 7) return t('admin.one_week');
+    if (diffInDays === 30) return t('admin.one_month');
+    if (diffInDays < 7) return `${diffInDays} ${t('admin.days')}`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} ${t('admin.weeks')}`;
+    return `${Math.round(diffInDays / 30)} ${t('admin.months')}`;
   };
 
   const applyFilters = () => {
@@ -410,7 +413,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
-                          placeholder="Search by member name or ID..."
+                          placeholder={t('admin.search_member_placeholder')}
                           value={localFilters.search || ''}
                           onChange={(e) => handleFilterChange('search', e.target.value)}
                           className="pl-10 pr-4 py-3 border-border rounded-lg bg-background text-foreground focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]"
@@ -446,7 +449,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                             className="text-xs"
                           >
                             <X className="h-3 w-3 mr-1" />
-                            Clear
+                            {t('admin.clear')}
                           </Button>
                         </div>
                       </div>
@@ -521,7 +524,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                 <CardTitle className="text-xl">{t('admin.members_report', { count: members.length })}</CardTitle>
               </CardHeader>
               <CardContent>
-                {members.length > 0 ? (
+                {sortedMembers.length > 0 ? (
                   <>
                     <BaseTable
                       data={paginatedMembers}

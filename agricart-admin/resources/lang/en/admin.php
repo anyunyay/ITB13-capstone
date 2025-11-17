@@ -708,6 +708,42 @@ return [
     'days' => 'days',
     'weeks' => 'weeks',
     'months' => 'months',
+    
+    // Membership Edit Page
+    'enter_street_address' => 'Enter street address',
+    'enter_barangay' => 'Enter barangay',
+    'enter_city' => 'Enter city',
+    'enter_province' => 'Enter province',
+    'street_address' => 'Street Address',
+    
+    // Membership Report Page
+    'no_date_range_selected' => 'No date range selected',
+    'from_date_format' => 'From :date',
+    'until_date_format' => 'Until :date',
+    'date_range_format' => ':start - :end',
+    'search_member_placeholder' => 'Search by member name or ID...',
+    'clear' => 'Clear',
+    'members_report' => ':count Members',
+    'no_members_found' => 'No Members Found',
+    'no_members_match_filter' => 'No members match your current filters. Try adjusting your search criteria.',
+    'no_membership_data_period' => 'No membership data available for the selected period.',
+    'recent_registrations_30d' => 'Recent Registrations (30d)',
+    'new_registrations' => 'New registrations in the last 30 days',
+    'verified_and_active' => 'Verified and active members',
+    'back_to_dashboard' => 'Back to Dashboard',
+    
+    // Membership Add Page
+    'enter_member_address_details' => 'Enter the member\'s complete address information',
+    'set_registration_date_upload_documents' => 'Set registration date and upload required documents',
+    'select_registration_date' => 'Select registration date',
+    'document_upload' => 'Document Upload',
+    'upload_valid_id_document' => 'Upload a valid ID or supporting document (JPG, PNG, or PDF)',
+    'ready_to_submit' => 'Ready to Submit',
+    'incomplete_form' => 'Incomplete Form',
+    'create_member' => 'Create Member',
+    
+    // Common
+    'n_a' => 'N/A',
     'update_logistic' => 'Update Logistic Details',
     'sold_status' => 'Sold',
     'sold_at' => 'Sold At',

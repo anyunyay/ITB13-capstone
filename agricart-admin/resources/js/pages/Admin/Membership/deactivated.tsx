@@ -96,7 +96,7 @@ export default function Deactivated() {
             icon: Hash,
             align: 'center',
             maxWidth: '120px',
-            render: (member) => member.member_id || 'N/A',
+            render: (member) => member.member_id || t('admin.n_a'),
         },
         {
             key: 'name',
@@ -112,7 +112,7 @@ export default function Deactivated() {
             icon: Phone,
             align: 'center',
             maxWidth: '150px',
-            render: (member) => member.contact_number || 'N/A',
+            render: (member) => member.contact_number || t('admin.n_a'),
         },
         {
             key: 'address',
@@ -122,7 +122,7 @@ export default function Deactivated() {
             maxWidth: '250px',
             render: (member) => member.default_address 
                 ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}` 
-                : 'N/A',
+                : t('admin.n_a'),
         },
         {
             key: 'registration_date',
@@ -130,7 +130,7 @@ export default function Deactivated() {
             icon: Calendar,
             align: 'center',
             maxWidth: '150px',
-            render: (member) => member.registration_date || 'N/A',
+            render: (member) => member.registration_date || t('admin.n_a'),
         },
         {
             key: 'document',
