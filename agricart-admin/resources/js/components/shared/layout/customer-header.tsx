@@ -20,37 +20,7 @@ import { SearchBar } from '@/components/common/forms/search-bar';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
 import { LoginModal } from '@/components/shared/auth/LoginModal';
 import { useEffect, useState } from 'react';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Produce',
-        href: '/customer/produce',
-        icon: Apple,
-    },
-    {
-        title: 'About Us',
-        href: '/customer/about',
-        icon: BookUser,
-    },
-];
-
-const rightNavItems: NavItem[] = [
-    {
-        title: 'Cart',
-        href: '/customer/cart',
-        icon: ShoppingBasket,
-    },
-    {
-        title: 'Notifications',
-        href: '/',
-        icon: Bell,
-    },
-    {
-        title: 'Order History',
-        href: '/customer/orders/history',
-        icon: History,
-    },
-];
+import { useTranslation } from '@/hooks/use-translation';
 
 const activeItemStyles = 'text-white dark:bg-green-600 dark:text-white';
 
@@ -59,6 +29,7 @@ interface AppHeaderProps {
 }
 
 export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
+    const t = useTranslation();
     const page = usePage<SharedData & { cart?: Record<string, any>, notifications?: Array<any> }>();
     const { auth, cart = {}, notifications = [] } = page.props;
     const getInitials = useInitials();
@@ -67,6 +38,37 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [loginModalConfig, setLoginModalConfig] = useState({ title: '', description: '' });
+    
+    const mainNavItems: NavItem[] = [
+        {
+            title: t('customer.produce'),
+            href: '/customer/produce',
+            icon: Apple,
+        },
+        {
+            title: t('customer.about_us'),
+            href: '/customer/about',
+            icon: BookUser,
+        },
+    ];
+
+    const rightNavItems: NavItem[] = [
+        {
+            title: t('customer.cart'),
+            href: '/customer/cart',
+            icon: ShoppingBasket,
+        },
+        {
+            title: t('customer.notifications'),
+            href: '/',
+            icon: Bell,
+        },
+        {
+            title: t('customer.order_history'),
+            href: '/customer/orders/history',
+            icon: History,
+        },
+    ];
 
     useEffect(() => {
         const handleScroll = () => {
@@ -111,14 +113,14 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const handleProtectedNavigation = (href: string, title: string) => {
         if (!auth?.user) {
             let description = '';
-            if (title === 'Cart') {
-                description = 'You must be logged in to view your cart.';
-            } else if (title === 'Order History') {
-                description = 'You must be logged in to view your order history.';
-            } else if (title === 'Notifications') {
-                description = 'You must be logged in to view your notifications.';
+            if (title === t('customer.cart')) {
+                description = t('customer.login_required_cart');
+            } else if (title === t('customer.order_history')) {
+                description = t('customer.login_required_orders');
+            } else if (title === t('customer.notifications')) {
+                description = t('customer.login_required_notifications');
             }
-            setLoginModalConfig({ title: 'Login Required', description });
+            setLoginModalConfig({ title: t('customer.login_required'), description });
             setShowLoginModal(true);
         } else {
             router.visit(href);
@@ -152,7 +154,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="flex h-full w-64 sm:w-72 flex-col items-stretch justify-between bg-sidebar">
-                                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                                <SheetTitle className="sr-only">{t('customer.navigation_menu')}</SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
                                     <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
                                 </SheetHeader>
@@ -172,7 +174,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                 </Link>
                                             ))}
                                             {/* Only show Order History in sidebar - Cart and Notifications are now in header */}
-                                            {rightNavItems.filter(item => item.title === 'Order History').map((item) => (
+                                            {rightNavItems.filter(item => item.title === t('customer.order_history')).map((item) => (
                                                 <button 
                                                     key={item.title} 
                                                     onClick={() => handleProtectedNavigation(item.href, item.title)}
@@ -440,7 +442,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     )}
                                     onClick={() => window.location.href = '/login'}
                                 >
-                                    Login
+                                    {t('customer.login')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -452,7 +454,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     )}
                                     onClick={() => window.location.href = '/register'}
                                 >
-                                    Register
+                                    {t('customer.register')}
                                 </Button>
                             </div>
                         )}

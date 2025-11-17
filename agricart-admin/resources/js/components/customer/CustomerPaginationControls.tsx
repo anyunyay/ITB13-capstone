@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface CustomerPaginationControlsProps {
   currentPage: number;
@@ -16,6 +17,7 @@ export function CustomerPaginationControls({
   itemsPerPage, 
   totalItems 
 }: CustomerPaginationControlsProps) {
+  const t = useTranslation();
   
   if (totalPages <= 1) return null;
 
@@ -28,7 +30,7 @@ export function CustomerPaginationControls({
       <div className="hidden sm:flex flex-row items-center justify-between gap-3 sm:gap-4 mt-4 sm:mt-6">
         {/* Page Info */}
         <span className="text-xs sm:text-sm text-muted-foreground font-medium">
-          Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} notifications
+          {t('customer.showing')} {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('customer.of')} {totalItems} {t('customer.notifications')}
         </span>
 
         {/* Navigation Buttons */}
@@ -41,13 +43,13 @@ export function CustomerPaginationControls({
             className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary"
           >
             <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span>Previous</span>
+            <span>{t('customer.previous')}</span>
           </Button>
 
           {/* Page Numbers - Simple display for customer */}
           <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-muted rounded-lg">
             <span className="text-xs sm:text-sm font-semibold text-foreground">
-              Page {currentPage} of {totalPages}
+              {t('customer.page')} {currentPage} {t('customer.of')} {totalPages}
             </span>
           </div>
 
@@ -58,7 +60,7 @@ export function CustomerPaginationControls({
             disabled={isLastPage}
             className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary"
           >
-            <span>Next</span>
+            <span>{t('customer.next')}</span>
             <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
         </div>
@@ -69,7 +71,7 @@ export function CustomerPaginationControls({
         <div className="flex flex-col gap-2 p-3">
           {/* Page Info */}
           <span className="text-xs text-muted-foreground font-medium text-center">
-            Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
+            {t('customer.showing')} {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalItems)} {t('customer.of')} {totalItems}
           </span>
 
           {/* Navigation Buttons */}
@@ -82,7 +84,7 @@ export function CustomerPaginationControls({
               className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary flex-1 max-w-[120px]"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span>Previous</span>
+              <span>{t('customer.previous')}</span>
             </Button>
 
             {/* Page Numbers */}
@@ -99,7 +101,7 @@ export function CustomerPaginationControls({
               disabled={isLastPage}
               className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary flex-1 max-w-[120px]"
             >
-              <span>Next</span>
+              <span>{t('customer.next')}</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

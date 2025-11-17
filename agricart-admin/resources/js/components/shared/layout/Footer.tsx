@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Facebook, Mail, MapPin, Leaf } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 /**
  * Footer Component Props Interface
@@ -72,6 +73,7 @@ const Footer: React.FC<FooterProps> = ({
   ],
   className = ""
 }) => {
+  const t = useTranslation();
   return (
     <footer className={`bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-foreground mt-auto relative z-20 overflow-hidden ${className}`} role="contentinfo">
       {/* Decorative background elements */}
@@ -97,26 +99,25 @@ const Footer: React.FC<FooterProps> = ({
                   </div>
                   <div>
                     <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{companyName}</h3>
-                    <p className="text-sm text-secondary font-medium">Fresh from Farm to Table</p>
+                    <p className="text-sm text-secondary font-medium">{t('customer.fresh_from_farm')}</p>
                   </div>
                 </div>
 
                 {/* Description */}
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
-                  Connect with us for fresh produce, questions, or to learn more about our cooperative. 
-                  We're committed to bringing you the finest quality products from local farmers.
+                  {t('customer.footer_description')}
                 </p>
 
                 {/* Quick Stats or Badge */}
                 <div className="flex flex-wrap gap-3">
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">100% Fresh</p>
+                    <p className="text-xs text-secondary font-semibold">{t('customer.percent_fresh')}</p>
                   </div>
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">Locally Sourced</p>
+                    <p className="text-xs text-secondary font-semibold">{t('customer.locally_sourced')}</p>
                   </div>
                   <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                    <p className="text-xs text-secondary font-semibold">Sustainable</p>
+                    <p className="text-xs text-secondary font-semibold">{t('customer.sustainable')}</p>
                   </div>
                 </div>
               </div>
@@ -125,7 +126,7 @@ const Footer: React.FC<FooterProps> = ({
               <div className="lg:col-span-7">
                 <h4 className="text-lg sm:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                   <span className="w-1 h-6 bg-primary rounded-full"></span>
-                  Get In Touch
+                  {t('customer.get_in_touch')}
                 </h4>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
@@ -143,8 +144,8 @@ const Footer: React.FC<FooterProps> = ({
                         <Facebook className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">Follow Us On</p>
-                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">Facebook</p>
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.follow_us_on')}</p>
+                        <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">{t('customer.facebook')}</p>
                       </div>
                     </div>
                   </a>
@@ -161,7 +162,7 @@ const Footer: React.FC<FooterProps> = ({
                         <Mail className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">Email Us At</p>
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.email_us_at')}</p>
                         <p className="text-sm sm:text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300 truncate">{emailAddress}</p>
                       </div>
                     </div>
@@ -175,7 +176,7 @@ const Footer: React.FC<FooterProps> = ({
                         <MapPin className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">Visit Us At</p>
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">{t('customer.visit_us_at')}</p>
                         <p className="text-base font-bold text-foreground group-hover:text-secondary transition-colors duration-300">{physicalAddress}</p>
                       </div>
                     </div>
@@ -199,7 +200,7 @@ const Footer: React.FC<FooterProps> = ({
               {/* Copyright */}
               <div className="order-2 md:order-1">
                 <p className="text-xs sm:text-sm text-muted-foreground m-0 text-center md:text-left">
-                  © {currentYear} {companyName}. All rights reserved.
+                  © {currentYear} {companyName}. {t('customer.all_rights_reserved')}
                 </p>
               </div>
 
