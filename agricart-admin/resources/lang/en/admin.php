@@ -500,6 +500,7 @@ return [
     'email' => 'Email',
     'phone' => 'Phone',
     'date' => 'Date',
+    'action' => 'Action',
     'actions' => 'Actions',
     'all' => 'All',
     'select_all' => 'Select All',

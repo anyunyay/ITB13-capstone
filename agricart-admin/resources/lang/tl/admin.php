@@ -500,6 +500,7 @@ return [
     'email' => 'Email',
     'phone' => 'Telepono',
     'date' => 'Petsa',
+    'action' => 'Aksyon',
     'actions' => 'Mga Aksyon',
     'all' => 'Lahat',
     'select_all' => 'Piliin Lahat',
