@@ -25,6 +25,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import LogisticLayout from '@/layouts/logistic-layout';
 import MemberLayout from '@/layouts/member-layout';
 import { PaginationControls } from '@/components/inventory/pagination-controls';
+import { CustomerPaginationControls } from '@/components/customer/CustomerPaginationControls';
 
 interface Notification {
   id: string;
@@ -78,6 +79,13 @@ export default function AllNotificationsPage() {
   // Local state to track read notifications for immediate UI updates
   const [localNotifications, setLocalNotifications] = useState<Notification[]>(paginatedNotifications.data);
   
+  // Client-side pagination state for customers (5 desktop, 7 mobile)
+  const [clientPage, setClientPage] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Items per page based on device type (customer only)
+  const clientItemsPerPage = isMobile ? 7 : 5;
+  
   // Get highlighted notification ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const highlightedNotificationId = urlParams.get('highlight_notification');
@@ -90,6 +98,33 @@ export default function AllNotificationsPage() {
   }
   
   const userType = currentUser.type;
+  
+  // Determine if user is customer for pagination logic
+  const isCustomer = userType === 'customer';
+  
+  // Detect mobile/desktop for customer pagination
+  useEffect(() => {
+    const checkMobile = () => {
+      const newIsMobile = window.innerWidth < 768; // Tailwind's md breakpoint
+      setIsMobile(prevIsMobile => {
+        // Reset pagination to page 1 when switching between mobile/desktop
+        if (prevIsMobile !== newIsMobile && isCustomer) {
+          setClientPage(1);
+        }
+        return newIsMobile;
+      });
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isCustomer]);
+
+  // Reset pagination to page 1 when component mounts or when navigating back to this page
+  useEffect(() => {
+    // Reset to page 1 on mount (when user navigates to this page)
+    setClientPage(1);
+  }, []); // Empty dependency array means this runs only on mount
 
   // Update local notifications when props change, but preserve local read states
   useEffect(() => {
@@ -111,13 +146,39 @@ export default function AllNotificationsPage() {
         };
       });
     });
-  }, [paginatedNotifications.data]);
+    
+    // Reset client page to 1 when data changes (for customers)
+    if (isCustomer) {
+      setClientPage(1);
+    }
+  }, [paginatedNotifications.data, isCustomer]);
 
-  const notificationData = localNotifications;
-  const currentPage = paginatedNotifications.current_page;
-  const totalPages = paginatedNotifications.last_page;
-  const perPage = paginatedNotifications.per_page;
-  const totalItems = paginatedNotifications.total;
+  // For customers: use client-side pagination with sliced data
+  // For others: use server-side pagination
+  
+  let notificationData: Notification[];
+  let currentPage: number;
+  let totalPages: number;
+  let perPage: number;
+  let totalItems: number;
+  
+  if (isCustomer) {
+    // Client-side pagination for customers
+    const startIndex = (clientPage - 1) * clientItemsPerPage;
+    const endIndex = startIndex + clientItemsPerPage;
+    notificationData = localNotifications.slice(startIndex, endIndex);
+    currentPage = clientPage;
+    totalPages = Math.ceil(localNotifications.length / clientItemsPerPage);
+    perPage = clientItemsPerPage;
+    totalItems = localNotifications.length;
+  } else {
+    // Server-side pagination for admin/staff/logistic/member
+    notificationData = localNotifications;
+    currentPage = paginatedNotifications.current_page;
+    totalPages = paginatedNotifications.last_page;
+    perPage = paginatedNotifications.per_page;
+    totalItems = paginatedNotifications.total;
+  }
 
   // Scroll to and highlight notification if specified in URL
   useEffect(() => {
@@ -152,18 +213,24 @@ export default function AllNotificationsPage() {
     // Clear selections when changing pages
     setSelectedNotifications([]);
     
-    const routePrefix = userType === 'admin' || userType === 'staff' 
-      ? '/admin/profile/notifications'
-      : userType === 'member'
-      ? '/member/profile/notifications'
-      : userType === 'logistic'
-      ? '/logistic/profile/notifications'
-      : '/customer/profile/notifications';
-    
-    router.visit(`${routePrefix}?page=${page}`, {
-      preserveState: true,
-      preserveScroll: false,
-    });
+    if (isCustomer) {
+      // Client-side pagination for customers
+      setClientPage(page);
+      // Scroll to top of notifications
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Server-side pagination for admin/staff/logistic/member
+      const routePrefix = userType === 'admin' || userType === 'staff' 
+        ? '/admin/profile/notifications'
+        : userType === 'member'
+        ? '/member/profile/notifications'
+        : '/logistic/profile/notifications';
+      
+      router.visit(`${routePrefix}?page=${page}`, {
+        preserveState: true,
+        preserveScroll: false,
+      });
+    }
   };
 
   const handleMarkAsRead = (ids?: string[]) => {
@@ -437,7 +504,8 @@ export default function AllNotificationsPage() {
     }
   };
 
-  const unreadCount = notificationData.filter(n => !n.read_at).length;
+  // Count unread from all notifications (not just current page)
+  const unreadCount = localNotifications.filter(n => !n.read_at).length;
 
   // Customer Design - Clean & Modern
   const customerContent = (
@@ -582,15 +650,13 @@ export default function AllNotificationsPage() {
         )}
 
         {totalPages > 1 && (
-          <div className="flex justify-center mt-4 sm:mt-6">
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              itemsPerPage={perPage}
-              totalItems={totalItems}
-            />
-          </div>
+          <CustomerPaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            itemsPerPage={perPage}
+            totalItems={totalItems}
+          />
         )}
       </div>
   );

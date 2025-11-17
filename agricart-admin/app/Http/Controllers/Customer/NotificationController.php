@@ -118,6 +118,10 @@ class NotificationController extends Controller
             abort(403, 'Unauthorized access. This page is only accessible to customers.');
         }
         
+        // Fetch 10 notifications per page for optimal performance
+        // Frontend will handle client-side pagination (5 for desktop, 7 for mobile)
+        $perPage = 10;
+        
         $notifications = $user->notifications()
             ->whereIn('type', [
                 'App\\Notifications\\OrderConfirmationNotification',
@@ -126,7 +130,7 @@ class NotificationController extends Controller
                 'App\\Notifications\\OrderRejectionNotification'
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->through(function ($notification) {
                 return [
                     'id' => $notification->id,
