@@ -163,6 +163,33 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Display scaling compensation */
+    html {
+        /* Default values, will be overridden by ScaleProvider */
+        --scale-factor: 1;
+        --dpr: 1;
+        --base-font-size: 16px;
+        --scale-compensation: 1;
+    }
+
+    /* Apply scaling compensation to root font size for rem-based layouts */
+    html[data-scaled="true"] {
+        font-size: calc(16px * var(--scale-compensation));
+    }
+
+    /* Ensure images remain sharp on scaled displays */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+
+    /* High DPI image optimization */
+    @media (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+        img {
+            image-rendering: auto;
+        }
+    }
 }
 
 /* Custom Scrollbar Styles for Modal - Updated for new theme */
@@ -256,5 +283,61 @@
     
     .dark .highlight-row {
         animation: highlight-pulse-dark 1.5s ease-in-out 2;
+    }
+
+    /* Display scaling utilities */
+    .scale-adaptive {
+        transform: scale(var(--scale-compensation));
+        transform-origin: center;
+    }
+
+    .scale-adaptive-text {
+        font-size: calc(1em * var(--scale-compensation));
+    }
+
+    /* Responsive scaling for different DPR levels */
+    @media (-webkit-min-device-pixel-ratio: 1.25) and (-webkit-max-device-pixel-ratio: 1.49) {
+        .scale-auto {
+            transform: scale(0.8);
+            transform-origin: top left;
+        }
+    }
+
+    @media (-webkit-min-device-pixel-ratio: 1.5) and (-webkit-max-device-pixel-ratio: 1.74) {
+        .scale-auto {
+            transform: scale(0.6);
+            transform-origin: top left;
+        }
+    }
+
+    @media (-webkit-min-device-pixel-ratio: 1.75) {
+        .scale-auto {
+            transform: scale(0.2);
+            transform-origin: top left;
+        }
+    }
+
+    /* Container query support for adaptive scaling */
+    .scale-container {
+        container-type: inline-size;
+    }
+
+    /* Prevent layout shift during scaling */
+    .scale-stable {
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Ensure buttons and interactive elements scale properly */
+    button, a, input, select, textarea {
+        touch-action: manipulation;
+    }
+
+    /* Maintain aspect ratios during scaling */
+    .aspect-scale-safe {
+        aspect-ratio: attr(width) / attr(height);
+        object-fit: contain;
     }
 }
