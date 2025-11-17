@@ -22,7 +22,7 @@ export default function Create() {
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    const {data, setData, post, processing, errors} = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         name: '',
         price_kilo: '',
         price_pc: '',
@@ -36,7 +36,7 @@ export default function Create() {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
             setData('image', file);
-            
+
             // Create preview URL for the new image
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -53,7 +53,7 @@ export default function Create() {
 
     return (
         <AppLayout>
-            <Head title={t('admin.create_new_product')}/>
+            <Head title={t('admin.create_new_product')} />
             <div className='bg-background'>
                 <div className='w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8'>
                     {/* Page Header */}
@@ -94,7 +94,7 @@ export default function Create() {
                     <form onSubmit={handleSubmit} className='space-y-3'>
 
                         {/* Display Error */}
-                        {Object.keys(errors).length > 0 &&(
+                        {Object.keys(errors).length > 0 && (
                             <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
                                 <OctagonAlert className='h-4 w-4' />
                                 <AlertTitle>{t('admin.error_title')}</AlertTitle>
@@ -122,11 +122,14 @@ export default function Create() {
                                             <Label htmlFor="product_name" className="text-sm font-medium">
                                                 {t('admin.product_name_label')} <span className="text-destructive">*</span>
                                             </Label>
-                                            <Input 
+                                            <Input
                                                 id="product_name"
-                                                placeholder={t('admin.product_name_placeholder')} 
-                                                value={data.name} 
-                                                onChange={(e) => setData('name', e.target.value)}
+                                                placeholder={t('admin.product_name_placeholder')}
+                                                value={data.name}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                    setData('name', value);
+                                                }}
                                                 className="w-full"
                                                 required
                                             />
@@ -148,13 +151,13 @@ export default function Create() {
                                                 <option value="vegetable">{t('admin.vegetable')}</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div className='space-y-2'>
                                             <Label htmlFor="description" className="text-sm font-medium">{t('ui.description')}</Label>
-                                            <Textarea 
+                                            <Textarea
                                                 id="description"
-                                                placeholder={t('ui.description')} 
-                                                value={data.description} 
+                                                placeholder={t('ui.description')}
+                                                value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}
                                                 className="w-full min-h-[100px] resize-none"
                                             />
@@ -173,13 +176,13 @@ export default function Create() {
                                                 <Label htmlFor="price_kilo" className="text-sm font-medium">{t('admin.price_per_kilo')}</Label>
                                                 <div className="relative">
                                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                                                    <Input 
+                                                    <Input
                                                         id="price_kilo"
-                                                        type="number" 
-                                                        min="0" 
-                                                        step="0.01" 
-                                                        placeholder="0.00" 
-                                                        value={data.price_kilo} 
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        value={data.price_kilo}
                                                         onChange={(e) => setData('price_kilo', e.target.value)}
                                                         className="w-full pl-7"
                                                     />
@@ -189,13 +192,13 @@ export default function Create() {
                                                 <Label htmlFor="price_pc" className="text-sm font-medium">{t('admin.price_per_piece')}</Label>
                                                 <div className="relative">
                                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                                                    <Input 
+                                                    <Input
                                                         id="price_pc"
-                                                        type="number" 
-                                                        min="0" 
-                                                        step="0.01" 
-                                                        placeholder="0.00" 
-                                                        value={data.price_pc} 
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        value={data.price_pc}
                                                         onChange={(e) => setData('price_pc', e.target.value)}
                                                         className="w-full pl-7"
                                                     />
@@ -205,13 +208,13 @@ export default function Create() {
                                                 <Label htmlFor="price_tali" className="text-sm font-medium">{t('admin.price_per_tali')}</Label>
                                                 <div className="relative">
                                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                                                    <Input 
+                                                    <Input
                                                         id="price_tali"
-                                                        type="number" 
-                                                        min="0" 
-                                                        step="0.01" 
-                                                        placeholder="0.00" 
-                                                        value={data.price_tali} 
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        placeholder="0.00"
+                                                        value={data.price_tali}
                                                         onChange={(e) => setData('price_tali', e.target.value)}
                                                         className="w-full pl-7"
                                                     />
@@ -238,29 +241,29 @@ export default function Create() {
                                             <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
                                                 <Label className="text-xs font-medium mb-2 block text-primary text-center">{t('admin.new_image_preview')}</Label>
                                                 <div className="w-full h-48 flex items-center justify-center bg-background rounded-lg border">
-                                                    <img 
-                                                      src={imagePreview} 
-                                                      alt={t('admin.new_image_preview')}
-                                                      className="max-w-full max-h-full object-contain rounded-lg"
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt={t('admin.new_image_preview')}
+                                                        className="max-w-full max-h-full object-contain rounded-lg"
                                                     />
                                                 </div>
                                             </div>
                                         )}
-                                        
+
                                         <div className='space-y-2'>
                                             <Label htmlFor="image" className="text-sm font-medium">
                                                 {imagePreview ? t('admin.change_image') : t('admin.image_upload')}
                                             </Label>
                                             <div className="relative">
-                                                <Input 
-                                                    onChange={handleFileUpload} 
-                                                    id='image' 
-                                                    name='image' 
-                                                    type='file' 
+                                                <Input
+                                                    onChange={handleFileUpload}
+                                                    id='image'
+                                                    name='image'
+                                                    type='file'
                                                     accept="image/*"
                                                     className="hidden"
                                                 />
-                                                <label 
+                                                <label
                                                     htmlFor="image"
                                                     className="flex items-center justify-center w-full h-10 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md border border-input cursor-pointer hover:bg-primary/90 transition-colors"
                                                 >
@@ -277,14 +280,14 @@ export default function Create() {
                                 <Card className="shadow-sm">
                                     <CardContent className="pt-4 pb-4">
                                         <div className="flex flex-col gap-3">
-                                            <Button 
-                                                disabled={processing} 
+                                            <Button
+                                                disabled={processing}
                                                 type="submit"
                                                 className="w-full"
                                             >
                                                 {processing ? t('admin.creating') : t('admin.create_product')}
                                             </Button>
-                                            <Button 
+                                            <Button
                                                 type="button"
                                                 variant="outline"
                                                 onClick={() => router.visit(route('inventory.index'))}
