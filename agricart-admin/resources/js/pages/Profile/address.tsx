@@ -1,16 +1,12 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm, usePage, router, Link } from '@inertiajs/react';
 import { MapPin, PlusCircle, Edit, Trash2, Home, CheckCircle, AlertCircle, CheckCircle2, ShoppingCart, Package, Clock, ArrowLeft } from 'lucide-react';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
-import LogisticLayout from '@/layouts/logistic-layout';
-import MemberLayout from '@/layouts/member-layout';
 import { useTranslation } from '@/hooks/use-translation';
 import { getProfileRoutes } from '@/lib/utils';
 
@@ -274,7 +270,7 @@ export default function AddressPage() {
                activeAddress.province === user.province;
     };
 
-    const pageContent = user.type === 'customer' ? (
+    const pageContent = (
         // Customer Design - Clean & Modern
         <div className="space-y-4 sm:space-y-6">
                 {/* Flash Messages */}
@@ -803,183 +799,46 @@ export default function AddressPage() {
                 </DialogContent>
             </Dialog>
         </div>
-    ) : (
-        // Admin/Staff/Logistic/Member Design - Professional & Compact (fallback, typically not used)
-        <div className="space-y-6">
-                {/* Flash Messages */}
-                {flash?.success && (
-                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4">
-                        <div className="flex items-center gap-3">
-                            <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
-                            <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                                {flash.success}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {flash?.error && (
-                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
-                        <div className="flex items-center gap-3">
-                            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />
-                            <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                                {flash.error}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                <MapPin className="h-5 w-5 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-green-600 dark:text-green-400">
-                                    {t('ui.address_management')}
-                                </CardTitle>
-                                <CardDescription>
-                                    {t('ui.manage_delivery_addresses')}
-                                </CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                            Address management is primarily available for customers.
-                        </p>
-                    </CardContent>
-                </Card>
-        </div>
     );
 
-    // Render with appropriate layout based on user type
-    switch (user?.type) {
-        case 'admin':
-        case 'staff':
-            return (
-                <AppSidebarLayout>
-                    <div className="p-4 sm:p-6 lg:p-8">
-                        <div className="mb-6">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+    // Customer-only page
+    return (
+        <AppHeaderLayout>
+            <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
+                <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+                    {/* Page Header */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-1 sm:mb-2">
                                 {t('ui.address_management')}
                             </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
+                            <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400">
                                 {t('ui.manage_delivery_addresses')}
                             </p>
                         </div>
-                        {pageContent}
-                    </div>
-                </AppSidebarLayout>
-            );
-        case 'customer':
-            return (
-                <AppHeaderLayout>
-                    <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
-                        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                            {/* Page Header */}
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3 sm:gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-1 sm:mb-2">
-                                        {t('ui.address_management')}
-                                    </h1>
-                                    <p className="text-sm sm:text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400">
-                                        {t('ui.manage_delivery_addresses')}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
-                                    <Link href="/">
-                                        <Button 
-                                            variant="outline" 
-                                            className="px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base md:text-base lg:text-lg font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
-                                        >
-                                            <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                                            <span className="hidden sm:inline ml-2">{t('ui.back')}</span>
-                                        </Button>
-                                    </Link>
-                                    <Button 
-                                        onClick={handleAddNew} 
-                                        className="px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base md:text-base lg:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
-                                    >
-                                        <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
-                                        <span className="hidden sm:inline">{t('ui.add_new_address')}</span>
-                                        <span className="sm:hidden ml-1">Add</span>
-                                    </Button>
-                                </div>
-                            </div>
-                            {pageContent}
+                        <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+                            <Link href="/">
+                                <Button 
+                                    variant="outline" 
+                                    className="px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base md:text-base lg:text-lg font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                                >
+                                    <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                    <span className="hidden sm:inline ml-2">{t('ui.back')}</span>
+                                </Button>
+                            </Link>
+                            <Button 
+                                onClick={handleAddNew} 
+                                className="px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base md:text-base lg:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                            >
+                                <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 sm:mr-2" />
+                                <span className="hidden sm:inline">{t('ui.add_new_address')}</span>
+                                <span className="sm:hidden ml-1">Add</span>
+                            </Button>
                         </div>
                     </div>
-                </AppHeaderLayout>
-            );
-        case 'logistic':
-            return (
-                <LogisticLayout>
-                    <div className="px-2 pt-22 py-2 lg:px-8 lg:pt-25">
-                        <div className="mb-6">
-                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                        {t('ui.address_management')}
-                                    </h1>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        {t('ui.manage_delivery_addresses')}
-                                    </p>
-                                </div>
-                                <Link href="/logistic/dashboard">
-                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
-                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">{t('logistic.back_to_dashboard')}</span>
-                                    </Button>
-                                </Link>
-                            </div>
-                        </div>
-                        {pageContent}
-                    </div>
-                </LogisticLayout>
-            );
-        case 'member':
-            return (
-                <MemberLayout>
-                    <div className="px-2 pt-15 py-2 lg:px-8 lg:pt-17">
-                        <div className="mb-6">
-                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                        {t('ui.address_management')}
-                                    </h1>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        {t('ui.manage_delivery_addresses')}
-                                    </p>
-                                </div>
-                                <Link href="/member/dashboard">
-                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
-                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">{t('member.back_to_dashboard')}</span>
-                                    </Button>
-                                </Link>
-                            </div>
-                        </div>
-                        {pageContent}
-                    </div>
-                </MemberLayout>
-            );
-        default:
-            return (
-                <AppHeaderLayout>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
-                        <div className="mb-8">
-                            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                {t('ui.address_management')}
-                            </h1>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {t('ui.manage_delivery_addresses')}
-                            </p>
-                        </div>
-                        {pageContent}
-                    </div>
-                </AppHeaderLayout>
-            );
-    }
+                    {pageContent}
+                </div>
+            </div>
+        </AppHeaderLayout>
+    );
 }

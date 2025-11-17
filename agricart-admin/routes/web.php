@@ -76,7 +76,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('admin.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
-        Route::get('/profile/help', [ProfileController::class, 'help'])->name('admin.profile.help');
         
         // System Logs routes (admin and staff only)
         Route::get('/system-logs', [SystemLogsController::class, 'index'])->name('admin.system-logs');
@@ -331,7 +330,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('logistic.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('logistic.profile.appearance');
-        Route::get('/profile/help', [ProfileController::class, 'help'])->name('logistic.profile.help');
         
         // Logistic Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
@@ -368,7 +366,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('member.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('member.profile.appearance');
-        Route::get('/profile/help', [ProfileController::class, 'help'])->name('member.profile.help');
         
         // Member Email Change routes removed - members don't need email functionality
         
