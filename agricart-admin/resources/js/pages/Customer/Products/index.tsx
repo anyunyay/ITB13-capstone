@@ -68,13 +68,13 @@ export default function CustomerProducts() {
   return (
     <AppHeaderLayout>
       <Head title={t('customer.products_fresh_produce')} />
-      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-            <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-primary mb-3 sm:mb-4">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
+          <div className="text-center mb-8 sm:mb-10 lg:mb-11 xl:mb-12">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-primary mb-3 sm:mb-4">
               {t('customer.fresh_produce_from_cooperatives')}
             </h1>
-            <p className="text-base md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto px-4">
+            <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground max-w-2xl mx-auto px-4">
               Discover our wide selection of fresh fruits and vegetables, 
               sourced directly from trusted farmer cooperatives in your area.
             </p>
@@ -92,7 +92,7 @@ export default function CustomerProducts() {
             <Button
               onClick={toggleViewMode}
               variant="outline"
-              className="px-6 sm:px-8 py-2 sm:py-3 text-base md:text-base lg:text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-md hover:shadow-lg w-full sm:w-auto max-w-xs"
+              className="px-6 sm:px-8 py-2 sm:py-3 text-base md:text-base lg:text-base xl:text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-lg shadow-md hover:shadow-lg w-full sm:w-auto max-w-xs"
             >
               {viewMode === 'carousel' ? t('ui.view_all_products') : t('ui.back_to_carousel')}
             </Button>

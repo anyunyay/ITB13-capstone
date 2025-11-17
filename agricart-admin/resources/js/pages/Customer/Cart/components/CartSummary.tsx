@@ -26,8 +26,8 @@ export function CartSummary({
   const total = cartTotal * 1.10;
 
   return (
-    <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
-      <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">{t('ui.order_summary')}</h3>
+    <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4 xl:p-4.5">
+      <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-3 xl:mb-2.5">{t('ui.order_summary')}</h3>
       
       <div className="space-y-1.5 mb-2.5">
         <div className="flex justify-between items-center">

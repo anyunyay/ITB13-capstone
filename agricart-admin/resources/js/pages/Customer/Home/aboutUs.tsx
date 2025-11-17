@@ -144,7 +144,7 @@ export default function AboutUs({ }: PageProps) {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h2
-              className="text-4xl md:text-5xl lg:text-7xl font-light"
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light"
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -152,7 +152,7 @@ export default function AboutUs({ }: PageProps) {
               {t('customer.many_roots')}
             </motion.h2>
             <motion.h1
-              className="text-5xl md:text-7xl lg:text-9xl leading-none font-bold text-primary"
+              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl leading-none font-bold text-primary"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -160,7 +160,7 @@ export default function AboutUs({ }: PageProps) {
               {t('customer.one_bloom')}
             </motion.h1>
             <motion.p
-              className="text-base md:text-xl lg:text-2xl font-light mb-2 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed mx-auto lg:mx-0"
+              className="text-base md:text-xl lg:text-xl xl:text-2xl font-light mb-2 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -174,7 +174,7 @@ export default function AboutUs({ }: PageProps) {
             >
               <Button
                 size="lg"
-                className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-base md:text-base lg:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-7 xl:px-8 py-2 sm:py-3 lg:py-3.5 xl:py-4 text-base md:text-base lg:text-base xl:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
                 onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 <span className="hidden sm:inline">{t('customer.learn_more_about_us')}</span>
@@ -202,10 +202,10 @@ export default function AboutUs({ }: PageProps) {
                 viewport={{ once: true }}
                 className="order-2 lg:order-1"
               >
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 sm:mb-6">
+                <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-primary mb-4 sm:mb-6">
                   {t('customer.who_we_are')}
                 </h2>
-                <div className="space-y-3 sm:space-y-4 lg:space-y-6 text-base md:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
+                <div className="space-y-3 sm:space-y-4 lg:space-y-5 xl:space-y-6 text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground leading-relaxed">
                   <p>
                     {t('customer.who_we_are_desc_1')}
                   </p>
@@ -247,7 +247,7 @@ export default function AboutUs({ }: PageProps) {
               className="text-center mb-6 sm:mb-8 lg:mb-10"
             >
               <motion.h2
-                className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-3 sm:mb-4 lg:mb-5"
+                className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-primary mb-3 sm:mb-4 lg:mb-4.5 xl:mb-5"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -256,7 +256,7 @@ export default function AboutUs({ }: PageProps) {
                 {t('customer.our_vision_values')}
               </motion.h2>
               <motion.p
-                className="text-base md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-snug px-4"
+                className="text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground max-w-3xl mx-auto leading-snug px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -277,15 +277,15 @@ export default function AboutUs({ }: PageProps) {
                 >
                   <Card className={`h-full text-center ${styles.cardHover} ${styles.hoverLift}`}>
                     <CardHeader className="pb-2 pt-3 sm:pt-4 lg:pt-4">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 text-primary ${styles.iconBounce}`}>
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-11 xl:w-12 lg:h-11 xl:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 text-primary ${styles.iconBounce}`}>
                         {value.icon}
                       </div>
-                      <CardTitle className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">
+                      <CardTitle className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-primary">
                         {value.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pb-3 sm:pb-4 lg:pb-4 px-2 sm:px-1">
-                      <p className="text-sm md:text-base lg:text-2xl text-muted-foreground leading-relaxed">
+                      <p className="text-sm md:text-base lg:text-xl xl:text-2xl text-muted-foreground leading-relaxed">
                         {value.description}
                       </p>
                     </CardContent>
@@ -367,7 +367,7 @@ export default function AboutUs({ }: PageProps) {
                 viewport={{ once: true }}
               >
                 <motion.h2
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-primary"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -376,7 +376,7 @@ export default function AboutUs({ }: PageProps) {
                   {t('customer.agriculture_excellence')}
                 </motion.h2>
                 <motion.p
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed"
+                  className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-2xl text-muted-foreground leading-relaxed"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
@@ -439,16 +439,16 @@ export default function AboutUs({ }: PageProps) {
                   </div>
 
                   {/* Content */}
-                  <div className={index % 2 === 1 ? 'lg:col-start-1 mx-3 sm:mx-8 md:mx-12 lg:mx-20' : 'mx-3 sm:mx-8 md:mx-12 lg:mx-20'}>
+                  <div className={index % 2 === 1 ? 'lg:col-start-1 mx-3 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20' : 'mx-3 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20'}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 mb-1 sm:mb-2">
-                      <div className={`w-8 h-8 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
+                      <div className={`w-8 h-8 sm:w-14 sm:h-14 lg:w-15 xl:w-16 lg:h-15 xl:h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
                         {service.icon}
                       </div>
-                      <h3 className="text-lg sm:text-3xl md:text-3xl lg:text-4xl font-bold text-popover-foreground">
+                      <h3 className="text-lg sm:text-3xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-popover-foreground">
                         {service.title}
                       </h3>
                     </div>
-                    <p className="text-sm sm:text-xl md:text-xl lg:text-2xl text-popover-foreground mb-2 sm:mb-6 leading-relaxed">
+                    <p className="text-sm sm:text-xl md:text-xl lg:text-xl xl:text-2xl text-popover-foreground mb-2 sm:mb-6 leading-relaxed">
                       {service.description}
                     </p>
                   </div>

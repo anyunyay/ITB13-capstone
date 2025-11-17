@@ -68,10 +68,10 @@ export function CartItem({
               <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+              <h3 className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
                 {item.name}
               </h3>
-              <p className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-2">
+              <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground mb-2">
                 Product ID: {item.product_id}
               </p>
               <div className="flex items-center gap-2 mb-2">
@@ -97,7 +97,7 @@ export function CartItem({
           {/* Mobile Quantity and Price Section */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
+              <label className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
               <CartItemQuantityControl
                 item={item}
                 isEditing={isEditing}
@@ -108,8 +108,8 @@ export function CartItem({
             </div>
 
             <div>
-              <label className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
-              <div className="text-base md:text-xl lg:text-2xl font-bold text-card-foreground">
+              <label className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
+              <div className="text-base md:text-xl lg:text-xl xl:text-2xl font-bold text-card-foreground">
                 ₱{(Number(item.total_price) || 0).toFixed(2)}
               </div>
             </div>

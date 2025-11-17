@@ -324,7 +324,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     <AppHeaderLayout>
       <main className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 mt-20 mb-8 sm:mb-12 md:mb-16 overflow-x-hidden">
         <header className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary truncate">{t('ui.order_history')}</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-primary truncate">{t('ui.order_history')}</h2>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-1 sm:gap-2 shrink-0 px-3 sm:px-4">
@@ -335,11 +335,11 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             <PopoverContent className="w-80 mt-2" align="end" side="bottom" sideOffset={8} alignOffset={0} avoidCollisions={true} collisionPadding={20}>
               <section className="space-y-4">
                 <div>
-                  <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground mb-1">{t('ui.export_order_report')}</p>
+                  <p className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-foreground mb-1">{t('ui.export_order_report')}</p>
                   <p className="text-xs text-muted-foreground">{t('ui.select_date_range_optional')}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.start_date')} (Optional)</Label>
+                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-base xl:text-lg text-foreground">{t('ui.start_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -362,7 +362,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.end_date')} (Optional)</Label>
+                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-base xl:text-lg text-foreground">{t('ui.end_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -463,8 +463,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               <Card className="p-4 sm:p-6 text-center bg-muted">
                 <section className="flex flex-col items-center gap-2">
                   <Package className="h-10 sm:h-12 w-10 sm:w-12 text-muted-foreground" aria-hidden="true" />
-                  <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-foreground">{t('ui.no_orders_found')}</p>
-                  <p className="text-sm sm:text-base md:text-lg text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
+                  <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-medium text-foreground">{t('ui.no_orders_found')}</p>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-lg text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
                 </section>
               </Card>
             ) : (
@@ -533,11 +533,11 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <aside className="mb-4 p-4 bg-destructive/10 border-l-4 border-destructive rounded" role="alert">
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                           <div className="flex-1">
-                            <h3 className="text-base md:text-base lg:text-lg font-semibold mb-2 text-destructive">{t('ui.order_delayed')}</h3>
-                            <p className="text-xs md:text-sm lg:text-sm text-foreground mb-2">
+                            <h3 className="text-base md:text-base lg:text-base xl:text-lg font-semibold mb-2 text-destructive">{t('ui.order_delayed')}</h3>
+                            <p className="text-xs md:text-sm lg:text-sm xl:text-sm text-foreground mb-2">
                               {t('ui.order_delay_message')}
                             </p>
-                            <p className="text-xs md:text-sm lg:text-sm text-foreground">
+                            <p className="text-xs md:text-sm lg:text-sm xl:text-sm text-foreground">
                               {t('ui.if_you_have_concerns')} <strong>sample@email.com</strong>
                             </p>
                           </div>
@@ -553,8 +553,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle className="text-base md:text-lg lg:text-xl">{t('ui.cancel_order')} #{order.id}</DialogTitle>
-                                <DialogDescription className="text-sm md:text-base lg:text-lg">
+                                <DialogTitle className="text-base md:text-lg lg:text-lg xl:text-xl">{t('ui.cancel_order')} #{order.id}</DialogTitle>
+                                <DialogDescription className="text-sm md:text-base lg:text-base xl:text-lg">
                                   {t('ui.cancel_order_confirmation_message')}
                                   <br /><br />
                                   <strong>{t('ui.order_id_label')}</strong> #{order.id} <br />
@@ -646,30 +646,30 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             <article key={`${item.product.name}-${item.category}`} className="p-4 bg-card border border-border rounded-lg">
                               <div className="space-y-2">
                                 <header className="flex justify-between items-start">
-                                  <h4 className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">{item.product.name}</h4>
+                                  <h4 className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-card-foreground">{item.product.name}</h4>
                                 </header>
                                 <dl className="grid grid-cols-2 gap-2">
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.quantity_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">{item.quantity} {item.category}</dd>
+                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.quantity_label')}</dt>
+                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">{item.quantity} {item.category}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.price_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}</dd>
+                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.price_label')}</dt>
+                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.subtotal_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm font-semibold text-foreground">₱{Number(item.subtotal || 0).toFixed(2)}</dd>
+                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.subtotal_label')}</dt>
+                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-semibold text-foreground">₱{Number(item.subtotal || 0).toFixed(2)}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.delivery_fee_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">₱{Number(item.coop_share || 0).toFixed(2)}</dd>
+                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.delivery_fee_label')}</dt>
+                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">₱{Number(item.coop_share || 0).toFixed(2)}</dd>
                                   </div>
                                 </dl>
                                 <footer className="border-t border-border pt-2">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">{t('ui.total_label')}</span>
-                                    <span className="text-base md:text-xl lg:text-2xl font-bold text-primary">₱{Number(item.total_amount || 0).toFixed(2)}</span>
+                                    <span className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-card-foreground">{t('ui.total_label')}</span>
+                                    <span className="text-base md:text-xl lg:text-xl xl:text-2xl font-bold text-primary">₱{Number(item.total_amount || 0).toFixed(2)}</span>
                                   </div>
                                 </footer>
                               </div>
@@ -710,7 +710,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <aside className="mt-4 p-3 bg-primary/10 border-l-4 border-primary rounded">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="h-5 w-5 text-primary" aria-hidden="true" />
-                          <h3 className="text-base md:text-lg lg:text-xl font-semibold text-primary">{t('ui.order_confirmed')}</h3>
+                          <h3 className="text-base md:text-lg lg:text-lg xl:text-xl font-semibold text-primary">{t('ui.order_confirmed')}</h3>
                           <p className="ml-auto text-right text-xs mt-2 text-muted-foreground">
                             {t('ui.confirmed_on')} {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
                           </p>

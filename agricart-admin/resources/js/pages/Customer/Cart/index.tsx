@@ -345,8 +345,8 @@ export default function CartPage() {
   return (
     <AppHeaderLayout>
       <Head title={t('ui.cart')} />
-      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
           
           {/* Notification Messages */}
           {checkoutMessage && (
@@ -372,25 +372,25 @@ export default function CartPage() {
               <div className="w-24 h-24 mx-auto mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                 <ShoppingCart className="w-12 h-12 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">{t('ui.your_cart_is_empty')}</h2>
-              <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400 mb-8">{t('ui.start_adding_fresh_produce')}</p>
+              <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">{t('ui.your_cart_is_empty')}</h2>
+              <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-green-600 dark:text-green-400 mb-8">{t('ui.start_adding_fresh_produce')}</p>
               <Button 
                 onClick={() => router.visit('/customer/produce')}
-                className="px-8 py-3 text-base md:text-base lg:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                className="px-8 py-3 text-base md:text-base lg:text-base xl:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
               >
                 {t('ui.browse_products')}
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 xl:gap-8">
               {/* Cart Items Section */}
               <div className="lg:col-span-2">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400">
+                  <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-green-600 dark:text-green-400">
                     {t('ui.cart_items')}
                   </h2>
                   <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full border border-green-200 dark:border-green-700">
-                    <span className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300">
+                    <span className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-green-700 dark:text-green-300">
                       {cartItems.length} {cartItems.length === 1 ? t('ui.item') : t('ui.items')}
                     </span>
                   </div>
@@ -445,8 +445,8 @@ export default function CartPage() {
               {/* Sidebar Section */}
               <div className="space-y-6">
                 {/* Delivery Address Section */}
-                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
-                  <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">{t('ui.delivery_address')}</h3>
+                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4 xl:p-4.5">
+                  <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-3 xl:mb-2.5">{t('ui.delivery_address')}</h3>
                   <AddressSelector
                     addresses={addresses}
                     activeAddress={activeAddress}

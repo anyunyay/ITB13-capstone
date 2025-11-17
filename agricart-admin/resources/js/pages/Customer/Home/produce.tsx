@@ -349,14 +349,14 @@ export default function CustomerHome() {
       <div id={sectionId} className="w-full max-w-7xl mx-auto">
         {/* Section Header - Mobile: Centered Title */}
         <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center mb-3 sm:mb-6 sm:relative">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-primary text-center mb-2 sm:mb-0">{title}</h2>
+          <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-semibold text-primary text-center mb-2 sm:mb-0">{title}</h2>
 
           {/* Desktop View All Button - Top Right - Hidden when single product */}
           {!isSingleProduct && (
             <Button
               onClick={toggleFunction}
               variant="ghost"
-              className={`hidden sm:block sm:absolute sm:right-0 px-4 sm:px-6 py-1.5 sm:py-2 text-base md:text-base lg:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
+              className={`hidden sm:block sm:absolute sm:right-0 px-4 sm:px-6 py-1.5 sm:py-2 text-base md:text-base lg:text-base xl:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
                 ? 'text-primary'
                 : 'text-primary'
                 }`}
@@ -406,10 +406,10 @@ export default function CustomerHome() {
           <div className="w-full max-w-5xl mx-auto text-center py-8 sm:py-16 px-4">
             <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-12 border-2 border-green-200 dark:border-green-700">
               <div className="text-5xl sm:text-8xl mb-4 sm:mb-6">🔍</div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+              <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 {t('customer.no_products_found')}
               </h2>
-              <p className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-4 sm:mb-8 max-w-md mx-auto">
+              <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-gray-600 dark:text-gray-400 mb-4 sm:mb-8 max-w-md mx-auto">
                 {t('customer.no_products_matching')} <span className="font-semibold text-green-600">"{searchQuery}"</span>
               </p>
             </div>

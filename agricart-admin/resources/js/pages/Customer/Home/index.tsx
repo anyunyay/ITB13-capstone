@@ -134,7 +134,7 @@ export default function CustomerHome({ products }: PageProps) {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h2
-              className="text-4xl md:text-5xl lg:text-7xl font-light mb-2 lg:mb-0"
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light mb-2 lg:mb-0"
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -142,7 +142,7 @@ export default function CustomerHome({ products }: PageProps) {
               {t('customer.grown_here')}
             </motion.h2>
             <motion.h1
-              className="text-5xl md:text-7xl lg:text-9xl leading-none font-bold text-primary"
+              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl leading-none font-bold text-primary"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -171,7 +171,7 @@ export default function CustomerHome({ products }: PageProps) {
                   viewport={{ once: true }}
                 >
                   <motion.h2
-                    className="text-4xl md:text-5xl lg:text-6xl text-primary font-extrabold mb-2 sm:mb-4"
+                    className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl text-primary font-extrabold mb-2 sm:mb-4"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -180,7 +180,7 @@ export default function CustomerHome({ products }: PageProps) {
                     {t('customer.smmc_cooperative')}
                   </motion.h2>
                   <motion.h3
-                    className="text-2xl md:text-3xl lg:text-4xl text-foreground font-semibold mb-4 sm:mb-6"
+                    className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl text-foreground font-semibold mb-4 sm:mb-6"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -189,7 +189,7 @@ export default function CustomerHome({ products }: PageProps) {
                     {t('customer.empowering_local_communities')}
                   </motion.h3>
                   <motion.p
-                    className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-4 leading-relaxed"
+                    className="text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground mb-4 leading-relaxed"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -213,8 +213,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.years_experience')}</div>
+                      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-xl xl:text-2xl text-primary font-medium">{t('customer.years_experience')}</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -223,8 +223,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.6, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.active_farmers')}</div>
+                      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-xl xl:text-2xl text-primary font-medium">{t('customer.active_farmers')}</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -233,8 +233,8 @@ export default function CustomerHome({ products }: PageProps) {
                       transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
                       viewport={{ once: true }}
                     >
-                      <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.cooperatives')}</div>
+                      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-primary mb-1">00</div>
+                      <div className="text-base md:text-xl lg:text-xl xl:text-2xl text-primary font-medium">{t('customer.cooperatives')}</div>
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -264,7 +264,7 @@ export default function CustomerHome({ products }: PageProps) {
           <section id="produce" className="h-screen bg-background relative z-10 flex items-center snap-start">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 overflow-visible">
               <motion.h2
-                className="text-4xl md:text-5xl lg:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
+                className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -352,7 +352,7 @@ export default function CustomerHome({ products }: PageProps) {
                 viewport={{ once: true }}
               >
                 <button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-base md:text-base lg:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-base md:text-base lg:text-base xl:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                   onClick={() => router.visit('/customer/produce')}
                 >
                   {t('customer.show_all_produce')}
@@ -374,13 +374,13 @@ export default function CustomerHome({ products }: PageProps) {
                       <div className="bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-sm rounded-2xl border-2 border-primary/20 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 shadow-lg transition-all duration-500 ease-in-out hover:shadow-2xl hover:-translate-y-2 hover:border-primary/40 hover:from-primary/20 hover:to-primary/10 w-full sm:min-w-fit">
                         <div className="flex items-center gap-3 sm:gap-4">
                           {/* Icon container with gradient background */}
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out group-hover:scale-110 group-hover:shadow-xl flex-shrink-0">
-                            <span className="text-lg sm:text-xl lg:text-2xl">{card.icon}</span>
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-13 xl:w-14 lg:h-13 xl:h-14 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ease-in-out group-hover:scale-110 group-hover:shadow-xl flex-shrink-0">
+                            <span className="text-lg sm:text-xl lg:text-xl xl:text-2xl">{card.icon}</span>
                           </div>
 
                           {/* Title */}
                           <div className="flex flex-col flex-1">
-                            <p className="text-base md:text-xl lg:text-2xl font-bold text-primary transition-all duration-500 ease-in-out group-hover:text-primary/90">
+                            <p className="text-base md:text-xl lg:text-xl xl:text-2xl font-bold text-primary transition-all duration-500 ease-in-out group-hover:text-primary/90">
                               {card.title}
                             </p>
                             <div className="w-full h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 transition-all duration-500 ease-in-out group-hover:from-primary/80"></div>
@@ -389,8 +389,8 @@ export default function CustomerHome({ products }: PageProps) {
                       </div>
 
                       {/* Decorative elements */}
-                      <div className="absolute -top-2 -right-2 w-4 h-4 sm:w-6 sm:h-6 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out"></div>
-                      <div className="absolute -bottom-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 bg-primary/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
+                      <div className="absolute -top-2 -right-2 w-4 h-4 sm:w-6 sm:h-6 lg:w-5 xl:w-6 lg:h-5 xl:h-6 bg-primary/20 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out"></div>
+                      <div className="absolute -bottom-2 -left-2 w-3 h-3 sm:w-4 sm:h-4 lg:w-3.5 xl:w-4 lg:h-3.5 xl:h-4 bg-primary/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"></div>
                     </motion.div>
                   ))}
                 </div>
