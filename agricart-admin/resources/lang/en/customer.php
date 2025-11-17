@@ -173,5 +173,25 @@ return [
     'next' => 'Next',
     'page' => 'Page',
     'of' => 'of',
+    
+    // Product Card
+    'per_kilo' => 'Per Kilo:',
+    'per_piece' => 'Per Piece:',
+    'per_tali' => 'Per Tali:',
+    'no_prices_set' => 'No prices set',
+    'price_not_available' => 'Price N/A',
+    
+    // Order Confirmation Modal
+    'confirm_order_received_title' => 'Confirm Order Received',
+    'confirm_order_description' => 'Please confirm that you have received Order #:order_id (₱:total). We\'d love to hear about your experience!',
+    'rate_your_experience' => 'Rate Your Experience',
+    'additional_feedback' => 'Additional Feedback (Optional)',
+    'feedback_placeholder' => 'Tell us more about your experience with the products, delivery, or any suggestions for improvement...',
+    'characters' => 'characters',
+    'order_confirmation_note' => 'Once confirmed, this order will be marked as received. If you don\'t confirm within 3 days of delivery, it will be automatically confirmed.',
+    'note' => 'Note:',
+    'order_confirmed' => 'Order Confirmed!',
+    'thank_you_feedback' => 'Thank you for confirming your order. Your feedback helps us improve our service.',
+    'confirming' => 'Confirming...',
 ];
 

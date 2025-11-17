@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { CheckCircle } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import StarRating from '@/components/customer/products/StarRating';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderReceivedConfirmationModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function OrderReceivedConfirmationModal({
   orderId,
   orderTotal
 }: OrderReceivedConfirmationModalProps) {
+  const t = useTranslation();
   const [rating, setRating] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,10 +65,10 @@ export default function OrderReceivedConfirmationModal({
           <DialogHeader>
             <DialogTitle className="text-center text-green-600">
               <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-600" />
-              Order Confirmed!
+              {t('customer.order_confirmed')}
             </DialogTitle>
             <DialogDescription className="text-center">
-              Thank you for confirming your order. Your feedback helps us improve our service.
+              {t('customer.thank_you_feedback')}
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -78,17 +80,16 @@ export default function OrderReceivedConfirmationModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Confirm Order Received</DialogTitle>
+          <DialogTitle>{t('customer.confirm_order_received_title')}</DialogTitle>
           <DialogDescription>
-            Please confirm that you have received Order #{orderId} (₱{orderTotal.toFixed(2)}).
-            We'd love to hear about your experience!
+            {t('customer.confirm_order_description', { order_id: orderId, total: orderTotal.toFixed(2) })}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
           {/* Star Rating Section */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Rate Your Experience</Label>
+            <Label className="text-base font-semibold">{t('customer.rate_your_experience')}</Label>
             <StarRating
               rating={rating}
               onRatingChange={setRating}
@@ -102,25 +103,24 @@ export default function OrderReceivedConfirmationModal({
           {/* Feedback Section */}
           <div className="space-y-2">
             <Label htmlFor="feedback" className="text-base font-semibold">
-              Additional Feedback (Optional)
+              {t('customer.additional_feedback')}
             </Label>
             <Textarea
               id="feedback"
-              placeholder="Tell us more about your experience with the products, delivery, or any suggestions for improvement..."
+              placeholder={t('customer.feedback_placeholder')}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               className="min-h-[120px] resize-none"
               maxLength={1000}
             />
             <div className="text-sm text-gray-500 text-right">
-              {feedback.length}/1000 characters
+              {feedback.length}/1000 {t('customer.characters')}
             </div>
           </div>
           
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Note:</strong> Once confirmed, this order will be marked as received. 
-              If you don't confirm within 3 days of delivery, it will be automatically confirmed.
+              <strong>{t('customer.note')}</strong> {t('customer.order_confirmation_note')}
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function OrderReceivedConfirmationModal({
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('customer.cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -141,12 +141,12 @@ export default function OrderReceivedConfirmationModal({
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Confirming...
+                {t('customer.confirming')}
               </>
             ) : (
               <>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Confirm Received
+                {t('customer.confirm_order_received')}
               </>
             )}
           </Button>

@@ -173,4 +173,24 @@ return [
     'next' => 'Susunod',
     'page' => 'Pahina',
     'of' => 'ng',
+    
+    // Product Card
+    'per_kilo' => 'Bawat Kilo:',
+    'per_piece' => 'Bawat Piraso:',
+    'per_tali' => 'Bawat Tali:',
+    'no_prices_set' => 'Walang nakatakdang presyo',
+    'price_not_available' => 'Walang Presyo',
+    
+    // Order Confirmation Modal
+    'confirm_order_received_title' => 'Kumpirmahin ang Natanggap na Order',
+    'confirm_order_description' => 'Pakikumpirma na natanggap mo ang Order #:order_id (₱:total). Gusto naming malaman ang iyong karanasan!',
+    'rate_your_experience' => 'I-rate ang Iyong Karanasan',
+    'additional_feedback' => 'Karagdagang Feedback (Opsyonal)',
+    'feedback_placeholder' => 'Sabihin sa amin ang higit pa tungkol sa iyong karanasan sa mga produkto, delivery, o anumang mungkahi para sa pagpapabuti...',
+    'characters' => 'mga character',
+    'order_confirmation_note' => 'Kapag nakumpirma, ang order na ito ay markahan bilang natanggap. Kung hindi mo ito kumpirmahin sa loob ng 3 araw mula sa delivery, ito ay awtomatikong makukumpirma.',
+    'note' => 'Tandaan:',
+    'order_confirmed' => 'Nakumpirma ang Order!',
+    'thank_you_feedback' => 'Salamat sa pagkumpirma ng iyong order. Ang iyong feedback ay tumutulong sa amin na mapabuti ang aming serbisyo.',
+    'confirming' => 'Kinukumpirma...',
 ];

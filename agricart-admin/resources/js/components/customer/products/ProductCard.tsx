@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AddToCartModal } from '@/components/customer/cart/AddToCartModal';
 import StockManager from '@/lib/stock-manager';
 import type { SharedData } from '@/types';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Product {
   id: number;
@@ -36,6 +37,7 @@ export function ProductCard({
   className = '',
   onImageClick
 }: ProductCardProps) {
+  const t = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
   
@@ -103,7 +105,7 @@ export function ProductCard({
           </div>
         </div>
         <div className="text-xs text-green-600 dark:text-green-400 font-medium">
-          {Object.keys(product.stock_by_category || {}).length > 0 ? 'In Stock' : 'Out of Stock'}
+          {Object.keys(product.stock_by_category || {}).length > 0 ? t('customer.in_stock') : t('customer.out_of_stock')}
         </div>
       </div>
     );
@@ -140,7 +142,7 @@ export function ProductCard({
               {product.price_kilo && `₱${formatPrice(product.price_kilo)}/kg`}
               {product.price_pc && `₱${formatPrice(product.price_pc)}/pc`}
               {product.price_tali && `₱${formatPrice(product.price_tali)}/tali`}
-              {!product.price_kilo && !product.price_pc && !product.price_tali && 'Price N/A'}
+              {!product.price_kilo && !product.price_pc && !product.price_tali && t('customer.price_not_available')}
             </div>
           </div>
         </div>
@@ -201,24 +203,24 @@ export function ProductCard({
         <div className="space-y-0.5 sm:space-y-1">
           {product.price_kilo && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Kilo:</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">{t('customer.per_kilo')}</span>
               <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_kilo)}</span>
             </div>
           )}
           {product.price_pc && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Piece:</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">{t('customer.per_piece')}</span>
               <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_pc)}</span>
             </div>
           )}
           {product.price_tali && (
             <div className="flex justify-between items-center py-0.5">
-              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">Per Tali:</span>
+              <span className="text-xs sm:text-sm text-green-600 dark:text-green-400">{t('customer.per_tali')}</span>
               <span className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">₱{formatPrice(product.price_tali)}</span>
             </div>
           )}
           {!product.price_kilo && !product.price_pc && !product.price_tali && (
-            <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium py-0.5">No prices set</div>
+            <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium py-0.5">{t('customer.no_prices_set')}</div>
           )}
         </div>
         
@@ -235,7 +237,7 @@ export function ProductCard({
               onClick={() => setModalOpen(true)}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg text-xs sm:text-sm lg:text-base transition-colors duration-200 shadow-sm sm:shadow-md hover:shadow-md sm:hover:shadow-lg"
             >
-              Add to Cart
+              {t('customer.add_to_cart')}
             </Button>
           </div>
         )}
