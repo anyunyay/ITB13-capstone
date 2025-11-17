@@ -81,10 +81,11 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     label: t('admin.actions'),
     sortable: false,
     render: (order) => (
-      <PermissionGate permission="view_orders">
+      <PermissionGate permission="view orders">
         <Link href={route('admin.orders.show', order.id)}>
-          <Button variant="ghost" size="sm">
-            <Eye className="h-4 w-4" />
+          <Button variant="outline" size="sm">
+            <Eye className="h-4 w-4 mr-2" />
+            {t('ui.view')}
           </Button>
         </Link>
       </PermissionGate>
@@ -141,7 +142,7 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
         </div>
       </div>
 
-      <PermissionGate permission="view_orders">
+      <PermissionGate permission="view orders">
         <Link href={route('admin.orders.show', order.id)} className="block">
           <Button variant="outline" size="sm" className="w-full">
             <Eye className="h-4 w-4 mr-2" />
