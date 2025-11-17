@@ -175,7 +175,10 @@ export default function Edit({product}: Props) {
                                                 id="product_name"
                                                 placeholder={t('admin.product_name_placeholder')} 
                                                 value={data.name} 
-                                                onChange={(e) => setData('name', e.target.value)}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                    setData('name', value);
+                                                }}
                                                 className="w-full"
                                                 required
                                             />
