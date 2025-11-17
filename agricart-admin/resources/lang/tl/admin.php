@@ -219,6 +219,7 @@ return [
     'filter_by_delivery' => 'I-filter ayon sa katayuan ng paghahatid',
     'generate_report' => 'Gumawa ng Report',
     'order_id' => 'Order #:id',
+    'order_date' => 'Petsa ng Order',
     'placed_on' => 'Ginawa noong :date',
     'back_to_orders' => 'Bumalik sa mga Order',
     'back_to_dashboard' => 'Bumalik sa Dashboard',
