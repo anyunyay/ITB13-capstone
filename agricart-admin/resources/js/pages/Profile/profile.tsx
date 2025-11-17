@@ -433,26 +433,170 @@ export default function ProfilePage() {
         case 'customer':
             return (
                 <AppHeaderLayout>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
-                        <div className="mb-8">
-                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
+                    <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            {/* Page Header */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                                 <div className="flex-1 min-w-0">
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                        {t('ui.profile_information')}
+                                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-2">
+                                        My Profile
                                     </h1>
-                                    <p className="mt-2 text-sm text-muted-foreground">
+                                    <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400">
                                         {t('ui.manage_account_settings')}
                                     </p>
                                 </div>
                                 <Link href="/customer/home">
-                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
-                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">{t('ui.back')}</span>
+                                    <Button 
+                                        variant="outline" 
+                                        className="px-4 sm:px-6 py-2 sm:py-3 text-base md:text-base lg:text-lg font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                                    >
+                                        <ArrowLeft className="h-4 w-4 mr-2" />
+                                        {t('ui.back')}
                                     </Button>
                                 </Link>
                             </div>
+
+                            {/* Customer Profile Content */}
+                            <div className="space-y-6">
+                                {/* Main Profile Card */}
+                                <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
+                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b-2 border-green-200 dark:border-green-700 p-6">
+                                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                                            {/* Avatar */}
+                                            <div className="relative">
+                                                <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-green-600 dark:border-green-400 shadow-lg">
+                                                    <AvatarImage
+                                                        src={user?.avatar_url || undefined}
+                                                        alt={user?.name}
+                                                        className="object-cover"
+                                                    />
+                                                    <AvatarFallback className="text-2xl sm:text-3xl bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 font-bold">
+                                                        {user?.name ? getInitials(user.name) : 'U'}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-600 dark:bg-green-500 rounded-full border-4 border-card flex items-center justify-center shadow-lg">
+                                                    <Shield className="h-4 w-4 text-white" />
+                                                </div>
+                                            </div>
+
+                                            {/* User Info */}
+                                            <div className="flex-1 text-center sm:text-left">
+                                                <h2 className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-300 mb-2">
+                                                    {user?.name || 'No Name'}
+                                                </h2>
+                                                <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-600 dark:bg-green-500 text-white">
+                                                        <User className="h-4 w-4 mr-1.5" />
+                                                        {getUserTypeLabel(user?.type || '')}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-green-600 dark:text-green-400 flex items-center justify-center sm:justify-start gap-2">
+                                                    <Calendar className="h-4 w-4" />
+                                                    Member Since {formatDate(user?.created_at)}
+                                                </p>
+                                            </div>
+
+                                            {/* Edit Button */}
+                                            <div className="w-full sm:w-auto">
+                                                <Button
+                                                    onClick={() => setIsEditModalOpen(true)}
+                                                    className="w-full sm:w-auto px-6 py-3 text-base font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                                                >
+                                                    <Edit className="h-4 w-4 mr-2" />
+                                                    {t('ui.edit_profile')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Contact & Account Information */}
+                                    <div className="p-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                            {/* Contact Information */}
+                                            <div className="space-y-4">
+                                                <h3 className="text-xl font-bold text-green-700 dark:text-green-300 flex items-center gap-2 mb-4">
+                                                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                                        <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                    </div>
+                                                    {t('ui.contact_information')}
+                                                </h3>
+                                                
+                                                {/* Email */}
+                                                <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border-2 border-green-200 dark:border-green-700">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-lg bg-white dark:bg-green-900/30">
+                                                            <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm text-green-600 dark:text-green-400 mb-1">Email Address</p>
+                                                            <p className="font-semibold text-green-700 dark:text-green-300">{displayEmail}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Phone */}
+                                                <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border-2 border-green-200 dark:border-green-700">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-lg bg-white dark:bg-green-900/30">
+                                                            <Phone className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm text-green-600 dark:text-green-400 mb-1">Phone Number</p>
+                                                            <p className="font-semibold text-green-700 dark:text-green-300">{displayPhone || 'Not Provided'}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Account Information */}
+                                            <div className="space-y-4">
+                                                <h3 className="text-xl font-bold text-green-700 dark:text-green-300 flex items-center gap-2 mb-4">
+                                                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                                        <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                    </div>
+                                                    {t('ui.account_information')}
+                                                </h3>
+
+                                                {/* Address */}
+                                                <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border-2 border-green-200 dark:border-green-700">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="p-2 rounded-lg bg-white dark:bg-green-900/30 flex-shrink-0">
+                                                            <MapPin className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm text-green-600 dark:text-green-400 mb-1">{t('ui.current_address')}</p>
+                                                            <p className="font-semibold text-green-700 dark:text-green-300 leading-relaxed">
+                                                                {getCurrentAddress()}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Account Created */}
+                                                <div className="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border-2 border-green-200 dark:border-green-700">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-lg bg-white dark:bg-green-900/30">
+                                                            <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm text-green-600 dark:text-green-400 mb-1">{t('ui.account_created')}</p>
+                                                            <p className="font-semibold text-green-700 dark:text-green-300">{formatDate(user?.created_at)}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Profile Edit Modal */}
+                            <ProfileEditModal
+                                isOpen={isEditModalOpen}
+                                onClose={() => setIsEditModalOpen(false)}
+                                user={user}
+                            />
                         </div>
-                        {profileContent}
                     </div>
                 </AppHeaderLayout>
             );

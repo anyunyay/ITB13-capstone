@@ -20,12 +20,13 @@ interface EmailChangeRequest {
 
 interface EmailChangeModalProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (completed?: boolean) => void;
+    onSwitchToPhone?: () => void;
     user: User;
     emailChangeRequest?: EmailChangeRequest;
 }
 
-export default function EmailChangeModal({ isOpen, onClose, user, emailChangeRequest }: EmailChangeModalProps) {
+export default function EmailChangeModal({ isOpen, onClose, onSwitchToPhone, user, emailChangeRequest }: EmailChangeModalProps) {
     // Get the appropriate API endpoint based on user type
     const getApiEndpoint = () => {
         const userType = user.type;
@@ -50,6 +51,7 @@ export default function EmailChangeModal({ isOpen, onClose, user, emailChangeReq
         <OtpVerificationModal
             isOpen={isOpen}
             onClose={onClose}
+            onSwitchToOther={onSwitchToPhone}
             user={user}
             otpRequest={emailChangeRequest}
             verificationType="email"

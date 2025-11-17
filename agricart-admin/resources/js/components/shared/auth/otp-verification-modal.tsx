@@ -27,7 +27,8 @@ interface OtpRequest {
 
 interface OtpVerificationModalProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (completed?: boolean) => void;
+    onSwitchToOther?: () => void;
     user: User;
     otpRequest?: OtpRequest;
     verificationType: 'email' | 'phone';
@@ -35,6 +36,9 @@ interface OtpVerificationModalProps {
     newValueFieldName: string;
     apiEndpoint: string;
 }
+
+// Check if user is customer for styling
+const isCustomerUser = (user: User) => user?.type === 'customer';
 
 // Utility function to mask sensitive information for security
 const maskValue = (value: string, type: 'email' | 'phone', userType?: string): string => {
@@ -75,6 +79,7 @@ const maskValue = (value: string, type: 'email' | 'phone', userType?: string): s
 export default function OtpVerificationModal({ 
     isOpen, 
     onClose, 
+    onSwitchToOther,
     user, 
     otpRequest, 
     verificationType,
@@ -458,7 +463,7 @@ export default function OtpVerificationModal({
                 setSuccess(data.message || `${verificationType} changed successfully!`);
                 // Close modal and refresh the page after success
                 setTimeout(() => {
-                    onClose();
+                    onClose(true); // Pass true to indicate completion
                     window.location.reload();
                 }, 2000);
             } else {
@@ -636,16 +641,20 @@ export default function OtpVerificationModal({
         return verificationType === 'email' ? 'New Email Address' : 'New Phone Number';
     };
 
+    const isCustomer = isCustomerUser(user);
+
     return (
         <>
         <Dialog open={isOpen} onOpenChange={step === 'input' ? onClose : undefined}>
-            <DialogContent className="sm:max-w-md" {...(step === 'verify' ? { hideCloseButton: true } : {})}>
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        {getIcon()}
+            <DialogContent className={`sm:max-w-md ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''}`} {...(step === 'verify' ? { hideCloseButton: true } : {})}>
+                <DialogHeader className={isCustomer ? 'border-b-2 border-green-200 dark:border-green-700 pb-4' : ''}>
+                    <DialogTitle className={`flex items-center gap-2 ${isCustomer ? 'text-green-700 dark:text-green-300' : ''}`}>
+                        <div className={isCustomer ? 'p-2 rounded-lg bg-green-100 dark:bg-green-900/30' : ''}>
+                            {getIcon()}
+                        </div>
                         {step === 'input' ? getTitle() : `Verify ${verificationType === 'email' ? 'Email' : 'Phone'} Change via Email`}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className={isCustomer ? 'text-green-600 dark:text-green-400' : ''}>
                         {getDescription()}
                     </DialogDescription>
                 </DialogHeader>
@@ -742,26 +751,39 @@ export default function OtpVerificationModal({
                                 </Alert>
                             )}
 
-                            <div className="flex gap-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleCancel}
-                                    disabled={isLoading}
-                                    className="flex-1"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={isLoading || !formData[newValueFieldName].trim() || 
-                                        (verificationType === 'phone' && formData[newValueFieldName].replace(/^0/, '') === currentValue.replace(/^\+63/, '').replace(/^0/, '')) ||
-                                        (verificationType === 'email' && formData[newValueFieldName] === currentValue)}
-                                    className="flex-1 flex items-center gap-2"
-                                >
-                                    <Send className="h-4 w-4" />
-                                    {isLoading ? 'Sending...' : 'Send Code'}
-                                </Button>
+                            <div className="space-y-2">
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleCancel}
+                                        disabled={isLoading}
+                                        className="flex-1"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={isLoading || !formData[newValueFieldName].trim() || 
+                                            (verificationType === 'phone' && formData[newValueFieldName].replace(/^0/, '') === currentValue.replace(/^\+63/, '').replace(/^0/, '')) ||
+                                            (verificationType === 'email' && formData[newValueFieldName] === currentValue)}
+                                        className="flex-1 flex items-center gap-2"
+                                    >
+                                        <Send className="h-4 w-4" />
+                                        {isLoading ? 'Sending...' : 'Send Code'}
+                                    </Button>
+                                </div>
+                                {onSwitchToOther && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={onSwitchToOther}
+                                        disabled={isLoading}
+                                        className="w-full text-sm"
+                                    >
+                                        {verificationType === 'email' ? 'Switch to Change Phone Number' : 'Switch to Change Email Address'}
+                                    </Button>
+                                )}
                             </div>
                         </form>
                     ) : (

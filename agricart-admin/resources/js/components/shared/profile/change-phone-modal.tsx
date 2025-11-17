@@ -20,12 +20,13 @@ interface PhoneChangeRequest {
 
 interface PhoneChangeModalProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (completed?: boolean) => void;
+    onSwitchToEmail?: () => void;
     user: User;
     phoneChangeRequest?: PhoneChangeRequest;
 }
 
-export default function PhoneChangeModal({ isOpen, onClose, user, phoneChangeRequest }: PhoneChangeModalProps) {
+export default function PhoneChangeModal({ isOpen, onClose, onSwitchToEmail, user, phoneChangeRequest }: PhoneChangeModalProps) {
     // Get the appropriate API endpoint based on user type
     const getApiEndpoint = () => {
         const userType = user.type;
@@ -50,6 +51,7 @@ export default function PhoneChangeModal({ isOpen, onClose, user, phoneChangeReq
         <OtpVerificationModal
             isOpen={isOpen}
             onClose={onClose}
+            onSwitchToOther={onSwitchToEmail}
             user={user}
             otpRequest={phoneChangeRequest}
             verificationType="phone"

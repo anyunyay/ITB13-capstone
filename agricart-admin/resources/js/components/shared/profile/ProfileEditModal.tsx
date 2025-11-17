@@ -84,10 +84,14 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
+    const [shouldReturnToProfile, setShouldReturnToProfile] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
     // Check if user is admin or staff (should see full phone number)
     const isAdminOrStaff = user?.type === 'admin' || user?.type === 'staff';
+    
+    // Check if user is customer for styling
+    const isCustomer = user?.type === 'customer';
 
     const { data, setData, patch, processing, errors } = useForm({
         name: user?.name || '',
@@ -115,6 +119,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             // Reset all modal states when closed
             setIsEmailChangeModalOpen(false);
             setIsPhoneChangeModalOpen(false);
+            setShouldReturnToProfile(false);
             setSelectedAvatar(null);
             setAvatarPreview(null);
             if (avatarInputRef.current) {
@@ -122,6 +127,44 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             }
         }
     }, [isOpen]);
+
+    // Handle returning to profile modal after email/phone change completion
+    const handleEmailChangeClose = (completed?: boolean) => {
+        setIsEmailChangeModalOpen(false);
+        if (completed && shouldReturnToProfile) {
+            // Modal stays open, user returns to profile edit
+            setShouldReturnToProfile(false);
+        }
+    };
+
+    const handlePhoneChangeClose = (completed?: boolean) => {
+        setIsPhoneChangeModalOpen(false);
+        if (completed && shouldReturnToProfile) {
+            // Modal stays open, user returns to profile edit
+            setShouldReturnToProfile(false);
+        }
+    };
+
+    const handleOpenEmailChange = () => {
+        setShouldReturnToProfile(true);
+        setIsEmailChangeModalOpen(true);
+    };
+
+    const handleOpenPhoneChange = () => {
+        setShouldReturnToProfile(true);
+        setIsPhoneChangeModalOpen(true);
+    };
+
+    // Handle switching between email and phone modals
+    const handleSwitchToPhone = () => {
+        setIsEmailChangeModalOpen(false);
+        setIsPhoneChangeModalOpen(true);
+    };
+
+    const handleSwitchToEmail = () => {
+        setIsPhoneChangeModalOpen(false);
+        setIsEmailChangeModalOpen(true);
+    };
 
     const handleClose = () => {
         // Reset form state when closing
@@ -215,16 +258,18 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         <>
             <Dialog open={isOpen} onOpenChange={handleClose}>
                 <DialogContent 
-                    className="sm:max-w-lg max-h-[85vh] overflow-y-auto"
+                    className={`sm:max-w-lg max-h-[85vh] overflow-y-auto ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''}`}
                     onPointerDownOutside={(e) => e.preventDefault()}
                     onEscapeKeyDown={handleClose}
                 >
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <User className="h-5 w-5" />
+                    <DialogHeader className={isCustomer ? 'border-b-2 border-green-200 dark:border-green-700 pb-4' : ''}>
+                        <DialogTitle className={`flex items-center gap-2 ${isCustomer ? 'text-green-700 dark:text-green-300 text-xl' : ''}`}>
+                            <div className={isCustomer ? 'p-2 rounded-lg bg-green-100 dark:bg-green-900/30' : ''}>
+                                <User className={`h-5 w-5 ${isCustomer ? 'text-green-600 dark:text-green-400' : ''}`} />
+                            </div>
                             Edit Profile Information
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className={isCustomer ? 'text-green-600 dark:text-green-400' : ''}>
                             Update your profile information and settings.
                         </DialogDescription>
                     </DialogHeader>
@@ -233,24 +278,36 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                         {/* Profile Picture Section */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
-                                <Camera className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                                <Label className="text-sm font-semibold">Profile Picture</Label>
+                                <Camera className={`h-4 w-4 ${isCustomer ? 'text-green-600 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`} />
+                                <Label className={`text-sm font-semibold ${isCustomer ? 'text-green-700 dark:text-green-300' : ''}`}>Profile Picture</Label>
                             </div>
                             
                             <div className="flex flex-col items-center gap-3 sm:flex-row">
                                 <div className="relative group">
-                                    <Avatar className="h-16 w-16 border-2 border-white/50 dark:border-slate-600/50 shadow-lg ring-2 ring-slate-200/50 dark:ring-slate-600/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
+                                    <Avatar className={`h-16 w-16 border-4 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl ${
+                                        isCustomer 
+                                            ? 'border-green-600 dark:border-green-400' 
+                                            : 'border-white/50 dark:border-slate-600/50 ring-2 ring-slate-200/50 dark:ring-slate-600/50'
+                                    }`}>
                                         <AvatarImage 
                                             src={avatarPreview || user?.avatar_url || undefined} 
                                             alt={user?.name} 
                                             className="object-cover"
                                         />
-                                        <AvatarFallback className="text-lg bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-bold">
+                                        <AvatarFallback className={`text-lg font-bold ${
+                                            isCustomer 
+                                                ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
+                                                : 'bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300'
+                                        }`}>
                                             {user?.name ? getInitials(user.name) : 'U'}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-800 shadow-lg flex items-center justify-center">
-                                        <Camera className="h-2.5 w-2.5 text-white" />
+                                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 shadow-lg flex items-center justify-center ${
+                                        isCustomer 
+                                            ? 'bg-green-600 dark:bg-green-500 border-white dark:border-slate-800' 
+                                            : 'bg-green-500 border-white dark:border-slate-800'
+                                    }`}>
+                                        <Camera className="h-3 w-3 text-white" />
                                     </div>
                                 </div>
 
@@ -269,9 +326,13 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                                 type="button"
                                                 variant="outline"
                                                 onClick={() => avatarInputRef.current?.click()}
-                                                className="flex items-center gap-2 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                                className={`flex items-center gap-2 border-2 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 ${
+                                                    isCustomer 
+                                                        ? 'border-green-600 text-green-700 dark:text-green-300 hover:bg-green-600 hover:text-white dark:hover:bg-green-600' 
+                                                        : 'border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50'
+                                                }`}
                                             >
-                                                <Upload className="h-3.5 w-3.5" />
+                                                <Upload className="h-4 w-4" />
                                                 Choose Photo
                                             </Button>
                                             {user?.avatar && (
@@ -279,9 +340,13 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                                     type="button"
                                                     variant="destructive"
                                                     onClick={handleAvatarDelete}
-                                                    className="flex items-center gap-2 border-2 border-red-300/50 dark:border-red-600/50 text-red-600 dark:text-red-400 hover:bg-red-50/80 dark:hover:bg-red-900/30 hover:border-red-400 dark:hover:border-red-500 transition-all duration-300 px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                                    className={`flex items-center gap-2 border-2 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 ${
+                                                        isCustomer 
+                                                            ? 'border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-600 hover:text-white dark:hover:bg-red-600' 
+                                                            : 'border-red-300/50 dark:border-red-600/50 text-red-600 dark:text-red-400 hover:bg-red-50/80 dark:hover:bg-red-900/30 hover:border-red-400 dark:hover:border-red-500 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50'
+                                                    }`}
                                                 >
-                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                    <Trash2 className="h-4 w-4" />
                                                     Remove Photo
                                                 </Button>
                                             )}
@@ -291,23 +356,27 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                             <Button
                                                 type="button"
                                                 onClick={handleAvatarUpload}
-                                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                             >
-                                                <Save className="h-3.5 w-3.5" />
+                                                <Save className="h-4 w-4" />
                                                 Save Photo
                                             </Button>
                                             <Button
                                                 type="button"
                                                 variant="outline"
                                                 onClick={handleAvatarCancel}
-                                                className="flex items-center gap-2 border-2 border-gray-300/50 dark:border-gray-600/50 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/80 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                                className={`flex items-center gap-2 border-2 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 ${
+                                                    isCustomer 
+                                                        ? 'border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-red-600 hover:text-white hover:border-red-600' 
+                                                        : 'border-gray-300/50 dark:border-gray-600/50 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/80 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50'
+                                                }`}
                                             >
-                                                <X className="h-3.5 w-3.5" />
+                                                <X className="h-4 w-4" />
                                                 Cancel
                                             </Button>
                                         </>
                                     )}
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+                                    <p className={`text-xs text-center sm:text-left ${isCustomer ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}>
                                         JPG, PNG or GIF. Max size 2MB.
                                     </p>
                                 </div>
@@ -317,14 +386,14 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                         {/* Personal Information Section */}
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                                <Label className="text-sm font-semibold">Personal Information</Label>
+                                <User className={`h-4 w-4 ${isCustomer ? 'text-green-600 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`} />
+                                <Label className={`text-sm font-semibold ${isCustomer ? 'text-green-700 dark:text-green-300' : ''}`}>Personal Information</Label>
                             </div>
                             
                             <div className="grid grid-cols-1 gap-3">
                                 {/* Name Field */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Full Name</Label>
+                                    <Label htmlFor="name" className={isCustomer ? 'text-green-700 dark:text-green-300' : ''}>Full Name</Label>
                                     <Input
                                         id="name"
                                         value={nameData.name}
@@ -333,7 +402,11 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                             setNameData('name', value);
                                         }}
                                         placeholder="Enter your full name"
-                                        className="border-2 border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 transition-all duration-300 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm py-2"
+                                        className={`border-2 transition-all duration-300 rounded-lg text-sm py-2 ${
+                                            isCustomer 
+                                                ? 'border-green-200 dark:border-green-700 focus:border-green-600 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 bg-green-50/30 dark:bg-green-900/10' 
+                                                : 'border-slate-200/50 dark:border-slate-600/50 focus:border-green-500 dark:focus:border-green-400 focus:ring-4 focus:ring-green-100/50 dark:focus:ring-green-900/30 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm'
+                                        }`}
                                     />
                                     {errors.name && <p className="text-xs text-red-500 dark:text-red-400 font-medium">{errors.name}</p>}
                                 </div>
@@ -341,14 +414,18 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                                 {/* Email Field - Hidden for members */}
                                 {user?.type !== 'member' && (
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
+                                        <Label htmlFor="email" className={isCustomer ? 'text-green-700 dark:text-green-300' : ''}>Email Address</Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={displayEmail}
                                             disabled
                                             placeholder="Enter your email"
-                                            className="border-2 border-slate-200/50 dark:border-slate-600/50 bg-slate-100/80 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-xl text-sm py-2 backdrop-blur-sm"
+                                            className={`border-2 rounded-lg text-sm py-2 ${
+                                                isCustomer 
+                                                    ? 'border-green-200 dark:border-green-700 bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300' 
+                                                    : 'border-slate-200/50 dark:border-slate-600/50 bg-slate-100/80 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 backdrop-blur-sm'
+                                            }`}
                                         />
                                         {errors.email && <p className="text-xs text-red-500 dark:text-red-400 font-medium">{errors.email}</p>}
                                     </div>
@@ -356,13 +433,17 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
 
                                 {/* Phone Field */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone">Contact Number</Label>
+                                    <Label htmlFor="phone" className={isCustomer ? 'text-green-700 dark:text-green-300' : ''}>Contact Number</Label>
                                     <Input
                                         id="phone"
                                         value={displayPhone}
                                         disabled
                                         placeholder="Enter your contact number"
-                                        className="border-2 border-slate-200/50 dark:border-slate-600/50 bg-slate-100/80 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 rounded-xl text-sm py-2 backdrop-blur-sm"
+                                        className={`border-2 rounded-lg text-sm py-2 ${
+                                            isCustomer 
+                                                ? 'border-green-200 dark:border-green-700 bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300' 
+                                                : 'border-slate-200/50 dark:border-slate-600/50 bg-slate-100/80 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 backdrop-blur-sm'
+                                        }`}
                                     />
                                     {errors.phone && <p className="text-xs text-red-500 dark:text-red-400 font-medium">{errors.phone}</p>}
                                 </div>
@@ -370,47 +451,59 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
                         </div>
 
                         {/* Action Buttons for Email/Phone Changes */}
-                        <div className="grid grid-cols-2 gap-2 pt-3 border-t">
+                        <div className={`grid grid-cols-2 gap-2 pt-3 border-t ${isCustomer ? 'border-green-200 dark:border-green-700' : ''}`}>
                             {user?.type !== 'member' && (
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() => setIsEmailChangeModalOpen(true)}
-                                    className="w-full flex items-center justify-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105"
+                                    onClick={handleOpenEmailChange}
+                                    className={`w-full flex items-center justify-center gap-1.5 border-2 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 ${
+                                        isCustomer 
+                                            ? 'border-green-600 text-green-700 dark:text-green-300 hover:bg-green-600 hover:text-white dark:hover:bg-green-600' 
+                                            : 'border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50'
+                                    }`}
                                 >
-                                    <Mail className="h-3.5 w-3.5" />
+                                    <Mail className="h-4 w-4" />
                                     Change Email
                                 </Button>
                             )}
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setIsPhoneChangeModalOpen(true)}
-                                className={`w-full flex items-center justify-center gap-1.5 border-2 border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:shadow-lg hover:scale-105 ${user?.type === 'member' ? 'col-span-2' : ''}`}
+                                onClick={handleOpenPhoneChange}
+                                className={`w-full flex items-center justify-center gap-1.5 border-2 transition-all duration-300 px-3 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 ${
+                                    isCustomer 
+                                        ? 'border-green-600 text-green-700 dark:text-green-300 hover:bg-green-600 hover:text-white dark:hover:bg-green-600' 
+                                        : 'border-green-300/50 dark:border-green-600/50 text-slate-600 dark:text-slate-400 hover:bg-green-50/80 dark:hover:bg-green-900/30 hover:border-green-400 dark:hover:border-green-500 backdrop-blur-sm bg-white/50 dark:bg-slate-800/50'
+                                } ${user?.type === 'member' ? 'col-span-2' : ''}`}
                             >
-                                <Phone className="h-3.5 w-3.5" />
+                                <Phone className="h-4 w-4" />
                                 Change Contact
                             </Button>
                         </div>
                     </div>
 
-                    <DialogFooter className="gap-2">
+                    <DialogFooter className={`gap-2 ${isCustomer ? 'border-t-2 border-green-200 dark:border-green-700 pt-4' : ''}`}>
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleClose}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-sm"
+                            className={`flex items-center gap-2 px-4 py-2 text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 ${
+                                isCustomer 
+                                    ? 'border-2 border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-600 hover:text-white' 
+                                    : ''
+                            }`}
                         >
-                            <X className="h-3.5 w-3.5" />
+                            <X className="h-4 w-4" />
                             Cancel
                         </Button>
                         <Button
                             type="button"
                             disabled={nameProcessing || !isNameModified}
                             onClick={handleNameSubmit}
-                            className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
-                            <Save className="h-3.5 w-3.5" />
+                            <Save className="h-4 w-4" />
                             {nameProcessing ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </DialogFooter>
@@ -421,13 +514,15 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             {user?.type !== 'member' && (
                 <EmailChangeModal
                     isOpen={isEmailChangeModalOpen}
-                    onClose={() => setIsEmailChangeModalOpen(false)}
+                    onClose={handleEmailChangeClose}
+                    onSwitchToPhone={handleSwitchToPhone}
                     user={user}
                 />
             )}
             <PhoneChangeModal
                 isOpen={isPhoneChangeModalOpen}
-                onClose={() => setIsPhoneChangeModalOpen(false)}
+                onClose={handlePhoneChangeClose}
+                onSwitchToEmail={user?.type !== 'member' ? handleSwitchToEmail : undefined}
                 user={user}
             />
         </>
