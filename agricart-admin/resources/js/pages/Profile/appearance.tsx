@@ -104,40 +104,59 @@ export default function AppearancePage() {
 
     // Appearance page content
     const pageContent = user.type === 'customer' ? (
-        // Customer Design - Clean & Modern
-        <div className="space-y-8">
+        // Customer Design - Clean & Modern matching address/password page style
+        <div className="space-y-4 sm:space-y-6">
             {/* Success/Error Message */}
             {message && (
                 <div className={cn(
-                    "p-4 rounded-2xl border-2 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300",
+                    "rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm",
                     message.type === 'success' 
-                        ? "bg-green-50 border-green-300 text-green-900 dark:bg-green-950/30 dark:border-green-700 dark:text-green-100"
-                        : "bg-red-50 border-red-300 text-red-900 dark:bg-red-950/30 dark:border-red-700 dark:text-red-100"
+                        ? "bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30"
+                        : "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30"
                 )}>
-                    <div className="flex items-center gap-3">
-                        <Check className="h-5 w-5" />
-                        <span className="font-medium">{message.text}</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={cn(
+                            "p-1 sm:p-1.5 rounded-lg flex-shrink-0",
+                            message.type === 'success'
+                                ? "bg-green-100 dark:bg-green-900/30"
+                                : "bg-red-100 dark:bg-red-900/30"
+                        )}>
+                            <Check className={cn(
+                                "h-4 w-4 sm:h-5 sm:w-5",
+                                message.type === 'success'
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400"
+                            )} />
+                        </div>
+                        <span className={cn(
+                            "text-xs sm:text-sm font-medium leading-relaxed",
+                            message.type === 'success'
+                                ? "text-green-800 dark:text-green-200"
+                                : "text-red-800 dark:text-red-200"
+                        )}>{message.text}</span>
                     </div>
                 </div>
             )}
 
             {/* Theme Selection - Customer Design */}
-            <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 pb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary/10 rounded-2xl">
-                            <Palette className="h-7 w-7 text-primary" />
+            <div className="bg-card rounded-lg sm:rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b-2 border-green-200 dark:border-green-700 p-4 sm:p-5 md:p-6">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 shadow-sm flex-shrink-0">
+                            <Palette className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                         </div>
-                        <div>
-                            <CardTitle className="text-2xl">{t('appearance.theme.title')}</CardTitle>
-                            <CardDescription className="text-base mt-1">
+                        <div className="space-y-1 sm:space-y-2 min-w-0">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-green-700 dark:text-green-300 break-words">
+                                {t('appearance.theme.title')}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-green-600 dark:text-green-400">
                                 {t('appearance.theme.description')}
-                            </CardDescription>
+                            </p>
                         </div>
                     </div>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                    <div className="grid gap-4">
+                </div>
+                <div className="p-4 sm:p-5 md:p-6">
+                    <div className="grid gap-3 sm:gap-4">
                         {appearanceOptions.map((option) => {
                             const Icon = option.icon;
                             const isSelected = appearance === option.value;
@@ -148,43 +167,43 @@ export default function AppearancePage() {
                                     onClick={() => handleAppearanceChange(option.value)}
                                     disabled={isLoading}
                                     className={cn(
-                                        "relative p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
-                                        "hover:scale-[1.02] hover:shadow-lg",
+                                        "relative p-4 sm:p-5 md:p-6 rounded-lg transition-all duration-300 text-left",
+                                        "hover:shadow-md",
                                         isSelected 
-                                            ? "bg-primary border-primary shadow-lg shadow-primary/20" 
-                                            : "bg-card border-border hover:border-primary/50"
+                                            ? "bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-700 shadow-md" 
+                                            : "bg-muted/50 border border-border hover:border-green-200 dark:hover:border-green-700"
                                     )}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-3 sm:gap-4">
                                         <div className={cn(
-                                            "p-3 rounded-xl transition-colors",
+                                            "p-2 sm:p-2.5 rounded-lg transition-colors flex-shrink-0",
                                             isSelected 
-                                                ? "bg-white/20" 
-                                                : "bg-primary/10 group-hover:bg-primary/20"
+                                                ? "bg-green-100 dark:bg-green-900/30" 
+                                                : "bg-background"
                                         )}>
                                             <Icon className={cn(
-                                                "h-6 w-6",
-                                                isSelected ? "text-white" : "text-primary"
+                                                "h-5 w-5 sm:h-6 sm:w-6",
+                                                isSelected ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
                                             )} />
                                         </div>
-                                        <div className="flex-1">
+                                        <div className="flex-1 min-w-0">
                                             <div className={cn(
-                                                "font-semibold text-lg mb-1",
-                                                isSelected ? "text-white" : "text-foreground"
+                                                "font-semibold text-base sm:text-lg mb-1",
+                                                isSelected ? "text-green-700 dark:text-green-300" : "text-foreground"
                                             )}>
                                                 {option.label}
                                             </div>
                                             <div className={cn(
-                                                "text-sm",
-                                                isSelected ? "text-white/80" : "text-muted-foreground"
+                                                "text-xs sm:text-sm",
+                                                isSelected ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
                                             )}>
                                                 {option.description}
                                             </div>
                                         </div>
                                         {isSelected && (
                                             <div className="flex-shrink-0">
-                                                <div className="p-1 bg-white/20 rounded-full">
-                                                    <Check className="h-6 w-6 text-white" />
+                                                <div className="p-1 sm:p-1.5 bg-green-100 dark:bg-green-900/30 rounded-full">
+                                                    <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
                                                 </div>
                                             </div>
                                         )}
@@ -193,45 +212,49 @@ export default function AppearancePage() {
                             );
                         })}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
             {/* Language Selection - Customer Design */}
-            <Card className="border-2 shadow-xl rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-br from-secondary/5 via-secondary/10 to-secondary/5 pb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-secondary/10 rounded-2xl">
-                            <Languages className="h-7 w-7 text-secondary" />
+            <div className="bg-card rounded-lg sm:rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b-2 border-green-200 dark:border-green-700 p-4 sm:p-5 md:p-6">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-2.5 rounded-lg bg-green-100 dark:bg-green-900/30 shadow-sm flex-shrink-0">
+                            <Languages className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                         </div>
-                        <div>
-                            <CardTitle className="text-2xl">{t('appearance.language.title')}</CardTitle>
-                            <CardDescription className="text-base mt-1">
+                        <div className="space-y-1 sm:space-y-2 min-w-0">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-green-700 dark:text-green-300 break-words">
+                                {t('appearance.language.title')}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-green-600 dark:text-green-400">
                                 {t('appearance.language.description')}
-                            </CardDescription>
+                            </p>
                         </div>
                     </div>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                    <div className="space-y-3">
-                        <label htmlFor="language-select" className="text-sm font-semibold text-foreground">
-                            {t('appearance.language.select_language')}
-                        </label>
-                        <Select
-                            value={language}
-                            onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
-                            disabled={isLoading || isLanguageLoading}
-                        >
-                            <SelectTrigger id="language-select" className="h-14 text-base rounded-xl border-2">
-                                <SelectValue placeholder={t('appearance.language.select_language')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="en" className="text-base py-3">{t('appearance.language.english')}</SelectItem>
-                                <SelectItem value="tl" className="text-base py-3">{t('appearance.language.tagalog')}</SelectItem>
-                            </SelectContent>
-                        </Select>
+                </div>
+                <div className="p-4 sm:p-5 md:p-6">
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg border border-border">
+                        <div className="space-y-2 sm:space-y-3">
+                            <label htmlFor="language-select" className="text-xs sm:text-sm font-medium text-muted-foreground">
+                                {t('appearance.language.select_language')}
+                            </label>
+                            <Select
+                                value={language}
+                                onValueChange={(value: 'en' | 'tl') => handleLanguageChange(value)}
+                                disabled={isLoading || isLanguageLoading}
+                            >
+                                <SelectTrigger id="language-select" className="h-12 sm:h-14 text-sm sm:text-base rounded-lg">
+                                    <SelectValue placeholder={t('appearance.language.select_language')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="en" className="text-sm sm:text-base py-2 sm:py-3">{t('appearance.language.english')}</SelectItem>
+                                    <SelectItem value="tl" className="text-sm sm:text-base py-2 sm:py-3">{t('appearance.language.tagalog')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     ) : (
         // Admin/Staff/Logistic/Member Design - Matching Profile Page Pattern
@@ -407,26 +430,32 @@ export default function AppearancePage() {
         case 'customer':
             return (
                 <AppHeaderLayout>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16 sm:mt-20">
-                        <div className="mb-8">
-                            <div className="flex items-start gap-3 sm:gap-4 mb-4">
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                                        {t('appearance.title')}
-                                    </h1>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        {t('appearance.theme.description')}
-                                    </p>
+                    <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="mb-6 sm:mb-8">
+                                <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3 sm:mb-0">
+                                    <div className="flex-1 min-w-0 order-1">
+                                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-2">
+                                            {t('appearance.title')}
+                                        </h1>
+                                        <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400">
+                                            {t('appearance.theme.description')}
+                                        </p>
+                                    </div>
+                                    <Link href="/" className="order-2 shrink-0">
+                                        <Button 
+                                            variant="outline" 
+                                            size="icon"
+                                            className="sm:w-auto sm:px-6 sm:py-3 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
+                                        >
+                                            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                                            <span className="hidden sm:inline text-sm sm:text-base font-semibold">{t('ui.back')}</span>
+                                        </Button>
+                                    </Link>
                                 </div>
-                                <Link href="/">
-                                    <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
-                                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:inline">{t('ui.back')}</span>
-                                    </Button>
-                                </Link>
                             </div>
+                            {pageContent}
                         </div>
-                        {pageContent}
                     </div>
                 </AppHeaderLayout>
             );
