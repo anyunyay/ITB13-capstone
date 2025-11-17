@@ -44,8 +44,8 @@ return [
     
     // Home Page
     'grown_here_for_you' => 'Tanim Dito, Para Sa Iyo.',
-    'grown_here' => 'Tanim Dito,',
-    'for_you' => 'Para Sa Iyo.',
+    'grown_here' => 'Itinanim Dito,',
+    'for_you' => 'Para Sayo.',
     'smmc_cooperative' => 'SMMC Kooperatiba',
     'empowering_local_communities' => 'Pagpapalakas ng Lokal na Komunidad sa Pamamagitan ng Sustainable na Agrikultura',
     'cooperative_description' => 'Ang aming network ng mga kooperatiba ng magsasaka ay kumakatawan sa puso ng sustainable na agrikultura sa aming rehiyon. Pinagsasama namin ang mga dedikadong magsasaka na may parehong pangako sa kalidad, pangangalaga sa kapaligiran, at pag-unlad ng komunidad. Sa pamamagitan ng sama-samang pagsisikap, sinisiguro namin na ang sariwang, masustansyang ani ay umabot sa inyong hapag habang sinusuportahan ang kabuhayan ng mga lokal na pamilyang magsasaka.',

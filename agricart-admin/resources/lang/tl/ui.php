@@ -226,7 +226,7 @@ return [
     'confirm_logout_all_devices' => 'Mag-lo-logout kayo sa lahat ng devices. Sigurado kayong magpatuloy?',
     'logout_all_success' => 'Nag-logout kayo sa lahat ng devices.',
     'logout_all_failed' => 'Hindi naka-logout sa lahat ng devices. Subukan ulit.',
-    'add_edit_address' => 'Magdagdag/I-edit ang Address',
+    'add_edit_address' => 'Mag bago ng Address',
     'help' => 'Tulong',
     'phone_format_placeholder' => '+63 9XX XXX XXXX (Philippine format lamang)',
     'phone_format_help' => 'Format: +639XXXXXXXXX o 09XXXXXXXXX',
