@@ -345,8 +345,8 @@ export default function CartPage() {
   return (
     <AppHeaderLayout>
       <Head title={t('ui.cart')} />
-      <div className="min-h-screen py-4 sm:py-6 lg:py-8 xl:py-10 mt-16 sm:mt-20 lg:mt-24">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
           
           {/* Notification Messages */}
           {checkoutMessage && (
@@ -398,25 +398,25 @@ export default function CartPage() {
 
                 <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
                   {/* Desktop Table Header */}
-                  <div className="hidden lg:block bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700">
-                    <div className="grid grid-cols-12 gap-3 px-6 py-3">
+                  <div className="hidden lg:block bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700 overflow-x-auto">
+                    <div className="grid grid-cols-12 gap-2 lg:gap-3 px-4 lg:px-6 py-2 lg:py-3 min-w-[800px]">
                       <div className="col-span-3 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.product')}</h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.product')}</h3>
                       </div>
                       <div className="col-span-2 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.category')}</h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.category')}</h3>
                       </div>
                       <div className="col-span-2 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.quantity')}</h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.quantity')}</h3>
                       </div>
                       <div className="col-span-2 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.unit_price')}</h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.unit_price')}</h3>
                       </div>
                       <div className="col-span-2 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.subtotal')}</h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.subtotal')}</h3>
                       </div>
                       <div className="col-span-1 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide"></h3>
+                        <h3 className="text-xs lg:text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide"></h3>
                       </div>
                     </div>
                   </div>

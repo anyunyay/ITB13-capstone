@@ -68,10 +68,10 @@ export function CartItem({
               <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+              <h3 className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300 break-words">
                 {item.name}
               </h3>
-              <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-muted-foreground mb-2">
+              <p className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-xl text-muted-foreground mb-2 break-words">
                 Product ID: {item.product_id}
               </p>
               <div className="flex items-center gap-2 mb-2">
@@ -95,9 +95,9 @@ export function CartItem({
           </div>
 
           {/* Mobile Quantity and Price Section */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Quantity</label>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <label className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1 sm:mb-2 block">Quantity</label>
               <CartItemQuantityControl
                 item={item}
                 isEditing={isEditing}
@@ -107,23 +107,23 @@ export function CartItem({
               />
             </div>
 
-            <div>
-              <label className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-2 block">Subtotal</label>
-              <div className="text-base md:text-xl lg:text-xl xl:text-2xl font-bold text-card-foreground">
+            <div className="min-w-0">
+              <label className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1 sm:mb-2 block">Subtotal</label>
+              <div className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-card-foreground break-words">
                 ₱{(Number(item.total_price) || 0).toFixed(2)}
               </div>
             </div>
           </div>
 
           {/* Mobile Price Details */}
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Unit Price:</span>
-              <div className="font-semibold">₱{unitPrice} per {item.category}</div>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+            <div className="min-w-0">
+              <span className="text-muted-foreground block">Unit Price:</span>
+              <div className="font-semibold break-words">₱{unitPrice} per {item.category}</div>
             </div>
-            <div>
-              <span className="text-muted-foreground">Available:</span>
-              <div className="font-semibold">{formatQuantityDisplay(item.available_stock, item.category)}</div>
+            <div className="min-w-0">
+              <span className="text-muted-foreground block">Available:</span>
+              <div className="font-semibold break-words">{formatQuantityDisplay(item.available_stock, item.category)}</div>
             </div>
           </div>
 
@@ -187,25 +187,25 @@ export function CartItem({
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:grid grid-cols-12 gap-3 px-6 py-4 items-center">
+      <div className="hidden lg:grid grid-cols-12 gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 items-center min-w-[800px]">
         {/* Product Column - Left Aligned */}
-        <div className="col-span-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="col-span-3 min-w-0">
+          <div className="flex items-center gap-2 lg:gap-3">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-base font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+              <h3 className="text-sm lg:text-base font-bold text-card-foreground mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300 truncate">
                 {item.name}
               </h3>
-              <p className="text-xs text-muted-foreground mb-1">
+              <p className="text-xs text-muted-foreground mb-1 truncate">
                 Product ID: {item.product_id}
               </p>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+              <div className="flex items-center gap-1 lg:gap-2 flex-wrap">
+                <span className="px-1.5 lg:px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 whitespace-nowrap">
                   {item.category}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                   <span>In Stock</span>
                 </div>
@@ -215,14 +215,14 @@ export function CartItem({
         </div>
 
         {/* Category Column - Centered */}
-        <div className="col-span-2 flex justify-center">
-          <span className="text-sm font-semibold text-card-foreground">
+        <div className="col-span-2 flex justify-center min-w-0">
+          <span className="text-xs lg:text-sm font-semibold text-card-foreground truncate">
             {item.category}
           </span>
         </div>
         
         {/* Quantity Column - Centered */}
-        <div className="col-span-2 flex justify-center">
+        <div className="col-span-2 flex justify-center min-w-0">
           <CartItemQuantityControl
             item={item}
             isEditing={isEditing}
@@ -233,21 +233,21 @@ export function CartItem({
         </div>
 
         {/* Unit Price Column - Right Aligned */}
-        <div className="col-span-2 flex flex-col items-end">
-          <div className="text-sm font-semibold text-card-foreground">
+        <div className="col-span-2 flex flex-col items-end min-w-0">
+          <div className="text-xs lg:text-sm font-semibold text-card-foreground truncate">
             ₱{unitPrice}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground truncate">
             per {item.category}
           </div>
         </div>
 
         {/* Subtotal Column - Right Aligned */}
-        <div className="col-span-2 flex flex-col items-end">
-          <div className="text-base font-bold text-card-foreground">
+        <div className="col-span-2 flex flex-col items-end min-w-0">
+          <div className="text-sm lg:text-base font-bold text-card-foreground truncate">
             ₱{(Number(item.total_price) || 0).toFixed(2)}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground truncate">
             Available: {formatQuantityDisplay(item.available_stock, item.category)}
           </div>
         </div>
@@ -258,7 +258,7 @@ export function CartItem({
             variant="outline" 
             size="sm"
             onClick={onRemove}
-            className="w-7 h-7 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 flex items-center justify-center"
+            className="w-6 h-6 lg:w-7 lg:h-7 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 flex items-center justify-center flex-shrink-0"
           >
             ×
           </Button>
@@ -266,8 +266,8 @@ export function CartItem({
       </div>
       
       {/* Desktop Action Buttons Row */}
-      <div className="hidden lg:block px-6 py-3 bg-muted/50 border-t border-border">
-        <div className="flex items-center justify-center gap-3 min-h-[44px] relative">
+      <div className="hidden lg:block px-4 lg:px-6 py-2 lg:py-3 bg-muted/50 border-t border-border overflow-x-auto">
+        <div className="flex items-center justify-center gap-2 lg:gap-3 min-h-[40px] lg:min-h-[44px] relative min-w-[800px]">
           {isEditing ? (
             <div className="flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-200 will-change-transform">
               <Button

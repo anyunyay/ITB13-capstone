@@ -356,7 +356,7 @@ export default function CustomerHome() {
             <Button
               onClick={toggleFunction}
               variant="ghost"
-              className={`hidden sm:block sm:absolute sm:right-0 px-4 sm:px-6 py-1.5 sm:py-2 text-base md:text-base lg:text-base xl:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none ${viewMode === 'carousel'
+              className={`hidden sm:block sm:absolute sm:right-0 px-3 sm:px-4 md:px-6 py-1 sm:py-1.5 md:py-2 text-sm sm:text-base md:text-base lg:text-base xl:text-lg font-semibold transition-all duration-300 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 border-0 shadow-none whitespace-nowrap ${viewMode === 'carousel'
                 ? 'text-primary'
                 : 'text-primary'
                 }`}
@@ -368,11 +368,11 @@ export default function CustomerHome() {
 
         {/* Mobile View All Button - Below Title, Right Side - Hidden when single product */}
         {!isSingleProduct && (
-          <div className="flex justify-end mb-3 sm:hidden">
+          <div className="flex justify-end mb-2 sm:hidden px-2">
             <Button
               onClick={toggleFunction}
               variant="ghost"
-              className={`px-4 py-1.5 text-base font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none ${viewMode === 'carousel'
+              className={`px-3 py-1 text-sm font-semibold transition-all duration-300 rounded-lg border-0 bg-transparent hover:bg-transparent text-primary hover:text-primary/80 shadow-none whitespace-nowrap ${viewMode === 'carousel'
                 ? 'text-primary'
                 : 'text-primary'
                 }`}
