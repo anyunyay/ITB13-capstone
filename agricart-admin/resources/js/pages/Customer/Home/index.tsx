@@ -159,8 +159,8 @@ export default function CustomerHome({ products }: PageProps) {
           <section className="h-screen snap-start"></section>
 
           {/* Split Layout Section - Cooperatives of Farmers */}
-          <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start">
-            <div className="max-w-[95vw] sm:max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-0">
+          <section id="explore" className="min-h-screen bg-muted relative z-10 flex items-center snap-start py-12 lg:py-20">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 gap-8 sm:gap-12 items-center lg:grid-cols-2">
                 {/* Left Side - Content */}
                 <motion.div
@@ -247,7 +247,7 @@ export default function CustomerHome({ products }: PageProps) {
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-xl overflow-hidden shadow-lg">
+                  <div className="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] max-h-[400px] lg:max-h-[500px] rounded-xl overflow-hidden shadow-lg">
                     {/* Stock image placeholder - replace with actual cooperative/farm image */}
                     <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
                       <div className="text-white text-center p-4 sm:p-8">
@@ -261,8 +261,8 @@ export default function CustomerHome({ products }: PageProps) {
           </section>
 
           {/* Product Carousel Section */}
-          <section id="produce" className="h-screen bg-background relative z-10 flex items-center snap-start">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 overflow-visible">
+          <section id="produce" className="min-h-screen bg-background relative z-10 flex items-center snap-start py-12 lg:py-20">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
               <motion.h2
                 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
                 initial={{ opacity: 0, y: 30 }}
@@ -400,7 +400,7 @@ export default function CustomerHome({ products }: PageProps) {
       </div>
 
       {/* Testimonial Section with Parallax */}
-      <section className="h-screen relative z-10 snap-start">
+      <section className="min-h-screen relative z-10 snap-start">
         <TestimonialSlider
           testimonials={testimonialData}
           parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
