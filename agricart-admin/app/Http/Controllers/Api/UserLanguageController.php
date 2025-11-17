@@ -53,7 +53,7 @@ class UserLanguageController extends Controller
                 'language' => $request->language,
             ]);
 
-            // Set the locale immediately
+            // Set the locale immediately for this request
             app()->setLocale($request->language);
 
             // Log the change
@@ -65,11 +65,16 @@ class UserLanguageController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
+            // Get fresh translations for the new language
+            $translations = \App\Services\TranslationService::getAllTranslations($request->language);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Language preference updated successfully.',
                 'data' => [
                     'language' => $user->language,
+                    'locale' => $request->language,
+                    'translations' => $translations,
                 ],
             ]);
 

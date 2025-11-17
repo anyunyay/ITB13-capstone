@@ -51,8 +51,17 @@ export function useLanguage(): UseLanguageReturn {
             });
 
             if (response.data.success) {
-                // Reload the page to apply the new locale server-side
-                router.reload({ only: [] });
+                // Use Inertia router to reload the page with new translations
+                // This preserves the SPA experience while updating all translations
+                router.reload({
+                    only: ['translations', 'locale', 'userLanguage'],
+                    onSuccess: () => {
+                        setIsLoading(false);
+                    },
+                    onError: () => {
+                        setIsLoading(false);
+                    }
+                });
             } else {
                 throw new Error('Failed to update language');
             }
@@ -63,9 +72,8 @@ export function useLanguage(): UseLanguageReturn {
             if (savedLanguage && ['en', 'tl'].includes(savedLanguage)) {
                 setLanguage(savedLanguage);
             }
-            throw error;
-        } finally {
             setIsLoading(false);
+            throw error;
         }
     }, []);
 

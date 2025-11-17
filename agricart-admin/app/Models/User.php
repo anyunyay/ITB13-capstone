@@ -50,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'appearance',
         // Language preference
         'language',
+        // Language preference
+        'language',
         // Delivery proof viewing permission
         'can_view_delivery_proofs',
     ];
