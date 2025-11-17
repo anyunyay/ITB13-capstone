@@ -223,7 +223,7 @@ export default function AboutUs({ }: PageProps) {
                 viewport={{ once: true }}
                 className="relative order-1 lg:order-2"
               >
-                <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] max-h-[400px] lg:max-h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                   <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
                     <div className="text-white text-center p-4 sm:p-6 lg:p-8">
                       <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">SMMC Cooperative</div>
@@ -237,8 +237,8 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Vision & Values Section */}
-        <section ref={valuesRef} className="h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start py-6 sm:py-8 lg:py-12">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
+        <section ref={valuesRef} className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden snap-start py-12 sm:py-16 lg:py-20">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -297,8 +297,8 @@ export default function AboutUs({ }: PageProps) {
         </section>
 
         {/* Members Section */}
-        <section ref={missionRef} className="h-screen flex items-center justify-center py-12 sm:py-16 lg:py-20 bg-background relative overflow-hidden snap-start">
-          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+        <section ref={missionRef} className="min-h-screen flex items-center justify-center py-12 sm:py-16 lg:py-20 bg-background relative overflow-hidden snap-start">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
             {/* New Image and Content Layout */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -309,7 +309,7 @@ export default function AboutUs({ }: PageProps) {
             >
               {/* Left Side - Overlapping Images */}
               <motion.div
-                className="relative h-80 sm:h-96 md:h-[450px] lg:h-[650px]"
+                className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[3/4] max-h-[500px] lg:max-h-[650px]"
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -317,7 +317,7 @@ export default function AboutUs({ }: PageProps) {
               >
                 {/* Bottom Image - Portrait (Background) - Hidden on mobile/tablet */}
                 <motion.div
-                  className="hidden lg:block absolute bottom-0 right-0 z-10 w-7/10 h-[450px]"
+                  className="hidden lg:block absolute bottom-0 right-0 z-10 w-7/10 aspect-[3/4] max-h-[450px]"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -338,7 +338,7 @@ export default function AboutUs({ }: PageProps) {
 
                 {/* Top Image - Landscape (Foreground) - Full width on mobile/tablet */}
                 <motion.div
-                  className="relative lg:absolute top-0 left-0 z-20 w-full lg:w-9/10 h-full lg:h-80"
+                  className="relative lg:absolute top-0 left-0 z-20 w-full lg:w-9/10 h-full lg:aspect-[16/9] lg:max-h-[320px]"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -392,7 +392,7 @@ export default function AboutUs({ }: PageProps) {
         {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
         <section
           ref={servicesRef}
-          className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
+          className="min-h-screen flex items-center justify-center bg-muted relative overflow-hidden snap-start py-12 lg:py-20"
           style={{
             backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
             backgroundSize: 'cover',
@@ -401,7 +401,7 @@ export default function AboutUs({ }: PageProps) {
           }}>
           {/* Background overlay for better content readability */}
           <div className="absolute inset-0 bg-black/30"></div>
-          <div className="max-w-[90vw] mx-auto relative z-10">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="space-y-4 sm:space-y-6">
               {services.map((service, index) => (
                 <motion.div
@@ -410,12 +410,12 @@ export default function AboutUs({ }: PageProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
-                  className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                  className={`w-full mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center rounded-xl overflow-hidden ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                     }`}
                 >
                   {/* Image/Visual with Parallax */}
                   <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                    <div className="w-full h-24 sm:h-40 md:h-48 lg:h-56 overflow-hidden shadow-lg relative">
+                    <div className="w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] overflow-hidden shadow-lg relative">
                       <motion.div
                         className="w-full h-full"
                         style={{
