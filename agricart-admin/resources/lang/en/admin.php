@@ -798,6 +798,7 @@ return [
     'enter_reason_for_deletion' => 'Enter reason for deleting this product...',
     'delete_product_warning' => 'This action will permanently delete the product and all associated data. This cannot be undone.',
     'deleting' => 'Deleting...',
+    'deleted_by_admin' => 'Deleted by admin',
     'archive_product' => 'Archive Product',
     'confirm_archive_product' => 'Are you sure you want to archive ":name"? This will remove it from active products.',
     'reason_for_archiving_optional' => 'Reason for Archiving (Optional)',

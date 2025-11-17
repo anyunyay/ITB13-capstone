@@ -847,6 +847,7 @@ return [
     'enter_reason_for_deletion' => 'Ilagay ang dahilan para sa pagtanggal ng produkto...',
     'delete_product_warning' => 'Ang aksyon na ito ay permanenteng tatanggalin ang produkto at lahat ng kaugnay na data. Hindi ito maibabalik.',
     'deleting' => 'Tinatanggal...',
+    'deleted_by_admin' => 'Tinanggal ng admin',
     'archive_product' => 'I-archive ang Produkto',
     'confirm_archive_product' => 'Sigurado ka bang gusto mong i-archive ang ":name"? Tatanggalin ito mula sa mga aktibong produkto.',
     'reason_for_archiving_optional' => 'Dahilan para sa Pag-archive (Opsyonal)',
