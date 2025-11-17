@@ -30,7 +30,7 @@ For different scaling levels:
 - **100% (DPR 1.0)** → No adjustment (scale: 1.0)
 - **125% (DPR 1.25)** → Aggressive reduction (scale: 0.8)
 - **150% (DPR 1.5)** → Strong reduction (scale: 0.6)
-- **175%+ (DPR 1.75+)** → Maximum reduction (scale: 0.2)
+- **175%+ (DPR 1.75+)** → Significant reduction (scale: 0.4)
 
 ### 3. Application Methods
 
@@ -361,8 +361,8 @@ export function useResponsiveScale(): string {
   const { devicePixelRatio } = useDisplayScale();
   
   // Custom thresholds
-  if (devicePixelRatio >= 2.0) return 'scale-[0.2]';
-  if (devicePixelRatio >= 1.75) return 'scale-[0.2]';
+  if (devicePixelRatio >= 2.0) return 'scale-[0.4]';
+  if (devicePixelRatio >= 1.75) return 'scale-[0.4]';
   if (devicePixelRatio >= 1.5) return 'scale-[0.6]';
   if (devicePixelRatio >= 1.25) return 'scale-[0.8]';
   if (devicePixelRatio >= 1.1) return 'scale-[0.9]';

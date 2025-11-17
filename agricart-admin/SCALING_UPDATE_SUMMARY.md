@@ -13,7 +13,7 @@ The scaling factors have been updated to be much more aggressive as requested.
 | **100%** | 1.0 | **1.0** | No change (normal) |
 | **125%** | 1.25 | **0.8** | Content scaled to 80% |
 | **150%** | 1.5 | **0.6** | Content scaled to 60% |
-| **175%+** | 1.75+ | **0.2** | Content scaled to 20% |
+| **175%+** | 1.75+ | **0.4** | Content scaled to 40% |
 
 ---
 
@@ -27,7 +27,7 @@ The scaling factors have been updated to be much more aggressive as requested.
 ### After (New Values)
 - 125% scaling → **0.8** (20% reduction)
 - 150% scaling → **0.6** (40% reduction)
-- 175% scaling → **0.2** (80% reduction)
+- 175% scaling → **0.4** (60% reduction)
 
 ---
 
@@ -81,9 +81,9 @@ These are **very aggressive** scaling values. Here's what to expect:
 - Content will be significantly smaller
 
 **At 175%+ Display Scaling:**
-- Content will appear at 20% of its original size
-- This is an 80% reduction in size
-- Content will be extremely small (may be too small to read)
+- Content will appear at 40% of its original size
+- This is a 60% reduction in size
+- Content will be quite small but more readable than before
 
 ### Recommendations
 
@@ -98,7 +98,7 @@ If content is **too small**, increase the values:
 
 ```ts
 // In resources/js/hooks/use-display-scale.ts (around line 35)
-if (dpr >= 1.75) scaleFactor = 0.3;  // Instead of 0.2
+if (dpr >= 1.75) scaleFactor = 0.5;  // Instead of 0.4
 if (dpr >= 1.5) scaleFactor = 0.7;   // Instead of 0.6
 if (dpr >= 1.25) scaleFactor = 0.85; // Instead of 0.8
 ```
@@ -107,7 +107,7 @@ If content is **too large**, decrease the values:
 
 ```ts
 // In resources/js/hooks/use-display-scale.ts (around line 35)
-if (dpr >= 1.75) scaleFactor = 0.15; // Instead of 0.2
+if (dpr >= 1.75) scaleFactor = 0.3;  // Instead of 0.4
 if (dpr >= 1.5) scaleFactor = 0.5;   // Instead of 0.6
 if (dpr >= 1.25) scaleFactor = 0.75; // Instead of 0.8
 ```

@@ -12,7 +12,7 @@ This document helps you visualize what the different scale factors mean for your
 100% Display Scaling (DPR 1.0)  →  Scale: 1.0   (100% size)
 125% Display Scaling (DPR 1.25) →  Scale: 0.8   (80% size)
 150% Display Scaling (DPR 1.5)  →  Scale: 0.6   (60% size)
-175% Display Scaling (DPR 1.75) →  Scale: 0.2   (20% size)
+175% Display Scaling (DPR 1.75) →  Scale: 0.4   (40% size)
 ```
 
 ---
@@ -42,11 +42,11 @@ Heading: 19.2px    (32px × 0.6)
 Button: 8.4px      (14px × 0.6)
 ```
 
-**At 175% Scaling (DPR 1.75) - Scale 0.2:**
+**At 175% Scaling (DPR 1.75) - Scale 0.4:**
 ```
-Font Size: 3.2px   (16px × 0.2)  ⚠️ TOO SMALL!
-Heading: 6.4px     (32px × 0.2)  ⚠️ TOO SMALL!
-Button: 2.8px      (14px × 0.2)  ⚠️ TOO SMALL!
+Font Size: 6.4px   (16px × 0.4)  ⚠️ Small but readable
+Heading: 12.8px    (32px × 0.4)  ⚠️ Small but readable
+Button: 5.6px      (14px × 0.4)  ⚠️ Small but usable
 ```
 
 ---
@@ -71,7 +71,7 @@ if (dpr >= 1.75) scaleFactor = 0.7;  // 70% size (more reasonable)
 | 100% | 1.0 | 60px | ✅ Yes |
 | 125% | 0.8 | 48px | ✅ Yes |
 | 150% | 0.6 | 36px | ⚠️ Small |
-| 175% | 0.2 | 12px | ❌ Too small |
+| 175% | 0.4 | 24px | ⚠️ Small |
 
 ### Body Text (text-base = 16px)
 
@@ -80,7 +80,7 @@ if (dpr >= 1.75) scaleFactor = 0.7;  // 70% size (more reasonable)
 | 100% | 1.0 | 16px | ✅ Yes |
 | 125% | 0.8 | 12.8px | ✅ Yes |
 | 150% | 0.6 | 9.6px | ⚠️ Difficult |
-| 175% | 0.2 | 3.2px | ❌ Unreadable |
+| 175% | 0.4 | 6.4px | ⚠️ Small |
 
 ### Buttons (py-3 px-6 = 12px 24px)
 
@@ -89,7 +89,7 @@ if (dpr >= 1.75) scaleFactor = 0.7;  // 70% size (more reasonable)
 | 100% | 1.0 | 12px × 24px | ✅ Yes |
 | 125% | 0.8 | 9.6px × 19.2px | ✅ Yes |
 | 150% | 0.6 | 7.2px × 14.4px | ⚠️ Small |
-| 175% | 0.2 | 2.4px × 4.8px | ❌ Too small |
+| 175% | 0.4 | 4.8px × 9.6px | ⚠️ Small |
 
 ---
 
@@ -123,15 +123,15 @@ if (dpr >= 1.5) scaleFactor = 0.80;  // 80% size (20% reduction)
 
 ### For 175%+ Scaling
 
-**Current:** Scale 0.2 (20% size)
+**Current:** Scale 0.4 (40% size)
 
-This is **extremely aggressive** and will make content unreadable.
+This is **quite aggressive** but more reasonable than before.
 
-**Strongly Recommended:**
+**If still too small, try:**
 ```ts
-if (dpr >= 1.75) scaleFactor = 0.70;  // 70% size (30% reduction)
+if (dpr >= 1.75) scaleFactor = 0.60;  // 60% size (40% reduction)
 // or
-if (dpr >= 1.75) scaleFactor = 0.75;  // 75% size (25% reduction)
+if (dpr >= 1.75) scaleFactor = 0.70;  // 70% size (30% reduction)
 ```
 
 ---
@@ -211,9 +211,9 @@ This provides:
 ```ts
 125% → 0.80 (20% reduction)
 150% → 0.60 (40% reduction)
-175% → 0.20 (80% reduction)
+175% → 0.40 (60% reduction)
 ```
-**Best for:** Maximum content density (may sacrifice readability)
+**Best for:** High content density with acceptable readability
 
 ---
 
@@ -245,15 +245,15 @@ This provides:
 
 ### Scenario 3: Accessibility User (175% Scaling)
 
-**With Current Settings (0.2):**
-- 16px text becomes 3.2px
-- 24px heading becomes 4.8px
-- 48px hero becomes 9.6px
+**With Current Settings (0.4):**
+- 16px text becomes 6.4px
+- 24px heading becomes 9.6px
+- 48px hero becomes 19.2px
 
 **User Experience:**
-- ❌ Content is unreadable
-- ❌ Defeats purpose of accessibility scaling
-- ❌ Not recommended
+- ⚠️ Content is quite small
+- ⚠️ May be difficult for some users
+- ✅ More reasonable than 0.2
 
 ---
 

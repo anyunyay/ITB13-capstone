@@ -163,12 +163,12 @@ export function MyComponent() {
 ```ts
 // In resources/js/hooks/use-display-scale.ts
 // Around line 35: Adjust these values
-if (dpr >= 1.75) scaleFactor = 0.2;  // 175%+ scaling
+if (dpr >= 1.75) scaleFactor = 0.4;  // 175%+ scaling
 if (dpr >= 1.5) scaleFactor = 0.6;   // 150% scaling
 if (dpr >= 1.25) scaleFactor = 0.8;  // 125% scaling
 
-// Less aggressive: increase values (e.g., 0.3, 0.7, 0.85)
-// More aggressive: decrease values (e.g., 0.15, 0.5, 0.75)
+// Less aggressive: increase values (e.g., 0.5, 0.7, 0.85)
+// More aggressive: decrease values (e.g., 0.3, 0.5, 0.75)
 ```
 
 ---
@@ -180,8 +180,8 @@ if (dpr >= 1.25) scaleFactor = 0.8;  // 125% scaling
 | 100% | 1.0 | 1.00 | No change |
 | 125% | 1.25 | 0.80 | Aggressive reduction |
 | 150% | 1.5 | 0.60 | Strong reduction |
-| 175% | 1.75 | 0.20 | Maximum reduction |
-| 200% | 2.0 | 0.20 | Maximum reduction |
+| 175% | 1.75 | 0.40 | Significant reduction |
+| 200% | 2.0 | 0.40 | Significant reduction |
 
 ---
 
@@ -192,7 +192,7 @@ if (dpr >= 1.25) scaleFactor = 0.8;  // 125% scaling
 **Solution 1:** Increase scale values
 ```ts
 // In use-display-scale.ts, around line 35
-if (dpr >= 1.75) scaleFactor = 0.3;  // Instead of 0.2
+if (dpr >= 1.75) scaleFactor = 0.5;  // Instead of 0.4
 if (dpr >= 1.5) scaleFactor = 0.7;   // Instead of 0.6
 if (dpr >= 1.25) scaleFactor = 0.85; // Instead of 0.8
 ```
@@ -209,7 +209,7 @@ if (dpr >= 1.25) scaleFactor = 0.85; // Instead of 0.8
 **Solution:** Decrease scale values
 ```ts
 // In use-display-scale.ts, around line 35
-if (dpr >= 1.75) scaleFactor = 0.15; // Instead of 0.2
+if (dpr >= 1.75) scaleFactor = 0.3;  // Instead of 0.4
 if (dpr >= 1.5) scaleFactor = 0.5;   // Instead of 0.6
 if (dpr >= 1.25) scaleFactor = 0.75; // Instead of 0.8
 ```
