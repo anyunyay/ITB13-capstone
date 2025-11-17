@@ -15,6 +15,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { TestimonialSlider } from '@/components/customer/marketing/TestimonialSlider';
 import Footer from '@/components/shared/layout/Footer';
 import Autoplay from 'embla-carousel-autoplay';
+import { ZoomDebugger } from '@/components/debug/ZoomDebugger';
 
 interface PageProps {
   flash: {
