@@ -64,7 +64,7 @@ export default function AddressPage() {
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [confirmationData, setConfirmationData] = useState<{
-        type: 'edit_main' | 'set_active';
+        type: 'edit_main' | 'set_active' | 'delete';
         address: Address | null;
         newAddress?: any;
         onConfirm: () => void;
@@ -211,17 +211,23 @@ export default function AddressPage() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this address?')) {
-            destroy(`${routes.addressesDestroy}/${id}`, {
-                onSuccess: () => {
-                    // Success message will be handled by flash messages
-                },
-                onError: () => {
-                    // Error will be handled by flash messages
-                },
-            });
-        }
+    const handleDelete = (address: Address) => {
+        setConfirmationData({
+            type: 'delete',
+            address: address,
+            onConfirm: () => {
+                destroy(`${routes.addressesDestroy}/${address.id}`, {
+                    onSuccess: () => {
+                        setShowConfirmationModal(false);
+                        setConfirmationData(null);
+                    },
+                    onError: () => {
+                        // Error will be handled by flash messages
+                    },
+                });
+            }
+        });
+        setShowConfirmationModal(true);
     };
 
     const handleAddNew = () => {
@@ -389,7 +395,7 @@ export default function AddressPage() {
                                             {t('ui.edit')}
                                         </Button>
                                         <Button
-                                            onClick={() => handleDelete(addresses.find(addr => addr.is_active)!.id)}
+                                            onClick={() => handleDelete(addresses.find(addr => addr.is_active)!)}
                                             className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-red-600 hover:bg-red-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={addresses.find(addr => addr.is_active)?.has_ongoing_orders}
                                         >
@@ -485,7 +491,7 @@ export default function AddressPage() {
                                                         <span className="sm:hidden">Active</span>
                                                     </Button>
                                                     <Button
-                                                        onClick={() => handleDelete(address.id)}
+                                                        onClick={() => handleDelete(address)}
                                                         className="flex items-center justify-center gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-red-600 hover:bg-red-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                                         disabled={address.has_ongoing_orders}
                                                     >
@@ -651,80 +657,149 @@ export default function AddressPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Address Change Confirmation Modal */}
+            {/* Confirmation Modal - Address Change or Delete */}
             <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
                 <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl md:text-2xl font-bold text-amber-700 dark:text-amber-300">
-                            <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex-shrink-0">
-                                <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <span className="break-words">{t('ui.confirm_address_change')}</span>
-                        </DialogTitle>
-                        <DialogDescription className="text-xs sm:text-sm md:text-base text-muted-foreground">
-                            {t('ui.review_address_change_impact')}
-                        </DialogDescription>
-                    </DialogHeader>
-                    
-                    {confirmationData && (
-                        <div className="border-2 border-amber-200 dark:border-amber-800/30 bg-amber-50 dark:bg-amber-950/20 rounded-lg sm:rounded-xl overflow-hidden">
-                            <div className="p-3 sm:p-4 md:p-5 border-b border-amber-200 dark:border-amber-800/30">
-                                <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-700 dark:text-amber-300">{t('ui.impact_of_this_change')}</h3>
-                            </div>
-                            <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
-                                <div className="flex items-start gap-2 sm:gap-3">
-                                    <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
-                                        <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
+                    {confirmationData?.type === 'delete' ? (
+                        // Delete Confirmation
+                        <>
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl md:text-2xl font-bold text-red-700 dark:text-red-300">
+                                    <div className="p-1.5 sm:p-2 rounded-lg bg-red-100 dark:bg-red-900/30 flex-shrink-0">
+                                        <Trash2 className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.checkout_orders')}</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.checkout_orders_message')}</p>
+                                    <span className="break-words">Delete Address</span>
+                                </DialogTitle>
+                                <DialogDescription className="text-xs sm:text-sm md:text-base text-muted-foreground">
+                                    Are you sure you want to delete this address? This action cannot be undone.
+                                </DialogDescription>
+                            </DialogHeader>
+                            
+                            {confirmationData.address && (
+                                <div className="border-2 border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-950/20 rounded-lg sm:rounded-xl overflow-hidden">
+                                    <div className="p-3 sm:p-4 md:p-5 border-b border-red-200 dark:border-red-800/30">
+                                        <h3 className="text-sm sm:text-base md:text-lg font-bold text-red-700 dark:text-red-300">Address to be deleted</h3>
                                     </div>
-                                </div>
-                                <div className="flex items-start gap-2 sm:gap-3">
-                                    <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
-                                        <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.delivery_address')}</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.delivery_address_message')}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-2 sm:gap-3">
-                                    <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
-                                        <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.address_history')}</p>
-                                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.address_history_message')}</p>
+                                    <div className="p-3 sm:p-4 md:p-5">
+                                        <div className="flex items-start gap-2 sm:gap-3">
+                                            <div className="p-1.5 sm:p-2 rounded-lg bg-red-100 dark:bg-red-900/30 mt-0.5 flex-shrink-0">
+                                                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 dark:text-red-400" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-sm sm:text-base text-foreground leading-relaxed mb-1 break-words">{confirmationData.address.street}</p>
+                                                <p className="text-xs sm:text-sm text-muted-foreground break-words">{confirmationData.address.barangay}, {confirmationData.address.city}</p>
+                                                <p className="text-xs sm:text-sm text-muted-foreground">{confirmationData.address.province}</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-red-100 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/30">
+                                            <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 leading-relaxed">
+                                                <strong>Warning:</strong> This address will be permanently removed from your account. This action cannot be undone.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
+                            )}
 
-                    <DialogFooter className="gap-2 sm:gap-3 flex-col sm:flex-row pt-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setShowConfirmationModal(false);
-                                setConfirmationData(null);
-                            }}
-                            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold border-2 border-border hover:bg-muted transition-all duration-300"
-                        >
-                            {t('ui.cancel')}
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                if (confirmationData) {
-                                    confirmationData.onConfirm();
-                                }
-                            }}
-                            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 shadow-md hover:shadow-lg"
-                        >
-                            {t('ui.confirm_address_change')}
-                        </Button>
-                    </DialogFooter>
+                            <DialogFooter className="gap-2 sm:gap-3 flex-col sm:flex-row pt-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowConfirmationModal(false);
+                                        setConfirmationData(null);
+                                    }}
+                                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold border-2 border-border hover:bg-muted transition-all duration-300"
+                                >
+                                    {t('ui.cancel')}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (confirmationData) {
+                                            confirmationData.onConfirm();
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-red-600 hover:bg-red-700 text-white transition-all duration-300 shadow-md hover:shadow-lg"
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    {t('ui.delete')}
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    ) : (
+                        // Address Change Confirmation
+                        <>
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl md:text-2xl font-bold text-amber-700 dark:text-amber-300">
+                                    <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex-shrink-0">
+                                        <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
+                                    </div>
+                                    <span className="break-words">{t('ui.confirm_address_change')}</span>
+                                </DialogTitle>
+                                <DialogDescription className="text-xs sm:text-sm md:text-base text-muted-foreground">
+                                    {t('ui.review_address_change_impact')}
+                                </DialogDescription>
+                            </DialogHeader>
+                            
+                            {confirmationData && (
+                                <div className="border-2 border-amber-200 dark:border-amber-800/30 bg-amber-50 dark:bg-amber-950/20 rounded-lg sm:rounded-xl overflow-hidden">
+                                    <div className="p-3 sm:p-4 md:p-5 border-b border-amber-200 dark:border-amber-800/30">
+                                        <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-700 dark:text-amber-300">{t('ui.impact_of_this_change')}</h3>
+                                    </div>
+                                    <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
+                                        <div className="flex items-start gap-2 sm:gap-3">
+                                            <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
+                                                <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.checkout_orders')}</p>
+                                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.checkout_orders_message')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2 sm:gap-3">
+                                            <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
+                                                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.delivery_address')}</p>
+                                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.delivery_address_message')}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2 sm:gap-3">
+                                            <div className="p-1.5 sm:p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 mt-0.5 flex-shrink-0">
+                                                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs sm:text-sm md:text-base font-semibold text-foreground mb-0.5 sm:mb-1">{t('ui.address_history')}</p>
+                                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{t('ui.address_history_message')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <DialogFooter className="gap-2 sm:gap-3 flex-col sm:flex-row pt-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowConfirmationModal(false);
+                                        setConfirmationData(null);
+                                    }}
+                                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold border-2 border-border hover:bg-muted transition-all duration-300"
+                                >
+                                    {t('ui.cancel')}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (confirmationData) {
+                                            confirmationData.onConfirm();
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 shadow-md hover:shadow-lg"
+                                >
+                                    {t('ui.confirm_address_change')}
+                                </Button>
+                            </DialogFooter>
+                        </>
+                    )}
                 </DialogContent>
             </Dialog>
         </div>
