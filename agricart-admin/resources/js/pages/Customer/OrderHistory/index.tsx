@@ -335,8 +335,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             <PopoverContent className="w-80 mt-2" align="end" side="bottom" sideOffset={8} alignOffset={0} avoidCollisions={true} collisionPadding={20}>
               <section className="space-y-4">
                 <div>
-                  <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground mb-1">Export Order Report</p>
-                  <p className="text-xs text-muted-foreground">Select date range (optional)</p>
+                  <p className="text-base md:text-xl lg:text-2xl font-semibold text-foreground mb-1">{t('ui.export_order_report')}</p>
+                  <p className="text-xs text-muted-foreground">{t('ui.select_date_range_optional')}</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="start-date" className="text-sm md:text-base lg:text-lg text-foreground">{t('ui.start_date')} (Optional)</Label>
@@ -347,7 +347,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground hover:bg-muted/50 focus:border-primary"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        <span className="text-sm">{startDate ? format(startDate, "MMM dd, yyyy") : "Last month (default)"}</span>
+                        <span className="text-sm">{startDate ? format(startDate, "MMM dd, yyyy") : t('ui.last_month_default')}</span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -370,7 +370,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                         className="w-full justify-start text-left font-normal border-border rounded-lg bg-background text-foreground hover:bg-muted/50 focus:border-primary"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        <span className="text-sm">{endDate ? format(endDate, "MMM dd, yyyy") : "Today (default)"}</span>
+                        <span className="text-sm">{endDate ? format(endDate, "MMM dd, yyyy") : t('ui.today_default')}</span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -390,7 +390,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 </div>
                 <div className="p-3 bg-muted/50 rounded-lg">
                   <p className="text-xs text-muted-foreground">
-                    If no dates selected, report will include orders from the last month.
+                    {t('ui.no_dates_selected_info')}
                   </p>
                 </div>
                 <Button 
@@ -400,7 +400,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   className="w-full"
                 >
                   <FileText className="h-4 w-4 mr-2" />
-                  <span>Export PDF Report</span>
+                  <span>{t('ui.export_pdf_report')}</span>
                 </Button>
               </section>
             </PopoverContent>
@@ -411,7 +411,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
         {highlightedNotifications.length > 0 && (
           <aside className="mb-3 sm:mb-4 space-y-2" role="alert" aria-live="polite">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm sm:text-base font-semibold text-foreground">Recent Updates</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-foreground">{t('ui.recent_updates')}</h3>
               {remainingNotifications.length > 0 && (
                 <Button
                   variant="outline"
@@ -419,7 +419,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   onClick={() => router.visit('/customer/notifications')}
                   className="text-xs sm:text-sm"
                 >
-                  Show All ({unreadNotifications.length})
+                  {t('ui.show_all')} ({unreadNotifications.length})
                 </Button>
               )}
             </div>
@@ -476,7 +476,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <div className="flex flex-nowrap items-start justify-between gap-2">
                         <div className="flex-1 min-w-0 pr-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm sm:text-base font-semibold text-card-foreground">Order ID:</span>
+                            <span className="text-sm sm:text-base font-semibold text-card-foreground">{t('ui.order_id_label')}</span>
                             <span className="text-sm sm:text-base font-bold text-primary">#{order.id}</span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -524,7 +524,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     
                     {order.admin_notes && (
                       <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-accent/10 border-l-4 border-accent rounded overflow-hidden">
-                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">Approver Notes:</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">{t('ui.approver_notes_label')}</h3>
                         <p className="text-xs sm:text-sm md:text-base text-foreground break-words">{order.admin_notes}</p>
                       </aside>
                     )}
@@ -538,7 +538,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                               {t('ui.order_delay_message')}
                             </p>
                             <p className="text-xs md:text-sm lg:text-sm text-foreground">
-                              If you have any concerns, please contact us at: <strong>sample@email.com</strong>
+                              {t('ui.if_you_have_concerns')} <strong>sample@email.com</strong>
                             </p>
                           </div>
                           <Dialog 
@@ -548,17 +548,17 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             <DialogTrigger asChild>
                               <Button variant="destructive" size="sm" className="w-full sm:w-auto">
                                 <X className="h-4 w-4 mr-1" />
-                                <span className="text-sm">Cancel Order</span>
+                                <span className="text-sm">{t('ui.cancel_order')}</span>
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle className="text-base md:text-lg lg:text-xl">Cancel Order #{order.id}</DialogTitle>
+                                <DialogTitle className="text-base md:text-lg lg:text-xl">{t('ui.cancel_order')} #{order.id}</DialogTitle>
                                 <DialogDescription className="text-sm md:text-base lg:text-lg">
-                                  Are you sure you want to cancel this delayed order? This action cannot be undone.
+                                  {t('ui.cancel_order_confirmation_message')}
                                   <br /><br />
-                                  <strong>Order ID:</strong> #{order.id} <br />
-                                  <strong>Order Total:</strong> ₱{Number(order.total_amount).toFixed(2)}
+                                  <strong>{t('ui.order_id_label')}</strong> #{order.id} <br />
+                                  <strong>{t('ui.order_total_label')}</strong> ₱{Number(order.total_amount).toFixed(2)}
                                 </DialogDescription>
                               </DialogHeader>
                               <DialogFooter>
@@ -566,13 +566,13 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                                   variant="outline" 
                                   onClick={() => setCancelDialogOpen(prev => ({ ...prev, [order.id]: false }))}
                                 >
-                                  <span className="text-sm">Keep Order</span>
+                                  <span className="text-sm">{t('ui.keep_order')}</span>
                                 </Button>
                                 <Button
                                   onClick={() => handleCancelOrder(order.id)}
                                   variant="destructive"
                                 >
-                                  <span className="text-sm">Yes, Cancel Order</span>
+                                  <span className="text-sm">{t('ui.yes_cancel_order')}</span>
                                 </Button>
                               </DialogFooter>
                             </DialogContent>
@@ -583,9 +583,9 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
                     {order.logistic && (
                       <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-secondary/10 border-l-4 border-secondary rounded overflow-hidden">
-                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">Delivery Information:</h3>
+                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">{t('ui.delivery_information')}</h3>
                         <p className="text-xs sm:text-sm md:text-base text-card-foreground break-words">
-                          <span className="font-medium">Assigned to:</span> {order.logistic.name}
+                          <span className="font-medium">{t('ui.assigned_to')}</span> {order.logistic.name}
                           {order.logistic.contact_number && (
                             <span className="ml-2">({order.logistic.contact_number})</span>
                           )}
@@ -612,7 +612,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                                 <TableCell className="text-sm md:text-base lg:text-base text-card-foreground font-medium">{item.product.name}</TableCell>
                                 <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right">{item.quantity} {item.category}</TableCell>
                                 <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right">
-                                  {item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : 'No price set'}
+                                  {item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}
                                 </TableCell>
                                 <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right font-semibold">
                                   ₱{Number(item.subtotal || 0).toFixed(2)}
@@ -650,25 +650,25 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                                 </header>
                                 <dl className="grid grid-cols-2 gap-2">
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">Quantity:</dt>
+                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.quantity_label')}</dt>
                                     <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">{item.quantity} {item.category}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">Price:</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : 'No price set'}</dd>
+                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.price_label')}</dt>
+                                    <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">Subtotal:</dt>
+                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.subtotal_label')}</dt>
                                     <dd className="text-xs md:text-sm lg:text-sm font-semibold text-foreground">₱{Number(item.subtotal || 0).toFixed(2)}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">Delivery Fee:</dt>
+                                    <dt className="text-xs md:text-sm lg:text-sm text-muted-foreground">{t('ui.delivery_fee_label')}</dt>
                                     <dd className="text-xs md:text-sm lg:text-sm font-medium text-foreground">₱{Number(item.coop_share || 0).toFixed(2)}</dd>
                                   </div>
                                 </dl>
                                 <footer className="border-t border-border pt-2">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">Total:</span>
+                                    <span className="text-base md:text-xl lg:text-2xl font-semibold text-card-foreground">{t('ui.total_label')}</span>
                                     <span className="text-base md:text-xl lg:text-2xl font-bold text-primary">₱{Number(item.total_amount || 0).toFixed(2)}</span>
                                   </div>
                                 </footer>
@@ -688,7 +688,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
                     <footer className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
                       <div className="flex justify-between items-center gap-2">
-                        <span className="text-base sm:text-lg md:text-xl font-semibold text-card-foreground">Order Total:</span>
+                        <span className="text-base sm:text-lg md:text-xl font-semibold text-card-foreground">{t('ui.order_total_label')}</span>
                         <span className="text-base sm:text-lg md:text-xl font-bold text-primary">₱{Number(order.total_amount).toFixed(2)}</span>
                       </div>
                     </footer>
@@ -701,7 +701,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                           variant="default"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
-                          <span className="text-sm">Confirm Order Received</span>
+                          <span className="text-sm">{t('ui.confirm_order_received')}</span>
                         </Button>
                       </section>
                     )}
@@ -710,14 +710,14 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       <aside className="mt-4 p-3 bg-primary/10 border-l-4 border-primary rounded">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="h-5 w-5 text-primary" aria-hidden="true" />
-                          <h3 className="text-base md:text-lg lg:text-xl font-semibold text-primary">Order Confirmed</h3>
+                          <h3 className="text-base md:text-lg lg:text-xl font-semibold text-primary">{t('ui.order_confirmed')}</h3>
                           <p className="ml-auto text-right text-xs mt-2 text-muted-foreground">
-                            Confirmed on {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
+                            {t('ui.confirmed_on')} {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
                           </p>
                         </div>
                         {order.customer_rate && (
                           <div className="mb-2">
-                            <p className="text-sm md:text-base lg:text-base text-muted-foreground mb-1">Your Rating:</p>
+                            <p className="text-sm md:text-base lg:text-base text-muted-foreground mb-1">{t('ui.your_rating')}</p>
                             <StarRating rating={order.customer_rate} onRatingChange={() => {}} interactive={false} showLabel={false} />
                             <p className="text-sm md:text-base lg:text-base text-center text-foreground">{order.customer_feedback}</p>
                           </div>
@@ -742,7 +742,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     <span className="hidden sm:inline">{t('ui.previous') || 'Previous'}</span>
                   </Button>
                   <div className="text-sm text-muted-foreground px-2">
-                    Page {currentPage} of {totalPages}
+                    {t('ui.page')} {currentPage} {t('ui.of')} {totalPages}
                   </div>
                   <Button
                     variant="outline"
