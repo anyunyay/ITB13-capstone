@@ -445,7 +445,7 @@ export default function ProfilePage() {
                                         {t('ui.manage_account_settings')}
                                     </p>
                                 </div>
-                                <Link href="/customer/home">
+                                <Link href="/">
                                     <Button 
                                         variant="outline" 
                                         className="px-4 sm:px-6 py-2 sm:py-3 text-base md:text-base lg:text-lg font-semibold border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"

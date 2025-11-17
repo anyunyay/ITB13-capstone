@@ -798,7 +798,7 @@ export default function AllNotificationsPage() {
                     View and manage all your notifications
                   </p>
                 </div>
-                <Link href="/customer/home">
+                <Link href="/">
                   <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
                     <ArrowLeft className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Back</span>

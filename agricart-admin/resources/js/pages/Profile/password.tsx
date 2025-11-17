@@ -490,7 +490,7 @@ export default function PasswordPage() {
                                         {t('ui.update_password_secure')}
                                     </p>
                                 </div>
-                                <Link href="/customer/home">
+                                <Link href="/">
                                     <Button variant="outline" size="icon" className="sm:w-auto sm:px-4 shrink-0">
                                         <ArrowLeft className="h-4 w-4 sm:mr-2" />
                                         <span className="hidden sm:inline">{t('ui.back')}</span>
