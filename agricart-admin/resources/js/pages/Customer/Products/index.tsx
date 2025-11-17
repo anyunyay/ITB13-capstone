@@ -68,8 +68,8 @@ export default function CustomerProducts() {
   return (
     <AppHeaderLayout>
       <Head title={t('customer.products_fresh_produce')} />
-      <div className="min-h-screen py-4 sm:py-6 lg:py-8 xl:py-10 mt-16 sm:mt-20 lg:mt-24">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
           <div className="text-center mb-8 sm:mb-10 lg:mb-11 xl:mb-12">
             <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-primary mb-3 sm:mb-4">
               {t('customer.fresh_produce_from_cooperatives')}

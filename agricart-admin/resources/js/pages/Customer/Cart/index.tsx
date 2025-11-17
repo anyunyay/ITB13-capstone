@@ -345,8 +345,8 @@ export default function CartPage() {
   return (
     <AppHeaderLayout>
       <Head title={t('ui.cart')} />
-      <div className="min-h-screen py-4 sm:py-6 lg:py-8 xl:py-10 mt-16 sm:mt-20 lg:mt-24">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
           
           {/* Notification Messages */}
           {checkoutMessage && (
