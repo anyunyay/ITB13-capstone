@@ -1042,6 +1042,7 @@ return [
     'showing_orders_count' => 'Nagpapakita ng :count orders',
     'no_orders_found' => 'Walang nahanap na order',
     'no_orders_match_filters' => 'Walang order na tumugma sa iyong filter.',
+    'no_order_data_for_period' => 'Walang available na order data para sa napiling panahon.',
     'no_items_found' => 'Walang nahanap na item',
     'order_summary' => 'Summary ng Order',
     'admin_notes' => 'Notes ng Admin:',

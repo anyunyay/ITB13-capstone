@@ -995,6 +995,7 @@ return [
     'showing_orders_count' => 'Showing :count orders',
     'no_orders_found' => 'No orders found',
     'no_orders_match_filters' => 'No orders match your current filters.',
+    'no_order_data_for_period' => 'No order data available for the selected period.',
     'no_items_found' => 'No items found',
     'order_summary' => 'Order Summary',
     'admin_notes' => 'Admin Notes:',
