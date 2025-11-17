@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 import { CartItemQuantityControl } from './CartItemQuantityControl';
 import type { CartItem as CartItemType } from '../types';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface CartItemProps {
   item: CartItemType;
@@ -28,6 +29,8 @@ export function CartItem({
   onRemove,
   onTempQuantityChange,
 }: CartItemProps) {
+  const t = useTranslation();
+  
   const formatQuantityDisplay = (quantity: number | string | undefined, category: string) => {
     const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
     return category === 'Kilo' ? numQuantity.toFixed(2) : Math.floor(numQuantity).toString();
@@ -138,10 +141,10 @@ export function CartItem({
                   {isUpdating ? (
                     <div className="flex items-center gap-2 justify-center">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Saving...</span>
+                      <span>{t('ui.saving')}</span>
                     </div>
                   ) : (
-                    'Save Changes'
+                    t('ui.save_changes')
                   )}
                 </Button>
                 <Button
@@ -151,7 +154,7 @@ export function CartItem({
                   disabled={isUpdating}
                   className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 px-4 py-2 rounded-xl font-semibold transition-all duration-200 active:scale-95 flex-1"
                 >
-                  Cancel
+                  {t('ui.cancel')}
                 </Button>
               </div>
             ) : (
@@ -162,7 +165,7 @@ export function CartItem({
                 disabled={isUpdating}
                 className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 px-6 py-2 rounded-xl font-semibold transition-all duration-200 animate-in fade-in zoom-in-95 duration-200 will-change-transform"
               >
-                Edit Quantity
+                {t('ui.edit_quantity')}
               </Button>
             )}
           </div>
@@ -184,9 +187,9 @@ export function CartItem({
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 items-center">
-        {/* Product Column */}
-        <div className="col-span-4">
+      <div className="hidden lg:grid grid-cols-12 gap-3 px-6 py-4 items-center">
+        {/* Product Column - Left Aligned */}
+        <div className="col-span-3">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
               <span className="text-green-600 dark:text-green-400 text-xs font-medium">IMG</span>
@@ -211,15 +214,15 @@ export function CartItem({
           </div>
         </div>
 
-        {/* Category Column */}
-        <div className="col-span-1 text-center">
+        {/* Category Column - Centered */}
+        <div className="col-span-2 flex justify-center">
           <span className="text-sm font-semibold text-card-foreground">
             {item.category}
           </span>
         </div>
         
-        {/* Quantity Column */}
-        <div className="col-span-2 text-center">
+        {/* Quantity Column - Centered */}
+        <div className="col-span-2 flex justify-center">
           <CartItemQuantityControl
             item={item}
             isEditing={isEditing}
@@ -229,8 +232,8 @@ export function CartItem({
           />
         </div>
 
-        {/* Unit Price Column */}
-        <div className="col-span-2 text-left">
+        {/* Unit Price Column - Right Aligned */}
+        <div className="col-span-2 flex flex-col items-end">
           <div className="text-sm font-semibold text-card-foreground">
             ₱{unitPrice}
           </div>
@@ -239,8 +242,8 @@ export function CartItem({
           </div>
         </div>
 
-        {/* Subtotal Column */}
-        <div className="col-span-2 text-left">
+        {/* Subtotal Column - Right Aligned */}
+        <div className="col-span-2 flex flex-col items-end">
           <div className="text-base font-bold text-card-foreground">
             ₱{(Number(item.total_price) || 0).toFixed(2)}
           </div>
@@ -249,8 +252,8 @@ export function CartItem({
           </div>
         </div>
 
-        {/* Remove Column */}
-        <div className="col-span-1 text-center">
+        {/* Remove Column - Centered */}
+        <div className="col-span-1 flex justify-center">
           <Button 
             variant="outline" 
             size="sm"
@@ -277,10 +280,10 @@ export function CartItem({
                 {isUpdating ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Saving...</span>
+                    <span>{t('ui.saving')}</span>
                   </div>
                 ) : (
-                  'Save Changes'
+                  t('ui.save_changes')
                 )}
               </Button>
               <Button
@@ -290,7 +293,7 @@ export function CartItem({
                 disabled={isUpdating}
                 className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 px-6 py-2 rounded-xl font-semibold transition-all duration-200 active:scale-95"
               >
-                Cancel
+                {t('ui.cancel')}
               </Button>
             </div>
           ) : (
@@ -301,7 +304,7 @@ export function CartItem({
               disabled={isUpdating}
               className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 px-8 py-2 rounded-xl font-semibold transition-all duration-200 animate-in fade-in zoom-in-95 duration-200 will-change-transform"
             >
-              Edit Quantity
+              {t('ui.edit_quantity')}
             </Button>
           )}
         </div>

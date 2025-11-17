@@ -10,6 +10,7 @@ import { CartSummary } from './components/CartSummary';
 import { AddressSelector } from './components/AddressSelector';
 import { AddressConfirmationDialog } from './components/AddressConfirmationDialog';
 import type { CartItem as CartItemType, Address } from './types';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface PageProps {
   [key: string]: any;
@@ -31,6 +32,7 @@ export default function CartPage() {
   const initialCart = page?.props?.cart || {};
   const addresses = page?.props?.addresses || [];
   const activeAddress = page?.props?.activeAddress;
+  const t = useTranslation();
   
   const [cart, setCart] = useState<Record<string, CartItemType>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
@@ -316,7 +318,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (!selectedAddressId && !activeAddress) {
-      setCheckoutMessage('Please select a delivery address.');
+      setCheckoutMessage(t('ui.please_select_delivery_address'));
       return;
     }
 
@@ -342,7 +344,7 @@ export default function CartPage() {
 
   return (
     <AppHeaderLayout>
-      <Head title="Cart" />
+      <Head title={t('ui.cart')} />
       <div className="min-h-[90vh] py-4 sm:py-6 lg:py-8 mt-16 sm:mt-18 lg:mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -370,13 +372,13 @@ export default function CartPage() {
               <div className="w-24 h-24 mx-auto mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                 <ShoppingCart className="w-12 h-12 text-green-600 dark:text-green-400" />
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">Your cart is empty</h2>
-              <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400 mb-8">Start adding fresh produce to your cart to get started!</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">{t('ui.your_cart_is_empty')}</h2>
+              <p className="text-base md:text-xl lg:text-2xl text-green-600 dark:text-green-400 mb-8">{t('ui.start_adding_fresh_produce')}</p>
               <Button 
                 onClick={() => router.visit('/customer/produce')}
                 className="px-8 py-3 text-base md:text-base lg:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
               >
-                Browse Products
+                {t('ui.browse_products')}
               </Button>
             </div>
           ) : (
@@ -385,11 +387,11 @@ export default function CartPage() {
               <div className="lg:col-span-2">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
                   <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-600 dark:text-green-400">
-                    Cart Items
+                    {t('ui.cart_items')}
                   </h2>
                   <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-full border border-green-200 dark:border-green-700">
                     <span className="text-base md:text-xl lg:text-2xl font-semibold text-green-700 dark:text-green-300">
-                      {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
+                      {cartItems.length} {cartItems.length === 1 ? t('ui.item') : t('ui.items')}
                     </span>
                   </div>
                 </div>
@@ -397,21 +399,21 @@ export default function CartPage() {
                 <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 overflow-hidden">
                   {/* Desktop Table Header */}
                   <div className="hidden lg:block bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-200 dark:border-green-700">
-                    <div className="grid grid-cols-12 gap-4 px-6 py-3">
-                      <div className="col-span-4">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Product</h3>
-                      </div>
-                      <div className="col-span-1 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Category</h3>
+                    <div className="grid grid-cols-12 gap-3 px-6 py-3">
+                      <div className="col-span-3 text-center">
+                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.product')}</h3>
                       </div>
                       <div className="col-span-2 text-center">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Quantity</h3>
+                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.category')}</h3>
                       </div>
-                      <div className="col-span-2 text-left">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Unit Price</h3>
+                      <div className="col-span-2 text-center">
+                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.quantity')}</h3>
                       </div>
-                      <div className="col-span-2 text-left">
-                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">Subtotal</h3>
+                      <div className="col-span-2 text-center">
+                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.unit_price')}</h3>
+                      </div>
+                      <div className="col-span-2 text-center">
+                        <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">{t('ui.subtotal')}</h3>
                       </div>
                       <div className="col-span-1 text-center">
                         <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide"></h3>
@@ -444,7 +446,7 @@ export default function CartPage() {
               <div className="space-y-6">
                 {/* Delivery Address Section */}
                 <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
-                  <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">Delivery Address</h3>
+                  <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">{t('ui.delivery_address')}</h3>
                   <AddressSelector
                     addresses={addresses}
                     activeAddress={activeAddress}

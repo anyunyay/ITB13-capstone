@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface CartSummaryProps {
   cartTotal: number;
@@ -20,25 +21,26 @@ export function CartSummary({
   cartItemsCount,
   onCheckout,
 }: CartSummaryProps) {
+  const t = useTranslation();
   const deliveryFee = cartTotal * 0.10;
   const total = cartTotal * 1.10;
 
   return (
     <div className="bg-card rounded-xl shadow-lg border-2 border-green-200 dark:border-green-700 p-4 lg:p-4.5">
-      <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">Order Summary</h3>
+      <h3 className="text-base sm:text-sm font-semibold text-green-600 dark:text-green-400 mb-3 lg:mb-2.5">{t('ui.order_summary')}</h3>
       
       <div className="space-y-1.5 mb-2.5">
         <div className="flex justify-between items-center">
-          <span className="text-xs text-green-600 dark:text-green-400">Subtotal:</span>
+          <span className="text-xs text-green-600 dark:text-green-400">{t('ui.subtotal')}:</span>
           <span className="text-xs font-medium text-green-600 dark:text-green-400">₱{cartTotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-green-600 dark:text-green-400">Delivery Fee (10%):</span>
+          <span className="text-xs text-green-600 dark:text-green-400">{t('ui.delivery_fee')} (10%):</span>
           <span className="text-xs font-medium text-green-600 dark:text-green-400">₱{deliveryFee.toFixed(2)}</span>
         </div>
         <div className="border-t border-green-200 dark:border-green-700 pt-1.5">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold text-green-600 dark:text-green-400">Total:</span>
+            <span className="text-sm font-semibold text-green-600 dark:text-green-400">{t('ui.total')}:</span>
             <span className="text-base font-bold text-green-600 dark:text-green-400">₱{total.toFixed(2)}</span>
           </div>
         </div>
@@ -54,9 +56,9 @@ export function CartSummary({
           )}
           <span className={`text-xs font-medium ${meetsMinimumOrder ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
             {meetsMinimumOrder ? (
-              `✓ Minimum order requirement met (₱${minimumOrder})`
+              `✓ ${t('ui.minimum_order_amount')} (₱${minimumOrder})`
             ) : (
-              `⚠ Minimum order requirement: ₱${minimumOrder} (add ₱${(minimumOrder - cartTotal).toFixed(2)} more)`
+              `⚠ ${t('ui.minimum_order_not_met', { amount: minimumOrder })} (${t('ui.add_more_items', { amount: (minimumOrder - cartTotal).toFixed(2) })})`
             )}
           </span>
         </div>
@@ -67,7 +69,7 @@ export function CartSummary({
         <div className="flex items-start gap-2">
           <AlertTriangle className="h-3 w-3 text-blue-600 dark:text-blue-400 mt-0.5" />
           <span className="text-xs text-blue-600 dark:text-blue-400">
-            Note: This order requires approval. Please expect a confirmation call regarding your order.
+            {t('ui.order_requires_approval_note')}
           </span>
         </div>
       </div>
@@ -83,7 +85,7 @@ export function CartSummary({
               : 'bg-green-600 hover:bg-green-700 text-white'
           }`}
         >
-          {cartItemsCount === 0 ? 'Cart is Empty' : 'Proceed to Checkout'}
+          {cartItemsCount === 0 ? t('ui.your_cart_is_empty') : t('ui.checkout')}
         </Button>
         
         {hasEditingItems && (
@@ -91,7 +93,7 @@ export function CartSummary({
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-3 w-3 text-blue-600 dark:text-blue-400" />
               <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                Please complete or cancel all pending updates before checkout
+                {t('ui.complete_editing_items')}
               </span>
             </div>
           </div>
@@ -102,7 +104,7 @@ export function CartSummary({
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-3 w-3 text-orange-600 dark:text-orange-400" />
               <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                Please add more items to meet the minimum order requirement of ₱{minimumOrder}
+                {t('ui.minimum_order_not_met', { amount: minimumOrder })}
               </span>
             </div>
           </div>
@@ -113,7 +115,7 @@ export function CartSummary({
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-3 w-3 text-blue-600 dark:text-blue-400" />
               <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                Please select a delivery address to continue with checkout
+                {t('ui.please_select_address_checkout')}
               </span>
             </div>
           </div>

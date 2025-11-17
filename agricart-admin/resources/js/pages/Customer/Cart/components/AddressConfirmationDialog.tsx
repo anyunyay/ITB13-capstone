@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, MapPin } from 'lucide-react';
 import type { Address } from '../types';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface AddressConfirmationDialogProps {
   isOpen: boolean;
@@ -20,18 +21,20 @@ export function AddressConfirmationDialog({
   onConfirm,
   onCancel,
 }: AddressConfirmationDialogProps) {
+  const t = useTranslation();
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="bg-card border-green-200 dark:border-green-700">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <AlertTriangle className="h-5 w-5 text-orange-500 dark:text-orange-400" />
-            Confirm Address Change
+            {t('ui.confirm_address_change')}
           </DialogTitle>
           <DialogDescription className="text-green-600 dark:text-green-400">
             {pendingAddressId === null 
-              ? "You are about to switch back to your active address for delivery."
-              : "You are about to change your delivery address. This will also update your main address in your profile."
+              ? t('ui.switch_back_to_active_address')
+              : t('ui.change_delivery_address_message')
             }
           </DialogDescription>
         </DialogHeader>
@@ -40,7 +43,7 @@ export function AddressConfirmationDialog({
           <div className="space-y-4">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
               <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                {pendingAddressId === null ? 'Active Address:' : 'New Address:'}
+                {pendingAddressId === null ? `${t('ui.active_address')}:` : `${t('ui.new_address')}:`}
               </h4>
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
@@ -60,8 +63,8 @@ export function AddressConfirmationDialog({
                 <AlertTriangle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-blue-600 dark:text-blue-400">
                   {pendingAddressId === null 
-                    ? "This will set your active address as the delivery address for this order."
-                    : "This address will be set as your main address and used for all future orders by default."
+                    ? t('ui.set_active_address_delivery')
+                    : t('ui.set_main_address_future_orders')
                   }
                 </p>
               </div>
@@ -76,7 +79,7 @@ export function AddressConfirmationDialog({
             disabled={isUpdating}
             className="border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
           >
-            Cancel
+            {t('ui.cancel')}
           </Button>
           <Button
             onClick={onConfirm}
@@ -86,10 +89,10 @@ export function AddressConfirmationDialog({
             {isUpdating ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Updating...</span>
+                <span>{t('ui.updating')}</span>
               </div>
             ) : (
-              'Confirm Change'
+              t('ui.confirm')
             )}
           </Button>
         </DialogFooter>
