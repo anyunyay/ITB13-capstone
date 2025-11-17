@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,24 +15,16 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $locale = $request->user()->language ?? app()->getLocale();
+        
+        $notificationTypes = NotificationService::getNotificationTypesForUser('customer');
+        
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\OrderConfirmationNotification',
-                'App\\Notifications\\OrderStatusUpdate',
-                'App\\Notifications\\DeliveryStatusUpdate'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
-                ];
+            ->map(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Customer/notifications', [
@@ -118,29 +111,20 @@ class NotificationController extends Controller
             abort(403, 'Unauthorized access. This page is only accessible to customers.');
         }
         
+        $locale = $user->language ?? app()->getLocale();
+        
         // Fetch 10 notifications per page for optimal performance
         // Frontend will handle client-side pagination (5 for desktop, 7 for mobile)
         $perPage = 10;
         
+        $notificationTypes = NotificationService::getNotificationTypesForUser('customer');
+        
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\OrderConfirmationNotification',
-                'App\\Notifications\\OrderStatusUpdate',
-                'App\\Notifications\\DeliveryStatusUpdate',
-                'App\\Notifications\\OrderRejectionNotification'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage)
-            ->through(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
-                ];
+            ->through(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Profile/all-notifications', [

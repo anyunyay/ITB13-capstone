@@ -67,10 +67,14 @@ class ProductSaleNotification extends Notification implements ShouldQueue
             'sale_id' => $this->sale->id,
             'audit_trail_id' => $this->auditTrail ? $this->auditTrail->id : null,
             'type' => 'product_sale',
+            'message_key' => 'product_sale',
+            'message_params' => [
+                'product_name' => $this->stock->product->name,
+                'customer_name' => $this->customer->name,
+            ],
             'product_name' => $this->stock->product->name,
             'customer_name' => $this->customer->name,
             'quantity_sold' => $this->stock->quantity,
-            'message' => 'Your product ' . $this->stock->product->name . ' was sold to ' . $this->customer->name,
             'action_url' => $actionUrl,
         ];
     }

@@ -45,10 +45,14 @@ class EarningsUpdateNotification extends Notification implements ShouldQueue
     {
         return [
             'type' => 'earnings_update',
+            'message_key' => 'earnings_update',
+            'message_params' => [
+                'period' => $this->period,
+                'amount' => number_format($this->amount, 2),
+            ],
             'amount' => $this->amount,
             'period' => $this->period,
             'details' => $this->details,
-            'message' => 'Earnings update: ₱' . number_format($this->amount, 2) . ' for ' . $this->period,
             'action_url' => '/member/dashboard',
         ];
     }

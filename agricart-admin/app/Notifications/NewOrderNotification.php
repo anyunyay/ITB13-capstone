@@ -47,9 +47,13 @@ class NewOrderNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'new_order',
+            'message_key' => 'new_order',
+            'message_params' => [
+                'order_id' => $this->order->id,
+                'customer_name' => $this->order->customer->name,
+            ],
             'customer_name' => $this->order->customer->name,
             'total_amount' => $this->order->total_amount,
-            'message' => 'New order #' . $this->order->id . ' from ' . $this->order->customer->name,
             'action_url' => '/admin/orders/' . $this->order->id,
         ];
     }

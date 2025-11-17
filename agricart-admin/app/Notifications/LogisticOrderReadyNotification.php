@@ -62,7 +62,10 @@ class LogisticOrderReadyNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'logistic_order_ready',
-            'message' => 'Order #' . $this->order->id . ' is ready for pickup. Please collect it before proceeding to delivery.',
+            'message_key' => 'logistic_order_ready',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
             'action_url' => route('logistic.orders.show', $this->order->id),
             'ready_for_pickup_at' => $this->order->delivery_ready_time?->toISOString(),
             'customer_name' => $this->order->customer->name,

@@ -47,10 +47,16 @@ class OrderDelayedNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'order_delayed',
+            'message_key' => 'order_delayed',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
+            'sub_message_key' => 'order_delayed_sub',
+            'sub_message_params' => [
+                'contact_email' => 'sample@email.com',
+            ],
             'total_amount' => $this->order->total_amount,
             'status' => $this->order->status,
-            'message' => 'Your order #' . $this->order->id . ' has been delayed',
-            'sub_message' => 'Contact us at sample@email.com if you have concerns',
             'action_url' => '/customer/orders/history',
             'contact_email' => 'sample@email.com',
         ];

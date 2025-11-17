@@ -77,7 +77,11 @@ class LogisticOrderPickedUpNotification extends Notification implements ShouldQu
         return [
             'order_id' => $this->order->id,
             'type' => 'logistic_order_picked_up',
-            'message' => 'Order #' . $this->order->id . ' pickup confirmed. Please proceed with delivery to ' . $this->order->customer->name . '.',
+            'message_key' => 'logistic_order_picked_up',
+            'message_params' => [
+                'order_id' => $this->order->id,
+                'customer_name' => $this->order->customer->name,
+            ],
             'action_url' => route('logistic.orders.show', $this->order->id),
             'picked_up_at' => $this->order->delivery_packed_time?->toISOString(),
             'customer_name' => $this->order->customer->name,

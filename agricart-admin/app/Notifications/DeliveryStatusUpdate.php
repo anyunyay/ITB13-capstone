@@ -49,7 +49,8 @@ class DeliveryStatusUpdate extends Notification implements ShouldQueue
             'order_id' => $this->orderId,
             'type' => 'delivery_status_update',
             'delivery_status' => $this->deliveryStatus,
-            'message' => $this->message,
+            'message_key' => 'delivery_status_' . $this->deliveryStatus,
+            'message_params' => [],
             'action_url' => '/customer/orders/history',
         ];
     }

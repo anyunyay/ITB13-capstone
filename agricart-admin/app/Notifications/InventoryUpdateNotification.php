@@ -54,10 +54,14 @@ class InventoryUpdateNotification extends Notification implements ShouldQueue
             'product_id' => $this->stock->product_id,
             'type' => 'inventory_update',
             'action' => $this->action,
+            'message_key' => 'inventory_update_' . $this->action,
+            'message_params' => [
+                'product_name' => $this->stock->product->name,
+                'member_name' => ($this->member ?? $this->stock->member)->name,
+            ],
             'product_name' => $this->stock->product->name,
             'member_name' => ($this->member ?? $this->stock->member)->name,
             'quantity' => $this->stock->quantity,
-            'message' => 'Inventory ' . $this->action . ' for ' . $this->stock->product->name,
             'action_url' => '/admin/inventory',
         ];
     }

@@ -54,11 +54,16 @@ class LowStockAlertNotification extends Notification implements ShouldQueue
         return [
             'stock_id' => $this->stock->id,
             'type' => 'low_stock_alert',
+            'message_key' => 'low_stock_alert',
+            'message_params' => [
+                'stock_type' => $stockType,
+                'product_name' => $this->stock->product->name,
+                'quantity' => $this->stock->quantity,
+            ],
             'product_name' => $this->stock->product->name,
             'current_quantity' => $this->stock->quantity,
             'threshold' => $this->threshold,
             'stock_type' => $stockType,
-            'message' => 'Low ' . $stockType . ' stock alert: ' . $this->stock->product->name . ' has only ' . $this->stock->quantity . ' units left',
             'action_url' => $actionUrl,
         ];
     }

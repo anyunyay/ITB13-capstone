@@ -62,7 +62,10 @@ class OrderReceipt extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'order_receipt',
-            'message' => 'Order receipt sent for order #' . $this->order->id,
+            'message_key' => 'order_receipt',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
         ];
     }
 } 

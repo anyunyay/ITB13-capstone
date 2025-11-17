@@ -45,10 +45,12 @@ class OrderConfirmationNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'order_confirmation',
+            'message_key' => 'order_confirmation',
+            'message_params' => [],
+            'sub_message_key' => 'order_confirmation_sub',
+            'sub_message_params' => [],
             'total_amount' => $this->order->total_amount,
             'status' => $this->order->status,
-            'message' => 'Order Confirmed',
-            'sub_message' => 'Estimated Approval Time: 24Hrs',
             'action_url' => '/customer/orders/history',
         ];
     }

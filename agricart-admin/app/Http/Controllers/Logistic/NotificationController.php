@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Logistic;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,25 +15,16 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $locale = $user->language ?? app()->getLocale();
+        
+        $notificationTypes = NotificationService::getNotificationTypesForUser('logistic');
+        
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\DeliveryTaskNotification',
-                'App\\Notifications\\OrderStatusUpdate',
-                'App\\Notifications\\LogisticOrderReadyNotification',
-                'App\\Notifications\\LogisticOrderPickedUpNotification'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
-                ];
+            ->map(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Logistic/notifications', [
@@ -52,25 +44,15 @@ class NotificationController extends Controller
             abort(403, 'Unauthorized access. This page is only accessible to logistics personnel.');
         }
         
+        $locale = $user->language ?? app()->getLocale();
+        $notificationTypes = NotificationService::getNotificationTypesForUser('logistic');
+        
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\DeliveryTaskNotification',
-                'App\\Notifications\\OrderStatusUpdate',
-                'App\\Notifications\\LogisticOrderReadyNotification',
-                'App\\Notifications\\LogisticOrderPickedUpNotification'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->paginate(10)
-            ->through(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
-                ];
+            ->through(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Profile/all-notifications', [

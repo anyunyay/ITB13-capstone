@@ -50,12 +50,16 @@ class StockAddedNotification extends Notification implements ShouldQueue
             'stock_id' => $this->stock->id,
             'product_id' => $this->stock->product_id,
             'type' => 'stock_added',
+            'message_key' => 'stock_added',
+            'message_params' => [
+                'product_name' => $this->stock->product->name,
+                'admin_name' => $this->addedBy->name,
+            ],
             'product_name' => $this->stock->product->name,
             'quantity' => $this->stock->quantity,
             'category' => $this->stock->category,
             'added_by' => $this->addedBy->name,
             'added_by_type' => $this->addedBy->type,
-            'message' => $this->addedBy->name . ' added ' . $this->stock->quantity . ' ' . $this->stock->category . ' of ' . $this->stock->product->name . ' to your stock',
             'action_url' => '/member/all-stocks?view=stocks&highlight_product=' . $this->stock->product_id . '&highlight_category=' . urlencode($this->stock->category),
         ];
     }

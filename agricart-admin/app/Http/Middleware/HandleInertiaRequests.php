@@ -123,6 +123,9 @@ class HandleInertiaRequests extends Middleware
             }
 
             if (!empty($notificationTypes)) {
+                // Get user's language preference
+                $locale = $user->language ?? app()->getLocale();
+                
                 // Share notifications for the notification bell in header (exclude hidden ones)
                 $shared['notifications'] = $user->notifications()
                     ->whereIn('type', $notificationTypes)
@@ -130,16 +133,9 @@ class HandleInertiaRequests extends Middleware
                     ->orderBy('created_at', 'desc')
                     ->limit(20)
                     ->get()
-                    ->map(function ($notification) {
-                        return [
-                            'id' => $notification->id,
-                            'type' => $notification->data['type'] ?? 'unknown',
-                            'message' => $notification->data['message'] ?? '',
-                            'action_url' => $notification->data['action_url'] ?? null,
-                            'created_at' => $notification->created_at->toISOString(),
-                            'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                            'data' => $notification->data,
-                        ];
+                    ->map(function ($notification) use ($locale) {
+                        // Use NotificationService to format with resolved messages
+                        return \App\Services\NotificationService::formatNotification($notification, $locale);
                     });
             }
 

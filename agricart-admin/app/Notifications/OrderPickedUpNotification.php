@@ -61,7 +61,10 @@ class OrderPickedUpNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'order_picked_up',
-            'message' => 'Your order #' . $this->order->id . ' has been picked up and is on its way!',
+            'message_key' => 'order_picked_up',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
             'action_url' => '/customer/orders/history',
             'picked_up_at' => now(),
         ];

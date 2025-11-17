@@ -61,7 +61,10 @@ class OrderReadyForPickupNotification extends Notification implements ShouldQueu
         return [
             'order_id' => $this->order->id,
             'type' => 'order_ready_for_pickup',
-            'message' => 'Your order #' . $this->order->id . ' is ready for pickup!',
+            'message_key' => 'order_ready_for_pickup',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
             'action_url' => '/customer/orders/history',
             'ready_for_pickup_at' => $this->order->ready_for_pickup_at,
         ];

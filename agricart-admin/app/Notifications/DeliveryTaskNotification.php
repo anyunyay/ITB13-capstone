@@ -47,10 +47,13 @@ class DeliveryTaskNotification extends Notification implements ShouldQueue
         return [
             'order_id' => $this->order->id,
             'type' => 'delivery_task',
+            'message_key' => 'delivery_task',
+            'message_params' => [
+                'order_id' => $this->order->id,
+            ],
             'customer_name' => $this->order->customer->name,
             'customer_address' => $this->order->customer->address,
             'total_amount' => $this->order->total_amount,
-            'message' => 'New delivery task assigned for order #' . $this->order->id,
             'action_url' => '/logistic/deliveries/' . $this->order->id,
         ];
     }

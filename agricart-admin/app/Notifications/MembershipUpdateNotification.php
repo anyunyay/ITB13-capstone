@@ -49,9 +49,12 @@ class MembershipUpdateNotification extends Notification implements ShouldQueue
             'member_identifier' => $this->member->member_id ?? 'N/A',
             'type' => 'membership_update',
             'action' => $this->action,
+            'message_key' => 'membership_update_' . $this->action,
+            'message_params' => [
+                'member_name' => $this->member->name,
+            ],
             'member_name' => $this->member->name,
             'member_contact' => $this->member->contact_number ?? 'N/A',
-            'message' => 'Membership ' . $this->action . ' for ' . $this->member->name . ' (ID: ' . ($this->member->member_id ?? 'N/A') . ')',
             'action_url' => '/admin/membership',
         ];
     }

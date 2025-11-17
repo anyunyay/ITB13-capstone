@@ -41,11 +41,16 @@ class NotificationSeeder extends Seeder
      * 
      * This matches the real application flow where notifications are created
      * after the actual events (orders, stock changes, etc.) occur.
+     * 
+     * NOTE: This seeder now uses the message_key system for multilingual support.
+     * All notifications are stored with message_key and message_params instead of
+     * hardcoded messages. Messages are resolved dynamically based on user's language.
      */
     public function run(): void
     {
         $this->command->info('🔔 Starting Notification Seeder...');
         $this->command->info('📋 This seeder creates sample notifications for all user types');
+        $this->command->info('💬 Using message_key system for multilingual support');
         $this->command->info('');
 
         // Clear existing notifications
@@ -296,7 +301,17 @@ class NotificationSeeder extends Seeder
         $this->command->info('   • Members: Product sales, earnings updates, stock alerts');
         $this->command->info('   • Logistics: Delivery tasks, pickup notifications');
         $this->command->info('');
+        $this->command->info('💬 Multilingual Support:');
+        $this->command->info('   • All notifications use message_key system');
+        $this->command->info('   • Messages resolve dynamically to user\'s language (English/Tagalog)');
+        $this->command->info('   • Users can switch languages and notifications update automatically');
+        $this->command->info('');
         $this->command->info('💡 These notifications match the real application flow and can be');
         $this->command->info('   viewed by logging in as different user types.');
+        $this->command->info('');
+        $this->command->info('🔍 To test language switching:');
+        $this->command->info('   1. Update user language: User::first()->update([\'language\' => \'tl\']);');
+        $this->command->info('   2. Fetch notifications via API or controller');
+        $this->command->info('   3. Messages will appear in Tagalog automatically');
     }
 }

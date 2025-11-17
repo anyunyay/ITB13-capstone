@@ -58,16 +58,10 @@ class OrderStatusUpdate extends Notification implements ShouldQueue
             'order_id' => $this->orderId,
             'type' => 'order_status_update',
             'status' => $this->status,
+            'message_key' => 'order_status_' . $this->status,
+            'message_params' => [],
             'action_url' => '/customer/orders/history',
         ];
-
-        // Special handling for approved status
-        if ($this->status === 'approved') {
-            $data['message'] = 'Order Approved and Processing';
-            $data['sub_message'] = 'Estimated Time of Arrival: Within 48 Hrs';
-        } else {
-            $data['message'] = $this->message;
-        }
 
         return $data;
     }

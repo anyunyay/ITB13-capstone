@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,27 +15,18 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $locale = $user->language ?? app()->getLocale();
+        
+        $notificationTypes = NotificationService::getNotificationTypesForUser($user->type);
+        
         // Optimize: Limit notifications and load only essential data
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\NewOrderNotification',
-                'App\\Notifications\\InventoryUpdateNotification',
-                'App\\Notifications\\MembershipUpdateNotification',
-                'App\\Notifications\\PasswordChangeRequestNotification'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->limit(50) // Limit to recent notifications
             ->get()
-            ->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at?->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    // Reduce data payload by excluding full data object
-                ];
+            ->map(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Admin/notifications', [
@@ -121,25 +113,15 @@ class NotificationController extends Controller
             abort(403, 'Unauthorized access. This page is only accessible to administrators and staff.');
         }
         
+        $locale = $user->language ?? app()->getLocale();
+        $notificationTypes = NotificationService::getNotificationTypesForUser($user->type);
+        
         $notifications = $user->notifications()
-            ->whereIn('type', [
-                'App\\Notifications\\NewOrderNotification',
-                'App\\Notifications\\InventoryUpdateNotification',
-                'App\\Notifications\\MembershipUpdateNotification',
-                'App\\Notifications\\PasswordChangeRequestNotification'
-            ])
+            ->whereIn('type', $notificationTypes)
             ->orderBy('created_at', 'desc')
             ->paginate(10)
-            ->through(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'type' => $notification->data['type'] ?? 'unknown',
-                    'message' => $notification->data['message'] ?? '',
-                    'action_url' => $notification->data['action_url'] ?? null,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => $notification->read_at ? $notification->read_at->toISOString() : null,
-                    'data' => $notification->data,
-                ];
+            ->through(function ($notification) use ($locale) {
+                return NotificationService::formatNotification($notification, $locale);
             });
 
         return Inertia::render('Profile/all-notifications', [

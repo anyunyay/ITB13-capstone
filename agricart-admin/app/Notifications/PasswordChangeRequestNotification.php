@@ -82,10 +82,14 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
                 'request_id' => $this->passwordChangeRequest->id,
                 'member_id' => $member->id,
                 'type' => 'password_change_request',
+                'message_key' => 'password_change_request_cancelled',
+                'message_params' => [
+                    'member_name' => $member->name,
+                    'member_identifier' => $member->member_id,
+                ],
                 'member_name' => $member->name,
                 'member_contact' => $member->contact_number ?? 'N/A',
                 'requested_at' => $this->passwordChangeRequest->requested_at->toISOString(),
-                'message' => 'Password change request cancelled by ' . $member->name . ' (ID: ' . $member->member_id . ')',
                 'action_url' => '/admin/membership',
             ];
         }
@@ -94,10 +98,13 @@ class PasswordChangeRequestNotification extends Notification implements ShouldQu
             'request_id' => $this->passwordChangeRequest->id,
             'member_id' => $member->id,
             'type' => 'password_change_request',
+            'message_key' => 'password_change_request',
+            'message_params' => [
+                'member_identifier' => $member->member_id,
+            ],
             'member_name' => $member->name,
             'member_contact' => $member->contact_number ?? 'N/A',
             'requested_at' => $this->passwordChangeRequest->requested_at->toISOString(),
-            'message' => 'Password change request from ' . $member->name . ' (ID: ' . $member->member_id . ')',
             'action_url' => '/admin/membership',
         ];
     }
