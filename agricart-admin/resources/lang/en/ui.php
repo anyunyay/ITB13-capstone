@@ -107,6 +107,7 @@ return [
     'member_since' => 'Member since',
     'not_provided' => 'Not provided',
     'no_address_provided' => 'No address provided',
+    'manage_account_settings' => 'Manage your account settings and preferences',
 
     // Address Management
     'address_management' => 'Address Management',

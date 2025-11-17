@@ -107,6 +107,7 @@ return [
     'member_since' => 'Miyembro simula',
     'not_provided' => 'Hindi naibigay',
     'no_address_provided' => 'Walang naibigay na address',
+    'manage_account_settings' => 'Pamahalaan ang inyong account settings at preferences',
 
     // Address Management
     'address_management' => 'Pamamahala ng Address',
