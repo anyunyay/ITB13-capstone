@@ -77,7 +77,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('admin.profile.help');
-        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('admin.profile.logout.page');
         
         // System Logs routes (admin and staff only)
         Route::get('/system-logs', [SystemLogsController::class, 'index'])->name('admin.system-logs');
@@ -306,7 +305,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
-        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('customer.profile.logout.page');
         
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -334,7 +332,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('logistic.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('logistic.profile.help');
-        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('logistic.profile.logout.page');
         
         // Logistic Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
@@ -372,7 +369,6 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('member.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('member.profile.help');
-        Route::get('/profile/logout', [ProfileController::class, 'logoutPage'])->name('member.profile.logout.page');
         
         // Member Email Change routes removed - members don't need email functionality
         

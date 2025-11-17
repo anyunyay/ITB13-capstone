@@ -303,7 +303,6 @@ export const getProfileRoutes = (userType: string) => {
         appearance: `${baseRoute}/profile/appearance`,
         help: `${baseRoute}/profile/help`,
         logout: `${baseRoute}/profile/logout`,
-        logoutPage: `${baseRoute}/profile/logout`,
         addresses: `${baseRoute}/profile/addresses`,
         systemLogs: userType === 'admin' || userType === 'staff' ? '/admin/system-logs' : null,
     };
@@ -323,7 +322,6 @@ export const hasFeatureAccess = (userType: string, feature: string): boolean => 
         'help_center': ['customer', 'admin', 'staff', 'logistic', 'member'],
         'password_change': ['admin', 'staff', 'customer', 'logistic', 'member'],
         'appearance_settings': ['admin', 'staff', 'customer', 'logistic', 'member'],
-        'logout': ['admin', 'staff', 'customer', 'logistic', 'member'],
     };
     
     return accessMap[feature]?.includes(userType) ?? false;
