@@ -247,6 +247,7 @@ return [
     'member_management' => 'Pamamahala ng Miyembro',
     'member_management_description' => 'Pamahalaan ang mga farmers at members',
     'member' => 'Miyembro',
+    'member_name' => 'Pangalan ng Miyembro',
     'members' => 'Mga Miyembro',
     'add_member' => 'Magdagdag ng Miyembro',
     'edit_member' => 'I-edit ang Miyembro',

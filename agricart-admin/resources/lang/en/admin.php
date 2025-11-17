@@ -247,6 +247,7 @@ return [
     'member_management' => 'Member Management',
     'member_management_description' => 'Manage farmers and members',
     'member' => 'Member',
+    'member_name' => 'Member Name',
     'members' => 'Members',
     'add_member' => 'Add Member',
     'edit_member' => 'Edit Member',
@@ -1259,7 +1260,7 @@ return [
     'no_members_available' => 'No Members Available',
     'try_adjusting_search_filters' => 'Try adjusting your search terms or filters.',
     'add_new_members_get_started' => 'Add new members to get started.',
-    
+
     // Password Requests
     'pending_password_change_requests' => 'Pending Password Change Requests',
     'review_and_approve_password_requests' => 'Review and approve member password change requests',
@@ -1267,11 +1268,11 @@ return [
     'notes' => 'Notes',
     'approve' => 'Approve',
     'reject' => 'Reject',
-    
+
     // Image fallback messages
     'image_not_available' => 'Image not available',
     'no_image' => 'No image',
-    
+
     // Product Form - Additional Keys
     'add_new_product_description' => 'Add a new product to your inventory',
     'fill_product_details' => 'Fill in the product details below',
