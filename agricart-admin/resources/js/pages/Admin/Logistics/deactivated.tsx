@@ -194,7 +194,7 @@ export default function Deactivated() {
                                     <div>
                                         <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.deactivated_logistics_title')}</h2>
                                         <p className="text-sm text-muted-foreground m-0">
-                                            {deactivatedLogistics.length} {t('admin.deactivated_logistics')} {deactivatedLogistics.length !== 1 ? 's' : ''} found
+                                            {deactivatedLogistics.length} {t('admin.deactivated_logistics')} {deactivatedLogistics.length !== 1 ? 's' : ''} {t('admin.found')}
                                         </p>
                                     </div>
                                 </div>
@@ -215,27 +215,27 @@ export default function Deactivated() {
                                 <DialogHeader>
                                     <DialogTitle className="flex items-center gap-2">
                                         <CheckCircle className="h-5 w-5 text-green-500" />
-                                        Confirm Reactivation
+                                        {t('admin.confirm_reactivation')}
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Are you sure you want to reactivate this logistics partner?
+                                        {t('admin.confirm_reactivate_logistic')}
                                     </DialogDescription>
                                 </DialogHeader>
                                 
                                 {selectedLogistic && (
                                     <div className="space-y-3">
                                         <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                            <h4 className="font-medium text-green-800 mb-1">Logistics Partner Details:</h4>
+                                            <h4 className="font-medium text-green-800 mb-1">{t('admin.logistics_partner_details')}:</h4>
                                             <p className="text-green-700">{selectedLogistic.name}</p>
                                             <p className="text-sm text-green-600">{selectedLogistic.email}</p>
                                         </div>
                                         
                                         <div className="text-sm text-gray-600">
-                                            <p><strong>This action will:</strong></p>
+                                            <p><strong>{t('admin.this_action_will')}:</strong></p>
                                             <ul className="list-disc list-inside mt-1 space-y-1">
-                                                <li>Reactivate the logistics partner account</li>
-                                                <li>Allow them to access the system again</li>
-                                                <li>Move them back to the active logistics list</li>
+                                                <li>{t('admin.reactivate_logistic_account')}</li>
+                                                <li>{t('admin.allow_system_access')}</li>
+                                                <li>{t('admin.move_to_active_logistics_list')}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -243,14 +243,14 @@ export default function Deactivated() {
                                 
                                 <DialogFooter>
                                     <Button variant="outline" onClick={handleCancelReactivation}>
-                                        Cancel
+                                        {t('admin.cancel')}
                                     </Button>
                                     <Button 
                                         className="bg-green-600 hover:bg-green-700 text-white" 
                                         onClick={handleConfirmReactivation}
                                         disabled={processing}
                                     >
-                                        {processing ? 'Reactivating...' : 'Reactivate'}
+                                        {processing ? t('admin.reactivating') : t('admin.reactivate')}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>

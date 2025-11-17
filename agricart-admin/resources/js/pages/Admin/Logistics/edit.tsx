@@ -98,7 +98,7 @@ export default function Edit({ logistic }: Props) {
                         {Object.keys(errors).length > 0 && (
                             <Alert variant="destructive">
                                 <OctagonAlert className='h-4 w-4' />
-                                <AlertTitle>Error!</AlertTitle>
+                                <AlertTitle>{t('admin.error_title')}</AlertTitle>
                                 <AlertDescription>
                                     <ul className="list-disc pl-4">
                                         {Object.entries(errors).map(([key, value]) => (
@@ -219,7 +219,7 @@ export default function Edit({ logistic }: Props) {
                                                 <Input
                                                     id="date"
                                                     value={value}
-                                                    placeholder="June 01, 2025"
+                                                    placeholder={t('admin.date_placeholder')}
                                                     className="bg-background pr-10"
                                                     onChange={(e) => {
                                                         setValue(e.target.value);
@@ -243,7 +243,7 @@ export default function Edit({ logistic }: Props) {
                                                     <PopoverTrigger asChild>
                                                         <Button id="date-picker" variant="ghost" className="absolute top-1/2 right-2 size-6 -translate-y-1/2" >
                                                             <CalendarIcon className="size-3.5" />
-                                                            <span className="sr-only">Select date</span>
+                                                            <span className="sr-only">{t('admin.select_date')}</span>
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>

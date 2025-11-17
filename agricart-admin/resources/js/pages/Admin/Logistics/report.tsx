@@ -104,12 +104,12 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   const getDurationDisplay = () => {
     if (!startDate || !endDate) return '';
     const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
-    if (diffInDays === 1) return '1 day';
-    if (diffInDays === 7) return '1 week';
-    if (diffInDays === 30) return '1 month';
-    if (diffInDays < 7) return `${diffInDays} days`;
-    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
-    return `${Math.round(diffInDays / 30)} months`;
+    if (diffInDays === 1) return t('admin.one_day');
+    if (diffInDays === 7) return t('admin.one_week');
+    if (diffInDays === 30) return t('admin.one_month');
+    if (diffInDays < 7) return `${diffInDays} ${t('admin.days')}`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} ${t('admin.weeks')}`;
+    return `${Math.round(diffInDays / 30)} ${t('admin.months')}`;
   };
 
   const applyFilters = () => {
