@@ -2,6 +2,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/hooks/use-translation';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ interface PageProps {
 }
 
 export default function CustomerHome({ products }: PageProps) {
+  const t = useTranslation();
   const [showLoginConfirm, setShowLoginConfirm] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -61,18 +63,18 @@ export default function CustomerHome({ products }: PageProps) {
   const featureCardsData = [
     {
       icon: '🌿',
-      title: 'Tended with Care',
-      description: 'Our produce is carefully tended by experienced farmers using sustainable methods, ensuring the highest quality and natural growth.'
+      title: t('customer.tended_with_care'),
+      description: t('customer.tended_with_care_desc')
     },
     {
       icon: '🌱',
-      title: 'Locally Produced',
-      description: 'Proudly grown in Cabuyao by local farmers who understand the land and climate, supporting our community.'
+      title: t('customer.locally_produced'),
+      description: t('customer.locally_produced_desc')
     },
     {
       icon: '🛍️',
-      title: 'Freshly Picked',
-      description: 'Harvested at peak ripeness and carefully selected to ensure you receive only the freshest, most flavorful produce.'
+      title: t('customer.freshly_picked'),
+      description: t('customer.freshly_picked_desc')
     }
   ];
 
@@ -137,7 +139,7 @@ export default function CustomerHome({ products }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             >
-              Grown Here,
+              {t('customer.grown_here')}
             </motion.h2>
             <motion.h1
               className="text-5xl md:text-7xl lg:text-9xl leading-none font-bold text-primary"
@@ -145,7 +147,7 @@ export default function CustomerHome({ products }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             >
-              For You.
+              {t('customer.for_you')}
             </motion.h1>
           </motion.div>
         </div>
@@ -175,7 +177,7 @@ export default function CustomerHome({ products }: PageProps) {
                     transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                     viewport={{ once: true }}
                   >
-                    SMMC Cooperative
+                    {t('customer.smmc_cooperative')}
                   </motion.h2>
                   <motion.h3
                     className="text-2xl md:text-3xl lg:text-4xl text-foreground font-semibold mb-4 sm:mb-6"
@@ -184,7 +186,7 @@ export default function CustomerHome({ products }: PageProps) {
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                     viewport={{ once: true }}
                   >
-                    Empowering Local Communities Through Sustainable Agriculture
+                    {t('customer.empowering_local_communities')}
                   </motion.h3>
                   <motion.p
                     className="text-base md:text-xl lg:text-2xl text-muted-foreground mb-4 leading-relaxed"
@@ -193,10 +195,7 @@ export default function CustomerHome({ products }: PageProps) {
                     transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
                     viewport={{ once: true }}
                   >
-                    Our network of farmer cooperatives represents the heart of sustainable agriculture in our region.
-                    We bring together dedicated farmers who share a commitment to quality, environmental stewardship,
-                    and community development. Through collective effort, we ensure that fresh, nutritious produce
-                    reaches your table while supporting the livelihoods of local farming families.
+                    {t('customer.cooperative_description')}
                   </motion.p>
 
                   {/* Stats */}
@@ -215,7 +214,7 @@ export default function CustomerHome({ products }: PageProps) {
                       viewport={{ once: true }}
                     >
                       <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Years Experience</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.years_experience')}</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -225,7 +224,7 @@ export default function CustomerHome({ products }: PageProps) {
                       viewport={{ once: true }}
                     >
                       <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Active Farmers</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.active_farmers')}</div>
                     </motion.div>
                     <motion.div
                       className="text-center"
@@ -235,7 +234,7 @@ export default function CustomerHome({ products }: PageProps) {
                       viewport={{ once: true }}
                     >
                       <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1">00</div>
-                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">Cooperatives</div>
+                      <div className="text-base md:text-xl lg:text-2xl text-primary font-medium">{t('customer.cooperatives')}</div>
                     </motion.div>
                   </motion.div>
                 </motion.div>
@@ -271,7 +270,7 @@ export default function CustomerHome({ products }: PageProps) {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                Featured Products
+                {t('customer.featured_products')}
               </motion.h2>
               <motion.div
                 className="relative overflow-visible"
@@ -356,7 +355,7 @@ export default function CustomerHome({ products }: PageProps) {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg text-base md:text-base lg:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                   onClick={() => router.visit('/customer/produce')}
                 >
-                  Show All Produce
+                  {t('customer.show_all_produce')}
                 </button>
               </motion.div>
 
@@ -413,13 +412,13 @@ export default function CustomerHome({ products }: PageProps) {
       <Dialog open={showLoginConfirm} onOpenChange={setShowLoginConfirm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Login Required</DialogTitle>
+            <DialogTitle>{t('customer.login_required')}</DialogTitle>
             <DialogDescription>
-              You must be logged in to add products to your cart.
+              {t('customer.login_to_add_to_cart')}
             </DialogDescription>
             <div className="flex gap-4 mt-4">
-              <Button className="w-full" onClick={() => router.visit('/login')}>Go to Login</Button>
-              <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>Cancel</Button>
+              <Button className="w-full" onClick={() => router.visit('/login')}>{t('customer.go_to_login')}</Button>
+              <Button variant="secondary" className="w-full" onClick={() => setShowLoginConfirm(false)}>{t('customer.cancel')}</Button>
             </div>
           </DialogHeader>
         </DialogContent>

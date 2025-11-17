@@ -2,6 +2,7 @@ import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Leaf, Users, Truck, Shield, Globe } from 'lucide-react';
@@ -16,6 +17,7 @@ interface PageProps {
 }
 
 export default function AboutUs({ }: PageProps) {
+  const t = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const valuesRef = useRef<HTMLDivElement>(null);
@@ -69,23 +71,23 @@ export default function AboutUs({ }: PageProps) {
   const values = [
     {
       icon: <Leaf className="w-8 h-8" />,
-      title: "Sustainability",
-      description: "We prioritize eco-friendly farming practices that protect the environment while maintaining soil health and biodiversity."
+      title: t('customer.sustainability'),
+      description: t('customer.sustainability_desc')
     },
     {
       icon: <Users className="w-8 h-8" />,
-      title: "Community",
-      description: "We build strong relationships with farmers and customers, fostering a supportive network that benefits the whole community."
+      title: t('customer.community'),
+      description: t('customer.community_desc')
     },
     {
       icon: <Shield className="w-8 h-8" />,
-      title: "Quality",
-      description: "Committed to delivering top-quality produce through careful selection, handling, and maintaining freshness."
+      title: t('customer.quality'),
+      description: t('customer.quality_desc')
     },
     {
       icon: <Globe className="w-8 h-8" />,
-      title: "Local Focus",
-      description: "Supporting local farmers and reducing our carbon footprint by sourcing from nearby farms."
+      title: t('customer.local_focus'),
+      description: t('customer.local_focus_desc')
     }
   ];
 
@@ -93,22 +95,22 @@ export default function AboutUs({ }: PageProps) {
   const services = [
     {
       icon: <Truck className="w-12 h-12" />,
-      title: "Fresh Produce Sourcing",
-      description: "We work directly with local farmers to source the freshest, highest-quality produce.",
+      title: t('customer.fresh_produce_sourcing'),
+      description: t('customer.fresh_produce_sourcing_desc'),
       image: "/images/frontpage/pexels-pixabay-265216.jpg",
       parallaxSpeed: 0.1
     },
     {
       icon: <Heart className="w-12 h-12" />,
-      title: "Cooperative Support",
-      description: "We provide comprehensive support to our farming cooperatives, including training and market access.",
+      title: t('customer.cooperative_support'),
+      description: t('customer.cooperative_support_desc'),
       image: "/images/frontpage/pexels-pixabay-265216.jpg",
       parallaxSpeed: 0.1
     },
     {
       icon: <Shield className="w-12 h-12" />,
-      title: "Quality Assurance",
-      description: "We ensure all products meet the highest standards through rigorous quality control and testing.",
+      title: t('customer.quality_assurance'),
+      description: t('customer.quality_assurance_desc'),
       image: "/images/frontpage/pexels-pixabay-265216.jpg",
       parallaxSpeed: 0.1
     }
@@ -147,7 +149,7 @@ export default function AboutUs({ }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             >
-              Many Roots,
+              {t('customer.many_roots')}
             </motion.h2>
             <motion.h1
               className="text-5xl md:text-7xl lg:text-9xl leading-none font-bold text-primary"
@@ -155,7 +157,7 @@ export default function AboutUs({ }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             >
-              One Bloom.
+              {t('customer.one_bloom')}
             </motion.h1>
             <motion.p
               className="text-base md:text-xl lg:text-2xl font-light mb-2 max-w-xs sm:max-w-2xl lg:max-w-4xl leading-relaxed mx-auto lg:mx-0"
@@ -163,7 +165,7 @@ export default function AboutUs({ }: PageProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
             >
-              Empowering people through sustainable agriculture, fair trade, and fresh produce.
+              {t('customer.about_us_tagline')}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -175,8 +177,8 @@ export default function AboutUs({ }: PageProps) {
                 className={`${styles.buttonGradient} text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 text-base md:text-base lg:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
                 onClick={() => document.getElementById('who-we-are')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <span className="hidden sm:inline">Learn More About Us</span>
-                <span className="sm:hidden">Learn More</span>
+                <span className="hidden sm:inline">{t('customer.learn_more_about_us')}</span>
+                <span className="sm:hidden">{t('customer.learn_more')}</span>
               </Button>
             </motion.div>
           </motion.div>
@@ -201,18 +203,14 @@ export default function AboutUs({ }: PageProps) {
                 className="order-2 lg:order-1"
               >
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 sm:mb-6">
-                  Who We Are
+                  {t('customer.who_we_are')}
                 </h2>
                 <div className="space-y-3 sm:space-y-4 lg:space-y-6 text-base md:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
                   <p>
-                    SMMC Cooperative is a community-driven agricultural cooperative founded on the principles
-                    of sustainability, fairness, and local empowerment. We bring together dedicated farmers,
-                    passionate about growing the finest produce while protecting our environment.
+                    {t('customer.who_we_are_desc_1')}
                   </p>
                   <p>
-                    Our story began with a simple vision: to create a direct connection between local farmers
-                    and consumers, ensuring fair compensation for our agricultural partners while providing
-                    fresh, nutritious food to our community.
+                    {t('customer.who_we_are_desc_2')}
                   </p>
                 </div>
               </motion.div>
@@ -255,7 +253,7 @@ export default function AboutUs({ }: PageProps) {
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                Our Vision & Values
+                {t('customer.our_vision_values')}
               </motion.h2>
               <motion.p
                 className="text-base md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-snug px-4"
@@ -264,7 +262,7 @@ export default function AboutUs({ }: PageProps) {
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
               >
-                We build sustainable local agriculture that strengthens communities and delivers fresh, nutritious food.
+                {t('customer.vision_values_desc')}
               </motion.p>
             </motion.div>
 
@@ -375,7 +373,7 @@ export default function AboutUs({ }: PageProps) {
                   transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  Agriculture Excellence
+                  {t('customer.agriculture_excellence')}
                 </motion.h2>
                 <motion.p
                   className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed"
@@ -384,7 +382,7 @@ export default function AboutUs({ }: PageProps) {
                   transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  We work directly with local farmers to source the freshest, highest-quality produce through sustainable farming practices that protect our environment and support our community.
+                  {t('customer.agriculture_excellence_desc')}
                 </motion.p>
               </motion.div>
             </motion.div>

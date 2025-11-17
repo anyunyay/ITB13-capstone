@@ -3,6 +3,7 @@ import { Search, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface ProduceSearchBarProps {
   onSearch: (query: string) => void;
@@ -10,6 +11,7 @@ interface ProduceSearchBarProps {
 }
 
 export function ProduceSearchBar({ onSearch, className }: ProduceSearchBarProps) {
+  const t = useTranslation();
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +77,7 @@ export function ProduceSearchBar({ onSearch, className }: ProduceSearchBarProps)
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Search for fruits, vegetables, or any fresh produce..."
+            placeholder={t('customer.search_produce')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}

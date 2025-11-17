@@ -3,6 +3,7 @@ import { Head, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
 import type { SharedData } from '@/types';
 import { useScrollRestoration, usePageState } from '@/hooks/useScrollRestoration';
+import { useTranslation } from '@/hooks/use-translation';
 import {
   Carousel,
   CarouselContent,
@@ -143,6 +144,7 @@ export function ProductCarousel({
 }
 
 export default function CustomerHome() {
+  const t = useTranslation();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState({ src: '', alt: '' });
   const { products: initialProducts = [] } = usePage<PageProps & SharedData>().props;
@@ -359,7 +361,7 @@ export default function CustomerHome() {
                 : 'text-primary'
                 }`}
             >
-              {viewMode === 'carousel' ? 'View All' : 'View Less'}
+              {viewMode === 'carousel' ? t('customer.view_all') : t('customer.view_less')}
             </Button>
           )}
         </div>
@@ -375,7 +377,7 @@ export default function CustomerHome() {
                 : 'text-primary'
                 }`}
             >
-              {viewMode === 'carousel' ? 'View All' : 'View Less'}
+              {viewMode === 'carousel' ? t('customer.view_all') : t('customer.view_less')}
             </Button>
           </div>
         )}
@@ -405,10 +407,10 @@ export default function CustomerHome() {
             <div className="bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-12 border-2 border-green-200 dark:border-green-700">
               <div className="text-5xl sm:text-8xl mb-4 sm:mb-6">🔍</div>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-                No products found
+                {t('customer.no_products_found')}
               </h2>
               <p className="text-base md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-4 sm:mb-8 max-w-md mx-auto">
-                We couldn't find any products matching <span className="font-semibold text-green-600">"{searchQuery}"</span>
+                {t('customer.no_products_matching')} <span className="font-semibold text-green-600">"{searchQuery}"</span>
               </p>
             </div>
           </div>
@@ -418,11 +420,11 @@ export default function CustomerHome() {
         {!searchQuery || filteredProducts.length > 0 ? (
           shouldShowSeparateSections ? (
             <>
-              {renderCarousel('fruit', 'Fruits', fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
-              {renderCarousel('vegetable', 'Vegetables', vegetablesViewMode, toggleVegetablesViewMode, 'vegetables-section')}
+              {renderCarousel('fruit', t('customer.fruits'), fruitsViewMode, toggleFruitsViewMode, 'fruits-section')}
+              {renderCarousel('vegetable', t('customer.vegetables'), vegetablesViewMode, toggleVegetablesViewMode, 'vegetables-section')}
             </>
           ) : (
-            renderCarousel(null, 'Fresh Produce', produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
+            renderCarousel(null, t('customer.fresh_produce'), produceViewMode, toggleProduceViewMode, 'fresh-produce-section')
           )
         ) : null}
 
