@@ -84,7 +84,6 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
-    const [shouldShowProfileModal, setShouldShowProfileModal] = useState(true);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
     // Check if user is admin or staff (should see full phone number)
@@ -119,7 +118,6 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             // Reset all modal states when closed
             setIsEmailChangeModalOpen(false);
             setIsPhoneChangeModalOpen(false);
-            setShouldShowProfileModal(true);
             setSelectedAvatar(null);
             setAvatarPreview(null);
             if (avatarInputRef.current) {
@@ -128,33 +126,23 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         }
     }, [isOpen]);
 
-    // Hide profile modal when sub-modals are open
-    useEffect(() => {
-        if (isEmailChangeModalOpen || isPhoneChangeModalOpen) {
-            setShouldShowProfileModal(false);
-        } else if (isOpen) {
-            setShouldShowProfileModal(true);
-        }
-    }, [isEmailChangeModalOpen, isPhoneChangeModalOpen, isOpen]);
-
     const handleClose = () => {
-        // Reset form state when closing
-        setNameData('name', user?.name || '');
-        setSelectedAvatar(null);
-        setAvatarPreview(null);
-        if (avatarInputRef.current) {
-            avatarInputRef.current.value = '';
+        // Only close if no sub-modals are open
+        if (!isEmailChangeModalOpen && !isPhoneChangeModalOpen) {
+            // Reset form state when closing
+            setNameData('name', user?.name || '');
+            setSelectedAvatar(null);
+            setAvatarPreview(null);
+            if (avatarInputRef.current) {
+                avatarInputRef.current.value = '';
+            }
+            onClose();
         }
-        // Close any open sub-modals first
-        setIsEmailChangeModalOpen(false);
-        setIsPhoneChangeModalOpen(false);
-        setShouldShowProfileModal(true);
-        onClose();
     };
 
     const handleEmailChangeClose = (completed?: boolean) => {
         setIsEmailChangeModalOpen(false);
-        // Profile modal will automatically show again due to useEffect
+        // Profile modal stays open, no need to do anything else
         if (completed) {
             // Optionally refresh data or show success message
         }
@@ -162,26 +150,30 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
 
     const handlePhoneChangeClose = (completed?: boolean) => {
         setIsPhoneChangeModalOpen(false);
-        // Profile modal will automatically show again due to useEffect
+        // Profile modal stays open, no need to do anything else
         if (completed) {
             // Optionally refresh data or show success message
         }
     };
 
     const handleOpenEmailChange = () => {
+        // Instant switch - no transitions
         setIsEmailChangeModalOpen(true);
     };
 
     const handleOpenPhoneChange = () => {
+        // Instant switch - no transitions
         setIsPhoneChangeModalOpen(true);
     };
 
     const handleSwitchToPhone = () => {
+        // Instant switch between modals
         setIsEmailChangeModalOpen(false);
         setIsPhoneChangeModalOpen(true);
     };
 
     const handleSwitchToEmail = () => {
+        // Instant switch between modals
         setIsPhoneChangeModalOpen(false);
         setIsEmailChangeModalOpen(true);
     };
@@ -260,9 +252,12 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             .slice(0, 2);
     };
 
+    // Determine if profile modal should be visible - instant switching, no transitions
+    const showProfileModal = isOpen && !isEmailChangeModalOpen && !isPhoneChangeModalOpen;
+
     return (
         <>
-            <Dialog open={isOpen && shouldShowProfileModal} onOpenChange={handleClose}>
+            <Dialog open={showProfileModal} onOpenChange={handleClose}>
                 <DialogContent 
                     className={`sm:max-w-lg max-h-[85vh] overflow-y-auto ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''}`}
                     onPointerDownOutside={(e) => e.preventDefault()}
