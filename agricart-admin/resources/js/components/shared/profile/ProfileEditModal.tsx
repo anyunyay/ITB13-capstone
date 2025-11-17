@@ -84,7 +84,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
     const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
     const [isEmailChangeModalOpen, setIsEmailChangeModalOpen] = useState(false);
     const [isPhoneChangeModalOpen, setIsPhoneChangeModalOpen] = useState(false);
-    const [shouldReturnToProfile, setShouldReturnToProfile] = useState(false);
+    const [shouldShowProfileModal, setShouldShowProfileModal] = useState(true);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
     // Check if user is admin or staff (should see full phone number)
@@ -119,7 +119,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
             // Reset all modal states when closed
             setIsEmailChangeModalOpen(false);
             setIsPhoneChangeModalOpen(false);
-            setShouldReturnToProfile(false);
+            setShouldShowProfileModal(true);
             setSelectedAvatar(null);
             setAvatarPreview(null);
             if (avatarInputRef.current) {
@@ -128,43 +128,14 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         }
     }, [isOpen]);
 
-    // Handle returning to profile modal after email/phone change completion
-    const handleEmailChangeClose = (completed?: boolean) => {
-        setIsEmailChangeModalOpen(false);
-        if (completed && shouldReturnToProfile) {
-            // Modal stays open, user returns to profile edit
-            setShouldReturnToProfile(false);
+    // Hide profile modal when sub-modals are open
+    useEffect(() => {
+        if (isEmailChangeModalOpen || isPhoneChangeModalOpen) {
+            setShouldShowProfileModal(false);
+        } else if (isOpen) {
+            setShouldShowProfileModal(true);
         }
-    };
-
-    const handlePhoneChangeClose = (completed?: boolean) => {
-        setIsPhoneChangeModalOpen(false);
-        if (completed && shouldReturnToProfile) {
-            // Modal stays open, user returns to profile edit
-            setShouldReturnToProfile(false);
-        }
-    };
-
-    const handleOpenEmailChange = () => {
-        setShouldReturnToProfile(true);
-        setIsEmailChangeModalOpen(true);
-    };
-
-    const handleOpenPhoneChange = () => {
-        setShouldReturnToProfile(true);
-        setIsPhoneChangeModalOpen(true);
-    };
-
-    // Handle switching between email and phone modals
-    const handleSwitchToPhone = () => {
-        setIsEmailChangeModalOpen(false);
-        setIsPhoneChangeModalOpen(true);
-    };
-
-    const handleSwitchToEmail = () => {
-        setIsPhoneChangeModalOpen(false);
-        setIsEmailChangeModalOpen(true);
-    };
+    }, [isEmailChangeModalOpen, isPhoneChangeModalOpen, isOpen]);
 
     const handleClose = () => {
         // Reset form state when closing
@@ -177,7 +148,42 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
         // Close any open sub-modals first
         setIsEmailChangeModalOpen(false);
         setIsPhoneChangeModalOpen(false);
+        setShouldShowProfileModal(true);
         onClose();
+    };
+
+    const handleEmailChangeClose = (completed?: boolean) => {
+        setIsEmailChangeModalOpen(false);
+        // Profile modal will automatically show again due to useEffect
+        if (completed) {
+            // Optionally refresh data or show success message
+        }
+    };
+
+    const handlePhoneChangeClose = (completed?: boolean) => {
+        setIsPhoneChangeModalOpen(false);
+        // Profile modal will automatically show again due to useEffect
+        if (completed) {
+            // Optionally refresh data or show success message
+        }
+    };
+
+    const handleOpenEmailChange = () => {
+        setIsEmailChangeModalOpen(true);
+    };
+
+    const handleOpenPhoneChange = () => {
+        setIsPhoneChangeModalOpen(true);
+    };
+
+    const handleSwitchToPhone = () => {
+        setIsEmailChangeModalOpen(false);
+        setIsPhoneChangeModalOpen(true);
+    };
+
+    const handleSwitchToEmail = () => {
+        setIsPhoneChangeModalOpen(false);
+        setIsEmailChangeModalOpen(true);
     };
 
     const handleNameSubmit = () => {
@@ -256,7 +262,7 @@ export default function ProfileEditModal({ isOpen, onClose, user }: ProfileEditM
 
     return (
         <>
-            <Dialog open={isOpen} onOpenChange={handleClose}>
+            <Dialog open={isOpen && shouldShowProfileModal} onOpenChange={handleClose}>
                 <DialogContent 
                     className={`sm:max-w-lg max-h-[85vh] overflow-y-auto ${isCustomer ? 'border-2 border-green-200 dark:border-green-700' : ''}`}
                     onPointerDownOutside={(e) => e.preventDefault()}

@@ -463,7 +463,7 @@ export default function OtpVerificationModal({
                 setSuccess(data.message || `${verificationType} changed successfully!`);
                 // Close modal and refresh the page after success
                 setTimeout(() => {
-                    onClose(true); // Pass true to indicate completion
+                    onClose(true); // Pass true to indicate successful completion
                     window.location.reload();
                 }, 2000);
             } else {
