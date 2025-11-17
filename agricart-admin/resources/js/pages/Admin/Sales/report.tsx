@@ -99,21 +99,24 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
   };
 
   const getDateRangeDisplay = () => {
-    if (!startDate && !endDate) return 'No date range selected';
-    if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
-    if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
-    return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    if (!startDate && !endDate) return t('admin.no_date_range_selected');
+    if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
+    if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
+    return t('admin.date_range_format', { 
+      start: format(startDate!, 'MMM dd, yyyy'), 
+      end: format(endDate!, 'MMM dd, yyyy') 
+    });
   };
 
   const getDurationDisplay = () => {
     if (!startDate || !endDate) return '';
     const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
-    if (diffInDays === 1) return '1 day';
-    if (diffInDays === 7) return '1 week';
-    if (diffInDays === 30) return '1 month';
-    if (diffInDays < 7) return `${diffInDays} days`;
-    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
-    return `${Math.round(diffInDays / 30)} months`;
+    if (diffInDays === 1) return t('admin.one_day');
+    if (diffInDays === 7) return t('admin.one_week');
+    if (diffInDays === 30) return t('admin.one_month');
+    if (diffInDays < 7) return `${diffInDays} ${t('admin.days')}`;
+    if (diffInDays < 30) return `${Math.round(diffInDays / 7)} ${t('admin.weeks')}`;
+    return `${Math.round(diffInDays / 30)} ${t('admin.months')}`;
   };
 
   const applyFilters = () => {
@@ -474,7 +477,7 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                     <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-primary mb-1">Selected Date Range</h4>
+                          <h4 className="font-semibold text-primary mb-1">{t('admin.selected_date_range')}</h4>
                           <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
                           {getDurationDisplay() && (
                             <p className="text-xs text-primary/70 mt-1">
@@ -607,8 +610,8 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                     <h3 className="text-lg font-medium text-foreground mb-2">No sales found</h3>
                     <p className="text-muted-foreground">
                       {hasActiveFilters()
-                        ? 'No sales match your current filter criteria.'
-                        : 'No sales data available for the selected time period.'
+                        ? t('admin.no_sales_match_filters')
+                        : t('admin.no_sales_data_for_period')
                       }
                     </p>
                   </div>

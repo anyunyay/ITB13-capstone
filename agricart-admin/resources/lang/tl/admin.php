@@ -744,6 +744,11 @@ return [
     
     // Common
     'n_a' => 'N/A',
+    
+    // Sales Report Page
+    'selected_date_range' => 'Napiling Date Range',
+    'no_sales_match_filters' => 'Walang sales na tumugma sa iyong filter criteria.',
+    'no_sales_data_for_period' => 'Walang available na sales data para sa napiling panahon.',
     'no_sold_stock_data' => 'Walang Data ng Nabentang Stock',
     'no_sold_stock_records' => 'Wala pang mga record ng nabentang stock na ipapakita',
     'stock_id' => 'Stock ID',

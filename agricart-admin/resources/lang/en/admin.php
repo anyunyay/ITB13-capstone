@@ -744,6 +744,11 @@ return [
     
     // Common
     'n_a' => 'N/A',
+    
+    // Sales Report Page
+    'selected_date_range' => 'Selected Date Range',
+    'no_sales_match_filters' => 'No sales match your current filter criteria.',
+    'no_sales_data_for_period' => 'No sales data available for the selected time period.',
     'update_logistic' => 'Update Logistic Details',
     'sold_status' => 'Sold',
     'sold_at' => 'Sold At',
