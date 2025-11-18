@@ -313,11 +313,11 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
 
   return (
     <AppLayout>
-      <Head title={t('admin.order_id', { id: order.id })} />
+      <Head title={t('admin.order_details', { id: order.id })} />
       <div className={`p-6 transition-all duration-1000 ${highlight ? 'border-2 border-primary rounded-lg shadow-lg bg-primary/5' : ''}`}>
         <div className="flex flex-col gap-2 mb-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground mb-2">{t('admin.order_id', { id: order.id })}</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t('admin.order_details', { id: order.id })}</h1>
             <p className="text-muted-foreground">
               {t('admin.placed_on', { date: format(new Date(order.created_at), 'MMM dd, yyyy HH:mm') })}
             </p>
