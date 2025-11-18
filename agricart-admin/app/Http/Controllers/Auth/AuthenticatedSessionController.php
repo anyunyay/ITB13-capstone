@@ -399,6 +399,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $user = Auth::user();
+        $userType = $user?->type;
         
         // Clear the current session ID from the user record
         if ($user) {
@@ -410,6 +411,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Redirect to appropriate login page based on user type
+        return redirect($this->getCorrectLoginRoute($userType ?? 'customer'));
     }
 }

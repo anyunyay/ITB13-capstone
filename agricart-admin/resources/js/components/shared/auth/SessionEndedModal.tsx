@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import {
     Dialog,
     DialogContent,
@@ -18,6 +18,9 @@ interface SessionEndedModalProps {
 
 export default function SessionEndedModal({ isOpen, reason }: SessionEndedModalProps) {
     const [countdown, setCountdown] = useState(10);
+    const page = usePage();
+    const auth = (page.props as any).auth;
+    const userType = auth?.user?.type;
 
     useEffect(() => {
         if (!isOpen) return;
@@ -36,10 +39,27 @@ export default function SessionEndedModal({ isOpen, reason }: SessionEndedModalP
         return () => clearInterval(timer);
     }, [isOpen]);
 
+    const getLoginUrl = () => {
+        switch (userType) {
+            case 'admin':
+            case 'staff':
+                return '/admin/login';
+            case 'member':
+                return '/member/login';
+            case 'logistic':
+                return '/logistic/login';
+            case 'customer':
+            default:
+                return '/login';
+        }
+    };
+
     const handleLogout = () => {
+        const loginUrl = getLoginUrl();
+        
         router.post('/logout', {}, {
             onFinish: () => {
-                window.location.href = '/';
+                window.location.href = loginUrl;
             }
         });
     };

@@ -51,7 +51,11 @@ Browser A (within 5-10 seconds):
     - "If this wasn't you, please change your password immediately..."
 12. ✅ Should see countdown from 10 seconds
 13. Wait for countdown OR click "Return to Login Now"
-14. ✅ Should logout and redirect to login page (no errors)
+14. ✅ Should logout and redirect to CORRECT login page:
+    - Customer → /login
+    - Admin/Staff → /admin/login
+    - Member → /member/login
+    - Logistic → /logistic/login
 ```
 
 ## Critical Test: No Premature Termination
@@ -113,10 +117,26 @@ Browser A:
 ## User Types to Test
 
 Test with different user types to verify redirects:
-- Customer → `/login`
-- Admin → `/admin/login`
-- Member → `/member/login`
-- Logistic → `/logistic/login`
+
+### Customer Test
+1. Login as customer on Browser A
+2. Login as same customer on Browser B and click "Continue"
+3. Browser A should show modal and redirect to `/login` ✅
+
+### Admin Test
+1. Login as admin on Browser A
+2. Login as same admin on Browser B and click "Continue"
+3. Browser A should show modal and redirect to `/admin/login` ✅
+
+### Member Test
+1. Login as member on Browser A
+2. Login as same member on Browser B and click "Continue"
+3. Browser A should show modal and redirect to `/member/login` ✅
+
+### Logistic Test
+1. Login as logistic on Browser A
+2. Login as same logistic on Browser B and click "Continue"
+3. Browser A should show modal and redirect to `/logistic/login` ✅
 
 ## Success Criteria
 

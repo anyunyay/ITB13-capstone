@@ -64,6 +64,11 @@ Fixed the single-session system to properly handle multiple login attempts with 
      - "If this wasn't you, please change your password immediately to protect your account."
    - 10-second countdown with immediate logout option
    - Cannot be closed by user (forces logout)
+   - Redirects to appropriate login page based on user type:
+     - Customer → `/login`
+     - Admin/Staff → `/admin/login`
+     - Member → `/member/login`
+     - Logistic → `/logistic/login`
 
 3. **`resources/js/components/shared/auth/SessionMonitorWrapper.tsx`**
    - Exports `GlobalSessionMonitor` component
@@ -79,6 +84,7 @@ Fixed the single-session system to properly handle multiple login attempts with 
    - Changed to only set `current_session_id` when no other session exists
    - When active session detected, redirect to restriction page WITHOUT terminating sessions
    - This prevents premature session termination before user confirmation
+   - Updated `destroy()` method to redirect to appropriate login page based on user type
 
 2. **`app/Http/Controllers/Security/SingleSessionController.php`**
    - Updated `forceLogoutAndLogin()` to mark sessions as expired before deletion
