@@ -47,6 +47,26 @@ class LogisticLoginRequest extends FormRequest
         // Check if account is locked for logistic users
         LoginLockoutService::checkLoginAllowed($email, 'logistic', $ipAddress);
 
+        // Check if user exists and is active before attempting authentication
+        $user = \App\Models\User::where('email', $email)->first();
+        
+        if ($user && !$user->active) {
+            // Log deactivated account login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_deactivated',
+                $user->id,
+                $ipAddress,
+                [
+                    'email' => $email,
+                    'user_type' => 'logistic'
+                ]
+            );
+            
+            throw ValidationException::withMessages([
+                'email' => __('auth.deactivated')
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($email, 'logistic', $ipAddress);
