@@ -351,4 +351,103 @@
         aspect-ratio: attr(width) / attr(height);
         object-fit: contain;
     }
+
+    /* Responsive zoom support for all levels (90%, 100%, 110%, 125%, 150%) */
+    @media (min-width: 1px) {
+        /* Ensure all containers are fluid and responsive */
+        .responsive-container {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Prevent horizontal overflow at any zoom level */
+        body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        /* Ensure images are responsive */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Flexible grid layouts */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 1rem;
+        }
+
+        /* Flexible flex layouts */
+        .responsive-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    }
+
+    /* Zoom level specific optimizations */
+    @media (min-resolution: 0.9dppx) and (max-resolution: 0.95dppx) {
+        /* 90% zoom - slightly larger base */
+        html {
+            font-size: 17.6px;
+        }
+    }
+
+    @media (min-resolution: 1.09dppx) and (max-resolution: 1.15dppx) {
+        /* 110% zoom - slightly smaller base */
+        html {
+            font-size: 14.5px;
+        }
+    }
+
+    @media (min-resolution: 1.24dppx) and (max-resolution: 1.26dppx) {
+        /* 125% zoom - compensated base */
+        html[data-browser-zoom="true"] {
+            font-size: 16px; /* Let browser handle it */
+        }
+    }
+
+    @media (min-resolution: 1.49dppx) and (max-resolution: 1.51dppx) {
+        /* 150% zoom - compensated base */
+        html[data-browser-zoom="true"] {
+            font-size: 16px; /* Let browser handle it */
+        }
+    }
+
+    /* Ensure tables are responsive at all zoom levels */
+    table {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+
+    @media (min-width: 768px) {
+        table {
+            display: table;
+        }
+    }
+
+    /* Responsive text sizing */
+    .text-responsive {
+        font-size: clamp(0.875rem, 2vw, 1rem);
+    }
+
+    .heading-responsive {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    /* Prevent layout shift during zoom transitions */
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Smooth zoom transitions */
+    html, body {
+        transition: font-size 0.1s ease-out;
+    }
 }
