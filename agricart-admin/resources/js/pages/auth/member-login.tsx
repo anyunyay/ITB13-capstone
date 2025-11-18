@@ -185,12 +185,6 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
             </form>
 
                 {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-                
-                {errors.member_id && (
-                    <div className="mb-4 text-center text-sm font-medium text-red-600">
-                        {errors.member_id}
-                    </div>
-                )}
 
                 {lockoutStatus?.locked && (
                     <div className="mb-4 text-center text-sm font-medium text-red-600">
