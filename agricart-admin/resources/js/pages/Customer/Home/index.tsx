@@ -159,8 +159,8 @@ export default function CustomerHome({ products }: PageProps) {
           <section className="h-screen snap-start"></section>
 
           {/* Split Layout Section - Cooperatives of Farmers */}
-          <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start">
-            <div className="max-w-[95vw] sm:max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-0">
+          <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start overflow-hidden">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-0">
               <div className="grid grid-cols-1 gap-8 sm:gap-12 items-center lg:grid-cols-2">
                 {/* Left Side - Content */}
                 <motion.div
