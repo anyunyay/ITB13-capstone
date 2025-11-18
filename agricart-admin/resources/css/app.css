@@ -163,45 +163,6 @@
     body {
         @apply bg-background text-foreground;
     }
-
-    /* OS Scaling Normalization - Compensates for high DPI displays */
-    /* This normalizes the visual size across different OS scaling settings */
-    /* without affecting browser zoom, font sizes, or Tailwind breakpoints */
-    body {
-        transform-origin: top left;
-    }
-
-    /* Normalize for 125% OS scaling (devicePixelRatio ~1.25) */
-    @media (min-resolution: 120dpi) and (max-resolution: 144dpi) {
-        body {
-            transform: scale(0.95);
-            width: 105.26%;
-        }
-    }
-
-    /* Normalize for 150% OS scaling (devicePixelRatio ~1.5) */
-    @media (min-resolution: 144dpi) and (max-resolution: 192dpi) {
-        body {
-            transform: scale(0.90);
-            width: 111.11%;
-        }
-    }
-
-    /* Normalize for 175% OS scaling (devicePixelRatio ~1.75) */
-    @media (min-resolution: 192dpi) and (max-resolution: 240dpi) {
-        body {
-            transform: scale(0.85);
-            width: 117.65%;
-        }
-    }
-
-    /* Normalize for 200% OS scaling (devicePixelRatio ~2.0) */
-    @media (min-resolution: 240dpi) {
-        body {
-            transform: scale(0.80);
-            width: 125%;
-        }
-    }
 }
 
 /* Custom Scrollbar Styles for Modal - Updated for new theme */
