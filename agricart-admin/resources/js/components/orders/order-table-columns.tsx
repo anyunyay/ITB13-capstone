@@ -47,7 +47,7 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
         rejected: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.rejected') },
         expired: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.expired') },
         delayed: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.delayed') },
-        cancelled: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.cancelled') },
+        cancelled: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.cancelled') },
       };
       const config = statusMap[order.status] || { variant: 'outline', className: '', label: order.status };
       return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
@@ -101,7 +101,7 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
       rejected: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.rejected') },
       expired: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.expired') },
       delayed: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.delayed') },
-      cancelled: { variant: 'outline', className: 'bg-gray-100 text-gray-600', label: t('admin.cancelled') },
+      cancelled: { variant: 'destructive', className: 'bg-red-100 text-red-800', label: t('admin.cancelled') },
     };
     const config = statusMap[status] || { variant: 'outline', className: '', label: status };
     return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
