@@ -298,7 +298,7 @@ export default function AboutUs({ }: PageProps) {
 
         {/* Members Section */}
         <section ref={missionRef} className="h-screen flex items-center justify-center py-12 sm:py-16 lg:py-20 bg-background relative overflow-hidden snap-start">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
             {/* New Image and Content Layout */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -401,7 +401,7 @@ export default function AboutUs({ }: PageProps) {
           }}>
           {/* Background overlay for better content readability */}
           <div className="absolute inset-0 bg-black/30"></div>
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-[90vw] mx-auto relative z-10">
             <div className="space-y-4 sm:space-y-6">
               {services.map((service, index) => (
                 <motion.div
@@ -410,7 +410,7 @@ export default function AboutUs({ }: PageProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
-                  className={`w-full mx-auto grid grid-cols-1 bg-primary rounded-lg lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center overflow-hidden ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                  className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                     }`}
                 >
                   {/* Image/Visual with Parallax */}
