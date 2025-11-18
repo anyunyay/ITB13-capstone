@@ -845,15 +845,25 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               if (!open) handleCloseReceiptModal(selectedOrderForReceipt.id);
             }}
           >
-            <DialogContent className="max-w-6xl w-[95vw] h-[95vh] max-h-[95vh] overflow-hidden sm:w-[90vw] sm:h-[90vh] sm:max-h-[90vh] p-0">
-              <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b bg-white sticky top-0 z-10">
-                <DialogTitle className="text-base sm:text-lg md:text-xl font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <span className="truncate">📄 {t('customer.receipt_preview')} - {t('customer.order_id_label')} #{selectedOrderForReceipt.id}</span>
+            <DialogContent className="max-w-2xl w-[96vw] h-auto max-h-[96vh] sm:w-[85vw] sm:max-h-[90vh] p-0 gap-0">
+              <DialogHeader className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b bg-white sticky top-0 z-10 shrink-0">
+                <DialogTitle className="text-sm sm:text-base md:text-lg font-semibold flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Button
+                      onClick={() => handleCloseReceiptModal(selectedOrderForReceipt.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 shrink-0"
+                    >
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </Button>
+                    <span className="truncate text-xs sm:text-sm md:text-base">📄 {t('customer.receipt_preview')} - #{selectedOrderForReceipt.id}</span>
+                  </div>
                   <Button
                     onClick={() => window.print()}
                     variant="default"
                     size="sm"
-                    className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 whitespace-nowrap"
+                    className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 whitespace-nowrap h-7 sm:h-8 shrink-0"
                   >
                     <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     {t('customer.print')}
@@ -861,8 +871,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <div className="max-w-4xl mx-auto">
+              <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+                <div className="p-2 sm:p-4 md:p-6">
                   <OrderReceiptPreview 
                     order={{
                       ...selectedOrderForReceipt,
