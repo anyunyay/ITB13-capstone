@@ -7,15 +7,16 @@ import AuthLayout from '@/layouts/auth-layout';
 interface SingleSessionRestrictedProps {
     userEmail: string;
     logoutUrl: string;
+    cancelUrl: string;
 }
 
-export default function SingleSessionRestricted({ userEmail, logoutUrl }: SingleSessionRestrictedProps) {
+export default function SingleSessionRestricted({ userEmail, logoutUrl, cancelUrl }: SingleSessionRestrictedProps) {
     const handleLogout = () => {
         router.post(logoutUrl);
     };
 
-    const handleGoBack = () => {
-        router.get('/');
+    const handleCancel = () => {
+        router.post(cancelUrl);
     };
 
     return (
@@ -62,10 +63,10 @@ export default function SingleSessionRestricted({ userEmail, logoutUrl }: Single
                     
                     <Button 
                         variant="outline" 
-                        onClick={handleGoBack}
+                        onClick={handleCancel}
                         className="w-full"
                     >
-                        Go Back
+                        Cancel & Keep Other Session
                     </Button>
                 </div>
 

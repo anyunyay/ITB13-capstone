@@ -28,6 +28,7 @@ use App\Http\Controllers\Member\NotificationController as MemberNotificationCont
 use App\Http\Controllers\Logistic\LogisticController;
 use App\Http\Controllers\Logistic\NotificationController as LogisticNotificationController;
 use App\Http\Controllers\Security\SingleSessionController;
+use App\Http\Controllers\Api\SessionCheckController;
 use App\Http\Controllers\Security\EmailPreviewController;
 use App\Http\Controllers\Security\ComprehensiveEmailPreviewController;
 use App\Http\Controllers\Security\DirectEmailTemplateController;
@@ -62,6 +63,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/single-session/restricted', [SingleSessionController::class, 'showRestricted'])->name('single-session.restricted');
     Route::post('/single-session/logout', [SingleSessionController::class, 'forceLogoutAndLogin'])->name('single-session.logout');
+    Route::post('/single-session/cancel', [SingleSessionController::class, 'cancelAndLogout'])->name('single-session.cancel');
+    Route::get('/api/session/check', [SessionCheckController::class, 'check'])->name('api.session.check');
 });
 
 // Authenticated routes

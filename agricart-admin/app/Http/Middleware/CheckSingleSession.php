@@ -17,9 +17,10 @@ class CheckSingleSession
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Skip single session check for logout routes, single session routes, and email verification routes
+        // Skip single session check for logout routes, single session routes, API routes, and email verification routes
         if ($request->routeIs('logout') || 
             $request->routeIs('single-session.*') || 
+            $request->routeIs('api.*') ||
             $request->routeIs('verification.*') ||
             $request->routeIs('email.verification.*')) {
             return $next($request);

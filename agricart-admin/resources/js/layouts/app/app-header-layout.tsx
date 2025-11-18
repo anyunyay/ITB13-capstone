@@ -1,6 +1,7 @@
 import { AppContent } from '@/components/shared/layout/app-content';
 import { CustomerHeader } from '@/components/shared/layout/customer-header';
 import { AppShell } from '@/components/shared/layout/app-shell';
+import { GlobalSessionMonitor } from '@/components/shared/auth/SessionMonitorWrapper';
 import { type BreadcrumbItem } from '@/types';
 import type { PropsWithChildren } from 'react';
 
@@ -9,6 +10,7 @@ export default function AppHeaderLayout({ children, breadcrumbs }: PropsWithChil
         <AppShell>
             <CustomerHeader breadcrumbs={breadcrumbs} />
             <AppContent>{children}</AppContent>
+            <GlobalSessionMonitor />
         </AppShell>
     );
 }
