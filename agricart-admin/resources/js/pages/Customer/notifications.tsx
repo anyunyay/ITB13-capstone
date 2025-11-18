@@ -17,17 +17,15 @@ interface NotificationsPageProps {
   notifications: Notification[];
 }
 
-import { AdaptiveContainer } from '@/components/ui/adaptive-container';
-
 export default function NotificationsPage({ notifications }: NotificationsPageProps) {
   const t = useTranslation();
   
   return (
     <AppHeaderLayout>
       <Head title={t('ui.notifications')} />
-      <AdaptiveContainer className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 mt-16 sm:mt-18 lg:mt-20 bg-background" enableScale={true}>
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 mt-16 sm:mt-18 lg:mt-20 bg-background">
         <NotificationPage notifications={notifications} userType="customer" />
-      </AdaptiveContainer>
+      </div>
     </AppHeaderLayout>
   );
 } 

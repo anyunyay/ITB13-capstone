@@ -16,7 +16,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import OrderReceivedConfirmationModal from '@/components/customer/orders/OrderReceivedConfirmationModal';
 import StarRating from '@/components/customer/products/StarRating';
 import { useTranslation } from '@/hooks/use-translation';
-import { AdaptiveContainer } from '@/components/ui/adaptive-container';
 
 interface OrderItem {
   id: number;
@@ -323,7 +322,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
   return (
     <AppHeaderLayout>
-      <AdaptiveContainer as="main" className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 mt-20 mb-8 sm:mb-12 md:mb-16 overflow-x-hidden" enableScale={true}>
+      <main className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 mt-20 mb-8 sm:mb-12 md:mb-16 overflow-x-hidden">
         <header className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-primary truncate">{t('ui.order_history')}</h2>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
@@ -770,7 +769,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             orderTotal={selectedOrderForConfirmation.total}
           />
         )}
-      </AdaptiveContainer>
+      </main>
     </AppHeaderLayout>
   );
 }

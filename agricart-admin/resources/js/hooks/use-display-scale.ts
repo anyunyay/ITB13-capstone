@@ -30,10 +30,10 @@ export function useDisplayScale(): DisplayScaleInfo {
     // 100% (DPR 1.0) → scale: 1.0
     // 125% (DPR 1.25) → scale: 0.8
     // 150% (DPR 1.5) → scale: 0.6
-    // 175%+ (DPR 1.75+) → scale: 0.4
+    // 175%+ (DPR 1.75+) → scale: 0.2
     let scaleFactor = 1;
     if (dpr >= 1.75) {
-      scaleFactor = 0.4;
+      scaleFactor = 0.2;
     } else if (dpr >= 1.5) {
       scaleFactor = 0.6;
     } else if (dpr >= 1.25) {
@@ -63,7 +63,7 @@ export function useDisplayScale(): DisplayScaleInfo {
       // Aggressive scale compensation
       let scaleFactor = 1;
       if (dpr >= 1.75) {
-        scaleFactor = 0.4;
+        scaleFactor = 0.2;
       } else if (dpr >= 1.5) {
         scaleFactor = 0.6;
       } else if (dpr >= 1.25) {
@@ -112,7 +112,7 @@ export function useResponsiveScale(): string {
   
   // Adjust scale based on DPR to maintain consistent visual size
   if (devicePixelRatio >= 1.75) {
-    return 'scale-[0.4]'; // 175%+ scaling
+    return 'scale-[0.2]'; // 175%+ scaling
   } else if (devicePixelRatio >= 1.5) {
     return 'scale-[0.6]'; // 150% scaling
   } else if (devicePixelRatio >= 1.25) {

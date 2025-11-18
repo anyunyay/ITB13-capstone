@@ -13,7 +13,7 @@ export function calculateScaledValue(baseValue: number, dpr: number): number {
   
   let scaleFactor = 1;
   if (dpr >= 1.75) {
-    scaleFactor = 0.4;
+    scaleFactor = 0.2;
   } else if (dpr >= 1.5) {
     scaleFactor = 0.6;
   } else if (dpr >= 1.25) {
@@ -29,7 +29,7 @@ export function calculateScaledValue(baseValue: number, dpr: number): number {
  * @returns Tailwind scale class
  */
 export function getScaleClass(dpr: number): string {
-  if (dpr >= 1.75) return 'scale-[0.4]';
+  if (dpr >= 1.75) return 'scale-[0.2]';
   if (dpr >= 1.5) return 'scale-[0.6]';
   if (dpr >= 1.25) return 'scale-[0.8]';
   return 'scale-100';
@@ -142,7 +142,7 @@ export function getAdjustedMaxWidth(baseMaxWidth: number, dpr: number): number {
   
   let scaleFactor = 1;
   if (dpr >= 1.75) {
-    scaleFactor = 0.4;
+    scaleFactor = 0.2;
   } else if (dpr >= 1.5) {
     scaleFactor = 0.6;
   } else if (dpr >= 1.25) {
@@ -158,7 +158,7 @@ export function getAdjustedMaxWidth(baseMaxWidth: number, dpr: number): number {
  * @returns Scale value as number
  */
 export function getTransformScale(dpr: number): number {
-  if (dpr >= 1.75) return 0.4;
+  if (dpr >= 1.75) return 0.2;
   if (dpr >= 1.5) return 0.6;
   if (dpr >= 1.25) return 0.8;
   return 1.0;
