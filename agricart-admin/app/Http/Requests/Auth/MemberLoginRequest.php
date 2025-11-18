@@ -7,6 +7,7 @@ use App\Helpers\SystemLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -53,7 +54,25 @@ class MemberLoginRequest extends FormRequest
             ->where('type', 'member')
             ->first();
 
-        if (!$user || !\Hash::check($this->input('password'), $user->password)) {
+        // Check if account is deactivated before checking password
+        if ($user && !$user->active) {
+            // Log deactivated account login attempt
+            SystemLogger::logSecurityEvent(
+                'login_failed_deactivated',
+                $user->id,
+                $ipAddress,
+                [
+                    'member_id' => $memberId,
+                    'user_type' => $userType
+                ]
+            );
+            
+            throw ValidationException::withMessages([
+                'member_id' => __('auth.deactivated')
+            ]);
+        }
+
+        if (!$user || !Hash::check($this->input('password'), $user->password)) {
             // Record failed attempt
             $lockoutInfo = LoginLockoutService::recordFailedAttempt($memberId, $userType, $ipAddress);
             

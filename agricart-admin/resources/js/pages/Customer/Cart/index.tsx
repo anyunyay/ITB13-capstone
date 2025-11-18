@@ -35,7 +35,7 @@ export default function CartPage() {
   const addresses = page?.props?.addresses || [];
   const activeAddress = page?.props?.activeAddress;
   const t = useTranslation();
-  
+
   const [cart, setCart] = useState<Record<string, CartItemType>>(initialCart);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(page?.props?.checkoutMessage || null);
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
@@ -44,7 +44,7 @@ export default function CartPage() {
   const [editingItems, setEditingItems] = useState<Set<number>>(new Set());
   const [cartTotal, setCartTotal] = useState<number>(page?.props?.cartTotal || 0);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  
+
   // Address confirmation dialog state
   const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
   const [pendingAddressId, setPendingAddressId] = useState<number | null>(null);
@@ -62,26 +62,26 @@ export default function CartPage() {
   useEffect(() => {
     const hasCartChanged = JSON.stringify(initialCart) !== JSON.stringify(cart);
     const hasTotalChanged = page?.props?.cartTotal !== cartTotal;
-    
+
     if (hasCartChanged) {
       setCart(initialCart);
     }
-    
+
     if (hasTotalChanged) {
       setCartTotal(page?.props?.cartTotal || 0);
     }
-    
+
     const tempQty: Record<number, number> = {};
     Object.values(initialCart).forEach(item => {
       if (!editingItems.has(item.item_id)) {
         const baseQty = Number(item.quantity) || 0;
-        const formattedQuantity = item.category === 'Kilo' 
+        const formattedQuantity = item.category === 'Kilo'
           ? Number((Math.max(1, baseQty) * 4).toFixed(0)) / 4
           : Math.floor(Math.max(1, baseQty));
         tempQty[item.item_id] = formattedQuantity;
       }
     });
-    
+
     setTempQuantities(prev => ({ ...prev, ...tempQty }));
 
     // Sync stock manager with backend cart data
@@ -119,13 +119,13 @@ export default function CartPage() {
 
   const removeItem = (cartItem: number) => {
     const itemToRemove = Object.values(cart).find(item => item.item_id === cartItem);
-    
+
     router.delete(`/customer/cart/remove/${cartItem}`, {
       preserveScroll: true,
       onSuccess: (page) => {
         if (page.props.cart) setCart(page.props.cart as Record<string, CartItemType>);
         if (page.props.cartTotal) setCartTotal(page.props.cartTotal as number);
-        
+
         if (itemToRemove) {
           const stockManager = StockManager.getInstance();
           stockManager.removeItemFromCart(itemToRemove.product_id, itemToRemove.category);
@@ -145,20 +145,20 @@ export default function CartPage() {
 
     const oldQuantity = Number(itemToUpdate.quantity) || 0;
     const formattedQuantity = formatQuantityForStorage(newQuantity, itemToUpdate.category);
-    const availableStock = typeof itemToUpdate.available_stock === 'number' 
-      ? itemToUpdate.available_stock 
+    const availableStock = typeof itemToUpdate.available_stock === 'number'
+      ? itemToUpdate.available_stock
       : parseFloat(String(itemToUpdate.available_stock)) || 0;
-    
+
     if (formattedQuantity > availableStock) {
-      setQuantityErrors(prev => ({ 
-        ...prev, 
-        [cartItem]: `Maximum available: ${formatQuantityDisplay(availableStock, itemToUpdate.category)} ${itemToUpdate.category}` 
+      setQuantityErrors(prev => ({
+        ...prev,
+        [cartItem]: `Maximum available: ${formatQuantityDisplay(availableStock, itemToUpdate.category)} ${itemToUpdate.category}`
       }));
       return;
     }
 
     setUpdatingItems(prev => new Set(prev).add(cartItem));
-    
+
     router.put(`/customer/cart/update/${cartItem}`, { quantity: formattedQuantity }, {
       preserveScroll: true,
       onSuccess: (page) => {
@@ -169,7 +169,7 @@ export default function CartPage() {
           newSet.delete(cartItem);
           return newSet;
         });
-        
+
         if (itemToUpdate) {
           const stockManager = StockManager.getInstance();
           const quantityDifference = formattedQuantity - oldQuantity;
@@ -192,14 +192,14 @@ export default function CartPage() {
 
   const enterEditMode = useCallback((cartItem: number) => {
     setEditingItems(prev => new Set(prev).add(cartItem));
-    
+
     const currentItem = cart[cartItem];
     if (currentItem) {
       const currentQuantity = Number(currentItem.quantity) || 0;
-      const formattedQuantity = currentItem.category === 'Kilo' 
+      const formattedQuantity = currentItem.category === 'Kilo'
         ? Number((Math.max(1, currentQuantity) * 4).toFixed(0)) / 4
         : Math.floor(Math.max(1, currentQuantity));
-      
+
       setTempQuantities(prev => ({ ...prev, [cartItem]: formattedQuantity }));
       setQuantityErrors(prev => ({ ...prev, [cartItem]: '' }));
     }
@@ -211,14 +211,14 @@ export default function CartPage() {
       newSet.delete(cartItem);
       return newSet;
     });
-    
+
     const currentItem = cart[cartItem];
     if (currentItem) {
       const baseQty = Number(currentItem.quantity) || 0;
-      const formattedQuantity = currentItem.category === 'Kilo' 
+      const formattedQuantity = currentItem.category === 'Kilo'
         ? Number((Math.max(1, baseQty) * 4).toFixed(0)) / 4
         : Math.floor(Math.max(1, baseQty));
-      
+
       setTempQuantities(prev => ({ ...prev, [cartItem]: formattedQuantity }));
     } else {
       setTempQuantities(prev => {
@@ -227,7 +227,7 @@ export default function CartPage() {
         return newTemp;
       });
     }
-    
+
     setQuantityErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[cartItem];
@@ -242,7 +242,7 @@ export default function CartPage() {
 
   const formatQuantityForStorage = (quantity: number | string | undefined, category: string) => {
     const numQuantity = typeof quantity === 'number' ? quantity : parseFloat(String(quantity)) || 0;
-    
+
     if (category === 'Kilo') {
       const clamped = Math.max(1, numQuantity);
       return Math.round(clamped * 4) / 4;
@@ -269,7 +269,7 @@ export default function CartPage() {
     } else {
       const address = addresses.find(addr => addr.id === addressId);
       if (!address) return;
-      
+
       setPendingAddressId(addressId);
       setPendingAddress(address);
       setShowAddressConfirmation(true);
@@ -278,9 +278,9 @@ export default function CartPage() {
 
   const confirmAddressChange = () => {
     if (!pendingAddress) return;
-    
+
     setIsUpdatingAddress(true);
-    
+
     if (pendingAddressId === null) {
       setSelectedAddressId(null);
       setShowAddressConfirmation(false);
@@ -297,7 +297,7 @@ export default function CartPage() {
           setPendingAddressId(null);
           setPendingAddress(null);
           setIsUpdatingAddress(false);
-          
+
           if (page.props?.flash?.success) {
             setCheckoutMessage(page.props.flash.success);
           } else {
@@ -324,7 +324,7 @@ export default function CartPage() {
       return;
     }
 
-    router.post('/customer/cart/checkout', { 
+    router.post('/customer/cart/checkout', {
       delivery_address_id: selectedAddressId,
       use_main_address: !selectedAddressId && !!activeAddress
     }, {
@@ -333,7 +333,7 @@ export default function CartPage() {
         if (page.props.cart) setCart(page.props.cart as Record<string, CartItemType>);
         if (page.props.checkoutMessage) setCheckoutMessage(page.props.checkoutMessage as string);
         if (page.props.cartTotal) setCartTotal(page.props.cartTotal as number);
-        
+
         const stockManager = StockManager.getInstance();
         stockManager.clearCart();
       },
@@ -349,14 +349,13 @@ export default function CartPage() {
       <Head title={t('ui.cart')} />
       <AdaptiveContainer className="min-h-[90vh] py-4 sm:py-6 lg:py-7 xl:py-8 mt-16 sm:mt-18 lg:mt-19 xl:mt-20" enableScale={true}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 xl:px-8">
-          
+
           {/* Notification Messages */}
           {checkoutMessage && (
-            <div className={`mb-6 p-4 rounded-xl shadow-lg ${
-              checkoutMessage.includes('successfully') 
-                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-2 border-green-200 dark:border-green-700' 
+            <div className={`mb-6 p-4 rounded-xl shadow-lg ${checkoutMessage.includes('successfully')
+                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-2 border-green-200 dark:border-green-700'
                 : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-2 border-red-200 dark:border-red-700'
-            }`}>
+              }`}>
               <div className="flex items-center gap-3">
                 {checkoutMessage.includes('successfully') ? (
                   <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -376,7 +375,7 @@ export default function CartPage() {
               </div>
               <h2 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-green-600 dark:text-green-400 mb-4">{t('ui.your_cart_is_empty')}</h2>
               <p className="text-base md:text-xl lg:text-xl xl:text-2xl text-green-600 dark:text-green-400 mb-8">{t('ui.start_adding_fresh_produce')}</p>
-              <Button 
+              <Button
                 onClick={() => router.visit('/customer/produce')}
                 className="px-8 py-3 text-base md:text-base lg:text-base xl:text-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-300 rounded-lg shadow-md hover:shadow-lg"
               >
@@ -471,17 +470,16 @@ export default function CartPage() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Address Confirmation Dialog */}
-      <AddressConfirmationDialog
-        isOpen={showAddressConfirmation}
-        isUpdating={isUpdatingAddress}
-        pendingAddress={pendingAddress}
-        pendingAddressId={pendingAddressId}
-        onConfirm={confirmAddressChange}
-        onCancel={cancelAddressChange}
-      />
+        {/* Address Confirmation Dialog */}
+        <AddressConfirmationDialog
+          isOpen={showAddressConfirmation}
+          isUpdating={isUpdatingAddress}
+          pendingAddress={pendingAddress}
+          pendingAddressId={pendingAddressId}
+          onConfirm={confirmAddressChange}
+          onCancel={cancelAddressChange}
+        />
       </AdaptiveContainer>
     </AppHeaderLayout>
   );
