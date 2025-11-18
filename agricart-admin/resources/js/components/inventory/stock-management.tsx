@@ -65,6 +65,7 @@ export const StockManagement = ({
 }: StockManagementProps) => {
     const t = useTranslation();
     const [currentView, setCurrentView] = useState<'stocks' | 'trail' | 'sold'>('stocks');
+    const [selectedStockStatus, setSelectedStockStatus] = useState<string>('all');
 
     const handleStockSort = (field: string) => {
         if (stockSortBy === field) {
@@ -80,8 +81,8 @@ export const StockManagement = ({
         if (stockSortBy !== field) {
             return <ArrowUpDown className="h-4 w-4 ml-1" />;
         }
-        return stockSortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4 ml-1" /> : 
+        return stockSortOrder === 'asc' ?
+            <ArrowUp className="h-4 w-4 ml-1" /> :
             <ArrowDown className="h-4 w-4 ml-1" />;
     };
 
@@ -116,7 +117,7 @@ export const StockManagement = ({
                     </TableRow>
                 );
             }
-            
+
             // For regular stocks view
             return (
                 <TableRow>
@@ -145,7 +146,12 @@ export const StockManagement = ({
                         </button>
                     </TableHead>
                     <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
-                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                    <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                        <button onClick={() => handleStockSort('status')} className="flex items-center hover:text-foreground transition-colors mx-auto">
+                            {t('admin.status')}
+                            {getStockSortIcon('status')}
+                        </button>
+                    </TableHead>
                     {dataType === 'stocks' && <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>}
                 </TableRow>
             );
@@ -181,8 +187,8 @@ export const StockManagement = ({
                                         {item.category === 'Kilo'
                                             ? `${item.quantity} kg`
                                             : item.category
-                                            ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                            : item.quantity
+                                                ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                                : item.quantity
                                         }
                                     </div>
                                 </div>
@@ -205,7 +211,7 @@ export const StockManagement = ({
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[120px] text-center flex justify-center">
-                                    <Badge 
+                                    <Badge
                                         variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
                                         className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
                                     >
@@ -251,7 +257,7 @@ export const StockManagement = ({
                     }
                     totalAmount = (item.sold_quantity || 0) * price;
                 }
-                
+
                 return (
                     <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
@@ -275,8 +281,8 @@ export const StockManagement = ({
                                         {item.category === 'Kilo'
                                             ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                             : item.category
-                                            ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                            : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                                ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                                : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                         }
                                     </div>
                                 </div>
@@ -301,7 +307,7 @@ export const StockManagement = ({
                     </TableRow>
                 );
             }
-            
+
             // For regular stocks
             return (
                 <TableRow key={item.id} className="border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md">
@@ -328,8 +334,8 @@ export const StockManagement = ({
                                             {item.category === 'Kilo'
                                                 ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                                 : item.category
-                                                ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                                : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                                    ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                                    : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                             }
                                         </div>
                                     ) : (
@@ -337,8 +343,8 @@ export const StockManagement = ({
                                             {item.category === 'Kilo'
                                                 ? `${item.quantity} kg`
                                                 : item.category
-                                                ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                                : item.quantity
+                                                    ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                                    : item.quantity
                                             }
                                         </div>
                                     )}
@@ -363,18 +369,18 @@ export const StockManagement = ({
                     <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                         <div className="flex justify-center min-h-[40px] py-2 w-full">
                             <div className="w-full max-w-[120px] text-center flex justify-center">
-                                <Badge 
+                                <Badge
                                     variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                                     className={
-                                        item.quantity > 10 
-                                            ? "bg-primary/10 text-primary" 
-                                            : item.quantity > 0 
-                                                ? "bg-secondary/10 text-secondary" 
-                                                : "bg-destructive/10 text-destructive"
+                                        item.quantity > 10
+                                            ? "bg-primary/10 text-primary"
+                                            : item.quantity > 0
+                                                ? "bg-orange-100 text-orange-800"
+                                                : "bg-red-100 text-red-800"
                                     }
                                 >
-                                    {item.quantity > 10 ? t('admin.available') : 
-                                     item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
+                                    {item.quantity > 10 ? t('admin.available') :
+                                        item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
                                 </Badge>
                             </div>
                         </div>
@@ -393,9 +399,9 @@ export const StockManagement = ({
                                             </Button>
                                         </PermissionGate>
                                         <PermissionGate permission="delete stocks">
-                                            <Button 
-                                                disabled={processing} 
-                                                onClick={() => handleRemovePerishedStock(item)} 
+                                            <Button
+                                                disabled={processing}
+                                                onClick={() => handleRemovePerishedStock(item)}
                                                 size="sm"
                                                 variant="destructive"
                                                 className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
@@ -422,7 +428,7 @@ export const StockManagement = ({
                                 <div className="font-semibold text-foreground">{item.product}</div>
                                 <Badge variant="secondary" className="text-xs mt-1">{item.category}</Badge>
                             </div>
-                            <Badge 
+                            <Badge
                                 variant={item.type === 'removed' || item.type === 'reversal' ? "destructive" : "default"}
                                 className={item.type === 'removed' || item.type === 'reversal' ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}
                             >
@@ -440,8 +446,8 @@ export const StockManagement = ({
                                     {item.category === 'Kilo'
                                         ? `${item.quantity} kg`
                                         : item.category
-                                        ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                        : item.quantity
+                                            ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                            : item.quantity
                                     }
                                 </span>
                             </div>
@@ -476,7 +482,7 @@ export const StockManagement = ({
                     }
                     totalAmount = (item.sold_quantity || 0) * price;
                 }
-                
+
                 return (
                     <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
                         <div className="flex justify-between items-start">
@@ -492,8 +498,8 @@ export const StockManagement = ({
                                     {item.category === 'Kilo'
                                         ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                         : item.category
-                                        ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                        : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                            ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                            : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                     }
                                 </span>
                             </div>
@@ -509,7 +515,7 @@ export const StockManagement = ({
                     </div>
                 );
             }
-            
+
             // For regular stocks
             return (
                 <div key={item.id} className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3">
@@ -519,18 +525,18 @@ export const StockManagement = ({
                             <div className="font-semibold text-foreground">{item.product?.name || '-'}</div>
                             <Badge variant="secondary" className="text-xs mt-1">{item.category || '-'}</Badge>
                         </div>
-                        <Badge 
+                        <Badge
                             variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                             className={
-                                item.quantity > 10 
-                                    ? "bg-primary/10 text-primary" 
-                                    : item.quantity > 0 
-                                        ? "bg-secondary/10 text-secondary" 
+                                item.quantity > 10
+                                    ? "bg-primary/10 text-primary"
+                                    : item.quantity > 0
+                                        ? "bg-secondary/10 text-secondary"
                                         : "bg-destructive/10 text-destructive"
                             }
                         >
-                            {item.quantity > 10 ? t('admin.available') : 
-                             item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
+                            {item.quantity > 10 ? t('admin.available') :
+                                item.quantity > 0 ? t('admin.low_stock') : t('admin.out_of_stock')}
                         </Badge>
                     </div>
                     <div className="space-y-2 text-sm">
@@ -542,8 +548,8 @@ export const StockManagement = ({
                                         {item.category === 'Kilo'
                                             ? `${item.sold_quantity || 0} ${t('admin.kg_sold')}`
                                             : item.category
-                                            ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
-                                            : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
+                                                ? `${Math.floor(item.sold_quantity || 0)} ${item.category.toLowerCase()} ${t('admin.sold_label')}`
+                                                : `${item.sold_quantity || 0} ${t('admin.sold_label')}`
                                         }
                                     </span>
                                 ) : (
@@ -551,8 +557,8 @@ export const StockManagement = ({
                                         {item.category === 'Kilo'
                                             ? `${item.quantity} kg`
                                             : item.category
-                                            ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
-                                            : item.quantity
+                                                ? `${Math.floor(item.quantity)} ${item.category.toLowerCase()}`
+                                                : item.quantity
                                         }
                                     </span>
                                 )}
@@ -574,9 +580,9 @@ export const StockManagement = ({
                                 </Button>
                             </PermissionGate>
                             <PermissionGate permission="delete stocks">
-                                <Button 
-                                    disabled={processing} 
-                                    onClick={() => handleRemovePerishedStock(item)} 
+                                <Button
+                                    disabled={processing}
+                                    onClick={() => handleRemovePerishedStock(item)}
                                     size="sm"
                                     variant="destructive"
                                     className="text-xs"
@@ -608,7 +614,7 @@ export const StockManagement = ({
                         </TableBody>
                     </Table>
                 </div>
-                
+
                 <PaginationControls
                     currentPage={stockCurrentPage}
                     totalPages={totalPages}
@@ -622,13 +628,13 @@ export const StockManagement = ({
                 <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
                     {dataType === 'trail' ? t('admin.no_stock_trail_data_available') :
-                     dataType === 'sold' ? t('admin.no_sold_stocks_available') :
-                     t('admin.no_stocks_available')}
+                        dataType === 'sold' ? t('admin.no_sold_stocks_available') :
+                            t('admin.no_stocks_available')}
                 </h3>
                 <p className="text-muted-foreground">
                     {dataType === 'trail' ? t('admin.stock_changes_appear_here') :
-                     dataType === 'sold' ? t('admin.sold_stock_items_appear_here') :
-                     t('admin.add_stock_to_products_see_here')}
+                        dataType === 'sold' ? t('admin.sold_stock_items_appear_here') :
+                            t('admin.add_stock_to_products_see_here')}
                 </p>
             </div>
         );
@@ -641,7 +647,7 @@ export const StockManagement = ({
             const oldQuantity = trail.old_quantity || 0;
             const newQuantity = trail.new_quantity || 0;
             const quantityChange = Math.abs(oldQuantity - newQuantity);
-            
+
             // Calculate price based on action type
             let price = 0;
             if (trail.product) {
@@ -653,7 +659,7 @@ export const StockManagement = ({
                     price = trail.product.price_tali || 0;
                 }
             }
-            
+
             // Calculate total amount for the stock trail
             let totalAmount = 0;
             if (trail.action_type === 'sale') {
@@ -666,7 +672,7 @@ export const StockManagement = ({
                 // For removals, calculate based on the removed quantity
                 totalAmount = quantityChange * price;
             }
-            
+
             return {
                 id: trail.id,
                 type: trail.action_type,
@@ -732,7 +738,7 @@ export const StockManagement = ({
                         </Button>
                     </div>
                 </div>
-                
+
                 {/* Second Row: Action Buttons (Mobile) / All Buttons (Desktop) */}
                 <div className="flex gap-2 flex-wrap items-center md:justify-end">
                     {/* Search button - Desktop only */}
@@ -752,10 +758,10 @@ export const StockManagement = ({
                             {showStockSearch ? t('ui.hide_search') : t('ui.search')}
                         </Button>
                     </div>
-                    
-                    <Button 
-                        disabled={processing} 
-                        variant={currentView === 'stocks' ? "default" : "outline"} 
+
+                    <Button
+                        disabled={processing}
+                        variant={currentView === 'stocks' ? "default" : "outline"}
                         className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
                         size="sm"
                         onClick={() => {
@@ -767,9 +773,9 @@ export const StockManagement = ({
                         {t('admin.current_stocks')}
                     </Button>
                     <PermissionGate permission="view stock trail">
-                        <Button 
-                            disabled={processing} 
-                            variant={currentView === 'trail' ? "default" : "outline"} 
+                        <Button
+                            disabled={processing}
+                            variant={currentView === 'trail' ? "default" : "outline"}
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
                             size="sm"
                             onClick={() => {
@@ -782,9 +788,9 @@ export const StockManagement = ({
                         </Button>
                     </PermissionGate>
                     <PermissionGate permission="view sold stock">
-                        <Button 
-                            disabled={processing} 
-                            variant={currentView === 'sold' ? "default" : "outline"} 
+                        <Button
+                            disabled={processing}
+                            variant={currentView === 'sold' ? "default" : "outline"}
                             className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg flex-1 md:flex-none text-xs sm:text-sm"
                             size="sm"
                             onClick={() => {
@@ -800,9 +806,8 @@ export const StockManagement = ({
             </div>
 
             {/* Stock Search Bar */}
-            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${
-                showStockSearch ? styles.expanded : styles.collapsed
-            }`}>
+            <div className={`bg-card rounded-xl shadow-sm ${styles.searchToggleContainer} ${showStockSearch ? styles.expanded : styles.collapsed
+                }`}>
                 <div className="flex flex-col gap-3 mb-3 md:flex-row md:items-center">
                     <div className="relative flex-1 flex items-center">
                         <Search className="absolute left-3 text-muted-foreground w-4 h-4 z-10" />
@@ -824,7 +829,22 @@ export const StockManagement = ({
                             </Button>
                         )}
                     </div>
-                    <div className="flex gap-3 flex-shrink-0">
+                    <div className="flex gap-3 flex-shrink-0 flex-wrap">
+                        <Select value={selectedStockStatus} onValueChange={(value) => {
+                            setSelectedStockStatus(value);
+                            setStockCurrentPage(1);
+                        }}>
+                            <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                                <Filter className="h-4 w-4" />
+                                <SelectValue placeholder={t('admin.all_status')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">{t('admin.all_status')}</SelectItem>
+                                <SelectItem value="available">{t('admin.available')}</SelectItem>
+                                <SelectItem value="low">{t('admin.low_stock')}</SelectItem>
+                                <SelectItem value="out">{t('admin.out_of_stock')}</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <Select value={selectedStockCategory} onValueChange={setSelectedStockCategory}>
                             <SelectTrigger className="min-w-[140px] bg-background border border-border rounded-lg py-2 px-3 text-foreground text-sm transition-all duration-200 h-9 focus:outline-none focus:border-primary focus:shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
                                 <Filter className="h-4 w-4" />
@@ -860,15 +880,16 @@ export const StockManagement = ({
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                     <span className="text-sm text-muted-foreground font-medium">
-                        {stockSearchTerm || selectedStockCategory !== 'all' 
-                            ? t('admin.filtered_results') 
+                        {stockSearchTerm || selectedStockCategory !== 'all' || selectedStockStatus !== 'all'
+                            ? t('admin.filtered_results')
                             : t('admin.ready_to_search_stocks')}
                     </span>
-                    {(stockSearchTerm || selectedStockCategory !== 'all') && (
+                    {(stockSearchTerm || selectedStockCategory !== 'all' || selectedStockStatus !== 'all') && (
                         <button
                             onClick={() => {
                                 setStockSearchTerm('');
                                 setSelectedStockCategory('all');
+                                setSelectedStockStatus('all');
                                 setStockSortBy('id');
                             }}
                             className="text-sm text-primary hover:text-primary/80 transition-colors"
@@ -882,35 +903,7 @@ export const StockManagement = ({
 
             <div>
                 {currentView === 'stocks' ? (
-                    <Tabs defaultValue="all" className="w-full" onValueChange={() => setStockCurrentPage(1)}>
-                        <TabsList className="grid w-full grid-cols-2 gap-2 h-auto sm:grid-cols-3 md:grid-cols-5">
-                            <TabsTrigger value="all" className="text-sm">{t('admin.current_stocks')}</TabsTrigger>
-                            <TabsTrigger value="available" className="text-sm">{t('admin.available')}</TabsTrigger>
-                            <TabsTrigger value="low" className="text-sm">{t('admin.low_stock')}</TabsTrigger>
-                            <TabsTrigger value="out" className="text-sm">{t('admin.out_of_stock')}</TabsTrigger>
-                            <TabsTrigger value="sold" className="text-sm col-span-2 sm:col-span-1">{t('admin.sold_items')}</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="all">
-                            {renderUnifiedTable(getFilteredStocks('all'), 'stocks', t('admin.current_stocks'))}
-                        </TabsContent>
-                        
-                        <TabsContent value="available">
-                            {renderUnifiedTable(getFilteredStocks('available'), 'stocks', t('admin.available_stocks'))}
-                        </TabsContent>
-                        
-                        <TabsContent value="low">
-                            {renderUnifiedTable(getFilteredStocks('low'), 'stocks', t('admin.low_stock_items'))}
-                        </TabsContent>
-                        
-                        <TabsContent value="out">
-                            {renderUnifiedTable(getFilteredStocks('out'), 'stocks', t('admin.out_of_stock_items'))}
-                        </TabsContent>
-                        
-                        <TabsContent value="sold">
-                            {renderUnifiedTable(soldStocks, 'sold', t('admin.sold_items'))}
-                        </TabsContent>
-                    </Tabs>
+                    renderUnifiedTable(getFilteredStocks(selectedStockStatus), 'stocks', t('admin.current_stocks'))
                 ) : (
                     <div>
                         {currentView === 'trail' && renderUnifiedTable(getCombinedTrailData(), 'trail', t('admin.stock_trail'))}

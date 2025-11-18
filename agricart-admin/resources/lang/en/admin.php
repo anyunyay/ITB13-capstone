@@ -176,6 +176,7 @@ return [
     'no_prices_set' => 'No prices set',
     'no_stocks_found' => 'No stocks found',
     'all_categories' => 'All Categories',
+    'all_status' => 'All Status',
     'sort_by' => 'Sort by',
     'no_products_match_criteria' => 'No products match your criteria',
     'try_adjusting_search_filters' => 'Try adjusting your search or filter criteria.',
