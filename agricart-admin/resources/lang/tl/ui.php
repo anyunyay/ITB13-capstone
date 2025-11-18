@@ -464,6 +464,8 @@ return [
     'ready' => 'Handa',
     'order_delayed' => 'Naantala ang Order',
     'order_delay_message' => 'Humihingi kami ng paumanhin sa pagkaantala sa pagproseso ng inyong order. Nagsusumikap kami na malutas ito nang mabilis hangga\'t maaari.',
+    'order_pending' => 'Naghihintay ang Order',
+    'order_pending_message' => 'Ang iyong order ay naghihintay ng pag-apruba. Maaari mo itong kanselahin kung kinakailangan.',
     'if_you_have_concerns' => 'Kung mayroon kang mga alalahanin, mangyaring makipag-ugnayan sa amin sa:',
     'cancel_order' => 'Kanselahin ang Order',
     'keep_order' => 'Panatilihin ang Order',
