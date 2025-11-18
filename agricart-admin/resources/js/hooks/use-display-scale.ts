@@ -63,22 +63,17 @@ export function useDisplayScale(): DisplayScaleInfo {
     let scaleFactor = 1;
     
     if (isBrowserZoom) {
-      // Browser zoom: let browser handle it naturally for all zoom levels
-      // This ensures 90%, 100%, 110%, 125%, 150% all work smoothly
+      // Browser zoom: minimal adjustment, let browser handle it naturally
       scaleFactor = 1;
     } else {
       // Display scaling: apply compensation
-      // Optimized for common Windows display scaling scenarios
-      if (dpr >= 2.0) {
-        scaleFactor = 0.7; // 200%+ scaling
-      } else if (dpr >= 1.75) {
-        scaleFactor = 0.75; // 175% scaling
+      // Optimized for 125% Windows scaling (most common scenario)
+      if (dpr >= 1.75) {
+        scaleFactor = 0.75; // 175%+ scaling - moderate compensation
       } else if (dpr >= 1.5) {
-        scaleFactor = 0.85; // 150% scaling
+        scaleFactor = 0.85; // 150% scaling - gentle compensation
       } else if (dpr >= 1.25) {
-        scaleFactor = 0.95; // 125% scaling - minimal compensation
-      } else if (dpr >= 1.1) {
-        scaleFactor = 0.98; // 110% scaling - very minimal
+        scaleFactor = 0.95; // 125% scaling - very minimal compensation (optimal for Windows)
       }
     }
     
@@ -121,16 +116,12 @@ export function useDisplayScale(): DisplayScaleInfo {
           scaleFactor = 1;
         } else {
           // Display scaling: apply compensation
-          if (dpr >= 2.0) {
-            scaleFactor = 0.7;
-          } else if (dpr >= 1.75) {
+          if (dpr >= 1.75) {
             scaleFactor = 0.75;
           } else if (dpr >= 1.5) {
             scaleFactor = 0.85;
           } else if (dpr >= 1.25) {
             scaleFactor = 0.95;
-          } else if (dpr >= 1.1) {
-            scaleFactor = 0.98;
           }
         }
         
