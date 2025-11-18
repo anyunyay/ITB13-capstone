@@ -14,6 +14,7 @@ import { router, usePage } from '@inertiajs/react';
 import { CalendarIcon, Download, FileText, X, Package, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import OrderReceivedConfirmationModal from '@/components/customer/orders/OrderReceivedConfirmationModal';
+import OrderReceiptPreview from '@/components/customer/orders/OrderReceiptPreview';
 import StarRating from '@/components/customer/products/StarRating';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -76,7 +77,20 @@ interface HistoryProps {
 
 export default function History({ orders, currentStatus, currentDeliveryStatus, pagination, counts }: HistoryProps) {
   const t = useTranslation();
-  const page = usePage<{ notifications?: Array<any> }>();
+  const page = usePage<{ 
+    notifications?: Array<any>;
+    auth?: {
+      user?: {
+        name?: string;
+        email?: string;
+        contact_number?: string;
+        address?: string;
+        barangay?: string;
+        city?: string;
+        province?: string;
+      };
+    };
+  }>();
   const allNotifications = page.props.notifications || [];
   
   // Show only unread notifications - they will be removed once marked as read
@@ -103,6 +117,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const [cancelDialogOpen, setCancelDialogOpen] = useState<{ [key: number]: boolean }>({});
   const [confirmationModalOpen, setConfirmationModalOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOrderForConfirmation, setSelectedOrderForConfirmation] = useState<{ id: number; total: number } | null>(null);
+  const [receiptModalOpen, setReceiptModalOpen] = useState<{ [key: number]: boolean }>({});
+  const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
   
   // Backend returns 5 items per page, display all of them
   const paginatedOrders = orders;
@@ -286,6 +302,16 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
   const handleCloseConfirmationModal = (orderId: number) => {
     setConfirmationModalOpen(prev => ({ ...prev, [orderId]: false }));
     setSelectedOrderForConfirmation(null);
+  };
+
+  const handleOpenReceiptModal = (order: Order) => {
+    setSelectedOrderForReceipt(order);
+    setReceiptModalOpen(prev => ({ ...prev, [order.id]: true }));
+  };
+
+  const handleCloseReceiptModal = (orderId: number) => {
+    setReceiptModalOpen(prev => ({ ...prev, [orderId]: false }));
+    setSelectedOrderForReceipt(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -474,18 +500,56 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   {paginatedOrders.map((order: Order) => (
                   <article key={order.id} id={`order-${order.id}`} className="p-4 sm:p-5 md:p-6 lg:p-8 bg-card border border-border rounded-2xl hover:shadow-xl transition-all duration-300 overflow-hidden">
                     <div className="relative mb-3 sm:mb-4 md:mb-5">
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
-                        <div className="flex-1 min-w-0 w-full sm:w-auto">
-                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <span className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-card-foreground">{t('customer.order_id_label')}</span>
-                            <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-primary">#{order.id}</span>
+                      {/* Mobile Layout */}
+                      <div className="sm:hidden space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-card-foreground">{t('customer.order_id_label')}</span>
+                            <span className="text-sm font-bold text-primary">#{order.id}</span>
                           </div>
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" aria-hidden="true" />
-                            <time className="text-xs sm:text-sm md:text-base text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                          <div className="flex-shrink-0">
+                            {getStatusBadge(order.status)}
                           </div>
                         </div>
-                        <div className="flex-shrink-0 w-full sm:w-auto">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+                            <time className="text-xs text-muted-foreground truncate">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                          </div>
+                          <Button
+                            onClick={() => handleOpenReceiptModal(order)}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-1 shrink-0"
+                          >
+                            <FileText className="h-3 w-3" />
+                            <span className="text-xs">{t('customer.view_receipt')}</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Desktop Layout */}
+                      <div className="hidden sm:flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-base md:text-lg lg:text-xl font-semibold text-card-foreground">{t('customer.order_id_label')}</span>
+                            <span className="text-base md:text-lg lg:text-xl font-bold text-primary">#{order.id}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <CalendarIcon className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
+                            <time className="text-sm md:text-base text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <Button
+                            onClick={() => handleOpenReceiptModal(order)}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            <FileText className="h-4 w-4" />
+                            <span className="text-sm">{t('customer.view_receipt')}</span>
+                          </Button>
                           {getStatusBadge(order.status)}
                         </div>
                       </div>
@@ -771,6 +835,63 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
             orderId={selectedOrderForConfirmation.id}
             orderTotal={selectedOrderForConfirmation.total}
           />
+        )}
+
+        {/* Receipt Preview Modal */}
+        {selectedOrderForReceipt && (
+          <Dialog 
+            open={receiptModalOpen[selectedOrderForReceipt.id] || false} 
+            onOpenChange={(open) => {
+              if (!open) handleCloseReceiptModal(selectedOrderForReceipt.id);
+            }}
+          >
+            <DialogContent className="max-w-2xl w-[96vw] h-auto max-h-[96vh] sm:w-[85vw] sm:max-h-[90vh] p-0 gap-0">
+              <DialogHeader className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b bg-white sticky top-0 z-10 shrink-0">
+                <DialogTitle className="text-sm sm:text-base md:text-lg font-semibold flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Button
+                      onClick={() => handleCloseReceiptModal(selectedOrderForReceipt.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 shrink-0"
+                    >
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </Button>
+                    <span className="truncate text-xs sm:text-sm md:text-base">📄 {t('customer.receipt_preview')} - #{selectedOrderForReceipt.id}</span>
+                  </div>
+                  <Button
+                    onClick={() => window.print()}
+                    variant="default"
+                    size="sm"
+                    className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 whitespace-nowrap h-7 sm:h-8 shrink-0"
+                  >
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    {t('customer.print')}
+                  </Button>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0">
+                <div className="p-2 sm:p-4 md:p-6">
+                  <OrderReceiptPreview 
+                    order={{
+                      ...selectedOrderForReceipt,
+                      updated_at: selectedOrderForReceipt.delivered_at || selectedOrderForReceipt.created_at,
+                      customer: {
+                        name: page.props.auth?.user?.name || '',
+                        email: page.props.auth?.user?.email || '',
+                        contact_number: page.props.auth?.user?.contact_number,
+                        address: page.props.auth?.user?.address,
+                        barangay: page.props.auth?.user?.barangay,
+                        city: page.props.auth?.user?.city,
+                        province: page.props.auth?.user?.province,
+                      }
+                    }} 
+                  />
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
       </main>
     </AppHeaderLayout>
