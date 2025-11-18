@@ -263,5 +263,10 @@ return [
     'contact_link' => 'Contact',
     'privacy_policy' => 'Privacy Policy',
     'terms_of_service' => 'Terms of Service',
+
+    // Receipt
+    'view_receipt' => 'View Receipt',
+    'receipt_preview' => 'Receipt Preview',
+    'print' => 'Print',
 ];
 
