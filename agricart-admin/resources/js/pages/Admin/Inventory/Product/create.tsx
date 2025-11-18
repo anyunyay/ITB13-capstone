@@ -51,6 +51,13 @@ export default function Create() {
         post(route('inventory.store'));
     }
 
+    // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    }
+
     // Validation: Check if form has valid input
     const isFormValid = () => {
         // Name is required and must not be empty
@@ -201,6 +208,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_kilo}
                                                         onChange={(e) => setData('price_kilo', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -217,6 +225,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_pc}
                                                         onChange={(e) => setData('price_pc', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -233,6 +242,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_tali}
                                                         onChange={(e) => setData('price_tali', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
