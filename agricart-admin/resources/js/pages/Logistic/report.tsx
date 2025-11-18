@@ -305,7 +305,7 @@ export default function LogisticReport({ orders, summary, filters }: ReportPageP
               </div>
               <div className="flex gap-2 shrink-0">
                 <Link href={route('logistic.dashboard')}>
-                  <Button variant="outline" className="flex items-center gap-2 shrink-0">
+                  <Button variant="outline" className="flex items-center gap-2">
                     <ArrowLeft className="h-4 w-4" />
                     {t('logistic.back_to_dashboard')}
                   </Button>

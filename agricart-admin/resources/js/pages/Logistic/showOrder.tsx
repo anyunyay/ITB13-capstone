@@ -292,7 +292,6 @@ export default function ShowOrder({ order }: ShowOrderProps) {
             </div>
             <Link href={route('logistic.orders.index')}>
               <Button variant="outline" className="flex items-center gap-2 shrink-0">
-                <ArrowLeft className="h-4 w-4" />
                 {t('logistic.back_to_orders')}
               </Button>
             </Link>
