@@ -116,6 +116,7 @@ return [
     'approved' => 'Aprobado',
     'rejected' => 'Tinanggihan',
     'delayed' => 'Naantala',
+    'cancelled' => 'Kinansela',
     'delivered' => 'Naihatid',
     'out_for_delivery' => 'Nasa Paraan ng Paghahatid',
     'expired' => 'Nag-expire',
@@ -891,6 +892,12 @@ return [
     'order_is_delayed' => 'Na-delay ang order na ito.',
     'order_delayed_description' => 'Na-exceed na nito ang standard na 24-oras na processing time pero maaari pa rin itong i-apruba o i-reject.',
     'insufficient_stock_warning' => '⚠️ Babala sa Hindi Sapat na Stock:',
+    'insufficient_stock_description' => 'Hindi maaprubahan ang order na ito dahil sa hindi sapat na stock. Pakisuri ang Available Stock column para sa mga detalye.',
+    'order_cancelled' => 'Kinansela ang Order',
+    'order_cancelled_by_customer' => 'Kinansela ng customer ang order na ito.',
+    'no_further_actions' => 'Walang ibang aksyon na maaaring gawin.',
+    'approving' => 'Nag-aapruba...',
+    'add_notes_approval' => 'Magdagdag ng anumang tala tungkol sa pag-apruba na ito...',
 
     // Urgent Approval Popup
     'urgent_order_approval_required' => 'Kailangan ang Agarang Pag-apruba ng Order',

@@ -343,6 +343,11 @@ class OrderController extends Controller
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
+        // Prevent approval of cancelled orders
+        if ($order->status === 'cancelled') {
+            return redirect()->back()->with('error', 'Cannot approve a cancelled order.');
+        }
+
         // Allow approval for pending and delayed orders
         if (!in_array($order->status, ['pending', 'delayed'])) {
             return redirect()->back()->with('error', 'Only pending or delayed orders can be approved.');
@@ -530,6 +535,11 @@ class OrderController extends Controller
         $request->validate([
             'admin_notes' => 'required|string|max:500',
         ]);
+
+        // Prevent rejection of cancelled orders
+        if ($order->status === 'cancelled') {
+            return redirect()->back()->with('error', 'Cannot reject a cancelled order.');
+        }
 
         // If order was already processed, we need to reverse the stock changes
         if ($order->status === 'approved') {

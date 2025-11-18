@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 
 interface OrderActionsProps {
@@ -47,51 +46,71 @@ export const OrderActions = ({
   onApprove,
   onReject
 }: OrderActionsProps) => {
+  const t = useTranslation();
+
+  // Don't show actions for cancelled orders
+  if (status === 'cancelled') {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-destructive">{t('admin.order_cancelled')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
+            <p className="text-sm text-destructive">
+              <strong>{t('admin.order_cancelled_by_customer')}</strong> {t('admin.no_further_actions')}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (status !== 'pending' && status !== 'delayed') return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-foreground">Actions</CardTitle>
+        <CardTitle className="text-lg font-semibold text-foreground">{t('admin.actions')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {status === 'delayed' && (
           <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
             <p className="text-sm text-orange-800">
-              <strong>This order is delayed.</strong> It has exceeded the standard 24-hour processing time but can still be approved or rejected.
+              <strong>{t('admin.order_is_delayed')}</strong> {t('admin.order_delayed_description')}
             </p>
           </div>
         )}
         {hasInsufficientStock && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-800">
-              <strong>⚠️ Insufficient Stock Warning:</strong> This order cannot be approved due to insufficient stock. Please check the Available Stock column for details.
+              <strong>{t('admin.insufficient_stock_warning')}</strong> {t('admin.insufficient_stock_description')}
             </p>
           </div>
         )}
-        
+
         <Dialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
           <DialogTrigger asChild>
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               variant="default"
               disabled={hasInsufficientStock}
             >
-              {hasInsufficientStock ? 'Cannot Approve - Insufficient Stock' : 'Approve Order'}
+              {hasInsufficientStock ? t('admin.cannot_approve_insufficient_stock') : t('admin.approve_order')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Approve Order #{orderId}</DialogTitle>
+              <DialogTitle>{t('admin.approve_order_number', { id: orderId })}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to approve this order? This will process the stock and complete the order.
+                {t('admin.confirm_approve_order')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Notes (Optional)</label>
+                <label className="text-sm font-medium">{t('admin.notes_optional')}</label>
                 <Textarea
-                  placeholder="Add any notes about this approval..."
+                  placeholder={t('admin.add_notes_approval')}
                   value={approveForm.data.admin_notes}
                   onChange={(e) => approveForm.setData('admin_notes', e.target.value)}
                   className="mt-1"
@@ -100,10 +119,10 @@ export const OrderActions = ({
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
-                Cancel
+                {t('ui.cancel')}
               </Button>
               <Button onClick={onApprove} disabled={approveForm.processing}>
-                {approveForm.processing ? 'Approving...' : 'Approve Order'}
+                {approveForm.processing ? t('admin.approving') : t('admin.approve_order')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -111,27 +130,27 @@ export const OrderActions = ({
 
         <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
           <DialogTrigger asChild>
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               variant="destructive"
               onClick={() => {
                 setSelectedRejectionReason('');
                 rejectForm.setData('admin_notes', '');
               }}
             >
-              Reject Order
+              {t('admin.reject_order')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reject Order #{orderId}</DialogTitle>
+              <DialogTitle>{t('admin.reject_order_number', { id: orderId })}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to reject this order? Please provide a reason for the rejection.
+                {t('admin.confirm_reject_order')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Reason for Rejection *</label>
+                <label className="text-sm font-medium">{t('admin.reason_for_rejection')} *</label>
                 <Select
                   value={selectedRejectionReason}
                   onValueChange={(value) => {
@@ -144,7 +163,7 @@ export const OrderActions = ({
                   }}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select a reason for rejection" />
+                    <SelectValue placeholder={t('admin.select_reason_for_rejection')} />
                   </SelectTrigger>
                   <SelectContent>
                     {rejectionReasons.map((reason) => (
@@ -155,12 +174,12 @@ export const OrderActions = ({
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {selectedRejectionReason === 'Other' && (
                 <div>
-                  <label className="text-sm font-medium">Additional Details *</label>
+                  <label className="text-sm font-medium">{t('admin.additional_details')} *</label>
                   <Textarea
-                    placeholder="Please provide additional details for the rejection..."
+                    placeholder={t('admin.provide_additional_details_rejection')}
                     value={rejectForm.data.admin_notes}
                     onChange={(e) => rejectForm.setData('admin_notes', e.target.value)}
                     className="mt-1"
@@ -175,14 +194,14 @@ export const OrderActions = ({
                 setSelectedRejectionReason('');
                 rejectForm.setData('admin_notes', '');
               }}>
-                Cancel
+                {t('ui.cancel')}
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={onReject} 
+              <Button
+                variant="destructive"
+                onClick={onReject}
                 disabled={rejectForm.processing || !selectedRejectionReason || (selectedRejectionReason === 'Other' && !rejectForm.data.admin_notes)}
               >
-                {rejectForm.processing ? 'Rejecting...' : 'Reject Order'}
+                {rejectForm.processing ? t('admin.rejecting') : t('admin.reject_order')}
               </Button>
             </DialogFooter>
           </DialogContent>

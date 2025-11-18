@@ -299,7 +299,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       case 'delayed':
         return <Badge variant="destructive">{t('ui.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline">{t('ui.cancelled')}</Badge>;
+        return <Badge variant="destructive">{t('ui.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

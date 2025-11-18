@@ -117,6 +117,7 @@ return [
     'approved' => 'Approved',
     'rejected' => 'Rejected',
     'delayed' => 'Delayed',
+    'cancelled' => 'Cancelled',
     'delivered' => 'Delivered',
     'out_for_delivery' => 'Out for Delivery',
     'expired' => 'Expired',
@@ -842,6 +843,12 @@ return [
     'order_is_delayed' => 'This order is delayed.',
     'order_delayed_description' => 'It has exceeded the standard 24-hour processing time but can still be approved or rejected.',
     'insufficient_stock_warning' => '⚠️ Insufficient Stock Warning:',
+    'insufficient_stock_description' => 'This order cannot be approved due to insufficient stock. Please check the Available Stock column for details.',
+    'order_cancelled' => 'Order Cancelled',
+    'order_cancelled_by_customer' => 'This order has been cancelled by the customer.',
+    'no_further_actions' => 'No further actions can be taken.',
+    'approving' => 'Approving...',
+    'add_notes_approval' => 'Add any notes about this approval...',
 
     // Urgent Approval Popup
     'urgent_order_approval_required' => 'Urgent Order Approval Required',
