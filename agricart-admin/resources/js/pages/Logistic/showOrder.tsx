@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { LogisticsHeader } from '@/components/logistics/logistics-header';
 import { format } from 'date-fns';
 import { useState, useRef } from 'react';
-import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Truck, Upload, Camera, X, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import { getDisplayEmail } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { ImageLightbox } from '@/components/customer/products/ImageLightbox';
@@ -273,8 +273,8 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               </div>
             </div>
             <Link href={route('logistic.orders.index')}>
-              <Button variant="outline" size="sm" className="h-8 px-3 shrink-0 text-xs">
-                Back
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
           </div>
