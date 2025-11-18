@@ -76,6 +76,13 @@ export default function AddStock({product}: Props) {
         post(route('inventory.storeStock', product.id));
     }
 
+    // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    }
+
     return (
         <AppLayout>
             <Head title={t('admin.add_stock_to_product')} />
@@ -153,6 +160,7 @@ export default function AddStock({product}: Props) {
                                 step={0.01}
                                 value={data.quantity}
                                 onChange={e => setData('quantity', e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     )}
@@ -166,6 +174,7 @@ export default function AddStock({product}: Props) {
                                 min={1}
                                 value={data.quantity}
                                 onChange={e => setData('quantity', e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     )}

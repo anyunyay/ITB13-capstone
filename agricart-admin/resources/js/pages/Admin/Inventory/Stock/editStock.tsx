@@ -75,6 +75,13 @@ export default function EditStock({ product, stock, members }: Props) {
         put(route('inventory.updateStock', { product: product.id, stock: stock.id }));
     }
 
+    // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    }
+
     return (
         <AppLayout>
             <Head title={t('admin.edit_stock')} />
@@ -148,6 +155,7 @@ export default function EditStock({ product, stock, members }: Props) {
                                 step={0.01}
                                 value={data.quantity}
                                 onChange={e => setData('quantity', Number(e.target.value))}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     )}
@@ -161,6 +169,7 @@ export default function EditStock({ product, stock, members }: Props) {
                                 min={1}
                                 value={data.quantity}
                                 onChange={e => setData('quantity', Number(e.target.value))}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     )}
