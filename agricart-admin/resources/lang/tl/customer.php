@@ -168,7 +168,7 @@ return [
     'order_total' => 'Kabuuang Order',
     'order_total_label' => 'Kabuuang Order:',
     'delivery_information' => 'Impormasyon ng Delivery:',
-    'assigned_to' => 'Itinalaga sa:',
+    'assigned_to' => 'Itinalaga si:',
     'product_name' => 'Pangalan ng Produkto',
     'price' => 'Presyo',
     'price_label' => 'Presyo:',
