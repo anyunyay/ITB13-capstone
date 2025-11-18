@@ -178,10 +178,10 @@
         font-size: calc(16px * var(--scale-compensation));
     }
 
-    /* Browser zoom: scale content down proportionally to fit viewport */
-    html[data-browser-zoom="true"] body {
-        transform-origin: top center;
-        will-change: transform;
+    /* Browser zoom: let the browser handle it naturally */
+    html[data-browser-zoom="true"] {
+        /* Reset to default, browser handles zoom */
+        font-size: 16px;
     }
 
     /* Ensure images remain sharp on all displays */
@@ -389,57 +389,33 @@
         }
     }
 
-    /* Zoom-adaptive content scaling - scales down content proportionally to fit viewport */
-    /* This prevents content from being cut off at higher zoom levels */
-    
+    /* Zoom level specific optimizations */
+    @media (min-resolution: 0.9dppx) and (max-resolution: 0.95dppx) {
+        /* 90% zoom - slightly larger base */
+        html {
+            font-size: 17.6px;
+        }
+    }
+
     @media (min-resolution: 1.09dppx) and (max-resolution: 1.15dppx) {
-        /* 110% zoom - scale content to 90.9% to fit */
-        html[data-browser-zoom="true"] body {
-            transform: scale(0.909);
-            transform-origin: top center;
-            min-height: 110vh;
+        /* 110% zoom - slightly smaller base */
+        html {
+            font-size: 14.5px;
         }
     }
 
     @media (min-resolution: 1.24dppx) and (max-resolution: 1.26dppx) {
-        /* 125% zoom - scale content to 80% to fit */
-        html[data-browser-zoom="true"] body {
-            transform: scale(0.8);
-            transform-origin: top center;
-            min-height: 125vh;
+        /* 125% zoom - compensated base */
+        html[data-browser-zoom="true"] {
+            font-size: 16px; /* Let browser handle it */
         }
     }
 
     @media (min-resolution: 1.49dppx) and (max-resolution: 1.51dppx) {
-        /* 150% zoom - scale content to 66.7% to fit */
-        html[data-browser-zoom="true"] body {
-            transform: scale(0.667);
-            transform-origin: top center;
-            min-height: 150vh;
+        /* 150% zoom - compensated base */
+        html[data-browser-zoom="true"] {
+            font-size: 16px; /* Let browser handle it */
         }
-    }
-    
-    @media (min-resolution: 1.74dppx) and (max-resolution: 1.76dppx) {
-        /* 175% zoom - scale content to 57.1% to fit */
-        html[data-browser-zoom="true"] body {
-            transform: scale(0.571);
-            transform-origin: top center;
-            min-height: 175vh;
-        }
-    }
-    
-    @media (min-resolution: 1.99dppx) and (max-resolution: 2.01dppx) {
-        /* 200% zoom - scale content to 50% to fit */
-        html[data-browser-zoom="true"] body {
-            transform: scale(0.5);
-            transform-origin: top center;
-            min-height: 200vh;
-        }
-    }
-    
-    /* Ensure smooth scaling transitions */
-    html[data-browser-zoom="true"] body {
-        transition: transform 0.2s ease-out;
     }
 
     /* Ensure tables are responsive at all zoom levels */
@@ -475,14 +451,16 @@
         transition: font-size 0.1s ease-out;
     }
 
-    /* Ensure sections work with zoom scaling */
+    /* Critical: Ensure all sections respect viewport width at all zoom levels */
     section {
+        max-width: 100vw;
+        overflow-x: hidden;
         box-sizing: border-box;
-        position: relative;
     }
 
     /* Constrain all direct children of sections */
     section > div {
+        max-width: 100%;
         box-sizing: border-box;
     }
 
