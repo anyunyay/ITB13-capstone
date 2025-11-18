@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Edit, Archive, Trash2, Package, DollarSign, Tag, ArrowUpDown, ArrowUp, ArrowDown, ArchiveRestore } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Product } from '@/types/inventory';
 import styles from '../../pages/Admin/Inventory/inventory.module.css';
@@ -22,6 +22,7 @@ interface ProductTableProps {
     sortOrder: 'asc' | 'desc';
     setSortBy: (sort: string) => void;
     setSortOrder: (order: 'asc' | 'desc') => void;
+    showArchived: boolean;
 }
 
 export const ProductTable = ({
@@ -35,15 +36,16 @@ export const ProductTable = ({
     sortBy,
     sortOrder,
     setSortBy,
-    setSortOrder
+    setSortOrder,
+    showArchived
 }: ProductTableProps) => {
     const t = useTranslation();
-    
+
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
         const fallbackPath = '/storage/fallback-photo.png';
-        
+
         // If current src is not the fallback, try fallback first
         if (target.src !== window.location.origin + fallbackPath) {
             target.src = fallbackPath;
@@ -63,7 +65,7 @@ export const ProductTable = ({
             }
         }
     };
-    
+
     const handleSort = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -77,8 +79,8 @@ export const ProductTable = ({
         if (sortBy !== field) {
             return <ArrowUpDown className="h-4 w-4" />;
         }
-        return sortOrder === 'asc' ? 
-            <ArrowUp className="h-4 w-4" /> : 
+        return sortOrder === 'asc' ?
+            <ArrowUp className="h-4 w-4" /> :
             <ArrowDown className="h-4 w-4" />;
     };
     const getStatusBadge = (archived_at: string | null) => {
@@ -105,14 +107,14 @@ export const ProductTable = ({
             {/* Mobile Card View - Hidden on md and up */}
             <div className="md:hidden space-y-3">
                 {products.map((product) => (
-                    <div 
+                    <div
                         key={product.id}
                         className={`bg-card border border-border rounded-lg p-4 shadow-sm transition-all duration-200 hover:shadow-md ${product.archived_at ? 'opacity-70 bg-muted/20' : ''}`}
                     >
                         <div className="flex gap-3 mb-3">
                             <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                <img 
-                                    src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
+                                <img
+                                    src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'}
                                     alt={product.name}
                                     onError={(e) => handleImageError(e, product.name)}
                                     className="w-full h-full object-cover"
@@ -129,7 +131,7 @@ export const ProductTable = ({
                                 <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
                             </div>
                         </div>
-                        
+
                         <div className="space-y-2 mb-3 pb-3 border-b border-border">
                             {product.price_kilo && (
                                 <div className="flex justify-between text-xs">
@@ -153,7 +155,7 @@ export const ProductTable = ({
                                 <span className="text-xs text-muted-foreground">{t('admin.no_prices_set')}</span>
                             )}
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2">
                             {!product.archived_at && (
                                 <PermissionGate permission="create stocks">
@@ -165,7 +167,7 @@ export const ProductTable = ({
                                     </Button>
                                 </PermissionGate>
                             )}
-                            
+
                             {!product.archived_at && (
                                 <PermissionGate permission="edit products">
                                     <Button asChild variant="outline" size="sm" className="text-xs">
@@ -175,15 +177,27 @@ export const ProductTable = ({
                                     </Button>
                                 </PermissionGate>
                             )}
-                            
-                            {!product.archived_at ? (
+
+                            {showArchived ? (
+                                <PermissionGate permission="unarchive products">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs"
+                                        disabled={processing || restoringProduct === product.id}
+                                        onClick={() => handleRestore(product.id, product.name)}
+                                    >
+                                        <ArchiveRestore className="h-3 w-3" />
+                                    </Button>
+                                </PermissionGate>
+                            ) : (
                                 <PermissionGate permission="archive products">
                                     {product.has_stock ? (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <span>
-                                                    <Button 
-                                                        variant="outline" 
+                                                    <Button
+                                                        variant="outline"
                                                         size="sm"
                                                         className="text-xs opacity-60 cursor-not-allowed"
                                                         disabled={true}
@@ -197,8 +211,8 @@ export const ProductTable = ({
                                             </TooltipContent>
                                         </Tooltip>
                                     ) : (
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             size="sm"
                                             className="text-xs"
                                             disabled={processing || archivingProduct === product.id}
@@ -208,23 +222,11 @@ export const ProductTable = ({
                                         </Button>
                                     )}
                                 </PermissionGate>
-                            ) : (
-                                <PermissionGate permission="unarchive products">
-                                    <Button 
-                                        variant="outline" 
-                                        size="sm"
-                                        className="text-xs"
-                                        disabled={processing || restoringProduct === product.id}
-                                        onClick={() => handleRestore(product.id, product.name)}
-                                    >
-                                        <Archive className="h-3 w-3" />
-                                    </Button>
-                                </PermissionGate>
                             )}
-                            
+
                             <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
-                                <Button 
-                                    variant="destructive" 
+                                <Button
+                                    variant="destructive"
                                     size="sm"
                                     className="text-xs"
                                     disabled={processing}
@@ -240,209 +242,209 @@ export const ProductTable = ({
 
             {/* Desktop Table View - Hidden on mobile */}
             <div className="hidden md:block rounded-md border overflow-x-auto">
-            <Table className="w-full border-collapse text-sm">
-                <TableHeader className={styles.inventoryTableHeader}>
-                    <TableRow>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <button
-                                onClick={() => handleSort('name')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
+                <Table className="w-full border-collapse text-sm">
+                    <TableHeader className={styles.inventoryTableHeader}>
+                        <TableRow>
+                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                                <button
+                                    onClick={() => handleSort('name')}
+                                    className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
+                                >
+                                    <Package className="h-4 w-4" />
+                                    {t('admin.product')}
+                                    {getSortIcon('name')}
+                                </button>
+                            </TableHead>
+                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                                <button
+                                    onClick={() => handleSort('type')}
+                                    className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
+                                >
+                                    <Tag className="h-4 w-4" />
+                                    {t('admin.category')}
+                                    {getSortIcon('type')}
+                                </button>
+                            </TableHead>
+                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                                <button
+                                    onClick={() => handleSort('price')}
+                                    className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
+                                >
+                                    <DollarSign className="h-4 w-4" />
+                                    {t('admin.prices')}
+                                    {getSortIcon('price')}
+                                </button>
+                            </TableHead>
+                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {products.map((product) => (
+                            <TableRow
+                                key={product.id}
+                                className={`border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md ${product.archived_at ? styles.archivedRow : ''}`}
                             >
-                                <Package className="h-4 w-4" />
-                                {t('admin.product')}
-                                {getSortIcon('name')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <button
-                                onClick={() => handleSort('type')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
-                            >
-                                <Tag className="h-4 w-4" />
-                                {t('admin.category')}
-                                {getSortIcon('type')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
-                            <button
-                                onClick={() => handleSort('price')}
-                                className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
-                            >
-                                <DollarSign className="h-4 w-4" />
-                                {t('admin.prices')}
-                                {getSortIcon('price')}
-                            </button>
-                        </TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
-                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {products.map((product) => (
-                        <TableRow 
-                            key={product.id} 
-                            className={`border-b border-border transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md ${product.archived_at ? styles.archivedRow : ''}`}
-                        >
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                    <div className="w-full text-left">
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
-                                                <img 
-                                                    src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'} 
-                                                    alt={product.name}
-                                                    onError={(e) => handleImageError(e, product.name)}
-                                                    className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
-                                                />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <div className="font-medium text-foreground truncate">{product.name}</div>
-                                                <div className="text-sm text-muted-foreground line-clamp-2">{product.description}</div>
+                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full text-left">
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex-shrink-0">
+                                                    <img
+                                                        src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'}
+                                                        alt={product.name}
+                                                        onError={(e) => handleImageError(e, product.name)}
+                                                        className="w-12 h-12 lg:w-12 lg:h-12 md:w-10 md:h-10 sm:w-8 sm:h-8 rounded-lg object-cover border border-border"
+                                                    />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="font-medium text-foreground truncate">{product.name}</div>
+                                                    <div className="text-sm text-muted-foreground line-clamp-2">{product.description}</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                    <div className="w-full text-center flex justify-center">
-                                        <Badge variant="secondary" className="text-xs">
-                                            {product.produce_type}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                    <div className="w-full text-left">
-                                        <div className="space-y-1">
-                                            {product.price_kilo && (
-                                                <div className="text-sm">
-                                                    <span className="text-muted-foreground">{t('admin.price_per_kilo')}: </span>
-                                                    <span className="float-right text-right font-medium">₱{product.price_kilo}</span>
-                                                </div>
-                                            )}
-                                            {product.price_pc && (
-                                                <div className="text-sm">
-                                                    <span className="text-muted-foreground">{t('admin.price_per_piece')}: </span>
-                                                    <span className="float-right texttext-right font-medium">₱{product.price_pc}</span>
-                                                </div>
-                                            )}
-                                            {product.price_tali && (
-                                                <div className="text-sm">
-                                                    <span className="text-muted-foreground">{t('admin.price_per_tali')}: </span>
-                                                    <span className="float-right texttext-right font-medium">₱{product.price_tali}</span>
-                                                </div>
-                                            )}
-                                            {!product.price_kilo && !product.price_pc && !product.price_tali && (
-                                                <span className="text-sm text-muted-foreground">{t('admin.no_prices_set')}</span>
-                                            )}
+                                </TableCell>
+                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full text-center flex justify-center">
+                                            <Badge variant="secondary" className="text-xs">
+                                                {product.produce_type}
+                                            </Badge>
                                         </div>
                                     </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                    <div className="w-full text-center flex justify-center">
-                                        {getStatusBadge(product.archived_at || null)}
+                                </TableCell>
+                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full text-left">
+                                            <div className="space-y-1">
+                                                {product.price_kilo && (
+                                                    <div className="text-sm">
+                                                        <span className="text-muted-foreground">{t('admin.price_per_kilo')}: </span>
+                                                        <span className="float-right text-right font-medium">₱{product.price_kilo}</span>
+                                                    </div>
+                                                )}
+                                                {product.price_pc && (
+                                                    <div className="text-sm">
+                                                        <span className="text-muted-foreground">{t('admin.price_per_piece')}: </span>
+                                                        <span className="float-right texttext-right font-medium">₱{product.price_pc}</span>
+                                                    </div>
+                                                )}
+                                                {product.price_tali && (
+                                                    <div className="text-sm">
+                                                        <span className="text-muted-foreground">{t('admin.price_per_tali')}: </span>
+                                                        <span className="float-right texttext-right font-medium">₱{product.price_tali}</span>
+                                                    </div>
+                                                )}
+                                                {!product.price_kilo && !product.price_pc && !product.price_tali && (
+                                                    <span className="text-sm text-muted-foreground">{t('admin.no_prices_set')}</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                    <div className="w-full text-center">
-                                        <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
-                                    {!product.archived_at && (
-                                        <PermissionGate permission="create stocks">
-                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
-                                                <Link href={route('inventory.addStock', product.id)}>
-                                                    <Plus className="h-3 w-3 mr-1" />
-                                                    {t('admin.add_stock')}
-                                                </Link>
-                                            </Button>
-                                        </PermissionGate>
-                                    )}
-                                    
-                                    {!product.archived_at && (
-                                        <PermissionGate permission="edit products">
-                                            <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
-                                                <Link href={route('inventory.edit', product.id)}>
-                                                    <Edit className="h-3 w-3 mr-1" />
-                                                    {t('ui.edit')}
-                                                </Link>
-                                            </Button>
-                                        </PermissionGate>
-                                    )}
-                                    
-                                    {!product.archived_at ? (
-                                        <PermissionGate permission="archive products">
-                                            {product.has_stock ? (
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <span className="inline-block">
-                                                            <Button 
-                                                                variant="outline" 
+                                </TableCell>
+                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full text-center flex justify-center">
+                                            {getStatusBadge(product.archived_at || null)}
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                        <div className="w-full text-center">
+                                            <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
+                                                {!product.archived_at && (
+                                                    <PermissionGate permission="create stocks">
+                                                        <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
+                                                            <Link href={route('inventory.addStock', product.id)}>
+                                                                <Plus className="h-3 w-3 mr-1" />
+                                                                {t('admin.add_stock')}
+                                                            </Link>
+                                                        </Button>
+                                                    </PermissionGate>
+                                                )}
+
+                                                {!product.archived_at && (
+                                                    <PermissionGate permission="edit products">
+                                                        <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
+                                                            <Link href={route('inventory.edit', product.id)}>
+                                                                <Edit className="h-3 w-3 mr-1" />
+                                                                {t('ui.edit')}
+                                                            </Link>
+                                                        </Button>
+                                                    </PermissionGate>
+                                                )}
+
+                                                {showArchived ? (
+                                                    <PermissionGate permission="unarchive products">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                                            disabled={processing || restoringProduct === product.id}
+                                                            onClick={() => handleRestore(product.id, product.name)}
+                                                        >
+                                                            <ArchiveRestore className="h-3 w-3 mr-1" />
+                                                            {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore')}
+                                                        </Button>
+                                                    </PermissionGate>
+                                                ) : (
+                                                    <PermissionGate permission="archive products">
+                                                        {product.has_stock ? (
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="inline-block">
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out whitespace-nowrap opacity-60 cursor-not-allowed"
+                                                                            disabled={true}
+                                                                        >
+                                                                            <Archive className="h-3 w-3 mr-1" />
+                                                                            {t('admin.archive_product')}
+                                                                        </Button>
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>{t('admin.cannot_archive_product_has_stock')}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        ) : (
+                                                            <Button
+                                                                variant="outline"
                                                                 size="sm"
-                                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out whitespace-nowrap opacity-60 cursor-not-allowed"
-                                                                disabled={true}
+                                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                                                disabled={processing || archivingProduct === product.id}
+                                                                onClick={() => handleArchive(product.id, product.name)}
                                                             >
                                                                 <Archive className="h-3 w-3 mr-1" />
-                                                                {t('admin.archive_product')}
+                                                                {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
                                                             </Button>
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>{t('admin.cannot_archive_product_has_stock')}</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            ) : (
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm"
-                                                    className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
-                                                    disabled={processing || archivingProduct === product.id}
-                                                    onClick={() => handleArchive(product.id, product.name)}
-                                                >
-                                                    <Archive className="h-3 w-3 mr-1" />
-                                                    {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
-                                                </Button>
-                                            )}
-                                        </PermissionGate>
-                                    ) : (
-                                        <PermissionGate permission="unarchive products">
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm"
-                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
-                                                disabled={processing || restoringProduct === product.id}
-                                                onClick={() => handleRestore(product.id, product.name)}
-                                            >
-                                                <Archive className="h-3 w-3 mr-1" />
-                                                {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
-                                            </Button>
-                                        </PermissionGate>
-                                    )}
-                                    
-                                    <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
-                                        <Button 
-                                            variant="destructive" 
-                                            size="sm"
-                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
-                                            disabled={processing}
-                                            onClick={() => handleDelete(product.id, product.name)}
-                                        >
-                                            <Trash2 className="h-3 w-3 mr-1" />
-                                            {t('ui.delete')}
-                                        </Button>
-                                    </PermissionGate>
+                                                        )}
+                                                    </PermissionGate>
+                                                )}
+
+                                                <PermissionGate permission={product.archived_at ? "delete archived products" : "delete products"}>
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                                        disabled={processing}
+                                                        onClick={() => handleDelete(product.id, product.name)}
+                                                    >
+                                                        <Trash2 className="h-3 w-3 mr-1" />
+                                                        {t('ui.delete')}
+                                                    </Button>
+                                                </PermissionGate>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         </>
     );

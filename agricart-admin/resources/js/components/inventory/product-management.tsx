@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Package, Plus, Archive, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Package, Plus, Archive, Edit, Trash2, Search, Filter, ArchiveRestore } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { PaginationControls } from './pagination-controls';
 import { ViewToggle } from './view-toggle';
@@ -338,7 +338,19 @@ export const ProductManagement = ({
                                                     </PermissionGate>
                                                 )}
 
-                                                {!product.archived_at ? (
+                                                {showArchived ? (
+                                                    <PermissionGate permission="unarchive products">
+                                                        <Button
+                                                            disabled={processing || restoringProduct === product.id}
+                                                            onClick={() => handleRestore(product.id, product.name)}
+                                                            variant="outline"
+                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
+                                                        >
+                                                            <ArchiveRestore className="h-4 w-4 flex-shrink-0" />
+                                                            {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore')}
+                                                        </Button>
+                                                    </PermissionGate>
+                                                ) : (
                                                     <PermissionGate permission="archive products">
                                                         {product.has_stock ? (
                                                             <Tooltip>
@@ -369,18 +381,6 @@ export const ProductManagement = ({
                                                                 {archivingProduct === product.id ? t('admin.archiving') : t('admin.archive_product')}
                                                             </Button>
                                                         )}
-                                                    </PermissionGate>
-                                                ) : (
-                                                    <PermissionGate permission="unarchive products">
-                                                        <Button
-                                                            disabled={processing || restoringProduct === product.id}
-                                                            onClick={() => handleRestore(product.id, product.name)}
-                                                            variant="outline"
-                                                            className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm"
-                                                        >
-                                                            <Archive className="h-4 w-4 flex-shrink-0" />
-                                                            {restoringProduct === product.id ? t('admin.restoring') : t('admin.restore_product')}
-                                                        </Button>
                                                     </PermissionGate>
                                                 )}
 
@@ -413,6 +413,7 @@ export const ProductManagement = ({
                                 sortOrder={sortOrder}
                                 setSortBy={setSortBy}
                                 setSortOrder={setSortOrder}
+                                showArchived={showArchived}
                             />
                         )}
 
