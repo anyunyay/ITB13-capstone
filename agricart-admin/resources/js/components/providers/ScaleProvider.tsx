@@ -33,11 +33,9 @@ export function ScaleProvider({
       root.style.setProperty(key, value as string);
     });
 
-    // Add data attributes for CSS targeting
+    // Add data attribute for CSS targeting
     root.setAttribute('data-display-scale', scaleInfo.scalePercentage.toString());
     root.setAttribute('data-scaled', scaleInfo.isScaled ? 'true' : 'false');
-    root.setAttribute('data-browser-zoom', scaleInfo.isBrowserZoom ? 'true' : 'false');
-    root.setAttribute('data-zoom-level', scaleInfo.browserZoom.toString());
 
     if (debugMode) {
       console.log('🎨 Display Scale Info:', {
@@ -45,11 +43,8 @@ export function ScaleProvider({
         scalePercentage: `${scaleInfo.scalePercentage}%`,
         scaleFactor: scaleInfo.scaleFactor.toFixed(3),
         isScaled: scaleInfo.isScaled,
-        isBrowserZoom: scaleInfo.isBrowserZoom,
-        browserZoom: `${scaleInfo.browserZoom}%`,
         screenResolution: `${scaleInfo.screenWidth}x${scaleInfo.screenHeight}`,
         effectiveResolution: `${scaleInfo.effectiveWidth}x${scaleInfo.effectiveHeight}`,
-        type: scaleInfo.isBrowserZoom ? '🔍 Browser Zoom' : '🖥️ Display Scaling',
       });
     }
 
@@ -60,8 +55,6 @@ export function ScaleProvider({
       });
       root.removeAttribute('data-display-scale');
       root.removeAttribute('data-scaled');
-      root.removeAttribute('data-browser-zoom');
-      root.removeAttribute('data-zoom-level');
     };
   }, [scaleInfo, cssProperties, enableAutoScale, debugMode]);
 

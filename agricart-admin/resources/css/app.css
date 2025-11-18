@@ -164,7 +164,7 @@
         @apply bg-background text-foreground;
     }
 
-    /* Display scaling and browser zoom compensation */
+    /* Display scaling compensation */
     html {
         /* Default values, will be overridden by ScaleProvider */
         --scale-factor: 1;
@@ -173,18 +173,12 @@
         --scale-compensation: 1;
     }
 
-    /* Apply scaling compensation ONLY for display scaling, NOT browser zoom */
-    html[data-scaled="true"][data-browser-zoom="false"] {
+    /* Apply scaling compensation to root font size for rem-based layouts */
+    html[data-scaled="true"] {
         font-size: calc(16px * var(--scale-compensation));
     }
 
-    /* Browser zoom: let the browser handle it naturally */
-    html[data-browser-zoom="true"] {
-        /* Reset to default, browser handles zoom */
-        font-size: 16px;
-    }
-
-    /* Ensure images remain sharp on all displays */
+    /* Ensure images remain sharp on scaled displays */
     img {
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
@@ -195,11 +189,6 @@
         img {
             image-rendering: auto;
         }
-    }
-
-    /* Smooth transitions for zoom changes */
-    html {
-        transition: font-size 0.2s ease-out;
     }
 }
 

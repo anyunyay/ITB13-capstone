@@ -9,42 +9,12 @@ interface DisplayScaleInfo {
   screenHeight: number;
   effectiveWidth: number;
   effectiveHeight: number;
-  browserZoom: number;
-  isBrowserZoom: boolean;
-}
-
-/**
- * Detect if the DPR change is from browser zoom or display scaling
- * Browser zoom changes DPR in larger increments and affects window.innerWidth
- */
-function detectZoomType(dpr: number, innerWidth: number): { isBrowserZoom: boolean; zoomLevel: number } {
-  // Store initial values on first load
-  if (typeof window !== 'undefined' && !window.__initialDPR) {
-    window.__initialDPR = dpr;
-    window.__initialWidth = innerWidth;
-  }
-
-  const initialDPR = window.__initialDPR || 1;
-  const initialWidth = window.__initialWidth || innerWidth;
-
-  // Calculate zoom level based on width change
-  const widthRatio = initialWidth / innerWidth;
-  const dprRatio = dpr / initialDPR;
-
-  // Browser zoom: both DPR and width change proportionally
-  // Display scaling: only DPR changes, width stays relatively same
-  const isBrowserZoom = Math.abs(widthRatio - dprRatio) < 0.1 && Math.abs(dprRatio - 1) > 0.05;
-  
-  return {
-    isBrowserZoom,
-    zoomLevel: Math.round(dprRatio * 100)
-  };
 }
 
 /**
  * Hook to detect and calculate display scaling information
  * Detects when users have display scaling enabled (e.g., 125%, 150%)
- * AND when users zoom in/out in their browser (Ctrl +/-)
+ * Works with Windows display scaling and browser zoom
  * 
  * @returns DisplayScaleInfo object with scaling details
  */
@@ -56,86 +26,59 @@ export function useDisplayScale(): DisplayScaleInfo {
     const effectiveWidth = window.innerWidth;
     const effectiveHeight = window.innerHeight;
     
-    const { isBrowserZoom, zoomLevel } = detectZoomType(dpr, effectiveWidth);
-    
-    // For browser zoom, use gentler scaling
-    // For display scaling, use more aggressive compensation
+    // Calculate scale factor for aggressive compensation
+    // 100% (DPR 1.0) → scale: 1.0
+    // 125% (DPR 1.25) → scale: 0.8
+    // 150% (DPR 1.5) → scale: 0.6
+    // 175%+ (DPR 1.75+) → scale: 0.4
     let scaleFactor = 1;
-    
-    if (isBrowserZoom) {
-      // Browser zoom: minimal adjustment, let browser handle it naturally
-      scaleFactor = 1;
-    } else {
-      // Display scaling: apply compensation
-      if (dpr >= 1.75) {
-        scaleFactor = 0.65; // Less aggressive than before
-      } else if (dpr >= 1.5) {
-        scaleFactor = 0.75;
-      } else if (dpr >= 1.25) {
-        scaleFactor = 0.85;
-      }
+    if (dpr >= 1.75) {
+      scaleFactor = 0.4;
+    } else if (dpr >= 1.5) {
+      scaleFactor = 0.6;
+    } else if (dpr >= 1.25) {
+      scaleFactor = 0.8;
     }
     
     return {
       devicePixelRatio: dpr,
       scaleFactor,
-      isScaled: dpr > 1.05,
+      isScaled: dpr > 1.1,
       scalePercentage: Math.round(dpr * 100),
       screenWidth,
       screenHeight,
       effectiveWidth,
       effectiveHeight,
-      browserZoom: zoomLevel,
-      isBrowserZoom,
     };
   });
 
   useEffect(() => {
-    let rafId: number;
-    
     const updateScale = () => {
-      // Use requestAnimationFrame to debounce rapid changes
-      if (rafId) {
-        cancelAnimationFrame(rafId);
+      const dpr = window.devicePixelRatio || 1;
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+      const effectiveWidth = window.innerWidth;
+      const effectiveHeight = window.innerHeight;
+      
+      // Aggressive scale compensation
+      let scaleFactor = 1;
+      if (dpr >= 1.75) {
+        scaleFactor = 0.4;
+      } else if (dpr >= 1.5) {
+        scaleFactor = 0.6;
+      } else if (dpr >= 1.25) {
+        scaleFactor = 0.8;
       }
       
-      rafId = requestAnimationFrame(() => {
-        const dpr = window.devicePixelRatio || 1;
-        const screenWidth = window.screen.width;
-        const screenHeight = window.screen.height;
-        const effectiveWidth = window.innerWidth;
-        const effectiveHeight = window.innerHeight;
-        
-        const { isBrowserZoom, zoomLevel } = detectZoomType(dpr, effectiveWidth);
-        
-        let scaleFactor = 1;
-        
-        if (isBrowserZoom) {
-          // Browser zoom: let browser handle it naturally
-          scaleFactor = 1;
-        } else {
-          // Display scaling: apply compensation
-          if (dpr >= 1.75) {
-            scaleFactor = 0.65;
-          } else if (dpr >= 1.5) {
-            scaleFactor = 0.75;
-          } else if (dpr >= 1.25) {
-            scaleFactor = 0.85;
-          }
-        }
-        
-        setScaleInfo({
-          devicePixelRatio: dpr,
-          scaleFactor,
-          isScaled: dpr > 1.05,
-          scalePercentage: Math.round(dpr * 100),
-          screenWidth,
-          screenHeight,
-          effectiveWidth,
-          effectiveHeight,
-          browserZoom: zoomLevel,
-          isBrowserZoom,
-        });
+      setScaleInfo({
+        devicePixelRatio: dpr,
+        scaleFactor,
+        isScaled: dpr > 1.1,
+        scalePercentage: Math.round(dpr * 100),
+        screenWidth,
+        screenHeight,
+        effectiveWidth,
+        effectiveHeight,
       });
     };
 
@@ -143,40 +86,19 @@ export function useDisplayScale(): DisplayScaleInfo {
     const mediaQuery = window.matchMedia('screen');
     mediaQuery.addEventListener('change', updateScale);
     
-    // Listen for resize events (browser zoom changes window size)
+    // Listen for resize events which can indicate scale changes
     window.addEventListener('resize', updateScale);
     
     // Listen for DPI changes (Windows display scaling)
-    const dpiQuery = window.matchMedia('(resolution: 1dppx)');
-    dpiQuery.addEventListener('change', updateScale);
-    
-    // Listen for visual viewport changes (better zoom detection)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', updateScale);
-    }
+    window.matchMedia('(resolution: 1dppx)').addEventListener('change', updateScale);
 
     return () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
       mediaQuery.removeEventListener('change', updateScale);
       window.removeEventListener('resize', updateScale);
-      dpiQuery.removeEventListener('change', updateScale);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', updateScale);
-      }
     };
   }, []);
 
   return scaleInfo;
-}
-
-// Extend Window interface for TypeScript
-declare global {
-  interface Window {
-    __initialDPR?: number;
-    __initialWidth?: number;
-  }
 }
 
 /**
