@@ -1,14 +1,11 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
-import { route } from 'ziggy-js';
+import { Head, usePage, useForm, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Package, Warehouse } from 'lucide-react';
 import animations from './animations.module.css';
-import { PermissionGate } from '@/components/common/permission-gate';
 import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { DashboardHeader } from '@/components/inventory/dashboard-header';
@@ -18,8 +15,15 @@ import { RemoveStockModal } from '@/components/inventory/remove-stock-modal';
 import { ArchiveProductModal } from '@/components/inventory/archive-product-modal';
 import { RestoreProductModal } from '@/components/inventory/restore-product-modal';
 import { DeleteProductModal } from '@/components/inventory/delete-product-modal';
+import { AddStockModal } from '@/components/inventory/add-stock-modal';
+import { EditStockModal } from '@/components/inventory/edit-stock-modal';
 import { Product, Stock, RemovedStock, SoldStock } from '@/types/inventory';
 import { useTranslation } from '@/hooks/use-translation';
+
+interface Member {
+    id: number;
+    name: string;
+}
 
 interface PageProps extends SharedData {
     products: Product[];
@@ -30,6 +34,8 @@ interface PageProps extends SharedData {
     auditTrails: any[]; // Keeping for backward compatibility
     stockTrails: any[]; // Keeping for backward compatibility
     categories: string[];
+    members: Member[];
+    availableCategories: string[];
     errors: {
         archive?: string;
         delete?: string;
@@ -38,7 +44,7 @@ interface PageProps extends SharedData {
 
 export default function InventoryIndex() {
     const t = useTranslation();
-    const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], stockTrails = [], categories = [], errors = {} } = usePage<PageProps>().props;
+    const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], stockTrails = [], categories = [], members = [], availableCategories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
 
     // Toggle state for switching between Product and Stock management
@@ -137,6 +143,23 @@ export default function InventoryIndex() {
     const [restoreModalOpen, setRestoreModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+
+    // Stock modals state
+    const [addStockModalOpen, setAddStockModalOpen] = useState(false);
+    const [editStockModalOpen, setEditStockModalOpen] = useState(false);
+    const [selectedProductForStock, setSelectedProductForStock] = useState<{ id: number; name: string } | null>(null);
+    const [selectedStockForEdit, setSelectedStockForEdit] = useState<Stock | null>(null);
+    const [stockProcessing, setStockProcessing] = useState(false);
+    const [stockErrors, setStockErrors] = useState<Record<string, string>>({});
+    const [modalAvailableCategories, setModalAvailableCategories] = useState<string[]>([]);
+    const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+    // Stock form data
+    const [stockFormData, setStockFormData] = useState({
+        member_id: '',
+        quantity: '',
+        category: '',
+    });
 
     // Get the current product list based on view state
     const currentProducts = showArchived ? archivedProducts : products;
@@ -356,6 +379,155 @@ export default function InventoryIndex() {
         });
     };
 
+    // Handle Add Stock
+    const handleAddStock = (productId: number, productName: string) => {
+        setSelectedProductForStock({ id: productId, name: productName });
+        
+        // Find the product to get available categories based on prices
+        const product = products.find(p => p.id === productId);
+        let productCategories = availableCategories || [];
+        
+        // Filter categories based on product's available prices
+        if (product) {
+            productCategories = [];
+            if (product.price_kilo) productCategories.push('Kilo');
+            if (product.price_pc) productCategories.push('Pc');
+            if (product.price_tali) productCategories.push('Tali');
+        }
+        
+        // Store filtered categories for the modal
+        setModalAvailableCategories(productCategories);
+        
+        // Initialize with first available category or empty string
+        const defaultCategory = productCategories && productCategories.length > 0 ? productCategories[0] : '';
+        setStockFormData({
+            member_id: '',
+            quantity: '',
+            category: defaultCategory,
+        });
+        setStockErrors({});
+        setHasAttemptedSubmit(false);
+        setAddStockModalOpen(true);
+    };
+
+    // Handle Add Stock Submit
+    const handleAddStockSubmit = () => {
+        if (!selectedProductForStock) return;
+
+        // Mark that submission has been attempted
+        setHasAttemptedSubmit(true);
+
+        // Client-side validation
+        const validationErrors: Record<string, string> = {};
+        if (!stockFormData.member_id) {
+            validationErrors.member_id = t('admin.member_required');
+        }
+        if (!stockFormData.category) {
+            validationErrors.category = t('admin.category_required');
+        }
+        if (!stockFormData.quantity || parseFloat(stockFormData.quantity) <= 0) {
+            validationErrors.quantity = t('admin.quantity_required');
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setStockErrors(validationErrors);
+            return;
+        }
+
+        setStockProcessing(true);
+        setStockErrors({});
+
+        router.post(route('inventory.storeStock', selectedProductForStock.id), stockFormData, {
+            onSuccess: () => {
+                setStockProcessing(false);
+                setAddStockModalOpen(false);
+                setSelectedProductForStock(null);
+                setStockFormData({ member_id: '', quantity: '', category: '' });
+                setStockErrors({});
+                setHasAttemptedSubmit(false);
+            },
+            onError: (errors) => {
+                setStockProcessing(false);
+                setStockErrors(errors as Record<string, string>);
+            },
+        });
+    };
+
+    // Handle Edit Stock
+    const handleEditStock = (stock: Stock) => {
+        setSelectedStockForEdit(stock);
+        
+        // Find the full product from products array to get prices
+        const product = products.find(p => p.id === stock.product_id);
+        let productCategories = availableCategories || [];
+        
+        // Filter categories based on product's available prices
+        if (product) {
+            productCategories = [];
+            if (product.price_kilo) productCategories.push('Kilo');
+            if (product.price_pc) productCategories.push('Pc');
+            if (product.price_tali) productCategories.push('Tali');
+        }
+        
+        // Store filtered categories for the modal
+        setModalAvailableCategories(productCategories);
+        
+        setStockFormData({
+            member_id: stock.member_id ? String(stock.member_id) : '',
+            quantity: stock.quantity.toString(),
+            category: stock.category || '',
+        });
+        setStockErrors({});
+        setHasAttemptedSubmit(false);
+        setEditStockModalOpen(true);
+    };
+
+    // Handle Edit Stock Submit
+    const handleEditStockSubmit = () => {
+        if (!selectedStockForEdit) return;
+
+        // Mark that submission has been attempted
+        setHasAttemptedSubmit(true);
+
+        // Client-side validation
+        const validationErrors: Record<string, string> = {};
+        if (!stockFormData.member_id) {
+            validationErrors.member_id = t('admin.member_required');
+        }
+        if (!stockFormData.category) {
+            validationErrors.category = t('admin.category_required');
+        }
+        if (!stockFormData.quantity || parseFloat(stockFormData.quantity) <= 0) {
+            validationErrors.quantity = t('admin.quantity_required');
+        }
+
+        if (Object.keys(validationErrors).length > 0) {
+            setStockErrors(validationErrors);
+            return;
+        }
+
+        setStockProcessing(true);
+        setStockErrors({});
+
+        router.put(route('inventory.updateStock', { 
+            product: selectedStockForEdit.product_id, 
+            stock: selectedStockForEdit.id 
+        }), stockFormData, {
+            onSuccess: () => {
+                setStockProcessing(false);
+                setEditStockModalOpen(false);
+                setSelectedStockForEdit(null);
+                setStockFormData({ member_id: '', quantity: '', category: '' });
+                setStockErrors({});
+                setHasAttemptedSubmit(false);
+            },
+            onError: (errors) => {
+                setStockProcessing(false);
+                setStockErrors(errors as Record<string, string>);
+            },
+        });
+    };
+
     // Calculate stock statistics
     const stockStats = {
         totalProducts: products?.length || 0,
@@ -432,6 +604,7 @@ export default function InventoryIndex() {
                                     handleArchive={handleArchive}
                                     handleDelete={handleDelete}
                                     handleRestore={handleRestore}
+                                    handleAddStock={handleAddStock}
                                     showArchived={showArchived}
                                     setShowArchived={toggleArchivedView}
                                     archivingProduct={archivingProduct || null}
@@ -455,6 +628,7 @@ export default function InventoryIndex() {
                                     stockItemsPerPage={stockItemsPerPage}
                                     processing={processing}
                                     handleRemovePerishedStock={handleRemovePerishedStock}
+                                    handleEditStock={handleEditStock}
                                     getFilteredStocks={getFilteredStocks}
                                     getPaginatedStocks={getPaginatedStocks}
                                     stockSearchTerm={stockSearchTerm}
@@ -510,6 +684,79 @@ export default function InventoryIndex() {
                             onReasonChange={(reason) => setData('reason', reason)}
                             onSubmit={handleDeleteSubmit}
                             processing={processing}
+                        />
+
+                        <AddStockModal
+                            isOpen={addStockModalOpen}
+                            onClose={() => {
+                                setAddStockModalOpen(false);
+                                setStockErrors({});
+                                setHasAttemptedSubmit(false);
+                            }}
+                            productId={selectedProductForStock?.id || 0}
+                            productName={selectedProductForStock?.name || ''}
+                            members={members}
+                            availableCategories={modalAvailableCategories}
+                            memberId={stockFormData.member_id}
+                            quantity={stockFormData.quantity}
+                            category={stockFormData.category}
+                            onMemberIdChange={(value) => {
+                                setStockFormData({ ...stockFormData, member_id: value });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, member_id: '' });
+                                }
+                            }}
+                            onQuantityChange={(value) => {
+                                setStockFormData({ ...stockFormData, quantity: value });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, quantity: '' });
+                                }
+                            }}
+                            onCategoryChange={(value) => {
+                                setStockFormData({ ...stockFormData, category: value });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, category: '' });
+                                }
+                            }}
+                            onSubmit={handleAddStockSubmit}
+                            processing={stockProcessing}
+                            errors={hasAttemptedSubmit ? stockErrors : {}}
+                        />
+
+                        <EditStockModal
+                            isOpen={editStockModalOpen}
+                            onClose={() => {
+                                setEditStockModalOpen(false);
+                                setStockErrors({});
+                                setHasAttemptedSubmit(false);
+                            }}
+                            stock={selectedStockForEdit}
+                            members={members}
+                            availableCategories={modalAvailableCategories}
+                            memberId={stockFormData.member_id}
+                            quantity={stockFormData.quantity}
+                            category={stockFormData.category}
+                            onMemberIdChange={(value) => {
+                                setStockFormData({ ...stockFormData, member_id: value });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, member_id: '' });
+                                }
+                            }}
+                            onQuantityChange={(value) => {
+                                setStockFormData({ ...stockFormData, quantity: value.toString() });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, quantity: '' });
+                                }
+                            }}
+                            onCategoryChange={(value) => {
+                                setStockFormData({ ...stockFormData, category: value });
+                                if (hasAttemptedSubmit) {
+                                    setStockErrors({ ...stockErrors, category: '' });
+                                }
+                            }}
+                            onSubmit={handleEditStockSubmit}
+                            processing={stockProcessing}
+                            errors={hasAttemptedSubmit ? stockErrors : {}}
                         />
                     </div>
                 </div>

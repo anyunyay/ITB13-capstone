@@ -104,10 +104,16 @@ class InventoryController extends Controller
             return Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
         });
 
+        // Get members for stock management
+        $members = \App\Models\User::where('type', 'member')->get(['id', 'name']);
+        
+        // Get all available categories (Kilo, Pc, Tali)
+        $availableCategories = ['Kilo', 'Pc', 'Tali'];
+
         // Pass empty array for auditTrails to maintain compatibility with frontend
         $auditTrails = [];
 
-        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories'));
+        return Inertia::render('Inventory/index', compact('products', 'archivedProducts', 'stocks', 'removedStocks', 'soldStocks', 'auditTrails', 'stockTrails', 'categories', 'members', 'availableCategories'));
     }
 
     public function create()

@@ -25,6 +25,7 @@ interface StockManagementProps {
     stockItemsPerPage: number;
     processing: boolean;
     handleRemovePerishedStock: (stock: Stock) => void;
+    handleEditStock: (stock: Stock) => void;
     getFilteredStocks: (status: string) => Stock[];
     getPaginatedStocks: (stocks: Stock[], page: number, itemsPerPage: number) => Stock[];
     stockSearchTerm: string;
@@ -50,6 +51,7 @@ export const StockManagement = ({
     stockItemsPerPage,
     processing,
     handleRemovePerishedStock,
+    handleEditStock,
     getFilteredStocks,
     getPaginatedStocks,
     stockSearchTerm,
@@ -385,11 +387,13 @@ export const StockManagement = ({
                                 <div className="w-full max-w-[180px] text-center">
                                     <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
                                         <PermissionGate permission="edit stocks">
-                                            <Button asChild size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
-                                                <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
-                                                    <Edit className="h-3 w-3 mr-1" />
-                                                    {t('ui.edit')}
-                                                </Link>
+                                            <Button 
+                                                size="sm" 
+                                                className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                                onClick={() => handleEditStock(item)}
+                                            >
+                                                <Edit className="h-3 w-3 mr-1" />
+                                                {t('ui.edit')}
                                             </Button>
                                         </PermissionGate>
                                         <PermissionGate permission="delete stocks">
@@ -566,11 +570,13 @@ export const StockManagement = ({
                     {dataType === 'stocks' && (
                         <div className="flex gap-2 pt-2 border-t border-border">
                             <PermissionGate permission="edit stocks">
-                                <Button asChild size="sm" className="text-xs flex-1">
-                                    <Link href={route('inventory.editStock', { product: item.product_id, stock: item.id })}>
-                                        <Edit className="h-3 w-3 mr-1" />
-                                        {t('ui.edit')}
-                                    </Link>
+                                <Button 
+                                    size="sm" 
+                                    className="text-xs flex-1"
+                                    onClick={() => handleEditStock(item)}
+                                >
+                                    <Edit className="h-3 w-3 mr-1" />
+                                    {t('ui.edit')}
                                 </Button>
                             </PermissionGate>
                             <PermissionGate permission="delete stocks">
