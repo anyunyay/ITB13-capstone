@@ -221,6 +221,7 @@ return [
     'filter_by_delivery' => 'Filter by delivery status',
     'generate_report' => 'Generate Report',
     'order_id' => 'Order #:id',
+    'order_details' => 'Order Details - #:id',
     'order_date' => 'Order Date',
     'placed_on' => 'Placed on :date',
     'back_to_orders' => 'Back to Orders',
