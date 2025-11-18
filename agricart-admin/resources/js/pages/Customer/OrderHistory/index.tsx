@@ -324,7 +324,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
     <AppHeaderLayout>
       <main className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 mt-20 mb-8 sm:mb-12 md:mb-16 overflow-x-hidden">
         <header className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-primary truncate">{t('ui.order_history')}</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-bold text-primary truncate">{t('ui.order_history')}</h2>
           <Popover open={reportOpen} onOpenChange={setReportOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-1 sm:gap-2 shrink-0 px-3 sm:px-4">
@@ -332,14 +332,14 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                 <span className="text-xs sm:text-sm">Export</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 mt-2" align="end" side="bottom" sideOffset={8} alignOffset={0} avoidCollisions={true} collisionPadding={20}>
-              <section className="space-y-4">
+            <PopoverContent className="w-72 sm:w-80 mt-2" align="end" side="bottom" sideOffset={8} alignOffset={0} avoidCollisions={true} collisionPadding={20}>
+              <section className="space-y-3 sm:space-y-4">
                 <div>
-                  <p className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-foreground mb-1">{t('ui.export_order_report')}</p>
+                  <p className="text-sm sm:text-base font-semibold text-foreground mb-1">{t('ui.export_order_report')}</p>
                   <p className="text-xs text-muted-foreground">{t('ui.select_date_range_optional')}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-sm md:text-base lg:text-base xl:text-lg text-foreground">{t('ui.start_date')} (Optional)</Label>
+                  <Label htmlFor="start-date" className="text-xs sm:text-sm text-foreground">{t('ui.start_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -362,7 +362,7 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-sm md:text-base lg:text-base xl:text-lg text-foreground">{t('ui.end_date')} (Optional)</Label>
+                  <Label htmlFor="end-date" className="text-xs sm:text-sm text-foreground">{t('ui.end_date')} (Optional)</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -424,37 +424,37 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               )}
             </div>
             {highlightedNotifications.map(n => (
-              <article key={n.id} className={`relative p-3 sm:p-4 pr-10 rounded-lg shadow-md border-2 ${
+              <article key={n.id} className={`relative p-2 sm:p-3 pr-8 sm:pr-10 rounded-lg shadow-md border-2 ${
                 n.data?.delivery_status ? 
                   (n.data.delivery_status === 'delivered' ? 'bg-primary text-primary-foreground border-primary' : 'bg-accent text-accent-foreground border-accent') :
                   (n.data?.status === 'approved' ? 'bg-primary text-primary-foreground border-primary' : 'bg-destructive text-destructive-foreground border-destructive')
               }`}>
                 <button
                   onClick={() => handleDismissNotification(n.id)}
-                  className="absolute top-2 right-2 p-1 rounded hover:bg-black/10 transition-colors"
+                  className="absolute top-1 right-1 sm:top-2 sm:right-2 p-1 rounded hover:bg-black/10 transition-colors"
                   aria-label="Dismiss notification"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3 sm:h-4 sm:w-4" />
                 </button>
-                <p className="text-xs sm:text-sm md:text-base break-words font-medium">
+                <p className="text-xs sm:text-sm break-words font-medium pr-2">
                   <span className="font-bold">Order #{n.data?.order_id}:</span> {n.message}
                 </p>
                 {n.data?.sub_message && (
-                  <p className="text-xs sm:text-sm opacity-90 mt-1 break-words">{n.data.sub_message}</p>
+                  <p className="text-xs opacity-90 mt-1 break-words pr-2">{n.data.sub_message}</p>
                 )}
-                <time className="block text-xs opacity-80 mt-2">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                <time className="block text-[10px] sm:text-xs opacity-80 mt-1 sm:mt-2">{format(new Date(n.created_at), 'MMM dd, yyyy HH:mm')}</time>
               </article>
             ))}
           </aside>
         )}
 
         <Tabs value={currentDeliveryStatus} onValueChange={handleDeliveryStatusFilter} className="w-full">
-          <div className="flex justify-center mb-3 sm:mb-4 overflow-x-hidden">
-            <TabsList className="grid grid-cols-2 sm:grid-cols-4 h-auto w-full max-w-full" role="tablist">
-              <TabsTrigger value="all" className="text-xs sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-3 whitespace-nowrap overflow-hidden text-ellipsis">{t('ui.all')} ({counts.all})</TabsTrigger>
-              <TabsTrigger value="pending" className="text-xs sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-3 whitespace-nowrap overflow-hidden text-ellipsis">{t('ui.pending')} ({counts.pending})</TabsTrigger>
-              <TabsTrigger value="out_for_delivery" className="text-xs sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-3 whitespace-nowrap overflow-hidden text-ellipsis">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
-              <TabsTrigger value="delivered" className="text-xs sm:text-sm md:text-base py-2 px-1 sm:px-2 md:px-3 whitespace-nowrap overflow-hidden text-ellipsis">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
+          <div className="flex justify-center mb-3 sm:mb-4 overflow-x-auto">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-4 h-auto w-full max-w-full min-w-0" role="tablist">
+              <TabsTrigger value="all" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{t('ui.all')} ({counts.all})</TabsTrigger>
+              <TabsTrigger value="pending" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{t('ui.pending')} ({counts.pending})</TabsTrigger>
+              <TabsTrigger value="out_for_delivery" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{t('ui.out_for_delivery')} ({counts.approved})</TabsTrigger>
+              <TabsTrigger value="delivered" className="text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2 px-1 sm:px-2 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{t('ui.delivered')} ({counts.delivered})</TabsTrigger>
             </TabsList>
           </div>
 
@@ -463,25 +463,25 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
               <Card className="p-4 sm:p-6 text-center bg-muted">
                 <section className="flex flex-col items-center gap-2">
                   <Package className="h-10 sm:h-12 w-10 sm:w-12 text-muted-foreground" aria-hidden="true" />
-                  <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-medium text-foreground">{t('ui.no_orders_found')}</p>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-lg text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
+                  <p className="text-base sm:text-lg md:text-xl font-medium text-foreground">{t('ui.no_orders_found')}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground">{t('ui.try_adjusting_filters_check_later')}</p>
                 </section>
               </Card>
             ) : (
               <>
                 <section className="space-y-3 sm:space-y-4">
                   {paginatedOrders.map((order: Order) => (
-                  <article key={order.id} id={`order-${order.id}`} className="p-3 sm:p-4 md:p-6 bg-card border border-border rounded-lg hover:shadow-lg transition-all duration-200 overflow-hidden">
-                    <div className="relative mb-3 sm:mb-4">
+                  <article key={order.id} id={`order-${order.id}`} className="p-2 sm:p-3 md:p-4 bg-card border border-border rounded-lg hover:shadow-lg transition-all duration-200 overflow-hidden">
+                    <div className="relative mb-2 sm:mb-3">
                       <div className="flex flex-nowrap items-start justify-between gap-2">
                         <div className="flex-1 min-w-0 pr-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm sm:text-base font-semibold text-card-foreground">{t('ui.order_id_label')}</span>
-                            <span className="text-sm sm:text-base font-bold text-primary">#{order.id}</span>
+                          <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                            <span className="text-xs sm:text-sm font-semibold text-card-foreground">{t('ui.order_id_label')}</span>
+                            <span className="text-xs sm:text-sm font-bold text-primary">#{order.id}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <CalendarIcon className="h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                            <time className="text-xs sm:text-sm text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+                            <time className="text-[10px] sm:text-xs text-muted-foreground">{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</time>
                           </div>
                         </div>
                         <div className="flex-shrink-0 flex-grow-0">
@@ -491,53 +491,53 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     </div>
 
                     {order.status === 'approved' && order.delivery_status && (
-                      <section className="mb-3 sm:mb-4 p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20 overflow-x-auto">
-                        <span className="block text-sm sm:text-base font-semibold mb-3 text-primary">{t('ui.delivery_status')}</span>
-                        <nav className="flex items-center justify-between gap-1 sm:gap-2 min-w-max" aria-label="Delivery progress">
-                          <div className={`flex flex-col sm:flex-row items-center gap-1 ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 1">
+                      <section className="mb-2 sm:mb-3 p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20 overflow-x-auto">
+                        <span className="block text-xs sm:text-sm font-semibold mb-2 text-primary">{t('ui.delivery_status')}</span>
+                        <nav className="flex items-center justify-between gap-1 min-w-max" aria-label="Delivery progress">
+                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'pending' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'pending' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 1">
                               {(order.delivery_status || 'pending') === 'pending' ? '1' : '✓'}
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-center">{t('ui.preparing')}</span>
+                            <span className="text-[9px] sm:text-[10px] font-medium text-center">{t('ui.preparing')}</span>
                           </div>
-                          <div className={`flex flex-col sm:flex-row items-center gap-1 ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 2">
+                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'ready_to_pickup' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 2">
                               {(order.delivery_status || 'pending') === 'ready_to_pickup' ? '2' : '✓'}
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-center">{t('ui.ready')}</span>
+                            <span className="text-[9px] sm:text-[10px] font-medium text-center">{t('ui.ready')}</span>
                           </div>
-                          <div className={`flex flex-col sm:flex-row items-center gap-1 ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : (order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 3">
+                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'out_for_delivery' ? 'text-primary' : (order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'out_for_delivery' || (order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 3">
                               {(order.delivery_status || 'pending') === 'out_for_delivery' ? '3' : (order.delivery_status || 'pending') === 'delivered' ? '✓' : '3'}
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-center">{t('ui.out_for_delivery')}</span>
+                            <span className="text-[9px] sm:text-[10px] font-medium text-center leading-tight">{t('ui.out_for_delivery')}</span>
                           </div>
-                          <div className={`flex flex-col sm:flex-row items-center gap-1 ${(order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 4">
+                          <div className={`flex flex-col items-center gap-0.5 sm:gap-1 ${(order.delivery_status || 'pending') === 'delivered' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            <div className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${(order.delivery_status || 'pending') === 'delivered' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`} aria-label="Step 4">
                               {(order.delivery_status || 'pending') === 'delivered' ? '✓' : '4'}
                             </div>
-                            <span className="text-[10px] sm:text-xs font-medium text-center">{t('ui.delivered')}</span>
+                            <span className="text-[9px] sm:text-[10px] font-medium text-center">{t('ui.delivered')}</span>
                           </div>
                         </nav>
                       </section>
                     )}
                     
                     {order.admin_notes && (
-                      <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-accent/10 border-l-4 border-accent rounded overflow-hidden">
-                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">{t('ui.approver_notes_label')}</h3>
-                        <p className="text-xs sm:text-sm md:text-base text-foreground break-words">{order.admin_notes}</p>
+                      <aside className="mb-2 sm:mb-3 p-2 bg-accent/10 border-l-4 border-accent rounded overflow-hidden">
+                        <h3 className="text-xs sm:text-sm font-semibold mb-1 text-primary">{t('ui.approver_notes_label')}</h3>
+                        <p className="text-xs sm:text-sm text-foreground break-words">{order.admin_notes}</p>
                       </aside>
                     )}
 
                     {order.status === 'delayed' && (
-                      <aside className="mb-4 p-4 bg-destructive/10 border-l-4 border-destructive rounded" role="alert">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-destructive/10 border-l-4 border-destructive rounded" role="alert">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3">
                           <div className="flex-1">
-                            <h3 className="text-base md:text-base lg:text-base xl:text-lg font-semibold mb-2 text-destructive">{t('ui.order_delayed')}</h3>
-                            <p className="text-xs md:text-sm lg:text-sm xl:text-sm text-foreground mb-2">
+                            <h3 className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-destructive">{t('ui.order_delayed')}</h3>
+                            <p className="text-xs sm:text-sm text-foreground mb-1 sm:mb-2">
                               {t('ui.order_delay_message')}
                             </p>
-                            <p className="text-xs md:text-sm lg:text-sm xl:text-sm text-foreground">
+                            <p className="text-xs sm:text-sm text-foreground">
                               {t('ui.if_you_have_concerns')} <strong>sample@email.com</strong>
                             </p>
                           </div>
@@ -553,8 +553,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle className="text-base md:text-lg lg:text-lg xl:text-xl">{t('ui.cancel_order')} #{order.id}</DialogTitle>
-                                <DialogDescription className="text-sm md:text-base lg:text-base xl:text-lg">
+                                <DialogTitle className="text-sm sm:text-base">{t('ui.cancel_order')} #{order.id}</DialogTitle>
+                                <DialogDescription className="text-xs sm:text-sm">
                                   {t('ui.cancel_order_confirmation_message')}
                                   <br /><br />
                                   <strong>{t('ui.order_id_label')}</strong> #{order.id} <br />
@@ -582,55 +582,55 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     )}
 
                     {order.logistic && (
-                      <aside className="mb-3 sm:mb-4 p-2 sm:p-3 bg-secondary/10 border-l-4 border-secondary rounded overflow-hidden">
-                        <h3 className="text-sm sm:text-base font-semibold mb-1 text-primary">{t('ui.delivery_information')}</h3>
-                        <p className="text-xs sm:text-sm md:text-base text-card-foreground break-words">
+                      <aside className="mb-2 sm:mb-3 p-2 bg-secondary/10 border-l-4 border-secondary rounded overflow-hidden">
+                        <h3 className="text-xs sm:text-sm font-semibold mb-1 text-primary">{t('ui.delivery_information')}</h3>
+                        <p className="text-xs sm:text-sm text-card-foreground break-words">
                           <span className="font-medium">{t('ui.assigned_to')}</span> {order.logistic.name}
                           {order.logistic.contact_number && (
-                            <span className="ml-2">({order.logistic.contact_number})</span>
+                            <span className="ml-1 sm:ml-2">({order.logistic.contact_number})</span>
                           )}
                         </p>
                       </aside>
                     )}
 
                     <section className="hidden md:block overflow-x-auto">
-                      <Table className="w-full border border-border rounded-lg min-w-[800px]">
+                      <Table className="w-full border border-border rounded-lg min-w-[700px]">
                         <TableHeader className="bg-muted">
                           <TableRow className="border-border">
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold min-w-[150px]">{t('ui.product_name')}</TableHead>
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.quantity')}</TableHead>
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.price')}</TableHead>
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.subtotal')}</TableHead>
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold text-right min-w-[120px]">{t('ui.delivery_fee')}</TableHead>
-                            <TableHead className="text-sm md:text-base lg:text-base text-muted-foreground font-semibold text-right min-w-[100px]">{t('ui.total')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold min-w-[120px]">{t('ui.product_name')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.quantity')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold text-right min-w-[70px]">{t('ui.price')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.subtotal')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold text-right min-w-[90px]">{t('ui.delivery_fee')}</TableHead>
+                            <TableHead className="text-xs sm:text-sm text-muted-foreground font-semibold text-right min-w-[80px]">{t('ui.total')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody className="bg-card">
                           {order.audit_trail && order.audit_trail.length > 0 ? (
                             order.audit_trail.map((item: OrderItem) => (
                               <TableRow key={`${item.product.name}-${item.category}`} className="border-border hover:bg-muted/50">
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground font-medium">{item.product.name}</TableCell>
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right">{item.quantity} {item.category}</TableCell>
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right">
+                                <TableCell className="text-xs sm:text-sm text-card-foreground font-medium">{item.product.name}</TableCell>
+                                <TableCell className="text-xs sm:text-sm text-card-foreground text-right">{item.quantity} {item.category}</TableCell>
+                                <TableCell className="text-xs sm:text-sm text-card-foreground text-right">
                                   {item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}
                                 </TableCell>
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right font-semibold">
+                                <TableCell className="text-xs sm:text-sm text-card-foreground text-right font-semibold">
                                   ₱{Number(item.subtotal || 0).toFixed(2)}
                                 </TableCell>
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right">
+                                <TableCell className="text-xs sm:text-sm text-card-foreground text-right">
                                   ₱{Number(item.coop_share || 0).toFixed(2)}
                                 </TableCell>
-                                <TableCell className="text-sm md:text-base lg:text-base text-card-foreground text-right font-bold text-primary">
+                                <TableCell className="text-xs sm:text-sm text-card-foreground text-right font-bold text-primary">
                                   ₱{Number(item.total_amount || 0).toFixed(2)}
                                 </TableCell>
                               </TableRow>
                             ))
                           ) : (
                             <TableRow className="border-border">
-                              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                              <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                                 <div className="flex flex-col items-center gap-2">
-                                  <Package className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-                                  <span className="text-sm md:text-base lg:text-base">{t('ui.no_items_found')}</span>
+                                  <Package className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" aria-hidden="true" />
+                                  <span className="text-xs sm:text-sm">{t('ui.no_items_found')}</span>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -639,37 +639,37 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                       </Table>
                     </section>
 
-                    <section className="md:hidden space-y-3">
+                    <section className="md:hidden space-y-2">
                       {order.audit_trail && order.audit_trail.length > 0 ? (
                         <>
                           {order.audit_trail.map((item: OrderItem) => (
-                            <article key={`${item.product.name}-${item.category}`} className="p-4 bg-card border border-border rounded-lg">
-                              <div className="space-y-2">
+                            <article key={`${item.product.name}-${item.category}`} className="p-2 sm:p-3 bg-card border border-border rounded-lg">
+                              <div className="space-y-1.5 sm:space-y-2">
                                 <header className="flex justify-between items-start">
-                                  <h4 className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-card-foreground">{item.product.name}</h4>
+                                  <h4 className="text-sm sm:text-base font-semibold text-card-foreground">{item.product.name}</h4>
                                 </header>
-                                <dl className="grid grid-cols-2 gap-2">
+                                <dl className="grid grid-cols-2 gap-1.5 sm:gap-2">
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.quantity_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">{item.quantity} {item.category}</dd>
+                                    <dt className="text-[10px] sm:text-xs text-muted-foreground">{t('ui.quantity_label')}</dt>
+                                    <dd className="text-[10px] sm:text-xs font-medium text-foreground">{item.quantity} {item.category}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.price_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}</dd>
+                                    <dt className="text-[10px] sm:text-xs text-muted-foreground">{t('ui.price_label')}</dt>
+                                    <dd className="text-[10px] sm:text-xs font-medium text-foreground">{item.unit_price && item.unit_price > 0 ? `₱${Number(item.unit_price).toFixed(2)}` : t('ui.no_price_set')}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.subtotal_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-semibold text-foreground">₱{Number(item.subtotal || 0).toFixed(2)}</dd>
+                                    <dt className="text-[10px] sm:text-xs text-muted-foreground">{t('ui.subtotal_label')}</dt>
+                                    <dd className="text-[10px] sm:text-xs font-semibold text-foreground">₱{Number(item.subtotal || 0).toFixed(2)}</dd>
                                   </div>
                                   <div className="flex justify-between">
-                                    <dt className="text-xs md:text-sm lg:text-sm xl:text-sm text-muted-foreground">{t('ui.delivery_fee_label')}</dt>
-                                    <dd className="text-xs md:text-sm lg:text-sm xl:text-sm font-medium text-foreground">₱{Number(item.coop_share || 0).toFixed(2)}</dd>
+                                    <dt className="text-[10px] sm:text-xs text-muted-foreground">{t('ui.delivery_fee_label')}</dt>
+                                    <dd className="text-[10px] sm:text-xs font-medium text-foreground">₱{Number(item.coop_share || 0).toFixed(2)}</dd>
                                   </div>
                                 </dl>
-                                <footer className="border-t border-border pt-2">
+                                <footer className="border-t border-border pt-1.5 sm:pt-2">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-base md:text-xl lg:text-xl xl:text-2xl font-semibold text-card-foreground">{t('ui.total_label')}</span>
-                                    <span className="text-base md:text-xl lg:text-xl xl:text-2xl font-bold text-primary">₱{Number(item.total_amount || 0).toFixed(2)}</span>
+                                    <span className="text-sm sm:text-base font-semibold text-card-foreground">{t('ui.total_label')}</span>
+                                    <span className="text-sm sm:text-base font-bold text-primary">₱{Number(item.total_amount || 0).toFixed(2)}</span>
                                   </div>
                                 </footer>
                               </div>
@@ -677,19 +677,19 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                           ))}
                         </>
                       ) : (
-                        <Card className="p-6 text-center bg-muted">
+                        <Card className="p-4 sm:p-6 text-center bg-muted">
                           <div className="flex flex-col items-center gap-2">
-                            <Package className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
-                            <span className="text-sm md:text-base lg:text-base text-muted-foreground">{t('ui.no_items_found')}</span>
+                            <Package className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" aria-hidden="true" />
+                            <span className="text-xs sm:text-sm text-muted-foreground">{t('ui.no_items_found')}</span>
                           </div>
                         </Card>
                       )}
                     </section>
 
-                    <footer className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
+                    <footer className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border">
                       <div className="flex justify-between items-center gap-2">
-                        <span className="text-base sm:text-lg md:text-xl font-semibold text-card-foreground">{t('ui.order_total_label')}</span>
-                        <span className="text-base sm:text-lg md:text-xl font-bold text-primary">₱{Number(order.total_amount).toFixed(2)}</span>
+                        <span className="text-sm sm:text-base font-semibold text-card-foreground">{t('ui.order_total_label')}</span>
+                        <span className="text-sm sm:text-base font-bold text-primary">₱{Number(order.total_amount).toFixed(2)}</span>
                       </div>
                     </footer>
 
@@ -707,19 +707,21 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
                     )}
 
                     {order.customer_confirmed_at && (
-                      <aside className="mt-4 p-3 bg-primary/10 border-l-4 border-primary rounded">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="h-5 w-5 text-primary" aria-hidden="true" />
-                          <h3 className="text-base md:text-lg lg:text-lg xl:text-xl font-semibold text-primary">{t('ui.order_confirmed')}</h3>
-                          <p className="ml-auto text-right text-xs mt-2 text-muted-foreground">
+                      <aside className="mt-3 sm:mt-4 p-2 sm:p-3 bg-primary/10 border-l-4 border-primary rounded">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" aria-hidden="true" />
+                            <h3 className="text-sm sm:text-base font-semibold text-primary">{t('ui.order_confirmed')}</h3>
+                          </div>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground sm:ml-auto">
                             {t('ui.confirmed_on')} {format(new Date(order.customer_confirmed_at), 'MMM dd, yyyy HH:mm')}
                           </p>
                         </div>
                         {order.customer_rate && (
-                          <div className="mb-2">
-                            <p className="text-sm md:text-base lg:text-base text-muted-foreground mb-1">{t('ui.your_rating')}</p>
+                          <div className="mt-2">
+                            <p className="text-xs sm:text-sm text-muted-foreground mb-1">{t('ui.your_rating')}</p>
                             <StarRating rating={order.customer_rate} onRatingChange={() => {}} interactive={false} showLabel={false} />
-                            <p className="text-sm md:text-base lg:text-base text-center text-foreground">{order.customer_feedback}</p>
+                            <p className="text-xs sm:text-sm text-center text-foreground mt-1">{order.customer_feedback}</p>
                           </div>
                         )}
                       </aside>

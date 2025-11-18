@@ -125,7 +125,7 @@ export default function CustomerHome({ products }: PageProps) {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10" />
         
-        {/* Content overlay - Mobile & Tablet: centered, Desktop: bottom-left */}
+        {/* Content overlay - Mobile: centered, Desktop: bottom-left */}
         <div className="absolute inset-0 flex items-center justify-center lg:items-end lg:justify-start text-white z-20 px-4 lg:pl-30 lg:pb-30">
           <motion.div
             className="text-center lg:text-left"
@@ -159,12 +159,12 @@ export default function CustomerHome({ products }: PageProps) {
           <section className="h-screen snap-start"></section>
 
           {/* Split Layout Section - Cooperatives of Farmers */}
-          <section id="explore" className="h-screen bg-muted relative z-10 flex items-center snap-start">
-            <div className="max-w-[95vw] sm:max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-0">
-              <div className="grid grid-cols-1 gap-8 sm:gap-12 items-center lg:grid-cols-2">
+          <section id="explore" className="min-h-screen bg-muted relative z-10 flex items-center snap-start py-8 sm:py-12 lg:py-16">
+            <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:gap-10 items-center lg:grid-cols-2">
                 {/* Left Side - Content */}
                 <motion.div
-                  className="flex flex-col gap-4 sm:gap-6 order-2 lg:order-1"
+                  className="flex flex-col gap-3 sm:gap-4 order-2 lg:order-1"
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
@@ -261,8 +261,8 @@ export default function CustomerHome({ products }: PageProps) {
           </section>
 
           {/* Product Carousel Section */}
-          <section id="produce" className="h-screen bg-background relative z-10 flex items-center snap-start">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 overflow-visible">
+          <section id="produce" className="min-h-screen bg-background relative z-10 flex items-center snap-start py-8 sm:py-12 lg:py-16">
+            <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
               <motion.h2
                 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold text-center text-primary mb-6 sm:mb-8"
                 initial={{ opacity: 0, y: 30 }}
@@ -294,7 +294,7 @@ export default function CustomerHome({ products }: PageProps) {
                   setApi={handleCarouselApi}
                   className="w-full max-w-6xl mx-auto"
                 >
-                  <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-2 sm:-ml-4 [perspective:1000px] overflow-visible mx-0 p-4 sm:p-8 lg:p-20`}>
+                  <CarouselContent className={`[&>*]:transition-all [&>*]:duration-500 [&>*]:ease-out -ml-2 sm:-ml-4 [perspective:1000px] overflow-visible mx-0 p-4 sm:p-8 lg:p-16`}>
                     {featuredProducts.map((product, index) => {
                       const isActive = index === currentSlide;
                       const isLeft = index < currentSlide;
@@ -304,11 +304,11 @@ export default function CustomerHome({ products }: PageProps) {
                         <CarouselItem key={product.id} className="basis-full sm:basis-1/2 lg:basis-1/3 pl-2 sm:pl-4">
                           <div className="relative [transform-style:preserve-3d]">
                             <div className={`bg-card rounded-lg shadow-md overflow-hidden transition-all duration-500 ease-out relative [transform-style:preserve-3d] ${isActive
-                              ? `scale-110 sm:scale-125 lg:scale-150 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
+                              ? `scale-110 sm:scale-125 lg:scale-140 shadow-2xl z-30 translate-y-0 blur-none opacity-100 [transform:translateZ(0px)_rotateY(0deg)]`
                               : isLeft
-                                ? `scale-90 sm:scale-80 opacity-40 sm:opacity-20 z-10 translate-x-4 sm:translate-x-12 -translate-y-2 sm:-translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
+                                ? `scale-90 sm:scale-80 opacity-40 sm:opacity-20 z-10 translate-x-4 sm:translate-x-10 -translate-y-2 sm:-translate-y-5 blur-sm [transform:translateZ(-100px)_rotateY(25deg)]`
                                 : isRight
-                                  ? `scale-90 sm:scale-80 opacity-40 sm:opacity-20 z-10 -translate-x-4 sm:-translate-x-12 -translate-y-2 sm:-translate-y-6 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
+                                  ? `scale-90 sm:scale-80 opacity-40 sm:opacity-20 z-10 -translate-x-4 sm:-translate-x-10 -translate-y-2 sm:-translate-y-5 blur-sm [transform:translateZ(-100px)_rotateY(-25deg)]`
                                   : 'scale-90 sm:scale-80 opacity-40 sm:opacity-20 z-10 blur-md'
                               }`}>
                               <div className="h-32 sm:h-40 lg:h-48 bg-card flex items-center justify-center overflow-hidden">
