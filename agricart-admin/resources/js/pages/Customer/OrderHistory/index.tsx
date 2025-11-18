@@ -299,11 +299,8 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
       case 'delayed':
         return <Badge variant="destructive" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.delayed')}</Badge>;
       case 'cancelled':
-<<<<<<< HEAD
         return <Badge variant="destructive">{t('ui.cancelled')}</Badge>;
-=======
         return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{t('customer.cancelled')}</Badge>;
->>>>>>> 079f4fc0ffd3b5b5e25e52a77f26ce8779189aaa
       default:
         return <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-1.5">{status}</Badge>;
     }
