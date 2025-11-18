@@ -67,13 +67,12 @@ export function useDisplayScale(): DisplayScaleInfo {
       scaleFactor = 1;
     } else {
       // Display scaling: apply compensation
-      // Optimized for 125% Windows scaling (most common scenario)
       if (dpr >= 1.75) {
-        scaleFactor = 0.75; // 175%+ scaling - moderate compensation
+        scaleFactor = 0.65; // Less aggressive than before
       } else if (dpr >= 1.5) {
-        scaleFactor = 0.85; // 150% scaling - gentle compensation
+        scaleFactor = 0.75;
       } else if (dpr >= 1.25) {
-        scaleFactor = 0.95; // 125% scaling - very minimal compensation (optimal for Windows)
+        scaleFactor = 0.85;
       }
     }
     
@@ -117,11 +116,11 @@ export function useDisplayScale(): DisplayScaleInfo {
         } else {
           // Display scaling: apply compensation
           if (dpr >= 1.75) {
-            scaleFactor = 0.75;
+            scaleFactor = 0.65;
           } else if (dpr >= 1.5) {
-            scaleFactor = 0.85;
+            scaleFactor = 0.75;
           } else if (dpr >= 1.25) {
-            scaleFactor = 0.95;
+            scaleFactor = 0.85;
           }
         }
         
