@@ -692,27 +692,27 @@ function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder }: {
                 {getSortIcon('id')}
               </Button>
             </th>
-            <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('customer')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
               >
                 Customer
                 {getSortIcon('customer')}
               </Button>
             </th>
-            <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
                 onClick={() => handleSort('total_amount')}
-                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-end w-full"
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center justify-center w-full"
               >
                 Amount
                 {getSortIcon('total_amount')}
               </Button>
             </th>
-            <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Items</th>
+            <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">Items</th>
             <th className="text-center py-3 px-4 text-sm font-semibold text-foreground">
               <Button
                 variant="ghost"
@@ -748,25 +748,53 @@ function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder }: {
         <tbody>
           {sortedOrders.map((order) => (
             <tr key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-              <td className="py-3 px-4 text-sm text-foreground font-medium text-center">#{order.id}</td>
               <td className="py-3 px-4">
-                <div className="text-sm text-foreground font-medium">{order.customer.name}</div>
-                <div className="text-sm text-muted-foreground">{order.customer.email}</div>
+                <div className="flex justify-center">
+                  <div className="text-sm text-foreground font-medium text-center w-full max-w-[80px]">#{order.id}</div>
+                </div>
               </td>
-              <td className="py-3 px-4 text-sm text-foreground text-right font-semibold">
-                ₱{Number(order.total_amount).toFixed(2)}
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="w-full max-w-[200px]">
+                    <div className="text-sm text-foreground font-medium text-left">{order.customer.name}</div>
+                    <div className="text-sm text-muted-foreground text-left">{order.customer.email}</div>
+                  </div>
+                </div>
               </td>
-              <td className="py-3 px-4 text-sm text-foreground text-right">
-                {order.audit_trail?.length || 0} items
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="text-sm text-foreground text-right font-semibold w-full max-w-[120px]">
+                    ₱{Number(order.total_amount).toFixed(2)}
+                  </div>
+                </div>
               </td>
-              <td className="py-3 px-4 text-center">
-                {getDeliveryStatusBadge(order.delivery_status)}
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="text-sm text-foreground text-right w-full max-w-[100px]">
+                    {order.audit_trail?.length || 0} items
+                  </div>
+                </div>
               </td>
-              <td className="py-3 px-4 text-sm text-muted-foreground text-center">
-                {dayjs(order.created_at).format('MMM DD, YYYY')}
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="w-full max-w-[140px] flex justify-center">
+                    {getDeliveryStatusBadge(order.delivery_status)}
+                  </div>
+                </div>
               </td>
-              <td className="py-3 px-4 text-sm text-muted-foreground text-center">
-                {order.delivered_time ? dayjs(order.delivered_time).format('MMM DD, YYYY') : 'N/A'}
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="text-sm text-muted-foreground text-center w-full max-w-[120px]">
+                    {dayjs(order.created_at).format('MMM DD, YYYY')}
+                  </div>
+                </div>
+              </td>
+              <td className="py-3 px-4">
+                <div className="flex justify-center">
+                  <div className="text-sm text-muted-foreground text-center w-full max-w-[120px]">
+                    {order.delivered_time ? dayjs(order.delivered_time).format('MMM DD, YYYY') : 'N/A'}
+                  </div>
+                </div>
               </td>
             </tr>
           ))}

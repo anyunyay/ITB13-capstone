@@ -260,16 +260,42 @@ export default function ShowOrder({ order }: ShowOrderProps) {
       <Head title={t('logistic.order_number', { id: currentOrder.id }) + ' ' + t('logistic.order_details')} />
       
       <div className="p-6 pt-25 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">{t('logistic.order_number', { id: currentOrder.id })}</h1>
-            <p className="text-muted-foreground">{t('logistic.order_details_management')}</p>
+        {/* Header */}
+        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+          {/* Mobile Layout */}
+          <div className="flex md:hidden items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                <Truck className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-foreground truncate">{t('logistic.order_number', { id: currentOrder.id })}</h1>
+              </div>
+            </div>
+            <Link href={route('logistic.orders.index')}>
+              <Button variant="outline" size="sm" className="h-8 px-3 shrink-0 text-xs">
+                Back
+              </Button>
+            </Link>
           </div>
-          <Link href={route('logistic.orders.index')}>
-            <Button variant="outline">
-              {t('logistic.back_to_orders')}
-            </Button>
-          </Link>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex md:items-center md:justify-between">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                <Truck className="h-8 w-8" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('logistic.order_number', { id: currentOrder.id })}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{t('logistic.order_details_management')}</p>
+              </div>
+            </div>
+            <Link href={route('logistic.orders.index')}>
+              <Button variant="outline" className="flex items-center gap-2 shrink-0">
+                {t('logistic.back_to_orders')}
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -570,11 +596,11 @@ export default function ShowOrder({ order }: ShowOrderProps) {
         {/* Order Items */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-foreground">{t('logistic.order_items')}</CardTitle>
+            <CardTitle className="text-lg lg:text-xl">{t('logistic.order_items')}</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Mobile & Tablet: Card Layout */}
-            <div className="space-y-3 md:hidden">
+            {/* Mobile: Card Layout */}
+            <div className="block md:hidden space-y-3">
               {currentOrder.audit_trail.map((item, index) => {
                 // Get the appropriate price based on category
                 const getPrice = () => {
@@ -605,35 +631,49 @@ export default function ShowOrder({ order }: ShowOrderProps) {
                 const totalPrice = (price && typeof price === 'number') ? price * item.quantity : null;
 
                 return (
-                  <div key={`${item.product.name}-${item.category}-${index}`} className="p-3 sm:p-4 border border-border rounded-lg bg-muted/50">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm sm:text-base text-foreground">{item.product.name}</h4>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 sm:mt-1">
-                          <p className="text-xs sm:text-sm text-muted-foreground">
-                            Category: <span className="capitalize text-foreground font-medium">{item.category}</span>
-                          </p>
-                          {price && typeof price === 'number' && (
-                            <p className="text-xs sm:text-sm text-muted-foreground">
-                              ₱{price.toFixed(2)}/{item.category.toLowerCase()}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex justify-between sm:block sm:text-right sm:flex-shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0">
-                        <p className="text-xs sm:text-sm font-medium text-foreground whitespace-nowrap">
-                          Qty: {formatQuantity(item.quantity, item.category)}
+                  <div key={`${item.product.name}-${item.category}-${index}`} className="border border-border rounded-lg p-4 bg-card">
+                    <div className="space-y-3">
+                      {/* Product Name */}
+                      <div>
+                        <h4 className="font-semibold text-foreground">{item.product.name}</h4>
+                        <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                          {item.category}
                         </p>
-                        {totalPrice && typeof totalPrice === 'number' && (
-                          <p className="text-xs sm:text-sm font-semibold text-foreground sm:mt-1">
-                            ₱{totalPrice.toFixed(2)}
+                      </div>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Unit Price</p>
+                          <p className="text-sm font-medium text-foreground">
+                            {price && typeof price === 'number' ? `₱${price.toFixed(2)}` : '-'}
                           </p>
-                        )}
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Quantity</p>
+                          <p className="text-sm font-medium text-foreground">
+                            {formatQuantity(item.quantity, item.category)}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-xs text-muted-foreground">Subtotal</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {totalPrice && typeof totalPrice === 'number' ? `₱${totalPrice.toFixed(2)}` : '-'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 );
               })}
+              
+              {/* Total Card */}
+              <div className="border-2 border-border rounded-lg p-4 bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">Total Amount:</p>
+                  <p className="text-lg font-bold text-foreground">₱{currentOrder.total_amount.toFixed(2)}</p>
+                </div>
+              </div>
             </div>
 
             {/* Desktop: Table Layout */}
@@ -641,11 +681,11 @@ export default function ShowOrder({ order }: ShowOrderProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Product</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Category</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Unit Price</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Quantity</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-foreground">Subtotal</th>
+                    <th className="text-center py-3 px-8 text-sm font-semibold text-foreground">Product</th>
+                    <th className="text-center py-3 px-8 text-sm font-semibold text-foreground">Category</th>
+                    <th className="text-center py-3 px-8 text-sm font-semibold text-foreground">Unit Price</th>
+                    <th className="text-center py-3 px-8 text-sm font-semibold text-foreground">Quantity</th>
+                    <th className="text-center py-3 px-8 text-sm font-semibold text-foreground">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -679,20 +719,57 @@ export default function ShowOrder({ order }: ShowOrderProps) {
 
                     return (
                       <tr key={`${item.product.name}-${item.category}-${index}`} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                        <td className="py-3 px-4 text-sm text-foreground font-medium">{item.product.name}</td>
-                        <td className="py-3 px-4 text-sm text-foreground capitalize">{item.category}</td>
-                        <td className="py-3 px-4 text-sm text-foreground text-right">
-                          {price && typeof price === 'number' ? `₱${price.toFixed(2)}` : '-'}
+                        <td className="py-3 px-4">
+                          <div className="flex justify-center">
+                            <div className="text-sm text-foreground font-medium text-left w-full max-w-[200px]">{item.product.name}</div>
+                          </div>
                         </td>
-                        <td className="py-3 px-4 text-sm text-foreground text-right font-medium">
-                          {formatQuantity(item.quantity, item.category)}
+                        <td className="py-3 px-4">
+                          <div className="flex justify-center">
+                            <div className="text-sm text-foreground capitalize text-left w-full max-w-[120px]">{item.category}</div>
+                          </div>
                         </td>
-                        <td className="py-3 px-4 text-sm text-foreground text-right font-semibold">
-                          {totalPrice && typeof totalPrice === 'number' ? `₱${totalPrice.toFixed(2)}` : '-'}
+                        <td className="py-3 px-4">
+                          <div className="flex justify-center">
+                            <div className="text-sm text-foreground text-right w-full max-w-[120px]">
+                              {price && typeof price === 'number' ? `₱${price.toFixed(2)}` : '-'}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex justify-center">
+                            <div className="text-sm text-foreground text-right font-medium w-full max-w-[120px]">
+                              {formatQuantity(item.quantity, item.category)}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex justify-center">
+                            <div className="text-sm text-foreground text-right font-semibold w-full max-w-[120px]">
+                              {totalPrice && typeof totalPrice === 'number' ? `₱${totalPrice.toFixed(2)}` : '-'}
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     );
                   })}
+                  {/* Total Row */}
+                  <tr className="border-t-2 border-border bg-muted/20">
+                    <td colSpan={4} className="py-3 px-4">
+                      <div className="flex justify-end">
+                        <div className="text-sm font-semibold text-foreground text-right">
+                          Total Amount:
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex justify-center">
+                        <div className="text-base font-bold text-foreground text-right w-full max-w-[120px]">
+                          ₱{currentOrder.total_amount.toFixed(2)}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
