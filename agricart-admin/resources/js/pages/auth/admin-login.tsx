@@ -88,7 +88,7 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
             <AuthLayout 
                 title="Admin Portal Access" 
                 description="Enter your credentials to access the administrative dashboard"
-                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imageUrl="/images/frontpage/Regis.jpg"
                 imagePosition="right"
                 icon={<Shield />}
                 iconBgColor="bg-secondary/10"
