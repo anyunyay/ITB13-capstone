@@ -24,55 +24,55 @@ class ProductSeeder extends Seeder
             // Per 1 kg products
             [
                 'name' => 'Ampalaya',
-                'price_kilo' => 75.00,
+                'price_kilo' => 208.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Bitter gourd, a nutritious vegetable rich in vitamins and minerals.'
             ],
             [
                 'name' => 'Kalabasa',
-                'price_kilo' => 15.00,
+                'price_kilo' => 13.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Squash, a versatile vegetable perfect for soups and stews.'
             ],
             [
                 'name' => 'Sitaw',
-                'price_kilo' => 70.00,
+                'price_kilo' => 169.00,
                 'produce_type' => 'vegetable',
                 'description' => 'String beans, a popular green vegetable rich in fiber.'
             ],
             [
                 'name' => 'Talong',
-                'price_kilo' => 70.00,
+                'price_kilo' => 143.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Eggplant, a versatile vegetable used in many Filipino dishes.'
             ],
             [
                 'name' => 'Pipino',
-                'price_kilo' => 30.00,
+                'price_kilo' => 72.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Cucumber, a refreshing vegetable perfect for salads.'
             ],
             [
                 'name' => 'Pechay',
-                'price_kilo' => 50.00,
+                'price_kilo' => 156.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Chinese cabbage, a leafy green vegetable rich in nutrients.'
             ],
             [
                 'name' => 'Siling Haba',
-                'price_kilo' => 80.00,
+                'price_kilo' => 169.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Long chili pepper, adds spice and flavor to dishes.'
             ],
             [
                 'name' => 'Siling Labuyo',
-                'price_kilo' => 65.00,
+                'price_kilo' => 520.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Bird\'s eye chili, a very spicy pepper used for heat.'
             ],
             [
                 'name' => 'Kamatis',
-                'price_kilo' => 52.00,
+                'price_kilo' => 195.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Tomato, a versatile fruit used as a vegetable in cooking.'
             ],
@@ -112,7 +112,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Mais',
-                'price_pc' => 17.00,
+                'price_pc' => 16.00,
                 'produce_type' => 'vegetable',
                 'description' => 'Corn, a versatile vegetable that can be boiled, grilled, or used in various dishes.'
             ]
