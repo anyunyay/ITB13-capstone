@@ -153,11 +153,11 @@ class MemberController extends Controller
             ->where('member_id', $user->id)
             ->get();
 
-        // Calculate sales data for sold stocks
-        $salesData = $this->calculateSalesData($user->id);
+        // Calculate sales data for sold stocks (with date filtering)
+        $salesData = $this->calculateSalesData($user->id, $startDate, $endDate);
 
-        // Calculate comprehensive stock data with total, sold, and available quantities
-        $allComprehensiveStockData = $this->calculateComprehensiveStockData($user->id);
+        // Calculate comprehensive stock data with total, sold, and available quantities (with date filtering)
+        $allComprehensiveStockData = $this->calculateComprehensiveStockData($user->id, $startDate, $endDate);
 
         // Apply filters to comprehensive stock data
         $comprehensiveStockDataCollection = collect($allComprehensiveStockData);
@@ -216,8 +216,8 @@ class MemberController extends Controller
             'data' => $transactions,
         ];
 
-        // Calculate transaction summary
-        $summary = $this->calculateTransactionSummary($user->id);
+        // Calculate transaction summary (with date filtering)
+        $summary = $this->calculateTransactionSummary($user->id, $startDate, $endDate);
 
         // Get display parameter for PDF viewing
         $display = $request->get('display', false);
@@ -268,6 +268,8 @@ class MemberController extends Controller
                 'stock_category' => $stockCategoryFilter,
                 'stock_status' => $stockStatusFilter,
                 'transaction_category' => $transactionCategoryFilter,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
             ],
         ]);
     }
@@ -389,11 +391,17 @@ class MemberController extends Controller
     /**
      * Calculate sales data from Sales and AuditTrail tables
      */
-    private function calculateSalesData($memberId)
+    private function calculateSalesData($memberId, $startDate = null, $endDate = null)
     {
         // Get only delivered sales that involve stocks from this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail.product', 'customer'])
             ->whereNotNull('delivered_at')
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('delivered_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('delivered_at', '<=', $endDate);
+            })
             ->whereHas('salesAudit.auditTrail', function ($query) use ($memberId) {
                 $query->whereHas('stock', function ($stockQuery) use ($memberId) {
                     $stockQuery->where('member_id', $memberId);
@@ -503,7 +511,7 @@ class MemberController extends Controller
     /**
      * Calculate comprehensive stock data with total, sold, and available quantities
      */
-    private function calculateComprehensiveStockData($memberId)
+    private function calculateComprehensiveStockData($memberId, $startDate = null, $endDate = null)
     {
         // Get all stocks for this member (including sold ones)
         $allStocks = Stock::where('member_id', $memberId)
@@ -514,6 +522,12 @@ class MemberController extends Controller
         // Calculate revenue from delivered sales for this member
         $deliveredSales = Sales::with(['salesAudit.auditTrail'])
             ->whereNotNull('delivered_at')
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('delivered_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('delivered_at', '<=', $endDate);
+            })
             ->whereHas('salesAudit.auditTrail', function ($query) use ($memberId) {
                 $query->whereHas('stock', function ($stockQuery) use ($memberId) {
                     $stockQuery->where('member_id', $memberId);
