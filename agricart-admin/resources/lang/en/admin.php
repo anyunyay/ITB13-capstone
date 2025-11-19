@@ -1426,4 +1426,9 @@ return [
 
     // Product Archive
     'archived_on' => 'Archived On',
+
+    // Form Status Messages
+    'no_changes' => 'No Changes',
+    'ready_to_submit' => 'Ready to Submit',
+    'incomplete_form' => 'Incomplete Form',
 ];
