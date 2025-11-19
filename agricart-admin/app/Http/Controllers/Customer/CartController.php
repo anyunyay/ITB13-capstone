@@ -36,7 +36,10 @@ class CartController extends Controller
                     ->where('category', $item->category)
                     ->get();
                 
-                $totalAvailable = $stocks->sum('quantity');
+                // Calculate available stock considering pending orders
+                $totalAvailable = $stocks->sum(function($stock) {
+                    return max(0, $stock->quantity - $stock->pending_order_qty);
+                });
                 
                 // Calculate item total price
                 $itemTotalPrice = 0;
@@ -233,7 +236,10 @@ class CartController extends Controller
                     ->orderBy('created_at', 'asc')
                     ->get();
 
-                $totalAvailable = $stocks->sum('quantity');
+                // Calculate available stock considering pending orders
+                $totalAvailable = $stocks->sum(function($stock) {
+                    return max(0, $stock->quantity - $stock->pending_order_qty);
+                });
 
                 if ($totalAvailable < $item->quantity) {
                     $error = 'Not enough stock for ' . ($item->product ? $item->product->name : 'Product') . ' (' . $item->category . ')';
@@ -245,7 +251,9 @@ class CartController extends Controller
 
                 foreach ($stocks as $stock) {
                     if ($remainingQty <= 0) break;
-                    $deduct = min($stock->quantity, $remainingQty);
+                    $availableForThisStock = max(0, $stock->quantity - $stock->pending_order_qty);
+                    if ($availableForThisStock <= 0) continue; // Skip if no available stock
+                    $deduct = min($availableForThisStock, $remainingQty);
                     
                     // Calculate price for this portion
                     $price = 0;
@@ -260,12 +268,15 @@ class CartController extends Controller
                     $itemTotalPrice += $price * $deduct;
                     $remainingQty -= $deduct;
 
+                    // Increment pending order quantity instead of decreasing stock immediately
+                    $stock->incrementPendingOrders($deduct);
+
                     // Track this stock transaction for multi-member audit trail
                     $stockTransactions->push([
                         'stock' => $stock,
                         'product' => $stock->product,
                         'quantity_sold' => $deduct,
-                        'available_stock_after_sale' => $stock->quantity, // Before deduction
+                        'available_stock_after_sale' => $stock->quantity, // Current stock (not decreased yet)
                         'unit_price' => $price
                     ]);
 
@@ -447,7 +458,10 @@ class CartController extends Controller
                 ->where('category', $item->category)
                 ->get();
 
-            $totalAvailable = $stocks->sum('quantity');
+            // Calculate available stock considering pending orders
+            $totalAvailable = $stocks->sum(function($stock) {
+                return max(0, $stock->quantity - $stock->pending_order_qty);
+            });
 
             if ($totalAvailable < $quantity) {
                 return back()->with('checkoutMessage', 'Not enough stock available. Maximum available: ' . $totalAvailable . ' ' . $item->category);

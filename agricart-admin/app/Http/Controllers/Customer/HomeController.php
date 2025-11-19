@@ -56,7 +56,12 @@ class HomeController extends Controller
         $products->each(function ($product) {
             $stockSums = $product->stocks
                 ->groupBy('category')
-                ->map(fn($group) => $group->sum('quantity'));
+                ->map(function($group) {
+                    // Calculate available stock = quantity - pending_order_qty
+                    return $group->sum(function($stock) {
+                        return max(0, $stock->quantity - $stock->pending_order_qty);
+                    });
+                });
 
             $product->stock_by_category = $stockSums;
         });
@@ -83,7 +88,12 @@ class HomeController extends Controller
         $products->each(function ($product) {
             $stockSums = $product->stocks
                 ->groupBy('category')
-                ->map(fn($group) => $group->sum('quantity'));
+                ->map(function($group) {
+                    // Calculate available stock = quantity - pending_order_qty
+                    return $group->sum(function($stock) {
+                        return max(0, $stock->quantity - $stock->pending_order_qty);
+                    });
+                });
 
             $product->stock_by_category = $stockSums;
         });
@@ -106,7 +116,12 @@ class HomeController extends Controller
         $products->each(function ($product) {
             $stockSums = $product->stocks
                 ->groupBy('category')
-                ->map(fn($group) => $group->sum('quantity'));
+                ->map(function($group) {
+                    // Calculate available stock = quantity - pending_order_qty
+                    return $group->sum(function($stock) {
+                        return max(0, $stock->quantity - $stock->pending_order_qty);
+                    });
+                });
 
             $product->stock_by_category = $stockSums;
         });

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Helpers\SystemLogger;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Stock extends Model
 {
@@ -13,6 +14,7 @@ class Stock extends Model
     protected $fillable = [
         'quantity', 
         'sold_quantity',
+        'pending_order_qty',
         'initial_quantity',
         'member_id', 
         'product_id',
@@ -27,6 +29,7 @@ class Stock extends Model
         'removed_at' => 'datetime',
         'quantity' => 'decimal:2',
         'sold_quantity' => 'decimal:2',
+        'pending_order_qty' => 'decimal:2',
         'initial_quantity' => 'decimal:2',
     ];
 
@@ -202,6 +205,53 @@ class Stock extends Model
         if ($original == 0) return 0;
         
         return ($this->sold_quantity / $original) * 100;
+    }
+
+    /**
+     * Get the available quantity for customers (current stock - pending orders)
+     */
+    public function getCustomerAvailableQuantityAttribute()
+    {
+        return max(0, $this->quantity - $this->pending_order_qty);
+    }
+
+    /**
+     * Increment pending order quantity
+     */
+    public function incrementPendingOrders($quantity)
+    {
+        $this->increment('pending_order_qty', $quantity);
+    }
+
+    /**
+     * Decrement pending order quantity
+     */
+    public function decrementPendingOrders($quantity)
+    {
+        $this->decrement('pending_order_qty', max(0, $quantity));
+    }
+
+    /**
+     * Process order approval - convert pending to sold
+     */
+    public function processPendingOrderApproval($quantity)
+    {
+        DB::transaction(function () use ($quantity) {
+            // Decrease actual stock
+            $this->decrement('quantity', $quantity);
+            // Increase sold quantity
+            $this->increment('sold_quantity', $quantity);
+            // Decrease pending orders
+            $this->decrement('pending_order_qty', $quantity);
+        });
+    }
+
+    /**
+     * Process order rejection - release pending stock
+     */
+    public function processPendingOrderRejection($quantity)
+    {
+        $this->decrement('pending_order_qty', $quantity);
     }
 
     /**

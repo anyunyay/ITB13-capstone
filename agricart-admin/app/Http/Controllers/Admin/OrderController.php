@@ -398,13 +398,8 @@ class OrderController extends Controller
                 $quantityBeforeDeduction = $trail->stock->quantity;
                 $quantitySold = $trail->quantity;
 
-                // Deduct from available quantity
-                $trail->stock->quantity -= $trail->quantity;
-
-                // Add to sold quantity
-                $trail->stock->sold_quantity += $trail->quantity;
-
-                $trail->stock->save();
+                // Process pending order approval: decrease stock, increase sold, decrease pending
+                $trail->stock->processPendingOrderApproval($trail->quantity);
 
                 // Record stock movement in stock_trails table
                 StockTrail::record(
@@ -563,11 +558,11 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Cannot reject a cancelled order.');
         }
 
-        // If order was already processed, we need to reverse the stock changes
-        if ($order->status === 'approved') {
-            // Reverse stock changes
-            foreach ($order->auditTrail as $trail) {
-                if ($trail->stock) {
+        // Release pending orders or reverse stock changes
+        foreach ($order->auditTrail as $trail) {
+            if ($trail->stock) {
+                if ($order->status === 'approved') {
+                    // If order was already approved, reverse the stock changes
                     // Store quantity before reversal
                     $quantityBeforeReversal = $trail->stock->quantity;
 
@@ -607,6 +602,26 @@ class OrderController extends Controller
                             'reason' => 'order_rejected',
                             'sold_quantity' => $trail->stock->sold_quantity,
                             'available_quantity' => $trail->stock->quantity
+                        ]
+                    );
+                } else {
+                    // If order is still pending, just release the pending order quantity
+                    $trail->stock->processPendingOrderRejection($trail->quantity);
+
+                    // Log pending order release
+                    SystemLogger::logStockUpdate(
+                        $trail->stock->id,
+                        $trail->stock->product_id,
+                        0,
+                        $trail->stock->quantity,
+                        $request->user()->id,
+                        $request->user()->type,
+                        'pending_order_released',
+                        [
+                            'order_id' => $order->id,
+                            'reason' => 'order_rejected',
+                            'released_quantity' => $trail->quantity,
+                            'pending_order_qty' => $trail->stock->pending_order_qty
                         ]
                     );
                 }
