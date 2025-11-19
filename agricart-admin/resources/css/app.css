@@ -480,17 +480,4 @@
         color: var(--status-delivered-foreground) !important;
         border-color: var(--status-delivered) !important;
     }
-
-    /* Sidebar text hover effects */
-    .sidebar-text-hover:hover span,
-    .sidebar-text-hover:active span,
-    .sidebar-text-hover[data-state=open] span {
-        color: white;
-    }
-
-    .dark .sidebar-text-hover:hover span,
-    .dark .sidebar-text-hover:active span,
-    .dark .sidebar-text-hover[data-state=open] span {
-        color: black;
-    }
 }
