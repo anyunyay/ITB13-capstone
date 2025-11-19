@@ -171,13 +171,7 @@ export default function LogisticLogin({ status, canResetPassword, restrictionPop
                     </div>
 
                     <div className="text-center text-sm text-gray-600">
-                        <p className="mb-2">Need assistance? Contact logistics support</p>
-                        <p>
-                            Regular user?{' '}
-                            <TextLink href={route('login')} tabIndex={5}>
-                                Customer Login
-                            </TextLink>
-                        </p>
+                        <p>Need assistance? Contact logistics support</p>
                     </div>
                 </form>
 

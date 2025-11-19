@@ -171,26 +171,9 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
 
                 <div className="text-center text-xs sm:text-sm text-gray-600">
                     <p className="mb-2">Don't have an account?</p>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-1 sm:gap-0">
-                        <TextLink href={route('register')} tabIndex={5} className="font-medium">
-                            Sign up
-                        </TextLink>
-                        <span className="hidden sm:inline">{' '}or access other portals:{' '}</span>
-                        <span className="sm:hidden">Other portals:</span>
-                        <div className="flex flex-wrap justify-center gap-1 sm:gap-0">
-                            <TextLink href={route('admin.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                Admin
-                            </TextLink>
-                            <span className="hidden sm:inline">,{' '}</span>
-                            <TextLink href={route('member.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                Member
-                            </TextLink>
-                            <span className="hidden sm:inline">,{' '}</span>
-                            <TextLink href={route('logistic.login')} tabIndex={5} className="text-xs sm:text-sm">
-                                Logistics
-                            </TextLink>
-                        </div>
-                    </div>
+                    <TextLink href={route('register')} tabIndex={5} className="font-medium">
+                        Sign up
+                    </TextLink>
                 </div>
             </form>
 

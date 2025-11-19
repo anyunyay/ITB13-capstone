@@ -171,16 +171,7 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
                 </div>
 
                 <div className="text-center text-sm text-gray-600">
-                    <p className="mb-2">New to our platform?</p>
-                    <p>
-                        <TextLink href={route('register')} tabIndex={5}>
-                            Become a Member
-                        </TextLink>
-                        {' '}or{' '}
-                        <TextLink href={route('login')} tabIndex={5}>
-                            Customer Login
-                        </TextLink>
-                    </p>
+                    <p>Need help? Contact your system administrator</p>
                 </div>
             </form>
 

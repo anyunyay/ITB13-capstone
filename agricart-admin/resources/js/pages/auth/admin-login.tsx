@@ -171,13 +171,7 @@ export default function AdminLogin({ status, canResetPassword, restrictionPopup 
                 </div>
 
                 <div className="text-center text-xs sm:text-sm text-gray-600">
-                    <p className="mb-2">Need help? Contact your system administrator</p>
-                    <p>
-                        Regular user?{' '}
-                        <TextLink href={route('login')} tabIndex={5}>
-                            Customer Login
-                        </TextLink>
-                    </p>
+                    <p>Need help? Contact your system administrator</p>
                 </div>
             </form>
 
