@@ -168,7 +168,7 @@ export function CustomerHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             "flex items-center space-x-2 transition-all duration-300 ease-in-out flex-shrink-0",
                             isScrolled ? "scale-90 sm:scale-100" : "scale-100 sm:scale-110"
                         )}>
-                            <AppLogo />{/* change Logo as needed */}
+                            <AppLogo isScrolled={isScrolled} />{/* change Logo as needed */}
                         </Link>
                         {/* Breadcrumbs on top left */}
                         {breadcrumbs.length > 0 && (
