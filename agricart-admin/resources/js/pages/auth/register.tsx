@@ -74,7 +74,7 @@ export default function Register() {
         <AuthLayout 
             title="Create an account" 
             description="Enter your details below to create your account"
-            imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+            imageUrl="/images/frontpage/Regis.jpg"
             imagePosition="left"
             icon={<UserPlus />}
             iconBgColor="bg-primary/10"
