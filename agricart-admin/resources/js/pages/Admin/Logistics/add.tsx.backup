@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import PasswordInput from '@/components/ui/password-input';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
-import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useEffect, useState, useCallback } from 'react';
 import { 
   User, 
@@ -24,6 +24,7 @@ import {
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { Calendar } from "@/components/ui/calendar";
 import { useTranslation } from '@/hooks/use-translation';
+import { usePage, router } from '@inertiajs/react';
 import axios from 'axios';
 import * as React from "react";
 
@@ -77,6 +78,22 @@ const validateRequired = (value: string) => {
   return value.trim().length > 0;
 };
 
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: Parameters<T>) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 export default function Index() {
     const t = useTranslation();
     const today = new Date();
@@ -100,6 +117,12 @@ export default function Index() {
         province: '',
         registration_date: formattedToday,
     });
+
+    // Duplicate check states
+    const [isDuplicateEmail, setIsDuplicateEmail] = useState(false);
+    const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+    const [isDuplicateContact, setIsDuplicateContact] = useState(false);
+    const [isCheckingContact, setIsCheckingContact] = useState(false);
 
     // Validation state
     const [validation, setValidation] = useState({
@@ -127,16 +150,69 @@ export default function Index() {
         });
     }, [data]);
 
+    // Debounced duplicate check for email
+    const checkDuplicateEmail = useCallback(
+        debounce(async (email: string) => {
+            if (!email.trim() || !validateEmail(email)) {
+                setIsDuplicateEmail(false);
+                setIsCheckingEmail(false);
+                return;
+            }
+
+            setIsCheckingEmail(true);
+            try {
+                const response = await axios.post(route('logistics.checkDuplicateEmail'), { email });
+                setIsDuplicateEmail(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate email:', error);
+                setIsDuplicateEmail(false);
+            } finally {
+                setIsCheckingEmail(false);
+            }
+        }, 500),
+        []
+    );
+
+    // Debounced duplicate check for contact number
+    const checkDuplicateContact = useCallback(
+        debounce(async (contactNumber: string) => {
+            if (!contactNumber.trim()) {
+                setIsDuplicateContact(false);
+                setIsCheckingContact(false);
+                return;
+            }
+
+            setIsCheckingContact(true);
+            try {
+                const response = await axios.post(route('logistics.checkDuplicateContact'), { contact_number: contactNumber });
+                setIsDuplicateContact(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate contact:', error);
+                setIsDuplicateContact(false);
+            } finally {
+                setIsCheckingContact(false);
+            }
+        }, 500),
+        []
+    );
+
     // Handle name change with sanitization
     const handleNameChange = (value: string) => {
         const sanitizedValue = value.replace(/[^a-zA-Z\s\-'.]/g, '');
         setData('name', sanitizedValue);
     };
 
-    // Handle contact number change with sanitization
+    // Handle email change with duplicate check
+    const handleEmailChange = (value: string) => {
+        setData('email', value);
+        checkDuplicateEmail(value);
+    };
+
+    // Handle contact number change with sanitization and duplicate check
     const handleContactChange = (value: string) => {
         const sanitizedValue = value.replace(/[^0-9+]/g, '');
         setData('contact_number', sanitizedValue);
+        checkDuplicateContact(sanitizedValue);
     };
 
     // Check if form is valid
@@ -147,7 +223,11 @@ export default function Index() {
                        validation.street && 
                        validation.barangay && 
                        validation.city && 
-                       validation.province;
+                       validation.province && 
+                       !isDuplicateEmail &&
+                       !isDuplicateContact &&
+                       !isCheckingEmail &&
+                       !isCheckingContact;
 
     const  handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -254,7 +334,7 @@ export default function Index() {
                                         <Label htmlFor="email" className="text-sm font-medium">
                                             <Mail className="h-4 w-4 inline mr-1" />
                                             {t('admin.logistic_email_label')} <span className="text-destructive">*</span>
-                                            {validation.email ? (
+                                            {validation.email && !isDuplicateEmail && !isCheckingEmail ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
                                             ) : (
                                                 <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
@@ -265,10 +345,20 @@ export default function Index() {
                                             type="email"
                                             placeholder={t('admin.email_address')} 
                                             value={data.email} 
-                                            onChange={(e) => setData('email', e.target.value)}
-                                            className={validation.email ? 'border-green-500' : errors.email ? 'border-red-500' : ''}
+                                            onChange={(e) => handleEmailChange(e.target.value)}
+                                            className={`${validation.email && !isDuplicateEmail ? 'border-green-500' : ''} ${isDuplicateEmail ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                                             required
                                         />
+                                        {isCheckingEmail && (
+                                            <p className="text-xs text-muted-foreground">
+                                                {t('admin.checking_email') || 'Checking email...'}
+                                            </p>
+                                        )}
+                                        {isDuplicateEmail && !isCheckingEmail && (
+                                            <p className="text-xs text-destructive">
+                                                {t('admin.email_exists') || 'This email is already registered.'}
+                                            </p>
+                                        )}
                                         {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                                     </div>
 
@@ -341,7 +431,7 @@ export default function Index() {
                                         <Label htmlFor="contact_number" className="text-sm font-medium">
                                             <Phone className="h-4 w-4 inline mr-1" />
                                             {t('admin.logistic_contact_number_label')} <span className="text-destructive">*</span>
-                                            {validation.phone ? (
+                                            {validation.phone && !isDuplicateContact && !isCheckingContact ? (
                                                 <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
                                             ) : data.contact_number ? (
                                                 <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
@@ -353,16 +443,27 @@ export default function Index() {
                                             placeholder={t('admin.philippine_format_only')} 
                                             value={data.contact_number} 
                                             onChange={(e) => handleContactChange(e.target.value)}
-                                            className={validation.phone ? 'border-green-500' : errors.contact_number ? 'border-red-500' : ''}
+                                            className={`${validation.phone && !isDuplicateContact ? 'border-green-500' : ''} ${isDuplicateContact ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                                             required
                                         />
                                         <p className="text-xs text-muted-foreground">
                                             {t('admin.format_hint')}
                                         </p>
+                                        {isCheckingContact && (
+                                            <p className="text-xs text-muted-foreground">
+                                                {t('admin.checking_contact_number') || 'Checking contact number...'}
+                                            </p>
+                                        )}
+                                        {isDuplicateContact && !isCheckingContact && (
+                                            <p className="text-xs text-destructive">
+                                                {t('admin.contact_number_exists') || 'This contact number is already registered.'}
+                                            </p>
+                                        )}
                                         {errors.contact_number && <p className="text-sm text-red-500">{errors.contact_number}</p>}
                                     </div>
                                 </CardContent>
                             </Card>
+
                             {/* Address Information Card */}
                             <Card className="shadow-sm">
                                 <CardHeader className="pb-3">
@@ -378,177 +479,4 @@ export default function Index() {
                                             <Label htmlFor="street" className="text-sm font-medium">
                                                 {t('admin.street')} <span className="text-destructive">*</span>
                                                 {validation.street ? (
-                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
-                                                ) : (
-                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
-                                                )}
-                                            </Label>
-                                            <Input 
-                                                id="street"
-                                                placeholder={t('admin.street')} 
-                                                value={data.street} 
-                                                onChange={(e) => setData('street', e.target.value)}
-                                                className={validation.street ? 'border-green-500' : errors.street ? 'border-red-500' : ''}
-                                                required
-                                            />
-                                            {errors.street && <p className="text-sm text-red-500">{errors.street}</p>}
-                                        </div>
-
-                                        <div className='space-y-2'>
-                                            <Label htmlFor="barangay" className="text-sm font-medium">
-                                                {t('admin.barangay')} <span className="text-destructive">*</span>
-                                                {validation.barangay ? (
-                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
-                                                ) : (
-                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
-                                                )}
-                                            </Label>
-                                            <Input 
-                                                id="barangay"
-                                                placeholder={t('admin.barangay')} 
-                                                value={data.barangay} 
-                                                onChange={(e) => setData('barangay', e.target.value)}
-                                                className={validation.barangay ? 'border-green-500' : errors.barangay ? 'border-red-500' : ''}
-                                                required
-                                            />
-                                            {errors.barangay && <p className="text-sm text-red-500">{errors.barangay}</p>}
-                                        </div>
-
-                                        <div className='space-y-2'>
-                                            <Label htmlFor="city" className="text-sm font-medium">
-                                                {t('admin.city')} <span className="text-destructive">*</span>
-                                                {validation.city ? (
-                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
-                                                ) : (
-                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
-                                                )}
-                                            </Label>
-                                            <Input 
-                                                id="city"
-                                                placeholder={t('admin.city')} 
-                                                value={data.city} 
-                                                onChange={(e) => setData('city', e.target.value)}
-                                                className={validation.city ? 'border-green-500' : errors.city ? 'border-red-500' : ''}
-                                                required
-                                            />
-                                            {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
-                                        </div>
-
-                                        <div className='space-y-2'>
-                                            <Label htmlFor="province" className="text-sm font-medium">
-                                                {t('admin.province')} <span className="text-destructive">*</span>
-                                                {validation.province ? (
-                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
-                                                ) : (
-                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
-                                                )}
-                                            </Label>
-                                            <Input 
-                                                id="province"
-                                                placeholder={t('admin.province')} 
-                                                value={data.province} 
-                                                onChange={(e) => setData('province', e.target.value)}
-                                                className={validation.province ? 'border-green-500' : errors.province ? 'border-red-500' : ''}
-                                                required
-                                            />
-                                            {errors.province && <p className="text-sm text-red-500">{errors.province}</p>}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                            {/* Registration Date Card */}
-                            <Card className="shadow-sm">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <CalendarIcon className="h-5 w-5" />
-                                        {t('admin.registration_date')}
-                                    </CardTitle>
-                                    <CardDescription>{t('admin.set_registration_date_upload_documents')}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className='space-y-2'>
-                                        <Label htmlFor="registration_date" className="text-sm font-medium">{t('admin.registration_date_label')}</Label>
-                                        <div className="relative">
-                                            {(() => {
-                                                const [date, setDate] = React.useState<Date>(today);
-                                                const [value, setValue] = React.useState<string>(formatDate(today));
-                                                const [month, setMonth] = React.useState<Date>(today);
-                                                const [open, setOpen] = React.useState(false);
-
-                                                return (
-                                                    <>
-                                                        <Input
-                                                            id="date"
-                                                            value={value}
-                                                            placeholder={t('admin.date_placeholder')}
-                                                            className="bg-background pr-10"
-                                                            onChange={(e) => {
-                                                                setValue(e.target.value);
-                                                                const date = new Date(e.target.value);
-                                                                if (isValidDate(date)) {
-                                                                    setDate(date);
-                                                                    setMonth(date);
-                                                                    setData('registration_date', date.toISOString().split('T')[0]);
-                                                                } else {
-                                                                    setData('registration_date', '');
-                                                                }
-                                                            }}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === "ArrowDown") {
-                                                                    e.preventDefault();
-                                                                    setOpen(true);
-                                                                }
-                                                            }}
-                                                        />
-                                                        <Popover open={open} onOpenChange={setOpen}>
-                                                            <PopoverTrigger asChild>
-                                                                <Button id="date-picker" variant="ghost" className="absolute top-1/2 right-2 size-6 -translate-y-1/2" >
-                                                                    <CalendarIcon className="size-3.5" />
-                                                                    <span className="sr-only">{t('admin.select_date')}</span>
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
-                                                                <Calendar
-                                                                    mode="single"
-                                                                    selected={date}
-                                                                    captionLayout="dropdown"
-                                                                    month={month}
-                                                                    onMonthChange={setMonth}
-                                                                    onSelect={(newDate) => {
-                                                                        if (newDate) {
-                                                                            setDate(newDate);
-                                                                            const formatted = formatDate(newDate);
-                                                                            setValue(formatted);
-                                                                            setOpen(false);
-                                                                            setData('registration_date', newDate.toISOString().split('T')[0]);
-                                                                        }
-                                                                    }}
-                                                                    defaultMonth={new Date()}
-                                                                />
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Submit Button */}
-                            <div className="flex justify-end gap-3">
-                                <Button 
-                                    disabled={processing || !isFormValid} 
-                                    type="submit"
-                                >
-                                    {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                    {processing ? t('admin.adding') : t('admin.add_logistics_partner')}
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </AppLayout>
-        </PermissionGuard>
-    );
-}
+                                                    <CheckCircle className="h-4 
