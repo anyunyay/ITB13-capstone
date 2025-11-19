@@ -357,6 +357,15 @@ class User extends Authenticatable implements MustVerifyEmail
             return $this->avatar;
         }
 
+        // Check if avatar is stored in private storage (documents folder)
+        if (str_contains($this->avatar, 'documents/')) {
+            // Extract filename from path
+            $filename = basename($this->avatar);
+            // Return URL for private file route
+            return url("/private-file/documents/{$filename}");
+        }
+
+        // For legacy public storage paths
         // Ensure path starts with /
         if (!str_starts_with($this->avatar, '/')) {
             return '/' . $this->avatar;

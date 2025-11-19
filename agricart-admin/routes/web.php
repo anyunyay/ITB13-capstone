@@ -78,6 +78,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('admin.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('admin.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
+        Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar.upload');
+        Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('admin.profile.avatar.delete');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
 
         // System Logs routes (admin and staff only)
@@ -333,6 +335,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('logistic.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('logistic.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
+        Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('logistic.profile.avatar.upload');
+        Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('logistic.profile.avatar.delete');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('logistic.profile.appearance');
 
         // Logistic Email Change routes (modal-based)
@@ -369,6 +373,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('member.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('member.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
+        Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('member.profile.avatar.upload');
+        Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('member.profile.avatar.delete');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('member.profile.appearance');
 
         // Member Email Change routes removed - members don't need email functionality

@@ -71,7 +71,7 @@ class FileController extends Controller
 
         // Check authorization based on folder type
         try {
-            $this->authorizePrivateFileAccess($user, $folder);
+            $this->authorizePrivateFileAccess($user, $folder, $filename);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -114,10 +114,18 @@ class FileController extends Controller
         }
     }
 
-    private function authorizePrivateFileAccess($user, $folder)
+    private function authorizePrivateFileAccess($user, $folder, $filename = null)
     {
         switch ($folder) {
             case 'documents':
+                // Check if this is an avatar file (avatars are stored in documents folder)
+                // Avatar files typically start with 'avatar_' or match user's avatar filename
+                if ($filename && $this->isUserAvatar($user, $filename)) {
+                    // Users can access their own avatars
+                    return;
+                }
+                
+                // For other documents, only admin and staff can access
                 if (!in_array($user->type, ['admin', 'staff'])) {
                     abort(403, 'Unauthorized to access documents');
                 }
@@ -132,5 +140,24 @@ class FileController extends Controller
             default:
                 abort(403, 'Invalid folder access');
         }
+    }
+
+    /**
+     * Check if the requested file is the user's own avatar
+     */
+    private function isUserAvatar($user, $filename)
+    {
+        // Get the user's avatar path
+        $userAvatarPath = $user->avatar;
+        
+        if (!$userAvatarPath) {
+            return false;
+        }
+        
+        // Extract filename from the avatar path
+        $avatarFilename = basename($userAvatarPath);
+        
+        // Check if the requested filename matches the user's avatar
+        return $avatarFilename === $filename;
     }
 }
