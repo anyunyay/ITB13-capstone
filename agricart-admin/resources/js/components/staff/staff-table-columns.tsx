@@ -55,10 +55,6 @@ export const createStaffTableColumns = (
     key: 'id',
     label: t('staff.id'),
     sortable: true,
-    align: 'center',
-    maxWidth: '80px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <span className="text-sm text-muted-foreground">{staff.id}</span>
     )
@@ -67,10 +63,6 @@ export const createStaffTableColumns = (
     key: 'name',
     label: t('staff.name'),
     sortable: true,
-    align: 'left',
-    maxWidth: '160px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <div className="text-sm font-medium text-foreground">{staff.name}</div>
     )
@@ -79,10 +71,6 @@ export const createStaffTableColumns = (
     key: 'email',
     label: t('staff.email'),
     sortable: false,
-    align: 'left',
-    maxWidth: '180px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <span className="text-sm text-muted-foreground">{staff.email}</span>
     )
@@ -91,10 +79,6 @@ export const createStaffTableColumns = (
     key: 'contact_number',
     label: t('staff.contact'),
     sortable: false,
-    align: 'left',
-    maxWidth: '140px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <span className="text-sm text-muted-foreground">
         {staff.contact_number || t('admin.na')}
@@ -105,12 +89,8 @@ export const createStaffTableColumns = (
     key: 'address',
     label: t('staff.address'),
     sortable: false,
-    align: 'left',
-    maxWidth: '220px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground line-clamp-2">
+      <span className="text-sm text-muted-foreground">
         {staff.default_address
           ? `${staff.default_address.street}, ${staff.default_address.barangay}, ${staff.default_address.city}, ${staff.default_address.province}`
           : t('admin.na')}
@@ -121,10 +101,6 @@ export const createStaffTableColumns = (
     key: 'permissions',
     label: t('staff.permissions'),
     sortable: false,
-    align: 'left',
-    maxWidth: '250px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <div className="flex flex-wrap gap-1">
         {staff.permissions.length > 0 ? (
@@ -170,10 +146,6 @@ export const createStaffTableColumns = (
     key: 'status',
     label: t('staff.status'),
     sortable: true,
-    align: 'center',
-    maxWidth: '110px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       staff.email_verified_at ? (
         <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
@@ -190,10 +162,6 @@ export const createStaffTableColumns = (
     key: 'created_at',
     label: t('staff.created'),
     sortable: true,
-    align: 'left',
-    maxWidth: '130px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
       <span className="text-sm text-muted-foreground">
         {new Date(staff.created_at).toLocaleDateString()}
@@ -204,12 +172,8 @@ export const createStaffTableColumns = (
     key: 'actions',
     label: t('staff.actions'),
     sortable: false,
-    align: 'center',
-    maxWidth: '200px',
-    headerClassName: 'px-4',
-    cellClassName: 'px-4',
     render: (staff) => (
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-2">
         <PermissionGate permission="edit staffs">
           <Button
             asChild
