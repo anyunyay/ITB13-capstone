@@ -11,6 +11,7 @@ import { DashboardHeader } from '@/components/logistics/dashboard-header';
 import { LogisticManagement } from '@/components/logistics/logistic-management';
 import { DeactivationModal } from '@/components/logistics/deactivation-modal';
 import { ReactivationModal } from '@/components/logistics/reactivation-modal';
+import { LogisticDeletionModal } from '@/components/logistics/logistic-deletion-modal';
 import { Logistic, LogisticStats } from '@/types/logistics';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -35,6 +36,7 @@ export default function Index() {
     const [showDeactivated, setShowDeactivated] = useState(false);
     const [showDeactivationModal, setShowDeactivationModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
+    const [showDeletionModal, setShowDeletionModal] = useState(false);
     const [selectedLogistic, setSelectedLogistic] = useState<Logistic | null>(null);
     const [highlightLogisticId, setHighlightLogisticId] = useState<number | null>(null);
 
@@ -163,14 +165,26 @@ export default function Index() {
 
     // Handle deletion
     const handleDelete = (logistic: Logistic) => {
-        if (confirm(t('admin.confirm_delete_logistic'))) {
-            destroy(route('logistics.hard-delete', logistic.id), {
+        setSelectedLogistic(logistic);
+        setShowDeletionModal(true);
+    };
+
+    const handleConfirmDeletion = () => {
+        if (selectedLogistic) {
+            destroy(route('logistics.hard-delete', selectedLogistic.id), {
                 onSuccess: () => {
-                    setHighlightLogisticId(logistic.id);
+                    setShowDeletionModal(false);
+                    setSelectedLogistic(null);
+                    setHighlightLogisticId(selectedLogistic.id);
                     setTimeout(() => setHighlightLogisticId(null), 3000);
                 }
             });
         }
+    };
+
+    const handleCancelDeletion = () => {
+        setShowDeletionModal(false);
+        setSelectedLogistic(null);
     };
 
     return (
@@ -230,6 +244,15 @@ export default function Index() {
                             onClose={handleCancelReactivation}
                             onConfirm={handleConfirmReactivation}
                             logistic={selectedLogistic}
+                            processing={processing}
+                        />
+
+                        {/* Deletion Modal */}
+                        <LogisticDeletionModal
+                            isOpen={showDeletionModal}
+                            onClose={handleCancelDeletion}
+                            logistic={selectedLogistic}
+                            onConfirm={handleConfirmDeletion}
                             processing={processing}
                         />
                     </div>

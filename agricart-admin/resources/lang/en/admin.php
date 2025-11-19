@@ -1437,4 +1437,19 @@ return [
     'no_changes' => 'No Changes',
     'ready_to_submit' => 'Ready to Submit',
     'incomplete_form' => 'Incomplete Form',
+
+    // Deletion Modals
+    'confirm_delete' => 'Confirm Deletion',
+    'cannot_delete' => 'Cannot Delete',
+    'delete_staff_warning' => 'Are you sure you want to permanently delete :name? This action cannot be undone.',
+    'delete_member_warning' => 'Are you sure you want to permanently delete :name? This action cannot be undone.',
+    'delete_logistic_warning' => 'Are you sure you want to permanently delete :name? This action cannot be undone.',
+    'delete_action_permanent' => 'This action is permanent and cannot be reversed.',
+    'cannot_delete_has_linked_data' => 'This user cannot be deleted because they have linked data in the system.',
+    'please_deactivate_instead' => 'Please deactivate this user instead to preserve data integrity.',
+    'confirm_delete_staff' => 'Are you sure you want to delete this staff member?',
+    'confirm_delete_member' => 'Are you sure you want to delete this member?',
+    'confirm_delete_logistic' => 'Are you sure you want to delete this logistic?',
+    'confirm_deactivate_staff' => 'Are you sure you want to deactivate this staff member?',
+    'confirm_reactivate_staff' => 'Are you sure you want to reactivate this staff member?',
 ];
