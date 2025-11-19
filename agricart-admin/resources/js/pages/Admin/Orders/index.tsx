@@ -136,13 +136,6 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // Handle status change
-  const handleStatusChange = (status: string) => {
-    setSelectedStatus(status);
-    setCurrentPage(1); // Reset to first page when changing status
-    router.get(route('admin.orders.index'), { status }, { preserveState: true });
-  };
-
   // Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -164,9 +157,7 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
           <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
             <DashboardHeader orderStats={orderStats} />
             <OrderManagement
-              orders={orders}
               allOrders={allOrders}
-              currentStatus={selectedStatus}
               highlightOrderId={highlightOrderId}
               urgentOrders={safeUrgentOrders}
               searchTerm={searchTerm}
@@ -183,7 +174,6 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
               setCurrentPage={setCurrentPage}
               totalPages={totalPages}
               itemsPerPage={itemsPerPage}
-              onStatusChange={handleStatusChange}
               currentView={currentView}
               setCurrentView={setCurrentView}
               sortBy={sortBy}
