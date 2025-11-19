@@ -56,7 +56,7 @@ export function AppSidebar() {
           if (can('view orders') || can('manage orders') || 
       can('generate order report')) {
     mainNavItems.push({
-      title: t('admin.orders'),
+      title: t('admin.orders_title'),
       href: '/admin/orders',
       icon: ClipboardPen,
     });
