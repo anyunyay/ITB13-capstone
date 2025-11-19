@@ -198,6 +198,7 @@ return [
     'action_sale' => 'Benta',
     'action_reversal' => 'Pagbabaliktad',
     'sold_out' => 'Naubos na',
+    'sold_date' => 'Petsa ng Pagbenta',
     'kg_sold' => 'kg naibenta',
     'sold_label' => 'naibenta',
     'filtered_results' => 'Mga resultang na-filter',

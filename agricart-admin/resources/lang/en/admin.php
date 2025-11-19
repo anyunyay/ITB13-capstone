@@ -200,6 +200,7 @@ return [
     'action_sale' => 'Sale',
     'action_reversal' => 'Reversal',
     'sold_out' => 'Sold Out',
+    'sold_date' => 'Sold Date',
     'kg_sold' => 'kg sold',
     'sold_label' => 'sold',
     'filtered_results' => 'Filtered results',

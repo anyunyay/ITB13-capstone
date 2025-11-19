@@ -96,12 +96,43 @@ class InventoryController extends Controller
                 },
                 'member' => function ($query) {
                     $query->select('id', 'name');
+                },
+                'stockTrails' => function ($query) {
+                    // Get the most recent trail entry (likely the 'completed' or final 'sale' action)
+                    $query->with(['performedByUser' => function ($q) {
+                        $q->select('id', 'name', 'type');
+                    }])
+                    ->select('id', 'stock_id', 'performed_by', 'performed_by_type', 'action_type', 'created_at')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1);
                 }
             ])
             ->select('id', 'product_id', 'member_id', 'quantity', 'sold_quantity', 'category', 'updated_at')
             ->orderBy('updated_at', 'desc')
             ->limit(20) // Reduced from 50
-            ->get();
+            ->get()
+            ->map(function ($stock) {
+                // Get the most recent stock trail entry to find who processed the final action
+                $latestTrail = $stock->stockTrails->first();
+                return [
+                    'id' => $stock->id,
+                    'product_id' => $stock->product_id,
+                    'member_id' => $stock->member_id,
+                    'quantity' => $stock->quantity,
+                    'sold_quantity' => $stock->sold_quantity,
+                    'category' => $stock->category,
+                    'updated_at' => $stock->updated_at,
+                    'sold_at' => $latestTrail ? $latestTrail->created_at : $stock->updated_at, // Date when fully sold
+                    'product' => $stock->product,
+                    'member' => $stock->member,
+                    'performed_by_user' => $latestTrail && $latestTrail->performedByUser ? [
+                        'id' => $latestTrail->performedByUser->id,
+                        'name' => $latestTrail->performedByUser->name,
+                        'type' => $latestTrail->performedByUser->type,
+                    ] : null,
+                    'performed_by_type' => $latestTrail ? $latestTrail->performed_by_type : null,
+                ];
+            });
 
         // Drastically reduce stock trails for initial load
         $stockTrails = StockTrail::with([

@@ -115,7 +115,9 @@ export const StockManagement = ({
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.stock_id')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.product_name')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.quantity_sold')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.sold_date')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.assigned_to')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.performed_by')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
                     </TableRow>
                 );
@@ -303,8 +305,32 @@ export const StockManagement = ({
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[120px] text-center">
+                                    <div className="text-sm">
+                                        {item.sold_at ? new Date(item.sold_at).toLocaleDateString() : '-'}
+                                    </div>
+                                    {item.sold_at && (
+                                        <div className="text-xs text-muted-foreground">
+                                            {new Date(item.sold_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[150px] text-left">
                                     {item.member?.name || t('admin.unassigned')}
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[150px] text-left">
+                                    <div className="font-medium text-sm">{item.performedBy || t('admin.system')}</div>
+                                    {item.performedByType && (
+                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
+                                    )}
                                 </div>
                             </div>
                         </TableCell>
@@ -530,8 +556,23 @@ export const StockManagement = ({
                                 </span>
                             </div>
                             <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.sold_date')}:</span>
+                                <span className="font-medium">
+                                    {item.sold_at ? new Date(item.sold_at).toLocaleDateString() : '-'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">{t('admin.assigned_to')}:</span>
                                 <span>{item.member?.name || t('admin.unassigned')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.performed_by')}:</span>
+                                <div className="text-right">
+                                    <div className="font-medium">{item.performedBy || t('admin.system')}</div>
+                                    {item.performedByType && (
+                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
@@ -666,6 +707,14 @@ export const StockManagement = ({
                 </p>
             </div>
         );
+    };
+
+    const getTransformedSoldStocks = () => {
+        return soldStocks.map((stock: any) => ({
+            ...stock,
+            performedBy: stock.performed_by_user?.name || null,
+            performedByType: stock.performed_by_type || stock.performed_by_user?.type || null
+        }));
     };
 
     const getCombinedTrailData = () => {
@@ -941,7 +990,7 @@ export const StockManagement = ({
                 ) : (
                     <div>
                         {currentView === 'trail' && renderUnifiedTable(getCombinedTrailData(), 'trail', t('admin.stock_trail'))}
-                        {currentView === 'sold' && renderUnifiedTable(soldStocks, 'sold', t('admin.sold_history'))}
+                        {currentView === 'sold' && renderUnifiedTable(getTransformedSoldStocks(), 'sold', t('admin.sold_history'))}
                     </div>
                 )}
             </div>

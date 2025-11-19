@@ -134,6 +134,13 @@ export interface SoldStock {
     status: string;
     created_at: string;
     updated_at: string;
+    sold_at?: string;
+    performed_by_user?: {
+        id: number;
+        name: string;
+        type: string;
+    } | null;
+    performed_by_type?: string | null;
     product?: {
         id: number;
         name: string;
