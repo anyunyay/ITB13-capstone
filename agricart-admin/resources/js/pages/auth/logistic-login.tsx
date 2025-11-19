@@ -162,8 +162,6 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
                     </div>
                 </form>
 
-                {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-
                 {lockoutStatus?.locked && (
                     <div className="mb-4 text-center text-sm font-medium text-red-600">
                         Account temporarily locked. You can try using{' '}
