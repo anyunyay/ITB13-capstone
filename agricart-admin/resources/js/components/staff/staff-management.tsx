@@ -70,8 +70,9 @@ export const StaffManagement = ({
 
     // Create column definitions
     const staffColumns = useMemo(() => {
-        return createStaffTableColumns(t, processing, onDelete);
-    }, [t, processing, onDelete]);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return createStaffTableColumns(t, processing, onDelete, startIndex);
+    }, [t, processing, onDelete, currentPage, itemsPerPage]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">

@@ -70,8 +70,9 @@ export const LogisticManagement = ({
 
     // Create column definitions
     const logisticsColumns = useMemo(() => {
-        return createLogisticsTableColumns(t, processing, onDeactivate, onReactivate);
-    }, [t, processing, onDeactivate, onReactivate]);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return createLogisticsTableColumns(t, processing, onDeactivate, onReactivate, startIndex);
+    }, [t, processing, onDeactivate, onReactivate, currentPage, itemsPerPage]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">

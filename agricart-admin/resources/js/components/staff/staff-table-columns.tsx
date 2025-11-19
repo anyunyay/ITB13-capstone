@@ -49,16 +49,19 @@ const getPermissionDisplayName = (permission: string) => {
 export const createStaffTableColumns = (
   t: (key: string, params?: any) => string,
   processing: boolean,
-  onDelete: (staff: Staff) => void
+  onDelete: (staff: Staff) => void,
+  startIndex: number = 0
 ): BaseTableColumn<Staff>[] => [
   {
-    key: 'id',
-    label: t('staff.id'),
-    sortable: true,
+    key: 'index',
+    label: t('admin.id_column'),
+    sortable: false,
     align: 'center',
     maxWidth: '80px',
-    render: (staff) => (
-      <span className="text-sm text-muted-foreground text-center">{staff.id}</span>
+    render: (staff, index) => (
+      <div className="flex justify-center">
+        <Badge variant="outline">#{startIndex + index + 1}</Badge>
+      </div>
     )
   },
   {

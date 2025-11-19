@@ -12,16 +12,19 @@ export const createLogisticsTableColumns = (
   t: (key: string) => string,
   processing: boolean,
   onDeactivate: (logistic: Logistic) => void,
-  onReactivate: (logistic: Logistic) => void
+  onReactivate: (logistic: Logistic) => void,
+  startIndex: number = 0
 ): BaseTableColumn<Logistic>[] => [
   {
-    key: 'id',
-    label: 'ID',
-    sortable: true,
+    key: 'index',
+    label: t('admin.id_column'),
+    sortable: false,
     align: 'center',
     maxWidth: '80px',
-    render: (logistic) => (
-      <div className="text-sm text-foreground font-medium text-center">{logistic.id}</div>
+    render: (logistic, index) => (
+      <div className="flex justify-center">
+        <Badge variant="outline">#{startIndex + index + 1}</Badge>
+      </div>
     ),
   },
   {
