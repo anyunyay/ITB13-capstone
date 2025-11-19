@@ -26,6 +26,8 @@ return [
     'deleting' => 'Tinatanggal...',
     'updating' => 'Ina-update...',
     'creating' => 'Ginagawa...',
+    'deactivating' => 'Dini-deactivate...',
+    'reactivating' => 'Ini-reactivate...',
     'hide_search' => 'Itago ang Search',
     'prev' => 'Nauna',
 

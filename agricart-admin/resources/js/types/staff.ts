@@ -5,6 +5,7 @@ export interface Staff {
     contact_number?: string;
     created_at: string;
     email_verified_at?: string;
+    active: boolean;
     permissions: Array<{ name: string }>;
     default_address?: {
         id: number;
@@ -14,6 +15,10 @@ export interface Staff {
         province: string;
         full_address: string;
     };
+    can_be_deactivated: boolean;
+    deactivation_reason?: string;
+    can_be_deleted: boolean;
+    deletion_reason?: string;
 }
 
 export interface StaffStats {

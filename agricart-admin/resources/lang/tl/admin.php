@@ -1491,4 +1491,12 @@ return [
     'confirm_delete_logistic' => 'Sigurado ka bang gusto mong tanggalin ang logistic na ito?',
     'confirm_deactivate_staff' => 'Sigurado ka bang gusto mong i-deactivate ang staff member na ito?',
     'confirm_reactivate_staff' => 'Sigurado ka bang gusto mong i-reactivate ang staff member na ito?',
+    'confirm_deactivate' => 'Kumpirmahin ang Pag-deactivate',
+    'cannot_deactivate' => 'Hindi Maaaring I-deactivate',
+    'confirm_reactivate' => 'Kumpirmahin ang Pag-reactivate',
+    'deactivate_staff_warning' => 'Sigurado ka bang gusto mong i-deactivate si :name? Hindi na sila makakapag-access sa sistema.',
+    'deactivate_staff_description' => 'Ang staff member na ito ay maaaring i-reactivate mamaya kung kinakailangan.',
+    'cannot_deactivate_staff' => 'Ang staff member na ito ay hindi maaaring i-deactivate sa ngayon.',
+    'reactivate_staff_warning' => 'Sigurado ka bang gusto mong i-reactivate si :name? Makakakuha sila ulit ng access sa sistema.',
+    'reactivate_staff_description' => 'Ang staff member na ito ay makakapag-log in at makakapagsagawa ng kanilang mga tungkulin.',
 ];

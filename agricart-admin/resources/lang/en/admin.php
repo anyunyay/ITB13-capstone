@@ -1452,4 +1452,12 @@ return [
     'confirm_delete_logistic' => 'Are you sure you want to delete this logistic?',
     'confirm_deactivate_staff' => 'Are you sure you want to deactivate this staff member?',
     'confirm_reactivate_staff' => 'Are you sure you want to reactivate this staff member?',
+    'confirm_deactivate' => 'Confirm Deactivation',
+    'cannot_deactivate' => 'Cannot Deactivate',
+    'confirm_reactivate' => 'Confirm Reactivation',
+    'deactivate_staff_warning' => 'Are you sure you want to deactivate :name? They will no longer be able to access the system.',
+    'deactivate_staff_description' => 'This staff member can be reactivated later if needed.',
+    'cannot_deactivate_staff' => 'This staff member cannot be deactivated at this time.',
+    'reactivate_staff_warning' => 'Are you sure you want to reactivate :name? They will regain access to the system.',
+    'reactivate_staff_description' => 'This staff member will be able to log in and perform their assigned duties.',
 ];

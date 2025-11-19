@@ -26,6 +26,8 @@ return [
     'deleting' => 'Deleting...',
     'updating' => 'Updating...',
     'creating' => 'Creating...',
+    'deactivating' => 'Deactivating...',
+    'reactivating' => 'Reactivating...',
     'hide_search' => 'Hide Search',
     'prev' => 'Prev',
 

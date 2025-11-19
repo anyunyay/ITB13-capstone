@@ -9,6 +9,8 @@ import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { StatsOverview } from '@/components/staff/stats-overview';
 import { StaffManagement } from '@/components/staff/staff-management';
 import { StaffDeletionModal } from '@/components/staff/staff-deletion-modal';
+import { StaffDeactivationModal } from '@/components/staff/staff-deactivation-modal';
+import { StaffReactivationModal } from '@/components/staff/staff-reactivation-modal';
 import { Staff, StaffStats, StaffFilters, StaffPagination } from '@/types/staff';
 import { useState, useMemo } from 'react';
 import { route } from 'ziggy-js';
@@ -39,6 +41,8 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
   const [showDeletionModal, setShowDeletionModal] = useState(false);
+  const [showDeactivationModal, setShowDeactivationModal] = useState(false);
+  const [showReactivationModal, setShowReactivationModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
 
   const itemsPerPage = 10;
@@ -171,12 +175,19 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
 
   // Handle staff deactivation
   const handleDeactivateStaff = (staffMember: Staff) => {
-    if (confirm(t('admin.confirm_deactivate_staff'))) {
+    setSelectedStaff(staffMember);
+    setShowDeactivationModal(true);
+  };
+
+  const handleConfirmDeactivation = () => {
+    if (selectedStaff) {
       setProcessing(true);
-      router.post(route('staff.deactivate', staffMember.id), {}, {
+      router.post(route('staff.deactivate', selectedStaff.id), {}, {
         onSuccess: () => {
           setProcessing(false);
-          setHighlightStaffId(staffMember.id);
+          setShowDeactivationModal(false);
+          setSelectedStaff(null);
+          setHighlightStaffId(selectedStaff.id);
           setTimeout(() => setHighlightStaffId(null), 3000);
         },
         onError: () => {
@@ -186,14 +197,26 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
     }
   };
 
+  const handleCancelDeactivation = () => {
+    setShowDeactivationModal(false);
+    setSelectedStaff(null);
+  };
+
   // Handle staff reactivation
   const handleReactivateStaff = (staffMember: Staff) => {
-    if (confirm(t('admin.confirm_reactivate_staff'))) {
+    setSelectedStaff(staffMember);
+    setShowReactivationModal(true);
+  };
+
+  const handleConfirmReactivation = () => {
+    if (selectedStaff) {
       setProcessing(true);
-      router.post(route('staff.reactivate', staffMember.id), {}, {
+      router.post(route('staff.reactivate', selectedStaff.id), {}, {
         onSuccess: () => {
           setProcessing(false);
-          setHighlightStaffId(staffMember.id);
+          setShowReactivationModal(false);
+          setSelectedStaff(null);
+          setHighlightStaffId(selectedStaff.id);
           setTimeout(() => setHighlightStaffId(null), 3000);
         },
         onError: () => {
@@ -201,6 +224,11 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
         },
       });
     }
+  };
+
+  const handleCancelReactivation = () => {
+    setShowReactivationModal(false);
+    setSelectedStaff(null);
   };
 
   return (
@@ -283,7 +311,23 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
               setShowSearch={setShowSearch}
             />
 
-            {/* Deletion Modal */}
+            {/* Modals */}
+            <StaffDeactivationModal
+              isOpen={showDeactivationModal}
+              onClose={handleCancelDeactivation}
+              staff={selectedStaff}
+              onConfirm={handleConfirmDeactivation}
+              processing={processing}
+            />
+
+            <StaffReactivationModal
+              isOpen={showReactivationModal}
+              onClose={handleCancelReactivation}
+              staff={selectedStaff}
+              onConfirm={handleConfirmReactivation}
+              processing={processing}
+            />
+
             <StaffDeletionModal
               isOpen={showDeletionModal}
               onClose={handleCancelDeletion}
