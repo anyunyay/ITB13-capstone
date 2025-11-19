@@ -1,7 +1,7 @@
 import AppHeaderLayout from '@/layouts/app/app-header-layout';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,33 +19,9 @@ interface PageProps {
 export default function AboutUs({ }: PageProps) {
   const t = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const valuesRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
-
-  // Throttled scroll handler for better performance
-  const handleScroll = useCallback(() => {
-    setScrollY(window.scrollY);
-  }, []);
-
-  // Scroll listener for parallax effects with throttling
-  useEffect(() => {
-    let ticking = false;
-
-    const throttledScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-    return () => window.removeEventListener('scroll', throttledScroll);
-  }, [handleScroll]);
 
   // Intersection Observer for animations
   useEffect(() => {
@@ -97,22 +73,19 @@ export default function AboutUs({ }: PageProps) {
       icon: <Truck className="w-12 h-12" />,
       title: t('customer.fresh_produce_sourcing'),
       description: t('customer.fresh_produce_sourcing_desc'),
-      image: "/images/frontpage/About_Us_4.1.jpg",
-      parallaxSpeed: 0.1
+      image: "/images/frontpage/About_Us_4.1.jpg"
     },
     {
       icon: <Heart className="w-12 h-12" />,
       title: t('customer.cooperative_support'),
       description: t('customer.cooperative_support_desc'),
-      image: "/images/frontpage/About_Us_5.jpg",
-      parallaxSpeed: 0.1
+      image: "/images/frontpage/About_Us_5.jpg"
     },
     {
       icon: <Shield className="w-12 h-12" />,
       title: t('customer.quality_assurance'),
       description: t('customer.quality_assurance_desc'),
-      image: "/images/frontpage/About_Us_6.jpg",
-      parallaxSpeed: 0.1
+      image: "/images/frontpage/About_Us_6.jpg"
     }
   ];
 
@@ -392,7 +365,7 @@ export default function AboutUs({ }: PageProps) {
           </div>
         </section>
 
-        {/* Services Section with Parallax - Outside scroll-snap container for free scrolling */}
+        {/* Services Section */}
         <section
           ref={servicesRef}
           className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
@@ -416,28 +389,20 @@ export default function AboutUs({ }: PageProps) {
                   className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary text-primary-foreground lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center rounded-2xl overflow-hidden shadow-xl ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                     }`}
                 >
-                  {/* Image/Visual with Parallax */}
+                  {/* Image/Visual */}
                   <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
                     <div className="w-full h-24 sm:h-40 md:h-48 lg:h-56 overflow-hidden shadow-lg relative">
-                      <motion.div
-                        className="w-full h-full"
-                        style={{
-                          transform: `translate3d(0, ${(scrollY - (servicesRef.current?.offsetTop || 0)) * service.parallaxSpeed}px, 0)`,
-                          willChange: 'transform'
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
                         }}
-                      >
-                        <img
-                          src={service.image}
-                          alt={service.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                        {/* Overlay for better text contrast if needed */}
-                        <div className="absolute inset-0 bg-black/20"></div>
-                      </motion.div>
+                      />
+                      {/* Overlay for better text contrast if needed */}
+                      <div className="absolute inset-0 bg-black/20"></div>
                     </div>
                   </div>
 
