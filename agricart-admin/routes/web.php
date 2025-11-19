@@ -73,17 +73,17 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     Route::prefix('/admin')->middleware(['role:admin|staff'])->group(function () {
         // Dashboard routes
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard'); // Admin Dashboard
-        
+
         // Admin Profile routes
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('admin.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('admin.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('admin.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('admin.profile.appearance');
-        
+
         // System Logs routes (admin and staff only)
         Route::get('/system-logs', [SystemLogsController::class, 'index'])->name('admin.system-logs');
         Route::get('/system-logs/export', [SystemLogsController::class, 'export'])->name('admin.system-logs.export');
-        
+
         // Admin Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('admin.profile.email-change.send-otp');
         Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('admin.profile.email-change.verify');
@@ -115,7 +115,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:generate inventory report'])->group(function () {
             Route::get('/inventory/report', [InventoryController::class, 'generateReport'])->name('inventory.report');
         });
-        
+
         // Archive routes
         Route::middleware(['can:view archive'])->get('/inventory/archive', [InventoryArchiveController::class, 'index'])->name('inventory.archived.index'); // View Archived Products
         Route::middleware(['can:archive products'])->post('/inventory/{product}/archive', [InventoryArchiveController::class, 'archive'])->name('inventory.archive'); // Archive Product
@@ -204,7 +204,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:edit members'])->delete('/membership/{member}/document', [MembershipController::class, 'deleteDocument'])->name('membership.delete-document'); // Delete Member Document
         Route::middleware(['can:view membership'])->get('/membership/deactivated', [MembershipController::class, 'deactivated'])->name('membership.deactivated'); // View Deactivated Members
         Route::middleware(['can:reactivate members'])->post('/membership/{member}/reactivate', [MembershipController::class, 'reactivate'])->name('membership.reactivate'); // Reactivate Member
-        
+
         // Password change request routes
         Route::middleware(['can:edit members'])->group(function () {
             Route::post('/membership/password-change/{requestId}/approve', [MembershipController::class, 'approvePasswordChange'])->name('membership.approve-password-change');
@@ -241,19 +241,19 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
 
         Route::middleware(['can:generate staff report'])->get('/staff/report', [StaffController::class, 'generateReport'])->name('admin.staff.report');
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
-        
+
         // Notification routes
         Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
         Route::post('/notifications/mark-read', [AdminNotificationController::class, 'markRead'])->name('admin.notifications.markRead');
         Route::post('/notifications/mark-all-read', [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.markAllRead');
         Route::post('/notifications/{id}/hide-from-header', [AdminNotificationController::class, 'hideFromHeader'])->name('admin.notifications.hideFromHeader');
         Route::post('/notifications/hide-all-from-header', [AdminNotificationController::class, 'hideAllFromHeader'])->name('admin.notifications.hideAllFromHeader');
-        
+
         // Profile Notification page
         Route::get('/profile/notifications', [AdminNotificationController::class, 'profileIndex'])->name('admin.profile.notifications');
     });
 
-        
+
     // Customer routes
     Route::prefix('/customer')->middleware(['role:customer'])->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -266,7 +266,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::get('/orders/report', [CustomerOrderController::class, 'generateReport'])->name('orders.report');
         Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('customer.orders.cancel');
         Route::post('/orders/{order}/confirm-received', [CustomerOrderController::class, 'confirmReceived'])->name('customer.orders.confirmReceived');
-        
+
         // Customer Profile routes - Individual pages only
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('customer.profile.update.patch');
@@ -275,7 +275,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('customer.profile.avatar.upload');
         Route::delete('/profile/avatar/delete', [ProfileController::class, 'deleteAvatar'])->name('customer.profile.avatar.delete');
         Route::post('/profile/logout', [ProfileController::class, 'logout'])->name('customer.profile.logout');
-        
+
         // Address management routes
         Route::get('/profile/addresses', [AddressController::class, 'index'])->name('customer.profile.addresses.index');
         Route::post('/profile/addresses', [AddressController::class, 'store'])->name('customer.profile.addresses.store');
@@ -287,35 +287,35 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::post('/profile/addresses/{address}/update-main', [AddressController::class, 'updateMainAddress'])->name('customer.profile.addresses.updateMain');
         Route::put('/profile/main-address', [AddressController::class, 'updateMainAddressFields'])->name('customer.profile.main-address.update');
         Route::get('/profile/current-address', [AddressController::class, 'getCurrentAddress'])->name('customer.profile.currentAddress');
-        
-        
+
+
         // Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('customer.profile.email-change.send-otp');
         Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('customer.profile.email-change.verify');
         Route::post('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'verifyOtp'])->name('customer.profile.email-change.verify-otp');
         Route::post('/profile/email-change/resend/{requestId}', [EmailChangeController::class, 'resendOtp'])->name('customer.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [EmailChangeController::class, 'cancel'])->name('customer.profile.email-change.cancel');
-        
+
         // Phone Change routes (modal-based)
         Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('customer.profile.phone-change.send-otp');
         Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('customer.profile.phone-change.verify');
         Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('customer.profile.phone-change.verify-otp');
         Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('customer.profile.phone-change.resend');
         Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('customer.profile.phone-change.cancel');
-        
+
         // Individual profile section pages
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('customer.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('customer.profile.password');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('customer.profile.appearance');
         Route::get('/profile/help', [ProfileController::class, 'help'])->name('customer.profile.help');
-        
+
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
         Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
         Route::post('/notifications/{id}/hide-from-header', [NotificationController::class, 'hideFromHeader'])->name('notifications.hideFromHeader');
         Route::post('/notifications/hide-all-from-header', [NotificationController::class, 'hideAllFromHeader'])->name('notifications.hideAllFromHeader');
-        
+
         // Profile Notification page
         Route::get('/profile/notifications', [NotificationController::class, 'profileIndex'])->name('customer.profile.notifications');
     });
@@ -328,34 +328,34 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::put('/orders/{order}/delivery-status', [LogisticController::class, 'updateDeliveryStatus'])->name('logistic.orders.updateDeliveryStatus');
         Route::post('/orders/{order}/mark-delivered', [LogisticController::class, 'markDelivered'])->name('logistic.orders.markDelivered');
         Route::get('/report', [LogisticController::class, 'generateReport'])->name('logistic.report');
-        
+
         // Logistic Profile routes
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('logistic.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('logistic.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('logistic.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('logistic.profile.appearance');
-        
+
         // Logistic Email Change routes (modal-based)
         Route::post('/profile/email-change/send-otp', [EmailChangeController::class, 'sendOtp'])->name('logistic.profile.email-change.send-otp');
         Route::get('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'showVerify'])->name('logistic.profile.email-change.verify');
         Route::post('/profile/email-change/verify/{requestId}', [EmailChangeController::class, 'verifyOtp'])->name('logistic.profile.email-change.verify-otp');
         Route::post('/profile/email-change/resend/{requestId}', [EmailChangeController::class, 'resendOtp'])->name('logistic.profile.email-change.resend');
         Route::post('/profile/email-change/cancel/{requestId}', [EmailChangeController::class, 'cancel'])->name('logistic.profile.email-change.cancel');
-        
+
         // Logistic Phone Change routes (modal-based)
         Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('logistic.profile.phone-change.send-otp');
         Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('logistic.profile.phone-change.verify');
         Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('logistic.profile.phone-change.verify-otp');
         Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('logistic.profile.phone-change.resend');
         Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('logistic.profile.phone-change.cancel');
-        
+
         // Notification routes
         Route::get('/notifications', [LogisticNotificationController::class, 'index'])->name('logistic.notifications.index');
         Route::post('/notifications/mark-read', [LogisticNotificationController::class, 'markRead'])->name('logistic.notifications.markRead');
         Route::post('/notifications/mark-all-read', [LogisticNotificationController::class, 'markAllRead'])->name('logistic.notifications.markAllRead');
         Route::post('/notifications/{id}/hide-from-header', [LogisticNotificationController::class, 'hideFromHeader'])->name('logistic.notifications.hideFromHeader');
         Route::post('/notifications/hide-all-from-header', [LogisticNotificationController::class, 'hideAllFromHeader'])->name('logistic.notifications.hideAllFromHeader');
-        
+
         // Profile Notification page
         Route::get('/profile/notifications', [LogisticNotificationController::class, 'profileIndex'])->name('logistic.profile.notifications');
     });
@@ -364,27 +364,27 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
     Route::prefix('/member')->middleware(['role:member'])->group(function () {
         Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('member.dashboard');
         Route::get('/all-stocks', [MemberController::class, 'allStocks'])->name('member.allStocks');
-        
+
         // Member Profile routes
         Route::get('/profile/info', [ProfileController::class, 'profile'])->name('member.profile.info');
         Route::get('/profile/password', [ProfileController::class, 'password'])->name('member.profile.password');
         Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('member.profile.updateName');
         Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('member.profile.appearance');
-        
+
         // Member Email Change routes removed - members don't need email functionality
-        
+
         // Member Phone Change routes (modal-based)
         Route::post('/profile/phone-change/send-otp', [PhoneChangeController::class, 'sendOtp'])->name('member.profile.phone-change.send-otp');
         Route::get('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'showVerify'])->name('member.profile.phone-change.verify');
         Route::post('/profile/phone-change/verify/{requestId}', [PhoneChangeController::class, 'verifyOtp'])->name('member.profile.phone-change.verify-otp');
         Route::post('/profile/phone-change/resend/{requestId}', [PhoneChangeController::class, 'resendOtp'])->name('member.profile.phone-change.resend');
         Route::post('/profile/phone-change/cancel/{requestId}', [PhoneChangeController::class, 'cancel'])->name('member.profile.phone-change.cancel');
-        
+
         // Notification routes
         Route::get('/notifications', [MemberNotificationController::class, 'index'])->name('member.notifications.index');
         Route::post('/notifications/mark-read', [MemberNotificationController::class, 'markRead'])->name('member.notifications.markRead');
         Route::post('/notifications/mark-all-read', [MemberNotificationController::class, 'markAllRead'])->name('member.notifications.markAllRead');
-        
+
         // Profile Notification page
         Route::get('/profile/notifications', [MemberNotificationController::class, 'profileIndex'])->name('member.profile.notifications');
     });
@@ -477,21 +477,21 @@ Route::get('/private-file/{folder}/{filename}', [\App\Http\Controllers\Api\FileC
 Route::prefix('private')->name('private.')->middleware(['auth', 'verified'])->group(function () {
     // Document routes (Admin only)
     Route::post('/documents/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDocument'])->name('documents.upload');
-    
+
     // Delivery proof routes (Logistics only)
     Route::post('/delivery-proofs/upload', [\App\Http\Controllers\PrivateFileController::class, 'uploadDeliveryProof'])->name('delivery-proofs.upload');
-    
+
     // File serving route (role-based access)
     Route::get('/file/{type}/{filename}', [\App\Http\Controllers\PrivateFileController::class, 'serve'])->name('file.serve');
-    
+
     // Simple private file serving route
     Route::get('/{path}', [\App\Http\Controllers\PrivateFileController::class, 'showFile'])
         ->where('path', '.*')
         ->name('show');
-    
+
     // File listing routes
     Route::get('/files/{type}', [\App\Http\Controllers\PrivateFileController::class, 'list'])->name('files.list');
-    
+
     // File deletion route
     Route::delete('/files/{id}', [\App\Http\Controllers\PrivateFileController::class, 'delete'])->name('files.delete');
 });
@@ -503,6 +503,17 @@ Route::prefix('api/delivery-proofs')->name('api.delivery-proofs.')->middleware([
     Route::delete('/{deliveryProof}', [\App\Http\Controllers\DeliveryProofController::class, 'destroy'])->name('destroy');
     Route::get('/sales/{sales}', [\App\Http\Controllers\DeliveryProofController::class, 'show'])->name('show');
 });
+
+// Storage file serving route (fallback for systems without symlink support)
+Route::get('/storage/{path}', function ($path) {
+    $storagePath = storage_path('app/public/' . $path);
+
+    if (!file_exists($storagePath)) {
+        abort(404);
+    }
+
+    return response()->file($storagePath);
+})->where('path', '.*')->name('storage.serve');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
