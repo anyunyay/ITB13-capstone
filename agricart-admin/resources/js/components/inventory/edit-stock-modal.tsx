@@ -56,6 +56,41 @@ export const EditStockModal = ({
         }
     };
 
+    // Prevent decimal input for non-Kilo categories (integers only)
+    const handleKeyDownInteger = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        // Prevent 'e', '+', '-', and decimal point for integer inputs
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-' || e.key === '.' || e.key === ',') {
+            e.preventDefault();
+        }
+    };
+
+    // Handle quantity change for integer inputs - strip decimals
+    const handleIntegerQuantityChange = (value: string) => {
+        // Remove any decimal points and only keep whole numbers
+        const integerValue = value.replace(/[.,]/g, '');
+        onQuantityChange(Number(integerValue));
+    };
+
+    // Handle decimal quantity change - limit to 2 decimal places
+    const handleDecimalQuantityChange = (value: string) => {
+        // Allow empty or just decimal point
+        if (value === '' || value === '.') {
+            onQuantityChange(value);
+            return;
+        }
+        
+        // Check if value has more than 2 decimal places
+        const parts = value.split('.');
+        if (parts.length === 2 && parts[1].length > 2) {
+            // Truncate to 2 decimal places
+            const truncated = parts[0] + '.' + parts[1].substring(0, 2);
+            onQuantityChange(Number(truncated));
+            return;
+        }
+        
+        onQuantityChange(Number(value));
+    };
+
     const handleSubmitForm = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit();
@@ -171,7 +206,7 @@ export const EditStockModal = ({
                                 min={0.01}
                                 step={0.01}
                                 value={quantity}
-                                onChange={(e) => onQuantityChange(Number(e.target.value))}
+                                onChange={(e) => handleDecimalQuantityChange(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="0.00"
                                 required
@@ -189,9 +224,10 @@ export const EditStockModal = ({
                                 id="quantity"
                                 type="number"
                                 min={1}
+                                step={1}
                                 value={quantity}
-                                onChange={(e) => onQuantityChange(Number(e.target.value))}
-                                onKeyDown={handleKeyDown}
+                                onChange={(e) => handleIntegerQuantityChange(e.target.value)}
+                                onKeyDown={handleKeyDownInteger}
                                 placeholder="0"
                                 required
                             />
