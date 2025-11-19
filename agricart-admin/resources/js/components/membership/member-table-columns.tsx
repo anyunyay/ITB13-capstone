@@ -44,7 +44,7 @@ export const createMemberTableColumns = (
     align: 'left',
     maxWidth: '180px',
     render: (member) => (
-      <div className="font-medium text-sm">{member.name}</div>
+      <div className="font-medium text-sm truncate" title={member.name}>{member.name}</div>
     ),
   },
   {
@@ -54,7 +54,7 @@ export const createMemberTableColumns = (
     align: 'left',
     maxWidth: '150px',
     render: (member) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground truncate" title={member.contact_number || t('admin.not_available')}>
         {member.contact_number || t('admin.not_available')}
       </div>
     ),
@@ -65,13 +65,16 @@ export const createMemberTableColumns = (
     sortable: false,
     align: 'left',
     maxWidth: '250px',
-    render: (member) => (
-      <div className="text-sm text-foreground">
-        {member.default_address
-          ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}`
-          : t('admin.not_available')}
-      </div>
-    ),
+    render: (member) => {
+      const address = member.default_address
+        ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}`
+        : t('admin.not_available');
+      return (
+        <div className="text-sm text-foreground line-clamp-2" title={address}>
+          {address}
+        </div>
+      );
+    },
   },
   {
     key: 'registration_date',
