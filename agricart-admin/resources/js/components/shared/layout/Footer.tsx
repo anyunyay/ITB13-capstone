@@ -98,13 +98,13 @@ const Footer: React.FC<FooterProps> = ({
                     <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-bold text-primary dark:text-green-400">{companyName}</h3>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{companyName}</h3>
                     <p className="text-sm text-secondary font-medium">{t('customer.fresh_from_farm')}</p>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-sm sm:text-base text-primary dark:text-green-400 leading-relaxed max-w-md">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md">
                   {t('customer.footer_description')}
                 </p>
 
@@ -124,7 +124,7 @@ const Footer: React.FC<FooterProps> = ({
 
               {/* Right Column - Contact Information */}
               <div className="lg:col-span-7">
-                <h4 className="text-lg sm:text-xl font-bold text-primary dark:text-green-400 mb-6 flex items-center gap-2">
+                <h4 className="text-lg sm:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                   <span className="w-1 h-6 bg-primary rounded-full"></span>
                   {t('customer.get_in_touch')}
                 </h4>

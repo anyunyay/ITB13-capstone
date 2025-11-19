@@ -30,6 +30,7 @@ return [
     'completely_sold' => 'Completely Sold',
     'stocks_fully_sold_out' => 'Stocks fully sold out',
     'total_stock' => 'Total Stock',
+    'total_stock_entries' => 'Total stock entries',
     'total_units' => ':units total units',
     'total_revenue' => 'Total Revenue',
     'from_sales' => 'From :sales sales',
