@@ -204,7 +204,8 @@ class LogisticController extends Controller
             $sortOrder = 'desc';
         }
 
-        $query = User::where('type', 'logistic');
+        $query = User::where('type', 'logistic')
+            ->with('defaultAddress:id,user_id,street,barangay,city,province');
 
         // Filter by registration date range
         if ($startDate) {
@@ -233,7 +234,13 @@ class LogisticController extends Controller
             });
         }
 
-        $logistics = $query->get();
+        $logistics = $query->get()->map(function ($logistic) {
+            // Add formatted address to the model
+            $logistic->formatted_address = $logistic->defaultAddress 
+                ? $logistic->defaultAddress->full_address 
+                : 'N/A';
+            return $logistic;
+        });
 
         // Apply sorting using collection methods (same pattern as sales report)
         $logistics = $logistics->sortBy(function ($logistic) use ($sortBy) {
@@ -308,7 +315,6 @@ class LogisticController extends Controller
                 'Contact Number',
                 'Address',
                 'Registration Date',
-                'Email Verified',
                 'Created Date'
             ]);
 
@@ -319,9 +325,8 @@ class LogisticController extends Controller
                     $logistic->name,
                     $logistic->email,
                     $logistic->contact_number ?? 'N/A',
-                    'N/A', // Address moved to user_addresses table
+                    $logistic->formatted_address ?? 'N/A',
                     $logistic->registration_date ? $logistic->registration_date->format('Y-m-d') : 'N/A',
-                    $logistic->email_verified_at ? 'Yes' : 'No',
                     $logistic->created_at->format('Y-m-d H:i:s')
                 ]);
             }

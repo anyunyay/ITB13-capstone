@@ -138,7 +138,6 @@
                 <th>Contact Number</th>
                 <th>Address</th>
                 <th>Registration Date</th>
-                <th>Email Verified</th>
                 <th>Created Date</th>
             </tr>
         </thead>
@@ -149,11 +148,8 @@
                 <td>{{ $logistic->name }}</td>
                 <td>{{ $logistic->email }}</td>
                 <td>{{ $logistic->contact_number ?? 'N/A' }}</td>
-                <td>{{ $logistic->address ?? 'N/A' }}</td>
+                <td>{{ $logistic->formatted_address ?? 'N/A' }}</td>
                 <td>{{ $logistic->registration_date ? $logistic->registration_date->format('Y-m-d') : 'N/A' }}</td>
-                <td class="{{ $logistic->email_verified_at ? 'status-verified' : 'status-pending' }}">
-                    {{ $logistic->email_verified_at ? 'Yes' : 'No' }}
-                </td>
                 <td>{{ $logistic->created_at->format('Y-m-d H:i') }}</td>
             </tr>
             @endforeach
