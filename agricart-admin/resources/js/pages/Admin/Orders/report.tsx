@@ -122,8 +122,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const breadcrumbs = [
-    { title: t('admin.dashboard'), href: route('admin.dashboard') },
-    { title: t('admin.orders'), href: route('admin.orders.index') },
+    { title: 'Orders', href: route('admin.orders.index') },
     { title: t('admin.order_report'), href: route('orders.report') },
   ];
   const [currentPage, setCurrentPage] = useState(1);
