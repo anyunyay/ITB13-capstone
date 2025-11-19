@@ -20,20 +20,22 @@ export const createMemberTableColumns = (
     key: 'index',
     label: t('admin.id_column'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '80px',
     render: (member, index) => (
-      <Badge variant="outline">#{startIndex + index + 1}</Badge>
+      <div className="flex justify-center">
+        <Badge variant="outline">#{startIndex + index + 1}</Badge>
+      </div>
     ),
   },
   {
     key: 'member_id',
     label: t('admin.member_id'),
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '120px',
     render: (member) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-center">
         {member.member_id || t('admin.not_assigned')}
       </div>
     ),
@@ -42,20 +44,20 @@ export const createMemberTableColumns = (
     key: 'name',
     label: t('admin.name'),
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '180px',
     render: (member) => (
-      <div className="font-medium text-sm">{member.name}</div>
+      <div className="font-medium text-sm text-left">{member.name}</div>
     ),
   },
   {
     key: 'contact_number',
     label: t('admin.contact_number'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '150px',
     render: (member) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-left">
         {member.contact_number || t('admin.not_available')}
       </div>
     ),
@@ -64,10 +66,10 @@ export const createMemberTableColumns = (
     key: 'address',
     label: t('admin.address'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '250px',
     render: (member) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-left">
         {member.default_address
           ? `${member.default_address.street}, ${member.default_address.barangay}, ${member.default_address.city}, ${member.default_address.province}`
           : t('admin.not_available')}
@@ -78,10 +80,10 @@ export const createMemberTableColumns = (
     key: 'registration_date',
     label: t('admin.registration_date_label'),
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '150px',
     render: (member) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-center">
         {member.registration_date
           ? new Date(member.registration_date).toLocaleDateString()
           : t('admin.not_available')}
@@ -89,42 +91,29 @@ export const createMemberTableColumns = (
     ),
   },
   {
-    key: 'active',
-    label: t('admin.status'),
-    sortable: false,
-    align: 'left',
-    maxWidth: '120px',
-    render: (member) =>
-      member.active ? (
-        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-          {t('admin.active')}
-        </Badge>
-      ) : (
-        <Badge variant="destructive">{t('admin.deactivated')}</Badge>
-      ),
-  },
-  {
     key: 'document',
     label: t('admin.document_upload_label'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '120px',
     render: (member) => (
-      <SafeImage
-        src={member.document}
-        alt={`Document for ${member.name}`}
-        className="max-w-24 object-cover rounded"
-      />
+      <div className="flex justify-center">
+        <SafeImage
+          src={member.document}
+          alt={`Document for ${member.name}`}
+          className="max-w-24 object-cover rounded"
+        />
+      </div>
     ),
   },
   {
     key: 'actions',
     label: t('admin.actions'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '200px',
     render: (member) => (
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-center">
         <PermissionGate permission="edit members">
           <Button asChild size="sm" className="transition-all duration-200 hover:shadow-lg hover:opacity-90">
             <Link href={route('membership.edit', member.id)}>

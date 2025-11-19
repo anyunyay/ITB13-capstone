@@ -55,32 +55,40 @@ export const createStaffTableColumns = (
     key: 'id',
     label: t('staff.id'),
     sortable: true,
+    align: 'center',
+    maxWidth: '80px',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground">{staff.id}</span>
+      <span className="text-sm text-muted-foreground text-center">{staff.id}</span>
     )
   },
   {
     key: 'name',
     label: t('staff.name'),
     sortable: true,
+    align: 'center',
+    maxWidth: '180px',
     render: (staff) => (
-      <div className="text-sm font-medium text-foreground">{staff.name}</div>
+      <div className="text-sm font-medium text-foreground text-left">{staff.name}</div>
     )
   },
   {
     key: 'email',
     label: t('staff.email'),
     sortable: false,
+    align: 'center',
+    maxWidth: '200px',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground">{staff.email}</span>
+      <span className="text-sm text-muted-foreground text-left">{staff.email}</span>
     )
   },
   {
     key: 'contact_number',
     label: t('staff.contact'),
     sortable: false,
+    align: 'center',
+    maxWidth: '150px',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-sm text-muted-foreground text-left">
         {staff.contact_number || t('admin.na')}
       </span>
     )
@@ -89,8 +97,10 @@ export const createStaffTableColumns = (
     key: 'address',
     label: t('staff.address'),
     sortable: false,
+    align: 'center',
+    maxWidth: '250px',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-sm text-muted-foreground text-left">
         {staff.default_address
           ? `${staff.default_address.street}, ${staff.default_address.barangay}, ${staff.default_address.city}, ${staff.default_address.province}`
           : t('admin.na')}
@@ -101,8 +111,10 @@ export const createStaffTableColumns = (
     key: 'permissions',
     label: t('staff.permissions'),
     sortable: false,
+    align: 'center',
+    maxWidth: '250px',
     render: (staff) => (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1 justify-center">
         {staff.permissions.length > 0 ? (
           <>
             {staff.permissions.slice(0, 3).map((permission) => (
@@ -146,24 +158,30 @@ export const createStaffTableColumns = (
     key: 'status',
     label: t('staff.status'),
     sortable: true,
+    align: 'center',
+    maxWidth: '120px',
     render: (staff) => (
-      staff.email_verified_at ? (
-        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-          {t('staff.active')}
-        </Badge>
-      ) : (
-        <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-          {t('staff.inactive')}
-        </Badge>
-      )
+      <div className="flex justify-center">
+        {staff.email_verified_at ? (
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+            {t('staff.active')}
+          </Badge>
+        ) : (
+          <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
+            {t('staff.inactive')}
+          </Badge>
+        )}
+      </div>
     )
   },
   {
     key: 'created_at',
     label: t('staff.created'),
     sortable: true,
+    align: 'center',
+    maxWidth: '150px',
     render: (staff) => (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-sm text-muted-foreground text-center">
         {new Date(staff.created_at).toLocaleDateString()}
       </span>
     )
@@ -172,8 +190,10 @@ export const createStaffTableColumns = (
     key: 'actions',
     label: t('staff.actions'),
     sortable: false,
+    align: 'center',
+    maxWidth: '200px',
     render: (staff) => (
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-center">
         <PermissionGate permission="edit staffs">
           <Button
             asChild

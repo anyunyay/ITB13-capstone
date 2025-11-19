@@ -18,40 +18,40 @@ export const createLogisticsTableColumns = (
     key: 'id',
     label: 'ID',
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '80px',
     render: (logistic) => (
-      <div className="text-sm text-foreground">{logistic.id}</div>
+      <div className="text-sm text-foreground font-medium text-center">{logistic.id}</div>
     ),
   },
   {
     key: 'name',
     label: t('admin.name'),
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '180px',
     render: (logistic) => (
-      <div className="font-medium text-sm">{logistic.name}</div>
+      <div className="font-medium text-sm text-left">{logistic.name}</div>
     ),
   },
   {
     key: 'email',
     label: t('admin.email'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '200px',
     render: (logistic) => (
-      <div className="text-sm text-foreground">{logistic.email}</div>
+      <div className="text-sm text-foreground text-left">{logistic.email}</div>
     ),
   },
   {
     key: 'contact_number',
     label: t('admin.contact'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '150px',
     render: (logistic) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-left">
         {logistic.contact_number || t('admin.not_available')}
       </div>
     ),
@@ -60,10 +60,10 @@ export const createLogisticsTableColumns = (
     key: 'address',
     label: t('admin.address'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '250px',
     render: (logistic) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-left">
         {logistic.default_address
           ? `${logistic.default_address.street}, ${logistic.default_address.barangay}, ${logistic.default_address.city}, ${logistic.default_address.province}`
           : t('admin.not_available')}
@@ -74,10 +74,10 @@ export const createLogisticsTableColumns = (
     key: 'registration_date',
     label: t('admin.registration_date'),
     sortable: true,
-    align: 'left',
+    align: 'center',
     maxWidth: '150px',
     render: (logistic) => (
-      <div className="text-sm text-foreground">
+      <div className="text-sm text-foreground text-center">
         {logistic.registration_date
           ? new Date(logistic.registration_date).toLocaleDateString()
           : t('admin.not_available')}
@@ -85,25 +85,13 @@ export const createLogisticsTableColumns = (
     ),
   },
   {
-    key: 'active',
-    label: t('admin.status'),
-    sortable: true,
-    align: 'left',
-    maxWidth: '120px',
-    render: (logistic) => (
-      <Badge variant={logistic.can_be_deactivated ? 'default' : 'secondary'}>
-        {logistic.can_be_deactivated ? t('admin.active') : t('admin.protected')}
-      </Badge>
-    ),
-  },
-  {
     key: 'actions',
     label: t('admin.actions'),
     sortable: false,
-    align: 'left',
+    align: 'center',
     maxWidth: '200px',
     render: (logistic) => (
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-center">
         <PermissionGate permission="edit logistics">
           <Button
             asChild
