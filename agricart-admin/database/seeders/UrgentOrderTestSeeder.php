@@ -20,11 +20,6 @@ class UrgentOrderTestSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing sales and audit trail data to avoid conflicts
-        SalesAudit::query()->delete();
-        Sales::query()->delete();
-        AuditTrail::query()->delete();
-
         // Find the test customer (created by factory)
         $customer = User::where('type', 'customer')->first();
         

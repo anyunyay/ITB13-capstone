@@ -32,6 +32,9 @@ return [
     'review_approve_orders_message' => 'Please review and approve these orders to avoid automatic expiration.',
     'go_to_orders' => 'Go to Orders',
 
+    // Notifications
+    'notifications.order_status_cancelled' => 'Order has been cancelled',
+
     // Urgency Levels
     'overdue' => 'Overdue',
     'critical' => 'Critical',
