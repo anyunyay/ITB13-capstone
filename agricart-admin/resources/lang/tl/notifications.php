@@ -20,6 +20,8 @@ return [
     'order_status_ready_for_pickup' => 'Handa na ang order para sa pickup.',
     'order_ready_for_pickup' => 'Ang iyong order #:order_id ay handa na para sa pickup',
     'order_picked_up' => 'Ang iyong order #:order_id ay nakuha na',
+    'delivery_status_pending' => 'Ang iyong order ay nasa paghihintay at pinoproseso pa.',
+    'delivery_status_ready_to_pickup' => 'Handa na ang iyong order para kunin. Makipag-ugnayan sa nakatalagang logistic provider.',
     'delivery_status_out_for_delivery' => 'Ang iyong order ay nasa daan na para sa paghahatid!',
     'delivery_status_delivered' => 'Ang iyong order ay naihatid na!',
     'order_rejection' => 'Ang order #:order_id ay tinanggihan',

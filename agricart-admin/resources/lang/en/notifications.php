@@ -20,6 +20,8 @@ return [
     'order_status_ready_for_pickup' => 'Order is ready for pickup.',
     'order_ready_for_pickup' => 'Your order #:order_id is ready for pickup',
     'order_picked_up' => 'Your order #:order_id has been picked up',
+    'delivery_status_pending' => 'Your order is pending and waiting to be processed.',
+    'delivery_status_ready_to_pickup' => 'Your order is ready for pickup. Please coordinate with the assigned logistic provider.',
     'delivery_status_out_for_delivery' => 'Your order is out for delivery!',
     'delivery_status_delivered' => 'Your order has been delivered successfully!',
     'order_rejection' => 'Order #:order_id has been rejected',

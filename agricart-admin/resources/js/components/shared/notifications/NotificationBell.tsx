@@ -225,21 +225,26 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'new_order':
+      case 'order_confirmation':
+      case 'order_status_update':
+        return 'text-emerald-700 dark:text-emerald-200';
+      case 'delivery_status_update':
       case 'delivery_task':
       case 'logistic_order_ready':
       case 'logistic_order_picked_up':
-        return 'text-green-600';
+        return 'text-teal-700 dark:text-teal-200';
       case 'low_stock_alert':
-        return 'text-green-600';
+      case 'order_rejection':
+        return 'text-red-600 dark:text-red-300';
       case 'product_sale':
       case 'earnings_update':
-        return 'text-green-600';
+        return 'text-amber-700 dark:text-amber-200';
       case 'inventory_update':
       case 'membership_update':
       case 'password_change_request':
-        return 'text-green-600';
+        return 'text-blue-700 dark:text-blue-200';
       default:
-        return 'text-green-600';
+        return 'text-foreground';
     }
   };
 
@@ -301,7 +306,13 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
             {notifications.slice(0, 4).map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className={`p-3 cursor-pointer relative group ${!notification.read_at ? 'bg-green-50' : ''}`}
+                className={cn(
+                  "p-3 cursor-pointer relative group transition-colors rounded-md",
+                  !notification.read_at 
+                    ? "bg-emerald-50 text-emerald-950 dark:bg-emerald-500/15 dark:text-emerald-50"
+                    : "text-foreground",
+                  "hover:bg-emerald-50/70 dark:hover:bg-emerald-500/25"
+                )}
                 onClick={() => {
                   if (!notification.read_at) {
                     // Mark as read and navigate in one action
@@ -317,20 +328,26 @@ export function NotificationBell({ notifications, userType, isScrolled = false }
                     {getNotificationIcon(notification.type)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${getNotificationColor(notification.type)}`}>
+                    <p className={cn(
+                      "text-sm font-medium leading-snug",
+                      notification.read_at 
+                        ? "text-foreground dark:text-foreground"
+                        : "",
+                      getNotificationColor(notification.type)
+                    )}>
                       {notification.message}
                     </p>
                     {notification.data?.sub_message && (
-                      <p className="text-xs text-green-600 mt-1">
+                      <p className="text-xs text-muted-foreground dark:text-emerald-100/80 mt-1">
                         {notification.data.sub_message}
                       </p>
                     )}
-                    <p className="text-xs text-green-600 mt-1">
+                    <p className="text-xs text-muted-foreground dark:text-emerald-100/70 mt-1">
                       {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </p>
                   </div>
                   {!notification.read_at && (
-                    <div className="w-2 h-2 bg-green-600 rounded-full flex-shrink-0 mt-1" />
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0 mt-1" />
                   )}
                 </div>
                 <Button
