@@ -7,10 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, ArrowLeft, History, BarChart3, Filter, Download, FileText } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+import { Package, ArrowLeft, History, BarChart3, Filter, Download, FileText, X, ChevronDown, CalendarIcon } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { MemberHeader } from '@/components/member/member-header';
 import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { useTranslation } from '@/hooks/use-translation';
 import { TransactionSummaryCards, StockSummaryCards } from '@/components/member/SummaryCards';
 import { PaginationControls } from '@/components/member/PaginationControls';
@@ -143,6 +148,8 @@ interface FilterState {
     stock_category: string;
     stock_status: string;
     transaction_category: string;
+    start_date?: string;
+    end_date?: string;
 }
 
 interface PageProps {
@@ -171,6 +178,15 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
 
     const [showTransactions, setShowTransactions] = useState(initialView);
     const [isMobile, setIsMobile] = useState(false);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
+    // Date picker states
+    const [startDate, setStartDate] = useState<Date | undefined>(
+        filters.start_date ? new Date(filters.start_date) : undefined
+    );
+    const [endDate, setEndDate] = useState<Date | undefined>(
+        filters.end_date ? new Date(filters.end_date) : undefined
+    );
 
     useEffect(() => {
         if (!auth?.user) {
@@ -493,7 +509,115 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
             transaction_sort_dir: sorting.transaction_sort_dir,
             stock_category: filters.stock_category,
             stock_status: filters.stock_status,
-            transaction_category: value
+            transaction_category: value,
+            start_date: filters.start_date,
+            end_date: filters.end_date
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    // Date handling functions
+    const handleStartDateChange = (date: Date | undefined) => {
+        setStartDate(date);
+    };
+
+    const handleEndDateChange = (date: Date | undefined) => {
+        setEndDate(date);
+    };
+
+    const getDateRangeDisplay = () => {
+        if (!startDate && !endDate) return t('member.no_date_range_selected') || 'No date range selected';
+        if (startDate && !endDate) return `From ${format(startDate, 'MMM dd, yyyy')}`;
+        if (!startDate && endDate) return `Until ${format(endDate, 'MMM dd, yyyy')}`;
+        return `${format(startDate!, 'MMM dd, yyyy')} - ${format(endDate!, 'MMM dd, yyyy')}`;
+    };
+
+    const getDurationDisplay = () => {
+        if (!startDate || !endDate) return '';
+        const diffInDays = dayjs(endDate).diff(dayjs(startDate), 'day') + 1;
+        if (diffInDays === 1) return '1 day';
+        if (diffInDays === 7) return '1 week';
+        if (diffInDays === 30) return '1 month';
+        if (diffInDays < 7) return `${diffInDays} days`;
+        if (diffInDays < 30) return `${Math.round(diffInDays / 7)} weeks`;
+        return `${Math.round(diffInDays / 30)} months`;
+    };
+
+    const applyDateFilters = () => {
+        router.get(route('member.allStocks'), {
+            stock_page: 1,
+            transaction_page: 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category,
+            start_date: startDate ? format(startDate, 'yyyy-MM-dd') : '',
+            end_date: endDate ? format(endDate, 'yyyy-MM-dd') : ''
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    const clearDateFilters = () => {
+        setStartDate(undefined);
+        setEndDate(undefined);
+        router.get(route('member.allStocks'), {
+            stock_page: stockPagination?.current_page || 1,
+            transaction_page: transactions?.meta?.current_page || 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: filters.stock_category,
+            stock_status: filters.stock_status,
+            transaction_category: filters.transaction_category,
+            start_date: '',
+            end_date: ''
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    const hasActiveDateFilters = () => {
+        return filters.start_date || filters.end_date;
+    };
+
+    const hasActiveFilters = () => {
+        if (showTransactions) {
+            return filters.start_date || filters.end_date || filters.transaction_category !== 'all';
+        } else {
+            return filters.start_date || filters.end_date || filters.stock_category !== 'all' || filters.stock_status !== 'all';
+        }
+    };
+
+    const clearAllFilters = () => {
+        setStartDate(undefined);
+        setEndDate(undefined);
+        router.get(route('member.allStocks'), {
+            stock_page: 1,
+            transaction_page: 1,
+            view: showTransactions ? 'transactions' : 'stocks',
+            stock_sort_by: sorting.stock_sort_by,
+            stock_sort_dir: sorting.stock_sort_dir,
+            transaction_sort_by: sorting.transaction_sort_by,
+            transaction_sort_dir: sorting.transaction_sort_dir,
+            stock_category: 'all',
+            stock_status: 'all',
+            transaction_category: 'all',
+            start_date: '',
+            end_date: ''
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -558,6 +682,10 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
         params.append('stock_category', filters.stock_category);
         params.append('stock_status', filters.stock_status);
 
+        // Add date filters
+        if (filters.start_date) params.append('start_date', filters.start_date);
+        if (filters.end_date) params.append('end_date', filters.end_date);
+
         // Add view and format
         params.append('view', 'stocks');
         params.append('format', exportFormat);
@@ -600,26 +728,91 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
     return (
         <div className="min-h-screen bg-background scroll-pt-24 lg:scroll-pt-32">
             <MemberHeader />
-            <div className="p-4 pt-20 lg:p-6  lg:pt-25">
-                <Head title={t('member.all_stocks')} />
-
-                {/* Header */}
-                <div className="mb-8">
-                    {/* Single Row with Back Button and Toggle */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                        <Button asChild variant="outline" size="sm">
+            <Head title={t('member.all_stocks')} />
+            <div className="p-4 pt-20 lg:p-6 lg:pt-25">
+                <div className="w-full flex flex-col gap-4">
+                    {/* Header */}
+                    <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
+                        {/* Mobile Layout */}
+                        <div className="flex md:hidden items-center gap-2 mb-3">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
+                                    {showTransactions ? <History className="h-5 w-5" /> : <Package className="h-5 w-5" />}
+                                </div>
+                                <h1 className="text-lg font-bold text-foreground truncate">
+                                    {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
+                                </h1>
+                            </div>
                             <Link href={route('member.dashboard')}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                <span className="md:hidden">Back</span>
-                                <span className="hidden md:inline">Back to Dashboard</span>
+                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Button>
                             </Link>
-                        </Button>
+                        </div>
 
-                        {/* Toggle Switch */}
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Desktop Layout */}
+                        <div className="hidden md:flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
+                                    {showTransactions ? <History className="h-8 w-8" /> : <Package className="h-8 w-8" />}
+                                </div>
+                                <div className="min-w-0">
+                                    <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">
+                                        {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
+                                    </h1>
+                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                        {showTransactions
+                                            ? t('member.transaction_history_description')
+                                            : t('member.all_stocks_description')
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex gap-2 shrink-0">
+                                <Link href={route('member.dashboard')}>
+                                    <Button variant="outline" className="flex items-center gap-2 shrink-0">
+                                        <ArrowLeft className="h-4 w-4" />
+                                        {t('member.back_to_dashboard') || 'Back to Dashboard'}
+                                    </Button>
+                                </Link>
+                                {!showTransactions && (
+                                    <>
+                                        <Button onClick={() => handleExportClick('csv')} variant="outline" className="flex items-center gap-2">
+                                            <Download className="h-4 w-4" />
+                                            {t('member.export_csv') || 'Export CSV'}
+                                        </Button>
+                                        <Button onClick={() => handleExportClick('pdf')} variant="outline" className="flex items-center gap-2">
+                                            <FileText className="h-4 w-4" />
+                                            {t('member.export_pdf') || 'Export PDF'}
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Mobile Export Buttons */}
+                        <div className="flex md:hidden gap-2 mt-2">
+                            {!showTransactions && (
+                                <>
+                                    <Button onClick={() => handleExportClick('csv')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                                        <Download className="h-3.5 w-3.5" />
+                                        <span>CSV</span>
+                                    </Button>
+                                    <Button onClick={() => handleExportClick('pdf')} variant="outline" className="flex items-center justify-center gap-1.5 flex-1 text-xs px-3">
+                                        <FileText className="h-3.5 w-3.5" />
+                                        <span>PDF</span>
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Toggle Switch - Between Header and Summary Cards */}
+                    <div className="flex justify-end">
+                        <div className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-card shadow-sm">
                             <div className="flex items-center gap-1.5">
                                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                                <Label htmlFor="view-toggle" className="text-xs sm:text-sm text-foreground whitespace-nowrap">
+                                <Label htmlFor="view-toggle" className="text-sm text-foreground whitespace-nowrap cursor-pointer">
                                     {t('member.stock_overview')}
                                 </Label>
                             </div>
@@ -630,83 +823,222 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                             />
                             <div className="flex items-center gap-1.5">
                                 <History className="h-4 w-4 text-muted-foreground" />
-                                <Label htmlFor="view-toggle" className="text-xs sm:text-sm text-foreground whitespace-nowrap">
+                                <Label htmlFor="view-toggle" className="text-sm text-foreground whitespace-nowrap cursor-pointer">
                                     {t('member.show_transactions')}
                                 </Label>
                             </div>
                         </div>
                     </div>
 
-                    {/* Title, Description, and Export Buttons */}
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-foreground">
-                                {showTransactions ? t('member.transaction_history') : t('member.all_stocks')}
-                            </h1>
-                            <p className="text-muted-foreground mt-2">
-                                {showTransactions
-                                    ? t('member.transaction_history_description')
-                                    : t('member.all_stocks_description')
-                                }
-                            </p>
-                        </div>
-
-                        {/* Export Buttons - Only show for Stock Overview */}
-                        {!showTransactions && (
-                            <div className="flex gap-2 lg:mt-0">
-                                <Button
-                                    onClick={() => handleExportClick('csv')}
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-2"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Export CSV</span>
-                                    <span className="sm:hidden">CSV</span>
-                                </Button>
-                                <Button
-                                    onClick={() => handleExportClick('pdf')}
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-2"
-                                >
-                                    <FileText className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Export PDF</span>
-                                    <span className="sm:hidden">PDF</span>
-                                </Button>
-                            </div>
+                    {/* Summary Cards */}
+                    <div className={`grid gap-2 ${showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>
+                        {showTransactions ? (
+                            <TransactionSummaryCards
+                                summary={summary}
+                                formatCurrency={formatCurrency}
+                            />
+                        ) : (
+                            <StockSummaryCards
+                                totalAvailable={totalAvailable}
+                                totalRevenue={totalRevenue}
+                                totalCogs={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0)}
+                                totalGrossProfit={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0)}
+                                totalStock={allComprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
+                                availableStock={allComprehensiveStockData.filter(item => item.balance_quantity > 0).length}
+                                soldOutStock={allComprehensiveStockData.filter(item => item.balance_quantity === 0 && item.sold_quantity > 0).length}
+                                totalSold={totalSold}
+                                formatCurrency={formatCurrency}
+                            />
                         )}
                     </div>
-                </div>
 
-                {/* Summary Cards */}
-                <div className={`grid gap-2 mb-4 ${showTransactions ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' : 'grid-cols-2 lg:grid-cols-4'}`}>
+                    {/* Advanced Filters - Collapsible */}
+                    <Card className="shadow-sm">
+                        <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+                            <CollapsibleTrigger asChild>
+                                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Filter className="h-5 w-5 text-primary" />
+                                            <CardTitle className="text-lg lg:text-xl">{t('member.advanced_filters') || 'Advanced Filters'}</CardTitle>
+                                            {hasActiveFilters() && (
+                                                <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                                                    {t('member.active') || 'Active'}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {hasActiveFilters() && (
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        clearAllFilters();
+                                                    }}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex items-center gap-2 h-8 text-xs"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                    {t('member.clear_filters') || 'Clear'}
+                                                </Button>
+                                            )}
+                                            <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <CardContent>
+                                    {/* Date Range Summary */}
+                                    {(startDate || endDate) && (
+                                        <div className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h4 className="font-semibold text-primary text-sm mb-1">{t('member.selected_date_range') || 'Selected Date Range'}</h4>
+                                                    <p className="text-sm text-muted-foreground">{getDateRangeDisplay()}</p>
+                                                    {getDurationDisplay() && (
+                                                        <p className="text-xs text-primary/70 mt-1">
+                                                            {t('member.duration') || 'Duration'}: {getDurationDisplay()}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setStartDate(undefined);
+                                                        setEndDate(undefined);
+                                                    }}
+                                                    className="text-xs h-7"
+                                                >
+                                                    <X className="h-3 w-3 mr-1" />
+                                                    {t('member.clear') || 'Clear'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Filter Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">{t('member.start_date') || 'Start Date'}</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal h-9 text-sm"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {startDate ? format(startDate, "MMM dd, yyyy") : t('member.pick_start_date') || 'Pick start date'}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={startDate}
+                                                        onSelect={handleStartDateChange}
+                                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium">{t('member.end_date') || 'End Date'}</Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full justify-start text-left font-normal h-9 text-sm"
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {endDate ? format(endDate, "MMM dd, yyyy") : t('member.pick_end_date') || 'Pick end date'}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={endDate}
+                                                        onSelect={handleEndDateChange}
+                                                        disabled={(date) =>
+                                                            date > new Date() ||
+                                                            date < new Date("1900-01-01") ||
+                                                            (startDate ? date < startDate : false)
+                                                        }
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+
+                                        {/* Conditional filters based on view */}
+                                        {showTransactions ? (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">{t('member.category') || 'Category'}</Label>
+                                                    <Select value={filters.transaction_category} onValueChange={handleTransactionCategoryFilter}>
+                                                        <SelectTrigger className="h-9">
+                                                            <SelectValue placeholder="Category" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All Categories</SelectItem>
+                                                            <SelectItem value="Kilo">Kilo</SelectItem>
+                                                            <SelectItem value="Pc">Piece</SelectItem>
+                                                            <SelectItem value="Tali">Tali</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="lg:col-span-2 flex items-end">
+                                                    <Button onClick={applyDateFilters} className="w-full h-9 text-sm">
+                                                        {t('member.apply_filters') || 'Apply Filters'}
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">{t('member.category') || 'Category'}</Label>
+                                                    <Select value={filters.stock_category} onValueChange={handleStockCategoryFilter}>
+                                                        <SelectTrigger className="h-9">
+                                                            <SelectValue placeholder="Category" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All Categories</SelectItem>
+                                                            <SelectItem value="Kilo">Kilo</SelectItem>
+                                                            <SelectItem value="Pc">Piece</SelectItem>
+                                                            <SelectItem value="Tali">Tali</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">{t('member.status') || 'Status'}</Label>
+                                                    <Select value={filters.stock_status} onValueChange={handleStockStatusFilter}>
+                                                        <SelectTrigger className="h-9">
+                                                            <SelectValue placeholder="Status" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All Status</SelectItem>
+                                                            <SelectItem value="available">Available</SelectItem>
+                                                            <SelectItem value="sold_out">Sold Out</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="flex items-end">
+                                                    <Button onClick={applyDateFilters} className="w-full h-9 text-sm">
+                                                        {t('member.apply_filters') || 'Apply Filters'}
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </CollapsibleContent>
+                        </Collapsible>
+                    </Card>
+
+                    {/* Main Content Area */}
                     {showTransactions ? (
-                        <TransactionSummaryCards
-                            summary={summary}
-                            formatCurrency={formatCurrency}
-                        />
-                    ) : (
-                        <StockSummaryCards
-                            totalAvailable={totalAvailable}
-                            totalRevenue={totalRevenue}
-                            totalCogs={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_cogs || 0), 0)}
-                            totalGrossProfit={allComprehensiveStockData.reduce((sum, item) => sum + (item.total_gross_profit || 0), 0)}
-                            totalStock={allComprehensiveStockData.reduce((sum, item) => sum + item.total_quantity, 0)}
-                            availableStock={allComprehensiveStockData.filter(item => item.balance_quantity > 0).length}
-                            soldOutStock={allComprehensiveStockData.filter(item => item.balance_quantity === 0 && item.sold_quantity > 0).length}
-                            totalSold={totalSold}
-                            formatCurrency={formatCurrency}
-                        />
-                    )}
-                </div>
-
-                {/* Main Content Area */}
-                {showTransactions ? (
-                    /* Transaction View */
-                    <Card className="" data-transactions-table>
-                        <CardHeader>
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        /* Transaction View */
+                        <Card className="shadow-sm" data-transactions-table>
+                            <CardHeader>
                                 <div>
                                     <CardTitle className="text-foreground">{t('member.transaction_history_table')}</CardTitle>
                                     <CardDescription className="text-muted-foreground mt-1.5">
@@ -724,198 +1056,154 @@ export default function AllStocks({ availableStocks, salesData, comprehensiveSto
                                         }
                                     </CardDescription>
                                 </div>
+                            </CardHeader>
+                            <CardContent>
+                                {!transactions?.data || transactions.data.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-foreground mb-2">
+                                            {filters.transaction_category !== 'all'
+                                                ? 'No transactions match your filter'
+                                                : t('member.no_transactions_found')}
+                                        </h3>
+                                        <p className="text-muted-foreground">
+                                            {filters.transaction_category !== 'all'
+                                                ? `No ${filters.transaction_category} transactions found. Try adjusting your filter.`
+                                                : t('member.no_transactions_match_filters')}
+                                        </p>
+                                        {filters.transaction_category !== 'all' && (
+                                            <Button
+                                                onClick={() => {
+                                                    router.get(route('member.allStocks'), {
+                                                        stock_page: stockPagination?.current_page || 1,
+                                                        transaction_page: 1,
+                                                        view: 'transactions',
+                                                        stock_sort_by: sorting.stock_sort_by,
+                                                        stock_sort_dir: sorting.stock_sort_dir,
+                                                        transaction_sort_by: sorting.transaction_sort_by,
+                                                        transaction_sort_dir: sorting.transaction_sort_dir,
+                                                        stock_category: filters.stock_category,
+                                                        stock_status: filters.stock_status,
+                                                        transaction_category: 'all'
+                                                    }, {
+                                                        preserveState: true,
+                                                        preserveScroll: true,
+                                                        replace: true
+                                                    });
+                                                }}
+                                                className="mt-4 bg-green-600 hover:bg-green-700"
+                                            >
+                                                Clear Filter
+                                            </Button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <TransactionHistoryCards
+                                            transactions={transactions.data}
+                                            formatCurrency={formatCurrency}
+                                            formatDateTime={formatDateTime}
+                                            calculateMemberRevenue={calculateMemberRevenue}
+                                        />
+                                        <TransactionHistoryTable
+                                            transactions={transactions.data}
+                                            formatCurrency={formatCurrency}
+                                            formatDateTime={formatDateTime}
+                                            calculateMemberRevenue={calculateMemberRevenue}
+                                            sortBy={sorting.transaction_sort_by}
+                                            sortDir={sorting.transaction_sort_dir}
+                                            onSort={handleTransactionSort}
+                                        />
+                                    </div>
+                                )}
 
-                                {/* Transaction Filters */}
-                                <div className="flex items-center gap-2">
-                                    <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
-                                    <Select value={filters.transaction_category} onValueChange={handleTransactionCategoryFilter}>
-                                        <SelectTrigger className="w-[140px] h-9">
-                                            <SelectValue placeholder="Category" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Categories</SelectItem>
-                                            <SelectItem value="Kilo">Kilo</SelectItem>
-                                            <SelectItem value="Pc">Piece</SelectItem>
-                                            <SelectItem value="Tali">Tali</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {!transactions?.data || transactions.data.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-foreground mb-2">
-                                        {filters.transaction_category !== 'all'
-                                            ? 'No transactions match your filter'
-                                            : t('member.no_transactions_found')}
-                                    </h3>
-                                    <p className="text-muted-foreground">
-                                        {filters.transaction_category !== 'all'
-                                            ? `No ${filters.transaction_category} transactions found. Try adjusting your filter.`
-                                            : t('member.no_transactions_match_filters')}
-                                    </p>
-                                    {filters.transaction_category !== 'all' && (
-                                        <Button
-                                            onClick={() => {
-                                                router.get(route('member.allStocks'), {
-                                                    stock_page: stockPagination?.current_page || 1,
-                                                    transaction_page: 1,
-                                                    view: 'transactions',
-                                                    stock_sort_by: sorting.stock_sort_by,
-                                                    stock_sort_dir: sorting.stock_sort_dir,
-                                                    transaction_sort_by: sorting.transaction_sort_by,
-                                                    transaction_sort_dir: sorting.transaction_sort_dir,
-                                                    stock_category: filters.stock_category,
-                                                    stock_status: filters.stock_status,
-                                                    transaction_category: 'all'
-                                                }, {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                    replace: true
-                                                });
-                                            }}
-                                            className="mt-4 bg-green-600 hover:bg-green-700"
-                                        >
-                                            Clear Filter
-                                        </Button>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <TransactionHistoryCards
-                                        transactions={transactions.data}
-                                        formatCurrency={formatCurrency}
-                                        formatDateTime={formatDateTime}
-                                        calculateMemberRevenue={calculateMemberRevenue}
+                                {/* Transaction Pagination */}
+                                {transactions?.data && transactions.data.length > 0 && transactions.meta && (
+                                    <PaginationControls
+                                        pagination={transactions.meta}
+                                        onPageChange={handleTransactionPageChange}
                                     />
-                                    <TransactionHistoryTable
-                                        transactions={transactions.data}
-                                        formatCurrency={formatCurrency}
-                                        formatDateTime={formatDateTime}
-                                        calculateMemberRevenue={calculateMemberRevenue}
-                                        sortBy={sorting.transaction_sort_by}
-                                        sortDir={sorting.transaction_sort_dir}
-                                        onSort={handleTransactionSort}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Transaction Pagination */}
-                            {transactions?.data && transactions.data.length > 0 && transactions.meta && (
-                                <PaginationControls
-                                    pagination={transactions.meta}
-                                    onPageChange={handleTransactionPageChange}
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
-                ) : (
-                    /* Stock Overview */
-                    <Card className="" data-stock-overview>
-                        <CardHeader>
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                )}
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        /* Stock Overview */
+                        <Card className="shadow-sm" data-stock-overview>
+                            <CardHeader>
                                 <div>
                                     <CardTitle className="text-foreground">{t('member.stock_quantity_overview')}</CardTitle>
                                     <CardDescription className="text-muted-foreground mt-1.5">
                                         {t('member.complete_breakdown')}
                                     </CardDescription>
                                 </div>
-
-                                {/* Stock Filters */}
-                                <div className="flex items-center gap-2">
-                                    <Filter className="h-4 w-4 text-muted-foreground hidden sm:block" />
-                                    <Select value={filters.stock_category} onValueChange={handleStockCategoryFilter}>
-                                        <SelectTrigger className="w-[140px] h-9">
-                                            <SelectValue placeholder="Category" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Categories</SelectItem>
-                                            <SelectItem value="Kilo">Kilo</SelectItem>
-                                            <SelectItem value="Pc">Piece</SelectItem>
-                                            <SelectItem value="Tali">Tali</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select value={filters.stock_status} onValueChange={handleStockStatusFilter}>
-                                        <SelectTrigger className="w-[140px] h-9">
-                                            <SelectValue placeholder="Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Status</SelectItem>
-                                            <SelectItem value="available">Available</SelectItem>
-                                            <SelectItem value="sold_out">Sold Out</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {comprehensiveStockData.length > 0 ? (
-                                <div className="space-y-4">
-                                    <StockOverviewCards data={comprehensiveStockData} />
-                                    <StockOverviewTable
-                                        data={comprehensiveStockData}
-                                        sortBy={sorting.stock_sort_by}
-                                        sortDir={sorting.stock_sort_dir}
-                                        onSort={handleStockSort}
-                                    />
-
-                                    {/* Pagination Controls */}
-                                    {stockPagination && (
-                                        <PaginationControls
-                                            pagination={stockPagination}
-                                            onPageChange={handleStockPageChange}
+                            </CardHeader>
+                            <CardContent>
+                                {comprehensiveStockData.length > 0 ? (
+                                    <div className="space-y-4">
+                                        <StockOverviewCards data={comprehensiveStockData} />
+                                        <StockOverviewTable
+                                            data={comprehensiveStockData}
+                                            sortBy={sorting.stock_sort_by}
+                                            sortDir={sorting.stock_sort_dir}
+                                            onSort={handleStockSort}
                                         />
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-center py-12 text-muted-foreground">
-                                    <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
-                                    <h3 className="text-lg font-medium mb-2">
-                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all'
-                                            ? 'No stocks match your filters'
-                                            : t('member.no_stocks_found')}
-                                    </h3>
-                                    <p className="text-sm">
-                                        {filters.stock_category !== 'all' || filters.stock_status !== 'all'
-                                            ? `No ${filters.stock_status !== 'all' ? filters.stock_status.replace('_', ' ') : ''} ${filters.stock_category !== 'all' ? filters.stock_category : ''} stocks found. Try adjusting your filters.`
-                                            : t('member.no_stocks_message')}
-                                    </p>
-                                    {filters.stock_category === 'all' && filters.stock_status === 'all' ? (
-                                        <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
-                                            <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            onClick={() => {
-                                                router.get(route('member.allStocks'), {
-                                                    stock_page: 1,
-                                                    transaction_page: transactions?.meta?.current_page || 1,
-                                                    view: 'stocks',
-                                                    stock_sort_by: sorting.stock_sort_by,
-                                                    stock_sort_dir: sorting.stock_sort_dir,
-                                                    transaction_sort_by: sorting.transaction_sort_by,
-                                                    transaction_sort_dir: sorting.transaction_sort_dir,
-                                                    stock_category: 'all',
-                                                    stock_status: 'all',
-                                                    transaction_category: filters.transaction_category
-                                                }, {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                    replace: true
-                                                });
-                                            }}
-                                            className="mt-4 bg-green-600 hover:bg-green-700"
-                                        >
-                                            Clear Filters
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
+
+                                        {/* Pagination Controls */}
+                                        {stockPagination && (
+                                            <PaginationControls
+                                                pagination={stockPagination}
+                                                onPageChange={handleStockPageChange}
+                                            />
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12 text-muted-foreground">
+                                        <Package className="h-16 w-16 mx-auto mb-4 text-gray-500" />
+                                        <h3 className="text-lg font-medium mb-2">
+                                            {filters.stock_category !== 'all' || filters.stock_status !== 'all'
+                                                ? 'No stocks match your filters'
+                                                : t('member.no_stocks_found')}
+                                        </h3>
+                                        <p className="text-sm">
+                                            {filters.stock_category !== 'all' || filters.stock_status !== 'all'
+                                                ? `No ${filters.stock_status !== 'all' ? filters.stock_status.replace('_', ' ') : ''} ${filters.stock_category !== 'all' ? filters.stock_category : ''} stocks found. Try adjusting your filters.`
+                                                : t('member.no_stocks_message')}
+                                        </p>
+                                        {filters.stock_category === 'all' && filters.stock_status === 'all' ? (
+                                            <Button asChild className="mt-4 bg-green-600 hover:bg-green-700">
+                                                <Link href={route('member.dashboard')}>{t('member.back_to_dashboard')}</Link>
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                onClick={() => {
+                                                    router.get(route('member.allStocks'), {
+                                                        stock_page: 1,
+                                                        transaction_page: transactions?.meta?.current_page || 1,
+                                                        view: 'stocks',
+                                                        stock_sort_by: sorting.stock_sort_by,
+                                                        stock_sort_dir: sorting.stock_sort_dir,
+                                                        transaction_sort_by: sorting.transaction_sort_by,
+                                                        transaction_sort_dir: sorting.transaction_sort_dir,
+                                                        stock_category: 'all',
+                                                        stock_status: 'all',
+                                                        transaction_category: filters.transaction_category
+                                                    }, {
+                                                        preserveState: true,
+                                                        preserveScroll: true,
+                                                        replace: true
+                                                    });
+                                                }}
+                                                className="mt-4 bg-green-600 hover:bg-green-700"
+                                            >
+                                                Clear Filters
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
             </div>
         </div>
     );

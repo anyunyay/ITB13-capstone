@@ -241,4 +241,10 @@ return [
     'export_csv' => 'I-export ang CSV',
     'export_pdf' => 'I-export ang PDF',
     
+    // Advanced Filters
+    'advanced_filters' => 'Advanced na Filters',
+    'no_date_range_selected' => 'Walang napiling date range',
+    'duration' => 'Tagal',
+    'clear' => 'I-clear',
+    
 ];

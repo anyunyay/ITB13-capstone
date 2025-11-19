@@ -241,5 +241,11 @@ return [
     'export_csv' => 'Export CSV',
     'export_pdf' => 'Export PDF',
     
+    // Advanced Filters
+    'advanced_filters' => 'Advanced Filters',
+    'no_date_range_selected' => 'No date range selected',
+    'duration' => 'Duration',
+    'clear' => 'Clear',
+    
 ];
 
