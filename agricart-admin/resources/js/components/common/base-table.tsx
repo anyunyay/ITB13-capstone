@@ -22,27 +22,27 @@ export interface BaseTableProps<T = any> {
     data: T[];
     columns: BaseTableColumn<T>[];
     keyExtractor: (item: T) => string | number;
-
+    
     // Sorting
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     onSort?: (field: string) => void;
-
+    
     // Row styling
     getRowClassName?: (item: T, index: number) => string;
     onRowClick?: (item: T, index: number) => void;
-
+    
     // Empty state
     emptyState?: ReactNode;
-
+    
     // Mobile card renderer
     renderMobileCard?: (item: T, index: number) => ReactNode;
-
+    
     // Table styling
     className?: string;
     headerClassName?: string;
     bodyClassName?: string;
-
+    
     // Responsive behavior
     hideMobileCards?: boolean;
 }
@@ -63,11 +63,11 @@ export function BaseTable<T = any>({
     bodyClassName = '',
     hideMobileCards = false,
 }: BaseTableProps<T>) {
-
+    
     const getSortIcon = (field: string) => {
         if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-        return sortOrder === 'asc' ?
-            <ArrowUp className="h-4 w-4 ml-1" /> :
+        return sortOrder === 'asc' ? 
+            <ArrowUp className="h-4 w-4 ml-1" /> : 
             <ArrowDown className="h-4 w-4 ml-1" />;
     };
 
@@ -103,25 +103,24 @@ export function BaseTable<T = any>({
             )}
 
             {/* Desktop Table View - Hidden on mobile if mobile cards are enabled */}
-            <div className={`${!hideMobileCards && renderMobileCard ? 'hidden md:block' : ''} rounded-md border overflow-x-auto`}>
-                <Table className={`w-full border-collapse text-sm table-fixed ${className}`}>
+            <div className={`${!hideMobileCards && renderMobileCard ? 'hidden md:block' : ''} rounded-md border`}>
+                <Table className={`w-full border-collapse text-sm ${className}`}>
                     <TableHeader className={`bg-muted/50 border-b-2 ${headerClassName}`}>
                         <TableRow>
                             {columns.map((column) => {
                                 const Icon = column.icon;
-                                const alignClass =
+                                const alignClass = 
                                     column.align === 'left' ? 'text-left' :
-                                        column.align === 'right' ? 'text-right' :
-                                            'text-center';
+                                    column.align === 'right' ? 'text-right' :
+                                    'text-center';
 
                                 return (
-                                    <TableHead
+                                    <TableHead 
                                         key={column.key}
                                         className={`p-3 ${alignClass} text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b ${column.headerClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''}`}
-                                        style={column.maxWidth ? { width: column.maxWidth, maxWidth: column.maxWidth } : undefined}
                                     >
                                         {column.sortable ? (
-                                            <button
+                                            <button 
                                                 onClick={() => handleSort(column.key)}
                                                 className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
                                             >
@@ -146,26 +145,26 @@ export function BaseTable<T = any>({
                             const isClickable = !!onRowClick;
 
                             return (
-                                <TableRow
+                                <TableRow 
                                     key={keyExtractor(item)}
                                     className={`border-b transition-all hover:bg-muted/20 ${rowClassName} ${isClickable ? 'cursor-pointer' : ''}`}
                                     onClick={() => onRowClick?.(item, index)}
                                 >
                                     {columns.map((column) => {
-                                        const alignClass =
+                                        const alignClass = 
                                             column.align === 'left' ? 'justify-start text-left' :
-                                                column.align === 'right' ? 'justify-end text-right' :
-                                                    'justify-center text-center';
+                                            column.align === 'right' ? 'justify-end text-right' :
+                                            'justify-center text-center';
 
                                         return (
-                                            <TableCell
+                                            <TableCell 
                                                 key={column.key}
                                                 className={`p-3 align-top border-b ${column.cellClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''}`}
-                                                style={column.maxWidth ? { width: column.maxWidth, maxWidth: column.maxWidth } : undefined}
                                             >
                                                 <div className={`flex ${alignClass} min-h-[40px] py-2 w-full`}>
-                                                    <div
-                                                        className={`w-full overflow-hidden ${column.align === 'left' ? 'text-left' : column.align === 'right' ? 'text-right' : 'text-center'}`}
+                                                    <div 
+                                                        className={`w-full ${column.align === 'left' ? 'text-left' : column.align === 'right' ? 'text-right' : 'text-center'}`}
+                                                        style={column.maxWidth ? { maxWidth: column.maxWidth } : undefined}
                                                     >
                                                         {column.render ? column.render(item, index) : null}
                                                     </div>
