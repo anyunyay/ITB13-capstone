@@ -1467,4 +1467,9 @@ return [
 
     // Product Archive
     'archived_on' => 'Naka-archive Noong',
+
+    // Form Status Messages
+    'no_changes' => 'Walang Pagbabago',
+    'ready_to_submit' => 'Handa nang Isumite',
+    'incomplete_form' => 'Hindi Kumpleto ang Form',
 ];

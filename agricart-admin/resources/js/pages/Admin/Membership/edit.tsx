@@ -122,8 +122,22 @@ export default function Edit({member}: Props) {
         _method: 'put',
     });
 
+    // Store original values for comparison
+    const originalData = React.useRef({
+        name: member.name || '',
+        contact_number: member.contact_number || '',
+        street: member.default_address?.street || '',
+        barangay: member.default_address?.barangay || '',
+        city: member.default_address?.city || '',
+        province: member.default_address?.province || '',
+        registration_date: member.registration_date || '',
+    });
+
     // Track if a new file has been uploaded
     const [hasNewFile, setHasNewFile] = useState(false);
+    
+    // Track if any field has been modified
+    const [hasChanges, setHasChanges] = useState(false);
 
     // Duplicate check states
     const [isDuplicateName, setIsDuplicateName] = useState(false);
@@ -152,6 +166,21 @@ export default function Edit({member}: Props) {
             province: validateRequired(data.province),
         });
     }, [data]);
+
+    // Check if any field has been modified
+    useEffect(() => {
+        const isModified = 
+            data.name !== originalData.current.name ||
+            data.contact_number !== originalData.current.contact_number ||
+            data.street !== originalData.current.street ||
+            data.barangay !== originalData.current.barangay ||
+            data.city !== originalData.current.city ||
+            data.province !== originalData.current.province ||
+            data.registration_date !== originalData.current.registration_date ||
+            hasNewFile;
+        
+        setHasChanges(isModified);
+    }, [data, hasNewFile]);
 
     // Debounced duplicate check for name (excluding current member)
     const checkDuplicateName = useCallback(
@@ -226,7 +255,8 @@ export default function Edit({member}: Props) {
                        !isDuplicateContact &&
                        !isCheckingName &&
                        !isCheckingContact &&
-                       !isUpdateDisabled;
+                       !isUpdateDisabled &&
+                       hasChanges; // Only enable if there are changes
 
     const handleFileUpload = (file: File | null) => {
         setData('document', file);
@@ -678,7 +708,12 @@ export default function Edit({member}: Props) {
                                             <div className="flex flex-col gap-3">
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant={isFormValid ? "default" : "secondary"}>
-                                                        {isFormValid ? t('admin.ready_to_submit') : t('admin.incomplete_form')}
+                                                        {!hasChanges 
+                                                            ? t('admin.no_changes') || 'No Changes'
+                                                            : isFormValid 
+                                                                ? t('admin.ready_to_submit') 
+                                                                : t('admin.incomplete_form')
+                                                        }
                                                     </Badge>
                                                     {isFormValid && (
                                                         <CheckCircle className="h-4 w-4 text-green-500" />
