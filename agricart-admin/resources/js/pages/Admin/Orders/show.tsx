@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import { OrderItemsTable } from '@/components/orders/order-items-table';
 import { CustomerInformation } from '@/components/orders/customer-information';
 import { DeliveryProof } from '@/components/orders/delivery-proof';
-import { AdminNotes } from '@/components/orders/admin-notes';
 import { OrderSummary } from '@/components/orders/order-summary';
 import { OrderActions } from '@/components/orders/order-actions';
 import { ReceiptPreview } from '@/components/orders/receipt-preview';
@@ -151,8 +150,6 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
     t('admin.rejection_reason_out_of_stock'),
     t('admin.rejection_reason_insufficient_stock'),
     t('admin.rejection_reason_invalid_order_details'),
-    t('admin.rejection_reason_payment_issues'),
-    t('admin.rejection_reason_delivery_area_not_covered'),
     t('admin.rejection_reason_customer_request'),
     t('admin.rejection_reason_other')
   ];
@@ -419,6 +416,7 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
                 memberShare={order.member_share}
                 admin={order.admin}
                 logistic={order.logistic}
+                adminNotes={order.admin_notes}
                 getStatusBadge={getStatusBadge}
                 getDeliveryStatusBadge={getDeliveryStatusBadge}
               />
@@ -466,23 +464,17 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
           </div>
 
           {/* Additional Information Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {/* Delivery Proof Section */}
-            {currentOrder.delivery_status === 'delivered' && currentOrder.delivery_proof_image && (
+          {currentOrder.delivery_status === 'delivered' && currentOrder.delivery_proof_image && (
+            <div className="grid grid-cols-1 gap-2">
+              {/* Delivery Proof Section */}
               <DeliveryProof
                 deliveryProofImage={currentOrder.delivery_proof_image}
                 deliveredTime={currentOrder.delivered_time}
                 orderId={currentOrder.id}
                 onViewFullSize={() => setDeliveryProofModalOpen(true)}
               />
-            )}
-
-            {/* Admin Notes */}
-            <AdminNotes
-              adminNotes={order.admin_notes || ''}
-              admin={order.admin}
-            />
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

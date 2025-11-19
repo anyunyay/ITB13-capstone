@@ -143,19 +143,19 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                         </div>
                     </div>
                 </div>
-                
-                {order.admin_notes && (
-                    <div className="p-3 bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)]">
-                        <h5 className="font-semibold text-sm m-0 mb-2 leading-tight">{t('admin.admin_notes')}:</h5>
-                        <p className="text-sm text-muted-foreground m-0 leading-snug">{order.admin_notes}</p>
-                    </div>
-                )}
 
                 <div className="pt-4 border-t border-border">
-                    <h4 className="text-sm font-semibold text-foreground m-0 mb-3 leading-tight">{t('admin.order_items_header')}</h4>
+                    <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-foreground m-0 leading-tight">{t('admin.order_items_header')}</h4>
+                        {combinedItems.length > 2 && (
+                            <Badge variant="secondary" className="text-xs">
+                                +{combinedItems.length - 2} more
+                            </Badge>
+                        )}
+                    </div>
                     <div className="flex flex-col gap-2">
                         {combinedItems.length > 0 ? (
-                            combinedItems.map((item) => (
+                            combinedItems.slice(0, 2).map((item) => (
                                 <div key={item.id} className="flex justify-between items-center py-2 px-3 bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] rounded-lg border border-[color-mix(in_srgb,var(--border)_50%,transparent)] min-h-[2.5rem]">
                                     <span className="text-sm text-foreground flex-1 font-medium">{item.product.name} ({item.category})</span>
                                     <span className="text-sm text-muted-foreground font-semibold ml-2">{item.quantity} {item.category}</span>

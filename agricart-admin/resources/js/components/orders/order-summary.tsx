@@ -34,6 +34,7 @@ interface OrderSummaryProps {
   memberShare: number;
   admin?: Admin;
   logistic?: Logistic;
+  adminNotes?: string;
   getStatusBadge: (status: string) => React.ReactNode;
   getDeliveryStatusBadge: (status: string) => React.ReactNode;
 }
@@ -52,6 +53,7 @@ export const OrderSummary = ({
   memberShare,
   admin,
   logistic,
+  adminNotes,
   getStatusBadge,
   getDeliveryStatusBadge
 }: OrderSummaryProps) => {
@@ -173,6 +175,16 @@ export const OrderSummary = ({
             <div className="flex justify-between">
               <span className="text-sm font-medium text-muted-foreground">{t('admin.assigned_to')}</span>
               <span className="text-sm text-foreground">{logistic.name}</span>
+            </div>
+          )}
+          {adminNotes && (
+            <div className="border-t border-border pt-3 mt-3">
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-muted-foreground">Notes</span>
+                <p className="text-sm text-foreground leading-relaxed bg-muted/50 p-3 rounded-md">
+                  {adminNotes}
+                </p>
+              </div>
             </div>
           )}
         </div>
