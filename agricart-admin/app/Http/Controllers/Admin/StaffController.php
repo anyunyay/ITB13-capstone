@@ -199,6 +199,7 @@ class StaffController extends Controller
             'contact_number' => $request->contact_number,
             'type' => 'staff',
             'email_verified_at' => now(), // Automatically verify email for staff
+            'is_default' => true, // Require password change on first login
         ]);
 
         // Create address

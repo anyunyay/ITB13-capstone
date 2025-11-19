@@ -123,6 +123,7 @@ class LogisticController extends Controller
             'registration_date' => $request->input('registration_date', now()),
             'type' => 'logistic',
             'email_verified_at' => now(), // Automatically verify email
+            'is_default' => true, // Require password change on first login
         ]);
 
         // Create address
