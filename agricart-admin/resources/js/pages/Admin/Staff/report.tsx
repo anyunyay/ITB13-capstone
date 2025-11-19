@@ -46,7 +46,7 @@ export default function StaffReport({ staff, summary, filters }: ReportPageProps
 
   const breadcrumbs = [
     { title: t('staff.staff'), href: route('staff.index') },
-    { title: t('staff.staff_report'), href: route('staff.report') },
+    { title: t('staff.staff_report'), href: route('admin.staff.report') },
   ];
 
   // Sorting state
