@@ -103,7 +103,7 @@ export function BaseTable<T = any>({
             )}
 
             {/* Desktop Table View - Hidden on mobile if mobile cards are enabled */}
-            <div className={`${!hideMobileCards && renderMobileCard ? 'hidden md:block' : ''} rounded-md border`}>
+            <div className={`${!hideMobileCards && renderMobileCard ? 'hidden md:block' : ''} rounded-md border overflow-x-auto`}>
                 <Table className={`w-full border-collapse text-sm ${className}`}>
                     <TableHeader className={`bg-muted/50 border-b-2 ${headerClassName}`}>
                         <TableRow>
@@ -117,7 +117,7 @@ export function BaseTable<T = any>({
                                 return (
                                     <TableHead 
                                         key={column.key}
-                                        className={`p-3 ${alignClass} text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b ${column.headerClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''}`}
+                                        className={`px-4 py-3 lg:px-3 md:px-2 sm:px-1 ${alignClass} text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b ${column.headerClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''} whitespace-nowrap`}
                                     >
                                         {column.sortable ? (
                                             <button 
@@ -147,7 +147,7 @@ export function BaseTable<T = any>({
                             return (
                                 <TableRow 
                                     key={keyExtractor(item)}
-                                    className={`border-b transition-all hover:bg-muted/20 ${rowClassName} ${isClickable ? 'cursor-pointer' : ''}`}
+                                    className={`border-b transition-all duration-150 ease-in-out bg-card hover:bg-muted/20 hover:-translate-y-px hover:shadow-md ${rowClassName} ${isClickable ? 'cursor-pointer' : ''}`}
                                     onClick={() => onRowClick?.(item, index)}
                                 >
                                     {columns.map((column) => {
@@ -159,7 +159,7 @@ export function BaseTable<T = any>({
                                         return (
                                             <TableCell 
                                                 key={column.key}
-                                                className={`p-3 align-top border-b ${column.cellClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''}`}
+                                                className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 align-top border-b ${column.cellClassName || ''} ${column.hideOnMobile ? 'hidden md:table-cell' : ''}`}
                                             >
                                                 <div className={`flex ${alignClass} min-h-[40px] py-2 w-full`}>
                                                     <div 

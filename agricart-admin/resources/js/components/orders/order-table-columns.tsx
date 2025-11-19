@@ -13,16 +13,20 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     key: 'id',
     label: t('admin.order_id'),
     sortable: true,
+    align: 'center',
+    maxWidth: '120px',
     render: (order) => (
-      <span className="font-medium">#{order.id}</span>
+      <Badge variant="outline">#{order.id}</Badge>
     ),
   },
   {
     key: 'customer',
     label: t('admin.customer'),
     sortable: true,
+    align: 'left',
+    maxWidth: '180px',
     render: (order) => (
-      <div className="min-w-[150px]">
+      <div>
         <div className="font-medium">{order.customer.name}</div>
         <div className="text-xs text-muted-foreground">{order.customer.email}</div>
       </div>
@@ -32,14 +36,18 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     key: 'total_amount',
     label: t('admin.total_amount'),
     sortable: true,
+    align: 'right',
+    maxWidth: '120px',
     render: (order) => (
-      <span className="font-medium">₱{order.total_amount.toFixed(2)}</span>
+      <div className="font-semibold">₱{order.total_amount.toFixed(2)}</div>
     ),
   },
   {
     key: 'status',
     label: t('admin.status'),
     sortable: true,
+    align: 'center',
+    maxWidth: '120px',
     render: (order) => {
       const statusMap: Record<string, { className: string; label: string }> = {
         pending: { className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', label: t('admin.pending') },
@@ -57,6 +65,8 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     key: 'delivery_status',
     label: t('admin.delivery_status'),
     sortable: true,
+    align: 'center',
+    maxWidth: '150px',
     render: (order) => {
       const deliveryStatusMap: Record<string, { className: string; label: string }> = {
         pending: { className: 'status-pending', label: t('admin.pending') },
@@ -72,18 +82,25 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     key: 'created_at',
     label: t('admin.order_date'),
     sortable: true,
+    align: 'center',
+    maxWidth: '120px',
     render: (order) => (
-      <span className="text-sm">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
+      <div>
+        <div className="text-sm">{format(new Date(order.created_at), 'MMM dd, yyyy')}</div>
+        <div className="text-xs text-muted-foreground">{format(new Date(order.created_at), 'HH:mm')}</div>
+      </div>
     ),
   },
   {
     key: 'actions',
     label: t('admin.actions'),
     sortable: false,
+    align: 'center',
+    maxWidth: '150px',
     render: (order) => (
       <PermissionGate permission="view orders">
         <Link href={route('admin.orders.show', order.id)}>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="whitespace-nowrap">
             <Eye className="h-4 w-4 mr-2" />
             {t('ui.view')}
           </Button>
@@ -119,11 +136,12 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
   };
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="p-4 space-y-3 bg-card border border-border rounded-lg shadow-sm transition-all duration-150 hover:shadow-md hover:-translate-y-px">
       <div className="flex items-start justify-between">
         <div>
           <div className="font-semibold text-base">#{order.id}</div>
           <div className="text-sm text-muted-foreground">{order.customer.name}</div>
+          <div className="text-xs text-muted-foreground">{order.customer.email}</div>
         </div>
         <div className="flex flex-col gap-1 items-end">
           {getStatusBadge(order.status)}
@@ -134,11 +152,11 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
       <div className="space-y-1 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
-          <span className="font-medium">₱{order.total_amount.toFixed(2)}</span>
+          <span className="font-semibold">₱{order.total_amount.toFixed(2)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">{t('admin.order_date')}:</span>
-          <span>{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
+          <span>{format(new Date(order.created_at), 'MMM dd, yyyy HH:mm')}</span>
         </div>
       </div>
 
