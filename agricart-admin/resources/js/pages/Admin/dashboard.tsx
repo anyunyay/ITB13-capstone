@@ -138,17 +138,26 @@ export default function Dashboard({
     const recentActivityLimited = recentActivity.slice(0, 5);
 
     const getStatusBadge = (status: string) => {
-        const statusConfig = {
-            pending: { variant: 'secondary' as const, label: t('admin.pending') },
-            approved: { variant: 'default' as const, label: t('admin.approved') },
-            rejected: { variant: 'destructive' as const, label: t('admin.rejected') },
-            delayed: { variant: 'destructive' as const, label: t('admin.delayed') },
-            delivered: { variant: 'default' as const, label: t('admin.delivered') },
-            out_for_delivery: { variant: 'default' as const, label: t('admin.out_for_delivery') }
-        };
-        
-        const config = statusConfig[status as keyof typeof statusConfig] || { variant: 'outline' as const, label: status };
-        return <Badge variant={config.variant}>{config.label}</Badge>;
+        switch (status) {
+            case 'pending':
+                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{t('admin.pending')}</Badge>;
+            case 'approved':
+                return <Badge className="status-approved">{t('admin.approved')}</Badge>;
+            case 'rejected':
+                return <Badge className="status-rejected">{t('admin.rejected')}</Badge>;
+            case 'delayed':
+                return <Badge className="status-delayed">{t('admin.delayed')}</Badge>;
+            case 'cancelled':
+                return <Badge className="status-cancelled">{t('admin.cancelled')}</Badge>;
+            case 'delivered':
+                return <Badge className="status-delivered">{t('admin.delivered')}</Badge>;
+            case 'out_for_delivery':
+                return <Badge className="status-out-for-delivery">{t('admin.out_for_delivery')}</Badge>;
+            case 'ready_to_pickup':
+                return <Badge className="status-ready">{t('admin.ready_to_pickup')}</Badge>;
+            default:
+                return <Badge variant="outline">{status}</Badge>;
+        }
     };
 
     return (
