@@ -74,21 +74,21 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
+
   useEffect(() => {
     setIsLoading(false);
   }, [orders]);
-  
+
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+        return <Badge className="status-pending">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+        return <Badge className="status-delivered">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -122,7 +122,7 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
     <div className="min-h-screen bg-background">
       <LogisticsHeader />
       <Head title={t('logistic.assigned_orders')} />
-      
+
       <div className="p-6 pt-25 space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
@@ -163,36 +163,36 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
 
         <Tabs value={currentStatus} onValueChange={handleStatusFilter} className="space-y-4">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 h-auto lg:h-10 p-1 gap-1">
-            <TabsTrigger 
-              value="all" 
+            <TabsTrigger
+              value="all"
               disabled={isLoading}
               className="text-xs sm:text-sm col-span-2 sm:col-span-1"
             >
               <span className="truncate">{t('logistic.all_orders')} ({statusCounts.all})</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="pending" 
+            <TabsTrigger
+              value="pending"
               disabled={isLoading}
               className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.pending')} ({statusCounts.pending})</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="ready_to_pickup" 
+            <TabsTrigger
+              value="ready_to_pickup"
               disabled={isLoading}
               className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.ready_to_pickup')} ({statusCounts.ready_to_pickup})</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="out_for_delivery" 
+            <TabsTrigger
+              value="out_for_delivery"
               disabled={isLoading}
               className="text-xs sm:text-sm"
             >
               <span className="truncate">{t('logistic.out_for_delivery')} ({statusCounts.out_for_delivery})</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="delivered" 
+            <TabsTrigger
+              value="delivered"
               disabled={isLoading}
               className="text-xs sm:text-sm"
             >
@@ -226,20 +226,20 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
                         <MobileOrderCard key={order.id} order={order} t={t} formatQuantity={formatQuantity} />
                       ))}
                     </div>
-                    
+
                     {/* Desktop: Table View */}
                     <div className="hidden md:block">
-                      <OrderTable 
-                        orders={orders.data} 
-                        t={t} 
-                        sortBy={sortBy} 
-                        setSortBy={setSortBy} 
-                        sortOrder={sortOrder} 
+                      <OrderTable
+                        orders={orders.data}
+                        t={t}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
                         formatQuantity={formatQuantity}
                       />
                     </div>
-                    
+
                     <Pagination
                       links={orders.links}
                       from={orders.from}
@@ -278,12 +278,12 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
                       ))}
                     </div>
                     <div className="hidden md:block">
-                      <OrderTable 
-                        orders={orders.data} 
-                        t={t} 
-                        sortBy={sortBy} 
-                        setSortBy={setSortBy} 
-                        sortOrder={sortOrder} 
+                      <OrderTable
+                        orders={orders.data}
+                        t={t}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
                         formatQuantity={formatQuantity}
                       />
@@ -326,12 +326,12 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
                       ))}
                     </div>
                     <div className="hidden md:block">
-                      <OrderTable 
-                        orders={orders.data} 
-                        t={t} 
-                        sortBy={sortBy} 
-                        setSortBy={setSortBy} 
-                        sortOrder={sortOrder} 
+                      <OrderTable
+                        orders={orders.data}
+                        t={t}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
                         formatQuantity={formatQuantity}
                       />
@@ -374,12 +374,12 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
                       ))}
                     </div>
                     <div className="hidden md:block">
-                      <OrderTable 
-                        orders={orders.data} 
-                        t={t} 
-                        sortBy={sortBy} 
-                        setSortBy={setSortBy} 
-                        sortOrder={sortOrder} 
+                      <OrderTable
+                        orders={orders.data}
+                        t={t}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
                         formatQuantity={formatQuantity}
                       />
@@ -422,12 +422,12 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
                       ))}
                     </div>
                     <div className="hidden md:block">
-                      <OrderTable 
-                        orders={orders.data} 
-                        t={t} 
-                        sortBy={sortBy} 
-                        setSortBy={setSortBy} 
-                        sortOrder={sortOrder} 
+                      <OrderTable
+                        orders={orders.data}
+                        t={t}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
                         formatQuantity={formatQuantity}
                       />
@@ -453,21 +453,21 @@ export default function AssignedOrders({ orders, currentStatus, statusCounts }: 
   );
 }
 
-function MobileOrderCard({ order, t, formatQuantity }: { 
-  order: Order; 
+function MobileOrderCard({ order, t, formatQuantity }: {
+  order: Order;
   t: (key: string, params?: any) => string;
   formatQuantity: (quantity: number, category: string) => string;
 }) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+        return <Badge className="status-pending">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+        return <Badge className="status-delivered">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -527,8 +527,8 @@ function MobileOrderCard({ order, t, formatQuantity }: {
   );
 }
 
-function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder, formatQuantity }: { 
-  orders: Order[]; 
+function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder, formatQuantity }: {
+  orders: Order[];
   t: (key: string, params?: any) => string;
   sortBy: string;
   setSortBy: (field: string) => void;
@@ -548,8 +548,8 @@ function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder, for
 
   const getSortIcon = (field: string) => {
     if (sortBy !== field) return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    return sortOrder === 'asc' ? 
-      <ArrowUp className="h-4 w-4 ml-1" /> : 
+    return sortOrder === 'asc' ?
+      <ArrowUp className="h-4 w-4 ml-1" /> :
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
@@ -586,13 +586,13 @@ function OrderTable({ orders, t, sortBy, setSortBy, sortOrder, setSortOrder, for
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+        return <Badge className="status-pending">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+        return <Badge className="status-delivered">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

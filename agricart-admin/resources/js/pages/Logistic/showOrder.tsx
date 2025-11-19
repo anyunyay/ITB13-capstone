@@ -105,13 +105,13 @@ export default function ShowOrder({ order }: ShowOrderProps) {
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('logistic.pending')}</Badge>;
+        return <Badge className="status-pending">{t('logistic.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge className="bg-primary text-primary-foreground">{t('logistic.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready">{t('logistic.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge className="bg-accent text-accent-foreground">{t('logistic.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery">{t('logistic.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="border-secondary text-secondary">{t('logistic.delivered')}</Badge>;
+        return <Badge className="status-delivered">{t('logistic.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

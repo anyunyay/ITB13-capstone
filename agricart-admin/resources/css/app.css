@@ -61,6 +61,26 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Order Status Colors */
+    --color-status-approved: var(--status-approved);
+    --color-status-approved-foreground: var(--status-approved-foreground);
+    --color-status-rejected: var(--status-rejected);
+    --color-status-rejected-foreground: var(--status-rejected-foreground);
+    --color-status-delayed: var(--status-delayed);
+    --color-status-delayed-foreground: var(--status-delayed-foreground);
+    --color-status-cancelled: var(--status-cancelled);
+    --color-status-cancelled-foreground: var(--status-cancelled-foreground);
+
+    /* Logistics/Delivery Status Colors */
+    --color-status-pending: var(--status-pending);
+    --color-status-pending-foreground: var(--status-pending-foreground);
+    --color-status-ready: var(--status-ready);
+    --color-status-ready-foreground: var(--status-ready-foreground);
+    --color-status-out-for-delivery: var(--status-out-for-delivery);
+    --color-status-out-for-delivery-foreground: var(--status-out-for-delivery-foreground);
+    --color-status-delivered: var(--status-delivered);
+    --color-status-delivered-foreground: var(--status-delivered-foreground);
 }
 
 /*
@@ -149,6 +169,42 @@
     /* gray-200 */
     --sidebar-ring: oklch(0.502 0.176 142.495);
     /* green-600 */
+
+    /* Order Status Colors - Light Theme */
+    --status-approved: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --status-approved-foreground: oklch(1 0 0);
+    /* white */
+    --status-rejected: oklch(0.577 0.245 27.325);
+    /* red-600 */
+    --status-rejected-foreground: oklch(1 0 0);
+    /* white */
+    --status-delayed: oklch(0.7 0.19 50);
+    /* orange-500 */
+    --status-delayed-foreground: oklch(1 0 0);
+    /* white */
+    --status-cancelled: oklch(0.6 0.01 142.495);
+    /* gray-500 */
+    --status-cancelled-foreground: oklch(1 0 0);
+    /* white */
+
+    /* Logistics/Delivery Status Colors - Light Theme */
+    --status-pending: oklch(0.6 0.01 142.495);
+    /* gray-500 */
+    --status-pending-foreground: oklch(1 0 0);
+    /* white */
+    --status-ready: oklch(0.55 0.22 252);
+    /* blue-600 */
+    --status-ready-foreground: oklch(1 0 0);
+    /* white */
+    --status-out-for-delivery: oklch(0.7 0.19 50);
+    /* orange-500 */
+    --status-out-for-delivery-foreground: oklch(0.2 0.05 50);
+    /* dark orange text */
+    --status-delivered: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --status-delivered-foreground: oklch(1 0 0);
+    /* white */
 }
 
 .dark {
@@ -217,6 +273,42 @@
     /* subtle borders */
     --sidebar-ring: oklch(0.7 0.16 142.495);
     /* lighter green */
+
+    /* Order Status Colors - Dark Theme */
+    --status-approved: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --status-approved-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-rejected: oklch(0.6 0.2 25.723);
+    /* lighter red */
+    --status-rejected-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --status-delayed: oklch(0.75 0.19 50);
+    /* lighter orange */
+    --status-delayed-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-cancelled: oklch(0.5 0.01 142.495);
+    /* gray-600 */
+    --status-cancelled-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+
+    /* Logistics/Delivery Status Colors - Dark Theme */
+    --status-pending: oklch(0.5 0.01 142.495);
+    /* gray-600 */
+    --status-pending-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --status-ready: oklch(0.65 0.22 252);
+    /* lighter blue */
+    --status-ready-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --status-out-for-delivery: oklch(0.75 0.19 50);
+    /* lighter orange */
+    --status-out-for-delivery-foreground: oklch(0.15 0.05 50);
+    /* dark orange text */
+    --status-delivered: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --status-delivered-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
 }
 
 @layer base {
@@ -336,5 +428,56 @@
 
     .dark .highlight-row {
         animation: highlight-pulse-dark 1.5s ease-in-out 2;
+    }
+
+    /* Status Badge Utility Classes */
+    /* Order Statuses */
+    .status-approved {
+        background-color: var(--status-approved) !important;
+        color: var(--status-approved-foreground) !important;
+        border-color: var(--status-approved) !important;
+    }
+
+    .status-rejected {
+        background-color: var(--status-rejected) !important;
+        color: var(--status-rejected-foreground) !important;
+        border-color: var(--status-rejected) !important;
+    }
+
+    .status-delayed {
+        background-color: var(--status-delayed) !important;
+        color: var(--status-delayed-foreground) !important;
+        border-color: var(--status-delayed) !important;
+    }
+
+    .status-cancelled {
+        background-color: var(--status-cancelled) !important;
+        color: var(--status-cancelled-foreground) !important;
+        border-color: var(--status-cancelled) !important;
+    }
+
+    /* Logistics/Delivery Statuses */
+    .status-pending {
+        background-color: var(--status-pending) !important;
+        color: var(--status-pending-foreground) !important;
+        border-color: var(--status-pending) !important;
+    }
+
+    .status-ready {
+        background-color: var(--status-ready) !important;
+        color: var(--status-ready-foreground) !important;
+        border-color: var(--status-ready) !important;
+    }
+
+    .status-out-for-delivery {
+        background-color: var(--status-out-for-delivery) !important;
+        color: var(--status-out-for-delivery-foreground) !important;
+        border-color: var(--status-out-for-delivery) !important;
+    }
+
+    .status-delivered {
+        background-color: var(--status-delivered) !important;
+        color: var(--status-delivered-foreground) !important;
+        border-color: var(--status-delivered) !important;
     }
 }

@@ -198,17 +198,17 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('admin.pending')}</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">{t('admin.pending')}</Badge>;
       case 'approved':
-        return <Badge variant="default">{t('admin.approved')}</Badge>;
+        return <Badge className="status-approved">{t('admin.approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">{t('admin.rejected')}</Badge>;
+        return <Badge className="status-rejected">{t('admin.rejected')}</Badge>;
       case 'expired':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-600">{t('admin.expired')}</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">{t('admin.expired')}</Badge>;
       case 'delayed':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.delayed')}</Badge>;
+        return <Badge className="status-delayed">{t('admin.delayed')}</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">{t('admin.cancelled')}</Badge>;
+        return <Badge className="status-cancelled">{t('admin.cancelled')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -217,13 +217,13 @@ export default function OrderShow({ order, logistics, highlight = false, isUrgen
   const getDeliveryStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">{t('admin.pending')}</Badge>;
+        return <Badge className="status-pending">{t('admin.pending')}</Badge>;
       case 'ready_to_pickup':
-        return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('admin.ready_to_pickup')}</Badge>;
+        return <Badge className="status-ready">{t('admin.ready_to_pickup')}</Badge>;
       case 'out_for_delivery':
-        return <Badge variant="default">{t('admin.out_for_delivery')}</Badge>;
+        return <Badge className="status-out-for-delivery">{t('admin.out_for_delivery')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline">{t('admin.delivered')}</Badge>;
+        return <Badge className="status-delivered">{t('admin.delivered')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
