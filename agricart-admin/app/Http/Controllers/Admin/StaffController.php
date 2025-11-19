@@ -50,8 +50,8 @@ class StaffController extends Controller
             $linkedDataReasons = [];
 
             // Check if staff has processed any orders
-            $processedOrdersCount = \DB::table('orders')
-                ->where('processed_by', $staffMember->id)
+            $processedOrdersCount = \DB::table('sales_audit')
+                ->where('admin_id', $staffMember->id)
                 ->count();
             
             if ($processedOrdersCount > 0) {
@@ -463,8 +463,8 @@ class StaffController extends Controller
         $linkedDataReasons = [];
 
         // Check if staff has processed any orders
-        $processedOrdersCount = \DB::table('orders')
-            ->where('processed_by', $staff->id)
+        $processedOrdersCount = \DB::table('sales_audit')
+            ->where('admin_id', $staff->id)
             ->count();
         
         if ($processedOrdersCount > 0) {

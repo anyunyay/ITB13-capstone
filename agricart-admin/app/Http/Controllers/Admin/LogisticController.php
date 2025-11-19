@@ -41,7 +41,7 @@ class LogisticController extends Controller
                 }
 
                 // Check for any assigned orders (including completed)
-                $totalOrdersCount = \DB::table('orders')
+                $totalOrdersCount = \DB::table('sales_audit')
                     ->where('logistic_id', $logistic->id)
                     ->count();
                 
@@ -426,7 +426,7 @@ class LogisticController extends Controller
         }
 
         // Check for any assigned orders (including completed)
-        $totalOrdersCount = \DB::table('orders')
+        $totalOrdersCount = \DB::table('sales_audit')
             ->where('logistic_id', $logistic->id)
             ->count();
         
