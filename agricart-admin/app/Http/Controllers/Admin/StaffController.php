@@ -499,7 +499,7 @@ class StaffController extends Controller
     private function exportToPdf($staff, $summary, $display = false, $paperSize = 'A4', $orientation = 'landscape')
     {
         // Encode logo as base64 for PDF embedding
-        $logoPath = storage_path('app/public/logo/SMMC Logo-1.png');
+        $logoPath = storage_path('app/public/logo/SMMC_Logo-1.png');
         $logoBase64 = '';
         if (file_exists($logoPath)) {
             $imageData = file_get_contents($logoPath);
