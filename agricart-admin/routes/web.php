@@ -46,6 +46,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home'); // View Home
 Route::get('/search', [HomeController::class, 'search'])->name('search'); // Search Products
 Route::get('/customer/produce', [HomeController::class, 'produce'])->name('produce'); // View All Products
 Route::get('/customer/about', [HomeController::class, 'about'])->name('about'); // About Us Page
+Route::get('/terms-of-service', function () {
+    return Inertia::render('terms-of-service');
+})->name('terms-of-service'); // Terms of Service Page
 
 // Password change routes (must be before other authenticated routes)
 Route::middleware(['auth'])->group(function () {

@@ -17,6 +17,9 @@ Route::middleware('guest')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
+    Route::post('register/check-duplicate-email', [RegisteredUserController::class, 'checkDuplicateEmail'])
+        ->name('register.checkDuplicateEmail');
+
     // Customer login (default)
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

@@ -1,15 +1,12 @@
-import { Head, useForm } from '@inertiajs/react';
-import { AlertTriangle, LoaderCircle } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertTriangle, LoaderCircle, KeyRound } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
-import InputError from '@/components/common/forms/input-error';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import PasswordInput from '@/components/ui/password-input';
 import PasswordValidation from '@/components/ui/password-validation';
 import PasswordError from '@/components/ui/password-error';
-import AuthLayout from '@/layouts/auth-layout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type UpdateCredentialsForm = {
@@ -47,18 +44,6 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
         });
     };
 
-    const getAlertMessage = () => {
-        return "This is a default account. For security reasons, you must update your password before accessing the system.";
-    };
-
-    const getTitle = () => {
-        return "Update Your Password";
-    };
-
-    const getDescription = () => {
-        return "Please update your password to continue";
-    };
-
     const getUserTypeDisplayName = (type: string) => {
         switch (type) {
             case 'admin':
@@ -78,21 +63,40 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
 
     return (
         <>
-            <Head title="Update Credentials" />
-            <AuthLayout 
-                title={getTitle()}
-                description={getDescription()}
-            >
-                <div className="space-y-6">
-                    <Alert>
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription>
-                            {getAlertMessage()}
-                        </AlertDescription>
-                    </Alert>
+            <Head title="Update Password" />
+            
+            <div className="min-h-screen flex items-center justify-center bg-background p-4">
+                <div className="w-full max-w-md">
+                    <div className="text-center space-y-6">
+                        {/* Logo */}
+                        <div className="inline-block mb-4">
+                            <div className="flex items-center justify-center gap-3">
+                                <img
+                                    src="/storage/logo/SMMC Logo-1.webp"
+                                    alt="SMMC Logo"
+                                    className="h-20 w-20 object-contain"
+                                    onError={(e) => {
+                                        e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
+                                    }}
+                                />
+                                <span className="text-5xl font-semibold text-green-700" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.08em' }}>
+                                    SMMC
+                                </span>
+                            </div>
+                        </div>
 
-                    <div className="space-y-4">
-                        <div className="text-center">
+                        {/* Icon */}
+                        <div className="flex justify-center">
+                            <div className="p-4 bg-primary/10 rounded-full">
+                                <KeyRound className="h-12 w-12 text-primary" />
+                            </div>
+                        </div>
+
+                        {/* Title and Description */}
+                        <div className="space-y-2">
+                            <h1 className="text-2xl font-bold text-foreground">
+                                Update Your Password
+                            </h1>
                             <p className="text-sm text-muted-foreground">
                                 Welcome, <strong>{user.name}</strong>
                             </p>
@@ -101,15 +105,23 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                             </p>
                         </div>
 
-                        <form onSubmit={submit} className="space-y-4">
+                        {/* Security Alert */}
+                        <Alert className="text-left">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription className="text-sm">
+                                This is a default account. For security reasons, you must update your password before accessing the system.
+                            </AlertDescription>
+                        </Alert>
 
+                        {/* Password Update Form */}
+                        <form onSubmit={submit} className="space-y-4 pt-2 text-left">
                             <div className="space-y-2">
                                 <Label htmlFor="password">New Password</Label>
                                 <PasswordInput
                                     id="password"
                                     name="password"
                                     value={data.password}
-                                    className="mt-1 block w-full"
+                                    className="w-full"
                                     autoComplete="new-password"
                                     onChange={(e) => {
                                         setData('password', e.target.value);
@@ -130,7 +142,7 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     value={data.password_confirmation}
-                                    className="mt-1 block w-full"
+                                    className="w-full"
                                     autoComplete="new-password"
                                     onChange={(e) => {
                                         setData('password_confirmation', e.target.value);
@@ -149,13 +161,24 @@ export default function UpdateCredentials({ user }: UpdateCredentialsProps) {
                                 className="w-full" 
                                 disabled={processing}
                             >
-                                {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                 Update Password
                             </Button>
+
+                            <div className="text-center pt-2">
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Log out
+                                </Link>
+                            </div>
                         </form>
                     </div>
                 </div>
-            </AuthLayout>
+            </div>
         </>
     );
 }

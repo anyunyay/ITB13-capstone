@@ -44,6 +44,7 @@ class RegisteredUserController extends Controller
             'barangay' => 'required|string|in:Sala',
             'city' => 'required|string|in:Cabuyao',
             'province' => 'required|string|in:Laguna',
+            'terms_accepted' => 'required|accepted',
         ]);
 
         $user = User::create([
@@ -84,5 +85,21 @@ class RegisteredUserController extends Controller
 
         // Redirect to verification notice for customers
         return redirect()->intended(route('verification.notice', absolute: false));
+    }
+
+    /**
+     * Check if email already exists in the database.
+     */
+    public function checkDuplicateEmail(Request $request)
+    {
+        $email = $request->input('email');
+        
+        if (empty($email)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = User::where('email', strtolower($email))->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 }

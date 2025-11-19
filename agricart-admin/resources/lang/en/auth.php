@@ -17,5 +17,12 @@ return [
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'deactivated' => 'Your account has been deactivated. Please contact support for assistance.',
+    'lockout' => [
+        'title' => 'Account Temporarily Locked',
+        'message' => 'Too many failed login attempts. Please wait :time before trying again.',
+        'or_reset' => 'or use forgot password',
+        'attempts_remaining' => ':count attempt remaining.|:count attempts remaining.',
+        'warning' => 'Warning: :count more failed attempt will lock your account.|Warning: :count more failed attempts will lock your account.',
+    ],
 
 ];

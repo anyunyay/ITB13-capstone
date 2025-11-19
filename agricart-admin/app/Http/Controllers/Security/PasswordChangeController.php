@@ -60,13 +60,22 @@ class PasswordChangeController extends \App\Http\Controllers\Controller
             ]
         );
 
-        // Redirect based on user type
-        if ($user->type === 'staff') {
-            return redirect()->route('admin.dashboard')->with('message', 'Password changed successfully. You can now access all features.');
-        } elseif ($user->type === 'logistic') {
-            return redirect()->route('logistic.dashboard')->with('message', 'Password changed successfully. You can now access all features.');
-        }
+        // Redirect to appropriate dashboard based on user type
+        return redirect()->route($this->getDashboardRouteForType($user->type))
+            ->with('message', 'Password changed successfully. You can now access all features.');
+    }
 
-        return redirect()->route('home');
+    /**
+     * Get the dashboard route for the user type.
+     */
+    private function getDashboardRouteForType(string $type): string
+    {
+        return match ($type) {
+            'admin', 'staff' => 'admin.dashboard',
+            'customer' => 'home',
+            'member' => 'member.dashboard',
+            'logistic' => 'logistic.dashboard',
+            default => 'home',
+        };
     }
 }

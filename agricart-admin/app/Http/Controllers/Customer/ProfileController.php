@@ -168,7 +168,8 @@ class ProfileController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->back()->with('success', 'Password changed successfully.');
+        // Redirect to home page after password change
+        return redirect()->route('home')->with('success', 'Password changed successfully.');
     }
 
     /**
