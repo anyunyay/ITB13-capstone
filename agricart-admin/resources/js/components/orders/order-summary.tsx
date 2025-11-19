@@ -69,9 +69,11 @@ export const OrderSummary = ({
             <span className="text-sm font-medium text-muted-foreground">{t('admin.status')}</span>
             {getStatusBadge(status)}
           </div>
-          {status === 'approved' && deliveryStatus && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground">{t('admin.delivery_status')}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-muted-foreground">{t('admin.delivery_status')}</span>
+            {status === 'rejected' ? (
+              <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">N/A</Badge>
+            ) : deliveryStatus ? (
               <div className="flex items-center gap-2">
                 {getDeliveryStatusBadge(deliveryStatus)}
                 {deliveryStatus === 'out_for_delivery' && (
@@ -81,8 +83,10 @@ export const OrderSummary = ({
                   <span className="text-xs text-primary">(Completed)</span>
                 )}
               </div>
-            </div>
-          )}
+            ) : (
+              <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">N/A</Badge>
+            )}
+          </div>
           {deliveryTimeline && (
             <>
               {deliveryReadyTime && (

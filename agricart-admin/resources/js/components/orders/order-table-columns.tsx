@@ -68,6 +68,11 @@ export const createOrderTableColumns = (t: (key: string) => string): BaseTableCo
     align: 'center',
     maxWidth: '150px',
     render: (order) => {
+      // Show N/A for rejected orders
+      if (order.status === 'rejected') {
+        return <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">N/A</Badge>;
+      }
+      
       const deliveryStatusMap: Record<string, { className: string; label: string }> = {
         pending: { className: 'status-pending', label: t('admin.pending') },
         out_for_delivery: { className: 'status-out-for-delivery', label: t('admin.out_for_delivery') },
@@ -124,7 +129,12 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
-  const getDeliveryStatusBadge = (status: string) => {
+  const getDeliveryStatusBadge = (status: string, orderStatus: string) => {
+    // Show N/A for rejected orders
+    if (orderStatus === 'rejected') {
+      return <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">N/A</Badge>;
+    }
+    
     const deliveryStatusMap: Record<string, { className: string; label: string }> = {
       pending: { className: 'status-pending', label: t('admin.pending') },
       out_for_delivery: { className: 'status-out-for-delivery', label: t('admin.out_for_delivery') },
@@ -145,7 +155,7 @@ export const OrderMobileCard = ({ order, t }: { order: Order; t: (key: string) =
         </div>
         <div className="flex flex-col gap-1 items-end">
           {getStatusBadge(order.status)}
-          {getDeliveryStatusBadge(order.delivery_status)}
+          {getDeliveryStatusBadge(order.delivery_status, order.status)}
         </div>
       </div>
       

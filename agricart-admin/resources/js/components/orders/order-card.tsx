@@ -36,7 +36,12 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
         }
     };
 
-    const getDeliveryStatusBadge = (status: string) => {
+    const getDeliveryStatusBadge = (status: string, orderStatus: string) => {
+        // Show N/A for rejected orders
+        if (orderStatus === 'rejected') {
+            return <Badge variant="outline" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">N/A</Badge>;
+        }
+        
         switch (status) {
             case 'pending':
                 return <Badge className="status-pending">{t('admin.pending')}</Badge>;
@@ -128,17 +133,13 @@ export const OrderCard = ({ order, highlight = false, isUrgent = false }: OrderC
                                     )}
                                 </p>
                             )}
-                            {order.status === 'approved' && (
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-sm text-muted-foreground m-0 leading-snug">
-                                        <span className="font-medium text-foreground">{t('admin.delivery_status')}:</span> {getDeliveryStatusBadge(order.delivery_status)}
-                                    </p>
-                                    {!order.logistic && (
-                                        <p className="text-orange-600 dark:text-orange-400 text-sm m-0 leading-snug">
-                                            <span className="font-medium">{t('admin.needs_logistic_assignment')}</span>
-                                        </p>
-                                    )}
-                                </div>
+                            <p className="text-sm text-muted-foreground m-0 leading-snug">
+                                <span className="font-medium text-foreground">{t('admin.delivery_status')}:</span> {getDeliveryStatusBadge(order.delivery_status, order.status)}
+                            </p>
+                            {order.status === 'approved' && !order.logistic && (
+                                <p className="text-orange-600 dark:text-orange-400 text-sm m-0 leading-snug">
+                                    <span className="font-medium">{t('admin.needs_logistic_assignment')}</span>
+                                </p>
                             )}
                         </div>
                     </div>
