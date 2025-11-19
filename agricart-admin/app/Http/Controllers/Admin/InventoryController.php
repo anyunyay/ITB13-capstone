@@ -179,8 +179,8 @@ class InventoryController extends Controller
             return Product::active()->distinct()->pluck('produce_type')->filter()->values()->toArray();
         });
 
-        // Get members for stock management
-        $members = \App\Models\User::where('type', 'member')->get(['id', 'name']);
+        // Get members for stock management (only active members)
+        $members = \App\Models\User::where('type', 'member')->where('active', true)->get(['id', 'name']);
         
         // Get all available categories (Kilo, Pc, Tali)
         $availableCategories = ['Kilo', 'Pc', 'Tali'];
@@ -536,9 +536,9 @@ class InventoryController extends Controller
             return $this->exportToPdf($stocks, $summary, $display, $paperSize, $orientation);
         }
 
-        // Get unique values for filter dropdowns (cached for performance)
-        $members = cache()->remember('members_list', 1800, function () {
-            return \App\Models\User::where('type', 'member')->select('id', 'name')->orderBy('name')->get();
+        // Get unique values for filter dropdowns (cached for performance) - only active members
+        $members = cache()->remember('active_members_list', 1800, function () {
+            return \App\Models\User::where('type', 'member')->where('active', true)->select('id', 'name')->orderBy('name')->get();
         });
         $productTypes = cache()->remember('product_types_list', 3600, function () {
             return \App\Models\Product::select('produce_type')->distinct()->pluck('produce_type')->filter();

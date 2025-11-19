@@ -449,8 +449,9 @@ class SalesController extends Controller
 
         $auditTrails = $query->orderBy('created_at', 'desc')->get();
 
-        // Get members for filter dropdown
+        // Get members for filter dropdown (only active members)
         $members = User::where('type', 'member')
+            ->where('active', true)
             ->select('id', 'name')
             ->orderBy('name')
             ->get();

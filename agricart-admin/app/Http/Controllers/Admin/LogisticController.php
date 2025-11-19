@@ -40,7 +40,25 @@ class LogisticController extends Controller
                     $linkedDataReasons[] = 'has active deliveries';
                 }
 
-                // Add more checks based on your application's relationships
+                // Check for any assigned orders (including completed)
+                $totalOrdersCount = \DB::table('orders')
+                    ->where('logistic_id', $logistic->id)
+                    ->count();
+                
+                if ($totalOrdersCount > 0 && !$hasPendingOrders) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = "has {$totalOrdersCount} order record(s)";
+                }
+
+                // Check for delivery proofs
+                $deliveryProofsCount = \DB::table('delivery_proofs')
+                    ->where('logistic_id', $logistic->id)
+                    ->count();
+                
+                if ($deliveryProofsCount > 0) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = "has {$deliveryProofsCount} delivery proof(s)";
+                }
                 
                 $canBeDeleted = !$hasLinkedData;
                 $deletionReason = $hasLinkedData 
@@ -407,8 +425,25 @@ class LogisticController extends Controller
             $linkedDataReasons[] = 'has active deliveries';
         }
 
-        // Add more checks based on your application's relationships
-        // Example: Check for completed orders, delivery history, etc.
+        // Check for any assigned orders (including completed)
+        $totalOrdersCount = \DB::table('orders')
+            ->where('logistic_id', $logistic->id)
+            ->count();
+        
+        if ($totalOrdersCount > 0 && !$logistic->hasPendingOrders()) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$totalOrdersCount} order record(s)";
+        }
+
+        // Check for delivery proofs
+        $deliveryProofsCount = \DB::table('delivery_proofs')
+            ->where('logistic_id', $logistic->id)
+            ->count();
+        
+        if ($deliveryProofsCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$deliveryProofsCount} delivery proof(s)";
+        }
 
         if ($hasLinkedData) {
             return redirect()->route('logistics.index')

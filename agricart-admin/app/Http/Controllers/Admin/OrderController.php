@@ -125,8 +125,8 @@ class OrderController extends Controller
             $orders = $processedOrders->where('status', $status)->values();
         }
 
-        // Get available logistics for assignment
-        $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
+        // Get available logistics for assignment (only active logistics)
+        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
 
         // Calculate orders that need urgent approval (within 8 hours of 24-hour limit OR manually marked as urgent)
         $urgentOrders = $processedOrders->filter(function ($order) {
@@ -153,8 +153,8 @@ class OrderController extends Controller
     {
         $order->load(['customer.defaultAddress', 'address', 'admin', 'logistic', 'auditTrail.product', 'auditTrail.stock']);
 
-        // Get available logistics for assignment
-        $logistics = User::where('type', 'logistic')->get(['id', 'name', 'contact_number']);
+        // Get available logistics for assignment (only active logistics)
+        $logistics = User::where('type', 'logistic')->where('active', true)->get(['id', 'name', 'contact_number']);
 
         // Check if highlighting is requested (from notification click)
         $highlight = $request->get('highlight', false);
@@ -883,8 +883,9 @@ class OrderController extends Controller
             return $this->exportToPdf($orders, $summary, $display, $paperSize, $orientation);
         }
 
-        // Get all logistics for filter dropdown
+        // Get all logistics for filter dropdown (only active logistics)
         $logistics = User::where('type', 'logistic')
+            ->where('active', true)
             ->select('id', 'name', 'contact_number')
             ->orderBy('name')
             ->get();

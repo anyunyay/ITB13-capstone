@@ -256,13 +256,15 @@ class DashboardController extends Controller
             ->whereHas('sales')
             ->count();
         
-        // Active members (with stock)
+        // Active members (with stock and active status)
         $activeMembers = User::where('type', 'member')
+            ->where('active', true)
             ->whereHas('stocks')
             ->count();
         
-        // Active logistics (with assigned orders)
+        // Active logistics (with assigned orders and active status)
         $activeLogistics = User::where('type', 'logistic')
+            ->where('active', true)
             ->whereHas('assignedOrders')
             ->count();
 
@@ -381,8 +383,9 @@ class DashboardController extends Controller
     {
         $thisMonth = Carbon::now()->startOfMonth();
         
-        // Get all members with their stock and sales data
+        // Get all active members with their stock and sales data
         $members = User::where('type', 'member')
+            ->where('active', true)
             ->with(['stocks' => function($query) use ($thisMonth) {
                 $query->with('product')
                     ->where('updated_at', '>=', $thisMonth);

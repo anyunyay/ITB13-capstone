@@ -46,8 +46,35 @@ class MembershipController extends Controller
                     $linkedDataReasons[] = 'has active stocks';
                 }
 
-                // Check for orders (if applicable)
-                // Add more checks based on your application's relationships
+                // Check for any stocks (including sold)
+                $totalStocksCount = \DB::table('stocks')
+                    ->where('member_id', $member->id)
+                    ->count();
+                
+                if ($totalStocksCount > 0 && !$hasActiveStocks) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = "has {$totalStocksCount} stock record(s)";
+                }
+
+                // Check for stock trail entries (historical stock changes)
+                $stockTrailCount = \DB::table('stock_trails')
+                    ->where('member_id', $member->id)
+                    ->count();
+                
+                if ($stockTrailCount > 0) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = "has {$stockTrailCount} stock trail record(s)";
+                }
+
+                // Check for member earnings records
+                $earningsCount = \DB::table('member_earnings')
+                    ->where('member_id', $member->id)
+                    ->count();
+                
+                if ($earningsCount > 0) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = "has {$earningsCount} earning record(s)";
+                }
                 
                 $canBeDeleted = !$hasLinkedData;
                 $deletionReason = $hasLinkedData 
@@ -625,8 +652,35 @@ class MembershipController extends Controller
             $linkedDataReasons[] = 'has active stocks';
         }
 
-        // Add more checks based on your application's relationships
-        // Example: Check for orders, transactions, etc.
+        // Check for any stocks (including sold)
+        $totalStocksCount = \DB::table('stocks')
+            ->where('member_id', $member->id)
+            ->count();
+        
+        if ($totalStocksCount > 0 && !$member->hasActiveStocks()) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$totalStocksCount} stock record(s)";
+        }
+
+        // Check for stock trail entries (historical stock changes)
+        $stockTrailCount = \DB::table('stock_trails')
+            ->where('member_id', $member->id)
+            ->count();
+        
+        if ($stockTrailCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$stockTrailCount} stock trail record(s)";
+        }
+
+        // Check for member earnings records
+        $earningsCount = \DB::table('member_earnings')
+            ->where('member_id', $member->id)
+            ->count();
+        
+        if ($earningsCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$earningsCount} earning record(s)";
+        }
 
         if ($hasLinkedData) {
             return redirect()->route('membership.index')

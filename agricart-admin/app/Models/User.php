@@ -494,6 +494,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if user has active stocks (for members)
+     * Active stocks are those with quantity > 0 and not removed
      */
     public function hasActiveStocks(): bool
     {
@@ -501,7 +502,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
-        return $this->stocks()->active()->exists();
+        // Check for stocks that have available quantity (quantity > 0) and are not removed
+        return $this->stocks()
+            ->where('quantity', '>', 0)
+            ->whereNull('removed_at')
+            ->exists();
     }
 
     /**

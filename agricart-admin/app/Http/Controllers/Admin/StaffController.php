@@ -49,8 +49,45 @@ class StaffController extends Controller
             $hasLinkedData = false;
             $linkedDataReasons = [];
 
-            // Add your specific checks here based on your database schema
-            // Example: Check if staff has created any records, logs, etc.
+            // Check if staff has processed any orders
+            $processedOrdersCount = \DB::table('orders')
+                ->where('processed_by', $staffMember->id)
+                ->count();
+            
+            if ($processedOrdersCount > 0) {
+                $hasLinkedData = true;
+                $linkedDataReasons[] = "has processed {$processedOrdersCount} order(s)";
+            }
+
+            // Check if staff has created any products
+            $createdProductsCount = \DB::table('products')
+                ->where('created_by', $staffMember->id)
+                ->count();
+            
+            if ($createdProductsCount > 0) {
+                $hasLinkedData = true;
+                $linkedDataReasons[] = "has created {$createdProductsCount} product(s)";
+            }
+
+            // Check if staff has created any stocks
+            $createdStocksCount = \DB::table('stocks')
+                ->where('created_by', $staffMember->id)
+                ->count();
+            
+            if ($createdStocksCount > 0) {
+                $hasLinkedData = true;
+                $linkedDataReasons[] = "has created {$createdStocksCount} stock(s)";
+            }
+
+            // Check if staff has any audit trail entries
+            $auditTrailCount = \DB::table('audit_trails')
+                ->where('user_id', $staffMember->id)
+                ->count();
+            
+            if ($auditTrailCount > 0) {
+                $hasLinkedData = true;
+                $linkedDataReasons[] = "has {$auditTrailCount} audit trail record(s)";
+            }
             
             $staffMember->can_be_deleted = !$hasLinkedData;
             $staffMember->deletion_reason = $hasLinkedData 
@@ -422,12 +459,48 @@ class StaffController extends Controller
         }
 
         // Check if staff has any linked data
-        // You can add more checks here based on your application's relationships
         $hasLinkedData = false;
         $linkedDataReasons = [];
 
-        // Example: Check if staff has created any records, logs, etc.
-        // Add your specific checks here based on your database schema
+        // Check if staff has processed any orders
+        $processedOrdersCount = \DB::table('orders')
+            ->where('processed_by', $staff->id)
+            ->count();
+        
+        if ($processedOrdersCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has processed {$processedOrdersCount} order(s)";
+        }
+
+        // Check if staff has created any products
+        $createdProductsCount = \DB::table('products')
+            ->where('created_by', $staff->id)
+            ->count();
+        
+        if ($createdProductsCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has created {$createdProductsCount} product(s)";
+        }
+
+        // Check if staff has created any stocks
+        $createdStocksCount = \DB::table('stocks')
+            ->where('created_by', $staff->id)
+            ->count();
+        
+        if ($createdStocksCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has created {$createdStocksCount} stock(s)";
+        }
+
+        // Check if staff has any audit trail entries
+        $auditTrailCount = \DB::table('audit_trails')
+            ->where('user_id', $staff->id)
+            ->count();
+        
+        if ($auditTrailCount > 0) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = "has {$auditTrailCount} audit trail record(s)";
+        }
         
         if ($hasLinkedData) {
             return redirect()->route('staff.index')

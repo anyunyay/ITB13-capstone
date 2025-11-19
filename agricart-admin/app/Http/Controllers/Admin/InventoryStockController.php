@@ -38,7 +38,7 @@ class InventoryStockController extends Controller
     public function addStock(Product $product)
     {
         $products = Product::active()->get(['id', 'name']);
-        $members = User::where('type', 'member')->get(['id', 'name']);
+        $members = User::where('type', 'member')->where('active', true)->get(['id', 'name']);
         
         // Get available categories based on product pricing
         $availableCategories = [];
@@ -133,7 +133,7 @@ class InventoryStockController extends Controller
                 ]);
         }
 
-        $members = User::where('type', 'member')->get(['id', 'name']);
+        $members = User::where('type', 'member')->where('active', true)->get(['id', 'name']);
         
         // Get available categories based on product pricing
         $availableCategories = [];
