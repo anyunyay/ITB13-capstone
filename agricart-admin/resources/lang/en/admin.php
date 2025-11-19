@@ -214,6 +214,12 @@ return [
     'total_sold' => 'Total Sold',
     'performed_by' => 'Performed By',
     'system' => 'System',
+    'inventory_report' => 'Inventory Report',
+    'inventory_report_description' => 'Generate comprehensive inventory reports and analytics',
+    'back_to_inventory' => 'Back to Inventory',
+    'stock_report' => 'Stock Report',
+    'no_stocks_match_filters' => 'No stocks match your current filters.',
+    'no_stock_data_for_period' => 'No stock data available for the selected period.',
 
     // Recent Activity
     'recent_activity' => 'Recent Activity',
@@ -239,6 +245,7 @@ return [
     'urgent_time_left' => 'Urgent - :hours left',
     'order_report' => 'Order Report',
     'order_report_description' => 'Generate comprehensive order reports and analytics',
+    'back_to_orders' => 'Back to Orders',
     'export_csv' => 'Export CSV',
     'export_pdf' => 'Export PDF',
 
@@ -317,6 +324,7 @@ return [
     'all_sales' => 'All Sales',
     'sales_report' => 'Sales Report',
     'generate_comprehensive_sales_reports' => 'Generate comprehensive sales reports and analytics',
+    'back_to_sales' => 'Back to Sales',
     'audit_trail' => 'Audit Trail',
     'member_sales_tab' => 'Member Sales',
     'sales_with_sorting_and_pagination' => 'Sales with sorting and pagination',

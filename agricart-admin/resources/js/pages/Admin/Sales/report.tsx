@@ -283,7 +283,7 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                 </div>
                 <h1 className="text-lg font-bold text-foreground truncate">{t('admin.sales_report_page_title')}</h1>
               </div>
-              <Link href={route('admin.dashboard')}>
+              <Link href={route('admin.sales.index')}>
                 <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -303,10 +303,10 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  <Link href={route('admin.dashboard')}>
+                  <Link href={route('admin.sales.index')}>
                     <Button variant="outline" className="flex items-center gap-2">
                       <ArrowLeft className="h-4 w-4" />
-                      {t('admin.back_to_dashboard')}
+                      {t('admin.back_to_sales')}
                     </Button>
                   </Link>
                   <Button onClick={() => exportReport('csv', 'sales')} variant="outline" className="flex items-center gap-2">

@@ -212,6 +212,12 @@ return [
     'total_sold' => 'Kabuuang Naibenta',
     'performed_by' => 'Ginawa Ni',
     'system' => 'Sistema',
+    'inventory_report' => 'Ulat ng Inventory',
+    'inventory_report_description' => 'Gumawa ng komprehensibong ulat ng inventory at analytics',
+    'back_to_inventory' => 'Bumalik sa Inventory',
+    'stock_report' => 'Ulat ng Stock',
+    'no_stocks_match_filters' => 'Walang stock na tumugma sa iyong mga filter.',
+    'no_stock_data_for_period' => 'Walang available na stock data para sa napiling panahon.',
 
     // Recent Activity
     'recent_activity' => 'Kamakailang Aktibidad',
@@ -316,6 +322,7 @@ return [
     'all_sales' => 'Lahat ng Sales',
     'sales_report' => 'Sales Report',
     'generate_comprehensive_sales_reports' => 'Gumawa ng comprehensive sales reports at analytics',
+    'back_to_sales' => 'Bumalik sa Sales',
     'audit_trail' => 'Audit Trail',
     'member_sales_tab' => 'Sales ng mga Miyembro',
     'sales_with_sorting_and_pagination' => 'Sales with sorting and pagination',

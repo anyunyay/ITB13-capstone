@@ -336,7 +336,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                 </div>
                 <h1 className="text-lg font-bold text-foreground truncate">{t('admin.order_report')}</h1>
               </div>
-              <Link href={route('admin.dashboard')}>
+              <Link href={route('admin.orders.index')}>
                 <Button variant="outline" size="sm" className="h-8 w-8 p-0 shrink-0">
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -356,10 +356,10 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  <Link href={route('admin.dashboard')}>
+                  <Link href={route('admin.orders.index')}>
                     <Button variant="outline" className="flex items-center gap-2">
                       <ArrowLeft className="h-4 w-4" />
-                      {t('admin.back_to_dashboard')}
+                      {t('admin.back_to_orders')}
                     </Button>
                   </Link>
                   <Button onClick={() => exportReport('csv')} variant="outline" className="flex items-center gap-2">
