@@ -218,11 +218,12 @@ export default function InventoryIndex() {
             // Exclude stocks with zero quantity (locked stocks) - they're in Stock Trail now
             if (stock.quantity === 0 || Number(stock.quantity) === 0) return false;
             
-            // Search filter
+            // Search filter - now includes member name
             const matchesSearch = !stockSearchTerm || 
                 stock.product?.name?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
                 stock.product?.produce_type?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
                 stock.category?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
+                stock.member?.name?.toLowerCase().includes(stockSearchTerm.toLowerCase()) ||
                 stock.id.toString().includes(stockSearchTerm);
             
             if (!matchesSearch) return false;
