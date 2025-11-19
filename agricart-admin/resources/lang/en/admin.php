@@ -707,6 +707,7 @@ return [
     'are_you_sure_reactivate_member' => 'Are you sure you want to reactivate this member?',
     'are_you_sure_reactivate_logistic' => 'Are you sure you want to reactivate this logistic?',
     'back_to_members' => 'Back to Members',
+    'back_to_membership' => 'Back to Membership',
     'add_new_member' => 'Add New Member',
     'create_member_account' => 'Create a new member account with complete information',
     'fix_errors' => 'Please fix the following errors',
