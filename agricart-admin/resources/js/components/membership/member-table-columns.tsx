@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Edit, UserMinus, RotateCcw, MapPin, Phone, Calendar, FileText } from 'lucide-react';
+import { Edit, UserMinus, RotateCcw, MapPin, Phone, Calendar, FileText, Trash2 } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Member } from '@/types/membership';
 import { SafeImage } from '@/lib/image-utils';
@@ -14,6 +14,7 @@ export const createMemberTableColumns = (
   processing: boolean,
   onDeactivate: (member: Member) => void,
   onReactivate: (member: Member) => void,
+  onDelete: (member: Member) => void,
   startIndex: number = 0
 ): BaseTableColumn<Member>[] => [
   {
@@ -111,7 +112,7 @@ export const createMemberTableColumns = (
     label: t('admin.actions'),
     sortable: false,
     align: 'center',
-    maxWidth: '200px',
+    maxWidth: '250px',
     render: (member) => (
       <div className="flex gap-2 justify-center">
         <PermissionGate permission="edit members">
@@ -163,6 +164,33 @@ export const createMemberTableColumns = (
             </Button>
           </PermissionGate>
         )}
+        <PermissionGate permission="delete members">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    disabled={processing || !member.can_be_deleted}
+                    onClick={() => onDelete(member)}
+                    size="sm"
+                    variant="destructive"
+                    className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
+                      !member.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    {t('ui.delete')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!member.can_be_deleted && member.deletion_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{member.deletion_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </PermissionGate>
       </div>
     ),
   },
@@ -176,6 +204,7 @@ export const MemberMobileCard = ({
   processing,
   onDeactivate,
   onReactivate,
+  onDelete,
 }: {
   member: Member;
   index: number;
@@ -183,6 +212,7 @@ export const MemberMobileCard = ({
   processing: boolean;
   onDeactivate: (member: Member) => void;
   onReactivate: (member: Member) => void;
+  onDelete: (member: Member) => void;
 }) => (
   <div className="bg-card border border-border rounded-lg p-4 shadow-sm">
     <div className="flex justify-between items-start mb-3">
@@ -236,56 +266,85 @@ export const MemberMobileCard = ({
       )}
     </div>
 
-    <div className="flex gap-2">
-      <PermissionGate permission="edit members">
-        <Button asChild size="sm" className="flex-1">
-          <Link href={route('membership.edit', member.id)}>
-            <Edit className="h-3 w-3 mr-1" />
-            {t('ui.edit')}
-          </Link>
-        </Button>
-      </PermissionGate>
-      {member.active ? (
-        <PermissionGate permission="deactivate members">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex-1">
-                  <Button
-                    disabled={processing || !member.can_be_deactivated}
-                    onClick={() => onDeactivate(member)}
-                    size="sm"
-                    variant="destructive"
-                    className={`w-full ${
-                      !member.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    <UserMinus className="h-3 w-3 mr-1" />
-                    {t('admin.deactivate')}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!member.can_be_deactivated && member.deactivation_reason && (
-                <TooltipContent>
-                  <p className="max-w-xs text-center">{member.deactivation_reason}</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        </PermissionGate>
-      ) : (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
         <PermissionGate permission="edit members">
-          <Button
-            disabled={processing}
-            onClick={() => onReactivate(member)}
-            size="sm"
-            className="flex-1 bg-green-600 hover:bg-green-700"
-          >
-            <RotateCcw className="h-3 w-3 mr-1" />
-            {t('admin.reactivate')}
+          <Button asChild size="sm" className="flex-1">
+            <Link href={route('membership.edit', member.id)}>
+              <Edit className="h-3 w-3 mr-1" />
+              {t('ui.edit')}
+            </Link>
           </Button>
         </PermissionGate>
-      )}
+        {member.active ? (
+          <PermissionGate permission="deactivate members">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex-1">
+                    <Button
+                      disabled={processing || !member.can_be_deactivated}
+                      onClick={() => onDeactivate(member)}
+                      size="sm"
+                      variant="destructive"
+                      className={`w-full ${
+                        !member.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <UserMinus className="h-3 w-3 mr-1" />
+                      {t('admin.deactivate')}
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                {!member.can_be_deactivated && member.deactivation_reason && (
+                  <TooltipContent>
+                    <p className="max-w-xs text-center">{member.deactivation_reason}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </PermissionGate>
+        ) : (
+          <PermissionGate permission="edit members">
+            <Button
+              disabled={processing}
+              onClick={() => onReactivate(member)}
+              size="sm"
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              {t('admin.reactivate')}
+            </Button>
+          </PermissionGate>
+        )}
+      </div>
+      <PermissionGate permission="delete members">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  disabled={processing || !member.can_be_deleted}
+                  onClick={() => onDelete(member)}
+                  size="sm"
+                  variant="destructive"
+                  className={`w-full ${
+                    !member.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  {t('ui.delete')}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {!member.can_be_deleted && member.deletion_reason && (
+              <TooltipContent>
+                <p className="max-w-xs text-center">{member.deletion_reason}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      </PermissionGate>
     </div>
   </div>
 );

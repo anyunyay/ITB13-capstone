@@ -16,6 +16,8 @@ export interface Logistic {
     };
     can_be_deactivated: boolean;
     deactivation_reason?: string;
+    can_be_deleted: boolean;
+    deletion_reason?: string;
     [key: string]: unknown;
 }
 

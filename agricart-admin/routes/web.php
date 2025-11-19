@@ -205,6 +205,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/membership/report', [MembershipController::class, 'generateReport'])->name('membership.report');  // Export Member List (GET)
         });
         Route::middleware(['can:deactivate members'])->delete('/membership/{member}', [MembershipController::class, 'destroy'])->name('membership.destroy'); // Deactivate Member
+        Route::middleware(['can:delete members'])->delete('/membership/{member}/hard-delete', [MembershipController::class, 'hardDelete'])->name('membership.hard-delete'); // Hard Delete Member
         Route::middleware(['can:edit members'])->delete('/membership/{member}/document', [MembershipController::class, 'deleteDocument'])->name('membership.delete-document'); // Delete Member Document
         Route::middleware(['can:view membership'])->get('/membership/deactivated', [MembershipController::class, 'deactivated'])->name('membership.deactivated'); // View Deactivated Members
         Route::middleware(['can:reactivate members'])->post('/membership/{member}/reactivate', [MembershipController::class, 'reactivate'])->name('membership.reactivate'); // Reactivate Member
@@ -229,6 +230,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
             Route::get('/logistics/report', [AdminLogisticController::class, 'generateReport'])->name('logistics.report'); // Export Logistic List (GET)
         });
         Route::middleware(['can:deactivate logistics'])->delete('/logistics/{logistic}', [AdminLogisticController::class, 'destroy'])->name('logistics.destroy'); // Deactivate Logistic
+        Route::middleware(['can:delete logistics'])->delete('/logistics/{logistic}/hard-delete', [AdminLogisticController::class, 'hardDelete'])->name('logistics.hard-delete'); // Hard Delete Logistic
         Route::middleware(['can:view logistics'])->get('/logistics/deactivated', [AdminLogisticController::class, 'deactivated'])->name('logistics.deactivated'); // View Deactivated Logistics
         Route::middleware(['can:reactivate logistics'])->post('/logistics/{logistic}/reactivate', [AdminLogisticController::class, 'reactivate'])->name('logistics.reactivate'); // Reactivate Logistic
 
@@ -246,6 +248,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         });
 
         Route::middleware(['can:generate staff report'])->get('/staff/report', [StaffController::class, 'generateReport'])->name('admin.staff.report');
+        Route::middleware(['can:deactivate staffs'])->post('/staff/{staff}/deactivate', [StaffController::class, 'deactivate'])->name('staff.deactivate'); // Deactivate Staff
+        Route::middleware(['can:reactivate staffs'])->post('/staff/{staff}/reactivate', [StaffController::class, 'reactivate'])->name('staff.reactivate'); // Reactivate Staff
         Route::middleware(['can:delete staffs'])->delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy'); // Delete Staff
 
         // Notification routes

@@ -25,6 +25,8 @@ interface StaffManagementProps {
     itemsPerPage: number;
     processing: boolean;
     onDelete: (staff: Staff) => void;
+    onDeactivate: (staff: Staff) => void;
+    onReactivate: (staff: Staff) => void;
     highlightStaffId: number | null;
     sortBy: string;
     setSortBy: (sort: string) => void;
@@ -49,6 +51,8 @@ export const StaffManagement = ({
     itemsPerPage,
     processing,
     onDelete,
+    onDeactivate,
+    onReactivate,
     highlightStaffId,
     sortBy,
     setSortBy,
@@ -71,8 +75,8 @@ export const StaffManagement = ({
     // Create column definitions
     const staffColumns = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        return createStaffTableColumns(t, processing, onDelete, startIndex);
-    }, [t, processing, onDelete, currentPage, itemsPerPage]);
+        return createStaffTableColumns(t, processing, onDelete, onDeactivate, onReactivate, startIndex);
+    }, [t, processing, onDelete, onDeactivate, onReactivate, currentPage, itemsPerPage]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
@@ -179,6 +183,8 @@ export const StaffManagement = ({
                         t={t}
                         processing={processing}
                         onDelete={onDelete}
+                        onDeactivate={onDeactivate}
+                        onReactivate={onReactivate}
                     />
                 )}
                 emptyState={

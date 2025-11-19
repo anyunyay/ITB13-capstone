@@ -37,6 +37,32 @@ class StaffController extends Controller
         // Get all staff (no server-side sorting/pagination - handled client-side)
         $staff = $query->orderBy('created_at', 'desc')->get();
 
+        // Add deactivation and deletion status to each staff member
+        $staff->each(function ($staffMember) {
+            // Check if staff can be deactivated (must be active)
+            $staffMember->can_be_deactivated = $staffMember->active ?? true;
+            $staffMember->deactivation_reason = !$staffMember->can_be_deactivated 
+                ? 'Staff member is already deactivated.' 
+                : null;
+
+            // Check if staff can be deleted (no linked data)
+            $hasLinkedData = false;
+            $linkedDataReasons = [];
+
+            // Add your specific checks here based on your database schema
+            // Example: Check if staff has created any records, logs, etc.
+            
+            $staffMember->can_be_deleted = !$hasLinkedData;
+            $staffMember->deletion_reason = $hasLinkedData 
+                ? 'Cannot delete: ' . implode(', ', $linkedDataReasons)
+                : null;
+
+            // Ensure active field exists (default to true for backward compatibility)
+            if (!isset($staffMember->active)) {
+                $staffMember->active = true;
+            }
+        });
+
         // Create pagination structure for compatibility
         $perPage = 10;
         $currentPage = 1;
@@ -321,12 +347,91 @@ class StaffController extends Controller
     }
 
     /**
-     * Remove the specified staff member.
+     * Deactivate the specified staff member.
+     */
+    public function deactivate(User $staff)
+    {
+        if ($staff->type !== 'staff') {
+            abort(404);
+        }
+
+        // Check if staff can be deactivated (must be active)
+        if (!$staff->active) {
+            return redirect()->route('staff.index')
+                ->with('error', 'Staff member is already deactivated.');
+        }
+
+        $staff->update(['active' => false]);
+
+        // Log staff deactivation
+        SystemLogger::logUserManagement(
+            'deactivate_staff',
+            $staff->id,
+            request()->user()->id,
+            'admin',
+            [
+                'staff_name' => $staff->name,
+                'staff_email' => $staff->email
+            ]
+        );
+
+        return redirect()->route('staff.index')
+            ->with('message', 'Staff member deactivated successfully.');
+    }
+
+    /**
+     * Reactivate the specified staff member.
+     */
+    public function reactivate(User $staff)
+    {
+        if ($staff->type !== 'staff') {
+            abort(404);
+        }
+
+        // Check if staff can be reactivated (must be inactive)
+        if ($staff->active) {
+            return redirect()->route('staff.index')
+                ->with('error', 'Staff member is already active.');
+        }
+
+        $staff->update(['active' => true]);
+
+        // Log staff reactivation
+        SystemLogger::logUserManagement(
+            'reactivate_staff',
+            $staff->id,
+            request()->user()->id,
+            'admin',
+            [
+                'staff_name' => $staff->name,
+                'staff_email' => $staff->email
+            ]
+        );
+
+        return redirect()->route('staff.index')
+            ->with('message', 'Staff member reactivated successfully.');
+    }
+
+    /**
+     * Remove the specified staff member (hard delete).
      */
     public function destroy(User $staff)
     {
         if ($staff->type !== 'staff') {
             abort(404);
+        }
+
+        // Check if staff has any linked data
+        // You can add more checks here based on your application's relationships
+        $hasLinkedData = false;
+        $linkedDataReasons = [];
+
+        // Example: Check if staff has created any records, logs, etc.
+        // Add your specific checks here based on your database schema
+        
+        if ($hasLinkedData) {
+            return redirect()->route('staff.index')
+                ->with('error', 'Cannot delete staff member: ' . implode(', ', $linkedDataReasons));
         }
 
         // Log staff deletion
