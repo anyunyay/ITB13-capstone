@@ -102,9 +102,9 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
     if (!startDate && !endDate) return t('admin.no_date_range_selected');
     if (startDate && !endDate) return t('admin.from_date_format', { date: format(startDate, 'MMM dd, yyyy') });
     if (!startDate && endDate) return t('admin.until_date_format', { date: format(endDate, 'MMM dd, yyyy') });
-    return t('admin.date_range_format', { 
-      start: format(startDate!, 'MMM dd, yyyy'), 
-      end: format(endDate!, 'MMM dd, yyyy') 
+    return t('admin.date_range_format', {
+      start: format(startDate!, 'MMM dd, yyyy'),
+      end: format(endDate!, 'MMM dd, yyyy')
     });
   };
 
@@ -191,6 +191,11 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
       max_amount: '',
       search: ''
     });
+
+    router.get(route('admin.sales.report'), {}, {
+      preserveScroll: true,
+      only: ['sales', 'filters']
+    });
   };
 
   const hasActiveFilters = () => {
@@ -213,36 +218,36 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
   // Sort sales data
   const sortedSales = useMemo(() => {
     return [...sales].sort((a, b) => {
-    let comparison = 0;
-    switch (sortBy) {
-      case 'id':
-        comparison = a.id - b.id;
-        break;
-      case 'total_amount':
-        comparison = a.total_amount - b.total_amount;
-        break;
-      case 'coop_share':
-        comparison = (a.coop_share || 0) - (b.coop_share || 0);
-        break;
-      case 'member_share':
-        comparison = a.member_share - b.member_share;
-        break;
-      case 'cogs':
-        comparison = a.cogs - b.cogs;
-        break;
-      case 'gross_profit':
-        comparison = a.gross_profit - b.gross_profit;
-        break;
-      case 'customer':
-        comparison = a.customer.name.localeCompare(b.customer.name);
-        break;
-      case 'delivered_at':
-        comparison = new Date(a.delivered_at || 0).getTime() - new Date(b.delivered_at || 0).getTime();
-        break;
-      default:
-        return 0;
-    }
-    return sortOrder === 'asc' ? comparison : -comparison;
+      let comparison = 0;
+      switch (sortBy) {
+        case 'id':
+          comparison = a.id - b.id;
+          break;
+        case 'total_amount':
+          comparison = a.total_amount - b.total_amount;
+          break;
+        case 'coop_share':
+          comparison = (a.coop_share || 0) - (b.coop_share || 0);
+          break;
+        case 'member_share':
+          comparison = a.member_share - b.member_share;
+          break;
+        case 'cogs':
+          comparison = a.cogs - b.cogs;
+          break;
+        case 'gross_profit':
+          comparison = a.gross_profit - b.gross_profit;
+          break;
+        case 'customer':
+          comparison = a.customer.name.localeCompare(b.customer.name);
+          break;
+        case 'delivered_at':
+          comparison = new Date(a.delivered_at || 0).getTime() - new Date(b.delivered_at || 0).getTime();
+          break;
+        default:
+          return 0;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
   }, [sales, sortBy, sortOrder]);
 
@@ -447,9 +452,17 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
                     </div>
                     <div className="flex items-center gap-2">
                       {hasActiveFilters() && (
-                        <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            clearFilters();
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
                           <X className="h-4 w-4" />
-                          Clear Filters
+                          {t('admin.clear_filters')}
                         </Button>
                       )}
                       <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />

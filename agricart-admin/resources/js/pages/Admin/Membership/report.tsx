@@ -141,6 +141,11 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       end_date: '',
       search: ''
     });
+
+    router.get(route('membership.report'), {}, {
+      preserveScroll: true,
+      only: ['members', 'filters']
+    });
   };
 
   const hasActiveFilters = () => {
@@ -396,7 +401,15 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
                       </div>
                       <div className="flex items-center gap-2">
                         {hasActiveFilters() && (
-                          <Button onClick={clearFilters} variant="outline" size="sm" className="flex items-center gap-2">
+                          <Button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearFilters();
+                            }} 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex items-center gap-2"
+                          >
                             <X className="h-4 w-4" />
                             {t('admin.clear_filters')}
                           </Button>
