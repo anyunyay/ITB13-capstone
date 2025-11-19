@@ -5,6 +5,7 @@ import { type SharedData } from '@/types';
 import AppLayout from '@/layouts/app-layout';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { PermissionGate } from '@/components/common/permission-gate';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { StatsOverview } from '@/components/staff/stats-overview';
 import { StaffManagement } from '@/components/staff/staff-management';
 import { Staff, StaffStats, StaffFilters, StaffPagination } from '@/types/staff';
@@ -16,9 +17,13 @@ interface Props {
   staff: StaffPagination;
   staffStats: StaffStats;
   filters: StaffFilters;
+  flash?: {
+    message?: string;
+    error?: string;
+  };
 }
 
-export default function StaffIndex({ staff, staffStats, filters }: Props) {
+export default function StaffIndex({ staff, staffStats, filters, flash }: Props) {
   const t = useTranslation();
   const { props } = usePage<SharedData>();
   const { createStaffs, editStaffs, deleteStaffs } = props.permissions || {};
@@ -159,6 +164,9 @@ export default function StaffIndex({ staff, staffStats, filters }: Props) {
         
         <div className="min-h-screen bg-background">
           <div className="w-full flex flex-col gap-2 px-2 py-2 sm:px-4 sm:py-4 lg:px-8">
+            {/* Flash Messages */}
+            <FlashMessage flash={flash} />
+            
             {/* Dashboard Header */}
             <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-3 sm:p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
               <div className="flex flex-col gap-3 mb-3 lg:flex-row lg:items-center lg:justify-between">

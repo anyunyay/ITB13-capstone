@@ -1,12 +1,12 @@
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { BellDot, RotateCcw, CheckCircle, Hash, User, Phone, MapPin, Calendar, FileImage, Settings } from 'lucide-react';
+import { RotateCcw, CheckCircle, Hash, User, Phone, MapPin, Calendar, FileImage, Settings } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
 import { PermissionGate } from '@/components/common/permission-gate';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { SafeImage } from '@/lib/image-utils';
 import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import {
@@ -189,24 +189,8 @@ export default function Deactivated() {
                     </div>
                 </div>
 
-                <div>
-                    <div>
-                        {flash.message && (
-                            <Alert>
-                                <BellDot className='h-4 w-4 text-blue-500' />
-                                <AlertTitle>{t('admin.notifications')}</AlertTitle>
-                                <AlertDescription>{flash.message}</AlertDescription>
-                            </Alert>
-                        )}
-                        {flash.error && (
-                            <Alert className="border-red-300">
-                                <BellDot className='h-4 w-4 text-red-500' />
-                                <AlertTitle>{t('admin.error_title')}</AlertTitle>
-                                <AlertDescription>{flash.error}</AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
-                </div>
+                {/* Flash Messages */}
+                <FlashMessage flash={{ message: flash.message, error: flash.error, type: flash.message ? 'success' : 'error' }} />
 
                 <div className='w-full pt-8'>
                     <div className="mb-4">

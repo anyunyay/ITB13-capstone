@@ -21,6 +21,7 @@ import {
   Shield
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { useTranslation } from '@/hooks/use-translation';
 import axios from 'axios';
 
@@ -48,6 +49,10 @@ interface Staff {
 interface Props {
   staff: Staff;
   availablePermissions: Permission[];
+  flash?: {
+    message?: string;
+    error?: string;
+  };
 }
 
 // Validation functions
@@ -101,7 +106,7 @@ function debounce<T extends (...args: any[]) => any>(
     };
 }
 
-export default function StaffEdit({ staff, availablePermissions }: Props) {
+export default function StaffEdit({ staff, availablePermissions, flash }: Props) {
   const t = useTranslation();
   const { data, setData, put, processing, errors } = useForm({
     name: staff.name,
@@ -116,11 +121,26 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
     province: staff.default_address?.province || '',
   });
 
+  // Store original values for change detection
+  const originalData = {
+    name: staff.name,
+    email: staff.email,
+    contact_number: staff.contact_number || '',
+    permissions: staff.permissions.map(p => p.name).sort(),
+    street: staff.default_address?.street || '',
+    barangay: staff.default_address?.barangay || '',
+    city: staff.default_address?.city || '',
+    province: staff.default_address?.province || '',
+  };
+
   // Duplicate check states
   const [isDuplicateEmail, setIsDuplicateEmail] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [isDuplicateContact, setIsDuplicateContact] = useState(false);
   const [isCheckingContact, setIsCheckingContact] = useState(false);
+  
+  // Change detection state
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Validation state
   const [validation, setValidation] = useState({
@@ -147,6 +167,24 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
       province: validateRequired(data.province),
     });
   }, [data]);
+
+  // Detect changes in form data
+  useEffect(() => {
+    const currentPermissions = [...data.permissions].sort();
+    const hasDataChanged = 
+      data.name !== originalData.name ||
+      data.email !== originalData.email ||
+      data.contact_number !== originalData.contact_number ||
+      data.street !== originalData.street ||
+      data.barangay !== originalData.barangay ||
+      data.city !== originalData.city ||
+      data.province !== originalData.province ||
+      data.password !== '' ||
+      data.password_confirmation !== '' ||
+      JSON.stringify(currentPermissions) !== JSON.stringify(originalData.permissions);
+    
+    setHasChanges(hasDataChanged);
+  }, [data, originalData]);
 
   // Debounced duplicate check for email (excluding current staff)
   const checkDuplicateEmail = useCallback(
@@ -227,7 +265,8 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                      !isDuplicateContact &&
                      !isCheckingEmail &&
                      !isCheckingContact &&
-                     (data.password === '' || data.password === data.password_confirmation);
+                     (data.password === '' || data.password === data.password_confirmation) &&
+                     hasChanges; // Only enable if there are changes
 
   // Define permission groups with their detailed permissions
   const permissionGroups = [
@@ -348,6 +387,9 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
         <Head title={t('staff.edit_staff_member')} />
         <div className="bg-background">
           <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
+            {/* Flash Messages */}
+            <FlashMessage flash={flash} />
+            
             {/* Page Header */}
             <div className="mb-2 sm:mb-4">
               <div className="flex items-center justify-between gap-3">
@@ -796,7 +838,7 @@ export default function StaffEdit({ staff, availablePermissions }: Props) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge variant={isFormValid ? "default" : "secondary"}>
-                        {isFormValid ? t('admin.ready_to_submit') : t('admin.incomplete_form')}
+                        {!hasChanges ? t('admin.no_changes') || 'No changes made' : isFormValid ? t('admin.ready_to_submit') : t('admin.incomplete_form')}
                       </Badge>
                       {isFormValid && (
                         <CheckCircle className="h-4 w-4 text-green-500" />

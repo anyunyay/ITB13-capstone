@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -19,6 +20,7 @@ import {
   Mail
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { Calendar } from "@/components/ui/calendar";
 import { SharedData } from '@/types';
 import { useTranslation } from '@/hooks/use-translation';
@@ -77,9 +79,13 @@ interface Logistic {
 
 interface Props {
     logistic: Logistic;
+    flash?: {
+        message?: string;
+        error?: string;
+    };
 }
 
-export default function Edit({ logistic }: Props) {
+export default function Edit({ logistic, flash }: Props) {
     const t = useTranslation();
     const { auth } = usePage<SharedData>().props;
     
@@ -102,6 +108,18 @@ export default function Edit({ logistic }: Props) {
         _method: 'put',
     });
 
+    // Store original values for change detection
+    const originalData = {
+        name: logistic.name,
+        email: logistic.email,
+        contact_number: logistic.contact_number || '',
+        street: logistic.default_address?.street || '',
+        barangay: logistic.default_address?.barangay || '',
+        city: logistic.default_address?.city || '',
+        province: logistic.default_address?.province || '',
+        registration_date: logistic.registration_date,
+    };
+
     // Validation state
     const [validation, setValidation] = useState({
         phone: validatePhoneNumber(data.contact_number),
@@ -112,6 +130,9 @@ export default function Edit({ logistic }: Props) {
         city: validateRequired(data.city),
         province: validateRequired(data.province),
     });
+
+    // Change detection state
+    const [hasChanges, setHasChanges] = useState(false);
 
     // Update validation when data changes
     useEffect(() => {
@@ -125,6 +146,21 @@ export default function Edit({ logistic }: Props) {
             province: validateRequired(data.province),
         });
     }, [data]);
+
+    // Detect changes in form data
+    useEffect(() => {
+        const hasDataChanged = 
+            data.name !== originalData.name ||
+            data.email !== originalData.email ||
+            data.contact_number !== originalData.contact_number ||
+            data.street !== originalData.street ||
+            data.barangay !== originalData.barangay ||
+            data.city !== originalData.city ||
+            data.province !== originalData.province ||
+            data.registration_date !== originalData.registration_date;
+        
+        setHasChanges(hasDataChanged);
+    }, [data, originalData]);
 
     // Handle name change with sanitization
     const handleNameChange = (value: string) => {
@@ -145,7 +181,8 @@ export default function Edit({ logistic }: Props) {
                        validation.street && 
                        validation.barangay && 
                        validation.city && 
-                       validation.province;
+                       validation.province &&
+                       hasChanges; // Only enable if there are changes
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -164,6 +201,9 @@ export default function Edit({ logistic }: Props) {
                 <Head title={t('admin.update_logistic')} />
                 <div className="bg-background">
                     <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
+                        {/* Flash Messages */}
+                        <FlashMessage flash={flash} />
+                        
                         {/* Page Header */}
                         <div className="mb-2 sm:mb-4">
                             <div className="flex items-center justify-between gap-3">
@@ -484,15 +524,39 @@ export default function Edit({ logistic }: Props) {
                             </Card>
 
                             {/* Submit Button */}
-                            <div className="flex justify-end gap-3">
-                                <Button 
-                                    disabled={processing || !isFormValid} 
-                                    type="submit"
-                                >
-                                    {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                    {processing ? t('admin.updating') : t('admin.update_logistic')}
-                                </Button>
-                            </div>
+                            <Card className="shadow-sm">
+                                <CardContent className="pt-4 pb-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant={isFormValid ? "default" : "secondary"}>
+                                                {!hasChanges ? t('admin.no_changes') || 'No changes made' : isFormValid ? t('admin.ready_to_submit') : t('admin.incomplete_form')}
+                                            </Badge>
+                                            {isFormValid && (
+                                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button variant="outline" asChild>
+                                                <Link href={route('logistics.index')}>{t('ui.cancel')}</Link>
+                                            </Button>
+                                            <Button 
+                                                type="submit" 
+                                                disabled={processing || !isFormValid}
+                                                className="min-w-[120px]"
+                                            >
+                                                {processing ? (
+                                                    <>
+                                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                        {t('admin.updating')}
+                                                    </>
+                                                ) : (
+                                                    t('admin.update_logistic')
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </form>
                     </div>
                 </div>

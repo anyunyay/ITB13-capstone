@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect } from 'react';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { BaseTable, BaseTableColumn } from '@/components/common/base-table';
 import { Package, Hash, Weight, Tag, FileText, Calendar, Settings } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -154,12 +155,10 @@ export default function RemovedStockIndex() {
             <div className="m-4">
                 <Link href={route('inventory.index')}><Button>{t('admin.back_to_inventory')}</Button></Link>
 
-                {flash.message && (
-                    <Alert className="mt-4">
-                        <AlertTitle>{t('admin.success')}</AlertTitle>
-                        <AlertDescription>{flash.message}</AlertDescription>
-                    </Alert>
-                )}
+                {/* Flash Messages */}
+                <div className="mt-4">
+                    <FlashMessage flash={{ message: flash.message, type: 'success' }} />
+                </div>
 
                 <div className='w-full pt-8'>
                     <div className="mb-4">

@@ -22,6 +22,7 @@ import {
   Mail
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { Calendar } from "@/components/ui/calendar";
 import { useTranslation } from '@/hooks/use-translation';
 import axios from 'axios';
@@ -82,7 +83,7 @@ export default function Index() {
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
 
-    const { auth } = usePage<SharedData>().props;
+    const { auth, flash } = usePage<SharedData>().props;
     useEffect(() => {
         if (!auth?.user) {
             router.visit('/login');
@@ -167,6 +168,9 @@ export default function Index() {
                 <Head title={t('admin.add_logistics_partner')} />
                 <div className="bg-background">
                     <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
+                        {/* Flash Messages */}
+                        <FlashMessage flash={flash} />
+                        
                         {/* Page Header */}
                         <div className="mb-2 sm:mb-4">
                             <div className="flex items-center justify-between gap-3">

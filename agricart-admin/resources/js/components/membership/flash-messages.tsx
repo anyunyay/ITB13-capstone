@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BellDot } from 'lucide-react';
+import { BellDot, CheckCircle, AlertTriangle } from 'lucide-react';
 import { PasswordChangeRequest } from '../../types/membership';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -21,19 +21,19 @@ export const FlashMessages = ({
 }: FlashMessagesProps) => {
     const t = useTranslation();
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {flash.message && (
-                <Alert>
-                    <BellDot className='h-4 w-4 text-blue-500' />
-                    <AlertTitle>{t('admin.notification')}</AlertTitle>
+                <Alert className="border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200 mb-4 shadow-md">
+                    <CheckCircle className='h-4 w-4 text-blue-600 dark:text-blue-400' />
+                    <AlertTitle className="font-semibold">{t('admin.notification')}</AlertTitle>
                     <AlertDescription>{flash.message}</AlertDescription>
                 </Alert>
             )}
             
             {flash.error && (
-                <Alert className="border-red-300">
-                    <BellDot className='h-4 w-4 text-red-500' />
-                    <AlertTitle>{t('admin.error_title')}</AlertTitle>
+                <Alert className="border-red-300 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-200 mb-4 shadow-md">
+                    <AlertTriangle className='h-4 w-4 text-red-600 dark:text-red-400' />
+                    <AlertTitle className="font-semibold">{t('admin.error_title')}</AlertTitle>
                     <AlertDescription>{flash.error}</AlertDescription>
                 </Alert>
             )}
@@ -47,9 +47,9 @@ export const FlashMessages = ({
                         onDismissNewRequest();
                     }}
                 >
-                    <Alert className="cursor-pointer border-green-300">
-                        <BellDot className='h-4 w-4 text-green-600' />
-                        <AlertTitle>{t('admin.new_password_change_request')}</AlertTitle>
+                    <Alert className="cursor-pointer border-green-300 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-200 mb-4 shadow-md hover:shadow-lg transition-shadow">
+                        <BellDot className='h-4 w-4 text-green-600 dark:text-green-400' />
+                        <AlertTitle className="font-semibold">{t('admin.new_password_change_request')}</AlertTitle>
                         <AlertDescription>
                             {t('admin.new_password_request_message', {name: newRequest.member.name})}
                         </AlertDescription>

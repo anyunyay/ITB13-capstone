@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import PasswordInput from '@/components/ui/password-input';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState, useCallback } from 'react';
 import { 
   User, 
@@ -21,6 +21,7 @@ import {
   Shield
 } from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
+import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { useTranslation } from '@/hooks/use-translation';
 import axios from 'axios';
 
@@ -31,6 +32,10 @@ interface Permission {
 
 interface Props {
   availablePermissions: Permission[];
+  flash?: {
+    message?: string;
+    error?: string;
+  };
 }
 
 // Validation functions
@@ -81,7 +86,7 @@ function debounce<T extends (...args: any[]) => any>(
     };
 }
 
-export default function StaffCreate({ availablePermissions }: Props) {
+export default function StaffCreate({ availablePermissions, flash }: Props) {
   const t = useTranslation();
   const { data, setData, post, processing, errors } = useForm({
     name: '',
@@ -326,6 +331,9 @@ export default function StaffCreate({ availablePermissions }: Props) {
         <Head title={t('admin.add_staff_member')} />
         <div className="bg-background">
           <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
+            {/* Flash Messages */}
+            <FlashMessage flash={flash} />
+            
             {/* Page Header */}
             <div className="mb-2 sm:mb-4">
               <div className="flex items-center justify-between gap-3">
