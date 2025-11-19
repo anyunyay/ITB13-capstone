@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { Edit, Trash2, Shield } from 'lucide-react';
+import { Edit, Trash2, Shield, UserMinus, RotateCcw } from 'lucide-react';
 import { PermissionGate } from '@/components/common/permission-gate';
 import { Staff } from '../../types/staff';
 
@@ -50,6 +50,8 @@ export const createStaffTableColumns = (
   t: (key: string, params?: any) => string,
   processing: boolean,
   onDelete: (staff: Staff) => void,
+  onDeactivate: (staff: Staff) => void,
+  onReactivate: (staff: Staff) => void,
   startIndex: number = 0
 ): BaseTableColumn<Staff>[] => [
   {
@@ -165,13 +167,13 @@ export const createStaffTableColumns = (
     maxWidth: '120px',
     render: (staff) => (
       <div className="flex justify-center">
-        {staff.email_verified_at ? (
+        {staff.active ? (
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             {t('staff.active')}
           </Badge>
         ) : (
           <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-            {t('staff.inactive')}
+            {t('staff.deactivated')}
           </Badge>
         )}
       </div>
@@ -194,7 +196,7 @@ export const createStaffTableColumns = (
     label: t('staff.actions'),
     sortable: false,
     align: 'center',
-    maxWidth: '200px',
+    maxWidth: '250px',
     render: (staff) => (
       <div className="flex gap-2 justify-center">
         <PermissionGate permission="edit staffs">
@@ -210,17 +212,74 @@ export const createStaffTableColumns = (
             </Link>
           </Button>
         </PermissionGate>
+        {staff.active ? (
+          <PermissionGate permission="deactivate staffs">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onDeactivate(staff)}
+                      disabled={processing || !staff.can_be_deactivated}
+                      className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
+                        !staff.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <UserMinus className="h-4 w-4" />
+                      {t('admin.deactivate')}
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                {!staff.can_be_deactivated && staff.deactivation_reason && (
+                  <TooltipContent>
+                    <p className="max-w-xs text-center">{staff.deactivation_reason}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </PermissionGate>
+        ) : (
+          <PermissionGate permission="reactivate staffs">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => onReactivate(staff)}
+              disabled={processing}
+              className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg hover:opacity-90"
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t('admin.reactivate')}
+            </Button>
+          </PermissionGate>
+        )}
         <PermissionGate permission="delete staffs">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(staff)}
-            disabled={processing}
-            className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-          >
-            <Trash2 className="h-4 w-4" />
-            {t('ui.delete')}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete(staff)}
+                    disabled={processing || !staff.can_be_deleted}
+                    className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
+                      !staff.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {t('ui.delete')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!staff.can_be_deleted && staff.deletion_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{staff.deletion_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </PermissionGate>
       </div>
     )
@@ -233,9 +292,11 @@ interface StaffMobileCardProps {
   t: (key: string, params?: any) => string;
   processing: boolean;
   onDelete: (staff: Staff) => void;
+  onDeactivate: (staff: Staff) => void;
+  onReactivate: (staff: Staff) => void;
 }
 
-export const StaffMobileCard = ({ staff, t, processing, onDelete }: StaffMobileCardProps) => {
+export const StaffMobileCard = ({ staff, t, processing, onDelete, onDeactivate, onReactivate }: StaffMobileCardProps) => {
   return (
     <div className="border border-border rounded-lg p-4 bg-card space-y-3">
       {/* Header */}
@@ -244,13 +305,13 @@ export const StaffMobileCard = ({ staff, t, processing, onDelete }: StaffMobileC
           <h3 className="font-semibold text-foreground">{staff.name}</h3>
           <p className="text-sm text-muted-foreground">ID: {staff.id}</p>
         </div>
-        {staff.email_verified_at ? (
+        {staff.active ? (
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
             {t('staff.active')}
           </Badge>
         ) : (
           <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-            {t('staff.inactive')}
+            {t('staff.deactivated')}
           </Badge>
         )}
       </div>
@@ -299,31 +360,90 @@ export const StaffMobileCard = ({ staff, t, processing, onDelete }: StaffMobileC
       </p>
 
       {/* Actions */}
-      <div className="flex gap-2 pt-2 border-t border-border">
-        <PermissionGate permission="edit staffs">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="flex-1"
-          >
-            <Link href={route('staff.edit', staff.id)}>
-              <Edit className="h-4 w-4 mr-2" />
-              {t('ui.edit')}
-            </Link>
-          </Button>
-        </PermissionGate>
+      <div className="flex flex-col gap-2 pt-2 border-t border-border">
+        <div className="flex gap-2">
+          <PermissionGate permission="edit staffs">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              <Link href={route('staff.edit', staff.id)}>
+                <Edit className="h-4 w-4 mr-2" />
+                {t('ui.edit')}
+              </Link>
+            </Button>
+          </PermissionGate>
+          {staff.active ? (
+            <PermissionGate permission="deactivate staffs">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex-1">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onDeactivate(staff)}
+                        disabled={processing || !staff.can_be_deactivated}
+                        className={`w-full ${
+                          !staff.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        <UserMinus className="h-4 w-4 mr-2" />
+                        {t('admin.deactivate')}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!staff.can_be_deactivated && staff.deactivation_reason && (
+                    <TooltipContent>
+                      <p className="max-w-xs text-center">{staff.deactivation_reason}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </PermissionGate>
+          ) : (
+            <PermissionGate permission="reactivate staffs">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => onReactivate(staff)}
+                disabled={processing}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                {t('admin.reactivate')}
+              </Button>
+            </PermissionGate>
+          )}
+        </div>
         <PermissionGate permission="delete staffs">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(staff)}
-            disabled={processing}
-            className="flex-1"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            {t('ui.delete')}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete(staff)}
+                    disabled={processing || !staff.can_be_deleted}
+                    className={`w-full ${
+                      !staff.can_be_deleted ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {t('ui.delete')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!staff.can_be_deleted && staff.deletion_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{staff.deletion_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </PermissionGate>
       </div>
     </div>

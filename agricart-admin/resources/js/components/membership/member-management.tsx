@@ -24,6 +24,7 @@ interface MemberManagementProps {
     processing: boolean;
     onDeactivate: (member: Member) => void;
     onReactivate: (member: Member) => void;
+    onDelete: (member: Member) => void;
     highlightMemberId: number | null;
     showDeactivated: boolean;
     setShowDeactivated: (show: boolean) => void;
@@ -49,6 +50,7 @@ export const MemberManagement = ({
     processing,
     onDeactivate,
     onReactivate,
+    onDelete,
     highlightMemberId,
     showDeactivated,
     setShowDeactivated,
@@ -76,8 +78,8 @@ export const MemberManagement = ({
     // Create column definitions
     const memberColumns = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
-        return createMemberTableColumns(t, processing, onDeactivate, onReactivate, startIndex);
-    }, [t, processing, onDeactivate, onReactivate, currentPage, itemsPerPage]);
+        return createMemberTableColumns(t, processing, onDeactivate, onReactivate, onDelete, startIndex);
+    }, [t, processing, onDeactivate, onReactivate, onDelete, currentPage, itemsPerPage]);
 
     return (
         <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
@@ -150,6 +152,7 @@ export const MemberManagement = ({
                         processing={processing}
                         onDeactivate={onDeactivate}
                         onReactivate={onReactivate}
+                        onDelete={onDelete}
                     />
                 )}
                 emptyState={

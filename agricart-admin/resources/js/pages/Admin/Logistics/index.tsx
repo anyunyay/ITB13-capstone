@@ -161,6 +161,18 @@ export default function Index() {
         setSelectedLogistic(null);
     };
 
+    // Handle deletion
+    const handleDelete = (logistic: Logistic) => {
+        if (confirm(t('admin.confirm_delete_logistic'))) {
+            destroy(route('logistics.hard-delete', logistic.id), {
+                onSuccess: () => {
+                    setHighlightLogisticId(logistic.id);
+                    setTimeout(() => setHighlightLogisticId(null), 3000);
+                }
+            });
+        }
+    };
+
     return (
         <PermissionGuard
             permissions={['view logistics', 'create logistics', 'edit logistics', 'deactivate logistics', 'reactivate logistics', 'generate logistics report']}
@@ -193,6 +205,7 @@ export default function Index() {
                             processing={processing}
                             onDeactivate={handleDeactivate}
                             onReactivate={handleReactivate}
+                            onDelete={handleDelete}
                             highlightLogisticId={highlightLogisticId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={setShowDeactivated}

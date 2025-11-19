@@ -154,6 +154,40 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
     }
   };
 
+  // Handle staff deactivation
+  const handleDeactivateStaff = (staffMember: Staff) => {
+    if (confirm(t('admin.confirm_deactivate_staff'))) {
+      setProcessing(true);
+      router.post(route('staff.deactivate', staffMember.id), {}, {
+        onSuccess: () => {
+          setProcessing(false);
+          setHighlightStaffId(staffMember.id);
+          setTimeout(() => setHighlightStaffId(null), 3000);
+        },
+        onError: () => {
+          setProcessing(false);
+        },
+      });
+    }
+  };
+
+  // Handle staff reactivation
+  const handleReactivateStaff = (staffMember: Staff) => {
+    if (confirm(t('admin.confirm_reactivate_staff'))) {
+      setProcessing(true);
+      router.post(route('staff.reactivate', staffMember.id), {}, {
+        onSuccess: () => {
+          setProcessing(false);
+          setHighlightStaffId(staffMember.id);
+          setTimeout(() => setHighlightStaffId(null), 3000);
+        },
+        onError: () => {
+          setProcessing(false);
+        },
+      });
+    }
+  };
+
   return (
     <PermissionGuard 
       permissions={['view staffs', 'create staffs', 'edit staffs', 'delete staffs']}
@@ -223,6 +257,8 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
               itemsPerPage={itemsPerPage}
               processing={processing}
               onDelete={handleDeleteStaff}
+              onDeactivate={handleDeactivateStaff}
+              onReactivate={handleReactivateStaff}
               highlightStaffId={highlightStaffId}
               sortBy={sortBy}
               setSortBy={handleSortChange}

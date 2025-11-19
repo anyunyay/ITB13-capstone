@@ -199,6 +199,12 @@ export default function Index() {
         setSelectedPasswordRequest(null);
     };
 
+    const handleDeleteMember = (member: Member) => {
+        if (confirm(t('admin.confirm_delete_member'))) {
+            destroy(route('membership.hard-delete', member.id));
+        }
+    };
+
     // Auto-refresh pending password requests via polling
     useEffect(() => {
         const interval = setInterval(() => {
@@ -282,6 +288,7 @@ export default function Index() {
                             processing={processing}
                             onDeactivate={handleDeactivateClick}
                             onReactivate={handleReactivateClick}
+                            onDelete={handleDeleteMember}
                             highlightMemberId={highlightMemberId}
                             showDeactivated={showDeactivated}
                             setShowDeactivated={toggleDeactivatedView}

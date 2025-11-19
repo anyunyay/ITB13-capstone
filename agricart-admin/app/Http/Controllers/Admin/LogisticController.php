@@ -29,6 +29,23 @@ class LogisticController extends Controller
                 if ($logistic->active && $hasPendingOrders) {
                     $deactivationReason = 'Cannot deactivate: Logistic has active deliveries (pending or out for delivery).';
                 }
+
+                // Check if logistic can be deleted (no linked data)
+                $hasLinkedData = false;
+                $linkedDataReasons = [];
+
+                // Check for pending orders
+                if ($hasPendingOrders) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = 'has active deliveries';
+                }
+
+                // Add more checks based on your application's relationships
+                
+                $canBeDeleted = !$hasLinkedData;
+                $deletionReason = $hasLinkedData 
+                    ? 'Cannot delete: Logistic ' . implode(', ', $linkedDataReasons) . '.'
+                    : null;
                 
                 return [
                     'id' => $logistic->id,
@@ -48,6 +65,8 @@ class LogisticController extends Controller
                     ] : null,
                     'can_be_deactivated' => $canBeDeactivated,
                     'deactivation_reason' => $deactivationReason,
+                    'can_be_deleted' => $canBeDeleted,
+                    'deletion_reason' => $deletionReason,
                 ];
             });
         return Inertia::render('Logistics/index', compact('logistics'));
@@ -369,5 +388,37 @@ class LogisticController extends Controller
         $filename = 'logistics_report_' . date('Y-m-d_H-i-s') . '.pdf';
 
         return $display ? $pdf->stream($filename) : $pdf->download($filename);
+    }
+
+    /**
+     * Hard delete a logistic (permanent deletion)
+     */
+    public function hardDelete($id)
+    {
+        $logistic = User::where('type', 'logistic')->findOrFail($id);
+
+        // Check if logistic has any linked data
+        $hasLinkedData = false;
+        $linkedDataReasons = [];
+
+        // Check for pending orders
+        if ($logistic->hasPendingOrders()) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = 'has active deliveries';
+        }
+
+        // Add more checks based on your application's relationships
+        // Example: Check for completed orders, delivery history, etc.
+
+        if ($hasLinkedData) {
+            return redirect()->route('logistics.index')
+                ->with('error', 'Cannot delete logistic: ' . implode(', ', $linkedDataReasons) . '.');
+        }
+
+        // Delete the logistic
+        $logistic->delete();
+
+        return redirect()->route('logistics.index')
+            ->with('message', 'Logistic deleted successfully.');
     }
 }

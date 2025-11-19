@@ -35,6 +35,24 @@ class MembershipController extends Controller
                 if ($member->active && $hasActiveStocks) {
                     $deactivationReason = 'Cannot deactivate: Member has active stocks in the inventory.';
                 }
+
+                // Check if member can be deleted (no linked data)
+                $hasLinkedData = false;
+                $linkedDataReasons = [];
+
+                // Check for active stocks
+                if ($hasActiveStocks) {
+                    $hasLinkedData = true;
+                    $linkedDataReasons[] = 'has active stocks';
+                }
+
+                // Check for orders (if applicable)
+                // Add more checks based on your application's relationships
+                
+                $canBeDeleted = !$hasLinkedData;
+                $deletionReason = $hasLinkedData 
+                    ? 'Cannot delete: Member ' . implode(', ', $linkedDataReasons) . '.'
+                    : null;
                 
                 return [
                     'id' => $member->id,
@@ -55,6 +73,8 @@ class MembershipController extends Controller
                     ] : null,
                     'can_be_deactivated' => $canBeDeactivated,
                     'deactivation_reason' => $deactivationReason,
+                    'can_be_deleted' => $canBeDeleted,
+                    'deletion_reason' => $deletionReason,
                 ];
             });
 
@@ -586,5 +606,42 @@ class MembershipController extends Controller
         ]);
 
         return back()->with('message', 'Password change request rejected.');
+    }
+
+    /**
+     * Hard delete a member (permanent deletion)
+     */
+    public function hardDelete($id, FileUploadService $fileService)
+    {
+        $member = User::where('type', 'member')->findOrFail($id);
+
+        // Check if member has any linked data
+        $hasLinkedData = false;
+        $linkedDataReasons = [];
+
+        // Check for active stocks
+        if ($member->hasActiveStocks()) {
+            $hasLinkedData = true;
+            $linkedDataReasons[] = 'has active stocks';
+        }
+
+        // Add more checks based on your application's relationships
+        // Example: Check for orders, transactions, etc.
+
+        if ($hasLinkedData) {
+            return redirect()->route('membership.index')
+                ->with('error', 'Cannot delete member: ' . implode(', ', $linkedDataReasons) . '.');
+        }
+
+        // Delete the document file if it exists
+        if ($member->document) {
+            $fileService->deleteFile($member->document, 'documents');
+        }
+
+        // Delete the member
+        $member->delete();
+
+        return redirect()->route('membership.index')
+            ->with('message', 'Member deleted successfully.');
     }
 }
