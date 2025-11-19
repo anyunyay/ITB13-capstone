@@ -120,6 +120,12 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
 
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const breadcrumbs = [
+    { title: t('admin.dashboard'), href: route('admin.dashboard') },
+    { title: t('admin.orders'), href: route('admin.orders.index') },
+    { title: t('admin.order_report'), href: route('orders.report') },
+  ];
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -323,7 +329,7 @@ export default function OrderReport({ orders, summary, logistics, admins, filter
   };
 
   return (
-    <AppSidebarLayout>
+    <AppSidebarLayout breadcrumbs={breadcrumbs}>
       <Head title={t('admin.order_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">

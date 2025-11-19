@@ -37,6 +37,11 @@ export default function InventoryReport({ stocks, summary, members, productTypes
 
   const [localFilters, setLocalFilters] = useState<ReportFiltersType>(normalizedFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const breadcrumbs = [
+    { title: t('admin.inventory'), href: route('inventory.index') },
+    { title: t('admin.inventory_report'), href: route('inventory.report') },
+  ];
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>(
     localFilters.start_date ? new Date(localFilters.start_date) : undefined
@@ -182,7 +187,7 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   };
 
   return (
-    <AppSidebarLayout>
+    <AppSidebarLayout breadcrumbs={breadcrumbs}>
       <Head title={t('admin.inventory_report')} />
       <div className="min-h-screen bg-background">
         <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">

@@ -55,6 +55,11 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
   const [localFilters, setLocalFilters] = useState<ReportFilters>(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const breadcrumbs = [
+    { title: t('admin.members'), href: route('membership.index') },
+    { title: t('admin.membership_report'), href: route('membership.report') },
+  ];
+
   // Sorting state
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -264,7 +269,7 @@ export default function MembershipReport({ members, summary, filters }: ReportPa
       permission="generate membership report"
       pageTitle={t('admin.access_denied')}
     >
-      <AppSidebarLayout>
+      <AppSidebarLayout breadcrumbs={breadcrumbs}>
         <Head title={t('admin.membership_report')} />
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">

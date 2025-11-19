@@ -138,7 +138,7 @@ export function generateBreadcrumbs(page: any): BreadcrumbItem[] {
 
         // Sales Report
         if (url === '/admin/sales/report') {
-            crumbs.push({ title: 'Report', href: '' });
+            crumbs.push({ title: 'Sales Report', href: '' });
             return crumbs;
         }
 

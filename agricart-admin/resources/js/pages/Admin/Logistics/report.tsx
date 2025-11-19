@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus, ArrowLeft } from 'lucide-react';
+import { BarChart3, Download, FileText, Search, Filter, X, ChevronDown, CalendarIcon, Users, UserCheck, UserX, UserPlus, ArrowLeft, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -61,6 +61,11 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   
   const [localFilters, setLocalFilters] = useState<ReportFilters>(normalizedFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const breadcrumbs = [
+    { title: t('admin.logistics'), href: route('logistics.index') },
+    { title: t('admin.logistics_report'), href: route('logistics.report') },
+  ];
   
   // Date picker states
   const [startDate, setStartDate] = useState<Date | undefined>(
@@ -255,7 +260,7 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
       permission="generate logistics report"
       pageTitle={t('admin.logistics_report_access_denied')}
     >
-      <AppSidebarLayout>
+      <AppSidebarLayout breadcrumbs={breadcrumbs}>
         <Head title={t('admin.logistics_report')} />
         <div className="min-h-screen bg-background">
           <div className="w-full px-4 py-4 flex flex-col gap-2 sm:px-6 lg:px-8">
