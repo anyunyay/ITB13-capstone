@@ -306,7 +306,6 @@ export default function InventoryIndex() {
         if (!selectedProduct) return;
 
         router.delete(route('inventory.destroy', selectedProduct.id), {
-            data: { reason: data.reason || t('admin.deleted_by_admin') },
             onSuccess: () => {
                 reset();
                 setDeleteModalOpen(false);
@@ -671,8 +670,6 @@ export default function InventoryIndex() {
                             isOpen={archiveModalOpen}
                             onClose={() => setArchiveModalOpen(false)}
                             productName={selectedProduct?.name || ''}
-                            reason={data.reason}
-                            onReasonChange={(reason) => setData('reason', reason)}
                             onSubmit={handleArchiveSubmit}
                             processing={processing}
                         />
@@ -689,8 +686,6 @@ export default function InventoryIndex() {
                             isOpen={deleteModalOpen}
                             onClose={() => setDeleteModalOpen(false)}
                             productName={selectedProduct?.name || ''}
-                            reason={data.reason}
-                            onReasonChange={(reason) => setData('reason', reason)}
                             onSubmit={handleDeleteSubmit}
                             processing={processing}
                         />
