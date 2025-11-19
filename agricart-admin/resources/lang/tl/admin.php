@@ -197,6 +197,7 @@ return [
     'action_restored' => 'Nabalik',
     'action_sale' => 'Benta',
     'action_reversal' => 'Pagbabaliktad',
+    'sold_out' => 'Naubos na',
     'kg_sold' => 'kg naibenta',
     'sold_label' => 'naibenta',
     'filtered_results' => 'Mga resultang na-filter',
@@ -208,6 +209,8 @@ return [
     'locked' => 'Nakakandado',
     'stock_fully_sold_locked' => 'Ang stock na ito ay ganap na naibenta at nakakandado mula sa mga pagbabago. Ito ay inilipat na sa Stock Trail.',
     'total_sold' => 'Kabuuang Naibenta',
+    'performed_by' => 'Ginawa Ni',
+    'system' => 'Sistema',
 
     // Recent Activity
     'recent_activity' => 'Kamakailang Aktibidad',

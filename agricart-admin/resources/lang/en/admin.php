@@ -199,6 +199,7 @@ return [
     'action_restored' => 'Restored',
     'action_sale' => 'Sale',
     'action_reversal' => 'Reversal',
+    'sold_out' => 'Sold Out',
     'kg_sold' => 'kg sold',
     'sold_label' => 'sold',
     'filtered_results' => 'Filtered results',
@@ -210,6 +211,8 @@ return [
     'locked' => 'Locked',
     'stock_fully_sold_locked' => 'This stock has been fully sold and is locked from modifications. It has been moved to Stock Trail.',
     'total_sold' => 'Total Sold',
+    'performed_by' => 'Performed By',
+    'system' => 'System',
 
     // Recent Activity
     'recent_activity' => 'Recent Activity',

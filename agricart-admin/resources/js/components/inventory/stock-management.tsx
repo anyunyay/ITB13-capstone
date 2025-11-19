@@ -102,6 +102,7 @@ export const StockManagement = ({
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.category')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.member')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.action')}</TableHead>
+                        <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.performed_by')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.total_amount')}</TableHead>
                         <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.notes')}</TableHead>
                     </TableRow>
@@ -224,9 +225,19 @@ export const StockManagement = ({
                         </TableCell>
                         <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
                             <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                <div className="w-full max-w-[150px] text-left">
+                                    <div className="font-medium text-sm">{item.performedBy || t('admin.system')}</div>
+                                    {item.performedByType && (
+                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
+                                    )}
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2">
+                            <div className="flex justify-center min-h-[40px] py-2 w-full">
                                 <div className="w-full max-w-[120px] text-right">
                                     <div className="font-semibold">
-                                        ₱{(item.totalAmount || 0).toFixed(2)}
+                                        {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
                                     </div>
                                 </div>
                             </div>
@@ -460,8 +471,19 @@ export const StockManagement = ({
                                 <span>{item.member}</span>
                             </div>
                             <div className="flex justify-between">
+                                <span className="text-muted-foreground">{t('admin.performed_by')}:</span>
+                                <div className="text-right">
+                                    <div className="font-medium">{item.performedBy || t('admin.system')}</div>
+                                    {item.performedByType && (
+                                        <div className="text-xs text-muted-foreground capitalize">{item.performedByType}</div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex justify-between">
                                 <span className="text-muted-foreground">{t('admin.total_amount')}:</span>
-                                <span className="font-semibold">₱{(item.totalAmount || 0).toFixed(2)}</span>
+                                <span className="font-semibold">
+                                    {item.totalAmount === null ? 'N/A' : `₱${item.totalAmount.toFixed(2)}`}
+                                </span>
                             </div>
                             {item.notes && (
                                 <div className="pt-2 border-t border-border">
@@ -667,7 +689,7 @@ export const StockManagement = ({
             }
 
             // Calculate total amount for the stock trail
-            let totalAmount = 0;
+            let totalAmount: number | null = 0;
             if (trail.action_type === 'sale') {
                 // For sales, calculate based on quantity sold
                 totalAmount = quantityChange * price;
@@ -677,6 +699,9 @@ export const StockManagement = ({
             } else if (trail.action_type === 'removed') {
                 // For removals, calculate based on the removed quantity
                 totalAmount = quantityChange * price;
+            } else if (trail.action_type === 'completed') {
+                // For completed/sold out items, show N/A instead of amount
+                totalAmount = null;
             }
 
             return {
@@ -685,14 +710,16 @@ export const StockManagement = ({
                 product: trail.product?.name || 'Unknown Product',
                 quantity: quantityChange,
                 category: trail.category || 'N/A',
-                member: trail.member?.name || trail.performedByUser?.name || 'Unknown',
+                member: trail.member?.name || trail.performed_by_user?.name || 'Unknown',
                 date: trail.created_at,
                 notes: trail.notes || `Action: ${trail.action_type}`,
                 action: getActionLabel(trail.action_type),
                 oldQuantity: trail.old_quantity,
                 newQuantity: trail.new_quantity,
                 actionType: trail.action_type,
-                totalAmount: totalAmount
+                totalAmount: totalAmount,
+                performedBy: trail.performed_by_user?.name || null,
+                performedByType: trail.performed_by_type || trail.performed_by_user?.type || null
             };
         }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     };
@@ -704,7 +731,8 @@ export const StockManagement = ({
             'removed': t('admin.action_removed'),
             'restored': t('admin.action_restored'),
             'sale': t('admin.action_sale'),
-            'reversal': t('admin.action_reversal')
+            'reversal': t('admin.action_reversal'),
+            'completed': t('admin.sold_out') // Changed from 'Completed' to 'Sold Out'
         };
         return labels[actionType] || actionType.charAt(0).toUpperCase() + actionType.slice(1);
     };

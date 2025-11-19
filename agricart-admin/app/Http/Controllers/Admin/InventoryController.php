@@ -59,7 +59,9 @@ class InventoryController extends Controller
             });
 
         // Optimize stock loading with selective fields and efficient relations
+        // Exclude zero-quantity stocks as they're now managed in Stock Trail
         $stocks = Stock::active()
+            ->where('quantity', '>', 0) // Only show stocks with available quantity
             ->with([
                 'product' => function ($query) {
                     $query->select('id', 'name', 'produce_type');
@@ -110,13 +112,36 @@ class InventoryController extends Controller
                 $query->select('id', 'name');
             },
             'performedByUser' => function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'name', 'type');
             }
         ])
-            ->select('id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'created_at')
+            ->select('id', 'product_id', 'member_id', 'action_type', 'old_quantity', 'new_quantity', 'category', 'notes', 'performed_by', 'performed_by_type', 'created_at')
             ->orderBy('created_at', 'desc')
             ->limit(30) // Reduced from 200
-            ->get();
+            ->get()
+            ->map(function ($trail) {
+                // Explicitly include performed_by_user data in the response
+                return [
+                    'id' => $trail->id,
+                    'product_id' => $trail->product_id,
+                    'member_id' => $trail->member_id,
+                    'action_type' => $trail->action_type,
+                    'old_quantity' => $trail->old_quantity,
+                    'new_quantity' => $trail->new_quantity,
+                    'category' => $trail->category,
+                    'notes' => $trail->notes,
+                    'performed_by' => $trail->performed_by,
+                    'performed_by_type' => $trail->performed_by_type,
+                    'created_at' => $trail->created_at,
+                    'product' => $trail->product,
+                    'member' => $trail->member,
+                    'performed_by_user' => $trail->performedByUser ? [
+                        'id' => $trail->performedByUser->id,
+                        'name' => $trail->performedByUser->name,
+                        'type' => $trail->performedByUser->type,
+                    ] : null,
+                ];
+            });
 
         // Cache categories to avoid repeated queries
         $categories = cache()->remember('product_categories', 3600, function () {
