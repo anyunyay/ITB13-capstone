@@ -7,11 +7,11 @@ interface AppLogoProps {
 export default function AppLogo({ isScrolled = false }: AppLogoProps) {
     return (
         <>
-            <div className="flex aspect-square size-12 items-center justify-center">
+            <div className="flex aspect-square size-8 items-center justify-center">
                 <img 
                     src="/storage/logo/SMMC Logo-1.webp" 
                     alt="SMMC Logo" 
-                    className="size-9 object-contain"
+                    className="size-7 group-data-[collapsible=icon]:size-7 group-data-[state=expanded]:size-10 object-contain transition-all"
                     onError={(e) => {
                         e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
                     }}
