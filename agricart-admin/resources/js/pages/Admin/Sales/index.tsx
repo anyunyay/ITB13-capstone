@@ -553,11 +553,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                   <CardHeader>
                     <div className="pb-3 border-b border-border">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <ShoppingCart className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <ShoppingCart className="h-6 w-6" />
+                          </div>
                           <div className="min-w-0">
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.all_sales')}</h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug hidden sm:block">
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.all_sales')}</h2>
+                            <p className="text-sm text-muted-foreground m-0 hidden sm:block">
                               {t('admin.sales_with_sorting_and_pagination')}
                             </p>
                           </div>
@@ -729,11 +731,13 @@ export default function SalesIndex({ sales, summary, memberSales, filters }: Sal
                   <CardHeader>
                     <div className="pb-3 border-b border-border">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Users className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <Users className="h-6 w-6" />
+                          </div>
                           <div className="min-w-0">
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.member_sales_tab')}</h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug hidden sm:block">
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.member_sales_tab')}</h2>
+                            <p className="text-sm text-muted-foreground m-0 hidden sm:block">
                               {t('admin.member_sales_description')}
                             </p>
                           </div>

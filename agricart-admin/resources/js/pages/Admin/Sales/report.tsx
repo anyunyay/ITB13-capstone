@@ -277,9 +277,9 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
           <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-xl p-4 sm:p-6 shadow-lg">
             {/* Mobile Layout */}
             <div className="flex md:hidden items-center gap-2 mb-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg shrink-0">
-                  <BarChart3 className="h-5 w-5" />
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center shrink-0">
+                  <BarChart3 className="h-6 w-6" />
                 </div>
                 <h1 className="text-lg font-bold text-foreground truncate">{t('admin.sales_report_page_title')}</h1>
               </div>
@@ -293,9 +293,9 @@ export default function SalesReport({ sales, summary, filters }: ReportPageProps
             {/* Desktop Layout */}
             <div className="hidden md:flex md:flex-col gap-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg shrink-0">
-                    <BarChart3 className="h-8 w-8" />
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center shrink-0">
+                    <BarChart3 className="h-6 w-6" />
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">{t('admin.sales_report_page_title')}</h1>
