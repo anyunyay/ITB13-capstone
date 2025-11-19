@@ -52,6 +52,8 @@ export default function AuthCardLayout({
                                     onError={(e) => { e.currentTarget.src = '/storage/fallback-photo.png'; }}
                                     className="h-full w-full object-cover"
                                 />
+                                {/* Thin black overlay to slightly darken the image */}
+                                <div className="absolute inset-0 bg-black/20" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent" />
                             </div>
                         </div>

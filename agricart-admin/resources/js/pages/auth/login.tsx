@@ -89,7 +89,7 @@ export default function Login({ status, canResetPassword, restrictionPopup }: Lo
             <AuthLayout 
                 title="Customer Login" 
                 description="Welcome back! Sign in to your customer account"
-                imageUrl="/images/frontpage/pexels-pixabay-265216.jpg"
+                imageUrl="/images/frontpage/Regis.jpg"
                 imagePosition="left"
                 icon={<User />}
                 iconBgColor="bg-primary/10"
