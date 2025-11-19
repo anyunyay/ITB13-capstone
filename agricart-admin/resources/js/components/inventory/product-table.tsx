@@ -85,12 +85,6 @@ export const ProductTable = ({
             <ArrowUp className="h-4 w-4" /> :
             <ArrowDown className="h-4 w-4" />;
     };
-    const getStatusBadge = (archived_at: string | null) => {
-        if (archived_at) {
-            return <Badge variant="destructive" className={styles.statusArchived}>{t('admin.archived')}</Badge>;
-        }
-        return <Badge variant="default" className={styles.statusActive}>{t('admin.active')}</Badge>;
-    };
 
     if (products.length === 0) {
         return (
@@ -123,14 +117,22 @@ export const ProductTable = ({
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2 mb-1">
-                                    <h3 className="font-semibold text-foreground text-sm line-clamp-2">{product.name}</h3>
-                                    {getStatusBadge(product.archived_at || null)}
-                                </div>
+                                <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-1">{product.name}</h3>
                                 <Badge variant="secondary" className="text-xs mb-2">
                                     {product.produce_type}
                                 </Badge>
                                 <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+                                {showArchived && product.archived_at && (
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2 bg-muted/30 px-2 py-1.5 rounded-md">
+                                        <Archive className="h-3 w-3 flex-shrink-0" />
+                                        <div>
+                                            <span className="font-medium">{t('admin.archived_on')}: </span>
+                                            <span className="text-foreground">
+                                                {new Date(product.archived_at).toLocaleDateString()} {new Date(product.archived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -280,7 +282,18 @@ export const ProductTable = ({
                                     {getSortIcon('price')}
                                 </button>
                             </TableHead>
-                            <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.status')}</TableHead>
+                            {showArchived && (
+                                <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">
+                                    <button
+                                        onClick={() => handleSort('archived_at')}
+                                        className="flex items-center gap-2 hover:text-foreground transition-colors mx-auto"
+                                    >
+                                        <Archive className="h-4 w-4" />
+                                        {t('admin.archived_on')}
+                                        {getSortIcon('archived_at')}
+                                    </button>
+                                </TableHead>
+                            )}
                             <TableHead className="px-4 py-3 lg:px-3 md:px-2 sm:px-1 text-center text-xs lg:text-xs md:text-xs sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border whitespace-nowrap">{t('admin.actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -348,13 +361,26 @@ export const ProductTable = ({
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
-                                    <div className="flex justify-center min-h-[40px] py-2 w-full">
-                                        <div className="w-full text-center flex justify-center">
-                                            {getStatusBadge(product.archived_at || null)}
+                                {showArchived && (
+                                    <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
+                                        <div className="flex justify-center min-h-[40px] py-2 w-full">
+                                            <div className="w-full text-center">
+                                                {product.archived_at ? (
+                                                    <div className="text-sm">
+                                                        <div className="font-medium text-foreground">
+                                                            {new Date(product.archived_at).toLocaleDateString()}
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            {new Date(product.archived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm text-muted-foreground">-</span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                </TableCell>
+                                    </TableCell>
+                                )}
                                 <TableCell className={`px-4 py-4 lg:px-3 lg:py-3 md:px-2 md:py-3 sm:px-1 sm:py-2 ${styles.inventoryTableCell}`}>
                                     <div className="flex justify-center min-h-[40px] py-2 w-full">
                                         <div className="w-full text-center">

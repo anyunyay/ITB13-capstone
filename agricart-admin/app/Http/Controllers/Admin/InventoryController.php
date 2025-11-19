@@ -43,7 +43,7 @@ class InventoryController extends Controller
             });
 
         $archivedProducts = Product::archived()
-            ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at')
+            ->select('id', 'name', 'price_kilo', 'price_pc', 'price_tali', 'description', 'image', 'produce_type', 'created_at', 'archived_at')
             ->orderBy('name')
             ->get()
             ->map(function ($product) {
@@ -315,7 +315,13 @@ class InventoryController extends Controller
 
             $product->save();
 
-            return redirect()->route('inventory.index')->with('flash', [
+            // Redirect back to inventory index with archived view if product is archived
+            $redirectUrl = route('inventory.index');
+            if ($product->archived_at) {
+                $redirectUrl .= '?view=archived';
+            }
+
+            return redirect($redirectUrl)->with('flash', [
                 'type' => 'success',
                 'message' => 'Product updated successfully'
             ]);

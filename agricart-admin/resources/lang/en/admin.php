@@ -1378,4 +1378,7 @@ return [
     'cannot_delete_product_has_stock' => 'Product has available stock that cannot be deleted.',
     'cannot_delete_product_has_sales' => 'Product has sales history and cannot be deleted.',
     'cannot_delete_product_in_carts' => 'Product has items in customer carts and cannot be deleted.',
+
+    // Product Archive
+    'archived_on' => 'Archived On',
 ];
