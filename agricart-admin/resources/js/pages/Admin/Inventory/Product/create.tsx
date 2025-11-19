@@ -51,6 +51,30 @@ export default function Create() {
         post(route('inventory.store'));
     }
 
+    // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    }
+
+    // Validation: Check if form has valid input
+    const isFormValid = () => {
+        // Name is required and must not be empty
+        if (!data.name.trim()) return false;
+        
+        // Image is required
+        if (!data.image) return false;
+        
+        // At least one price must be provided and greater than 0
+        const hasValidPrice = 
+            (data.price_kilo && parseFloat(data.price_kilo) > 0) ||
+            (data.price_pc && parseFloat(data.price_pc) > 0) ||
+            (data.price_tali && parseFloat(data.price_tali) > 0);
+        
+        return hasValidPrice;
+    }
+
     return (
         <AppLayout>
             <Head title={t('admin.create_new_product')} />
@@ -184,6 +208,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_kilo}
                                                         onChange={(e) => setData('price_kilo', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -200,6 +225,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_pc}
                                                         onChange={(e) => setData('price_pc', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -216,6 +242,7 @@ export default function Create() {
                                                         placeholder="0.00"
                                                         value={data.price_tali}
                                                         onChange={(e) => setData('price_tali', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -252,7 +279,7 @@ export default function Create() {
 
                                         <div className='space-y-2'>
                                             <Label htmlFor="image" className="text-sm font-medium">
-                                                {imagePreview ? t('admin.change_image') : t('admin.image_upload')}
+                                                {imagePreview ? t('admin.change_image') : t('admin.image_upload')} <span className="text-destructive">*</span>
                                             </Label>
                                             <div className="relative">
                                                 <Input
@@ -281,7 +308,7 @@ export default function Create() {
                                     <CardContent className="pt-4 pb-4">
                                         <div className="flex flex-col gap-3">
                                             <Button
-                                                disabled={processing}
+                                                disabled={processing || !isFormValid()}
                                                 type="submit"
                                                 className="w-full"
                                             >

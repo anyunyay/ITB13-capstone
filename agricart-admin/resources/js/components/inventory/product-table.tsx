@@ -16,6 +16,7 @@ interface ProductTableProps {
     handleArchive: (id: number, name: string) => void;
     handleDelete: (id: number, name: string) => void;
     handleRestore: (id: number, name: string) => void;
+    handleAddStock: (id: number, name: string) => void;
     archivingProduct: number | null;
     restoringProduct: number | null;
     sortBy: string;
@@ -31,6 +32,7 @@ export const ProductTable = ({
     handleArchive,
     handleDelete,
     handleRestore,
+    handleAddStock,
     archivingProduct,
     restoringProduct,
     sortBy,
@@ -159,11 +161,14 @@ export const ProductTable = ({
                         <div className="flex flex-wrap gap-2">
                             {!product.archived_at && (
                                 <PermissionGate permission="create stocks">
-                                    <Button asChild variant="default" size="sm" className="text-xs flex-1">
-                                        <Link href={route('inventory.addStock', product.id)}>
-                                            <Plus className="h-3 w-3 mr-1" />
-                                            {t('admin.add_stock')}
-                                        </Link>
+                                    <Button 
+                                        variant="default" 
+                                        size="sm" 
+                                        className="text-xs flex-1"
+                                        onClick={() => handleAddStock(product.id, product.name)}
+                                    >
+                                        <Plus className="h-3 w-3 mr-1" />
+                                        {t('admin.add_stock')}
                                     </Button>
                                 </PermissionGate>
                             )}
@@ -356,11 +361,14 @@ export const ProductTable = ({
                                             <div className="flex items-center gap-1 flex-nowrap overflow-x-auto justify-center">
                                                 {!product.archived_at && (
                                                     <PermissionGate permission="create stocks">
-                                                        <Button asChild variant="outline" size="sm" className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap">
-                                                            <Link href={route('inventory.addStock', product.id)}>
-                                                                <Plus className="h-3 w-3 mr-1" />
-                                                                {t('admin.add_stock')}
-                                                            </Link>
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            className="text-xs px-2 py-1 transition-all duration-200 ease-in-out hover:shadow-lg hover:opacity-90 whitespace-nowrap"
+                                                            onClick={() => handleAddStock(product.id, product.name)}
+                                                        >
+                                                            <Plus className="h-3 w-3 mr-1" />
+                                                            {t('admin.add_stock')}
                                                         </Button>
                                                     </PermissionGate>
                                                 )}

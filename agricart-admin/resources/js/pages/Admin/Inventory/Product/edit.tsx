@@ -33,6 +33,16 @@ export default function Edit({product}: Props) {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     
+    // Track initial values to detect changes
+    const initialValues = {
+        name: product.name,
+        price_kilo: product.price_kilo || '',
+        price_pc: product.price_pc || '',
+        price_tali: product.price_tali || '',
+        description: product.description,
+        produce_type: product.produce_type || 'fruit',
+    };
+    
     // Helper function to handle image error with cascading fallback
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
         const target = e.target as HTMLImageElement;
@@ -96,6 +106,48 @@ export default function Edit({product}: Props) {
             forceFormData: true,
             preserveState: true,
         });
+    }
+
+    // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+            e.preventDefault();
+        }
+    }
+
+    // Check if form has valid input
+    const isFormValid = () => {
+        // Name is required and must not be empty
+        if (!data.name.trim()) return false;
+        
+        // At least one price must be provided and greater than 0
+        const hasValidPrice = 
+            (data.price_kilo && parseFloat(data.price_kilo.toString()) > 0) ||
+            (data.price_pc && parseFloat(data.price_pc.toString()) > 0) ||
+            (data.price_tali && parseFloat(data.price_tali.toString()) > 0);
+        
+        return hasValidPrice;
+    }
+
+    // Check if any field has been changed
+    const hasChanges = () => {
+        // Check if image was changed
+        if (selectedImage) return true;
+        
+        // Check if any field value changed
+        return (
+            data.name !== initialValues.name ||
+            data.price_kilo.toString() !== initialValues.price_kilo.toString() ||
+            data.price_pc.toString() !== initialValues.price_pc.toString() ||
+            data.price_tali.toString() !== initialValues.price_tali.toString() ||
+            data.description !== initialValues.description ||
+            data.produce_type !== initialValues.produce_type
+        );
+    }
+
+    // Button should be enabled only if form is valid AND has changes
+    const isUpdateEnabled = () => {
+        return isFormValid() && hasChanges();
     }
 
     return (
@@ -233,6 +285,7 @@ export default function Edit({product}: Props) {
                                                         placeholder="0.00" 
                                                         value={data.price_kilo} 
                                                         onChange={(e) => setData('price_kilo', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -249,6 +302,7 @@ export default function Edit({product}: Props) {
                                                         placeholder="0.00" 
                                                         value={data.price_pc} 
                                                         onChange={(e) => setData('price_pc', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -265,6 +319,7 @@ export default function Edit({product}: Props) {
                                                         placeholder="0.00" 
                                                         value={data.price_tali} 
                                                         onChange={(e) => setData('price_tali', e.target.value)}
+                                                        onKeyDown={handleKeyDown}
                                                         className="w-full pl-7"
                                                     />
                                                 </div>
@@ -348,7 +403,7 @@ export default function Edit({product}: Props) {
                                     <CardContent className="pt-4 pb-4">
                                         <div className="flex flex-col gap-3">
                                             <Button 
-                                                disabled={processing} 
+                                                disabled={processing || !isUpdateEnabled()} 
                                                 type="submit"
                                                 className="w-full"
                                             >

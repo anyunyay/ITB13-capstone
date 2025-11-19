@@ -38,6 +38,7 @@ interface ProductManagementProps {
     handleArchive: (id: number, name: string) => void;
     handleDelete: (id: number, name: string) => void;
     handleRestore: (id: number, name: string) => void;
+    handleAddStock: (id: number, name: string) => void;
     showArchived: boolean;
     setShowArchived: (show: boolean) => void;
     archivingProduct: number | null;
@@ -70,6 +71,7 @@ export const ProductManagement = ({
     handleArchive,
     handleDelete,
     handleRestore,
+    handleAddStock,
     showArchived,
     setShowArchived,
     archivingProduct,
@@ -317,11 +319,13 @@ export const ProductManagement = ({
                                         <CardFooter className="flex flex-col gap-3 p-5 pt-0 flex-shrink-0 w-full box-border overflow-hidden">
                                             {!product.archived_at && (
                                                 <PermissionGate permission="create stocks">
-                                                    <Button asChild disabled={processing} className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg">
-                                                        <Link href={route('inventory.addStock', product.id)}>
-                                                            <Plus className="h-4 w-4" />
-                                                            {t('admin.add_stock')}
-                                                        </Link>
+                                                    <Button 
+                                                        disabled={processing} 
+                                                        onClick={() => handleAddStock(product.id, product.name)}
+                                                        className="w-full py-3 px-4 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm min-h-[2.875rem] hover:-translate-y-0.5 hover:shadow-lg"
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                        {t('admin.add_stock')}
                                                     </Button>
                                                 </PermissionGate>
                                             )}
@@ -407,6 +411,7 @@ export const ProductManagement = ({
                                 handleArchive={handleArchive}
                                 handleDelete={handleDelete}
                                 handleRestore={handleRestore}
+                                handleAddStock={handleAddStock}
                                 archivingProduct={archivingProduct}
                                 restoringProduct={restoringProduct}
                                 sortBy={sortBy}
