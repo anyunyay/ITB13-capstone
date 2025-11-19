@@ -574,6 +574,7 @@ return [
     'update_logistic' => 'Update Logistic',
     'add_member' => 'Add Member',
     'update_member' => 'Update Member',
+    'update_member_information' => 'Update member information and details',
     'create_new_product' => 'Create a New Product',
     'update_product' => 'Update Product',
     'add_stock_to_product' => 'Add Stock to Product',

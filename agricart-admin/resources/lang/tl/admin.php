@@ -574,6 +574,7 @@ return [
     'update_logistic' => 'I-update ang Logistik',
     'add_member' => 'Magdagdag ng Miyembro',
     'update_member' => 'I-update ang Miyembro',
+    'update_member_information' => 'I-update ang impormasyon at detalye ng miyembro',
     'create_new_product' => 'Gumawa ng Bagong Produkto',
     'update_product' => 'I-update ang Produkto',
     'add_stock_to_product' => 'Magdagdag ng Stock sa Produkto',
