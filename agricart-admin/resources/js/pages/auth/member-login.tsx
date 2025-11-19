@@ -18,6 +18,7 @@ type MemberLoginForm = {
     member_id: string;
     password: string;
     remember: boolean;
+    lockout?: any;
 };
 
 interface MemberLoginProps {
@@ -26,7 +27,7 @@ interface MemberLoginProps {
 }
 
 export default function MemberLogin({ status, canResetPassword }: MemberLoginProps) {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<MemberLoginForm>>({
+    const { data, setData, post, processing, errors, reset } = useForm<MemberLoginForm>({
         member_id: '',
         password: '',
         remember: false,
@@ -91,6 +92,59 @@ export default function MemberLogin({ status, canResetPassword }: MemberLoginPro
                 iconColor="text-accent"
             >
                 <Head title="Member Login" />
+
+            {/* Lockout Warning - Show prominently at the top */}
+            {lockoutStatus?.locked && (
+                <div className="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-semibold">Account Temporarily Locked</h3>
+                            <p className="mt-1">
+                                Too many failed login attempts. Please wait{' '}
+                                <span className="font-bold">
+                                    <CountdownTimer
+                                        lockExpiresAt={lockoutStatus.lock_expires_at}
+                                        serverTime={lockoutStatus.server_time}
+                                        className="text-red-800"
+                                        onComplete={() => refreshLockoutStatus()}
+                                    />
+                                </span>
+                                {' '}before trying again, or use{' '}
+                                <TextLink href={route('member.password.request')} className="text-red-800 underline font-semibold">
+                                    forgot password
+                                </TextLink>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Failed Attempts Warning - Show when user has failed attempts but not locked yet */}
+            {!lockoutStatus?.locked && lockoutStatus && lockoutStatus.failed_attempts > 0 && (
+                <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800">
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-semibold">Login Attempt Warning</h3>
+                            <p className="mt-1">
+                                {lockoutStatus.failed_attempts === 1 && '1 failed login attempt detected. '}
+                                {lockoutStatus.failed_attempts === 2 && '2 failed login attempts detected. One more failed attempt will lock your account. '}
+                                {lockoutStatus.failed_attempts >= 3 && `${lockoutStatus.failed_attempts} failed login attempts detected. `}
+                                Please ensure you're using the correct credentials.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
@@ -171,21 +225,6 @@ export default function MemberLogin({ status, canResetPassword }: MemberLoginPro
                 </div>
             </form>
 
-                {lockoutStatus?.locked && (
-                    <div className="mb-4 text-center text-sm font-medium text-red-600">
-                        Account temporarily locked. You can try using{' '}
-                        <TextLink href={route('password.request')} className="text-red-600 underline font-semibold">
-                            forgot password
-                        </TextLink>
-                        {' '}or wait{' '}
-                        <CountdownTimer 
-                            lockExpiresAt={lockoutStatus.lock_expires_at}
-                            serverTime={lockoutStatus.server_time}
-                            className="text-black font-bold"
-                        />
-                        {' '}before trying again.
-                    </div>
-                )}
             </AuthLayout>
 
             <DeactivatedAccountModal 

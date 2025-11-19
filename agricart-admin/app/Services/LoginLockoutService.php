@@ -13,16 +13,21 @@ class LoginLockoutService
     public static function checkLoginAllowed(string $identifier, string $userType, string $ipAddress): void
     {
         if (LoginAttempt::isLocked($identifier, $userType, $ipAddress)) {
-            $remainingTime = LoginAttempt::getRemainingLockoutTime($identifier, $userType, $ipAddress);
             $status = LoginAttempt::getLockoutStatus($identifier, $userType, $ipAddress);
+            $remainingTime = $status['remaining_time'];
+            
+            $lockoutMessage = self::getLockoutMessage($remainingTime, $status['failed_attempts'], $status['lock_level']);
             
             throw ValidationException::withMessages([
-                'email' => self::getLockoutMessage($remainingTime, $status['failed_attempts']),
+                'email' => $lockoutMessage,
+                'member_id' => $lockoutMessage, // For member login
                 'lockout' => [
                     'is_locked' => true,
                     'remaining_time' => $remainingTime,
                     'failed_attempts' => $status['failed_attempts'],
-                    'locked_until' => $status['locked_until']?->toISOString(),
+                    'lock_level' => $status['lock_level'],
+                    'lock_expires_at' => $status['lock_expires_at'],
+                    'server_time' => $status['server_time'],
                 ]
             ]);
         }
@@ -38,11 +43,18 @@ class LoginLockoutService
         $isLocked = $attempt->lock_expires_at && $attempt->lock_expires_at->isFuture();
         $remainingTime = $isLocked ? max(0, $attempt->lock_expires_at->diffInSeconds(now())) : 0;
         
+        // Calculate attempts remaining before lockout
+        $attemptsRemaining = null;
+        if (!$isLocked && $attempt->failed_attempts < LoginAttempt::MAX_FAILED_ATTEMPTS) {
+            $attemptsRemaining = LoginAttempt::MAX_FAILED_ATTEMPTS - $attempt->failed_attempts;
+        }
+        
         return [
             'failed_attempts' => $attempt->failed_attempts,
             'lock_level' => $attempt->lock_level,
             'is_locked' => $isLocked,
             'remaining_time' => $remainingTime,
+            'attempts_remaining' => $attemptsRemaining,
             'lock_expires_at' => $attempt->lock_expires_at?->toISOString(),
             'server_time' => now()->toISOString(),
         ];
@@ -67,17 +79,19 @@ class LoginLockoutService
     /**
      * Get appropriate lockout message
      */
-    private static function getLockoutMessage(int $remainingSeconds, int $failedAttempts): string
+    private static function getLockoutMessage(int $remainingSeconds, int $failedAttempts, int $lockLevel): string
     {
         $minutes = ceil($remainingSeconds / 60);
         
         if ($remainingSeconds < 60) {
-            return "Account locked. Try again in {$remainingSeconds} seconds.";
+            return "Too many failed login attempts. Account locked for {$remainingSeconds} seconds. Please try again later.";
         } elseif ($minutes < 60) {
-            return "Account locked. Try again in {$minutes} minutes.";
+            $minuteText = $minutes === 1 ? 'minute' : 'minutes';
+            return "Too many failed login attempts. Account locked for {$minutes} {$minuteText}. Please try again later.";
         } else {
             $hours = ceil($minutes / 60);
-            return "Account locked. Try again in {$hours} hours.";
+            $hourText = $hours === 1 ? 'hour' : 'hours';
+            return "Too many failed login attempts. Account locked for {$hours} {$hourText}. Please try again later.";
         }
     }
 
