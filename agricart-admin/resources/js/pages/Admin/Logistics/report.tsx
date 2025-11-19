@@ -131,6 +131,11 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
       verification_status: 'all',
       search: ''
     });
+
+    router.get(route('logistics.report'), {}, {
+      preserveScroll: true,
+      only: ['logistics', 'filters']
+    });
   };
 
   const hasActiveFilters = () => {
