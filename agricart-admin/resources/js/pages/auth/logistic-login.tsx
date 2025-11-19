@@ -12,6 +12,7 @@ import PasswordInput from '@/components/ui/password-input';
 import AuthLayout from '@/layouts/auth-layout';
 import CountdownTimer from '@/components/common/feedback/CountdownTimer';
 import { useLockoutStatus } from '@/hooks/useLockoutStatus';
+import DeactivatedAccountModal from '@/components/shared/auth/DeactivatedAccountModal';
 
 type LogisticLoginForm = {
     email: string;
@@ -32,6 +33,7 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
     });
 
     const { props } = usePage<{ auth?: { user?: { type?: string } } }>();
+    const [showDeactivatedModal, setShowDeactivatedModal] = useState(false);
 
     // Lockout status management
     const { lockoutStatus, refreshLockoutStatus } = useLockoutStatus({
@@ -61,6 +63,13 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
             refreshLockoutStatus();
         }
     }, [errors.email, errors.lockout, refreshLockoutStatus]);
+
+    // Check for deactivated account error and show modal
+    useEffect(() => {
+        if (errors.email && errors.email.includes('deactivated')) {
+            setShowDeactivatedModal(true);
+        }
+    }, [errors.email]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -99,7 +108,7 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
                                 placeholder="logistic@example.com"
                                 className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
                             />
-                            <InputError message={errors.email} />
+                            <InputError message={errors.email && !errors.email.includes('deactivated') ? errors.email : undefined} />
                         </div>
 
                         <div className="grid gap-2">
@@ -178,6 +187,14 @@ export default function LogisticLogin({ status, canResetPassword }: LogisticLogi
                     </div>
                 )}
             </AuthLayout>
+
+            <DeactivatedAccountModal 
+                isOpen={showDeactivatedModal} 
+                onClose={() => {
+                    setShowDeactivatedModal(false);
+                    setData('password', '');
+                }} 
+            />
         </>
     );
 }
