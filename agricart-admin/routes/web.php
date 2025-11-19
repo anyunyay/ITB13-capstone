@@ -237,6 +237,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:create staffs'])->group(function () {
             Route::get('/staff/add', [StaffController::class, 'create'])->name('staff.create'); // Add Staff (GET)
             Route::post('/staff', [StaffController::class, 'store'])->name('staff.store'); // Add Staff (POST)
+            Route::post('/staff/check-duplicate-email', [StaffController::class, 'checkDuplicateEmail'])->name('staff.checkDuplicateEmail'); // Check Duplicate Email
+            Route::post('/staff/check-duplicate-contact', [StaffController::class, 'checkDuplicateContact'])->name('staff.checkDuplicateContact'); // Check Duplicate Contact
         });
         Route::middleware(['can:edit staffs'])->group(function () {
             Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit'); // Edit Staff (GET)

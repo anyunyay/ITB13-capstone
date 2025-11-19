@@ -116,7 +116,7 @@ export default function CustomerHome({ products }: PageProps) {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            backgroundImage: 'url(/images/frontpage/LandingPage.jpg)',
             willChange: 'transform',
             transform: 'translateZ(0)'
           }}
@@ -247,13 +247,13 @@ export default function CustomerHome({ products }: PageProps) {
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
                 >
-                  <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-xl overflow-hidden shadow-lg">
-                    {/* Stock image placeholder - replace with actual cooperative/farm image */}
-                    <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
-                      <div className="text-white text-center p-4 sm:p-8">
-                        <div className="text-lg sm:text-2xl font-semibold mb-2">SMMC Letters Pic</div>
-                      </div>
-                    </div>
+                  <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[600px] flex items-center justify-center">
+                    <img
+                      src="/images/frontpage/Logo.png"
+                      alt="SMMC Cooperative"
+                      className="w-full h-full object-contain"
+                      loading="lazy"
+                    />
                   </div>
                 </motion.div>
               </div>
@@ -403,7 +403,7 @@ export default function CustomerHome({ products }: PageProps) {
       <section className="h-screen relative z-10 snap-start">
         <TestimonialSlider
           testimonials={testimonialData}
-          parallaxImage="/images/frontpage/pexels-pixabay-265216.jpg"
+          parallaxImage="/images/frontpage/FeedBack_bg.jpg"
           autoplayInterval={6500}
         />
       </section>

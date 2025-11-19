@@ -97,21 +97,21 @@ export default function AboutUs({ }: PageProps) {
       icon: <Truck className="w-12 h-12" />,
       title: t('customer.fresh_produce_sourcing'),
       description: t('customer.fresh_produce_sourcing_desc'),
-      image: "/images/frontpage/pexels-pixabay-265216.jpg",
+      image: "/images/frontpage/About_Us_4.1.jpg",
       parallaxSpeed: 0.1
     },
     {
       icon: <Heart className="w-12 h-12" />,
       title: t('customer.cooperative_support'),
       description: t('customer.cooperative_support_desc'),
-      image: "/images/frontpage/pexels-pixabay-265216.jpg",
+      image: "/images/frontpage/About_Us_5.jpg",
       parallaxSpeed: 0.1
     },
     {
       icon: <Shield className="w-12 h-12" />,
       title: t('customer.quality_assurance'),
       description: t('customer.quality_assurance_desc'),
-      image: "/images/frontpage/pexels-pixabay-265216.jpg",
+      image: "/images/frontpage/About_Us_6.jpg",
       parallaxSpeed: 0.1
     }
   ];
@@ -126,7 +126,7 @@ export default function AboutUs({ }: PageProps) {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            backgroundImage: 'url(/images/frontpage/LandingPage.jpg)',
             willChange: 'transform',
             transform: 'translateZ(0)'
           }}
@@ -224,12 +224,15 @@ export default function AboutUs({ }: PageProps) {
                 className="relative order-1 lg:order-2"
               >
                 <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-                  <div className="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 flex items-center justify-center">
-                    <div className="text-white text-center p-4 sm:p-6 lg:p-8">
-                      <div className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">SMMC Cooperative</div>
-                      <div className="text-sm sm:text-base lg:text-lg">Local Farmers Working Together</div>
-                    </div>
-                  </div>
+                  <img
+                    src="/images/frontpage/About_Us_4.jpg"
+                    alt="SMMC Cooperative - Local Farmers Working Together"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                 </div>
               </motion.div>
             </div>
@@ -325,7 +328,7 @@ export default function AboutUs({ }: PageProps) {
                 >
                   <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
                     <img
-                      src="/images/frontpage/pexels-pixabay-265216.jpg"
+                      src="/images/frontpage/About_Us_1.jpg"
                       alt="Community farmers working together"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -346,7 +349,7 @@ export default function AboutUs({ }: PageProps) {
                 >
                   <div className="w-full h-full rounded-2xl overflow-hidden shadow-xl">
                     <img
-                      src="/images/frontpage/pexels-pixabay-265216.jpg"
+                      src="/images/frontpage/About_Us_2.jpg"
                       alt="Sustainable farming practices"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -394,7 +397,7 @@ export default function AboutUs({ }: PageProps) {
           ref={servicesRef}
           className="h-[110vh] flex items-center justify-center bg-muted relative overflow-hidden snap-start"
           style={{
-            backgroundImage: 'url(/images/frontpage/pexels-pixabay-265216.jpg)',
+            backgroundImage: 'url(/images/frontpage/About_Us_3.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -410,7 +413,7 @@ export default function AboutUs({ }: PageProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true }}
-                  className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                  className={`max-w-[90vw] max-h-[45vh] mx-auto grid grid-cols-1 bg-primary text-primary-foreground lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center rounded-2xl overflow-hidden shadow-xl ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                     }`}
                 >
                   {/* Image/Visual with Parallax */}
@@ -441,14 +444,15 @@ export default function AboutUs({ }: PageProps) {
                   {/* Content */}
                   <div className={index % 2 === 1 ? 'lg:col-start-1 mx-3 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20' : 'mx-3 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20'}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 mb-1 sm:mb-2">
-                      <div className={`w-8 h-8 sm:w-14 sm:h-14 lg:w-15 xl:w-16 lg:h-15 xl:h-16 bg-primary/10 rounded-full flex items-center justify-center text-popover-foreground ${styles.iconBounce}`}>
+                      <div className={`w-8 h-8 sm:w-14 sm:h-14 lg:w-15 xl:w-16 lg:h-15 xl:h-16 bg-white/15 rounded-full flex items-center justify-center text-white ${styles.iconBounce}`}>
                         {service.icon}
                       </div>
-                      <h3 className="text-lg sm:text-3xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-popover-foreground">
+                      <h3 className="text-lg sm:text-3xl md:text-3xl lg:text-3xl xl:text-4xl font-bold text-white">
                         {service.title}
                       </h3>
                     </div>
-                    <p className="text-sm sm:text-xl md:text-xl lg:text-xl xl:text-2xl text-popover-foreground mb-2 sm:mb-6 leading-relaxed">
+
+                    <p className="text-sm sm:text-xl md:text-xl lg:text-xl xl:text-2xl text-white/90 mb-2 sm:mb-6 leading-relaxed">
                       {service.description}
                     </p>
                   </div>

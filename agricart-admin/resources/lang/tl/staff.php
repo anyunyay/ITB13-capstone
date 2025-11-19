@@ -19,6 +19,7 @@ return [
     'staff_directory' => 'Staff Directory',
     'add_staff_member' => 'Magdagdag ng Staff Member',
     'edit_staff_member' => 'I-edit ang Staff Member',
+    'update_staff' => 'I-update ang Staff',
     'create_staff_description' => 'Gumawa ng bagong staff member na may kumpletong impormasyon at permissions',
     'update_staff_description' => 'I-update ang impormasyon at permissions ng staff member',
     'back_to_staff' => 'Bumalik sa Staff',
@@ -30,7 +31,11 @@ return [
     
     // Form Fields
     'name' => 'Pangalan',
+    'enter_name' => 'Ilagay ang buong pangalan',
     'email' => 'Email',
+    'enter_email' => 'Ilagay ang email address',
+    'checking_email' => 'Sinusuri ang email...',
+    'email_exists' => 'Ang email na ito ay nakarehistro na.',
     'password' => 'Password',
     'contact_number' => 'Contact Number',
     'street' => 'Street Address',

@@ -79,9 +79,15 @@ class MembershipController extends Controller
     public function checkDuplicateName(Request $request)
     {
         $name = $request->input('name');
-        $exists = User::where('type', 'member')
-            ->where('name', $name)
-            ->exists();
+        $excludeId = $request->input('exclude_id');
+        
+        $query = User::where('type', 'member')->where('name', $name);
+        
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
     }
@@ -89,7 +95,15 @@ class MembershipController extends Controller
     public function checkDuplicateContact(Request $request)
     {
         $contactNumber = $request->input('contact_number');
-        $exists = User::where('contact_number', $contactNumber)->exists();
+        $excludeId = $request->input('exclude_id');
+        
+        $query = User::where('contact_number', $contactNumber);
+        
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
     }

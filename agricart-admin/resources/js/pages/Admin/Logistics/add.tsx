@@ -1,22 +1,31 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
 import PasswordInput from '@/components/ui/password-input';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { OctagonAlert, IdCard } from 'lucide-react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
+import { useEffect, useState, useCallback } from 'react';
+import { 
+  User, 
+  Lock, 
+  Phone, 
+  MapPin, 
+  Calendar as CalendarIcon, 
+  CheckCircle, 
+  AlertCircle,
+  ArrowLeft,
+  Loader2,
+  Mail
+} from 'lucide-react';
 import { PermissionGuard } from '@/components/common/permission-guard';
-import * as React from "react"
-import { CalendarIcon } from "lucide-react"
-import { Calendar } from "@/components/ui/calendar"
-import { useEffect } from 'react';
-import { usePage } from '@inertiajs/react';
-import { router } from '@inertiajs/react';
+import { Calendar } from "@/components/ui/calendar";
 import { useTranslation } from '@/hooks/use-translation';
+import axios from 'axios';
+import * as React from "react";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -36,10 +45,49 @@ function isValidDate(date: Date | undefined) {
   return !isNaN(date.getTime())
 }
 
+// Validation functions
+const validatePassword = (password: string) => {
+  const minLength = password.length >= 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  
+  return {
+    isValid: minLength && hasUpperCase && hasLowerCase && hasNumber,
+    checks: {
+      minLength,
+      hasUpperCase,
+      hasLowerCase,
+      hasNumber
+    }
+  };
+};
+
+const validatePhoneNumber = (phone: string) => {
+  const philippineFormat = /^(\+639|09)\d{9}$/;
+  return philippineFormat.test(phone);
+};
+
+const validateEmail = (email: string) => {
+  const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailFormat.test(email);
+};
+
+const validateRequired = (value: string) => {
+  return value.trim().length > 0;
+};
+
 export default function Index() {
     const t = useTranslation();
     const today = new Date();
     const formattedToday = today.toISOString().split('T')[0];
+
+    const { auth } = usePage<SharedData>().props;
+    useEffect(() => {
+        if (!auth?.user) {
+            router.visit('/login');
+        }
+    }, [auth]);
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -53,17 +101,53 @@ export default function Index() {
         registration_date: formattedToday,
     });
 
-    const [open, setOpen] = React.useState(false)
-    const [date, setDate] = React.useState<Date>(today)
-    const [month, setMonth] = React.useState<Date>(today)
-    const [value, setValue] = React.useState(formatDate(today))
+    // Validation state
+    const [validation, setValidation] = useState({
+        password: validatePassword(data.password),
+        phone: validatePhoneNumber(data.contact_number),
+        email: validateEmail(data.email),
+        name: validateRequired(data.name),
+        street: validateRequired(data.street),
+        barangay: validateRequired(data.barangay),
+        city: validateRequired(data.city),
+        province: validateRequired(data.province),
+    });
 
-    const { auth } = usePage<SharedData>().props;
+    // Update validation when data changes
     useEffect(() => {
-        if (!auth?.user) {
-            router.visit('/login');
-        }
-    }, [auth]);
+        setValidation({
+            password: validatePassword(data.password),
+            phone: validatePhoneNumber(data.contact_number),
+            email: validateEmail(data.email),
+            name: validateRequired(data.name),
+            street: validateRequired(data.street),
+            barangay: validateRequired(data.barangay),
+            city: validateRequired(data.city),
+            province: validateRequired(data.province),
+        });
+    }, [data]);
+
+    // Handle name change with sanitization
+    const handleNameChange = (value: string) => {
+        const sanitizedValue = value.replace(/[^a-zA-Z\s\-'.]/g, '');
+        setData('name', sanitizedValue);
+    };
+
+    // Handle contact number change with sanitization
+    const handleContactChange = (value: string) => {
+        const sanitizedValue = value.replace(/[^0-9+]/g, '');
+        setData('contact_number', sanitizedValue);
+    };
+
+    // Check if form is valid
+    const isFormValid = validation.password.isValid && 
+                       validation.phone && 
+                       validation.email &&
+                       validation.name && 
+                       validation.street && 
+                       validation.barangay && 
+                       validation.city && 
+                       validation.province;
 
     const  handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,209 +165,387 @@ export default function Index() {
         >
             <AppLayout>
                 <Head title={t('admin.add_logistics_partner')} />
-                <div className="min-h-screen bg-background">
-                    <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
-                        {/* Header Section */}
-                        <div className="bg-gradient-to-br from-card to-[color-mix(in_srgb,var(--card)_95%,var(--primary)_5%)] border border-border rounded-[0.8rem] p-5 mb-2 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] flex flex-col gap-2">
-                            <div className="flex flex-col gap-2 mb-3 md:flex-row md:items-center md:justify-between">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <IdCard className="h-10 w-10 text-primary bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] p-2.5 rounded-lg" />
-                                        <div>
-                                            <h1 className="text-2xl font-bold text-foreground leading-tight m-0">{t('admin.add_logistics_partner')}</h1>
-                                            <p className="text-sm text-muted-foreground mt-0.5 mb-0 leading-snug">
-                                                {t('admin.logistic_management_description')}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap gap-2 items-center">
-                                    <Button asChild variant="outline" className="bg-background text-foreground border border-border px-6 py-3 rounded-lg font-medium transition-all hover:bg-muted hover:border-primary hover:-translate-y-0.5 hover:shadow-lg">
-                                        <Link href={route('logistics.index')}>
-                                            <IdCard className="h-4 w-4 mr-2" />
-                                            {t('ui.back')} {t('admin.logistics')}
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Form Section */}
-                        <div className="bg-card border border-border rounded-xl p-4 mb-4 shadow-sm">
-                            <div className="flex flex-col gap-2 mb-4 pb-3 border-b border-border md:flex-row md:items-center md:justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
-                                        <IdCard className="h-6 w-6" />
+                <div className="bg-background">
+                    <div className="w-full px-2 py-2 flex flex-col gap-2 sm:px-4 sm:py-4 lg:px-8">
+                        {/* Page Header */}
+                        <div className="mb-2 sm:mb-4">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                        <User className="h-6 w-6 text-primary" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.logistic_management')}</h2>
-                                        <p className="text-sm text-muted-foreground m-0">
-                                            {t('admin.register_new_logistic_partner')}
-                                        </p>
+                                        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('admin.add_logistics_partner')}</h1>
+                                        <p className="text-sm text-muted-foreground mt-1">{t('admin.logistic_management_description')}</p>
                                     </div>
                                 </div>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className='space-y-6'>
-
-                    {/* Display Error */}
-                    {Object.keys(errors).length > 0 && (
-                        <Alert>
-                            <OctagonAlert className='h-4 w-4' />
-                            <AlertTitle>{t('admin.error_title')}</AlertTitle>
-                            <AlertDescription>
-                                <ul>
-                                    {Object.entries(errors).map(([key, message]) => (
-                                        <li key={key}>{message as string}</li>
-                                    ))}
-                                </ul>
-                            </AlertDescription>
-                        </Alert>
-                    )}
-
-                    <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic name">{t('admin.logistic_name_label')}</Label>
-                        <Input 
-                            placeholder={t('admin.logistic_name_label')} 
-                            value={data.name} 
-                            onChange={(e) => {
-                                // Only allow alphabetic characters and spaces
-                                const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
-                                setData('name', value);
-                            }} 
-                        />
-                    </div>
-                    <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic email">{t('admin.logistic_email_label')}</Label>
-                        <Input placeholder={t('admin.email_address')} value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                    </div>
-                    <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic password">{t('admin.password')}</Label>
-                        <PasswordInput 
-                            placeholder={t('admin.password')} 
-                            value={data.password} 
-                            onChange={(e) => setData('password', e.target.value)} 
-                        />
-                    </div>
-                    <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="logistic contact_number">{t('admin.logistic_contact_number_label')}</Label>
-                        <Input 
-                            type="tel"
-                            placeholder={t('admin.philippine_format_only')} 
-                            value={data.contact_number} 
-                            onChange={(e) => setData('contact_number', e.target.value)} 
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            {t('admin.format_hint')}
-                        </p>
-                    </div>
-                    {/* Address Fields */}
-                    <div className="space-y-4">
-                        <Label className="text-base font-medium">{t('admin.address_information')}</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="street">{t('admin.street')}</Label>
-                                <Input 
-                                    placeholder={t('admin.street')} 
-                                    value={data.street} 
-                                    onChange={(e) => setData('street', e.target.value)} 
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="barangay">{t('admin.barangay')}</Label>
-                                <Input 
-                                    placeholder={t('admin.barangay')} 
-                                    value={data.barangay} 
-                                    onChange={(e) => setData('barangay', e.target.value)} 
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="city">{t('admin.city')}</Label>
-                                <Input 
-                                    placeholder={t('admin.city')} 
-                                    value={data.city} 
-                                    onChange={(e) => setData('city', e.target.value)} 
-                                />
-                            </div>
-                            <div className='flex flex-col gap-1.5'>
-                                <Label htmlFor="province">{t('admin.province')}</Label>
-                                <Input 
-                                    placeholder={t('admin.province')} 
-                                    value={data.province} 
-                                    onChange={(e) => setData('province', e.target.value)} 
-                                />
+                                {/* Mobile: Icon only */}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    asChild
+                                    className="sm:hidden"
+                                >
+                                    <Link href={route('logistics.index')}>
+                                        <ArrowLeft className="h-4 w-4" />
+                                    </Link>
+                                </Button>
+                                {/* Desktop: Full button with text */}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    className="hidden sm:flex items-center gap-2"
+                                >
+                                    <Link href={route('logistics.index')}>
+                                        <ArrowLeft className="h-4 w-4" />
+                                        {t('ui.back')} {t('admin.logistics')}
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
-                    </div>
-                    <div className='flex flex-col gap-1.5'>
-                        <Label htmlFor="registration date">{t('admin.registration_date_label')}</Label>
-                        <div className="flex flex-col gap-2">
-                            <div className="relative flex gap-2">
-                                <Input
-                                    id="date"
-                                    value={value}
-                                    placeholder={t('admin.date_placeholder')}
-                                    className="bg-background pr-10"
-                                    onChange={(e) => {
-                                        setValue(e.target.value);
-                                        const date = new Date(e.target.value);
-                                        if (isValidDate(date)) {
-                                            setDate(date);
-                                            setMonth(date);
-                                            setData('registration_date', date.toISOString().split('T')[0]); // set as YYYY-MM-DD
-                                        } else {
-                                            setData('registration_date', '');
-                                        }
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "ArrowDown") {
-                                            e.preventDefault();
-                                            setOpen(true);
-                                        }
-                                    }}
-                                />
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button id="date-picker" variant="ghost" className="absolute top-1/2 right-2 size-6 -translate-y-1/2" >
-                                            <CalendarIcon className="size-3.5" />
-                                            <span className="sr-only">{t('admin.select_date')}</span>
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
-                                        <Calendar
-                                            mode="single"
-                                            selected={date}
-                                            captionLayout="dropdown"
-                                            month={month}
-                                            onMonthChange={setMonth}
-                                            onSelect={(newDate) => {
-                                                if (newDate) {
-                                                    setDate(newDate);
-                                                    const formatted = formatDate(newDate);
-                                                    setValue(formatted);
-                                                    setOpen(false);
-                                                    setData('registration_date', newDate.toISOString().split('T')[0]);
-                                                }
-                                            }}
-                                            defaultMonth={new Date()}
+
+                        <form onSubmit={handleSubmit} className='space-y-3'>
+
+                            {/* Display Error */}
+                            {Object.keys(errors).length > 0 && (
+                                <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+                                    <AlertCircle className='h-4 w-4' />
+                                    <AlertTitle>{t('admin.error_title')}</AlertTitle>
+                                    <AlertDescription>
+                                        <ul className="list-disc pl-4 space-y-1">
+                                            {Object.entries(errors).map(([key, message]) => (
+                                                <li key={key} className="text-sm">{message as string}</li>
+                                            ))}
+                                        </ul>
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {/* Basic Information Card */}
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg">{t('admin.product_information')}</CardTitle>
+                                    <CardDescription>{t('admin.fill_product_details')}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="name" className="text-sm font-medium">
+                                            {t('admin.logistic_name_label')} <span className="text-destructive">*</span>
+                                            {validation.name ? (
+                                                <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                            ) : (
+                                                <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                            )}
+                                        </Label>
+                                        <Input 
+                                            id="name"
+                                            placeholder={t('admin.logistic_name_label')} 
+                                            value={data.name} 
+                                            onChange={(e) => handleNameChange(e.target.value)}
+                                            className={validation.name ? 'border-green-500' : errors.name ? 'border-red-500' : ''}
+                                            required
                                         />
-                                    </PopoverContent>
-                                </Popover>
+                                        {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                                    </div>
+
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="email" className="text-sm font-medium">
+                                            <Mail className="h-4 w-4 inline mr-1" />
+                                            {t('admin.logistic_email_label')} <span className="text-destructive">*</span>
+                                            {validation.email ? (
+                                                <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                            ) : (
+                                                <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                            )}
+                                        </Label>
+                                        <Input 
+                                            id="email"
+                                            type="email"
+                                            placeholder={t('admin.email_address')} 
+                                            value={data.email} 
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            className={validation.email ? 'border-green-500' : errors.email ? 'border-red-500' : ''}
+                                            required
+                                        />
+                                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                                    </div>
+
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="password" className="text-sm font-medium">
+                                            <Lock className="h-4 w-4 inline mr-1" />
+                                            {t('admin.password')} <span className="text-destructive">*</span>
+                                            {validation.password.isValid ? (
+                                                <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                            ) : data.password ? (
+                                                <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                            ) : null}
+                                        </Label>
+                                        <PasswordInput 
+                                            id="password"
+                                            placeholder={t('admin.create_secure_password')} 
+                                            value={data.password} 
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            className={validation.password.isValid ? 'border-green-500' : errors.password ? 'border-red-500' : ''}
+                                            required
+                                        />
+                                        {data.password && (
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    {validation.password.checks.minLength ? (
+                                                        <CheckCircle className="h-3 w-3 text-green-500" />
+                                                    ) : (
+                                                        <AlertCircle className="h-3 w-3 text-red-500" />
+                                                    )}
+                                                    <span className={validation.password.checks.minLength ? 'text-green-600' : 'text-red-600'}>
+                                                        {t('admin.at_least_8_characters')}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    {validation.password.checks.hasUpperCase ? (
+                                                        <CheckCircle className="h-3 w-3 text-green-500" />
+                                                    ) : (
+                                                        <AlertCircle className="h-3 w-3 text-red-500" />
+                                                    )}
+                                                    <span className={validation.password.checks.hasUpperCase ? 'text-green-600' : 'text-red-600'}>
+                                                        {t('admin.one_uppercase_letter')}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    {validation.password.checks.hasLowerCase ? (
+                                                        <CheckCircle className="h-3 w-3 text-green-500" />
+                                                    ) : (
+                                                        <AlertCircle className="h-3 w-3 text-red-500" />
+                                                    )}
+                                                    <span className={validation.password.checks.hasLowerCase ? 'text-green-600' : 'text-red-600'}>
+                                                        {t('admin.one_lowercase_letter')}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs">
+                                                    {validation.password.checks.hasNumber ? (
+                                                        <CheckCircle className="h-3 w-3 text-green-500" />
+                                                    ) : (
+                                                        <AlertCircle className="h-3 w-3 text-red-500" />
+                                                    )}
+                                                    <span className={validation.password.checks.hasNumber ? 'text-green-600' : 'text-red-600'}>
+                                                        {t('admin.one_number')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                                    </div>
+
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="contact_number" className="text-sm font-medium">
+                                            <Phone className="h-4 w-4 inline mr-1" />
+                                            {t('admin.logistic_contact_number_label')} <span className="text-destructive">*</span>
+                                            {validation.phone ? (
+                                                <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                            ) : data.contact_number ? (
+                                                <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                            ) : null}
+                                        </Label>
+                                        <Input 
+                                            id="contact_number"
+                                            type="tel"
+                                            placeholder={t('admin.philippine_format_only')} 
+                                            value={data.contact_number} 
+                                            onChange={(e) => handleContactChange(e.target.value)}
+                                            className={validation.phone ? 'border-green-500' : errors.contact_number ? 'border-red-500' : ''}
+                                            required
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('admin.format_hint')}
+                                        </p>
+                                        {errors.contact_number && <p className="text-sm text-red-500">{errors.contact_number}</p>}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            {/* Address Information Card */}
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <MapPin className="h-5 w-5" />
+                                        {t('admin.address_information')}
+                                    </CardTitle>
+                                    <CardDescription>{t('admin.enter_member_address_details')}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="street" className="text-sm font-medium">
+                                                {t('admin.street')} <span className="text-destructive">*</span>
+                                                {validation.street ? (
+                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                                ) : (
+                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                                )}
+                                            </Label>
+                                            <Input 
+                                                id="street"
+                                                placeholder={t('admin.street')} 
+                                                value={data.street} 
+                                                onChange={(e) => setData('street', e.target.value)}
+                                                className={validation.street ? 'border-green-500' : errors.street ? 'border-red-500' : ''}
+                                                required
+                                            />
+                                            {errors.street && <p className="text-sm text-red-500">{errors.street}</p>}
+                                        </div>
+
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="barangay" className="text-sm font-medium">
+                                                {t('admin.barangay')} <span className="text-destructive">*</span>
+                                                {validation.barangay ? (
+                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                                ) : (
+                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                                )}
+                                            </Label>
+                                            <Input 
+                                                id="barangay"
+                                                placeholder={t('admin.barangay')} 
+                                                value={data.barangay} 
+                                                onChange={(e) => setData('barangay', e.target.value)}
+                                                className={validation.barangay ? 'border-green-500' : errors.barangay ? 'border-red-500' : ''}
+                                                required
+                                            />
+                                            {errors.barangay && <p className="text-sm text-red-500">{errors.barangay}</p>}
+                                        </div>
+
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="city" className="text-sm font-medium">
+                                                {t('admin.city')} <span className="text-destructive">*</span>
+                                                {validation.city ? (
+                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                                ) : (
+                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                                )}
+                                            </Label>
+                                            <Input 
+                                                id="city"
+                                                placeholder={t('admin.city')} 
+                                                value={data.city} 
+                                                onChange={(e) => setData('city', e.target.value)}
+                                                className={validation.city ? 'border-green-500' : errors.city ? 'border-red-500' : ''}
+                                                required
+                                            />
+                                            {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
+                                        </div>
+
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="province" className="text-sm font-medium">
+                                                {t('admin.province')} <span className="text-destructive">*</span>
+                                                {validation.province ? (
+                                                    <CheckCircle className="h-4 w-4 text-green-500 inline ml-2" />
+                                                ) : (
+                                                    <AlertCircle className="h-4 w-4 text-red-500 inline ml-2" />
+                                                )}
+                                            </Label>
+                                            <Input 
+                                                id="province"
+                                                placeholder={t('admin.province')} 
+                                                value={data.province} 
+                                                onChange={(e) => setData('province', e.target.value)}
+                                                className={validation.province ? 'border-green-500' : errors.province ? 'border-red-500' : ''}
+                                                required
+                                            />
+                                            {errors.province && <p className="text-sm text-red-500">{errors.province}</p>}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            {/* Registration Date Card */}
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <CalendarIcon className="h-5 w-5" />
+                                        {t('admin.registration_date')}
+                                    </CardTitle>
+                                    <CardDescription>{t('admin.set_registration_date_upload_documents')}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="registration_date" className="text-sm font-medium">{t('admin.registration_date_label')}</Label>
+                                        <div className="relative">
+                                            {(() => {
+                                                const [date, setDate] = React.useState<Date>(today);
+                                                const [value, setValue] = React.useState<string>(formatDate(today));
+                                                const [month, setMonth] = React.useState<Date>(today);
+                                                const [open, setOpen] = React.useState(false);
+
+                                                return (
+                                                    <>
+                                                        <Input
+                                                            id="date"
+                                                            value={value}
+                                                            placeholder={t('admin.date_placeholder')}
+                                                            className="bg-background pr-10"
+                                                            onChange={(e) => {
+                                                                setValue(e.target.value);
+                                                                const date = new Date(e.target.value);
+                                                                if (isValidDate(date)) {
+                                                                    setDate(date);
+                                                                    setMonth(date);
+                                                                    setData('registration_date', date.toISOString().split('T')[0]);
+                                                                } else {
+                                                                    setData('registration_date', '');
+                                                                }
+                                                            }}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "ArrowDown") {
+                                                                    e.preventDefault();
+                                                                    setOpen(true);
+                                                                }
+                                                            }}
+                                                        />
+                                                        <Popover open={open} onOpenChange={setOpen}>
+                                                            <PopoverTrigger asChild>
+                                                                <Button id="date-picker" variant="ghost" className="absolute top-1/2 right-2 size-6 -translate-y-1/2" >
+                                                                    <CalendarIcon className="size-3.5" />
+                                                                    <span className="sr-only">{t('admin.select_date')}</span>
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto overflow-hidden p-0" align="end" alignOffset={-8} sideOffset={10}>
+                                                                <Calendar
+                                                                    mode="single"
+                                                                    selected={date}
+                                                                    captionLayout="dropdown"
+                                                                    month={month}
+                                                                    onMonthChange={setMonth}
+                                                                    onSelect={(newDate) => {
+                                                                        if (newDate) {
+                                                                            setDate(newDate);
+                                                                            const formatted = formatDate(newDate);
+                                                                            setValue(formatted);
+                                                                            setOpen(false);
+                                                                            setData('registration_date', newDate.toISOString().split('T')[0]);
+                                                                        }
+                                                                    }}
+                                                                    defaultMonth={new Date()}
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </>
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Submit Button */}
+                            <div className="flex justify-end gap-3">
+                                <Button 
+                                    disabled={processing || !isFormValid} 
+                                    type="submit"
+                                >
+                                    {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                    {processing ? t('admin.adding') : t('admin.add_logistics_partner')}
+                                </Button>
                             </div>
-                        </div>
-                    </div>
-                                <div className="flex justify-end">
-                                    <Button 
-                                        disabled={processing} 
-                                        type="submit" 
-                                        className="bg-primary text-primary-foreground border-0 px-5 py-2.5 rounded-md font-semibold transition-all duration-200 shadow-sm hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md"
-                                    >
-                                        <IdCard className="h-4 w-4 mr-2" />
-                                        {processing ? t('admin.adding') : t('admin.add_logistics_partner')}
-                                    </Button>
-                                </div>
-                            </form>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </AppLayout>
