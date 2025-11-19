@@ -63,7 +63,6 @@ export default function LogisticReport({ logistics, summary, filters }: ReportPa
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const breadcrumbs = [
-    { title: t('admin.dashboard'), href: route('admin.dashboard') },
     { title: t('admin.logistics'), href: route('logistics.index') },
     { title: t('admin.logistics_report'), href: route('logistics.report') },
   ];
