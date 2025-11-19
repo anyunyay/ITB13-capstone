@@ -106,16 +106,16 @@ export default function OrdersIndex({ orders, allOrders, currentStatus, highligh
           comparison = a.id - b.id;
           break;
         case 'customer':
-          comparison = a.customer.name.localeCompare(b.customer.name);
+          comparison = (a.customer?.name || '').localeCompare(b.customer?.name || '');
           break;
         case 'total_amount':
           comparison = a.total_amount - b.total_amount;
           break;
         case 'status':
-          comparison = a.status.localeCompare(b.status);
+          comparison = (a.status || '').localeCompare(b.status || '');
           break;
         case 'delivery_status':
-          comparison = a.delivery_status.localeCompare(b.delivery_status);
+          comparison = (a.delivery_status || '').localeCompare(b.delivery_status || '');
           break;
         case 'created_at':
           comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
