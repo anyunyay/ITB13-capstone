@@ -82,16 +82,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     return (
         <>
-            <AuthLayout 
-                title="Customer Login" 
-                description="Welcome back! Sign in to your customer account"
+            <AuthLayout
+                description="Welcome back! Sign in to your account"
                 imageUrl="/images/frontpage/Regis.jpg"
                 imagePosition="left"
                 icon={<User />}
                 iconBgColor="bg-primary/10"
                 iconColor="text-primary"
             >
-                <Head title="Customer Login" />
+                <Head title="Login" />
 
             <form className="flex flex-col gap-4 sm:gap-6" onSubmit={submit}>
                 <div className="grid gap-4 sm:gap-6">
@@ -111,59 +110,59 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <InputError message={errors.email && !errors.email.includes('deactivated') ? errors.email : undefined} />
                     </div>
 
-                    <div className="grid gap-2">
-                        <div className="flex items-center">
-                            <Label htmlFor="password">Password</Label>
-                            {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                    Forgot password?
-                                </TextLink>
-                            )}
+                        <div className="grid gap-2">
+                            <div className="flex items-center">
+                                <Label htmlFor="password">Password</Label>
+                                {canResetPassword && (
+                                    <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
+                                        Forgot password?
+                                    </TextLink>
+                                )}
+                            </div>
+                            <PasswordInput
+                                id="password"
+                                required
+                                tabIndex={2}
+                                autoComplete="current-password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                placeholder="Password"
+                            />
+                            <InputError message={errors.password} />
                         </div>
-                        <PasswordInput
-                            id="password"
-                            required
-                            tabIndex={2}
-                            autoComplete="current-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Password"
-                        />
-                        <InputError message={errors.password} />
-                    </div>
 
-                    <div className="flex items-center space-x-3">
-                        <Checkbox
-                            id="remember"
-                            name="remember"
-                            checked={data.remember}
-                            onClick={() => setData('remember', !data.remember)}
-                            tabIndex={3}
-                        />
-                        <Label htmlFor="remember">Remember me</Label>
-                    </div>
+                        <div className="flex items-center space-x-3">
+                            <Checkbox
+                                id="remember"
+                                name="remember"
+                                checked={data.remember}
+                                onClick={() => setData('remember', !data.remember)}
+                                tabIndex={3}
+                            />
+                            <Label htmlFor="remember">Remember me</Label>
+                        </div>
 
-                    <Button 
-                        type="submit" 
-                        className="mt-4 w-full" 
-                        tabIndex={4} 
-                        disabled={processing || lockoutStatus?.locked}
-                    >
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        {lockoutStatus?.locked ? (
-                            <>
-                                Try again in{' '}
-                                <CountdownTimer 
-                                    lockExpiresAt={lockoutStatus.lock_expires_at}
-                                    serverTime={lockoutStatus.server_time}
-                                    className="text-black font-bold"
-                                />
-                            </>
-                        ) : (
-                            'Log in'
-                        )}
-                    </Button>
-                </div>
+                        <Button
+                            type="submit"
+                            className="mt-4 w-full"
+                            tabIndex={4}
+                            disabled={processing || lockoutStatus?.locked}
+                        >
+                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                            {lockoutStatus?.locked ? (
+                                <>
+                                    Try again in{' '}
+                                    <CountdownTimer
+                                        lockExpiresAt={lockoutStatus.lock_expires_at}
+                                        serverTime={lockoutStatus.server_time}
+                                        className="text-black font-bold"
+                                    />
+                                </>
+                            ) : (
+                                'Log in'
+                            )}
+                        </Button>
+                    </div>
 
                 <div className="text-center text-xs sm:text-sm text-gray-600">
                     <p className="mb-2">Don't have an account?</p>
@@ -182,7 +181,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             forgot password
                         </TextLink>
                         {' '}or wait{' '}
-                        <CountdownTimer 
+                        <CountdownTimer
                             lockExpiresAt={lockoutStatus.lock_expires_at}
                             serverTime={lockoutStatus.server_time}
                             className="text-black font-bold"

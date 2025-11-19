@@ -2,7 +2,7 @@ import AuthCardLayout from '@/layouts/auth/auth-card-layout';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
-    title: string;
+    title?: string;
     description: string;
     imageUrl?: string;
     imagePosition?: 'left' | 'right';
