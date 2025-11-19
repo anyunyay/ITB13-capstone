@@ -65,6 +65,15 @@ export function TrendChart({
     const hasValidYearlySelection = timePeriod === 'yearly' && selectedYear !== undefined &&
         selectedYear <= dayjs().year() && selectedYear >= 2020;
 
+    // Show placeholder when no products are selected
+    if (selectedProducts.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-full text-gray-500">
+                <p>{t('admin.select_product_to_view_trends')}</p>
+            </div>
+        );
+    }
+
     const shouldShowChart = chartData.length > 0 && (
         hasValidSpecificDates ||
         hasValidMonthlySelection ||
