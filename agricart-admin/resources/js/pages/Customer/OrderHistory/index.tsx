@@ -838,59 +838,128 @@ export default function History({ orders, currentStatus, currentDeliveryStatus, 
 
         {/* Receipt Preview Modal */}
         {selectedOrderForReceipt && (
-          <Dialog 
-            open={receiptModalOpen[selectedOrderForReceipt.id] || false} 
-            onOpenChange={(open) => {
-              if (!open) handleCloseReceiptModal(selectedOrderForReceipt.id);
-            }}
-          >
-            <DialogContent className="max-w-2xl w-[96vw] h-auto max-h-[96vh] sm:w-[85vw] sm:max-h-[90vh] p-0 gap-0">
-              <DialogHeader className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b bg-white sticky top-0 z-10 shrink-0">
-                <DialogTitle className="text-sm sm:text-base md:text-lg font-semibold flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
+          <>
+            <style>{`
+              @media print {
+                @page {
+                  size: auto;
+                  margin: 1cm;
+                }
+                
+                /* Hide everything except receipt */
+                body * {
+                  visibility: hidden !important;
+                }
+                
+                #customer-receipt-print-area,
+                #customer-receipt-print-area * {
+                  visibility: visible !important;
+                }
+                
+                /* Position receipt for printing */
+                #customer-receipt-print-area {
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                }
+                
+                /* Force color printing - critical for backgrounds */
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                }
+                
+                /* Ensure all styling is preserved */
+                #customer-receipt-print-area * {
+                  box-shadow: none !important;
+                }
+                
+                /* Prevent page breaks */
+                #customer-receipt-print-area,
+                #customer-receipt-print-area > div {
+                  page-break-before: avoid !important;
+                  page-break-after: avoid !important;
+                  page-break-inside: avoid !important;
+                  break-before: avoid !important;
+                  break-after: avoid !important;
+                  break-inside: avoid !important;
+                }
+                
+                /* Ensure rounded corners and borders print */
+                #customer-receipt-print-area .rounded-lg,
+                #customer-receipt-print-area .rounded-md,
+                #customer-receipt-print-area .rounded {
+                  border-radius: inherit !important;
+                }
+                
+                /* Ensure only one page */
+                html, body {
+                  height: auto !important;
+                  overflow: visible !important;
+                }
+              }
+            `}</style>
+            <Dialog 
+              open={receiptModalOpen[selectedOrderForReceipt.id] || false} 
+              onOpenChange={(open) => {
+                if (!open) handleCloseReceiptModal(selectedOrderForReceipt.id);
+              }}
+            >
+              <DialogContent className="max-w-lg w-[55vw] h-[90vh] sm:w-[50vw] sm:max-w-xl md:max-w-xl p-0 gap-0 flex flex-col overflow-hidden" hideCloseButton>
+                <DialogHeader className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b bg-white flex-shrink-0">
+                  <DialogTitle className="text-sm sm:text-base md:text-lg font-semibold flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Button
+                        onClick={() => handleCloseReceiptModal(selectedOrderForReceipt.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0 shrink-0"
+                      >
+                        <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </Button>
+                      <span className="truncate text-xs sm:text-sm md:text-base">📄 {t('customer.receipt_preview')} - #{selectedOrderForReceipt.id}</span>
+                    </div>
                     <Button
-                      onClick={() => handleCloseReceiptModal(selectedOrderForReceipt.id)}
-                      variant="ghost"
+                      onClick={() => window.print()}
+                      variant="default"
                       size="sm"
-                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 shrink-0"
+                      className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 whitespace-nowrap h-7 sm:h-8 shrink-0"
                     >
-                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      {t('customer.print')}
                     </Button>
-                    <span className="truncate text-xs sm:text-sm md:text-base">📄 {t('customer.receipt_preview')} - #{selectedOrderForReceipt.id}</span>
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 min-h-0">
+                  <div className="p-2 sm:p-4 md:p-6">
+                    <div id="customer-receipt-print-area">
+                      <OrderReceiptPreview 
+                        order={{
+                          ...selectedOrderForReceipt,
+                          updated_at: selectedOrderForReceipt.delivered_at || selectedOrderForReceipt.created_at,
+                          customer: {
+                            name: page.props.auth?.user?.name || '',
+                            email: page.props.auth?.user?.email || '',
+                            contact_number: page.props.auth?.user?.contact_number,
+                            address: page.props.auth?.user?.address,
+                            barangay: page.props.auth?.user?.barangay,
+                            city: page.props.auth?.user?.city,
+                            province: page.props.auth?.user?.province,
+                          }
+                        }} 
+                      />
+                    </div>
                   </div>
-                  <Button
-                    onClick={() => window.print()}
-                    variant="default"
-                    size="sm"
-                    className="text-xs px-2 py-1 sm:px-3 sm:py-1.5 whitespace-nowrap h-7 sm:h-8 shrink-0"
-                  >
-                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    {t('customer.print')}
-                  </Button>
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0">
-                <div className="p-2 sm:p-4 md:p-6">
-                  <OrderReceiptPreview 
-                    order={{
-                      ...selectedOrderForReceipt,
-                      updated_at: selectedOrderForReceipt.delivered_at || selectedOrderForReceipt.created_at,
-                      customer: {
-                        name: page.props.auth?.user?.name || '',
-                        email: page.props.auth?.user?.email || '',
-                        contact_number: page.props.auth?.user?.contact_number,
-                        address: page.props.auth?.user?.address,
-                        barangay: page.props.auth?.user?.barangay,
-                        city: page.props.auth?.user?.city,
-                        province: page.props.auth?.user?.province,
-                      }
-                    }} 
-                  />
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </>
         )}
       </main>
     </AppHeaderLayout>
