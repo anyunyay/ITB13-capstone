@@ -1269,6 +1269,7 @@ return [
     'register_new_logistic_partner' => 'Mag-rehistro ng bagong logistik na may kumpletong impormasyon',
     'logistics_directory' => 'Direktoryo ng Logistik',
     'viewing_deactivated_logistics' => 'Tinitingnan ang mga na-deactivate na logistik',
+    'viewing_deactivated_staff' => 'Tinitingnan ang mga na-deactivate na staff',
     'manage_and_view_all_logistics' => 'Pamahalaan at tingnan ang lahat ng nakarehistrong logistik',
     'hide_search' => 'Itago ang Search',
     'view_deactivated' => 'Tingnan ang Na-deactivate',

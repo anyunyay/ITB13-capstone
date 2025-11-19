@@ -160,26 +160,6 @@ export const createStaffTableColumns = (
     )
   },
   {
-    key: 'status',
-    label: t('staff.status'),
-    sortable: true,
-    align: 'center',
-    maxWidth: '120px',
-    render: (staff) => (
-      <div className="flex justify-center">
-        {staff.active ? (
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-            {t('staff.active')}
-          </Badge>
-        ) : (
-          <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-            {t('staff.deactivated')}
-          </Badge>
-        )}
-      </div>
-    )
-  },
-  {
     key: 'created_at',
     label: t('staff.created'),
     sortable: true,
@@ -305,15 +285,6 @@ export const StaffMobileCard = ({ staff, t, processing, onDelete, onDeactivate, 
           <h3 className="font-semibold text-foreground">{staff.name}</h3>
           <p className="text-sm text-muted-foreground">ID: {staff.id}</p>
         </div>
-        {staff.active ? (
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-            {t('staff.active')}
-          </Badge>
-        ) : (
-          <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-            {t('staff.deactivated')}
-          </Badge>
-        )}
       </div>
 
       {/* Contact Info */}

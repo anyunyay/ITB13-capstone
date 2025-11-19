@@ -40,6 +40,7 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
   const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
+  const [showDeactivated, setShowDeactivated] = useState(false);
   const [showDeletionModal, setShowDeletionModal] = useState(false);
   const [showDeactivationModal, setShowDeactivationModal] = useState(false);
   const [showReactivationModal, setShowReactivationModal] = useState(false);
@@ -73,6 +74,11 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
   const filteredStaff = useMemo(() => {
     let filtered = staff.data;
 
+    // Apply active/deactivated filter
+    filtered = filtered.filter(member => 
+      showDeactivated ? !member.active : member.active
+    );
+
     // Apply category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(member => getStaffCategory(member) === selectedCategory);
@@ -88,7 +94,7 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
     }
 
     return filtered;
-  }, [staff.data, selectedCategory, searchTerm]);
+  }, [staff.data, selectedCategory, searchTerm, showDeactivated]);
 
   // Sort staff data (client-side)
   const sortedStaff = useMemo(() => {
@@ -309,6 +315,8 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
               setSortOrder={setSortOrder}
               showSearch={showSearch}
               setShowSearch={setShowSearch}
+              showDeactivated={showDeactivated}
+              setShowDeactivated={setShowDeactivated}
             />
 
             {/* Modals */}

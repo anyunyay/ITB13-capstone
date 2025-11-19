@@ -1230,6 +1230,7 @@ return [
     'register_new_logistic_partner' => 'Register a new logistics partner with complete information',
     'logistics_directory' => 'Logistics Directory',
     'viewing_deactivated_logistics' => 'Viewing deactivated logistics',
+    'viewing_deactivated_staff' => 'Viewing deactivated staff members',
     'manage_and_view_all_logistics' => 'Manage and view all registered logistics partners',
     'hide_search' => 'Hide Search',
     'view_deactivated' => 'View Deactivated',

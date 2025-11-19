@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UsersRound, Search, Filter } from 'lucide-react';
+import { UsersRound, Search, Filter, Eye, EyeOff } from 'lucide-react';
 import { PaginationControls } from '../inventory/pagination-controls';
 import { Staff } from '../../types/staff';
 import { useTranslation } from '@/hooks/use-translation';
@@ -34,6 +34,8 @@ interface StaffManagementProps {
     setSortOrder: (order: 'asc' | 'desc') => void;
     showSearch: boolean;
     setShowSearch: (show: boolean) => void;
+    showDeactivated: boolean;
+    setShowDeactivated: (show: boolean) => void;
 }
 
 export const StaffManagement = ({
@@ -59,7 +61,9 @@ export const StaffManagement = ({
     sortOrder,
     setSortOrder,
     showSearch,
-    setShowSearch
+    setShowSearch,
+    showDeactivated,
+    setShowDeactivated
 }: StaffManagementProps) => {
     const t = useTranslation();
     
@@ -88,7 +92,7 @@ export const StaffManagement = ({
                     <div>
                         <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('staff.staff_directory')}</h2>
                         <p className="text-sm text-muted-foreground m-0">
-                            {t('staff.staff_management_description')}
+                            {showDeactivated ? t('admin.viewing_deactivated_staff') : t('staff.staff_management_description')}
                         </p>
                     </div>
                 </div>
@@ -105,6 +109,23 @@ export const StaffManagement = ({
                     >
                         <Search className="h-4 w-4 mr-2" />
                         {showSearch ? t('ui.hide_search') : t('ui.search')}
+                    </Button>
+                    <Button
+                        variant={showDeactivated ? "default" : "outline"}
+                        onClick={() => setShowDeactivated(!showDeactivated)}
+                        className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                        {showDeactivated ? (
+                            <>
+                                <EyeOff className="h-4 w-4 mr-2" />
+                                {t('admin.hide_deactivated')}
+                            </>
+                        ) : (
+                            <>
+                                <Eye className="h-4 w-4 mr-2" />
+                                {t('admin.view_deactivated')}
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>
