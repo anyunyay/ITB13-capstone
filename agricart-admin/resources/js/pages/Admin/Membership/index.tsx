@@ -9,6 +9,7 @@ import { PasswordRequests } from '@/components/membership/password-requests';
 import { MemberManagement } from '@/components/membership/member-management';
 import { FlashMessages } from '@/components/membership/flash-messages';
 import { DeactivationModal } from '@/components/membership/deactivation-modal';
+import { MemberDeletionModal } from '@/components/membership/member-deletion-modal';
 import { PasswordApprovalModal } from '@/components/membership/password-approval-modal';
 import { PasswordRejectionModal } from '@/components/membership/password-rejection-modal';
 import { Member, PasswordChangeRequest, MemberStats } from '../../../types/membership';
@@ -32,6 +33,7 @@ export default function Index() {
     const [newRequest, setNewRequest] = useState<PasswordChangeRequest | null>(null);
     const [highlightMemberId, setHighlightMemberId] = useState<number | null>(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [showDeletionModal, setShowDeletionModal] = useState(false);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);
     const [showPasswordApprovalModal, setShowPasswordApprovalModal] = useState(false);
     const [showPasswordRejectionModal, setShowPasswordRejectionModal] = useState(false);
@@ -200,9 +202,24 @@ export default function Index() {
     };
 
     const handleDeleteMember = (member: Member) => {
-        if (confirm(t('admin.confirm_delete_member'))) {
-            destroy(route('membership.hard-delete', member.id));
+        setSelectedMember(member);
+        setShowDeletionModal(true);
+    };
+
+    const handleConfirmDeletion = () => {
+        if (selectedMember) {
+            destroy(route('membership.hard-delete', selectedMember.id), {
+                onSuccess: () => {
+                    setShowDeletionModal(false);
+                    setSelectedMember(null);
+                },
+            });
         }
+    };
+
+    const handleCancelDeletion = () => {
+        setShowDeletionModal(false);
+        setSelectedMember(null);
     };
 
     // Auto-refresh pending password requests via polling
@@ -321,6 +338,14 @@ export default function Index() {
                             onClose={() => setShowPasswordRejectionModal(false)}
                             selectedRequest={selectedPasswordRequest}
                             onConfirm={handleConfirmPasswordRejection}
+                            processing={processing}
+                        />
+
+                        <MemberDeletionModal
+                            isOpen={showDeletionModal}
+                            onClose={handleCancelDeletion}
+                            member={selectedMember}
+                            onConfirm={handleConfirmDeletion}
                             processing={processing}
                         />
                     </div>

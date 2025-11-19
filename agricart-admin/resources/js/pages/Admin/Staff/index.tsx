@@ -8,6 +8,7 @@ import { PermissionGate } from '@/components/common/permission-gate';
 import { FlashMessage } from '@/components/common/feedback/flash-message';
 import { StatsOverview } from '@/components/staff/stats-overview';
 import { StaffManagement } from '@/components/staff/staff-management';
+import { StaffDeletionModal } from '@/components/staff/staff-deletion-modal';
 import { Staff, StaffStats, StaffFilters, StaffPagination } from '@/types/staff';
 import { useState, useMemo } from 'react';
 import { route } from 'ziggy-js';
@@ -37,6 +38,8 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
   const [highlightStaffId, setHighlightStaffId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showSearch, setShowSearch] = useState(false);
+  const [showDeletionModal, setShowDeletionModal] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
 
   const itemsPerPage = 10;
 
@@ -140,11 +143,18 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
 
   // Handle staff deletion
   const handleDeleteStaff = (staffMember: Staff) => {
-    if (confirm(t('admin.confirm_delete_staff'))) {
+    setSelectedStaff(staffMember);
+    setShowDeletionModal(true);
+  };
+
+  const handleConfirmDeletion = () => {
+    if (selectedStaff) {
       setProcessing(true);
-      router.delete(route('staff.destroy', staffMember.id), {
+      router.delete(route('staff.destroy', selectedStaff.id), {
         onSuccess: () => {
           setProcessing(false);
+          setShowDeletionModal(false);
+          setSelectedStaff(null);
           setHighlightStaffId(null);
         },
         onError: () => {
@@ -152,6 +162,11 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
         },
       });
     }
+  };
+
+  const handleCancelDeletion = () => {
+    setShowDeletionModal(false);
+    setSelectedStaff(null);
   };
 
   // Handle staff deactivation
@@ -266,6 +281,15 @@ export default function StaffIndex({ staff, staffStats, filters, flash }: Props)
               setSortOrder={setSortOrder}
               showSearch={showSearch}
               setShowSearch={setShowSearch}
+            />
+
+            {/* Deletion Modal */}
+            <StaffDeletionModal
+              isOpen={showDeletionModal}
+              onClose={handleCancelDeletion}
+              staff={selectedStaff}
+              onConfirm={handleConfirmDeletion}
+              processing={processing}
             />
           </div>
         </div>

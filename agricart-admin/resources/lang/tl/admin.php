@@ -1476,4 +1476,19 @@ return [
     'no_changes' => 'Walang Pagbabago',
     'ready_to_submit' => 'Handa nang Isumite',
     'incomplete_form' => 'Hindi Kumpleto ang Form',
+
+    // Deletion Modals
+    'confirm_delete' => 'Kumpirmahin ang Pagtanggal',
+    'cannot_delete' => 'Hindi Maaaring Tanggalin',
+    'delete_staff_warning' => 'Sigurado ka bang gusto mong permanenteng tanggalin si :name? Hindi na ito maibabalik.',
+    'delete_member_warning' => 'Sigurado ka bang gusto mong permanenteng tanggalin si :name? Hindi na ito maibabalik.',
+    'delete_logistic_warning' => 'Sigurado ka bang gusto mong permanenteng tanggalin si :name? Hindi na ito maibabalik.',
+    'delete_action_permanent' => 'Ang aksyong ito ay permanente at hindi na maibabalik.',
+    'cannot_delete_has_linked_data' => 'Ang user na ito ay hindi maaaring tanggalin dahil may konektadong datos sa sistema.',
+    'please_deactivate_instead' => 'Mangyaring i-deactivate na lang ang user na ito upang mapanatili ang integridad ng datos.',
+    'confirm_delete_staff' => 'Sigurado ka bang gusto mong tanggalin ang staff member na ito?',
+    'confirm_delete_member' => 'Sigurado ka bang gusto mong tanggalin ang miyembro na ito?',
+    'confirm_delete_logistic' => 'Sigurado ka bang gusto mong tanggalin ang logistic na ito?',
+    'confirm_deactivate_staff' => 'Sigurado ka bang gusto mong i-deactivate ang staff member na ito?',
+    'confirm_reactivate_staff' => 'Sigurado ka bang gusto mong i-reactivate ang staff member na ito?',
 ];
