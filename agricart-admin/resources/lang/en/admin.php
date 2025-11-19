@@ -693,6 +693,10 @@ return [
     'logistic_contact_number_label' => 'Contact Number',
     'philippine_format_only' => '+63 9XX XXX XXXX (Philippine format only)',
     'format_hint' => 'Format: +639XXXXXXXXX or 09XXXXXXXXX',
+    'checking_email' => 'Checking email...',
+    'email_exists' => 'This email is already registered.',
+    'checking_contact_number' => 'Checking contact number...',
+    'contact_number_exists' => 'This contact number is already registered.',
     'registration_date_label' => 'Registration Date',
     'document_upload_label' => 'Document Upload',
 

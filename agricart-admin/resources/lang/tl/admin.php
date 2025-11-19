@@ -687,6 +687,10 @@ return [
     'logistic_contact_number_label' => 'Contact Number',
     'philippine_format_only' => '+63 9XX XXX XXXX (Format ng Pilipinas lamang)',
     'format_hint' => 'Format: +639XXXXXXXXX o 09XXXXXXXXX',
+    'checking_email' => 'Sinusuri ang email...',
+    'email_exists' => 'Ang email na ito ay nakarehistro na.',
+    'checking_contact_number' => 'Sinusuri ang contact number...',
+    'contact_number_exists' => 'Ang contact number na ito ay nakarehistro na.',
     'registration_date_label' => 'Petsa ng Rehistro',
     'document_upload_label' => 'Upload ng Dokumento',
 
