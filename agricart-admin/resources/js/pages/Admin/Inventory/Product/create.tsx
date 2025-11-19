@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { OctagonAlert, PackagePlus, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import axios from 'axios';
 
 export default function Create() {
     const t = useTranslation();
@@ -21,6 +22,8 @@ export default function Create() {
     }, [auth]);
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isDuplicateName, setIsDuplicateName] = useState(false);
+    const [isCheckingName, setIsCheckingName] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -58,10 +61,43 @@ export default function Create() {
         }
     }
 
+    // Debounced duplicate check
+    const checkDuplicateName = useCallback(
+        debounce(async (name: string) => {
+            if (!name.trim()) {
+                setIsDuplicateName(false);
+                setIsCheckingName(false);
+                return;
+            }
+
+            setIsCheckingName(true);
+            try {
+                const response = await axios.post(route('inventory.checkDuplicate'), { name });
+                setIsDuplicateName(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate name:', error);
+                setIsDuplicateName(false);
+            } finally {
+                setIsCheckingName(false);
+            }
+        }, 500),
+        []
+    );
+
+    // Handle name change with duplicate check
+    const handleNameChange = (value: string) => {
+        const sanitizedValue = value.replace(/[^a-zA-Z\s]/g, '');
+        setData('name', sanitizedValue);
+        checkDuplicateName(sanitizedValue);
+    };
+
     // Validation: Check if form has valid input
     const isFormValid = () => {
         // Name is required and must not be empty
         if (!data.name.trim()) return false;
+        
+        // Check if name is duplicate
+        if (isDuplicateName) return false;
         
         // Image is required
         if (!data.image) return false;
@@ -73,6 +109,22 @@ export default function Create() {
             (data.price_tali && parseFloat(data.price_tali) > 0);
         
         return hasValidPrice;
+    }
+
+    // Debounce utility function
+    function debounce<T extends (...args: any[]) => any>(
+        func: T,
+        wait: number
+    ): (...args: Parameters<T>) => void {
+        let timeout: NodeJS.Timeout;
+        return function executedFunction(...args: Parameters<T>) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 
     return (
@@ -150,13 +202,20 @@ export default function Create() {
                                                 id="product_name"
                                                 placeholder={t('admin.product_name_placeholder')}
                                                 value={data.name}
-                                                onChange={(e) => {
-                                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                                                    setData('name', value);
-                                                }}
-                                                className="w-full"
+                                                onChange={(e) => handleNameChange(e.target.value)}
+                                                className={`w-full ${isDuplicateName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                                                 required
                                             />
+                                            {isCheckingName && (
+                                                <p className="text-xs text-muted-foreground">
+                                                    {t('admin.checking_product_name') || 'Checking product name...'}
+                                                </p>
+                                            )}
+                                            {isDuplicateName && !isCheckingName && (
+                                                <p className="text-xs text-destructive">
+                                                    {t('admin.product_name_exists') || 'This product name already exists. Please use a different name.'}
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div className='space-y-2'>

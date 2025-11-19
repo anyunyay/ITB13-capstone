@@ -799,4 +799,30 @@ class InventoryController extends Controller
             ]);
         }
     }
+
+    /**
+     * Check if a product name already exists
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $name = $request->input('name');
+        $productId = $request->input('product_id'); // Optional: exclude current product when editing
+        
+        if (empty($name)) {
+            return response()->json(['exists' => false]);
+        }
+
+        // Check if product name exists (case-insensitive, active products only)
+        $query = Product::active()
+            ->whereRaw('LOWER(name) = ?', [strtolower(trim($name))]);
+
+        // Exclude current product if editing
+        if ($productId) {
+            $query->where('id', '!=', $productId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }

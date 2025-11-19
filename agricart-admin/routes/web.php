@@ -105,6 +105,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:create products'])->group(function () {
             Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create'); // Add Product (GET)
             Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store'); // Add Product (POST)
+            Route::post('/inventory/check-duplicate', [InventoryController::class, 'checkDuplicate'])->name('inventory.checkDuplicate'); // Check Duplicate Product Name
         });
         Route::middleware(['can:edit products'])->group(function () {
             Route::get('/inventory/{product}/edit', [InventoryController::class, 'edit'])->name('inventory.edit'); // Edit Product (GET)

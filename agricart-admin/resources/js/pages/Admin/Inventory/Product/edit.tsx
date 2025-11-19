@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { OctagonAlert, PackageOpen, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import axios from 'axios';
 
 interface Product {
     id: number;
@@ -32,6 +33,8 @@ export default function Edit({product}: Props) {
     const { auth } = usePage<SharedData>().props;
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isDuplicateName, setIsDuplicateName] = useState(false);
+    const [isCheckingName, setIsCheckingName] = useState(false);
     
     // Track initial values to detect changes
     const initialValues = {
@@ -108,6 +111,46 @@ export default function Edit({product}: Props) {
         });
     }
 
+    // Debounced duplicate check
+    const checkDuplicateName = useCallback(
+        debounce(async (name: string) => {
+            if (!name.trim()) {
+                setIsDuplicateName(false);
+                setIsCheckingName(false);
+                return;
+            }
+
+            // Don't check if name hasn't changed from original
+            if (name.trim().toLowerCase() === product.name.toLowerCase()) {
+                setIsDuplicateName(false);
+                setIsCheckingName(false);
+                return;
+            }
+
+            setIsCheckingName(true);
+            try {
+                const response = await axios.post(route('inventory.checkDuplicate'), { 
+                    name,
+                    product_id: product.id // Exclude current product from check
+                });
+                setIsDuplicateName(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate name:', error);
+                setIsDuplicateName(false);
+            } finally {
+                setIsCheckingName(false);
+            }
+        }, 500),
+        [product.id, product.name]
+    );
+
+    // Handle name change with duplicate check
+    const handleNameChange = (value: string) => {
+        const sanitizedValue = value.replace(/[^a-zA-Z\s]/g, '');
+        setData('name', sanitizedValue);
+        checkDuplicateName(sanitizedValue);
+    };
+
     // Prevent 'e', '+', '-' and other non-numeric characters in number inputs
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
@@ -119,6 +162,9 @@ export default function Edit({product}: Props) {
     const isFormValid = () => {
         // Name is required and must not be empty
         if (!data.name.trim()) return false;
+        
+        // Check if name is duplicate
+        if (isDuplicateName) return false;
         
         // At least one price must be provided and greater than 0
         const hasValidPrice = 
@@ -148,6 +194,22 @@ export default function Edit({product}: Props) {
     // Button should be enabled only if form is valid AND has changes
     const isUpdateEnabled = () => {
         return isFormValid() && hasChanges();
+    }
+
+    // Debounce utility function
+    function debounce<T extends (...args: any[]) => any>(
+        func: T,
+        wait: number
+    ): (...args: Parameters<T>) => void {
+        let timeout: NodeJS.Timeout;
+        return function executedFunction(...args: Parameters<T>) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 
     return (
@@ -227,13 +289,20 @@ export default function Edit({product}: Props) {
                                                 id="product_name"
                                                 placeholder={t('admin.product_name_placeholder')} 
                                                 value={data.name} 
-                                                onChange={(e) => {
-                                                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                                                    setData('name', value);
-                                                }}
-                                                className="w-full"
+                                                onChange={(e) => handleNameChange(e.target.value)}
+                                                className={`w-full ${isDuplicateName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                                                 required
                                             />
+                                            {isCheckingName && (
+                                                <p className="text-xs text-muted-foreground">
+                                                    {t('admin.checking_product_name') || 'Checking product name...'}
+                                                </p>
+                                            )}
+                                            {isDuplicateName && !isCheckingName && (
+                                                <p className="text-xs text-destructive">
+                                                    {t('admin.product_name_exists') || 'This product name already exists. Please use a different name.'}
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div className='space-y-2'>

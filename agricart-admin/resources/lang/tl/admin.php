@@ -1409,4 +1409,8 @@ return [
     'edit_product_description' => 'I-edit ang produkto',
     'update_product_details' => 'I-update ang mga detalye ng produkto sa ibaba',
     'updating' => 'Nag-uupdate...',
+
+    // Product Name Validation
+    'checking_product_name' => 'Sinusuri ang pangalan ng produkto...',
+    'product_name_exists' => 'Ang pangalan ng produktong ito ay umiiral na. Mangyaring gumamit ng ibang pangalan.',
 ];

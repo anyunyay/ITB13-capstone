@@ -1368,4 +1368,8 @@ return [
     'edit_product_description' => 'Edit product',
     'update_product_details' => 'Update the product details below',
     'updating' => 'Updating...',
+
+    // Product Name Validation
+    'checking_product_name' => 'Checking product name...',
+    'product_name_exists' => 'This product name already exists. Please use a different name.',
 ];
