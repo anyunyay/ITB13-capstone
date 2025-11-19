@@ -4,7 +4,7 @@ return [
     // Navigation & Pages
     'dashboard' => 'Dashboard',
     'inventory' => 'Inventory',
-    'orders' => 'Orders',
+    'orders_title' => 'Orders',
     'sales' => 'Sales',
     'members' => 'Members',
     'logistics' => 'Logistics',
