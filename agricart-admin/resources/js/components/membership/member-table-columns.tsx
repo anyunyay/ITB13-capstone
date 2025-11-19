@@ -1,6 +1,7 @@
 import { BaseTableColumn } from '@/components/common/base-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { Edit, UserMinus, RotateCcw, MapPin, Phone, Calendar, FileText } from 'lucide-react';
@@ -133,20 +134,33 @@ export const createMemberTableColumns = (
           </Button>
         </PermissionGate>
         {member.active ? (
-          member.can_be_deactivated && (
-            <PermissionGate permission="deactivate members">
-              <Button
-                disabled={processing}
-                onClick={() => onDeactivate(member)}
-                size="sm"
-                variant="destructive"
-                className="transition-all duration-200 hover:shadow-lg hover:opacity-90"
-              >
-                <UserMinus className="h-3 w-3 mr-1" />
-                {t('admin.deactivate')}
-              </Button>
-            </PermissionGate>
-          )
+          <PermissionGate permission="deactivate members">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      disabled={processing || !member.can_be_deactivated}
+                      onClick={() => onDeactivate(member)}
+                      size="sm"
+                      variant="destructive"
+                      className={`transition-all duration-200 hover:shadow-lg hover:opacity-90 ${
+                        !member.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <UserMinus className="h-3 w-3 mr-1" />
+                      {t('admin.deactivate')}
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                {!member.can_be_deactivated && member.deactivation_reason && (
+                  <TooltipContent>
+                    <p className="max-w-xs text-center">{member.deactivation_reason}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </PermissionGate>
         ) : (
           <PermissionGate permission="edit members">
             <Button
@@ -243,20 +257,33 @@ export const MemberMobileCard = ({
         </Button>
       </PermissionGate>
       {member.active ? (
-        member.can_be_deactivated && (
-          <PermissionGate permission="deactivate members">
-            <Button
-              disabled={processing}
-              onClick={() => onDeactivate(member)}
-              size="sm"
-              variant="destructive"
-              className="flex-1"
-            >
-              <UserMinus className="h-3 w-3 mr-1" />
-              {t('admin.deactivate')}
-            </Button>
-          </PermissionGate>
-        )
+        <PermissionGate permission="deactivate members">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1">
+                  <Button
+                    disabled={processing || !member.can_be_deactivated}
+                    onClick={() => onDeactivate(member)}
+                    size="sm"
+                    variant="destructive"
+                    className={`w-full ${
+                      !member.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <UserMinus className="h-3 w-3 mr-1" />
+                    {t('admin.deactivate')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!member.can_be_deactivated && member.deactivation_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{member.deactivation_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </PermissionGate>
       ) : (
         <PermissionGate permission="edit members">
           <Button

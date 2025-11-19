@@ -27,6 +27,15 @@ class MembershipController extends Controller
             ->limit(500) // Limit instead of paginate to maintain frontend compatibility
             ->get()
             ->map(function ($member) use ($fileService) {
+                // Check if member has active stocks
+                $hasActiveStocks = $member->hasActiveStocks();
+                $canBeDeactivated = $member->active && !$hasActiveStocks;
+                $deactivationReason = null;
+                
+                if ($member->active && $hasActiveStocks) {
+                    $deactivationReason = 'Cannot deactivate: Member has active stocks in the inventory.';
+                }
+                
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
@@ -44,9 +53,8 @@ class MembershipController extends Controller
                         'province' => $member->defaultAddress->province,
                         'full_address' => $member->defaultAddress->full_address,
                     ] : null,
-                    // Remove expensive stock checks from initial load
-                    'can_be_deactivated' => $member->active, // Check on demand
-                    'deactivation_reason' => null, // Check on demand
+                    'can_be_deactivated' => $canBeDeactivated,
+                    'deactivation_reason' => $deactivationReason,
                 ];
             });
 

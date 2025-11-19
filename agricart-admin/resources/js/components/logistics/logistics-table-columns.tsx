@@ -234,16 +234,31 @@ export const LogisticsMobileCard = ({
       </PermissionGate>
       {logistic.active ? (
         <PermissionGate permission="deactivate logistics">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDeactivate(logistic)}
-            disabled={processing || !logistic.can_be_deactivated}
-            className="flex-1"
-          >
-            <UserMinus className="h-4 w-4 mr-1" />
-            {t('admin.deactivate')}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDeactivate(logistic)}
+                    disabled={processing || !logistic.can_be_deactivated}
+                    className={`w-full ${
+                      !logistic.can_be_deactivated ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <UserMinus className="h-4 w-4 mr-1" />
+                    {t('admin.deactivate')}
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              {!logistic.can_be_deactivated && logistic.deactivation_reason && (
+                <TooltipContent>
+                  <p className="max-w-xs text-center">{logistic.deactivation_reason}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </PermissionGate>
       ) : (
         <PermissionGate permission="reactivate logistics">

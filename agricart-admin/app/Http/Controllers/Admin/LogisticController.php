@@ -21,6 +21,15 @@ class LogisticController extends Controller
             ->limit(200) // Limit instead of paginate to maintain frontend compatibility
             ->get()
             ->map(function ($logistic) {
+                // Check if logistic has pending orders
+                $hasPendingOrders = $logistic->hasPendingOrders();
+                $canBeDeactivated = $logistic->active && !$hasPendingOrders;
+                $deactivationReason = null;
+                
+                if ($logistic->active && $hasPendingOrders) {
+                    $deactivationReason = 'Cannot deactivate: Logistic has active deliveries (pending or out for delivery).';
+                }
+                
                 return [
                     'id' => $logistic->id,
                     'name' => $logistic->name,
@@ -37,9 +46,8 @@ class LogisticController extends Controller
                         'province' => $logistic->defaultAddress->province,
                         'full_address' => $logistic->defaultAddress->full_address,
                     ] : null,
-                    // Remove expensive order checks from initial load
-                    'can_be_deactivated' => $logistic->active, // Check on demand
-                    'deactivation_reason' => null, // Check on demand
+                    'can_be_deactivated' => $canBeDeactivated,
+                    'deactivation_reason' => $deactivationReason,
                 ];
             });
         return Inertia::render('Logistics/index', compact('logistics'));
