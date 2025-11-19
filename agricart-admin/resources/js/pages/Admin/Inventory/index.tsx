@@ -220,10 +220,10 @@ export default function InventoryIndex() {
             if (!matchesCategory) return false;
             
             // Status filter
-            if (status === 'all') return stock.quantity > 0; // Exclude sold-out items from All Stocks view
+            if (status === 'all') return true; // Show all stocks including out of stock
             if (status === 'available') return stock.quantity > 10;
             if (status === 'low') return stock.quantity > 0 && stock.quantity <= 10;
-            if (status === 'out') return stock.quantity === 0;
+            if (status === 'out') return Number(stock.quantity) === 0 || stock.quantity === 0;
             // Legacy category filtering (for backward compatibility)
             if (status === 'Kilo') return stock.category === 'Kilo';
             if (status === 'Pc') return stock.category === 'Pc';
@@ -246,6 +246,15 @@ export default function InventoryIndex() {
                     break;
                 case 'category':
                     comparison = (a.category || '').localeCompare(b.category || '');
+                    break;
+                case 'status':
+                    // Sort by status: available > low > out
+                    const getStatusValue = (stock: Stock) => {
+                        if (stock.quantity > 10) return 3; // available
+                        if (stock.quantity > 0) return 2; // low
+                        return 1; // out of stock
+                    };
+                    comparison = getStatusValue(a) - getStatusValue(b);
                     break;
                 default:
                     return a.id - b.id;

@@ -175,6 +175,7 @@ return [
     'no_prices_set' => 'Walang nakatakdang presyo',
     'no_stocks_found' => 'Walang nahanap na stock',
     'all_categories' => 'Lahat ng Kategorya',
+    'all_status' => 'Lahat ng Katayuan',
     'sort_by' => 'Ayusin ayon sa',
     'no_products_match_criteria' => 'Walang produkto na tumugma sa iyong pamantayan',
     'try_adjusting_search_filters' => 'Subukan na i-adjust ang iyong paghahanap o salain ang pamantayan ',
