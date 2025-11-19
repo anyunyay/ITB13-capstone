@@ -1,4 +1,3 @@
-import AppLogoIcon from '@/components/shared/layout/app-logo-icon';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -12,11 +11,11 @@ interface AuthCardLayoutProps {
     iconColor?: string;
 }
 
-export default function AuthCardLayout({ 
-    children, 
-    title, 
-    description, 
-    imageUrl, 
+export default function AuthCardLayout({
+    children,
+    title,
+    description,
+    imageUrl,
     imagePosition = 'left',
     icon,
     iconBgColor = 'bg-primary/10',
@@ -25,7 +24,7 @@ export default function AuthCardLayout({
     return (
         <div className="relative flex min-h-svh items-center justify-center p-2 sm:p-4">
             {/* Blurred Background Image */}
-            <div 
+            <div
                 className="absolute inset-0 auth-blur-background"
                 style={{
                     backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
@@ -35,10 +34,10 @@ export default function AuthCardLayout({
                     filter: 'blur(20px)'
                 }}
             />
-            
+
             {/* Overlay for better contrast */}
             <div className="absolute inset-0 bg-background/80 auth-blur-overlay" />
-            
+
             {/* Main Content */}
             <div className="relative z-10 w-full max-w-6xl">
                 <div className="grid min-h-[500px] sm:min-h-[600px] overflow-hidden rounded-lg sm:rounded-2xl bg-card shadow-2xl border border-border lg:grid-cols-2">
@@ -63,20 +62,21 @@ export default function AuthCardLayout({
                     <div className={`flex flex-col justify-center p-4 sm:p-6 lg:p-12 ${imagePosition === 'left' ? 'lg:order-2' : 'lg:order-1'}`}>
                         {/* Logo and Header */}
                         <div className="mb-6 sm:mb-8 text-center">
-                            <Link href={route('home')} className="mb-4 sm:mb-6 inline-block">
-                                <div className="flex items-center justify-center">
-                                    <AppLogoIcon className="h-10 w-10 sm:h-12 sm:w-12 fill-current text-foreground" />
+                            <Link href={route('home')} className="mb-1.5 sm:mb-2 inline-block">
+                                <div className="flex items-center justify-center gap-4">
+                                    <img
+                                        src="/storage/logo/SMMC Logo-1.webp"
+                                        alt="SMMC Logo"
+                                        className="h-28 w-28 sm:h-32 sm:w-32 object-contain"
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/storage/logo/SMMC Logo-1.png';
+                                        }}
+                                    />
+                                    <span className="text-6xl sm:text-7xl font-semibold text-green-700" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.08em' }}>
+                                        SMMC
+                                    </span>
                                 </div>
                             </Link>
-
-                            {/* Icon */}
-                            {icon && (
-                                <div className={`mx-auto mb-3 sm:mb-4 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full ${iconBgColor}`}>
-                                    <div className={`h-6 w-6 sm:h-8 sm:w-8 ${iconColor}`}>
-                                        {icon}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Title and Description */}
                             <div className="space-y-1 sm:space-y-2">
