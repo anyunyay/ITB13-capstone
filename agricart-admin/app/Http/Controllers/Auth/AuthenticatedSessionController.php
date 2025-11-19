@@ -412,6 +412,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         // Redirect to appropriate login page based on user type
-        return redirect($this->getCorrectLoginRoute($userType ?? 'customer'));
+        return redirect()->route($this->getCorrectLoginRoute($userType ?? 'customer'));
     }
 }
