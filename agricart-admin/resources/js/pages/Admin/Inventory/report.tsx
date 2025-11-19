@@ -39,7 +39,6 @@ export default function InventoryReport({ stocks, summary, members, productTypes
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const breadcrumbs = [
-    { title: t('admin.dashboard'), href: route('admin.dashboard') },
     { title: t('admin.inventory'), href: route('inventory.index') },
     { title: t('admin.inventory_report'), href: route('inventory.report') },
   ];
