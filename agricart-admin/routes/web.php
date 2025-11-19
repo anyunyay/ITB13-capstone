@@ -194,6 +194,8 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         Route::middleware(['can:create members'])->group(function () {
             Route::get('/membership/add', [MembershipController::class, 'add'])->name('membership.add'); // Add Member (GET)
             Route::post('/membership', [MembershipController::class, 'store'])->name('membership.store'); // Add Member (POST)
+            Route::post('/membership/check-duplicate-name', [MembershipController::class, 'checkDuplicateName'])->name('membership.checkDuplicateName'); // Check Duplicate Name
+            Route::post('/membership/check-duplicate-contact', [MembershipController::class, 'checkDuplicateContact'])->name('membership.checkDuplicateContact'); // Check Duplicate Contact
         });
         Route::middleware(['can:edit members'])->group(function () {
             Route::get('/membership/{member}/edit', [MembershipController::class, 'edit'])->name('membership.edit'); // Edit Member (GET)

@@ -10,7 +10,8 @@ import { FileUpload } from '@/components/ui/file-upload';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 import { 
     OctagonAlert, 
     User, 
@@ -73,6 +74,22 @@ const validateRequired = (value: string) => {
   return value.trim().length > 0;
 };
 
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: Parameters<T>) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 export default function Index() {
     const t = useTranslation();
     const today = new Date();
@@ -104,6 +121,12 @@ export default function Index() {
     const [month, setMonth] = useState<Date>(today)
     const [value, setValue] = useState(formatDate(today))
 
+    // Duplicate check states
+    const [isDuplicateName, setIsDuplicateName] = useState(false);
+    const [isCheckingName, setIsCheckingName] = useState(false);
+    const [isDuplicateContact, setIsDuplicateContact] = useState(false);
+    const [isCheckingContact, setIsCheckingContact] = useState(false);
+
     // Validation state
     const [validation, setValidation] = useState({
         password: validatePassword(data.password),
@@ -128,6 +151,68 @@ export default function Index() {
         });
     }, [data]);
 
+    // Debounced duplicate check for name
+    const checkDuplicateName = useCallback(
+        debounce(async (name: string) => {
+            if (!name.trim()) {
+                setIsDuplicateName(false);
+                setIsCheckingName(false);
+                return;
+            }
+
+            setIsCheckingName(true);
+            try {
+                const response = await axios.post(route('membership.checkDuplicateName'), { name });
+                setIsDuplicateName(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate name:', error);
+                setIsDuplicateName(false);
+            } finally {
+                setIsCheckingName(false);
+            }
+        }, 500),
+        []
+    );
+
+    // Debounced duplicate check for contact number
+    const checkDuplicateContact = useCallback(
+        debounce(async (contactNumber: string) => {
+            if (!contactNumber.trim()) {
+                setIsDuplicateContact(false);
+                setIsCheckingContact(false);
+                return;
+            }
+
+            setIsCheckingContact(true);
+            try {
+                const response = await axios.post(route('membership.checkDuplicateContact'), { contact_number: contactNumber });
+                setIsDuplicateContact(response.data.exists);
+            } catch (error) {
+                console.error('Error checking duplicate contact:', error);
+                setIsDuplicateContact(false);
+            } finally {
+                setIsCheckingContact(false);
+            }
+        }, 500),
+        []
+    );
+
+    // Handle name change with sanitization and duplicate check
+    const handleNameChange = (value: string) => {
+        // Allow letters, spaces, and common name characters (hyphens, apostrophes, periods)
+        const sanitizedValue = value.replace(/[^a-zA-Z\s\-'.]/g, '');
+        setData('name', sanitizedValue);
+        checkDuplicateName(sanitizedValue);
+    };
+
+    // Handle contact number change with sanitization and duplicate check
+    const handleContactChange = (value: string) => {
+        // Only allow numbers and + sign
+        const sanitizedValue = value.replace(/[^0-9+]/g, '');
+        setData('contact_number', sanitizedValue);
+        checkDuplicateContact(sanitizedValue);
+    };
+
     // Check if form is valid
     const isFormValid = validation.password.isValid && 
                        validation.phone && 
@@ -136,7 +221,11 @@ export default function Index() {
                        validation.barangay && 
                        validation.city && 
                        validation.province && 
-                       data.document;
+                       data.document &&
+                       !isDuplicateName &&
+                       !isDuplicateContact &&
+                       !isCheckingName &&
+                       !isCheckingContact;
 
     const handleDocumentUpload = (file: File | null) => {
         setData('document', file);
@@ -160,16 +249,41 @@ export default function Index() {
                 <Head title={t('admin.add_member')} />
                 <div className="w-full flex flex-col gap-2 px-4 py-4 sm:px-6 lg:px-8">
                     {/* Header */}
-                    <div className="flex items-center gap-2 mb-6">
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href={route('membership.index')}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                {t('admin.back_to_members')}
-                            </Link>
-                        </Button>
-                        <div>
-                            <h1 className="text-3xl font-bold">{t('admin.add_new_member')}</h1>
-                            <p className="text-muted-foreground">{t('admin.create_member_account')}</p>
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                    <User className="h-6 w-6 text-primary" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('admin.add_new_member')}</h1>
+                                    <p className="text-sm text-muted-foreground mt-1">{t('admin.create_member_account')}</p>
+                                </div>
+                            </div>
+                            {/* Mobile: Icon only */}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                asChild
+                                className="sm:hidden"
+                            >
+                                <Link href={route('membership.index')}>
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                            {/* Desktop: Full button with text */}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                asChild
+                                className="hidden sm:flex items-center gap-2"
+                            >
+                                <Link href={route('membership.index')}>
+                                    <ArrowLeft className="h-4 w-4" />
+                                    {t('admin.back_to_members')}
+                                </Link>
+                            </Button>
                         </div>
                     </div>
 
@@ -203,8 +317,8 @@ export default function Index() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="name" className="flex items-center gap-2">
-                                        {t('admin.full_name')}
-                                        {validation.name ? (
+                                        {t('admin.full_name')} <span className="text-destructive">*</span>
+                                        {validation.name && !isDuplicateName && !isCheckingName ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : (
                                             <AlertCircle className="h-4 w-4 text-red-500" />
@@ -214,9 +328,20 @@ export default function Index() {
                                         id="name"
                                         placeholder={t('admin.enter_full_name')}
                                         value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
-                                        className={validation.name ? 'border-green-500' : errors.name ? 'border-red-500' : ''}
+                                        onChange={(e) => handleNameChange(e.target.value)}
+                                        className={`${validation.name && !isDuplicateName ? 'border-green-500' : ''} ${isDuplicateName ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                                        required
                                     />
+                                    {isCheckingName && (
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('admin.checking_member_name') || 'Checking member name...'}
+                                        </p>
+                                    )}
+                                    {isDuplicateName && !isCheckingName && (
+                                        <p className="text-xs text-destructive">
+                                            {t('admin.member_name_exists') || 'This member name already exists. Please use a different name.'}
+                                        </p>
+                                    )}
                                     {errors.name && (
                                         <p className="text-sm text-red-500">{errors.name}</p>
                                     )}
@@ -291,8 +416,8 @@ export default function Index() {
                                 <div className="space-y-2">
                                     <Label htmlFor="contact_number" className="flex items-center gap-2">
                                         <Phone className="h-4 w-4" />
-                                        {t('admin.contact_number')}
-                                        {validation.phone ? (
+                                        {t('admin.contact_number')} <span className="text-destructive">*</span>
+                                        {validation.phone && !isDuplicateContact && !isCheckingContact ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : data.contact_number ? (
                                             <AlertCircle className="h-4 w-4 text-red-500" />
@@ -303,12 +428,23 @@ export default function Index() {
                                         type="tel"
                                         placeholder={t('admin.philippine_format_only')}
                                         value={data.contact_number}
-                                        onChange={(e) => setData('contact_number', e.target.value)}
-                                        className={validation.phone ? 'border-green-500' : errors.contact_number ? 'border-red-500' : ''}
+                                        onChange={(e) => handleContactChange(e.target.value)}
+                                        className={`${validation.phone && !isDuplicateContact ? 'border-green-500' : ''} ${isDuplicateContact ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                                        required
                                     />
                                     <p className="text-xs text-muted-foreground">
                                         {t('admin.format_hint')}
                                     </p>
+                                    {isCheckingContact && (
+                                        <p className="text-xs text-muted-foreground">
+                                            {t('admin.checking_contact_number') || 'Checking contact number...'}
+                                        </p>
+                                    )}
+                                    {isDuplicateContact && !isCheckingContact && (
+                                        <p className="text-xs text-destructive">
+                                            {t('admin.contact_number_exists') || 'This contact number is already registered. Please use a different number.'}
+                                        </p>
+                                    )}
                                     {errors.contact_number && (
                                         <p className="text-sm text-red-500">{errors.contact_number}</p>
                                     )}

@@ -76,6 +76,24 @@ class MembershipController extends Controller
         return Inertia::render('Admin/Membership/add', []);
     }
 
+    public function checkDuplicateName(Request $request)
+    {
+        $name = $request->input('name');
+        $exists = User::where('type', 'member')
+            ->where('name', $name)
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    public function checkDuplicateContact(Request $request)
+    {
+        $contactNumber = $request->input('contact_number');
+        $exists = User::where('contact_number', $contactNumber)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     public function store(Request $request, FileUploadService $fileService)
     {
         // Validate the request data
