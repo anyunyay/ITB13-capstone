@@ -88,7 +88,7 @@ export default function MemberLogin({ status, canResetPassword, restrictionPopup
             <AuthLayout 
                 title="Member Portal Access" 
                 description="Welcome back! Sign in to access your member benefits"
-                imageUrl="/images/frontpage/Regis.jpg"
+                imageUrl="/images/frontpage/Regis_Farmer.jpg"
                 imagePosition="left"
                 icon={<Users />}
                 iconBgColor="bg-accent/10"
