@@ -58,36 +58,6 @@ class StaffController extends Controller
                 $hasLinkedData = true;
                 $linkedDataReasons[] = "has processed {$processedOrdersCount} order(s)";
             }
-
-            // Check if staff has created any products
-            $createdProductsCount = \DB::table('products')
-                ->where('created_by', $staffMember->id)
-                ->count();
-            
-            if ($createdProductsCount > 0) {
-                $hasLinkedData = true;
-                $linkedDataReasons[] = "has created {$createdProductsCount} product(s)";
-            }
-
-            // Check if staff has created any stocks
-            $createdStocksCount = \DB::table('stocks')
-                ->where('created_by', $staffMember->id)
-                ->count();
-            
-            if ($createdStocksCount > 0) {
-                $hasLinkedData = true;
-                $linkedDataReasons[] = "has created {$createdStocksCount} stock(s)";
-            }
-
-            // Check if staff has any audit trail entries
-            $auditTrailCount = \DB::table('audit_trails')
-                ->where('user_id', $staffMember->id)
-                ->count();
-            
-            if ($auditTrailCount > 0) {
-                $hasLinkedData = true;
-                $linkedDataReasons[] = "has {$auditTrailCount} audit trail record(s)";
-            }
             
             $staffMember->can_be_deleted = !$hasLinkedData;
             $staffMember->deletion_reason = $hasLinkedData 
@@ -470,36 +440,6 @@ class StaffController extends Controller
         if ($processedOrdersCount > 0) {
             $hasLinkedData = true;
             $linkedDataReasons[] = "has processed {$processedOrdersCount} order(s)";
-        }
-
-        // Check if staff has created any products
-        $createdProductsCount = \DB::table('products')
-            ->where('created_by', $staff->id)
-            ->count();
-        
-        if ($createdProductsCount > 0) {
-            $hasLinkedData = true;
-            $linkedDataReasons[] = "has created {$createdProductsCount} product(s)";
-        }
-
-        // Check if staff has created any stocks
-        $createdStocksCount = \DB::table('stocks')
-            ->where('created_by', $staff->id)
-            ->count();
-        
-        if ($createdStocksCount > 0) {
-            $hasLinkedData = true;
-            $linkedDataReasons[] = "has created {$createdStocksCount} stock(s)";
-        }
-
-        // Check if staff has any audit trail entries
-        $auditTrailCount = \DB::table('audit_trails')
-            ->where('user_id', $staff->id)
-            ->count();
-        
-        if ($auditTrailCount > 0) {
-            $hasLinkedData = true;
-            $linkedDataReasons[] = "has {$auditTrailCount} audit trail record(s)";
         }
         
         if ($hasLinkedData) {
