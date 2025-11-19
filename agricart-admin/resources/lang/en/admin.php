@@ -598,6 +598,8 @@ return [
     'current_password' => 'Current Password',
     'new_password' => 'New Password',
     'confirm_password' => 'Confirm Password',
+    'leave_blank_to_keep' => 'leave blank to keep current',
+    'passwords_do_not_match' => 'Passwords do not match',
     'full_name' => 'Full name',
     'street' => 'Street',
     'barangay' => 'Barangay',

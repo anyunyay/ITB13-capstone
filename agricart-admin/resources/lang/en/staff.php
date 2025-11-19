@@ -19,6 +19,7 @@ return [
     'staff_directory' => 'Staff Directory',
     'add_staff_member' => 'Add Staff Member',
     'edit_staff_member' => 'Edit Staff Member',
+    'update_staff' => 'Update Staff',
     'create_staff_description' => 'Create a new staff member with complete information and permissions',
     'update_staff_description' => 'Update the staff member\'s information and permissions',
     'back_to_staff' => 'Back to Staff',
@@ -30,7 +31,11 @@ return [
     
     // Form Fields
     'name' => 'Name',
+    'enter_name' => 'Enter full name',
     'email' => 'Email',
+    'enter_email' => 'Enter email address',
+    'checking_email' => 'Checking email...',
+    'email_exists' => 'This email is already registered.',
     'password' => 'Password',
     'contact_number' => 'Contact Number',
     'street' => 'Street Address',

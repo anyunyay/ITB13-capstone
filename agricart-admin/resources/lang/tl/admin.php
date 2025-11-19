@@ -592,6 +592,8 @@ return [
     'current_password' => 'Kasalukuyang Password',
     'new_password' => 'Bagong Password',
     'confirm_password' => 'Kumpirmahin ang Password',
+    'leave_blank_to_keep' => 'iwanang blangko para panatilihin ang kasalukuyan',
+    'passwords_do_not_match' => 'Hindi tugma ang mga password',
     'full_name' => 'Buong pangalan',
     'street' => 'Kalsada',
     'barangay' => 'Barangay',

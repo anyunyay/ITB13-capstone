@@ -104,6 +104,38 @@ class StaffController extends Controller
         ]);
     }
 
+    public function checkDuplicateEmail(Request $request)
+    {
+        $email = $request->input('email');
+        $excludeId = $request->input('exclude_id');
+        
+        $query = User::where('email', $email);
+        
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    public function checkDuplicateContact(Request $request)
+    {
+        $contactNumber = $request->input('contact_number');
+        $excludeId = $request->input('exclude_id');
+        
+        $query = User::where('contact_number', $contactNumber);
+        
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     /**
      * Store a newly created staff member.
      */
