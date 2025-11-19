@@ -261,7 +261,7 @@ export const ProductManagement = ({
                         {currentView === 'cards' ? (
                             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
                                 {paginatedProducts?.map((product) => (
-                                    <Card key={product.id} className={`bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5 ${product.archived_at ? 'opacity-70 bg-[color-mix(in_srgb,var(--card)_90%,var(--muted)_10%)] border-[color-mix(in_srgb,var(--border)_80%,var(--muted)_20%)]' : ''}`}>
+                                    <Card key={product.id} className="bg-card border border-border rounded-lg shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full box-border hover:shadow-md hover:-translate-y-0.5">
                                         <div className="relative w-full h-44 overflow-hidden flex-shrink-0">
                                             <img
                                                 src={product.image_url || `/storage/products/${product.image}` || '/storage/fallback-photo.png'}
@@ -269,15 +269,17 @@ export const ProductManagement = ({
                                                 onError={(e) => handleImageError(e, product.name)}
                                                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                                             />
+                                            {product.archived_at && (
+                                                <div className="absolute top-2.5 left-2.5 z-10">
+                                                    <Badge variant="destructive" className="text-xs px-2.5 py-1.5 shadow-md">
+                                                        {t('admin.archived')}
+                                                    </Badge>
+                                                </div>
+                                            )}
                                             <div className="absolute top-2.5 right-2.5 z-10">
                                                 <Badge variant="secondary" className="inline-block px-2.5 py-1.5 text-xs font-semibold bg-secondary text-secondary-foreground rounded-full shadow-sm backdrop-blur-sm">
                                                     {product.produce_type}
                                                 </Badge>
-                                                {product.archived_at && (
-                                                    <Badge variant="destructive" className="ml-2 text-xs px-2 py-1">
-                                                        {t('admin.archived')}
-                                                    </Badge>
-                                                )}
                                             </div>
                                         </div>
 
@@ -287,6 +289,17 @@ export const ProductManagement = ({
                                                 <CardDescription className="text-sm text-muted-foreground line-clamp-3 leading-snug m-0 min-h-[3.5rem] text-ellipsis overflow-hidden">
                                                     {product.description}
                                                 </CardDescription>
+                                                {showArchived && product.archived_at && (
+                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-md border border-border/50">
+                                                        <Archive className="h-3 w-3 flex-shrink-0" />
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{t('admin.archived_on')}:</span>
+                                                            <span className="text-foreground">
+                                                                {new Date(product.archived_at).toLocaleDateString()} {new Date(product.archived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex flex-col gap-2 w-full">
@@ -331,16 +344,14 @@ export const ProductManagement = ({
                                             )}
 
                                             <div className="grid grid-cols-1 gap-2 w-full sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
-                                                {!product.archived_at && (
-                                                    <PermissionGate permission="edit products">
-                                                        <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
-                                                            <Link href={route('inventory.edit', product.id)}>
-                                                                <Edit className="h-4 w-4 flex-shrink-0" />
-                                                                {t('ui.edit')}
-                                                            </Link>
-                                                        </Button>
-                                                    </PermissionGate>
-                                                )}
+                                                <PermissionGate permission="edit products">
+                                                    <Button asChild disabled={processing} className="py-2 px-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-1 min-h-[2.625rem] w-full box-border overflow-hidden text-ellipsis whitespace-nowrap hover:-translate-y-0.5 hover:shadow-sm">
+                                                        <Link href={route('inventory.edit', product.id)}>
+                                                            <Edit className="h-4 w-4 flex-shrink-0" />
+                                                            {t('ui.edit')}
+                                                        </Link>
+                                                    </Button>
+                                                </PermissionGate>
 
                                                 {showArchived ? (
                                                     <PermissionGate permission="unarchive products">

@@ -47,6 +47,10 @@ export default function InventoryIndex() {
     const { products = [], archivedProducts = [], stocks = [], removedStocks = [], soldStocks = [], auditTrails = [], stockTrails = [], categories = [], members = [], availableCategories = [], errors = {} } = usePage<PageProps>().props;
     const { flash } = usePage<PageProps>().props;
 
+    // Check URL query parameters for view state
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+
     // Toggle state for switching between Product and Stock management
     const [activeTab, setActiveTab] = useState<'products' | 'stocks'>('products');
 
@@ -75,7 +79,7 @@ export default function InventoryIndex() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-    const [showArchived, setShowArchived] = useState(false);
+    const [showArchived, setShowArchived] = useState(viewParam === 'archived');
     const [showSearch, setShowSearch] = useState(false);
     
     // Stock search and filter state
@@ -186,6 +190,11 @@ export default function InventoryIndex() {
                     const priceA = a.price_kilo || a.price_pc || a.price_tali || 0;
                     const priceB = b.price_kilo || b.price_pc || b.price_tali || 0;
                     comparison = priceA - priceB;
+                    break;
+                case 'archived_at':
+                    const dateA = a.archived_at ? new Date(a.archived_at).getTime() : 0;
+                    const dateB = b.archived_at ? new Date(b.archived_at).getTime() : 0;
+                    comparison = dateA - dateB;
                     break;
                 default:
                     return 0;

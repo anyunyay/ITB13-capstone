@@ -1419,4 +1419,7 @@ return [
     'cannot_delete_product_has_stock' => 'Ang produkto ay may available na stock na hindi maaaring tanggalin.',
     'cannot_delete_product_has_sales' => 'Ang produkto ay may kasaysayan ng benta at hindi maaaring tanggalin.',
     'cannot_delete_product_in_carts' => 'Ang produkto ay nasa cart ng mga customer at hindi maaaring tanggalin.',
+
+    // Product Archive
+    'archived_on' => 'Naka-archive Noong',
 ];
