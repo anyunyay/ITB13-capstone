@@ -129,11 +129,13 @@ export const OrderManagement = ({
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
             <div className="mb-4 pb-3 border-b border-border">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-3">
-                        <Package className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-2 rounded-lg flex items-center justify-center flex-shrink-0" />
+                    <div className="flex items-center gap-4">
+                        <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary p-3 rounded-lg flex items-center justify-center">
+                            <Package className="h-6 w-6" />
+                        </div>
                         <div>
-                            <h2 className="text-xl font-semibold text-foreground m-0 mb-1 leading-tight">{t('admin.order_management')}</h2>
-                            <p className="text-sm text-muted-foreground m-0 leading-snug">{t('admin.order_management_description')}</p>
+                            <h2 className="text-2xl font-semibold text-foreground m-0 mb-1">{t('admin.order_management')}</h2>
+                            <p className="text-sm text-muted-foreground m-0">{t('admin.order_management_description')}</p>
                         </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0 items-center self-end md:self-auto">
