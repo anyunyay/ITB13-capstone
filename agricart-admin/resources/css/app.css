@@ -12,7 +12,7 @@
 @theme {
     --font-sans:
         'Raleway', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    
+
     --font-raleway: 'Raleway', ui-sans-serif, system-ui, sans-serif;
 
     --radius-lg: var(--radius);
@@ -72,6 +72,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
     *,
     ::after,
     ::before,
@@ -83,75 +84,139 @@
 
 :root {
     /* Light theme with green primary, emerald secondary, gray text, gray-50 background */
-    --background: oklch(0.98 0.003 142.495); /* gray-50 equivalent */
-    --foreground: oklch(0.267 0.013 142.495); /* gray-800 for main text */
-    --card: oklch(1 0 0); /* white for cards */
-    --card-foreground: oklch(0.267 0.013 142.495); /* gray-800 */
-    --popover: oklch(1 0 0); /* white */
-    --popover-foreground: oklch(95% 0.052 163.051); /* emerald-100 */
-    --primary: oklch(0.502 0.176 142.495); /* green-600 for accents, buttons, highlights */
-    --primary-foreground: oklch(1 0 0); /* white text on green */
-    --secondary: oklch(0.659 0.15 142.495); /* emerald-500 for supportive UI elements */
-    --secondary-foreground: oklch(1 0 0); /* white text on emerald */
-    --muted: oklch(0.961 0.006 142.495); /* gray-100 for muted backgrounds */
-    --muted-foreground: oklch(0.459 0.015 142.495); /* gray-600 for muted text */
-    --accent: oklch(0.659 0.15 142.495); /* emerald-500 for hover states */
-    --accent-foreground: oklch(1 0 0); /* white text on emerald */
-    --destructive: oklch(0.577 0.245 27.325); /* red-600 for errors */
-    --destructive-foreground: oklch(1 0 0); /* white text on red */
-    --border: oklch(0.922 0.006 142.495); /* gray-200 for borders */
-    --input: oklch(0.922 0.006 142.495); /* gray-200 for inputs */
-    --ring: oklch(0.502 0.176 142.495); /* green-600 for focus rings */
-    --chart-1: oklch(0.502 0.176 142.495); /* green-600 */
-    --chart-2: oklch(0.659 0.15 142.495); /* emerald-500 */
-    --chart-3: oklch(0.4 0.12 142.495); /* emerald-700 */
-    --chart-4: oklch(0.7 0.16 142.495); /* emerald-400 */
-    --chart-5: oklch(0.35 0.14 142.495); /* emerald-800 */
+    --background: oklch(0.98 0.003 142.495);
+    /* gray-50 equivalent */
+    --foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 for main text */
+    --card: oklch(1 0 0);
+    /* white for cards */
+    --card-foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 */
+    --popover: oklch(1 0 0);
+    /* white */
+    --popover-foreground: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --primary: oklch(0.502 0.176 142.495);
+    /* green-600 for accents, buttons, highlights */
+    --primary-foreground: oklch(1 0 0);
+    /* white text on green */
+    --secondary: oklch(0.659 0.15 142.495);
+    /* emerald-500 for supportive UI elements */
+    --secondary-foreground: oklch(1 0 0);
+    /* white text on emerald */
+    --muted: oklch(0.961 0.006 142.495);
+    /* gray-100 for muted backgrounds */
+    --muted-foreground: oklch(0.459 0.015 142.495);
+    /* gray-600 for muted text */
+    --accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 for hover states */
+    --accent-foreground: oklch(1 0 0);
+    /* white text on emerald */
+    --destructive: oklch(0.577 0.245 27.325);
+    /* red-600 for errors */
+    --destructive-foreground: oklch(1 0 0);
+    /* white text on red */
+    --border: oklch(0.922 0.006 142.495);
+    /* gray-200 for borders */
+    --input: oklch(0.922 0.006 142.495);
+    /* gray-200 for inputs */
+    --ring: oklch(0.502 0.176 142.495);
+    /* green-600 for focus rings */
+    --chart-1: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --chart-2: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --chart-3: oklch(0.4 0.12 142.495);
+    /* emerald-700 */
+    --chart-4: oklch(0.7 0.16 142.495);
+    /* emerald-400 */
+    --chart-5: oklch(0.35 0.14 142.495);
+    /* emerald-800 */
     --radius: 0.625rem;
-    --sidebar: oklch(0.98 0.003 142.495); /* gray-50 for sidebar */
-    --sidebar-foreground: oklch(0.267 0.013 142.495); /* gray-800 */
-    --sidebar-primary: oklch(0.502 0.176 142.495); /* green-600 */
-    --sidebar-primary-foreground: oklch(1 0 0); /* white */
-    --sidebar-accent: oklch(0.659 0.15 142.495); /* emerald-500 */
-    --sidebar-accent-foreground: oklch(1 0 0); /* white */
-    --sidebar-border: oklch(0.922 0.006 142.495); /* gray-200 */
-    --sidebar-ring: oklch(0.502 0.176 142.495); /* green-600 */
+    --sidebar: oklch(0.98 0.003 142.495);
+    /* gray-50 for sidebar */
+    --sidebar-foreground: oklch(0.267 0.013 142.495);
+    /* gray-800 */
+    --sidebar-primary: oklch(0.502 0.176 142.495);
+    /* green-600 */
+    --sidebar-primary-foreground: oklch(1 0 0);
+    /* white */
+    --sidebar-accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --sidebar-accent-foreground: oklch(1 0 0);
+    /* white */
+    --sidebar-border: oklch(0.922 0.006 142.495);
+    /* gray-200 */
+    --sidebar-ring: oklch(0.502 0.176 142.495);
+    /* green-600 */
 }
 
 .dark {
     /* Dark theme complementing the green/emerald light theme */
-    --background: oklch(0.08 0.003 142.495); /* dark gray background */
-    --foreground: oklch(0.961 0.006 142.495); /* light gray text */
-    --card: oklch(0.12 0.003 142.495); /* slightly lighter dark for cards */
-    --card-foreground: oklch(0.961 0.006 142.495); /* light gray text */
-    --popover: oklch(0.12 0.003 142.495); /* dark popover */
-    --popover-foreground: oklch(0.961 0.006 142.495); /* light gray text */
-    --primary: oklch(0.7 0.16 142.495); /* lighter green for dark mode */
-    --primary-foreground: oklch(0.08 0.003 142.495); /* dark text on light green */
-    --secondary: oklch(0.659 0.15 142.495); /* emerald-500 */
-    --secondary-foreground: oklch(0.08 0.003 142.495); /* dark text on emerald */
-    --muted: oklch(0.15 0.003 142.495); /* muted dark background */
-    --muted-foreground: oklch(0.6 0.01 142.495); /* muted light text */
-    --accent: oklch(0.659 0.15 142.495); /* emerald-500 for hover states */
-    --accent-foreground: oklch(0.08 0.003 142.495); /* dark text on emerald */
-    --destructive: oklch(0.6 0.2 25.723); /* lighter red for dark mode */
-    --destructive-foreground: oklch(0.961 0.006 142.495); /* light text on red */
-    --border: oklch(0.2 0.003 142.495); /* subtle borders */
-    --input: oklch(0.2 0.003 142.495); /* input backgrounds */
-    --ring: oklch(0.7 0.16 142.495); /* lighter green focus rings */
-    --chart-1: oklch(0.7 0.16 142.495); /* lighter green */
-    --chart-2: oklch(0.659 0.15 142.495); /* emerald-500 */
-    --chart-3: oklch(0.8 0.18 142.495); /* lighter emerald */
-    --chart-4: oklch(0.75 0.17 142.495); /* emerald variant */
-    --chart-5: oklch(0.65 0.16 142.495); /* emerald variant */
-    --sidebar: oklch(0.1 0.003 142.495); /* darker sidebar */
-    --sidebar-foreground: oklch(0.961 0.006 142.495); /* light text */
-    --sidebar-primary: oklch(0.7 0.16 142.495); /* lighter green */
-    --sidebar-primary-foreground: oklch(0.08 0.003 142.495); /* dark text */
-    --sidebar-accent: oklch(0.659 0.15 142.495); /* emerald-500 */
-    --sidebar-accent-foreground: oklch(0.08 0.003 142.495); /* dark text */
-    --sidebar-border: oklch(0.2 0.003 142.495); /* subtle borders */
-    --sidebar-ring: oklch(0.7 0.16 142.495); /* lighter green */
+    --background: oklch(0.08 0.003 142.495);
+    /* dark gray background */
+    --foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --card: oklch(0.12 0.003 142.495);
+    /* slightly lighter dark for cards */
+    --card-foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --popover: oklch(0.12 0.003 142.495);
+    /* dark popover */
+    --popover-foreground: oklch(0.961 0.006 142.495);
+    /* light gray text */
+    --primary: oklch(0.7 0.16 142.495);
+    /* lighter green for dark mode */
+    --primary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on light green */
+    --secondary: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --secondary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on emerald */
+    --muted: oklch(0.15 0.003 142.495);
+    /* muted dark background */
+    --muted-foreground: oklch(0.6 0.01 142.495);
+    /* muted light text */
+    --accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 for hover states */
+    --accent-foreground: oklch(0.08 0.003 142.495);
+    /* dark text on emerald */
+    --destructive: oklch(0.6 0.2 25.723);
+    /* lighter red for dark mode */
+    --destructive-foreground: oklch(0.961 0.006 142.495);
+    /* light text on red */
+    --border: oklch(0.2 0.003 142.495);
+    /* subtle borders */
+    --input: oklch(0.2 0.003 142.495);
+    /* input backgrounds */
+    --ring: oklch(0.7 0.16 142.495);
+    /* lighter green focus rings */
+    --chart-1: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --chart-2: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --chart-3: oklch(0.8 0.18 142.495);
+    /* lighter emerald */
+    --chart-4: oklch(0.75 0.17 142.495);
+    /* emerald variant */
+    --chart-5: oklch(0.65 0.16 142.495);
+    /* emerald variant */
+    --sidebar: oklch(0.1 0.003 142.495);
+    /* darker sidebar */
+    --sidebar-foreground: oklch(0.961 0.006 142.495);
+    /* light text */
+    --sidebar-primary: oklch(0.7 0.16 142.495);
+    /* lighter green */
+    --sidebar-primary-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --sidebar-accent: oklch(0.659 0.15 142.495);
+    /* emerald-500 */
+    --sidebar-accent-foreground: oklch(0.08 0.003 142.495);
+    /* dark text */
+    --sidebar-border: oklch(0.2 0.003 142.495);
+    /* subtle borders */
+    --sidebar-ring: oklch(0.7 0.16 142.495);
+    /* lighter green */
 }
 
 @layer base {
@@ -169,43 +234,50 @@
 @layer components {
     .modal-scrollbar {
         scrollbar-width: thin;
-        scrollbar-color: rgb(34 197 94) rgb(240 253 244); /* green-600 on green-50 */
+        scrollbar-color: rgb(34 197 94) rgb(240 253 244);
+        /* green-600 on green-50 */
     }
-    
+
     .modal-scrollbar::-webkit-scrollbar {
         width: 8px;
     }
-    
+
     .modal-scrollbar::-webkit-scrollbar-track {
-        background: rgb(240 253 244); /* green-50 */
+        background: rgb(240 253 244);
+        /* green-50 */
         border-radius: 4px;
     }
-    
+
     .modal-scrollbar::-webkit-scrollbar-thumb {
-        background: rgb(34 197 94); /* green-600 */
+        background: rgb(34 197 94);
+        /* green-600 */
         border-radius: 4px;
         transition: background-color 0.2s ease;
     }
-    
+
     .modal-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgb(22 163 74); /* green-700 */
+        background: rgb(22 163 74);
+        /* green-700 */
     }
-    
+
     /* Dark mode scrollbar */
     .dark .modal-scrollbar {
-        scrollbar-color: rgb(16 185 129) rgb(20 83 45 / 0.5); /* emerald-500 on dark green */
+        scrollbar-color: rgb(16 185 129) rgb(20 83 45 / 0.5);
+        /* emerald-500 on dark green */
     }
-    
+
     .dark .modal-scrollbar::-webkit-scrollbar-track {
         background: rgb(20 83 45 / 0.5);
     }
-    
+
     .dark .modal-scrollbar::-webkit-scrollbar-thumb {
-        background: rgb(16 185 129); /* emerald-500 */
+        background: rgb(16 185 129);
+        /* emerald-500 */
     }
-    
+
     .dark .modal-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgb(5 150 105); /* emerald-600 */
+        background: rgb(5 150 105);
+        /* emerald-600 */
     }
 
     /* Auth page blurred background effects */
@@ -215,7 +287,7 @@
         background-position: center;
         background-repeat: no-repeat;
     }
-    
+
     .auth-blur-overlay {
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -223,37 +295,45 @@
 
     /* Notification highlight animation */
     @keyframes highlight-pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             background-color: transparent;
             box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
         }
+
         50% {
             background-color: rgba(34, 197, 94, 0.15);
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
         }
     }
-    
+
     .highlight-row {
         animation: highlight-pulse 1.5s ease-in-out 2;
-        border-left: 4px solid rgb(34 197 94) !important; /* green-600 */
+        border-left: 4px solid rgb(34 197 94) !important;
+        /* green-600 */
     }
-    
+
     /* Dark mode highlight */
     .dark .highlight-row {
-        border-left-color: rgb(16 185 129) !important; /* emerald-500 */
+        border-left-color: rgb(16 185 129) !important;
+        /* emerald-500 */
     }
-    
+
     @keyframes highlight-pulse-dark {
-        0%, 100% {
+
+        0%,
+        100% {
             background-color: transparent;
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
         }
+
         50% {
             background-color: rgba(16, 185, 129, 0.15);
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
         }
     }
-    
+
     .dark .highlight-row {
         animation: highlight-pulse-dark 1.5s ease-in-out 2;
     }
