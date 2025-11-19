@@ -330,6 +330,7 @@ export default function StaffEdit({ staff, availablePermissions, flash }: Props)
       name: t('admin.trend_analysis_permissions'),
       description: t('admin.trend_permissions_description'),
       permissions: [
+        'view price trend',
         'view trend analysis',
         'generate trend report'
       ]

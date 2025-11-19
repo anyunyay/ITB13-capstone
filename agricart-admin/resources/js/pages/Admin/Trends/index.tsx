@@ -851,7 +851,7 @@ export default function TrendsIndex({ products, dateRange }: PageProps) {
     }, [series, chartData]);
 
     return (
-        <PermissionGuard permissions={['view inventory']} pageTitle={t('admin.access_denied')}>
+        <PermissionGuard permissions={['view price trend']} pageTitle={t('admin.access_denied')}>
             <AppLayout>
                 <Head title={t('admin.trends_management')} />
                 <div className="min-h-screen bg-background">

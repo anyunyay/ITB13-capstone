@@ -130,7 +130,7 @@ class StaffController extends Controller
             'reactivate members',
             'generate staff report',
             'generate membership report'
-        ])->get();
+        ])->orderBy('name')->get();
 
         return Inertia::render('Admin/Staff/create', [
             'availablePermissions' => $availablePermissions,
@@ -261,7 +261,7 @@ class StaffController extends Controller
             'reactivate members',
             'generate staff report',
             'generate membership report'
-        ])->get();
+        ])->orderBy('name')->get();
 
         return Inertia::render('Admin/Staff/edit', [
             'staff' => $staff->load('roles', 'permissions', 'defaultAddress'),

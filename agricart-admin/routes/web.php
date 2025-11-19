@@ -183,7 +183,7 @@ Route::middleware(['auth', 'verified', 'password.change.required'])->group(funct
         });
 
         // Trend Analysis routes
-        Route::middleware(['can:view inventory'])->group(function () {
+        Route::middleware(['can:view price trend'])->group(function () {
             Route::get('/trends', [TrendAnalysisController::class, 'index'])->name('admin.trends.index');
             Route::get('/trends/data', [TrendAnalysisController::class, 'data'])->name('admin.trends.data');
             Route::get('/trends/latest-data', [TrendAnalysisController::class, 'getLatestData'])->name('admin.trends.latestData');

@@ -94,6 +94,7 @@ class RoleSeeder extends Seeder
             'generate membership report',
 
             // Trend Analysis
+            'view price trend',
             'view trend analysis',
             'generate trend report',
 

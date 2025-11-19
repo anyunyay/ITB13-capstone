@@ -71,8 +71,8 @@ export function AppSidebar() {
     });
   }
 
-  // Trend Analysis - requires inventory view
-  if (can('view inventory')) {
+  // Trend Analysis - requires view price trend permission
+  if (can('view price trend')) {
     mainNavItems.push({
       title: t('admin.trends'),
       href: '/admin/trends',
